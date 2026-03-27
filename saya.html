@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saya Ashvane &mdash; Sorcerer / Wild Magic</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-saya" data-character="saya">
+    <div class="particles" id="particles"></div>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">Ashvane</a>
+        <div class="nav-links">
+            <a href="ren.html">Ren</a>
+            <a href="saya.html" class="active">Saya</a>
+        </div>
+    </nav>
+
+    <main class="character-page">
+        <header class="char-header char-header-saya">
+            <div class="char-icon">&#10045;</div>
+            <div id="char-header-content">
+                <h1>Saya Ashvane</h1>
+                <p class="char-title">Sorcerer &mdash; Wild Magic</p>
+                <div class="level-control">
+                    <span class="level-display">Level 1</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="sheet-grid">
+            <!-- Basic Info -->
+            <section class="sheet-block info-block">
+                <h2>Basis Info</h2>
+                <div class="info-grid">
+                    <div class="info-item" data-tooltip="halfElf"><span class="label">Ras</span><span class="value">Half-Elf</span></div>
+                    <div class="info-item" data-tooltip="sorcerer"><span class="label">Klasse</span><span class="value">Sorcerer</span></div>
+                    <div class="info-item" data-tooltip="wildMagic"><span class="label">Subklasse</span><span class="value">Wild Magic</span></div>
+                    <div class="info-item" data-tooltip="urchin"><span class="label">Achtergrond</span><span class="value">Urchin</span></div>
+                    <div class="info-item"><span class="label">Alignment</span><span class="value">Chaotic Good</span></div>
+                    <div class="info-item"><span class="label">Leeftijd</span><span class="value">19 (tweeling)</span></div>
+                </div>
+            </section>
+
+            <!-- Uiterlijk -->
+            <section class="sheet-block info-block appearance-mini">
+                <h2>Uiterlijk</h2>
+                <div class="appearance-img-frame appearance-img-saya">
+                    <span class="appearance-img-placeholder">&#127912; Afbeelding</span>
+                </div>
+                <p>Smal gezicht met hoge jukbeenderen en een scherpe kin &mdash; moeder's elfenlijn. Donkerbruin haar tot halverwege haar rug, altijd in een slordige vlecht die aan &eacute;&eacute;n kant uitvalt; losse plukken voor haar gezicht die ze constant wegblaast maar nooit vastmaakt. Amberkleurige ogen met goudvlekjes &mdash; die violet oplichten als haar magie piekt. Ze merkt het zelf niet. Ren wel.</p>
+                <p>Licht gebruinde huid met sproeten over haar neus en wangen van jaren buiten leven. Smalle schouders, tengere bouw, maar beweegt met een zenuwachtige energie alsof ze altijd ergens naartoe onderweg is. Vingers permanent bevlekt met inkt &mdash; zwart, blauw, soms rood &mdash; van het kaartentekenen. Eeltplekken op haar rechterwijsvinger van de pen. Draagt een oversized donkerpaars linnen overhemd dat ze in een brede leren riem heeft gepropt, een verschoten bruine rok tot net boven haar laarzen met zakken waar altijd iets uit steekt (houtskool, een kompas, een half opgegeten appel). Afgetrapte zwarte laarzen met koperen gespen &mdash; &eacute;&eacute;n gesp mist. Moeders koperen ring aan een gevlochten leren koord om haar nek; raakt hem aan als ze nadenkt, als een reflex. Een canvas schoudertas die uitpuilt van schetsboeken en losse vellen.</p>
+            </section>
+
+            <!-- Ability Scores (dynamic) -->
+            <section class="sheet-block">
+                <h2>Ability Scores</h2>
+                <div id="ability-scores-content"></div>
+            </section>
+
+            <!-- Combat Stats (dynamic) -->
+            <section class="sheet-block">
+                <h2>Combat</h2>
+                <div id="combat-stats-content"></div>
+            </section>
+
+            <!-- Saving Throws (dynamic) -->
+            <section class="sheet-block">
+                <h2>Saving Throws</h2>
+                <div id="saving-throws-content"></div>
+            </section>
+
+            <!-- Skills (dynamic) -->
+            <section class="sheet-block">
+                <h2>Skills</h2>
+                <div id="skills-content"></div>
+            </section>
+
+            <!-- Spellcasting (dynamic) -->
+            <section class="sheet-block highlight-block-saya" style="grid-column: 1 / -1;">
+                <h2>Spellcasting</h2>
+                <div id="spell-section-content"></div>
+            </section>
+
+            <!-- Metamagic (dynamic) -->
+            <section class="sheet-block highlight-block-saya">
+                <h2>Metamagic</h2>
+                <div id="metamagic-content"></div>
+            </section>
+
+            <!-- ASI / Feats (dynamic) -->
+            <section class="sheet-block">
+                <h2>Ability Score Improvements &amp; Feats</h2>
+                <div id="asi-content"></div>
+            </section>
+
+            <!-- Features (dynamic) -->
+            <section class="sheet-block" style="grid-column: 1 / -1;">
+                <h2>Features &amp; Traits</h2>
+                <div id="features-content"></div>
+            </section>
+
+            <!-- Equipment / Items (dynamic) -->
+            <section class="sheet-block">
+                <h2>Uitrusting</h2>
+                <div id="items-content"></div>
+            </section>
+
+            <!-- Personality -->
+            <section class="sheet-block personality-block">
+                <h2>Persoonlijkheid</h2>
+                <div class="personality-item">
+                    <h3>Traits</h3>
+                    <p>Neuriet altijd. Als ze stil is, is er iets mis &mdash; en Ren weet dat. Tekent kaarten van alles en iedereen. Ruikt aan eten voor ze het eet (slangengif ruikt naar koper). Praat snel, denkt sneller, liegt het snelst. Maar nooit tegen Ren. Nooit.</p>
+                </div>
+                <div class="personality-item">
+                    <h3>Ideaal</h3>
+                    <p><em>"Controle is een illusie. Maar het is m&iacute;jn illusie, en ik ben er goed in."</em></p>
+                </div>
+                <div class="personality-item">
+                    <h3>Band</h3>
+                    <p>Ren. Niet "mijn grote broer die me beschermt" &mdash; maar mijn andere helft. De enige die niet wegrende toen ik in brand stond. De enige die ik niet hoef uit te leggen. We vullen niet elkaars zwaktes aan. We verdubbelen elkaars kracht.</p>
+                </div>
+                <div class="personality-item">
+                    <h3>Flaw</h3>
+                    <p>Moet alles in kaart brengen, letterlijk. Plekken, mensen, situaties. Als ze het niet kan tekenen, begrijpt ze het niet. Als ze het niet begrijpt, vertrouwt ze het niet. Kost haar soms kansen die spontaniteit vereisen &mdash; ironisch, voor iemand met Wild Magic.</p>
+                </div>
+                <div class="personality-item">
+                    <h3>Angst</h3>
+                    <p>Stilte. Stilte is wat er was vlak voordat de slangen kwamen. Stilte is de ruimte waar slechte dingen beginnen. Dus vult ze elke stilte. Altijd.</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="page-nav">
+            <a href="ren.html" class="nav-btn">&larr; Ren</a>
+            <a href="index.html" class="nav-btn">Home &rarr;</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>De Ashvane Tweeling &mdash; D&D 5e Character Sheets</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

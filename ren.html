@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ren Ashvane &mdash; Rogue / Scout</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-ren" data-character="ren">
+    <div class="particles" id="particles"></div>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">Ashvane</a>
+        <div class="nav-links">
+            <a href="ren.html" class="active">Ren</a>
+            <a href="saya.html">Saya</a>
+        </div>
+    </nav>
+
+    <main class="character-page">
+        <header class="char-header char-header-ren">
+            <div class="char-icon">&#128481;</div>
+            <div id="char-header-content">
+                <h1>Ren Ashvane</h1>
+                <p class="char-title">Rogue &mdash; Scout</p>
+                <div class="level-control">
+                    <span class="level-display">Level 1</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="sheet-grid">
+            <!-- Basic Info -->
+            <section class="sheet-block info-block">
+                <h2>Basis Info</h2>
+                <div class="info-grid">
+                    <div class="info-item" data-tooltip="halfElf"><span class="label">Ras</span><span class="value">Half-Elf</span></div>
+                    <div class="info-item" data-tooltip="rogue"><span class="label">Klasse</span><span class="value">Rogue</span></div>
+                    <div class="info-item" data-tooltip="scout"><span class="label">Subklasse</span><span class="value">Scout</span></div>
+                    <div class="info-item" data-tooltip="urchin"><span class="label">Achtergrond</span><span class="value">Urchin</span></div>
+                    <div class="info-item"><span class="label">Alignment</span><span class="value">Chaotic Good</span></div>
+                    <div class="info-item"><span class="label">Leeftijd</span><span class="value">19 (tweeling)</span></div>
+                </div>
+            </section>
+
+            <!-- Uiterlijk -->
+            <section class="sheet-block info-block appearance-mini">
+                <h2>Uiterlijk</h2>
+                <div class="appearance-img-frame appearance-img-ren">
+                    <span class="appearance-img-placeholder">&#127912; Afbeelding</span>
+                </div>
+                <p>Hoekig gezicht, scherpe kaaklijnen en ingevallen wangen van jaren te weinig eten &mdash; begint er langzaam uit te groeien, maar de structuur blijft. Donkerbruin haar, kort aan de zijkanten en langer bovenop, rommelig omdat hij het zelf knipt met een dolk (het ziet er ook zo uit). Amberkleurige ogen, altijd half samengeknepen alsof hij tegen de zon in kijkt &mdash; of alsof hij je meet. Wit litteken dwars over zijn linkerwenkbrauw, van een slangenhinderlaag op z'n 14e; de wenkbrauw groeit er scheef overheen.</p>
+                <p>Licht gebruinde huid, eeltige handen met korte nagels waar altijd vuil onder zit. Iets langer dan Saya, mager en pezig met brede schouders die nog moeten invullen. Beweegt alsof hij elk moment kan wegduiken &mdash; licht op de voeten, schouders iets voorover, nooit helemaal rechtop. Draagt vaders donkerbruine leren jas die twee maten te groot is, mouwen opgerold tot zijn onderarmen, kraag omhoog; de voering is op sommige plekken gescheurd maar hij weigert hem te vervangen. Daaronder een eenvoudig donkergrijs linnen shirt, zwarte broek met extra zakken die hij zelf heeft ingenaaid (voor messen, lockpicks, touw). Zwarte leren handschoenen met afgesneden vingertoppen. Zachtzolen laarzen &mdash; bijna geluidloos. Het houten drakenbeeldje zit altijd in de binnenzak van de jas, rechts, waar zijn hand het kan raken zonder dat iemand het ziet.</p>
+            </section>
+
+            <!-- Ability Scores (dynamic) -->
+            <section class="sheet-block">
+                <h2>Ability Scores</h2>
+                <div id="ability-scores-content"></div>
+            </section>
+
+            <!-- Combat Stats (dynamic) -->
+            <section class="sheet-block">
+                <h2>Combat</h2>
+                <div id="combat-stats-content"></div>
+            </section>
+
+            <!-- Saving Throws (dynamic) -->
+            <section class="sheet-block">
+                <h2>Saving Throws</h2>
+                <div id="saving-throws-content"></div>
+            </section>
+
+            <!-- Skills (dynamic) -->
+            <section class="sheet-block">
+                <h2>Skills</h2>
+                <div id="skills-content"></div>
+            </section>
+
+            <!-- Weapons (dynamic) -->
+            <section class="sheet-block">
+                <h2>Wapens</h2>
+                <div id="weapons-content"></div>
+            </section>
+
+            <!-- ASI / Feats (dynamic) -->
+            <section class="sheet-block">
+                <h2>Ability Score Improvements &amp; Feats</h2>
+                <div id="asi-content"></div>
+            </section>
+
+            <!-- Features (dynamic) -->
+            <section class="sheet-block" style="grid-column: 1 / -1;">
+                <h2>Features &amp; Traits</h2>
+                <div id="features-content"></div>
+            </section>
+
+            <!-- Equipment / Items (dynamic) -->
+            <section class="sheet-block">
+                <h2>Uitrusting</h2>
+                <div id="items-content"></div>
+            </section>
+
+            <!-- Personality -->
+            <section class="sheet-block personality-block">
+                <h2>Persoonlijkheid</h2>
+                <div class="personality-item">
+                    <h3>Traits</h3>
+                    <p>Scant elke kamer binnen 3 seconden: uitgangen, wapens, bedreigingen, in die volgorde. Praat weinig tegen vreemden, maar wordt verrassend warm en grappig zodra hij iemand vertrouwt. Tikt drie keer op elke deur. Praat tegen z'n dolken. Saya zegt dat het schattig is. Hij zegt dat het tactisch is.</p>
+                </div>
+                <div class="personality-item">
+                    <h3>Ideaal</h3>
+                    <p><em>"Overleven is geen talent. Het is een keuze die je elke dag opnieuw maakt."</em></p>
+                </div>
+                <div class="personality-item">
+                    <h3>Band</h3>
+                    <p>Saya. Niet "mijn zusje dat ik moet beschermen" &mdash; maar mijn gelijke, mijn partner, de persoon die net zo gevaarlijk is als ik maar dan op een compleet andere manier. Wij zijn een team. Punt.</p>
+                </div>
+                <div class="personality-item">
+                    <h3>Flaw</h3>
+                    <p>Vertrouwt niemand behalve Saya. Niet uit arrogantie &mdash; uit ervaring. Het kost hem weken om iemand binnen te laten, en &eacute;&eacute;n verkeerd woord om dat ongedaan te maken.</p>
+                </div>
+                <div class="personality-item">
+                    <h3>Angst</h3>
+                    <p>Water. De rivier. Leeftijd 17. Hij maakt er grappen over. Het is niet grappig. Saya weet dat.</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="page-nav">
+            <a href="index.html" class="nav-btn">&larr; Home</a>
+            <a href="saya.html" class="nav-btn">Saya &rarr;</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>De Ashvane Tweeling &mdash; D&D 5e Character Sheets</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
