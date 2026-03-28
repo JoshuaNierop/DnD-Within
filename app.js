@@ -52,6 +52,46 @@ function canEdit(charId) {
 }
 
 // ============================================================
+// Section 1b: Color Theme System
+// ============================================================
+
+var COLOR_THEMES = [
+    { id: 'ocean', name: 'Ocean', accent: '#22d3ee', bg: '#0a0a0f' },
+    { id: 'rose', name: 'Rose', accent: '#f472b6', bg: '#0a0a0f' },
+    { id: 'emerald', name: 'Emerald', accent: '#34d399', bg: '#0a0a0f' },
+    { id: 'amber', name: 'Amber', accent: '#fbbf24', bg: '#0a0a0f' },
+    { id: 'violet', name: 'Violet', accent: '#a78bfa', bg: '#0a0a0f' },
+    { id: 'crimson', name: 'Crimson', accent: '#f87171', bg: '#0a0a0f' },
+    { id: 'indigo', name: 'Indigo', accent: '#818cf8', bg: '#0a0a0f' },
+    { id: 'teal', name: 'Teal', accent: '#2dd4bf', bg: '#0a0a0f' },
+    { id: 'sunset', name: 'Sunset', accent: '#fb923c', bg: '#0a0a0f' },
+    { id: 'sakura', name: 'Sakura', accent: '#f9a8d4', bg: '#0a0a0f' },
+    { id: 'gold', name: 'Gold', accent: '#f0c040', bg: '#0a0a0f' },
+    { id: 'ice', name: 'Ice', accent: '#7dd3fc', bg: '#0a0a0f' }
+];
+
+function getUserTheme() {
+    return localStorage.getItem('dw_theme_' + currentUserId()) || 'ocean';
+}
+
+function setUserTheme(themeId) {
+    localStorage.setItem('dw_theme_' + currentUserId(), themeId);
+    applyUserTheme();
+}
+
+function applyUserTheme() {
+    var themeId = getUserTheme();
+    var theme = null;
+    for (var i = 0; i < COLOR_THEMES.length; i++) {
+        if (COLOR_THEMES[i].id === themeId) { theme = COLOR_THEMES[i]; break; }
+    }
+    if (theme) {
+        document.documentElement.style.setProperty('--accent', theme.accent);
+        document.documentElement.style.setProperty('--accent-glow', theme.accent + '25');
+    }
+}
+
+// ============================================================
 // Section 2: Router
 // ============================================================
 
@@ -446,6 +486,9 @@ var TOOLTIPS = {
 var activeTab = 'overview';
 var spellFilter = 'all';
 var abilityEditMode = false;
+var notesFilter = 'all';
+var notesSearch = '';
+var editingNoteId = null;
 var editAbilities = null;
 var activeChapter = 0;
 
@@ -520,7 +563,7 @@ function renderApp() {
         var cfg = loadCharConfig(route.parts[1]);
         if (cfg) document.documentElement.style.setProperty('--accent', cfg.accentColor);
     } else {
-        document.documentElement.style.setProperty('--accent', '#22d3ee');
+        applyUserTheme();
     }
 
     var app = document.getElementById('app');
@@ -547,8 +590,16 @@ function renderApp() {
             } else {
                 html += renderLore(route.parts[1]);
             }
-        } else if (route.path === '/notes') {
-            html += renderNotes();
+        } else if (route.parts[0] === 'notes') {
+            if (route.parts[1] === 'new') {
+                html += renderNoteEditor(null);
+            } else if (route.parts[1] && route.parts[1].indexOf('edit-') === 0) {
+                html += renderNoteEditor(route.parts[1].substring(5));
+            } else if (route.parts[1] && route.parts[1].indexOf('view-') === 0) {
+                html += renderNoteView(route.parts[1].substring(5));
+            } else {
+                html += renderNotes();
+            }
         } else {
             html += '<div class="page-placeholder"><h2>Pagina niet gevonden</h2><p>De pagina die je zoekt bestaat niet.</p></div>';
         }
@@ -612,11 +663,24 @@ function renderNavbar(route) {
         // Also active on sub-paths
         if (link.path === '/characters' && route.parts[0] === 'characters') isActive = true;
         if (link.path === '/lore' && route.parts[0] === 'lore') isActive = true;
+        if (link.path === '/notes' && route.parts[0] === 'notes') isActive = true;
         html += '<a class="nav-link' + (isActive ? ' active' : '') + '" href="#' + link.path + '">' + link.icon + ' ' + link.label + '</a>';
     }
 
     html += '</div>';
     html += '<div class="nav-right">';
+    html += '<div class="theme-picker-wrap">';
+    html += '<button class="theme-picker-btn" data-action="toggle-theme-picker" title="Kleurenthema">&#127912;</button>';
+    html += '<div class="theme-picker-popup" id="theme-picker" style="display:none;">';
+    html += '<div class="theme-picker-grid">';
+    for (var ti = 0; ti < COLOR_THEMES.length; ti++) {
+        var theme = COLOR_THEMES[ti];
+        var isActive = getUserTheme() === theme.id;
+        html += '<button class="theme-option' + (isActive ? ' active' : '') + '" data-action="select-theme" data-theme="' + theme.id + '" style="background:' + theme.accent + ';" title="' + theme.name + '"></button>';
+    }
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
     html += '<span class="nav-avatar">' + escapeHtml(user ? user.name.charAt(0) : '') + '</span>';
     html += '<button class="nav-logout" data-action="logout">Uitloggen</button>';
     html += '</div>';
@@ -641,14 +705,7 @@ function renderDashboard() {
     html += '<h1>Welkom in Valoria</h1>';
     html += '<p class="campaign-name">De Slangenmars</p>';
     html += '<p class="welcome-user">Ingelogd als ' + escapeHtml(user ? user.name : '') + '</p>';
-    if (isDM()) {
-        html += '<div class="session-number-edit">';
-        html += '<label class="text-dim" style="font-size:0.8rem;">Sessie #</label> ';
-        html += '<input type="number" class="edit-input" data-action="update-session-number" value="' + escapeAttr(sessionNum) + '" style="width:60px;display:inline-block;padding:0.25rem 0.5rem;font-size:0.85rem;">';
-        html += '</div>';
-    } else {
-        html += '<p class="text-dim" style="font-size:0.85rem;">Sessie ' + escapeHtml(sessionNum) + '</p>';
-    }
+    html += '<p class="text-dim" style="font-size:0.85rem;">Sessie ' + escapeHtml(sessionNum) + '</p>';
     html += '</div>';
 
     // Quick stats
@@ -664,7 +721,16 @@ function renderDashboard() {
     }
 
     html += '<div class="dash-stats">';
-    html += '<div class="dash-stat-card"><span class="dash-stat-value">' + escapeHtml(sessionNum) + '</span><span class="dash-stat-label">Sessie</span></div>';
+    html += '<div class="dash-stat-card session-card">';
+    html += '<span class="dash-stat-value">' + escapeHtml(sessionNum) + '</span>';
+    html += '<span class="dash-stat-label">Sessie</span>';
+    if (isDM()) {
+        html += '<div class="session-controls">';
+        html += '<button class="session-btn" data-action="session-minus">&minus;</button>';
+        html += '<button class="session-btn" data-action="session-plus">+</button>';
+        html += '</div>';
+    }
+    html += '</div>';
     html += '<div class="dash-stat-card"><span class="dash-stat-value">' + partySize + '</span><span class="dash-stat-label">Party</span></div>';
     html += '<div class="dash-stat-card"><span class="dash-stat-value">' + groupLevel + '</span><span class="dash-stat-label">Level</span></div>';
     html += '</div>';
@@ -2118,6 +2184,9 @@ function renderTimeline() {
         html += '<button class="chapter-tab' + activeClass + '" data-action="select-chapter" data-chapter="' + i + '">';
         html += '<span class="chapter-num">Chapter ' + (i + 1) + '</span>';
         html += '<span class="chapter-name">' + escapeHtml(ch.name) + '</span>';
+        if (isDM()) {
+            html += '<span class="chapter-edit" data-action="edit-chapter" data-chapter="' + i + '" title="Bewerken">&#9998;</span>';
+        }
         html += '</button>';
     }
     html += '</div>';
@@ -2174,7 +2243,10 @@ function renderTimeline() {
                 html += '<h3>' + escapeHtml(ev.title) + '</h3>';
                 html += '<p>' + escapeHtml(ev.desc) + '</p>';
                 if (isDM()) {
-                    html += '<button class="btn btn-ghost btn-sm" data-action="delete-event" data-event="' + j + '" style="margin-top:0.5rem;font-size:0.7rem;">Verwijderen</button>';
+                    html += '<div class="event-actions">';
+                    html += '<button class="btn btn-ghost btn-sm" data-action="edit-event" data-event="' + j + '">Bewerken</button>';
+                    html += '<button class="btn btn-ghost btn-sm" data-action="delete-event" data-event="' + j + '" style="color:var(--danger);">Verwijderen</button>';
+                    html += '</div>';
                 }
                 html += '</div>';
                 html += '</div>';
@@ -2345,31 +2417,270 @@ function renderLoreParty() {
 // Section 23: Notes Page
 // ============================================================
 
-function renderNotes() {
+var TAG_CATEGORIES = [
+    { id: 'players', name: 'Spelers', icon: '\ud83d\udc64', color: '#22d3ee' },
+    { id: 'npcs', name: 'NPCs', icon: '\ud83c\udfad', color: '#f472b6' },
+    { id: 'places', name: 'Plaatsen', icon: '\ud83d\udccd', color: '#4ade80' },
+    { id: 'events', name: 'Events', icon: '\u26a1', color: '#fbbf24' },
+    { id: 'lore', name: 'Lore', icon: '\ud83d\udcdc', color: '#a78bfa' },
+    { id: 'other', name: 'Overig', icon: '\ud83d\udccc', color: '#8a8a9a' }
+];
+
+function getNotesData() {
     var userId = currentUserId();
-    var personalNotes = localStorage.getItem('dw_notes_' + userId) || '';
-    var sharedNotes = localStorage.getItem('dw_notes_shared') || '';
+    var saved = localStorage.getItem('dw_notes_' + userId);
+    if (saved) {
+        try {
+            var parsed = JSON.parse(saved);
+            if (parsed && Array.isArray(parsed.notes)) return parsed;
+        } catch(e) {}
+    }
+    return { notes: [], customTags: [] };
+}
 
-    var activeNotesTab = localStorage.getItem('dw_notes_tab') || 'personal';
+function saveNotesData(data) {
+    var userId = currentUserId();
+    localStorage.setItem('dw_notes_' + userId, JSON.stringify(data));
+}
 
-    var html = '<div class="notes-page">';
-    html += '<h1>Notities</h1>';
+function renderNotes() {
+    var data = getNotesData();
+    var notes = data.notes || [];
 
-    // Tabs
-    html += '<div class="notes-tabs">';
-    html += '<button class="notes-tab' + (activeNotesTab === 'personal' ? ' active' : '') + '" data-action="notes-tab" data-tab="personal">Persoonlijk</button>';
-    html += '<button class="notes-tab' + (activeNotesTab === 'shared' ? ' active' : '') + '" data-action="notes-tab" data-tab="shared">Party Notities</button>';
-    html += '</div>';
-
-    if (activeNotesTab === 'shared') {
-        html += '<p class="text-dim" style="margin-bottom:0.75rem;font-size:0.8rem;">Iedereen kan party notities bewerken. Ideaal voor gedeelde informatie, NPC namen, quest logs.</p>';
-        html += '<textarea class="notes-textarea" data-notes-type="shared" placeholder="Gedeelde party notities...">' + escapeHtml(sharedNotes) + '</textarea>';
-    } else {
-        html += '<p class="text-dim" style="margin-bottom:0.75rem;font-size:0.8rem;">Alleen jij kunt je persoonlijke notities zien.</p>';
-        html += '<textarea class="notes-textarea" data-notes-type="personal" placeholder="Je persoonlijke notities...">' + escapeHtml(personalNotes) + '</textarea>';
+    // Filter and search
+    var filtered = notes;
+    if (notesFilter !== 'all') {
+        filtered = filtered.filter(function(n) { return n.tagCategory === notesFilter; });
+    }
+    if (notesSearch) {
+        var q = notesSearch.toLowerCase();
+        filtered = filtered.filter(function(n) {
+            return (n.title && n.title.toLowerCase().indexOf(q) >= 0) ||
+                   (n.content && n.content.toLowerCase().indexOf(q) >= 0) ||
+                   (n.tags && n.tags.some(function(t) { return t.toLowerCase().indexOf(q) >= 0; }));
+        });
     }
 
-    html += '<p class="text-dim" style="font-size:0.7rem;margin-top:0.5rem;">Notities worden automatisch opgeslagen.</p>';
+    // Sort by updated (newest first)
+    filtered.sort(function(a, b) { return (b.updated || 0) - (a.updated || 0); });
+
+    var html = '<div class="notes-page">';
+    html += '<div class="notes-header">';
+    html += '<h1>Notities</h1>';
+    html += '<button class="btn btn-primary" data-action="new-note">+ Nieuwe Notitie</button>';
+    html += '</div>';
+
+    // Search bar
+    html += '<div class="notes-search">';
+    html += '<input type="text" class="notes-search-input" data-action="search-notes" placeholder="Zoeken in notities..." value="' + escapeAttr(notesSearch) + '">';
+    html += '</div>';
+
+    // Category filter tabs
+    html += '<div class="notes-categories">';
+    html += '<button class="notes-cat-btn' + (notesFilter === 'all' ? ' active' : '') + '" data-action="filter-notes" data-cat="all">Alle</button>';
+    for (var ci = 0; ci < TAG_CATEGORIES.length; ci++) {
+        var cat = TAG_CATEGORIES[ci];
+        var count = notes.filter(function(n) { return n.tagCategory === cat.id; }).length;
+        html += '<button class="notes-cat-btn' + (notesFilter === cat.id ? ' active' : '') + '" data-action="filter-notes" data-cat="' + cat.id + '" style="--cat-color:' + cat.color + '">';
+        html += cat.icon + ' ' + cat.name;
+        if (count > 0) html += ' <span class="notes-cat-count">' + count + '</span>';
+        html += '</button>';
+    }
+    html += '</div>';
+
+    // Notes grid
+    if (filtered.length === 0) {
+        html += '<div class="notes-empty">';
+        if (notes.length === 0) {
+            html += '<p>Je hebt nog geen notities.</p>';
+            html += '<p class="text-dim">Maak notities over NPCs, plaatsen, events en meer.</p>';
+        } else {
+            html += '<p>Geen notities gevonden voor deze filter.</p>';
+        }
+        html += '</div>';
+    } else {
+        html += '<div class="notes-grid">';
+        for (var ni = 0; ni < filtered.length; ni++) {
+            var note = filtered[ni];
+            var cat = null;
+            for (var fi = 0; fi < TAG_CATEGORIES.length; fi++) {
+                if (TAG_CATEGORIES[fi].id === note.tagCategory) { cat = TAG_CATEGORIES[fi]; break; }
+            }
+            if (!cat) cat = TAG_CATEGORIES[5];
+
+            html += '<div class="note-card" data-action="view-note" data-note-id="' + note.id + '" style="--cat-color:' + cat.color + '">';
+
+            if (note.image && note.layout !== 'text-only') {
+                html += '<div class="note-card-img"><img src="' + note.image + '" alt=""></div>';
+            }
+
+            html += '<div class="note-card-body">';
+            html += '<div class="note-card-cat">' + cat.icon + ' ' + cat.name + '</div>';
+            html += '<h3 class="note-card-title">' + escapeHtml(note.title || 'Naamloos') + '</h3>';
+            html += '<p class="note-card-preview">' + escapeHtml((note.content || '').substring(0, 120)) + (note.content && note.content.length > 120 ? '...' : '') + '</p>';
+
+            if (note.tags && note.tags.length > 0) {
+                html += '<div class="note-card-tags">';
+                for (var ti = 0; ti < Math.min(note.tags.length, 4); ti++) {
+                    html += '<span class="note-tag">' + escapeHtml(note.tags[ti]) + '</span>';
+                }
+                if (note.tags.length > 4) html += '<span class="note-tag">+' + (note.tags.length - 4) + '</span>';
+                html += '</div>';
+            }
+
+            html += '</div>';
+            html += '</div>';
+        }
+        html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+function renderNoteEditor(noteId) {
+    var data = getNotesData();
+    var note = null;
+    if (noteId) {
+        for (var i = 0; i < data.notes.length; i++) {
+            if (data.notes[i].id === noteId) { note = data.notes[i]; break; }
+        }
+    }
+
+    var title = note ? note.title : '';
+    var content = note ? note.content : '';
+    var tags = note ? (note.tags || []).join(', ') : '';
+    var category = note ? note.tagCategory : 'other';
+    var layout = note ? note.layout : 'text-only';
+    var image = note ? note.image : null;
+
+    var html = '<div class="notes-page">';
+    html += '<div class="notes-header">';
+    html += '<button class="btn btn-ghost" data-action="back-to-notes">&larr; Terug</button>';
+    html += '<h1>' + (note ? 'Notitie Bewerken' : 'Nieuwe Notitie') + '</h1>';
+    html += '</div>';
+
+    html += '<div class="note-editor">';
+
+    // Title
+    html += '<input type="text" class="edit-input note-title-input" id="note-title" placeholder="Titel" value="' + escapeAttr(title) + '">';
+
+    // Category selector
+    html += '<div class="note-category-picker">';
+    html += '<label class="text-dim" style="font-size:0.8rem;">Categorie:</label>';
+    html += '<div class="note-cat-options">';
+    for (var ci = 0; ci < TAG_CATEGORIES.length; ci++) {
+        var ecat = TAG_CATEGORIES[ci];
+        html += '<button class="note-cat-option' + (category === ecat.id ? ' active' : '') + '" data-action="pick-note-cat" data-cat="' + ecat.id + '" style="--cat-color:' + ecat.color + '">' + ecat.icon + ' ' + ecat.name + '</button>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // Layout selector
+    html += '<div class="note-layout-picker">';
+    html += '<label class="text-dim" style="font-size:0.8rem;">Indeling:</label>';
+    html += '<div class="note-layout-options">';
+    var layouts = [
+        { id: 'text-only', icon: '\ud83d\udcdd', label: 'Alleen tekst' },
+        { id: 'image-top', icon: '\ud83d\uddbc\ufe0f\u2191', label: 'Afbeelding boven' },
+        { id: 'image-right', icon: '\ud83d\udcdd\ud83d\uddbc\ufe0f', label: 'Afbeelding rechts' },
+        { id: 'image-left', icon: '\ud83d\uddbc\ufe0f\ud83d\udcdd', label: 'Afbeelding links' }
+    ];
+    for (var li = 0; li < layouts.length; li++) {
+        var lo = layouts[li];
+        html += '<button class="note-layout-option' + (layout === lo.id ? ' active' : '') + '" data-action="pick-note-layout" data-layout="' + lo.id + '">' + lo.icon + '<br><span>' + lo.label + '</span></button>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // Image upload (if layout includes image)
+    if (layout !== 'text-only') {
+        html += '<div class="note-image-section">';
+        if (image) {
+            html += '<div class="note-image-preview"><img src="' + image + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">Verwijderen</button></div>';
+        } else {
+            html += '<label class="note-image-upload"><span>+ Afbeelding toevoegen</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
+        }
+        html += '</div>';
+    }
+
+    // Content
+    html += '<textarea class="edit-textarea note-content-input" id="note-content" placeholder="Schrijf je notitie...">' + escapeHtml(content) + '</textarea>';
+
+    // Tags
+    html += '<div class="note-tags-section">';
+    html += '<label class="text-dim" style="font-size:0.8rem;">Tags (gescheiden door komma\'s):</label>';
+    html += '<input type="text" class="edit-input" id="note-tags" placeholder="bijv. Velthaven, marktplein, quest" value="' + escapeAttr(tags) + '">';
+    html += '</div>';
+
+    // Save/Delete
+    html += '<div class="note-editor-actions">';
+    html += '<button class="btn btn-primary" data-action="save-note"' + (note ? ' data-note-id="' + note.id + '"' : '') + '>Opslaan</button>';
+    if (note) {
+        html += '<button class="btn btn-ghost" data-action="delete-note" data-note-id="' + note.id + '" style="color:var(--danger);">Verwijderen</button>';
+    }
+    html += '</div>';
+
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+function renderNoteView(noteId) {
+    var data = getNotesData();
+    var note = null;
+    for (var i = 0; i < data.notes.length; i++) {
+        if (data.notes[i].id === noteId) { note = data.notes[i]; break; }
+    }
+    if (!note) return '<div class="page-placeholder"><h2>Notitie niet gevonden</h2></div>';
+
+    var cat = null;
+    for (var ci = 0; ci < TAG_CATEGORIES.length; ci++) {
+        if (TAG_CATEGORIES[ci].id === note.tagCategory) { cat = TAG_CATEGORIES[ci]; break; }
+    }
+    if (!cat) cat = TAG_CATEGORIES[5];
+
+    var html = '<div class="notes-page">';
+    html += '<div class="notes-header">';
+    html += '<button class="btn btn-ghost" data-action="back-to-notes">&larr; Terug</button>';
+    html += '<button class="btn btn-ghost btn-sm" data-action="edit-note" data-note-id="' + note.id + '">Bewerken</button>';
+    html += '</div>';
+
+    html += '<div class="note-view note-layout-' + (note.layout || 'text-only') + '">';
+
+    if (note.image && note.layout === 'image-top') {
+        html += '<div class="note-view-img"><img src="' + note.image + '" alt=""></div>';
+    }
+
+    html += '<div class="note-view-content">';
+    if (note.image && note.layout === 'image-left') {
+        html += '<div class="note-view-img-side"><img src="' + note.image + '" alt=""></div>';
+    }
+
+    html += '<div class="note-view-text">';
+    html += '<div class="note-view-cat" style="color:' + cat.color + '">' + cat.icon + ' ' + cat.name + '</div>';
+    html += '<h1>' + escapeHtml(note.title || 'Naamloos') + '</h1>';
+
+    var paragraphs = (note.content || '').split('\n\n');
+    for (var p = 0; p < paragraphs.length; p++) {
+        if (paragraphs[p].trim()) html += '<p>' + escapeHtml(paragraphs[p].trim()) + '</p>';
+    }
+
+    if (note.tags && note.tags.length > 0) {
+        html += '<div class="note-view-tags">';
+        for (var ti = 0; ti < note.tags.length; ti++) {
+            html += '<span class="note-tag">' + escapeHtml(note.tags[ti]) + '</span>';
+        }
+        html += '</div>';
+    }
+    html += '</div>';
+
+    if (note.image && note.layout === 'image-right') {
+        html += '<div class="note-view-img-side"><img src="' + note.image + '" alt=""></div>';
+    }
+    html += '</div>';
+    html += '</div>';
+
     html += '</div>';
     return html;
 }
@@ -2946,14 +3257,19 @@ function renderLevelUpFeatPicker(modal, config, state, level, onChoice) {
     var abilities = getAllAbilityScores(config, state);
     var feats = DATA.feats || [];
 
-    var html = '<div class="feat-grid" style="margin-top:0.75rem;">';
+    var html = '<div class="feat-grid-full" style="margin-top:0.75rem;">';
     for (var i = 0; i < feats.length; i++) {
         var feat = feats[i];
         var meetsPrereq = checkPrerequisite(feat, abilities, config);
-        var cls = meetsPrereq ? 'feat-card' : 'feat-card unavailable';
-        html += '<button class="' + cls + ' levelup-feat-pick" data-feat="' + escapeAttr(feat.name) + '"' + (meetsPrereq ? '' : ' disabled') + ' title="' + escapeAttr(feat.desc || '') + '">';
-        html += '<strong>' + escapeHtml(feat.name) + '</strong>';
-        html += '</button>';
+        html += '<div class="feat-card-full levelup-feat-pick' + (meetsPrereq ? '' : ' unavailable') + '" data-feat="' + escapeAttr(feat.name) + '">';
+        html += '<div class="feat-card-header">';
+        html += '<h4>' + escapeHtml(feat.name) + '</h4>';
+        if (feat.prereq) {
+            html += '<span class="feat-prereq-badge">' + escapeHtml(JSON.stringify(feat.prereq).replace(/[{}"]/g, '').replace(/:/g, ' ').replace(/,/g, ', ')) + '</span>';
+        }
+        html += '</div>';
+        html += '<p class="feat-card-desc">' + escapeHtml(feat.desc) + '</p>';
+        html += '</div>';
     }
     html += '</div>';
     detailEl.innerHTML = html;
@@ -3106,15 +3422,20 @@ function showFeatPicker(charId, config, state, level) {
 
     var html = '<div class="asi-panel" data-asi-level="' + level + '">';
     html += '<h4>Level ' + level + ' \u2014 Feat kiezen</h4>';
-    html += '<div class="feat-grid">';
+    html += '<div class="feat-grid-full">';
 
     for (var i = 0; i < feats.length; i++) {
         var feat = feats[i];
         var meetsPrereq = checkPrerequisite(feat, abilities, config);
-        var cls = meetsPrereq ? 'feat-card' : 'feat-card unavailable';
-        html += '<button class="' + cls + '" data-feat="' + escapeAttr(feat.name) + '"' + (meetsPrereq ? '' : ' disabled') + ' title="' + escapeAttr(feat.desc || '') + '">';
-        html += '<strong>' + escapeHtml(feat.name) + '</strong>';
-        html += '</button>';
+        html += '<div class="feat-card-full' + (meetsPrereq ? '' : ' unavailable') + '" data-feat="' + escapeAttr(feat.name) + '">';
+        html += '<div class="feat-card-header">';
+        html += '<h4>' + escapeHtml(feat.name) + '</h4>';
+        if (feat.prereq) {
+            html += '<span class="feat-prereq-badge">' + escapeHtml(JSON.stringify(feat.prereq).replace(/[{}"]/g, '').replace(/:/g, ' ').replace(/,/g, ', ')) + '</span>';
+        }
+        html += '</div>';
+        html += '<p class="feat-card-desc">' + escapeHtml(feat.desc) + '</p>';
+        html += '</div>';
     }
 
     html += '</div>';
@@ -3131,7 +3452,7 @@ function showFeatPicker(charId, config, state, level) {
     var newPanel = el.querySelector('[data-asi-level="' + level + '"]');
     if (!newPanel) return;
 
-    var cards = newPanel.querySelectorAll('.feat-card:not(.unavailable)');
+    var cards = newPanel.querySelectorAll('.feat-card-full:not(.unavailable)');
     for (var c = 0; c < cards.length; c++) {
         cards[c].addEventListener('click', function() {
             state.asiChoices[level] = { type: 'feat', feat: this.dataset.feat };
@@ -3414,6 +3735,7 @@ function bindPageEvents(route) {
                 }
 
                 setSession(matchedId);
+                applyUserTheme();
                 navigate('/dashboard');
                 return;
             }
@@ -3435,10 +3757,133 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Notes tab switch
-        if (target.matches('[data-action="notes-tab"]')) {
-            localStorage.setItem('dw_notes_tab', target.dataset.tab);
+        // Toggle theme picker
+        if (target.matches('[data-action="toggle-theme-picker"]') || target.closest('[data-action="toggle-theme-picker"]')) {
+            var picker = document.getElementById('theme-picker');
+            if (picker) picker.style.display = picker.style.display === 'none' ? 'grid' : 'none';
+            return;
+        }
+
+        // Select theme
+        if (target.matches('[data-action="select-theme"]') || target.closest('[data-action="select-theme"]')) {
+            var themeBtn = target.matches('[data-action="select-theme"]') ? target : target.closest('[data-action="select-theme"]');
+            setUserTheme(themeBtn.dataset.theme);
+            var picker = document.getElementById('theme-picker');
+            if (picker) picker.style.display = 'none';
             renderApp();
+            return;
+        }
+
+        // --- Notes events ---
+        // New note
+        if (target.matches('[data-action="new-note"]')) { navigate('/notes/new'); return; }
+
+        // Back to notes
+        if (target.matches('[data-action="back-to-notes"]')) { navigate('/notes'); return; }
+
+        // View note
+        if (target.matches('[data-action="view-note"]') || target.closest('[data-action="view-note"]')) {
+            var noteCard = target.closest('[data-action="view-note"]') || target;
+            navigate('/notes/view-' + noteCard.dataset.noteId);
+            return;
+        }
+
+        // Edit note
+        if (target.matches('[data-action="edit-note"]')) { navigate('/notes/edit-' + target.dataset.noteId); return; }
+
+        // Filter notes
+        if (target.matches('[data-action="filter-notes"]')) {
+            notesFilter = target.dataset.cat || 'all';
+            renderApp();
+            return;
+        }
+
+        // Pick category in editor
+        if (target.matches('[data-action="pick-note-cat"]')) {
+            document.querySelectorAll('.note-cat-option').forEach(function(b) { b.classList.remove('active'); });
+            target.classList.add('active');
+            return;
+        }
+
+        // Pick layout in editor
+        if (target.matches('[data-action="pick-note-layout"]')) {
+            document.querySelectorAll('.note-layout-option').forEach(function(b) { b.classList.remove('active'); });
+            target.classList.add('active');
+            var newLayout = target.dataset.layout;
+            var currentHasImage = document.querySelector('.note-image-section');
+            if ((newLayout === 'text-only' && currentHasImage) || (newLayout !== 'text-only' && !currentHasImage)) {
+                if (currentHasImage) currentHasImage.style.display = newLayout === 'text-only' ? 'none' : 'block';
+            }
+            return;
+        }
+
+        // Save note
+        if (target.matches('[data-action="save-note"]')) {
+            var noteTitleEl = document.getElementById('note-title');
+            var noteContentEl = document.getElementById('note-content');
+            var noteTagsEl = document.getElementById('note-tags');
+            var noteActiveCat = document.querySelector('.note-cat-option.active');
+            var noteActiveLayout = document.querySelector('.note-layout-option.active');
+            var noteImg = document.querySelector('.note-image-preview img');
+
+            if (!noteTitleEl || !noteTitleEl.value.trim()) { alert('Vul een titel in.'); return; }
+
+            var noteData = getNotesData();
+            var saveNoteId = target.dataset.noteId;
+            var noteTags = noteTagsEl ? noteTagsEl.value.split(',').map(function(t) { return t.trim(); }).filter(Boolean) : [];
+            var noteCategory = noteActiveCat ? noteActiveCat.dataset.cat : 'other';
+            var noteLayout = noteActiveLayout ? noteActiveLayout.dataset.layout : 'text-only';
+            var noteImage = noteImg ? noteImg.src : null;
+
+            if (saveNoteId) {
+                for (var sni = 0; sni < noteData.notes.length; sni++) {
+                    if (noteData.notes[sni].id === saveNoteId) {
+                        noteData.notes[sni].title = noteTitleEl.value.trim();
+                        noteData.notes[sni].content = noteContentEl ? noteContentEl.value : '';
+                        noteData.notes[sni].tags = noteTags;
+                        noteData.notes[sni].tagCategory = noteCategory;
+                        noteData.notes[sni].layout = noteLayout;
+                        if (noteImage && noteImage.indexOf('data:') === 0) noteData.notes[sni].image = noteImage;
+                        noteData.notes[sni].updated = Date.now();
+                        break;
+                    }
+                }
+            } else {
+                noteData.notes.push({
+                    id: 'n' + Date.now(),
+                    title: noteTitleEl.value.trim(),
+                    content: noteContentEl ? noteContentEl.value : '',
+                    tags: noteTags,
+                    tagCategory: noteCategory,
+                    image: noteImage && noteImage.indexOf('data:') === 0 ? noteImage : null,
+                    layout: noteLayout,
+                    created: Date.now(),
+                    updated: Date.now()
+                });
+            }
+
+            saveNotesData(noteData);
+            navigate('/notes');
+            return;
+        }
+
+        // Delete note
+        if (target.matches('[data-action="delete-note"]')) {
+            if (confirm('Notitie verwijderen?')) {
+                var delNoteData = getNotesData();
+                delNoteData.notes = delNoteData.notes.filter(function(n) { return n.id !== target.dataset.noteId; });
+                saveNotesData(delNoteData);
+                navigate('/notes');
+            }
+            return;
+        }
+
+        // Remove note image
+        if (target.matches('[data-action="remove-note-image"]')) {
+            var noteImgPreview = document.querySelector('.note-image-preview');
+            if (noteImgPreview) {
+                noteImgPreview.outerHTML = '<label class="note-image-upload"><span>+ Afbeelding toevoegen</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
+            }
             return;
         }
 
@@ -4091,9 +4536,23 @@ function bindPageEvents(route) {
             }
         }
 
+        // --- Session number +/- ---
+        if (target.matches('[data-action="session-plus"]')) {
+            var n = parseInt(localStorage.getItem('dw_session_number') || '1');
+            localStorage.setItem('dw_session_number', String(n + 1));
+            renderApp();
+            return;
+        }
+        if (target.matches('[data-action="session-minus"]')) {
+            var n = parseInt(localStorage.getItem('dw_session_number') || '1');
+            if (n > 1) localStorage.setItem('dw_session_number', String(n - 1));
+            renderApp();
+            return;
+        }
+
         // --- Timeline: chapter & event handlers ---
-        // Select chapter
-        if (target.matches('[data-action="select-chapter"]') || target.closest('[data-action="select-chapter"]')) {
+        // Select chapter (but not if clicking the edit button inside it)
+        if (!target.matches('[data-action="edit-chapter"]') && (target.matches('[data-action="select-chapter"]') || target.closest('[data-action="select-chapter"]'))) {
             var btn = target.closest('[data-action="select-chapter"]') || target;
             activeChapter = parseInt(btn.dataset.chapter) || 0;
             renderApp();
@@ -4120,7 +4579,43 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Save event
+        // Edit event (populate form)
+        if (target.matches('[data-action="edit-event"]')) {
+            var evIdx = parseInt(target.dataset.event);
+            var tlData = getTimelineData();
+            var ch = tlData.chapters[activeChapter];
+            if (ch && ch.events[evIdx]) {
+                var ev = ch.events[evIdx];
+                var form = document.getElementById('event-add-form');
+                if (form) {
+                    form.style.display = 'block';
+                    document.getElementById('ev-title').value = ev.title;
+                    document.getElementById('ev-desc').value = ev.desc || '';
+                    document.getElementById('ev-session').value = ev.session || '';
+                    document.getElementById('ev-type').value = ev.type || 'quest';
+                    var saveBtn = form.querySelector('[data-action="save-event"]');
+                    if (saveBtn) saveBtn.dataset.editIdx = evIdx;
+                }
+            }
+            return;
+        }
+
+        // Edit chapter name
+        if (target.matches('[data-action="edit-chapter"]')) {
+            var chIdx = parseInt(target.dataset.chapter);
+            var tlData = getTimelineData();
+            if (tlData.chapters[chIdx]) {
+                var newName = prompt('Nieuwe naam voor het chapter:', tlData.chapters[chIdx].name);
+                if (newName && newName.trim()) {
+                    tlData.chapters[chIdx].name = newName.trim();
+                    saveTimelineData(tlData);
+                    renderApp();
+                }
+            }
+            return;
+        }
+
+        // Save event (supports edit mode)
         if (target.matches('[data-action="save-event"]')) {
             var titleEl = document.getElementById('ev-title');
             var descEl = document.getElementById('ev-desc');
@@ -4128,17 +4623,31 @@ function bindPageEvents(route) {
             var typeEl = document.getElementById('ev-type');
             if (titleEl && titleEl.value.trim()) {
                 var tlData = getTimelineData();
-                if (tlData.chapters[activeChapter]) {
-                    tlData.chapters[activeChapter].events.push({
-                        id: 'ev' + Date.now(),
-                        title: titleEl.value.trim(),
-                        desc: descEl ? descEl.value.trim() : '',
-                        session: sessionEl ? sessionEl.value.trim() : '',
-                        type: typeEl ? typeEl.value : 'quest'
-                    });
-                    saveTimelineData(tlData);
-                    renderApp();
+                var editIdx = target.dataset.editIdx;
+                if (editIdx !== undefined && editIdx !== '') {
+                    // Update existing event
+                    var ch = tlData.chapters[activeChapter];
+                    if (ch && ch.events[parseInt(editIdx)]) {
+                        ch.events[parseInt(editIdx)].title = titleEl.value.trim();
+                        ch.events[parseInt(editIdx)].desc = descEl ? descEl.value.trim() : '';
+                        ch.events[parseInt(editIdx)].session = sessionEl ? sessionEl.value.trim() : '';
+                        ch.events[parseInt(editIdx)].type = typeEl ? typeEl.value : 'quest';
+                    }
+                    delete target.dataset.editIdx;
+                } else {
+                    // New event
+                    if (tlData.chapters[activeChapter]) {
+                        tlData.chapters[activeChapter].events.push({
+                            id: 'ev' + Date.now(),
+                            title: titleEl.value.trim(),
+                            desc: descEl ? descEl.value.trim() : '',
+                            session: sessionEl ? sessionEl.value.trim() : '',
+                            type: typeEl ? typeEl.value : 'quest'
+                        });
+                    }
                 }
+                saveTimelineData(tlData);
+                renderApp();
             }
             return;
         }
@@ -4476,6 +4985,34 @@ function bindPageEvents(route) {
             target.value = '';
             return;
         }
+
+        // Note image upload
+        if (e.target.matches('[data-action="upload-note-image"]')) {
+            var noteFile = e.target.files && e.target.files[0];
+            if (noteFile) {
+                var noteReader = new FileReader();
+                noteReader.onload = function(ev) {
+                    var nimg = new Image();
+                    nimg.onload = function() {
+                        var canvas = document.createElement('canvas');
+                        var nmax = 800;
+                        var nw = nimg.width, nh = nimg.height;
+                        if (nw > nmax || nh > nmax) { if (nw > nh) { nh = nh * (nmax / nw); nw = nmax; } else { nw = nw * (nmax / nh); nh = nmax; } }
+                        canvas.width = nw; canvas.height = nh;
+                        canvas.getContext('2d').drawImage(nimg, 0, 0, nw, nh);
+                        var noteBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        var noteSection = document.querySelector('.note-image-section');
+                        if (noteSection) {
+                            noteSection.innerHTML = '<div class="note-image-preview"><img src="' + noteBase64 + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">Verwijderen</button></div>';
+                        }
+                    };
+                    nimg.src = ev.target.result;
+                };
+                noteReader.readAsDataURL(noteFile);
+            }
+            e.target.value = '';
+            return;
+        }
     };
 
     // ---- Input delegation ----
@@ -4514,24 +5051,14 @@ function bindPageEvents(route) {
             }
         }
 
-        // Notes auto-save
-        if (target.matches('.notes-textarea')) {
-            var type = target.dataset.notesType;
-            if (type === 'shared') {
-                localStorage.setItem('dw_notes_shared', target.value);
-            } else {
-                var uid = currentUserId();
-                if (uid) {
-                    localStorage.setItem('dw_notes_' + uid, target.value);
-                }
-            }
+        // Notes search
+        if (target.matches('[data-action="search-notes"]') || target.matches('.notes-search-input')) {
+            notesSearch = target.value;
+            clearTimeout(target._searchTimeout);
+            target._searchTimeout = setTimeout(function() { renderApp(); }, 300);
         }
 
-        // Session number (DM)
-        if (target.matches('[data-action="update-session-number"]')) {
-            var sessVal = parseInt(target.value) || 1;
-            localStorage.setItem('dw_session_number', String(sessVal));
-        }
+        // Session number (DM) - no longer uses input
     };
 
     // ---- Keydown for login Enter key ----
