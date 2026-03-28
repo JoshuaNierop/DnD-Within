@@ -132,14 +132,45 @@ function saveCharState(charId, state) {
     localStorage.setItem(key, JSON.stringify(state));
 }
 
-function loadCharConfig(charId) {
-    if (CHAR_DEFAULTS[charId]) return CHAR_DEFAULTS[charId];
-    // Check for custom char in localStorage
-    var custom = localStorage.getItem('dw_charconfig_' + charId);
-    if (custom) {
-        try { return JSON.parse(custom); } catch (e) { /* ignore */ }
+function loadCharConfigEdits(charId) {
+    var saved = localStorage.getItem('dw_charconfig_' + charId);
+    if (saved) {
+        try { return JSON.parse(saved); } catch(e) {}
     }
-    return null;
+    return {};
+}
+
+function saveCharConfigEdit(charId, field, value) {
+    var edits = loadCharConfigEdits(charId);
+    edits[field] = value;
+    localStorage.setItem('dw_charconfig_' + charId, JSON.stringify(edits));
+}
+
+function loadCharConfig(charId) {
+    var base = CHAR_DEFAULTS[charId];
+    if (!base) {
+        // Check for fully custom char in localStorage
+        var custom = localStorage.getItem('dw_charconfig_' + charId);
+        if (custom) {
+            try { return JSON.parse(custom); } catch (e) { /* ignore */ }
+        }
+        return null;
+    }
+    var edits = loadCharConfigEdits(charId);
+    // Deep merge edits over base
+    var config = JSON.parse(JSON.stringify(base)); // clone
+    for (var key in edits) {
+        if (key === 'personality' && typeof edits[key] === 'object') {
+            config.personality = Object.assign({}, config.personality, edits[key]);
+        } else if (key === 'appearance' && Array.isArray(edits[key])) {
+            config.appearance = edits[key].slice();
+        } else if (key === 'quotes' && Array.isArray(edits[key])) {
+            config.quotes = edits[key].slice();
+        } else {
+            config[key] = edits[key];
+        }
+    }
+    return config;
 }
 
 function loadImage(charId, type) {
@@ -611,24 +642,77 @@ function renderDashboard() {
     var user = currentUser();
     var html = '<div class="dashboard">';
 
+    // Session number (DM can set)
+    var sessionNum = localStorage.getItem('dw_session_number') || '1';
+
     // Welcome banner
     html += '<div class="welcome-banner">';
     html += '<h1>Welkom in Valoria</h1>';
     html += '<p class="campaign-name">De Slangenmars</p>';
     html += '<p class="welcome-user">Ingelogd als ' + escapeHtml(user ? user.name : '') + '</p>';
-    html += '<div class="quick-links">';
-    html += '<a class="quick-link" href="#/lore/valoria">Over Valoria</a>';
-    html += '<a class="quick-link" href="#/lore/ashvane">De Ashvane Tweeling</a>';
-    html += '<a class="quick-link" href="#/timeline">Tijdlijn</a>';
+    if (isDM()) {
+        html += '<div class="session-number-edit">';
+        html += '<label class="text-dim" style="font-size:0.8rem;">Sessie #</label> ';
+        html += '<input type="number" class="edit-input" data-action="update-session-number" value="' + escapeAttr(sessionNum) + '" style="width:60px;display:inline-block;padding:0.25rem 0.5rem;font-size:0.85rem;">';
+        html += '</div>';
+    } else {
+        html += '<p class="text-dim" style="font-size:0.85rem;">Sessie ' + escapeHtml(sessionNum) + '</p>';
+    }
     html += '</div>';
+
+    // Quick stats
+    var charIds = getCharacterIds();
+    var totalLevel = 0;
+    var partySize = 0;
+    for (var si = 0; si < charIds.length; si++) {
+        var scfg = loadCharConfig(charIds[si]);
+        if (!scfg) continue;
+        var sstate = loadCharState(charIds[si]);
+        totalLevel += sstate.level;
+        partySize++;
+    }
+    var avgLevel = partySize > 0 ? (totalLevel / partySize).toFixed(1) : '0';
+
+    html += '<div class="dash-stats">';
+    html += '<div class="dash-stat-card"><span class="dash-stat-value">' + partySize + '</span><span class="dash-stat-label">Avonturiers</span></div>';
+    html += '<div class="dash-stat-card"><span class="dash-stat-value">' + avgLevel + '</span><span class="dash-stat-label">Gem. Level</span></div>';
+    html += '<div class="dash-stat-card"><span class="dash-stat-value">' + escapeHtml(sessionNum) + '</span><span class="dash-stat-label">Sessie</span></div>';
     html += '</div>';
+
+    // Quick navigation cards
+    html += '<div class="dash-nav-cards">';
+    html += '<a class="dash-nav-card" href="#/lore/valoria"><span class="dash-nav-icon">&#127758;</span><span class="dash-nav-title">Wereld van Valoria</span><span class="dash-nav-desc">Geografie, volkeren en magie</span></a>';
+    html += '<a class="dash-nav-card" href="#/lore/ashvane"><span class="dash-nav-icon">&#9876;</span><span class="dash-nav-title">De Ashvane Tweeling</span><span class="dash-nav-desc">Ren & Saya\'s verhaal</span></a>';
+    html += '<a class="dash-nav-card" href="#/lore/party"><span class="dash-nav-icon">&#9813;</span><span class="dash-nav-title">De Party</span><span class="dash-nav-desc">Alle avonturiers</span></a>';
+    html += '<a class="dash-nav-card" href="#/timeline"><span class="dash-nav-icon">&#8986;</span><span class="dash-nav-title">Tijdlijn</span><span class="dash-nav-desc">Geschiedenis van Valoria</span></a>';
+    html += '<a class="dash-nav-card" href="#/maps"><span class="dash-nav-icon">&#128506;</span><span class="dash-nav-title">Kaarten</span><span class="dash-nav-desc">Kaarten van de wereld</span></a>';
+    html += '<a class="dash-nav-card" href="#/notes"><span class="dash-nav-icon">&#128221;</span><span class="dash-nav-title">Notities</span><span class="dash-nav-desc">Je sessie-aantekeningen</span></a>';
+    html += '</div>';
+
+    // Recent timeline events
+    var tlEvents = getTimelineEvents();
+    var recentEvents = tlEvents.slice(-3).reverse();
+    if (recentEvents.length > 0) {
+        html += '<div class="dash-recent-section">';
+        html += '<h2 class="section-title">Recente Gebeurtenissen</h2>';
+        html += '<div class="dash-recent-events">';
+        for (var ri = 0; ri < recentEvents.length; ri++) {
+            var rev = recentEvents[ri];
+            html += '<div class="dash-recent-event timeline-' + (rev.type || 'quest') + '">';
+            html += '<span class="timeline-date">' + escapeHtml(rev.date) + '</span>';
+            html += '<strong>' + escapeHtml(rev.title) + '</strong>';
+            html += '<p class="text-dim" style="margin:0;font-size:0.8rem;">' + escapeHtml(rev.desc) + '</p>';
+            html += '</div>';
+        }
+        html += '</div>';
+        html += '</div>';
+    }
 
     // Party overview
     html += '<div class="party-section">';
     html += '<h2 class="section-title">Party Overzicht</h2>';
     html += '<div class="character-cards">';
 
-    var charIds = getCharacterIds();
     for (var i = 0; i < charIds.length; i++) {
         var cid = charIds[i];
         var ccfg = loadCharConfig(cid);
@@ -762,7 +846,21 @@ function renderCharacterSheet(charId) {
     // Header
     html += '<div class="char-header">';
     html += '<div class="header-info">';
-    html += '<h1>' + escapeHtml(config.name) + '</h1>';
+    html += '<h1 class="char-name-wrap">';
+    html += '<span class="char-name-display">' + escapeHtml(config.name) + '</span>';
+    if (editable) {
+        html += '<button class="edit-trigger" data-action="edit-name" title="Naam bewerken">&#9998;</button>';
+        var colorOptions = ['#22d3ee','#f472b6','#4ade80','#818cf8','#fbbf24','#34d399','#f87171','#a78bfa','#fb923c','#e879f9','#38bdf8','#facc15'];
+        html += '<span class="color-picker-wrap">';
+        html += '<span class="color-dot" data-action="pick-color" style="background:' + config.accentColor + ';" title="Kleur kiezen"></span>';
+        html += '<div class="color-picker-popup" style="display:none;">';
+        for (var ci = 0; ci < colorOptions.length; ci++) {
+            var selClass = colorOptions[ci] === config.accentColor ? ' selected' : '';
+            html += '<span class="color-option' + selClass + '" data-action="select-color" data-color="' + colorOptions[ci] + '" style="background:' + colorOptions[ci] + ';"></span>';
+        }
+        html += '</div></span>';
+    }
+    html += '</h1>';
     html += '<p class="char-title">';
     html += '<span class="info-item" data-tip="' + escapeAttr(raceLabel) + '"><span class="value">' + raceLabel + '</span></span>';
     html += ' &mdash; ';
@@ -881,15 +979,27 @@ function renderTabOverview(charId, config, state) {
     html += '</div>';
 
     // Appearance
-    if (config.appearance && (config.appearance[0] || config.appearance[1])) {
+    var hasAppearance = config.appearance && (config.appearance[0] || config.appearance[1]);
+    if (hasAppearance || canEdit(charId)) {
         html += '<div class="sheet-block appearance-mini">';
         html += '<h2>Uiterlijk</h2>';
         var appearImg = loadImage(charId, 'appearance');
         if (appearImg) {
             html += '<img class="appearance-img" src="' + appearImg + '" alt="">';
         }
-        if (config.appearance[0]) html += '<p>' + escapeHtml(config.appearance[0]) + '</p>';
-        if (config.appearance[1]) html += '<p>' + escapeHtml(config.appearance[1]) + '</p>';
+        if (canEdit(charId)) {
+            html += '<div class="editable-field" data-edit-field="appearance0" data-char-id="' + charId + '">';
+            html += '<p class="field-display">' + escapeHtml(config.appearance ? config.appearance[0] || '' : '') + (!(config.appearance && config.appearance[0]) ? '<em class="placeholder-text">Klik om uiterlijk toe te voegen...</em>' : '') + '</p>';
+            html += '<button class="edit-trigger" data-action="edit-field" data-field="appearance0" title="Bewerken">&#9998;</button>';
+            html += '</div>';
+            html += '<div class="editable-field" data-edit-field="appearance1" data-char-id="' + charId + '">';
+            html += '<p class="field-display">' + escapeHtml(config.appearance ? config.appearance[1] || '' : '') + (!(config.appearance && config.appearance[1]) ? '<em class="placeholder-text">Klik om uiterlijk toe te voegen...</em>' : '') + '</p>';
+            html += '<button class="edit-trigger" data-action="edit-field" data-field="appearance1" title="Bewerken">&#9998;</button>';
+            html += '</div>';
+        } else {
+            if (config.appearance && config.appearance[0]) html += '<p>' + escapeHtml(config.appearance[0]) + '</p>';
+            if (config.appearance && config.appearance[1]) html += '<p>' + escapeHtml(config.appearance[1]) + '</p>';
+        }
         if (canEdit(charId)) {
             html += '<label class="btn btn-ghost btn-sm appearance-upload-btn">&#128247; Afbeelding<input type="file" accept="image/*" data-action="upload-appearance" style="display:none"></label>';
         }
@@ -1562,49 +1672,76 @@ function renderTabSpells(charId, config, state) {
 
 function renderTabStory(charId, config, state) {
     var html = '<div class="sheet-grid">';
+    var editable = canEdit(charId);
 
     // Personality
     var personality = config.personality || {};
-    if (personality.traits || personality.ideal || personality.bond || personality.flaw || personality.fear) {
+    var hasPersonality = personality.traits || personality.ideal || personality.bond || personality.flaw || personality.fear;
+    if (hasPersonality || editable) {
         html += '<div class="sheet-block personality-block">';
         html += '<h2>Persoonlijkheid</h2>';
-        if (personality.traits) {
-            html += '<div class="personality-item"><h3>Traits</h3><p>' + escapeHtml(personality.traits) + '</p></div>';
-        }
-        if (personality.ideal) {
-            html += '<div class="personality-item"><h3>Ideaal</h3><p>' + escapeHtml(personality.ideal) + '</p></div>';
-        }
-        if (personality.bond) {
-            html += '<div class="personality-item"><h3>Band</h3><p>' + escapeHtml(personality.bond) + '</p></div>';
-        }
-        if (personality.flaw) {
-            html += '<div class="personality-item"><h3>Fout</h3><p>' + escapeHtml(personality.flaw) + '</p></div>';
-        }
-        if (personality.fear) {
-            html += '<div class="personality-item"><h3>Angst</h3><p>' + escapeHtml(personality.fear) + '</p></div>';
+        var pFields = [
+            { key: 'traits', label: 'Traits' },
+            { key: 'ideal', label: 'Ideaal' },
+            { key: 'bond', label: 'Band' },
+            { key: 'flaw', label: 'Fout' },
+            { key: 'fear', label: 'Angst' }
+        ];
+        for (var pf = 0; pf < pFields.length; pf++) {
+            var pfKey = pFields[pf].key;
+            var pfLabel = pFields[pf].label;
+            var pfVal = personality[pfKey] || '';
+            if (editable) {
+                html += '<div class="personality-item editable-field" data-edit-field="personality.' + pfKey + '" data-char-id="' + charId + '">';
+                html += '<h3>' + pfLabel + '</h3>';
+                html += '<p class="field-display">' + escapeHtml(pfVal) + (!pfVal ? '<em class="placeholder-text">Klik om toe te voegen...</em>' : '') + '</p>';
+                html += '<button class="edit-trigger" data-action="edit-field" data-field="personality.' + pfKey + '" title="Bewerken">&#9998;</button>';
+                html += '</div>';
+            } else if (pfVal) {
+                html += '<div class="personality-item"><h3>' + pfLabel + '</h3><p>' + escapeHtml(pfVal) + '</p></div>';
+            }
         }
         html += '</div>';
     }
 
     // Backstory
-    if (config.backstory) {
+    if (config.backstory || editable) {
         html += '<div class="sheet-block">';
         html += '<h2>Backstory</h2>';
-        html += '<p>' + escapeHtml(config.backstory) + '</p>';
-        html += '</div>';
-    }
-
-    // Quotes
-    if (config.quotes && config.quotes.length > 0) {
-        html += '<div class="sheet-block">';
-        html += '<h2>Citaten</h2>';
-        for (var q = 0; q < config.quotes.length; q++) {
-            html += '<blockquote>&ldquo;' + escapeHtml(config.quotes[q]) + '&rdquo;</blockquote>';
+        if (editable) {
+            html += '<div class="editable-field" data-edit-field="backstory" data-char-id="' + charId + '">';
+            html += '<p class="field-display">' + escapeHtml(config.backstory || '') + (!config.backstory ? '<em class="placeholder-text">Klik om backstory toe te voegen...</em>' : '') + '</p>';
+            html += '<button class="edit-trigger" data-action="edit-field" data-field="backstory" title="Bewerken">&#9998;</button>';
+            html += '</div>';
+        } else {
+            html += '<p>' + escapeHtml(config.backstory) + '</p>';
         }
         html += '</div>';
     }
 
-    if (!config.backstory && !personality.traits && (!config.quotes || config.quotes.length === 0)) {
+    // Quotes
+    var quotes = config.quotes || [];
+    if (quotes.length > 0 || editable) {
+        html += '<div class="sheet-block">';
+        html += '<h2>Citaten</h2>';
+        for (var q = 0; q < quotes.length; q++) {
+            html += '<div class="quote-item">';
+            html += '<blockquote>&ldquo;' + escapeHtml(quotes[q]) + '&rdquo;</blockquote>';
+            if (editable) {
+                html += '<button class="quote-remove-btn" data-action="remove-quote" data-quote-idx="' + q + '" title="Verwijderen">&#10005;</button>';
+            }
+            html += '</div>';
+        }
+        if (editable) {
+            html += '<div class="quote-add-form">';
+            html += '<input type="text" class="edit-input quote-add-input" placeholder="Nieuw citaat...">';
+            html += '<button class="edit-save" data-action="add-quote">+ Toevoegen</button>';
+            html += '</div>';
+        }
+        html += '</div>';
+    }
+
+    if (!editable && !config.backstory && !hasPersonality && quotes.length === 0) {
         html += '<p class="block-note">Nog geen verhaal geschreven voor dit karakter.</p>';
     }
 
@@ -1747,22 +1884,42 @@ function renderMaps() {
 // Section 21: Timeline Page
 // ============================================================
 
-function renderTimeline() {
-    var events = [
-        { date: 'Dag 0', title: 'De Slangenmars', desc: 'De ouders van Ren en Saya komen om. De tweeling is 7 jaar oud.', type: 'danger' },
-        { date: 'Dag 0 + 6 jaar', title: 'Wild Magic Ontwaakt', desc: 'Saya\'s magie manifesteert zich. Een marktkraam gaat in vlammen op.', type: 'magic' },
-        { date: 'Dag 0 + 10 jaar', title: 'De Rivier', desc: 'Een incident bij de rivier. Ren is 17. Hij praat er niet over.', type: 'danger' },
-        { date: 'Dag 0 + 12 jaar', title: 'Begin van het Avontuur', desc: 'De tweeling is 19. Iets trekt hen weg uit de stad, richting het onbekende.', type: 'quest' },
-        { date: 'Sessie 1', title: 'Aankomst in Valoria', desc: 'Het avontuur begint in de schaduw van de oude muren van Valoria.', type: 'quest' }
+function getTimelineEvents() {
+    var defaultEvents = [
+        { date: 'Jaar 0', title: 'De Stichting van Velthaven', desc: 'De eerste nederzetting wordt gesticht aan de samenvloeiing van drie rivieren.', type: 'history' },
+        { date: '~100 jaar geleden', title: 'De Magioorlog', desc: 'Rivaliserende magi\u00ebrsgilden ontketenen een oorlog die steden verwoest en leidt tot strenge magie-regulatie.', type: 'danger' },
+        { date: '12 jaar geleden', title: 'De Slangenmars', desc: 'Slangenwezens trekken door het zuiden. Dorpen worden verwoest. Ren en Saya verliezen hun ouders.', type: 'danger' },
+        { date: '6 jaar geleden', title: 'Wild Magic Ontwaakt', desc: 'Saya\'s magie manifesteert zich. Een marktkraam op de markt van Velthaven gaat in vlammen op.', type: 'magic' },
+        { date: '2 jaar geleden', title: 'De Rivier', desc: 'Een incident bij de rivier buiten Velthaven. Ren is 17. Hij praat er niet over. Saya weet het.', type: 'danger' },
+        { date: 'Heden', title: 'Het Avontuur Begint', desc: 'Acht avonturiers vinden elkaar in Valoria. Iets groters dan hen allen brengt hen samen.', type: 'quest' }
     ];
+    var customEvents = JSON.parse(localStorage.getItem('dw_timeline_events') || '[]');
+    return defaultEvents.concat(customEvents);
+}
+
+function renderTimeline() {
+    var events = getTimelineEvents();
 
     var html = '<div class="timeline-page">';
-    html += '<h1>Tijdlijn</h1>';
+    html += '<h1>Tijdlijn van Valoria</h1>';
+
+    if (isDM()) {
+        html += '<button class="btn btn-primary" data-action="add-timeline-event" style="margin-bottom:1.5rem;">+ Gebeurtenis Toevoegen</button>';
+        html += '<div id="timeline-add-form" style="display:none;margin-bottom:1.5rem;">';
+        html += '<div class="edit-form-grid">';
+        html += '<input type="text" class="edit-input" id="tl-date" placeholder="Datum (bijv. Sessie 3)">';
+        html += '<input type="text" class="edit-input" id="tl-title" placeholder="Titel">';
+        html += '<textarea class="edit-textarea" id="tl-desc" placeholder="Beschrijving" style="min-height:60px;"></textarea>';
+        html += '<select class="edit-input" id="tl-type"><option value="quest">Quest</option><option value="danger">Gevaar</option><option value="magic">Magie</option><option value="history">Geschiedenis</option></select>';
+        html += '<div class="edit-actions"><button class="edit-save" data-action="save-timeline-event">Opslaan</button><button class="edit-cancel" data-action="cancel-timeline-event">Annuleren</button></div>';
+        html += '</div></div>';
+    }
+
     html += '<div class="timeline">';
 
     for (var i = 0; i < events.length; i++) {
         var ev = events[i];
-        html += '<div class="timeline-event timeline-' + ev.type + '">';
+        html += '<div class="timeline-event timeline-' + (ev.type || 'quest') + '">';
         html += '<div class="timeline-marker"></div>';
         html += '<div class="timeline-content">';
         html += '<span class="timeline-date">' + escapeHtml(ev.date) + '</span>';
@@ -1784,6 +1941,7 @@ function renderTimeline() {
 function renderLore(subpage) {
     if (subpage === 'valoria') return renderLoreValoria();
     if (subpage === 'ashvane') return renderLoreAshvane();
+    if (subpage === 'party') return renderLoreParty();
 
     // Index page
     var html = '<div class="lore-page">';
@@ -1800,6 +1958,11 @@ function renderLore(subpage) {
     html += '<p>Het verhaal van Ren en Saya, van straatkind tot avonturier.</p>';
     html += '</a>';
 
+    html += '<a class="lore-card" href="#/lore/party">';
+    html += '<h3>De Party</h3>';
+    html += '<p>Acht avonturiers. Verschillende achtergronden. E\u00e9n bestemming.</p>';
+    html += '</a>';
+
     html += '</div>';
     html += '</div>';
     return html;
@@ -1810,17 +1973,77 @@ function renderLoreValoria() {
     html += '<a class="btn btn-ghost btn-sm" href="#/lore">&larr; Terug naar Lore</a>';
     html += '<h1>De Wereld van Valoria</h1>';
 
-    html += '<h2>Het Land</h2>';
-    html += '<p>Valoria is een uitgestrekt continent, doorsneden door rivieren en bergketens. In het hart ligt de Gouden Vlakte, omringd door oeroude bossen en ruige kustlijnen. Steden als Velthaven en Marrow\'s Rest vormen de centra van handel en politiek.</p>';
+    html += '<div class="lore-toc">';
+    html += '<h3>Inhoud</h3>';
+    html += '<ul>';
+    html += '<li><a href="#geografie">Geografie</a></li>';
+    html += '<li><a href="#volkeren">Volkeren & Rassen</a></li>';
+    html += '<li><a href="#magie">Magie & De Magioorlog</a></li>';
+    html += '<li><a href="#slangenmars">De Slangenmars</a></li>';
+    html += '<li><a href="#steden">Belangrijke Steden</a></li>';
+    html += '<li><a href="#facties">Facties & Organisaties</a></li>';
+    html += '<li><a href="#goden">Goden & Geloof</a></li>';
+    html += '</ul>';
+    html += '</div>';
 
-    html += '<h2>Magie</h2>';
-    html += '<p>Magie is overal in Valoria \u2014 in de adem van de wind, in de wortels van oude bomen, in het bloed van zij die ervoor gekozen zijn. Maar magie is niet altijd welkom. Na de Magioorlog van een eeuw geleden wantrouwen veel gewone burgers alles wat gloeit of zweeft.</p>';
+    // Geografie
+    html += '<h2 id="geografie">Geografie</h2>';
+    html += '<p>Valoria is een uitgestrekt continent, doorsneden door de Zilveren Rivier die van het Ijzeren Gebergte in het noorden naar de Amberkleurige Zee in het zuiden stroomt. Het land is ruwweg verdeeld in vijf regio\'s:</p>';
+    html += '<ul class="lore-list">';
+    html += '<li><strong>De Gouden Vlakte</strong> \u2014 Het vruchtbare hart van het continent, waar de meeste steden liggen. Eindeloze graanvelden, handelsroutes, en de hoofdstad Velthaven.</li>';
+    html += '<li><strong>Het Slangenmoeras</strong> \u2014 Een uitgestrekt, giftig moerasgebied in het zuidoosten. Ooit de thuisbasis van de slangenwezens die de Slangenmars uitvoerden. Weinigen gaan er vrijwillig heen.</li>';
+    html += '<li><strong>De Fluisterbossen</strong> \u2014 Oeroude wouden in het westen, bewoond door elfengemeenschappen en oudere, onbekende wezens. De bomen zijn zo oud dat ze, zo zegt men, fluisteren in een vergeten taal.</li>';
+    html += '<li><strong>Het Ijzeren Gebergte</strong> \u2014 De noordelijke bergketen, rijk aan ertsen en edelstenen. Hier liggen de dwergenbolwerken en verlaten mijnen vol gevaar.</li>';
+    html += '<li><strong>De Gebroken Kust</strong> \u2014 De westelijke kustlijn, een doolhof van kliffen, grotten, en kleine vissersdorpen. Zeerovers en smokkelaars kennen elke grot.</li>';
+    html += '</ul>';
 
-    html += '<h2>De Slangenmars</h2>';
-    html += '<p>Twaalf jaar geleden trok een leger van slangachtige wezens door het zuiden van Valoria. Ze vernietigden dorpen, vermoordden honderden, en verdwenen toen weer in de nacht. Niemand weet waar ze vandaan kwamen. Niemand weet of ze terugkomen.</p>';
+    // Volkeren
+    html += '<h2 id="volkeren">Volkeren & Rassen</h2>';
+    html += '<p>Valoria is de thuisbasis van talloze volkeren die in relatieve \u2014 maar fragiele \u2014 vrede samenleven.</p>';
+    html += '<ul class="lore-list">';
+    html += '<li><strong>Mensen</strong> \u2014 De grootste bevolkingsgroep. Ambitieus, aanpasbaar, en overal te vinden. Ze domineren de politiek van de grote steden.</li>';
+    html += '<li><strong>Elfen</strong> \u2014 Bewoners van de Fluisterbossen en de oudere stadsdelen. Langlevend en soms arrogant, maar dragers van kennis die millennia overspant. Wood Elves leven dicht bij de natuur; High Elves bewaken magische tradities; Drow worden gewantrouwd.</li>';
+    html += '<li><strong>Halflings</strong> \u2014 Vrolijk, praktisch, en verrassend taai. Ze runnen herbergen, bakkerijen, en (zo fluistert men) een indrukwekkend informatienetwerk.</li>';
+    html += '<li><strong>Tieflings</strong> \u2014 Afstammelingen van duivelse bloedlijnen. Ze worden vaak met argwaan bekeken, maar velen bewijzen dat bloed niet bepaalt wie je bent. Drie tieflings in de huidige party bewijzen dat.</li>';
+    html += '<li><strong>Aasimar</strong> \u2014 Zeldzame wezens met een hemelse connectie. Ze stralen een subtiel licht uit dat anderen zowel aantrekt als ongemakkelijk maakt. Sommigen zien hen als gezegend; anderen als onnatuurlijk.</li>';
+    html += '<li><strong>Dragonborn, Dwergen, Gnomes</strong> \u2014 Minder talrijk maar even belangrijk. Dwergen in het Ijzeren Gebergte, gnomes in hun uitvinderswerkplaatsen, dragonborn in verspreide clans.</li>';
+    html += '</ul>';
 
-    html += '<h2>Volkeren</h2>';
-    html += '<p>Valoria is de thuisbasis van mensen, elfen, halfelfen, halflings, tieflings, aasimar, en talloze andere volkeren. De meeste leven in relatieve vrede, maar oude vooroordelen sluimeren altijd onder het oppervlak.</p>';
+    // Magie
+    html += '<h2 id="magie">Magie & De Magioorlog</h2>';
+    html += '<p>Magie is overal in Valoria \u2014 in de adem van de wind, in de wortels van oude bomen, in het bloed van zij die ervoor gekozen zijn. Maar magie is niet altijd welkom.</p>';
+    html += '<p>Honderdtwintig jaar geleden woedde de <strong>Magioorlog</strong>: een conflict tussen magi\u00ebrsgilden dat hele steden verwoestte. De nasleep hiervan leeft voort in wetten die magie reguleren, registraties voor tovenaars, en een diepgeworteld wantrouwen jegens ongecontroleerde magie. Wild Magic gebruikers zoals Saya Ashvane worden met extra argwaan bekeken.</p>';
+    html += '<p>De <strong>Arcane Raad van Velthaven</strong> houdt toezicht op magiegebruik. Geregistreerde magi\u00ebrs dragen een <em>Merk van Binding</em> \u2014 een magische tatoeage die hun vermogen beperkt als ze de wet overtreden. Niet iedereen draagt er een. Niet iedereen die er een draagt, droeg hem vrijwillig.</p>';
+
+    // Slangenmars
+    html += '<h2 id="slangenmars">De Slangenmars</h2>';
+    html += '<p>Twaalf jaar geleden. Een nacht in de zomer. Ze kwamen uit het Slangenmoeras \u2014 duizenden slangachtige wezens, groter dan mensen, met schubben als obsidiaan en ogen die gloeiden als brandend amber.</p>';
+    html += '<p>Ze trokken als een golf door het zuiden van Valoria. Dorpen brandden. Families vluchtten. Soldaten vielen. In drie weken tijd verwoestten ze alles binnen een boog van vijftig mijl. En toen, net zo plotseling als ze kwamen, verdwenen ze weer in de nacht.</p>';
+    html += '<p>Niemand weet waarom ze kwamen. Niemand weet waar ze naartoe gingen. De enige zekerheid is de littekens die ze achterlieten \u2014 in het land, en in de mensen die het overleefden.</p>';
+    html += '<p><em>Ren en Saya Ashvane waren zeven jaar oud toen de slangen kwamen. Ze verloren alles die nacht, behalve elkaar.</em></p>';
+
+    // Steden
+    html += '<h2 id="steden">Belangrijke Steden</h2>';
+    html += '<ul class="lore-list">';
+    html += '<li><strong>Velthaven</strong> \u2014 De hoofdstad, gelegen aan de samenvloeiing van drie rivieren. Een stad van bruggen, markten, en politieke intriges. De Arcane Raad zetelt hier. Ren en Saya groeiden op in de sloppenwijken van het Onderkwartier.</li>';
+    html += '<li><strong>Marrow\'s Rest</strong> \u2014 Een havenstad aan de Gebroken Kust, bekend om haar scheepswerven en haar... flexibele houding ten opzichte van de wet. Smokkelaars, piraten, en avonturiers vinden hier een thuis.</li>';
+    html += '<li><strong>Thornwall</strong> \u2014 Een vestingstad aan de rand van de Fluisterbossen. De laatste verdedigingslinie tussen de beschaving en wat er in de bossen leeft.</li>';
+    html += '<li><strong>Ashenford</strong> \u2014 Een stad die herbouwd is op de ru\u00efnes van een dorp dat verwoest werd door de Slangenmars. Een monument voor veerkracht \u2014 of koppigheid.</li>';
+    html += '</ul>';
+
+    // Facties
+    html += '<h2 id="facties">Facties & Organisaties</h2>';
+    html += '<ul class="lore-list">';
+    html += '<li><strong>De Arcane Raad</strong> \u2014 Toezichthouder op magiegebruik in Velthaven en omstreken. Machtig, bureaucratisch, en niet altijd rechtvaardig.</li>';
+    html += '<li><strong>De Zilverklauwen</strong> \u2014 Een netwerk van dieven en informanten dat opereert vanuit de schaduwen van elke grote stad. Ze kennen elk geheim \u2014 voor de juiste prijs.</li>';
+    html += '<li><strong>Het Drakenverbond</strong> \u2014 Een oud genootschap van mensen die pacts hebben gesloten met draken. Bijna uitgestorven na de Slangenmars.</li>';
+    html += '<li><strong>De Wachters van de Rand</strong> \u2014 Rangers en dru\u00efden die de grenzen van de beschaving bewaken tegen de gevaren van de wildernis.</li>';
+    html += '</ul>';
+
+    // Goden
+    html += '<h2 id="goden">Goden & Geloof</h2>';
+    html += '<p>De goden van Valoria zijn niet abstract \u2014 ze zijn nabij. Soms letterlijk. Tempels staan in elke stad, en priesters claimen regelmatig goddelijke interventie. Of dat waar is, hangt af van wie je het vraagt.</p>';
+    html += '<p>De belangrijkste goden zijn <strong>Solarius</strong> (licht, waarheid, orde), <strong>Nythara</strong> (natuur, groei, de seizoenen), <strong>Mordain</strong> (kennis, magie, geheimen), en <strong>Kael</strong> (oorlog, eer, bescherming). Maar er zijn ook duistere goden \u2014 namen die niet hardop worden uitgesproken.</p>';
 
     html += '</div>';
     return html;
@@ -1830,21 +2053,104 @@ function renderLoreAshvane() {
     var html = '<div class="lore-page lore-article">';
     html += '<a class="btn btn-ghost btn-sm" href="#/lore">&larr; Terug naar Lore</a>';
     html += '<h1>De Ashvane Tweeling</h1>';
+    html += '<p class="section-intro">Twee kanten van dezelfde munt. Twee overlevenden van dezelfde nacht.</p>';
 
-    html += '<h2>Oorsprong</h2>';
-    html += '<p>Ren en Saya Ashvane werden geboren in een klein dorp aan de rand van het Slangenmoeras. Hun vader was een houtsnijder, hun moeder een voormalige avonturier die haar zwaard had neergelegd. Het was een rustig leven \u2014 tot de Slangenmars kwam.</p>';
+    html += '<div class="lore-toc">';
+    html += '<h3>Inhoud</h3>';
+    html += '<ul>';
+    html += '<li><a href="#oorsprong">Oorsprong</a></li>';
+    html += '<li><a href="#ouders">Hun Ouders</a></li>';
+    html += '<li><a href="#slangenmars-ashvane">De Slangenmars</a></li>';
+    html += '<li><a href="#straat">Het Leven op Straat</a></li>';
+    html += '<li><a href="#magie-ashvane">De Magie</a></li>';
+    html += '<li><a href="#de-rivier">De Rivier</a></li>';
+    html += '<li><a href="#quirks">Eigenaardigheden</a></li>';
+    html += '<li><a href="#nu">Nu</a></li>';
+    html += '</ul>';
+    html += '</div>';
 
-    html += '<h2>De Slangenmars</h2>';
-    html += '<p>Ze waren zeven toen de slangen kwamen. Hun ouders stierven die nacht. Ren herinnert zich het geluid \u2014 een zacht sissen dat overging in geschreeuw. Saya herinnert zich de stilte erna.</p>';
+    // Oorsprong
+    html += '<h2 id="oorsprong">Oorsprong</h2>';
+    html += '<p>Ren en Saya Ashvane werden geboren in een klein dorp aan de rand van het Slangenmoeras \u2014 een plek die geen naam meer heeft, omdat er niemand meer is om hem uit te spreken. Hun vader, Edric Ashvane, was een houtsnijder die meubels maakte voor de dorpelingen. Hun moeder, Lira Ashvane, was een voormalige avonturier die haar zwaard had neergelegd toen ze zwanger werd van de tweeling.</p>';
+    html += '<p>Het was een rustig leven. Simpel. Gelukkig. Tot de Slangenmars kwam.</p>';
 
-    html += '<h2>Het Leven op Straat</h2>';
-    html += '<p>Ze overleefden. Dat is wat ze doen. In de sloppenwijken van Velthaven leerden ze stelen, rennen, en vertrouwen op niemand behalve elkaar. Ren werd de schaduw \u2014 stil, snel, dodelijk. Saya werd de vonk \u2014 chaotisch, briljant, oncontroleerbaar.</p>';
+    // Ouders
+    html += '<h2 id="ouders">Hun Ouders</h2>';
+    html += '<ul class="lore-list">';
+    html += '<li><strong>Edric Ashvane</strong> \u2014 Een zachte man met sterke handen. Hij leerde Ren hoe je een mes vasthoudt \u2014 niet om te vechten, maar om hout te snijden. Ren gebruikt die grip nog steeds, al snijdt hij nu in andere dingen. Edric rook naar cederhout en vernis. Soms, als Ren een houtwinkel passeert, staat hij even stil.</li>';
+    html += '<li><strong>Lira Ashvane</strong> \u2014 Een vrouw die meer was dan ze liet zien. Ze vertelde de tweeling verhalen voor het slapengaan \u2014 verhalen over draken, over magie, over helden. Saya dacht altijd dat het verzonnen was. Later begreep ze dat haar moeder die dingen had gezien.</li>';
+    html += '</ul>';
+    html += '<p>Lira zei altijd drie dingen:</p>';
+    html += '<ul class="lore-list">';
+    html += '<li><em>"Vertrouw je instinct. Het liegt niet."</em></li>';
+    html += '<li><em>"Magie is niet goed of slecht. Het is een spiegel \u2014 het laat zien wie je bent."</em></li>';
+    html += '<li><em>"Pas op voor mensen die nooit bang zijn. Ze hebben ofwel niets te verliezen, ofwel niets om lief te hebben."</em></li>';
+    html += '</ul>';
 
-    html += '<h2>De Magie</h2>';
-    html += '<p>Toen Saya dertien was, stak ze per ongeluk een marktkraam in brand. Niet met een fakkel. Met haar handen. De Wild Magic was altijd al in haar bloed geweest \u2014 het had alleen een reden nodig om wakker te worden.</p>';
+    // Slangenmars
+    html += '<h2 id="slangenmars-ashvane">De Slangenmars</h2>';
+    html += '<p>Ze waren zeven toen de slangen kwamen.</p>';
+    html += '<p>Het was midden in de nacht. Ren werd wakker van het geluid \u2014 een laag, ritmisch sissen, alsof de aarde zelf ademhaalde. Saya werd wakker van de stilte die erop volgde, toen het sissen stopte en het geschreeuw begon.</p>';
+    html += '<p>Hun moeder duwde hen onder het bed. <em>"Blijf stil. Wat er ook gebeurt, blijf stil."</em> Het waren de laatste woorden die ze tegen hen zei. Door de spleten in de vloerplanken zagen ze haar zwaard pakken \u2014 het zwaard dat altijd boven de schouw had gehangen, het zwaard waarvan ze zei dat ze het nooit meer zou gebruiken.</p>';
+    html += '<p>Ze hoorden haar vechten. Ze hoorden hun vader schreeuwen. En toen hoorden ze niets meer.</p>';
+    html += '<p>Ren en Saya bleven twee dagen onder dat bed liggen. Twee dagen in de stilte, in de geur van rook en iets ergers. Toen Ren eindelijk naar buiten keek, was het dorp er niet meer.</p>';
 
-    html += '<h2>Nu</h2>';
-    html += '<p>Ze zijn negentien. Oud genoeg om te weten dat overleven niet genoeg is. Jong genoeg om te geloven dat er iets beters bestaat. Iets trekt hen weg uit Velthaven, richting Valoria, richting antwoorden.</p>';
+    // Straat
+    html += '<h2 id="straat">Het Leven op Straat</h2>';
+    html += '<p>Ze overleefden. Dat is wat ze doen.</p>';
+    html += '<p>Twee zevenjarige kinderen, alleen, liepen drie weken tot ze Velthaven bereikten. De hoofdstad nam hen niet met open armen op. Niemand neemt weeskinderen met open armen op.</p>';
+    html += '<p>In de sloppenwijken van het Onderkwartier leerden ze de regels: steel om te eten, ren als je betrapt wordt, vertrouw niemand behalve elkaar. Ren werd de schaduw \u2014 stil, snel, onzichtbaar. Hij leerde sloten openen, zakken rollen, en verdwijnen in een menigte alsof hij er nooit was geweest. Saya werd de afleiding \u2014 luid, charmant, en zo nodig intimiderend.</p>';
+    html += '<p>Ze sliepen op daken, in steegjes, onder bruggen. Ze aten wat ze konden vinden of stelen. En elke nacht, voor ze insliepen, vertelde Saya dezelfde verhalen die hun moeder had verteld. Omdat verhalen het enige waren dat ze nog hadden.</p>';
+
+    // Magie
+    html += '<h2 id="magie-ashvane">De Magie</h2>';
+    html += '<p>Toen Saya dertien was, werd ze betrapt bij het stelen van brood op de markt. Een koopman greep haar pols. Ze raakte in paniek. En de marktkraam ging in vlammen op.</p>';
+    html += '<p>Niet met een fakkel. Met haar handen.</p>';
+    html += '<p>De Wild Magic was altijd al in haar bloed geweest \u2014 het had alleen een reden nodig om wakker te worden. In de weken die volgden, leerde ze dat haar moeder meer was geweest dan een avonturier. Lira Ashvane had magie gehad. En ze had die doorgegeven.</p>';
+    html += '<p>Het probleem met Wild Magic is dat het niet luistert. Het reageert op emotie, op angst, op woede. Saya leerde zichzelf beheersen \u2014 grotendeels. Maar er zijn momenten, wanneer de druk te groot wordt, dat de magie haar eigen keuzes maakt. En die keuzes zijn niet altijd... veilig.</p>';
+    html += '<p>Na het incident op de markt moesten ze het Onderkwartier verlaten. De Arcane Raad stuurde onderzoekers. Ren en Saya verdwenen, zoals ze altijd deden. Maar Ren begreep nu iets: zijn zus was niet alleen gevaarlijk voor anderen. Ze was gevaarlijk voor zichzelf.</p>';
+
+    // De Rivier
+    html += '<h2 id="de-rivier">De Rivier</h2>';
+    html += '<p>Twee jaar geleden. Ren was zeventien.</p>';
+    html += '<p>Er was een incident bij de rivier buiten Velthaven. De details zijn onduidelijk. Ren praat er niet over. Saya weet wat er is gebeurd, maar ze zwijgt ook. Wat bekend is: Ren ging de rivier in. Ren kwam er anders uit.</p>';
+    html += '<p>Sindsdien heeft hij een litteken op zijn linkeronderarm dat hij altijd bedekt houdt. Sindsdien slaapt hij lichter. Sindsdien is de schaduw in zijn ogen iets dieper geworden.</p>';
+
+    // Eigenaardigheden
+    html += '<h2 id="quirks">Eigenaardigheden</h2>';
+    html += '<ul class="lore-list">';
+    html += '<li><strong>Ren</strong> draait altijd een mes tussen zijn vingers als hij nadenkt. Hij eet nooit als eerste \u2014 hij wacht altijd tot iemand anders begint. Hij vertrouwt geen deuren die op slot zitten. En hij noemt Saya nooit bij haar volledige naam; het is altijd "Say".</li>';
+    html += '<li><strong>Saya</strong> praat tegen haar magie alsof het een persoon is. Ze noemt het "de vonk." Als ze nerveus is, vonken haar vingertoppen \u2014 kleine, onschuldige lichtjes, als vuurvliegjes. Ze verzamelt steentjes van elke plek die ze bezoekt. En ze slaapt nooit zonder licht in de kamer.</li>';
+    html += '<li><strong>Samen</strong> hebben ze een eigen taal \u2014 een mengelmoes van handgebaren, half afgemaakte zinnen, en blikken die een heel gesprek bevatten. Na twaalf jaar samen overleven weten ze precies wat de ander denkt. Dat is soms een zegen. Soms een vloek.</li>';
+    html += '</ul>';
+
+    // Nu
+    html += '<h2 id="nu">Nu</h2>';
+    html += '<p>Ze zijn negentien. Oud genoeg om te weten dat overleven niet genoeg is. Jong genoeg om te geloven dat er iets beters bestaat.</p>';
+    html += '<p>Iets trekt hen weg uit Velthaven. Geruchten over de slangenwezens die terugkeren. Een brief zonder afzender met hun moeders handschrift. Een droom die ze allebei hebben \u2014 dezelfde droom, elke nacht, van een plek die ze nooit hebben gezien.</p>';
+    html += '<p>Ze weten niet wat ze zoeken. Maar ze weten dat ze het samen zullen vinden. Zoals altijd.</p>';
+
+    html += '</div>';
+    return html;
+}
+
+function renderLoreParty() {
+    var html = '<div class="lore-page lore-article">';
+    html += '<a class="btn btn-ghost btn-sm" href="#/lore">&larr; Terug naar Lore</a>';
+    html += '<h1>De Party</h1>';
+    html += '<p class="section-intro">Acht avonturiers. Verschillende achtergronden. E\u00e9n bestemming.</p>';
+
+    var ids = getCharacterIds();
+    for (var i = 0; i < ids.length; i++) {
+        var cfg = loadCharConfig(ids[i]);
+        if (!cfg) continue;
+        var state = loadCharState(ids[i]);
+        html += '<div class="lore-party-member" style="border-left-color:' + cfg.accentColor + '">';
+        html += '<h3 style="color:' + cfg.accentColor + '">' + escapeHtml(cfg.name) + '</h3>';
+        html += '<p class="text-dim">' + raceDisplayName(cfg.race) + ' ' + classDisplayName(cfg.className) + ' \u2014 Level ' + state.level + '</p>';
+        if (cfg.backstory) html += '<p>' + escapeHtml(cfg.backstory) + '</p>';
+        html += '</div>';
+    }
 
     html += '</div>';
     return html;
@@ -2999,6 +3305,194 @@ function bindPageEvents(route) {
                 return;
             }
 
+            // ---- Inline Editing Handlers ----
+
+            // Edit name
+            if (target.matches('[data-action="edit-name"]') || target.closest('[data-action="edit-name"]')) {
+                if (!canEdit(charId)) return;
+                var nameWrap = app.querySelector('.char-name-wrap');
+                if (nameWrap && !nameWrap.querySelector('.edit-input')) {
+                    var nameDisplay = nameWrap.querySelector('.char-name-display');
+                    var curName = config.name || '';
+                    nameDisplay.style.display = 'none';
+                    var editBtn = nameWrap.querySelector('[data-action="edit-name"]');
+                    if (editBtn) editBtn.style.display = 'none';
+                    var nameInput = document.createElement('input');
+                    nameInput.type = 'text';
+                    nameInput.className = 'edit-input edit-name-input';
+                    nameInput.value = curName;
+                    var saveBtn = document.createElement('button');
+                    saveBtn.className = 'edit-save';
+                    saveBtn.setAttribute('data-action', 'save-name');
+                    saveBtn.textContent = 'Opslaan';
+                    var cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'edit-cancel';
+                    cancelBtn.setAttribute('data-action', 'cancel-edit');
+                    cancelBtn.textContent = 'Annuleren';
+                    var actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'edit-actions';
+                    actionsDiv.appendChild(saveBtn);
+                    actionsDiv.appendChild(cancelBtn);
+                    nameWrap.insertBefore(nameInput, nameDisplay.nextSibling);
+                    nameWrap.insertBefore(actionsDiv, nameInput.nextSibling);
+                    nameInput.focus();
+                    nameInput.select();
+                }
+                return;
+            }
+
+            // Save name
+            if (target.matches('[data-action="save-name"]') || target.closest('[data-action="save-name"]')) {
+                if (!canEdit(charId)) return;
+                var nameInputEl = app.querySelector('.edit-name-input');
+                if (nameInputEl) {
+                    var newName = nameInputEl.value.trim();
+                    if (newName) {
+                        saveCharConfigEdit(charId, 'name', newName);
+                        config = loadCharConfig(charId);
+                    }
+                }
+                renderApp();
+                return;
+            }
+
+            // Color picker toggle
+            if (target.matches('[data-action="pick-color"]') || target.closest('[data-action="pick-color"]')) {
+                var popup = app.querySelector('.color-picker-popup');
+                if (popup) {
+                    popup.style.display = popup.style.display === 'none' ? 'grid' : 'none';
+                }
+                return;
+            }
+
+            // Select color
+            if (target.matches('[data-action="select-color"]') || target.closest('[data-action="select-color"]')) {
+                var colorBtn = target.matches('[data-action="select-color"]') ? target : target.closest('[data-action="select-color"]');
+                var newColor = colorBtn.dataset.color;
+                if (newColor && canEdit(charId)) {
+                    saveCharConfigEdit(charId, 'accentColor', newColor);
+                    document.documentElement.style.setProperty('--accent', newColor);
+                    config = loadCharConfig(charId);
+                    renderApp();
+                }
+                return;
+            }
+
+            // Edit field (generic)
+            if (target.matches('[data-action="edit-field"]') || target.closest('[data-action="edit-field"]')) {
+                if (!canEdit(charId)) return;
+                var editTrigger = target.matches('[data-action="edit-field"]') ? target : target.closest('[data-action="edit-field"]');
+                var fieldName = editTrigger.dataset.field;
+                var fieldWrap = editTrigger.closest('.editable-field');
+                if (!fieldWrap || fieldWrap.querySelector('.edit-textarea')) return;
+
+                var displayEl = fieldWrap.querySelector('.field-display');
+                var currentVal = '';
+                if (fieldName.indexOf('appearance') === 0) {
+                    var appIdx = parseInt(fieldName.replace('appearance', ''));
+                    currentVal = (config.appearance && config.appearance[appIdx]) ? config.appearance[appIdx] : '';
+                } else if (fieldName.indexOf('personality.') === 0) {
+                    var pKey = fieldName.replace('personality.', '');
+                    currentVal = (config.personality && config.personality[pKey]) ? config.personality[pKey] : '';
+                } else if (fieldName === 'backstory') {
+                    currentVal = config.backstory || '';
+                }
+
+                displayEl.style.display = 'none';
+                editTrigger.style.display = 'none';
+
+                var textarea = document.createElement('textarea');
+                textarea.className = 'edit-textarea';
+                textarea.value = currentVal;
+                textarea.setAttribute('data-field', fieldName);
+
+                var actions = document.createElement('div');
+                actions.className = 'edit-actions';
+                var sSaveBtn = document.createElement('button');
+                sSaveBtn.className = 'edit-save';
+                sSaveBtn.setAttribute('data-action', 'save-field');
+                sSaveBtn.setAttribute('data-field', fieldName);
+                sSaveBtn.textContent = 'Opslaan';
+                var sCancelBtn = document.createElement('button');
+                sCancelBtn.className = 'edit-cancel';
+                sCancelBtn.setAttribute('data-action', 'cancel-edit');
+                sCancelBtn.textContent = 'Annuleren';
+                actions.appendChild(sSaveBtn);
+                actions.appendChild(sCancelBtn);
+
+                fieldWrap.appendChild(textarea);
+                fieldWrap.appendChild(actions);
+                textarea.focus();
+                return;
+            }
+
+            // Save field (generic)
+            if (target.matches('[data-action="save-field"]') || target.closest('[data-action="save-field"]')) {
+                if (!canEdit(charId)) return;
+                var saveFieldBtn = target.matches('[data-action="save-field"]') ? target : target.closest('[data-action="save-field"]');
+                var saveFieldName = saveFieldBtn.dataset.field;
+                var saveFieldWrap = saveFieldBtn.closest('.editable-field');
+                var textareaEl = saveFieldWrap ? saveFieldWrap.querySelector('.edit-textarea') : null;
+                if (!textareaEl) return;
+                var newVal = textareaEl.value.trim();
+
+                if (saveFieldName.indexOf('appearance') === 0) {
+                    var aIdx = parseInt(saveFieldName.replace('appearance', ''));
+                    var curAppearance = (config.appearance || ['', '']).slice();
+                    curAppearance[aIdx] = newVal;
+                    saveCharConfigEdit(charId, 'appearance', curAppearance);
+                } else if (saveFieldName.indexOf('personality.') === 0) {
+                    var ppKey = saveFieldName.replace('personality.', '');
+                    var curPersonality = loadCharConfigEdits(charId).personality || {};
+                    curPersonality[ppKey] = newVal;
+                    saveCharConfigEdit(charId, 'personality', curPersonality);
+                } else if (saveFieldName === 'backstory') {
+                    saveCharConfigEdit(charId, 'backstory', newVal);
+                }
+
+                config = loadCharConfig(charId);
+                renderApp();
+                return;
+            }
+
+            // Cancel edit (generic)
+            if (target.matches('[data-action="cancel-edit"]') || target.closest('[data-action="cancel-edit"]')) {
+                renderApp();
+                return;
+            }
+
+            // Add quote
+            if (target.matches('[data-action="add-quote"]') || target.closest('[data-action="add-quote"]')) {
+                if (!canEdit(charId)) return;
+                var quoteInput = app.querySelector('.quote-add-input');
+                if (quoteInput) {
+                    var quoteVal = quoteInput.value.trim();
+                    if (quoteVal) {
+                        var curQuotes = (config.quotes || []).slice();
+                        curQuotes.push(quoteVal);
+                        saveCharConfigEdit(charId, 'quotes', curQuotes);
+                        config = loadCharConfig(charId);
+                        renderApp();
+                    }
+                }
+                return;
+            }
+
+            // Remove quote
+            if (target.matches('[data-action="remove-quote"]') || target.closest('[data-action="remove-quote"]')) {
+                if (!canEdit(charId)) return;
+                var removeBtn = target.matches('[data-action="remove-quote"]') ? target : target.closest('[data-action="remove-quote"]');
+                var qIdx = parseInt(removeBtn.dataset.quoteIdx);
+                if (!isNaN(qIdx)) {
+                    var curQ = (config.quotes || []).slice();
+                    curQ.splice(qIdx, 1);
+                    saveCharConfigEdit(charId, 'quotes', curQ);
+                    config = loadCharConfig(charId);
+                    renderApp();
+                }
+                return;
+            }
+
             // Export
             if (target.matches('[data-action="export-char"]') || target.closest('[data-action="export-char"]')) {
                 exportCharacter(charId, state);
@@ -3397,6 +3891,39 @@ function bindPageEvents(route) {
             return;
         }
 
+        // Timeline: add event button
+        if (target.matches('[data-action="add-timeline-event"]')) {
+            var tlForm = document.getElementById('timeline-add-form');
+            if (tlForm) tlForm.style.display = tlForm.style.display === 'none' ? 'block' : 'none';
+            return;
+        }
+
+        // Timeline: save event
+        if (target.matches('[data-action="save-timeline-event"]')) {
+            var tlDate = document.getElementById('tl-date');
+            var tlTitle = document.getElementById('tl-title');
+            var tlDesc = document.getElementById('tl-desc');
+            var tlType = document.getElementById('tl-type');
+            var dateVal = tlDate ? tlDate.value.trim() : '';
+            var titleVal = tlTitle ? tlTitle.value.trim() : '';
+            var descVal = tlDesc ? tlDesc.value.trim() : '';
+            var typeVal = tlType ? tlType.value : 'quest';
+            if (dateVal && titleVal) {
+                var customTlEvents = JSON.parse(localStorage.getItem('dw_timeline_events') || '[]');
+                customTlEvents.push({ date: dateVal, title: titleVal, desc: descVal, type: typeVal });
+                localStorage.setItem('dw_timeline_events', JSON.stringify(customTlEvents));
+                renderApp();
+            }
+            return;
+        }
+
+        // Timeline: cancel
+        if (target.matches('[data-action="cancel-timeline-event"]')) {
+            var tlForm2 = document.getElementById('timeline-add-form');
+            if (tlForm2) tlForm2.style.display = 'none';
+            return;
+        }
+
         // Map upload
         if (target.matches('[data-action="upload-map"]')) {
             if (isDM() && target.files && target.files[0]) {
@@ -3459,6 +3986,12 @@ function bindPageEvents(route) {
             if (uid) {
                 localStorage.setItem('dw_notes_' + uid, target.value);
             }
+        }
+
+        // Session number (DM)
+        if (target.matches('[data-action="update-session-number"]')) {
+            var sessVal = parseInt(target.value) || 1;
+            localStorage.setItem('dw_session_number', String(sessVal));
         }
     };
 
