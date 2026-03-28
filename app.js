@@ -8,15 +8,15 @@
 // ============================================================
 
 const USERS = {
-    dm:      { name: "Dungeon Master", role: "dm", characterId: null, pin: "0000" },
-    ren:     { name: "Joshua", role: "player", characterId: "ren", pin: "1111" },
-    saya:    { name: "Speler 2", role: "player", characterId: "saya", pin: "2222" },
-    ranger:  { name: "Speler 3", role: "player", characterId: "ranger", pin: "3333" },
-    wizard:  { name: "Speler 4", role: "player", characterId: "wizard", pin: "4444" },
-    paladin: { name: "Speler 5", role: "player", characterId: "paladin", pin: "5555" },
-    druid:   { name: "Speler 6", role: "player", characterId: "druid", pin: "6666" },
-    fighter: { name: "Speler 7", role: "player", characterId: "fighter", pin: "7777" },
-    warlock: { name: "Speler 8", role: "player", characterId: "warlock", pin: "8888" }
+    dm:      { name: "Dungeon Master", role: "dm", characterId: null, password: "dm" },
+    ren:     { name: "Joshua", role: "player", characterId: "ren", password: "ren" },
+    saya:    { name: "Speler 2", role: "player", characterId: "saya", password: "saya" },
+    ranger:  { name: "Speler 3", role: "player", characterId: "ranger", password: "ranger" },
+    wizard:  { name: "Speler 4", role: "player", characterId: "wizard", password: "wizard" },
+    paladin: { name: "Speler 5", role: "player", characterId: "paladin", password: "paladin" },
+    druid:   { name: "Speler 6", role: "player", characterId: "druid", password: "druid" },
+    fighter: { name: "Speler 7", role: "player", characterId: "fighter", password: "fighter" },
+    warlock: { name: "Speler 8", role: "player", characterId: "warlock", password: "warlock" }
 };
 
 function getSession() {
@@ -562,34 +562,20 @@ function renderApp() {
 function renderLogin() {
     var html = '<div class="login-page">';
     html += '<div class="login-card">';
+    html += '<div class="login-logo">&#9876;</div>';
     html += '<h1 class="login-title">D&D Within</h1>';
     html += '<p class="login-subtitle">Valoria Campaign Platform</p>';
-    html += '<div class="login-avatars">';
-
-    var ids = Object.keys(USERS);
-    for (var i = 0; i < ids.length; i++) {
-        var uid = ids[i];
-        var u = USERS[uid];
-        var icon = u.role === 'dm' ? '&#9876;' : '&#128100;';
-        html += '<div class="login-avatar-option" data-user-id="' + uid + '">';
-        html += '<span class="avatar-placeholder">' + icon + '</span>';
-        html += '<span class="avatar-name">' + escapeHtml(u.name) + '</span>';
-        html += '</div>';
-    }
-
+    html += '<div class="login-form">';
+    html += '<div class="login-field">';
+    html += '<label class="login-label">Gebruikersnaam</label>';
+    html += '<input type="text" class="login-input" id="login-username" placeholder="Gebruikersnaam" autocomplete="username">';
     html += '</div>';
-    html += '<div class="pin-input-wrap" style="display:none;">';
-    html += '<span class="pin-label">Voer je PIN in</span>';
-    html += '<div class="pin-input">';
-    html += '<input type="password" class="login-pin-input" maxlength="4" placeholder="****" autocomplete="off">';
+    html += '<div class="login-field">';
+    html += '<label class="login-label">Wachtwoord</label>';
+    html += '<input type="password" class="login-input" id="login-password" placeholder="Wachtwoord" autocomplete="current-password">';
     html += '</div>';
-    html += '<div style="display:flex;gap:0.5rem;justify-content:center;margin-top:1rem;">';
-    html += '<button class="login-btn" data-action="login-confirm">Inloggen</button>';
-    html += '</div>';
-    html += '<div style="text-align:center;margin-top:0.5rem;">';
-    html += '<button class="nav-logout" data-action="login-back">Terug</button>';
-    html += '</div>';
-    html += '<p class="login-error" style="display:none;"></p>';
+    html += '<button class="login-submit" data-action="login-submit">Inloggen</button>';
+    html += '<p class="login-error" id="login-error" style="display:none;"></p>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
@@ -662,34 +648,32 @@ function renderDashboard() {
 
     // Quick stats
     var charIds = getCharacterIds();
-    var totalLevel = 0;
     var partySize = 0;
+    var groupLevel = 1;
     for (var si = 0; si < charIds.length; si++) {
         var scfg = loadCharConfig(charIds[si]);
         if (!scfg) continue;
         var sstate = loadCharState(charIds[si]);
-        totalLevel += sstate.level;
         partySize++;
+        groupLevel = sstate.level; // group level (all same)
     }
-    var avgLevel = partySize > 0 ? (totalLevel / partySize).toFixed(1) : '0';
 
     html += '<div class="dash-stats">';
-    html += '<div class="dash-stat-card"><span class="dash-stat-value">' + partySize + '</span><span class="dash-stat-label">Avonturiers</span></div>';
-    html += '<div class="dash-stat-card"><span class="dash-stat-value">' + avgLevel + '</span><span class="dash-stat-label">Gem. Level</span></div>';
     html += '<div class="dash-stat-card"><span class="dash-stat-value">' + escapeHtml(sessionNum) + '</span><span class="dash-stat-label">Sessie</span></div>';
+    html += '<div class="dash-stat-card"><span class="dash-stat-value">' + partySize + '</span><span class="dash-stat-label">Party</span></div>';
+    html += '<div class="dash-stat-card"><span class="dash-stat-value">' + groupLevel + '</span><span class="dash-stat-label">Level</span></div>';
     html += '</div>';
 
     // Quick navigation cards
     html += '<div class="dash-nav-cards">';
-    html += '<a class="dash-nav-card" href="#/lore/valoria"><span class="dash-nav-icon">&#127758;</span><span class="dash-nav-title">Wereld van Valoria</span><span class="dash-nav-desc">Geografie, volkeren en magie</span></a>';
-    html += '<a class="dash-nav-card" href="#/lore/ashvane"><span class="dash-nav-icon">&#9876;</span><span class="dash-nav-title">De Ashvane Tweeling</span><span class="dash-nav-desc">Ren & Saya\'s verhaal</span></a>';
-    html += '<a class="dash-nav-card" href="#/lore/party"><span class="dash-nav-icon">&#9813;</span><span class="dash-nav-title">De Party</span><span class="dash-nav-desc">Alle avonturiers</span></a>';
-    html += '<a class="dash-nav-card" href="#/timeline"><span class="dash-nav-icon">&#8986;</span><span class="dash-nav-title">Tijdlijn</span><span class="dash-nav-desc">Geschiedenis van Valoria</span></a>';
-    html += '<a class="dash-nav-card" href="#/maps"><span class="dash-nav-icon">&#128506;</span><span class="dash-nav-title">Kaarten</span><span class="dash-nav-desc">Kaarten van de wereld</span></a>';
-    html += '<a class="dash-nav-card" href="#/notes"><span class="dash-nav-icon">&#128221;</span><span class="dash-nav-title">Notities</span><span class="dash-nav-desc">Je sessie-aantekeningen</span></a>';
+    html += '<a class="dash-nav-card" href="#/characters"><span class="dash-nav-icon">&#9876;</span><span class="dash-nav-title">Characters</span><span class="dash-nav-desc">Bekijk alle avonturiers</span></a>';
+    html += '<a class="dash-nav-card" href="#/timeline"><span class="dash-nav-icon">&#128337;</span><span class="dash-nav-title">Timeline</span><span class="dash-nav-desc">Geschiedenis van Valoria</span></a>';
+    html += '<a class="dash-nav-card" href="#/maps"><span class="dash-nav-icon">&#128506;</span><span class="dash-nav-title">Maps</span><span class="dash-nav-desc">Kaarten van de wereld</span></a>';
+    html += '<a class="dash-nav-card" href="#/lore"><span class="dash-nav-icon">&#128214;</span><span class="dash-nav-title">Lore</span><span class="dash-nav-desc">Wereld, volkeren en magie</span></a>';
+    html += '<a class="dash-nav-card" href="#/notes"><span class="dash-nav-icon">&#128221;</span><span class="dash-nav-title">Notes</span><span class="dash-nav-desc">Je sessie-aantekeningen</span></a>';
     html += '</div>';
 
-    // Recent timeline events
+    // Recent timeline events (only show if there ARE events)
     var tlEvents = getTimelineEvents();
     var recentEvents = tlEvents.slice(-3).reverse();
     if (recentEvents.length > 0) {
@@ -719,21 +703,8 @@ function renderDashboard() {
         var cstate = loadCharState(cid);
         if (!ccfg) continue;
 
-        var portrait = loadImage(cid, 'portrait');
-        html += '<a class="char-card" href="#/characters/' + cid + '" style="--card-accent:' + ccfg.accentColor + '">';
-        html += '<div class="char-card-portrait">';
-        if (portrait) {
-            html += '<img src="' + portrait + '" alt="">';
-        } else {
-            html += '<span class="portrait-placeholder">&#128100;</span>';
-        }
-        html += '</div>';
-        html += '<div class="char-card-body">';
-        html += '<span class="char-card-name">' + escapeHtml(ccfg.name) + '</span>';
-        html += '<span class="char-card-class">' + classDisplayName(ccfg.className) + '</span>';
-        html += '</div>';
-        html += '<span class="char-card-level">Lv ' + cstate.level + '</span>';
-        html += '</a>';
+        var isOwn = user && user.characterId === cid;
+        html += renderCharCard(cid, ccfg, cstate, isOwn);
     }
 
     html += '</div>';
@@ -746,6 +717,29 @@ function renderDashboard() {
 // ============================================================
 // Section 12: Character List
 // ============================================================
+
+function renderCharCard(cid, cfg, state, isOwn) {
+    var portrait = loadImage(cid, 'portrait');
+    var banner = loadImage(cid, 'banner');
+    var imgSrc = portrait || banner || '';
+
+    var html = '<a class="char-card" href="#/characters/' + cid + '" style="--card-accent:' + cfg.accentColor + '">';
+    html += '<div class="char-card-img">';
+    if (imgSrc) {
+        html += '<img src="' + imgSrc + '" alt="">';
+    } else {
+        html += '<div class="char-card-placeholder">&#128100;</div>';
+    }
+    html += '</div>';
+    html += '<div class="char-card-overlay">';
+    html += '<span class="char-card-name">' + escapeHtml(cfg.name) + '</span>';
+    html += '<span class="char-card-detail">' + raceDisplayName(cfg.race) + ' ' + classDisplayName(cfg.className) + '</span>';
+    html += '<span class="char-card-detail">Level ' + state.level + '</span>';
+    if (isOwn) html += '<span class="char-card-badge">Jouw karakter</span>';
+    html += '</div>';
+    html += '</a>';
+    return html;
+}
 
 function renderCharacterList() {
     var html = '<div class="dashboard">';
@@ -762,31 +756,7 @@ function renderCharacterList() {
         if (!cfg) continue;
 
         var isOwn = user && user.characterId === cid;
-        var portrait = loadImage(cid, 'portrait');
-        var banner = loadImage(cid, 'banner');
-
-        html += '<a class="char-card" href="#/characters/' + cid + '" style="--card-accent:' + cfg.accentColor + '">';
-
-        html += '<div class="char-card-portrait">';
-        if (portrait) {
-            html += '<img src="' + portrait + '" alt="">';
-        } else if (banner) {
-            html += '<img src="' + banner + '" alt="">';
-        } else {
-            html += '<span class="portrait-placeholder">&#128100;</span>';
-        }
-        html += '</div>';
-
-        html += '<div class="char-card-body">';
-        html += '<span class="char-card-name">' + escapeHtml(cfg.name) + '</span>';
-        html += '<span class="char-card-class">' + raceDisplayName(cfg.race) + ' ' + classDisplayName(cfg.className) + '</span>';
-        html += '<div class="char-card-stats">';
-        html += '<span class="stat-pill">Lv ' + state.level + '</span>';
-        if (isOwn) html += '<span class="stat-pill">Jouw karakter</span>';
-        html += '</div>';
-        html += '</div>';
-        html += '<span class="char-card-level">Lv ' + state.level + '</span>';
-        html += '</a>';
+        html += renderCharCard(cid, cfg, state, isOwn);
     }
 
     html += '</div>';
@@ -3185,58 +3155,37 @@ function bindPageEvents(route) {
 
         // --- Login page ---
         if (route.path === '/login' || !currentUser()) {
-            // User card selection
-            var userCard = target.closest('.login-avatar-option');
-            if (userCard) {
-                var userId = userCard.dataset.userId;
-                if (userId) {
-                    // Show PIN input
-                    var pinArea = app.querySelector('.pin-input-wrap');
-                    var userGrid = app.querySelector('.login-avatars');
-                    if (pinArea && userGrid) {
-                        userGrid.style.display = 'none';
-                        pinArea.style.display = 'block';
-                        pinArea.dataset.selectedUser = userId;
-                        var pinInput = pinArea.querySelector('.login-pin-input');
-                        if (pinInput) {
-                            pinInput.value = '';
-                            pinInput.focus();
-                        }
-                        // Update label
-                        var label = pinArea.querySelector('.pin-label');
-                        if (label) label.textContent = 'PIN voor ' + USERS[userId].name;
+            // Login submit
+            if (target.matches('[data-action="login-submit"]') || target.closest('[data-action="login-submit"]')) {
+                var usernameEl = document.getElementById('login-username');
+                var passwordEl = document.getElementById('login-password');
+                var errorEl = document.getElementById('login-error');
+                if (!usernameEl || !passwordEl) return;
+
+                var username = usernameEl.value.trim().toLowerCase();
+                var password = passwordEl.value;
+
+                // Find user by username (match against user ID or name)
+                var matchedId = null;
+                for (var uid in USERS) {
+                    if (uid === username || USERS[uid].name.toLowerCase() === username) {
+                        matchedId = uid;
+                        break;
                     }
                 }
-                return;
-            }
 
-            // Login confirm
-            if (target.matches('[data-action="login-confirm"]') || target.closest('[data-action="login-confirm"]')) {
-                var pinAreaEl = app.querySelector('.pin-input-wrap');
-                if (pinAreaEl) {
-                    var selUserId = pinAreaEl.dataset.selectedUser;
-                    var pinVal = (app.querySelector('.login-pin-input') || {}).value || '';
-                    var user = USERS[selUserId];
-                    if (user && pinVal === user.pin) {
-                        setSession(selUserId);
-                        navigate('/dashboard');
-                    } else {
-                        var errEl = app.querySelector('.login-error');
-                        if (errEl) {
-                            errEl.textContent = 'Onjuiste PIN.';
-                            errEl.style.display = 'block';
-                        }
-                    }
+                if (!matchedId) {
+                    if (errorEl) { errorEl.textContent = 'Gebruiker niet gevonden.'; errorEl.style.display = 'block'; }
+                    return;
                 }
-                return;
-            }
 
-            // Login back
-            if (target.matches('[data-action="login-back"]') || target.closest('[data-action="login-back"]')) {
-                var pinAreaEl2 = app.querySelector('.pin-input-wrap');
-                var userGrid2 = app.querySelector('.login-avatars');
-                if (pinAreaEl2) pinAreaEl2.style.display = 'none';
-                if (userGrid2) userGrid2.style.display = '';
+                if (USERS[matchedId].password !== password) {
+                    if (errorEl) { errorEl.textContent = 'Onjuist wachtwoord.'; errorEl.style.display = 'block'; }
+                    return;
+                }
+
+                setSession(matchedId);
+                navigate('/dashboard');
                 return;
             }
             return;
@@ -3999,11 +3948,11 @@ function bindPageEvents(route) {
         }
     };
 
-    // ---- Keydown for PIN ----
+    // ---- Keydown for login Enter key ----
     app.onkeydown = function(e) {
-        if (e.key === 'Enter' && e.target.matches('.login-pin-input')) {
-            var loginBtn = app.querySelector('[data-action="login-confirm"]');
-            if (loginBtn) loginBtn.click();
+        if (e.key === 'Enter' && e.target.matches('.login-input')) {
+            var submitBtn = document.querySelector('[data-action="login-submit"]');
+            if (submitBtn) submitBtn.click();
         }
     };
 
