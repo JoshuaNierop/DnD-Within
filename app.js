@@ -629,7 +629,7 @@ function renderNavbar(route) {
     html += '<span class="nav-avatar">' + escapeHtml(user ? user.name.charAt(0) : '') + '</span>';
     html += '<button class="nav-logout" data-action="logout">Uitloggen</button>';
     html += '</div>';
-    html += '<button class="nav-link" data-action="toggle-nav" style="display:none;">&#9776;</button>';
+    html += '<button class="nav-toggle" data-action="toggle-nav">&#9776;</button>';
     html += '</nav>';
     return html;
 }
@@ -882,9 +882,7 @@ function renderCharacterSheet(charId) {
 
     html += '</div>';
 
-    html += '</div>';
-
-    // Header actions
+    // Header actions (inside char-header for absolute positioning)
     if (editable) {
         html += '<div class="header-actions" id="options-dropdown">';
         html += '<button class="options-toggle" data-action="toggle-options">&#9881;</button>';
@@ -1402,7 +1400,12 @@ function renderTabCombat(charId, config, state) {
             }
             html += '</div></div>';
         } else {
-            var slotTable = classData && classData.spellSlots ? classData.spellSlots[state.level] : null;
+            var slotTable = null;
+            if (classData && classData.spellSlots) {
+                slotTable = classData.spellSlots[state.level] || null;
+            } else if (classData && classData.spellcasting === 'half') {
+                slotTable = DATA.halfCasterSlots[state.level] || null;
+            }
             if (slotTable) {
                 for (var sl = 0; sl < slotTable.length; sl++) {
                     var totalSlots = slotTable[sl];
@@ -3829,6 +3832,40 @@ function bindPageEvents(route) {
                 return;
             }
         }
+
+        // --- Timeline events (buttons, need click not change) ---
+        // Timeline: add event button
+        if (target.matches('[data-action="add-timeline-event"]') || target.closest('[data-action="add-timeline-event"]')) {
+            var tlForm = document.getElementById('timeline-add-form');
+            if (tlForm) tlForm.style.display = tlForm.style.display === 'none' ? 'block' : 'none';
+            return;
+        }
+
+        // Timeline: save event
+        if (target.matches('[data-action="save-timeline-event"]') || target.closest('[data-action="save-timeline-event"]')) {
+            var tlDate = document.getElementById('tl-date');
+            var tlTitle = document.getElementById('tl-title');
+            var tlDesc = document.getElementById('tl-desc');
+            var tlType = document.getElementById('tl-type');
+            var dateVal = tlDate ? tlDate.value.trim() : '';
+            var titleVal = tlTitle ? tlTitle.value.trim() : '';
+            var descVal = tlDesc ? tlDesc.value.trim() : '';
+            var typeVal = tlType ? tlType.value : 'quest';
+            if (dateVal && titleVal) {
+                var customTlEvents = JSON.parse(localStorage.getItem('dw_timeline_events') || '[]');
+                customTlEvents.push({ date: dateVal, title: titleVal, desc: descVal, type: typeVal });
+                localStorage.setItem('dw_timeline_events', JSON.stringify(customTlEvents));
+                renderApp();
+            }
+            return;
+        }
+
+        // Timeline: cancel
+        if (target.matches('[data-action="cancel-timeline-event"]') || target.closest('[data-action="cancel-timeline-event"]')) {
+            var tlForm2 = document.getElementById('timeline-add-form');
+            if (tlForm2) tlForm2.style.display = 'none';
+            return;
+        }
     };
 
     // ---- Change delegation ----
@@ -3888,39 +3925,6 @@ function bindPageEvents(route) {
             if (charId && canEdit(charId) && target.files && target.files[0]) {
                 handleImageUpload(target.files[0], charId, 'appearance');
             }
-            return;
-        }
-
-        // Timeline: add event button
-        if (target.matches('[data-action="add-timeline-event"]')) {
-            var tlForm = document.getElementById('timeline-add-form');
-            if (tlForm) tlForm.style.display = tlForm.style.display === 'none' ? 'block' : 'none';
-            return;
-        }
-
-        // Timeline: save event
-        if (target.matches('[data-action="save-timeline-event"]')) {
-            var tlDate = document.getElementById('tl-date');
-            var tlTitle = document.getElementById('tl-title');
-            var tlDesc = document.getElementById('tl-desc');
-            var tlType = document.getElementById('tl-type');
-            var dateVal = tlDate ? tlDate.value.trim() : '';
-            var titleVal = tlTitle ? tlTitle.value.trim() : '';
-            var descVal = tlDesc ? tlDesc.value.trim() : '';
-            var typeVal = tlType ? tlType.value : 'quest';
-            if (dateVal && titleVal) {
-                var customTlEvents = JSON.parse(localStorage.getItem('dw_timeline_events') || '[]');
-                customTlEvents.push({ date: dateVal, title: titleVal, desc: descVal, type: typeVal });
-                localStorage.setItem('dw_timeline_events', JSON.stringify(customTlEvents));
-                renderApp();
-            }
-            return;
-        }
-
-        // Timeline: cancel
-        if (target.matches('[data-action="cancel-timeline-event"]')) {
-            var tlForm2 = document.getElementById('timeline-add-form');
-            if (tlForm2) tlForm2.style.display = 'none';
             return;
         }
 
