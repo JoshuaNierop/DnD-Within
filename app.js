@@ -175,6 +175,7 @@ function loadCharState(charId) {
 function saveCharState(charId, state) {
     var key = 'dw_char_' + charId;
     localStorage.setItem(key, JSON.stringify(state));
+    if (typeof syncUpload === 'function') syncUpload(key);
 }
 
 function loadCharConfigEdits(charId) {
@@ -188,7 +189,9 @@ function loadCharConfigEdits(charId) {
 function saveCharConfigEdit(charId, field, value) {
     var edits = loadCharConfigEdits(charId);
     edits[field] = value;
-    localStorage.setItem('dw_charconfig_' + charId, JSON.stringify(edits));
+    var key = 'dw_charconfig_' + charId;
+    localStorage.setItem(key, JSON.stringify(edits));
+    if (typeof syncUpload === 'function') syncUpload(key);
 }
 
 function loadCharConfig(charId) {
@@ -223,7 +226,9 @@ function loadImage(charId, type) {
 }
 
 function saveImage(charId, type, base64) {
-    localStorage.setItem('dw_img_' + charId + '_' + type, base64);
+    var key = 'dw_img_' + charId + '_' + type;
+    localStorage.setItem(key, base64);
+    if (typeof syncUpload === 'function') syncUpload(key);
 }
 
 // ============================================================
@@ -686,6 +691,13 @@ function renderNavbar(route) {
     html += '</div>';
     html += '</div>';
     html += '</div>';
+    // Sync status indicator
+    var syncStatus = typeof getSyncStatus === 'function' ? getSyncStatus() : 'not-configured';
+    if (syncStatus === 'online') {
+        html += '<span class="sync-indicator sync-online" title="Cloud sync actief">&#9729;</span>';
+    } else if (syncStatus === 'offline') {
+        html += '<span class="sync-indicator sync-offline" title="Cloud offline">&#9729;</span>';
+    }
     html += '<span class="nav-avatar">' + escapeHtml(user ? user.name.charAt(0) : '') + '</span>';
     html += '<button class="nav-logout" data-action="logout">Uitloggen</button>';
     html += '</div>';
@@ -865,6 +877,20 @@ function renderDashboard() {
         html += '</div>';
         html += '<div class="dice-result" id="dice-result"></div>';
         html += '</div>'; // dm-tool-card
+
+        // Cloud sync card
+        html += '<div class="dm-tool-card">';
+        html += '<h3>&#9729; Cloud Sync</h3>';
+        var syncSt = typeof getSyncStatus === 'function' ? getSyncStatus() : 'not-configured';
+        if (syncSt === 'online') {
+            html += '<p style="color:var(--success);font-size:0.85rem;margin-bottom:0.75rem;">Verbonden — alle wijzigingen worden automatisch gesynchroniseerd.</p>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="sync-upload-all">Alles uploaden naar cloud</button>';
+        } else if (syncSt === 'not-configured') {
+            html += '<p style="color:var(--text-dim);font-size:0.85rem;">Firebase niet geconfigureerd. Vul FIREBASE_CONFIG in sync.js in.</p>';
+        } else {
+            html += '<p style="color:var(--warning);font-size:0.85rem;">Firebase offline. Controleer je verbinding.</p>';
+        }
+        html += '</div>';
 
         html += '</div>'; // dm-tools
     }
@@ -2006,6 +2032,7 @@ function getMapsData() {
 
 function saveMapsData(data) {
     localStorage.setItem('dw_maps', JSON.stringify(data));
+    if (typeof syncUpload === 'function') syncUpload('dw_maps');
 }
 
 function renderMaps() {
@@ -2167,6 +2194,7 @@ function getTimelineData() {
 
 function saveTimelineData(data) {
     localStorage.setItem('dw_timeline', JSON.stringify(data));
+    if (typeof syncUpload === 'function') syncUpload('dw_timeline');
 }
 
 function renderTimeline() {
@@ -2280,6 +2308,7 @@ function getLoreData() {
 
 function saveLoreData(data) {
     localStorage.setItem('dw_lore', JSON.stringify(data));
+    if (typeof syncUpload === 'function') syncUpload('dw_lore');
 }
 
 function renderLore(subpage) {
@@ -2445,7 +2474,9 @@ function getNotesData() {
 
 function saveNotesData(data) {
     var userId = currentUserId();
-    localStorage.setItem('dw_notes_' + userId, JSON.stringify(data));
+    var key = 'dw_notes_' + userId;
+    localStorage.setItem(key, JSON.stringify(data));
+    if (typeof syncUpload === 'function') syncUpload(key);
 }
 
 function formatNoteDate(ts) {
@@ -3450,6 +3481,7 @@ function showResetModal(charId, config, state) {
 
 function performReset(charId) {
     localStorage.removeItem('dw_char_' + charId);
+    if (typeof syncRemove === 'function') syncRemove('dw_char_' + charId);
     // Also remove old key
     localStorage.removeItem('ashvane_' + charId);
     spellFilter = 'all';
@@ -4132,6 +4164,7 @@ function bindPageEvents(route) {
             initData.entries.push({ name: iName, charId: iCharId, initiative: parseInt(rollInput.value) || 0 });
             initData.entries.sort(function(a, b) { return b.initiative - a.initiative; });
             localStorage.setItem('dw_initiative', JSON.stringify(initData));
+            if (typeof syncUpload === 'function') syncUpload('dw_initiative');
             renderApp();
             return;
         }
@@ -4144,6 +4177,7 @@ function bindPageEvents(route) {
                 if (initData.currentTurn === 0) initData.round++;
             }
             localStorage.setItem('dw_initiative', JSON.stringify(initData));
+            if (typeof syncUpload === 'function') syncUpload('dw_initiative');
             renderApp();
             return;
         }
@@ -4157,6 +4191,7 @@ function bindPageEvents(route) {
                 if (initData.currentTurn >= initData.entries.length) initData.currentTurn = 0;
             }
             localStorage.setItem('dw_initiative', JSON.stringify(initData));
+            if (typeof syncUpload === 'function') syncUpload('dw_initiative');
             renderApp();
             return;
         }
@@ -4164,7 +4199,16 @@ function bindPageEvents(route) {
         // Clear initiative
         if (target.matches('[data-action="clear-init"]')) {
             localStorage.setItem('dw_initiative', JSON.stringify({entries:[], currentTurn:0, round:1}));
+            if (typeof syncUpload === 'function') syncUpload('dw_initiative');
             renderApp();
+            return;
+        }
+
+        // Sync upload all
+        if (target.matches('[data-action="sync-upload-all"]')) {
+            if (typeof syncUploadAll === 'function') syncUploadAll();
+            target.textContent = 'Geupload!';
+            setTimeout(function() { target.textContent = 'Alles uploaden naar cloud'; }, 2000);
             return;
         }
 
@@ -4761,12 +4805,14 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="session-plus"]')) {
             var n = parseInt(localStorage.getItem('dw_session_number') || '1');
             localStorage.setItem('dw_session_number', String(n + 1));
+            if (typeof syncUpload === 'function') syncUpload('dw_session_number');
             renderApp();
             return;
         }
         if (target.matches('[data-action="session-minus"]')) {
             var n = parseInt(localStorage.getItem('dw_session_number') || '1');
             if (n > 1) localStorage.setItem('dw_session_number', String(n - 1));
+            if (typeof syncUpload === 'function') syncUpload('dw_session_number');
             renderApp();
             return;
         }
@@ -5484,6 +5530,7 @@ function patchTooltipEvents() {
 
 document.addEventListener('DOMContentLoaded', function() {
     initMobileSupport();
+    if (typeof initFirebaseSync === 'function') initFirebaseSync();
     initRouter();
     patchTooltipEvents();
 });

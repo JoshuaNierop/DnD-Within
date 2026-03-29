@@ -4601,6 +4601,11 @@ select.edit-input option {
     /* Inherits from .feat-card — no extra styles needed, selector exists for JS querySelectorAll */
 }
 
+/* ===== SYNC INDICATOR ===== */
+.sync-indicator { font-size: 1.1rem; cursor: default; margin-right: 0.25rem; }
+.sync-online { color: var(--success); }
+.sync-offline { color: var(--warning); opacity: 0.6; }
+
 .levelup-feat-pick.selected {
     border-color: var(--accent);
     background: var(--accent-glow);
