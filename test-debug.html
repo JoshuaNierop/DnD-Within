@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html><head><title>Debug Test</title></head>
+<body>
+<div id="app"></div>
+<div id="output" style="white-space:pre-wrap;font-family:monospace;padding:20px;"></div>
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="i18n.js"></script>
+<script src="sync.js"></script>
+<script>
+// Override app.js DOMContentLoaded, test manually
+var log = [];
+var origConsoleError = console.error;
+console.error = function() { log.push('ERROR: ' + Array.from(arguments).join(' ')); origConsoleError.apply(console, arguments); };
+window.onerror = function(msg, src, line, col, err) {
+    log.push('WINDOW ERROR: ' + msg + ' at line ' + line + ' col ' + col);
+    document.getElementById('output').textContent = log.join('\n');
+    return false;
+};
+</script>
+<script src="app.js"></script>
+<script>
+try {
+    log.push('Scripts loaded OK');
+    log.push('typeof t: ' + typeof t);
+    log.push('typeof isSubclassVisible: ' + typeof isSubclassVisible);
+    log.push('typeof getLang: ' + typeof getLang);
+    log.push('getLang(): ' + getLang());
+    log.push('t test: ' + t('nav.dashboard'));
+
+    // Simulate login
+    setSession('ren');
+    log.push('Session set');
+
+    var config = loadCharConfig('ren');
+    log.push('Config: ' + JSON.stringify({name:config.name, cls:config.className, sub:config.subclass}));
+
+    var state = loadCharState('ren');
+    log.push('State level: ' + state.level);
+
+    log.push('isSubclassVisible: ' + isSubclassVisible(config, state));
+
+    var html = renderCharacterSheet('ren');
+    log.push('Render SUCCESS, length: ' + html.length);
+} catch(e) {
+    log.push('CAUGHT ERROR: ' + e.message);
+    log.push('Stack: ' + e.stack);
+}
+document.getElementById('output').textContent = log.join('\n');
+</script>
+</body></html>
