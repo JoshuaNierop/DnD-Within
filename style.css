@@ -5985,3 +5985,93 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     border: 1px solid rgba(var(--accent-rgb), 0.25);
     border-radius: var(--radius-sm);
 }
+
+/* ============================================================
+   Ability Radar Chart
+   ============================================================ */
+.radar-block { grid-column: 1 / -1; }
+.radar-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+.ability-radar text { font-family: inherit; }
+
+/* ============================================================
+   Weapon Roll Button & Result
+   ============================================================ */
+.weapon-roll-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-dim);
+    transition: all 0.15s;
+    margin-left: auto;
+}
+.weapon-roll-btn:hover { border-color: var(--accent); color: var(--accent); }
+.weapon-roll-btn:active { transform: scale(0.9); }
+.weapon { display: flex; align-items: center; gap: 0.5rem; }
+.weapon-roll-result {
+    position: absolute;
+    right: 0;
+    top: -60px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+    z-index: 20;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    animation: fadeUp 0.2s ease-out;
+}
+.weapon-roll-result.nat20 { border-color: var(--gold); color: var(--gold); }
+.weapon-roll-result.nat1 { border-color: var(--danger); color: var(--danger); }
+.weapon { position: relative; }
+
+/* ============================================================
+   Quest Tracker
+   ============================================================ */
+.dash-quests { margin-bottom: 2rem; }
+.dash-quests-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+.quest-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.4rem;
+}
+.quest-item.quest-done {
+    border-left-color: var(--success);
+    opacity: 0.6;
+}
+.quest-icon { font-size: 1.1rem; }
+.quest-info { flex: 1; }
+.quest-info strong { font-size: 0.9rem; }
+.quest-completed-section { margin-top: 0.5rem; }
+
+/* ============================================================
+   Inventory Categories
+   ============================================================ */
+.item-category { margin-bottom: 1rem; }
+.item-cat-header {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 0.4rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.item-cat-count { font-weight: 400; opacity: 0.6; }

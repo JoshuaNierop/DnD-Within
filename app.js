@@ -970,6 +970,41 @@ function renderDashboard() {
         html += '</div>';
     }
 
+    // Quest tracker
+    var questData = JSON.parse(localStorage.getItem('dw_quests') || '{"active":[],"completed":[]}');
+    html += '<div class="dash-quests">';
+    html += '<div class="dash-quests-header">';
+    html += '<h2 class="section-title">Active Quests</h2>';
+    if (isDM()) {
+        html += '<button class="btn btn-ghost btn-sm" data-action="add-quest">+ Add Quest</button>';
+    }
+    html += '</div>';
+    if (questData.active.length === 0 && questData.completed.length === 0) {
+        html += '<p class="text-dim">No quests yet.</p>';
+    }
+    for (var qi = 0; qi < questData.active.length; qi++) {
+        var quest = questData.active[qi];
+        html += '<div class="quest-item quest-active">';
+        html += '<span class="quest-icon">&#9876;</span>';
+        html += '<div class="quest-info">';
+        html += '<strong>' + escapeHtml(quest.title) + '</strong>';
+        if (quest.desc) html += '<p class="text-dim" style="margin:0;font-size:0.8rem;">' + escapeHtml(quest.desc) + '</p>';
+        html += '</div>';
+        if (isDM()) {
+            html += '<button class="btn btn-ghost btn-sm" data-action="complete-quest" data-quest-idx="' + qi + '" title="Complete">&#10003;</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="delete-quest" data-quest-idx="' + qi + '" style="color:var(--danger);" title="Delete">&times;</button>';
+        }
+        html += '</div>';
+    }
+    if (questData.completed.length > 0) {
+        html += '<details class="quest-completed-section"><summary class="text-dim" style="cursor:pointer;font-size:0.85rem;">Completed (' + questData.completed.length + ')</summary>';
+        for (var qc = 0; qc < questData.completed.length; qc++) {
+            html += '<div class="quest-item quest-done"><span class="quest-icon">&#10003;</span><span style="text-decoration:line-through;color:var(--text-dim);">' + escapeHtml(questData.completed[qc].title) + '</span></div>';
+        }
+        html += '</details>';
+    }
+    html += '</div>';
+
     // Party overview
     html += '<div class="party-section">';
     html += '<h2 class="section-title">' + t('dash.partyoverview') + '</h2>';
@@ -1434,12 +1469,66 @@ function renderFeaturesSummary(config, state) {
 // Section 15: Tab — Stats
 // ============================================================
 
+function renderAbilityRadar(config, state) {
+    var abilities = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    var labels = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+    var cx = 90, cy = 90, r = 70;
+    var maxVal = 20;
+
+    function polarToXY(angle, radius) {
+        var rad = (angle - 90) * Math.PI / 180;
+        return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
+    }
+
+    var svg = '<svg class="ability-radar" viewBox="0 0 180 180" width="180" height="180">';
+
+    // Grid rings
+    for (var ring = 1; ring <= 4; ring++) {
+        var ringR = r * ring / 4;
+        var ringPts = [];
+        for (var i = 0; i < 6; i++) {
+            var p = polarToXY(i * 60, ringR);
+            ringPts.push(p.x + ',' + p.y);
+        }
+        svg += '<polygon points="' + ringPts.join(' ') + '" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
+    }
+
+    // Axis lines
+    for (var i = 0; i < 6; i++) {
+        var p = polarToXY(i * 60, r);
+        svg += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p.x + '" y2="' + p.y + '" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
+    }
+
+    // Data polygon
+    var dataPts = [];
+    for (var i = 0; i < 6; i++) {
+        var score = getAbilityScore(config, state, abilities[i]);
+        var dataR = Math.min(score / maxVal, 1) * r;
+        var p = polarToXY(i * 60, dataR);
+        dataPts.push(p.x + ',' + p.y);
+    }
+    svg += '<polygon points="' + dataPts.join(' ') + '" fill="rgba(var(--accent-rgb, 34,211,238), 0.2)" stroke="var(--char-accent, var(--accent))" stroke-width="2"/>';
+
+    // Labels + values
+    for (var i = 0; i < 6; i++) {
+        var score = getAbilityScore(config, state, abilities[i]);
+        var lp = polarToXY(i * 60, r + 16);
+        svg += '<text x="' + lp.x + '" y="' + lp.y + '" text-anchor="middle" dominant-baseline="middle" fill="var(--text-dim)" font-size="9" font-weight="600">' + labels[i] + '</text>';
+        var vp = polarToXY(i * 60, r + 28);
+        svg += '<text x="' + vp.x + '" y="' + vp.y + '" text-anchor="middle" dominant-baseline="middle" fill="var(--accent)" font-size="10" font-weight="700">' + score + '</text>';
+    }
+
+    svg += '</svg>';
+    return '<div class="radar-container">' + svg + '</div>';
+}
+
 function renderTabStats(charId, config, state) {
     var html = '<div class="sheet-grid">';
 
-    // Ability Scores
-    html += '<div class="sheet-block">';
+    // Ability Score Radar Chart
+    html += '<div class="sheet-block radar-block">';
     html += '<h2>' + t('stats.abilityscores') + '</h2>';
+    html += renderAbilityRadar(config, state);
     html += renderAbilityScoresHTML(charId, config, state);
     html += '</div>';
 
@@ -1897,6 +1986,7 @@ function renderWeaponsHTML(config, state) {
         html += '<span class="weapon-name">' + escapeHtml(weapon.name) + '</span>';
         html += '<span class="weapon-hit">' + formatMod(hitBonus) + '</span>';
         html += '<span class="weapon-dmg">' + dmgStr + (weapon.type && weapon.type !== '-' ? ' ' + weapon.type : '') + '</span>';
+        html += '<button class="weapon-roll-btn" data-action="roll-attack" data-hit="' + hitBonus + '" data-dmg="' + escapeAttr(weapon.dmg) + '" data-dmg-mod="' + damageMod + '" data-weapon="' + escapeAttr(weapon.name) + '" title="Roll Attack">&#127922;</button>';
         html += '</div>';
     }
     html += '</div>';
@@ -2033,7 +2123,8 @@ function renderTabSpells(charId, config, state) {
             if (spellFilter === 'favorites' && !isFav) continue;
             var cls = isSelected ? 'spell-toggle selected' : 'spell-toggle';
             var starCls = isFav ? 'spell-star favorited' : 'spell-star';
-            html += '<button class="' + cls + '" data-spell="' + escapeAttr(spell.name) + '" data-level="0">';
+            var spellTip = spell.time + ' | ' + spell.range + ' | ' + spell.comp + ' | ' + spell.dur;
+            html += '<button class="' + cls + '" data-spell="' + escapeAttr(spell.name) + '" data-level="0" data-tip="' + escapeAttr(spellTip + '\n' + (spell.desc || '')) + '">';
             html += '<span class="' + starCls + '" data-spell-star="' + escapeAttr(spell.name) + '">&#9733;</span> ';
             html += escapeHtml(spell.name) + '</button>';
         }
@@ -2077,7 +2168,8 @@ function renderTabSpells(charId, config, state) {
             if (spellFilter === 'favorites' && !isFav2) continue;
             var cls2 = isPrepared ? 'spell-toggle prepared' : 'spell-toggle';
             var starCls2 = isFav2 ? 'spell-star favorited' : 'spell-star';
-            html += '<button class="' + cls2 + '" data-spell="' + escapeAttr(sp.name) + '" data-level="' + lvl + '">';
+            var spTip = sp.time + ' | ' + sp.range + ' | ' + sp.comp + ' | ' + sp.dur;
+            html += '<button class="' + cls2 + '" data-spell="' + escapeAttr(sp.name) + '" data-level="' + lvl + '" data-tip="' + escapeAttr(spTip + '\n' + (sp.desc || '')) + '">';
             html += '<span class="' + starCls2 + '" data-spell-star="' + escapeAttr(sp.name) + '">&#9733;</span> ';
             html += escapeHtml(sp.name) + '</button>';
         }
@@ -2319,17 +2411,47 @@ function renderTabInventory(charId, config, state) {
         html += '</div>';
     }
 
-    html += '<div class="items-grid">';
+    // Categorize items
+    var itemCats = { weapons: [], armor: [], potions: [], gear: [], other: [] };
+    var catLabels = { weapons: 'Weapons', armor: 'Armor & Shields', potions: 'Potions & Consumables', gear: 'Adventuring Gear', other: 'Other' };
+    var catIcons = { weapons: '\u2694\ufe0f', armor: '\ud83d\udee1\ufe0f', potions: '\ud83e\uddea', gear: '\ud83c\udf92', other: '\ud83d\udce6' };
     for (var idx = 0; idx < items.length; idx++) {
         var item = items[idx];
-        html += '<div class="item-row">';
-        html += '<span class="item-name">' + escapeHtml(item.name) + '</span>';
-        html += '<span class="item-weight">' + item.weight + ' lbs</span>';
-        html += '<span class="item-notes">' + (item.notes ? escapeHtml(item.notes) : '-') + '</span>';
-        if (editable) {
-            html += '<button class="item-remove" data-item-idx="' + idx + '">&#10005;</button>';
+        var iName = (item.name || '').toLowerCase();
+        if (iName.indexOf('sword') >= 0 || iName.indexOf('bow') >= 0 || iName.indexOf('dagger') >= 0 || iName.indexOf('axe') >= 0 || iName.indexOf('arrow') >= 0 || iName.indexOf('bolt') >= 0 || iName.indexOf('spear') >= 0 || iName.indexOf('mace') >= 0 || iName.indexOf('staff') >= 0 || iName.indexOf('crossbow') >= 0) {
+            itemCats.weapons.push({ item: item, idx: idx });
+        } else if (iName.indexOf('armor') >= 0 || iName.indexOf('shield') >= 0 || iName.indexOf('leather') >= 0 || iName.indexOf('mail') >= 0 || iName.indexOf('plate') >= 0) {
+            itemCats.armor.push({ item: item, idx: idx });
+        } else if (iName.indexOf('potion') >= 0 || iName.indexOf('antitoxin') >= 0 || iName.indexOf('holy water') >= 0) {
+            itemCats.potions.push({ item: item, idx: idx });
+        } else if (iName.indexOf('rope') >= 0 || iName.indexOf('torch') >= 0 || iName.indexOf('tools') >= 0 || iName.indexOf('kit') >= 0 || iName.indexOf('pack') >= 0 || iName.indexOf('rations') >= 0 || iName.indexOf('waterskin') >= 0 || iName.indexOf('bedroll') >= 0 || iName.indexOf('lantern') >= 0) {
+            itemCats.gear.push({ item: item, idx: idx });
+        } else {
+            itemCats.other.push({ item: item, idx: idx });
         }
-        html += '</div>';
+    }
+    html += '<div class="items-categorized">';
+    var catKeys = ['weapons', 'armor', 'potions', 'gear', 'other'];
+    for (var ck = 0; ck < catKeys.length; ck++) {
+        var catKey = catKeys[ck];
+        var catItems = itemCats[catKey];
+        if (catItems.length === 0) continue;
+        html += '<div class="item-category">';
+        html += '<h3 class="item-cat-header">' + catIcons[catKey] + ' ' + catLabels[catKey] + ' <span class="item-cat-count">(' + catItems.length + ')</span></h3>';
+        html += '<div class="items-grid">';
+        for (var ci = 0; ci < catItems.length; ci++) {
+            var cItem = catItems[ci].item;
+            var cIdx = catItems[ci].idx;
+            html += '<div class="item-row">';
+            html += '<span class="item-name">' + escapeHtml(cItem.name) + '</span>';
+            html += '<span class="item-weight">' + cItem.weight + ' lbs</span>';
+            html += '<span class="item-notes">' + (cItem.notes ? escapeHtml(cItem.notes) : '-') + '</span>';
+            if (editable) {
+                html += '<button class="item-remove" data-item-idx="' + cIdx + '">&#10005;</button>';
+            }
+            html += '</div>';
+        }
+        html += '</div></div>';
     }
     html += '</div>';
 
@@ -5449,6 +5571,42 @@ function bindPageEvents(route) {
                 return;
             }
 
+            // Roll weapon attack
+            if (target.matches('[data-action="roll-attack"]') || target.closest('[data-action="roll-attack"]')) {
+                var rollBtn = target.matches('[data-action="roll-attack"]') ? target : target.closest('[data-action="roll-attack"]');
+                var hitMod = parseInt(rollBtn.dataset.hit);
+                var dmgDice = rollBtn.dataset.dmg;
+                var dmgMod = parseInt(rollBtn.dataset.dmgMod);
+                var weaponName = rollBtn.dataset.weapon;
+
+                // Roll d20 + hit mod
+                var attackRoll = Math.floor(Math.random() * 20) + 1;
+                var totalHit = attackRoll + hitMod;
+                var isNat20 = attackRoll === 20;
+                var isNat1 = attackRoll === 1;
+
+                // Roll damage
+                var dmgMatch = dmgDice.match(/(\d+)d(\d+)/);
+                var dmgTotal = 0;
+                if (dmgMatch) {
+                    var numDice = parseInt(dmgMatch[1]) * (isNat20 ? 2 : 1);
+                    var dieSize = parseInt(dmgMatch[2]);
+                    for (var rd = 0; rd < numDice; rd++) dmgTotal += Math.floor(Math.random() * dieSize) + 1;
+                    dmgTotal += dmgMod;
+                }
+
+                // Show result in a toast-like popup near the button
+                var resultDiv = document.createElement('div');
+                resultDiv.className = 'weapon-roll-result' + (isNat20 ? ' nat20' : '') + (isNat1 ? ' nat1' : '');
+                resultDiv.innerHTML = '<strong>' + escapeHtml(weaponName) + '</strong><br>' +
+                    'Attack: ' + attackRoll + ' + ' + hitMod + ' = <b>' + totalHit + '</b>' +
+                    (isNat20 ? ' CRIT!' : '') + (isNat1 ? ' MISS!' : '') +
+                    '<br>Damage: <b>' + dmgTotal + '</b>';
+                rollBtn.closest('.weapon').appendChild(resultDiv);
+                setTimeout(function() { resultDiv.remove(); }, 3000);
+                return;
+            }
+
             // Set concentration
             if (target.matches('[data-action="set-concentration"]')) {
                 if (!canEdit(charId)) return;
@@ -5534,6 +5692,41 @@ function bindPageEvents(route) {
             var n = parseInt(localStorage.getItem('dw_session_number') || '0');
             if (n > 0) localStorage.setItem('dw_session_number', String(n - 1));
             if (typeof syncUpload === 'function') syncUpload('dw_session_number');
+            renderApp();
+            return;
+        }
+
+        // --- Dashboard: quests ---
+        if (target.matches('[data-action="add-quest"]')) {
+            var qTitle = prompt('Quest title:');
+            if (qTitle && qTitle.trim()) {
+                var qDesc = prompt('Description (optional):') || '';
+                var qData = JSON.parse(localStorage.getItem('dw_quests') || '{"active":[],"completed":[]}');
+                qData.active.push({ title: qTitle.trim(), desc: qDesc.trim(), id: 'q' + Date.now() });
+                localStorage.setItem('dw_quests', JSON.stringify(qData));
+                if (typeof syncUpload === 'function') syncUpload('dw_quests');
+                renderApp();
+            }
+            return;
+        }
+        if (target.matches('[data-action="complete-quest"]')) {
+            var qIdx = parseInt(target.dataset.questIdx);
+            var qData = JSON.parse(localStorage.getItem('dw_quests') || '{"active":[],"completed":[]}');
+            if (qData.active[qIdx]) {
+                qData.completed.push(qData.active[qIdx]);
+                qData.active.splice(qIdx, 1);
+                localStorage.setItem('dw_quests', JSON.stringify(qData));
+                if (typeof syncUpload === 'function') syncUpload('dw_quests');
+                renderApp();
+            }
+            return;
+        }
+        if (target.matches('[data-action="delete-quest"]')) {
+            var qIdx = parseInt(target.dataset.questIdx);
+            var qData = JSON.parse(localStorage.getItem('dw_quests') || '{"active":[],"completed":[]}');
+            qData.active.splice(qIdx, 1);
+            localStorage.setItem('dw_quests', JSON.stringify(qData));
+            if (typeof syncUpload === 'function') syncUpload('dw_quests');
             renderApp();
             return;
         }
