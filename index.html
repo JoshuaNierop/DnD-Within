@@ -6,6 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>D&D Within — Valoria</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -46,6 +47,7 @@
     <script src="data.js"></script>
     <script src="engine.js"></script>
     <script src="i18n.js"></script>
+    <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
     <script src="effects.js"></script>
     <script src="sync.js"></script>
     <script src="app.js"></script>

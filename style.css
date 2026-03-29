@@ -6125,3 +6125,95 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .npc-location { font-size: 0.8rem; color: var(--text-dim); margin: 0.2rem 0; }
 .npc-notes { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin: 0.3rem 0; }
 .npc-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+
+/* ============================================================
+   Toast Notifications
+   ============================================================ */
+.toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 0.6rem 1.2rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-bright);
+    font-size: 0.85rem;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.toast-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast-success { border-color: var(--success); }
+.toast-error { border-color: var(--danger); }
+.toast-info { border-color: var(--accent); }
+
+/* ============================================================
+   XP Tracker
+   ============================================================ */
+.xp-tracker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+}
+.xp-bar {
+    flex: 1;
+    min-width: 80px;
+    height: 6px;
+    background: var(--bg-block);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+.xp-label { font-size: 0.7rem; color: var(--text-dim); white-space: nowrap; }
+.xp-controls { display: flex; gap: 0.25rem; align-items: center; }
+.xp-input {
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.3rem;
+    text-align: center;
+}
+
+/* ============================================================
+   Backstory Paragraph Animation
+   ============================================================ */
+.backstory-para {
+    animation: fadeUp 0.5s ease-out both;
+    line-height: 1.7;
+    color: var(--text-dim);
+}
+.backstory-para:first-of-type {
+    color: var(--text-main);
+}
+
+/* ============================================================
+   DM Whisper System
+   ============================================================ */
+.dash-whispers { margin-bottom: 1.5rem; }
+.whisper-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(var(--accent-rgb), 0.05);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.4rem;
+}
+.whisper-card p { margin: 0; font-size: 0.9rem; color: var(--text-main); flex: 1; }
+.dash-whisper-send { margin-bottom: 1.5rem; }

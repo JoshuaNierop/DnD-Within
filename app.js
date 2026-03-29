@@ -63,6 +63,22 @@ function canEditWorld() {
 }
 
 // ============================================================
+// Section 1a: Toast Notifications
+// ============================================================
+
+function showToast(message, type) {
+    var toast = document.createElement('div');
+    toast.className = 'toast toast-' + (type || 'info');
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.classList.add('toast-visible'); }, 10);
+    setTimeout(function() {
+        toast.classList.remove('toast-visible');
+        setTimeout(function() { toast.remove(); }, 300);
+    }, 2500);
+}
+
+// ============================================================
 // Section 1b: Color Theme System
 // ============================================================
 
@@ -975,6 +991,41 @@ function renderDashboard() {
         html += '</div>';
     }
 
+    // DM Whispers (show to players on their dashboard)
+    var myId = currentUserId();
+    var whisperKey = 'dw_whisper_' + myId;
+    var myWhispers = JSON.parse(localStorage.getItem(whisperKey) || '[]');
+    if (myWhispers.length > 0 && !isDM()) {
+        html += '<div class="dash-whispers">';
+        html += '<h2 class="section-title">&#128172; Messages from the DM</h2>';
+        for (var wi = 0; wi < myWhispers.length; wi++) {
+            html += '<div class="whisper-card">';
+            html += '<p>' + escapeHtml(myWhispers[wi].text) + '</p>';
+            html += '<span class="whisper-time text-dim" style="font-size:0.7rem;">' + new Date(myWhispers[wi].time).toLocaleString() + '</span>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="dismiss-whisper" data-whisper-idx="' + wi + '" style="margin-left:auto;">&#10003;</button>';
+            html += '</div>';
+        }
+        html += '</div>';
+    }
+
+    // DM whisper send tool (in DM tools area, but shown here for quick access)
+    if (isDM()) {
+        html += '<div class="dash-whisper-send">';
+        html += '<h2 class="section-title">&#128172; Send Whisper</h2>';
+        html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
+        html += '<select class="edit-input" id="whisper-target" style="width:auto;">';
+        var charIdsW = getCharacterIds();
+        for (var wci = 0; wci < charIdsW.length; wci++) {
+            var wcfg = loadCharConfig(charIdsW[wci]);
+            if (wcfg) html += '<option value="' + charIdsW[wci] + '">' + escapeHtml(wcfg.name) + '</option>';
+        }
+        html += '</select>';
+        html += '<input type="text" class="edit-input" id="whisper-text" placeholder="Secret message..." style="flex:1;">';
+        html += '<button class="btn btn-primary btn-sm" data-action="send-whisper">Send</button>';
+        html += '</div>';
+        html += '</div>';
+    }
+
     // Quest tracker
     var questData = JSON.parse(localStorage.getItem('dw_quests') || '{"active":[],"completed":[]}');
     html += '<div class="dash-quests">';
@@ -1280,6 +1331,23 @@ function renderCharacterSheet(charId) {
     } else {
         html += '<div class="level-control"><span class="level-display">Level ' + state.level + '</span></div>';
     }
+
+    // XP tracker
+    var xpThresholds = [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000];
+    var currentXP = state.xp || 0;
+    var xpForCurrent = xpThresholds[state.level - 1] || 0;
+    var xpForNext = xpThresholds[state.level] || xpThresholds[19];
+    var xpProgress = state.level >= 20 ? 100 : Math.min(100, Math.round((currentXP - xpForCurrent) / (xpForNext - xpForCurrent) * 100));
+    html += '<div class="xp-tracker">';
+    html += '<div class="xp-bar"><div class="xp-bar-fill" style="width:' + xpProgress + '%"></div></div>';
+    html += '<span class="xp-label">' + currentXP.toLocaleString() + ' / ' + (state.level >= 20 ? 'MAX' : xpForNext.toLocaleString()) + ' XP</span>';
+    if (editable) {
+        html += '<div class="xp-controls">';
+        html += '<input type="number" class="xp-input" id="xp-add-input" value="100" min="1" style="width:70px;">';
+        html += '<button class="btn btn-ghost btn-sm" data-action="add-xp">+XP</button>';
+        html += '</div>';
+    }
+    html += '</div>';
 
     html += '</div>';
 
@@ -2253,7 +2321,12 @@ function renderTabStory(charId, config, state) {
             html += '<button class="edit-trigger" data-action="edit-field" data-field="backstory" title="' + t('generic.edit') + '">&#9998;</button>';
             html += '</div>';
         } else {
-            html += '<p>' + escapeHtml(config.backstory) + '</p>';
+            var bsParagraphs = config.backstory.split('\n\n');
+            for (var bsi = 0; bsi < bsParagraphs.length; bsi++) {
+                if (bsParagraphs[bsi].trim()) {
+                    html += '<p class="backstory-para" style="animation-delay:' + (bsi * 0.15) + 's">' + escapeHtml(bsParagraphs[bsi].trim()) + '</p>';
+                }
+            }
         }
         html += '</div>';
     }
@@ -5149,6 +5222,20 @@ function bindPageEvents(route) {
                 return;
             }
 
+            // Add XP
+            if (target.matches('[data-action="add-xp"]')) {
+                if (!canEdit(charId)) return;
+                var xpInput = document.getElementById('xp-add-input');
+                var xpAmt = xpInput ? parseInt(xpInput.value) || 0 : 0;
+                if (xpAmt > 0) {
+                    state.xp = (state.xp || 0) + xpAmt;
+                    saveCharState(charId, state);
+                    showToast('+' + xpAmt + ' XP');
+                    renderApp();
+                }
+                return;
+            }
+
             // Refresh quote
             if (target.matches('[data-action="refresh-quote"]') || target.closest('[data-action="refresh-quote"]')) {
                 var quoteEl = app.querySelector('.char-quote-dynamic');
@@ -5847,6 +5934,32 @@ function bindPageEvents(route) {
             var n = parseInt(localStorage.getItem('dw_session_number') || '0');
             if (n > 0) localStorage.setItem('dw_session_number', String(n - 1));
             if (typeof syncUpload === 'function') syncUpload('dw_session_number');
+            renderApp();
+            return;
+        }
+
+        // --- Dashboard: whispers ---
+        if (target.matches('[data-action="send-whisper"]')) {
+            var wTarget = document.getElementById('whisper-target');
+            var wText = document.getElementById('whisper-text');
+            if (wTarget && wText && wText.value.trim()) {
+                var wKey = 'dw_whisper_' + wTarget.value;
+                var existing = JSON.parse(localStorage.getItem(wKey) || '[]');
+                existing.push({ text: wText.value.trim(), time: Date.now(), from: 'DM' });
+                localStorage.setItem(wKey, JSON.stringify(existing));
+                if (typeof syncUpload === 'function') syncUpload(wKey);
+                wText.value = '';
+                showToast('Whisper sent to ' + wTarget.options[wTarget.selectedIndex].text);
+            }
+            return;
+        }
+        if (target.matches('[data-action="dismiss-whisper"]')) {
+            var wIdx = parseInt(target.dataset.whisperIdx);
+            var wKey = 'dw_whisper_' + currentUserId();
+            var whispers = JSON.parse(localStorage.getItem(wKey) || '[]');
+            whispers.splice(wIdx, 1);
+            localStorage.setItem(wKey, JSON.stringify(whispers));
+            if (typeof syncUpload === 'function') syncUpload(wKey);
             renderApp();
             return;
         }

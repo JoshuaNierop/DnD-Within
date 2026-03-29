@@ -52,7 +52,7 @@ var syncPaused = false;
 // Keys that should be synced
 var SYNC_PREFIXES = [
     'dw_char_', 'dw_charconfig_', 'dw_img_',
-    'dw_notes_'
+    'dw_notes_', 'dw_whisper_'
 ];
 var SYNC_EXACT = [
     'dw_maps', 'dw_timeline', 'dw_lore',
@@ -89,6 +89,11 @@ function keyToPath(key) {
     // Character state: dw_char_ren → characters/ren/state
     if (key.indexOf('dw_char_') === 0)
         return 'characters/' + key.substring(8) + '/state';
+
+    // Whispers: dw_whisper_ren → characters/ren/whispers
+    if (key.indexOf('dw_whisper_') === 0) {
+        return 'characters/' + key.substring(11) + '/whispers';
+    }
 
     // Notes: dw_notes_dm → dm/notes, dw_notes_ren → characters/ren/notes
     if (key.indexOf('dw_notes_') === 0) {
@@ -131,6 +136,10 @@ function firebasePathToLocalKey(path) {
     // characters/<id>/images/<type> → dw_img_<id>_<type>
     if (p[0] === 'characters' && p[2] === 'images' && p[3])
         return 'dw_img_' + p[1] + '_' + p[3];
+
+    // characters/<id>/whispers → dw_whisper_<id>
+    if (p[0] === 'characters' && p[2] === 'whispers')
+        return 'dw_whisper_' + p[1];
 
     // characters/<id>/notes → dw_notes_<id>
     if (p[0] === 'characters' && p[2] === 'notes')
