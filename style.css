@@ -4315,7 +4315,10 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .note-editor-actions { display: flex; gap: 0.75rem; }
 
 /* Note View */
-.note-view-cat { font-size: 0.8rem; margin-bottom: 0.5rem; }
+.note-view-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+.note-view-cat { font-size: 0.8rem; }
+.note-view-date { font-size: 0.75rem; color: var(--text-dim); }
+.note-view-pin { font-size: 0.75rem; color: var(--gold); }
 .note-view h1 { margin-bottom: 1rem; }
 .note-view p { color: var(--text-dim); line-height: 1.7; margin-bottom: 0.75rem; }
 .note-view-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
@@ -4325,6 +4328,66 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .note-layout-image-right .note-view-content, .note-layout-image-left .note-view-content { display: flex; gap: 1.5rem; }
 .note-layout-image-left .note-view-img-side { order: -1; }
 .note-view-text { flex: 1; }
+.notes-header-right { display: flex; gap: 0.5rem; align-items: center; }
+
+/* Note Card — Pin & Date */
+.note-card { position: relative; }
+.note-card-pinned { border-color: var(--gold); border-top-color: var(--gold) !important; box-shadow: 0 0 0 1px rgba(240, 192, 64, 0.15); }
+.note-pin-badge { position: absolute; top: 0.4rem; right: 0.5rem; font-size: 0.8rem; z-index: 2; }
+.note-card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
+.note-card-date { font-size: 0.65rem; color: var(--text-dim); }
+.note-pin-toggle { transition: all 0.2s; }
+.note-pin-toggle.active { color: var(--gold) !important; }
+
+/* Note Card — Gallery Preview */
+.note-card-gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; height: 120px; overflow: hidden; }
+.note-card-gallery-img { overflow: hidden; }
+.note-card-gallery-img img { width: 100%; height: 100%; object-fit: cover; }
+.note-card-gallery-more { display: flex; align-items: center; justify-content: center; background: var(--bg-block); color: var(--text-dim); font-size: 0.85rem; font-weight: 700; }
+
+/* Note Card — Checklist Preview */
+.note-card-checklist-preview { display: flex; flex-direction: column; gap: 0.25rem; }
+.note-card-progress { height: 4px; background: var(--bg-block); border-radius: 2px; overflow: hidden; margin-bottom: 0.3rem; }
+.note-card-progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+.note-card-progress-text { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.2rem; }
+.note-card-check-item { font-size: 0.8rem; color: var(--text-dim); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.note-card-check-item.done { text-decoration: line-through; opacity: 0.5; }
+.note-card-check-more { font-size: 0.7rem; color: var(--text-dim); font-style: italic; }
+
+/* Gallery Editor */
+.note-gallery-section { margin-top: 0.5rem; }
+.note-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.5rem; }
+.note-gallery-thumb { position: relative; border-radius: var(--radius-sm); overflow: hidden; aspect-ratio: 1; }
+.note-gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.note-gallery-remove { position: absolute; top: 0.25rem; right: 0.25rem; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.7); border: none; color: white; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.2s; }
+.note-gallery-remove:hover { opacity: 1; background: var(--danger); }
+.note-gallery-add { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border: 2px dashed var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--text-dim); font-size: 1.5rem; transition: all 0.2s; min-height: 100px; }
+.note-gallery-add:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Gallery View */
+.note-view-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+.note-view-gallery-img { border-radius: var(--radius); overflow: hidden; aspect-ratio: 4/3; }
+.note-view-gallery-img img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
+.note-view-gallery-img img:hover { transform: scale(1.02); }
+
+/* Checklist Editor */
+.note-checklist-section { margin-top: 0.5rem; }
+.note-checklist { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.5rem; }
+.note-checklist-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; background: var(--bg-block); border-radius: var(--radius-sm); }
+.note-check-box { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.note-check-text { flex: 1; background: none; border: none; color: var(--text-main); font-size: 0.9rem; font-family: inherit; padding: 0.25rem; outline: none; }
+.note-check-text:focus { border-bottom: 1px solid var(--accent); }
+.note-check-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1rem; opacity: 0.4; transition: all 0.2s; padding: 0.25rem; }
+.note-check-remove:hover { color: var(--danger); opacity: 1; }
+
+/* Checklist View */
+.note-view-checklist { margin-bottom: 1rem; }
+.note-view-progress { height: 6px; background: var(--bg-block); border-radius: 3px; overflow: hidden; margin-bottom: 0.5rem; }
+.note-view-progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+.note-view-progress-label { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.75rem; }
+.note-view-check-item { padding: 0.5rem 0.75rem; margin-bottom: 0.25rem; background: var(--bg-block); border-radius: var(--radius-sm); font-size: 0.9rem; cursor: pointer; transition: all 0.2s; color: var(--text-main); }
+.note-view-check-item:hover { background: var(--bg-elevated); }
+.note-view-check-item.done { color: var(--text-dim); text-decoration: line-through; opacity: 0.6; }
 
 /* DM Tools */
 .dm-tools { margin-top: 2rem; }
@@ -4578,6 +4641,9 @@ select.edit-input option {
     .note-layout-image-right .note-view-content, .note-layout-image-left .note-view-content { flex-direction: column; }
     .note-view-img-side { width: 100%; }
     .note-layout-options { flex-wrap: wrap; }
+    .note-view-gallery { grid-template-columns: repeat(2, 1fr); }
+    .note-gallery-grid { grid-template-columns: repeat(3, 1fr); }
+    .notes-header-right { flex-wrap: wrap; }
 
     /* Login form responsive */
     .login-title {

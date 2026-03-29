@@ -2448,6 +2448,22 @@ function saveNotesData(data) {
     localStorage.setItem('dw_notes_' + userId, JSON.stringify(data));
 }
 
+function formatNoteDate(ts) {
+    if (!ts) return '';
+    var now = Date.now();
+    var diff = now - ts;
+    var mins = Math.floor(diff / 60000);
+    var hours = Math.floor(diff / 3600000);
+    var days = Math.floor(diff / 86400000);
+    if (mins < 1) return 'Zojuist';
+    if (mins < 60) return mins + ' min geleden';
+    if (hours < 24) return hours + ' uur geleden';
+    if (days === 1) return 'Gisteren';
+    if (days < 7) return days + ' dagen geleden';
+    var d = new Date(ts);
+    return d.getDate() + '-' + (d.getMonth() + 1) + '-' + d.getFullYear();
+}
+
 function renderNotes() {
     var data = getNotesData();
     var notes = data.notes || [];
@@ -2466,8 +2482,12 @@ function renderNotes() {
         });
     }
 
-    // Sort by updated (newest first)
-    filtered.sort(function(a, b) { return (b.updated || 0) - (a.updated || 0); });
+    // Sort: pinned first, then by updated (newest first)
+    filtered.sort(function(a, b) {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return (b.updated || 0) - (a.updated || 0);
+    });
 
     var html = '<div class="notes-page">';
     html += '<div class="notes-header">';
@@ -2513,16 +2533,47 @@ function renderNotes() {
             }
             if (!cat) cat = TAG_CATEGORIES[5];
 
-            html += '<div class="note-card" data-action="view-note" data-note-id="' + note.id + '" style="--cat-color:' + cat.color + '">';
+            html += '<div class="note-card' + (note.pinned ? ' note-card-pinned' : '') + '" data-action="view-note" data-note-id="' + note.id + '" style="--cat-color:' + cat.color + '">';
 
-            if (note.image && note.layout !== 'text-only') {
+            // Pin badge
+            if (note.pinned) {
+                html += '<div class="note-pin-badge" title="Vastgepind">&#128204;</div>';
+            }
+
+            // Gallery preview: show image grid
+            if (note.layout === 'gallery' && note.images && note.images.length > 0) {
+                html += '<div class="note-card-gallery">';
+                var showCount = Math.min(note.images.length, 4);
+                for (var gi = 0; gi < showCount; gi++) {
+                    html += '<div class="note-card-gallery-img"><img src="' + note.images[gi] + '" alt=""></div>';
+                }
+                if (note.images.length > 4) {
+                    html += '<div class="note-card-gallery-more">+' + (note.images.length - 4) + '</div>';
+                }
+                html += '</div>';
+            } else if (note.image && note.layout !== 'text-only' && note.layout !== 'checklist') {
                 html += '<div class="note-card-img"><img src="' + note.image + '" alt=""></div>';
             }
 
             html += '<div class="note-card-body">';
-            html += '<div class="note-card-cat">' + cat.icon + ' ' + cat.name + '</div>';
+            html += '<div class="note-card-meta"><span class="note-card-cat">' + cat.icon + ' ' + cat.name + '</span><span class="note-card-date">' + formatNoteDate(note.updated) + '</span></div>';
             html += '<h3 class="note-card-title">' + escapeHtml(note.title || 'Naamloos') + '</h3>';
-            html += '<p class="note-card-preview">' + escapeHtml((note.content || '').substring(0, 120)) + (note.content && note.content.length > 120 ? '...' : '') + '</p>';
+
+            // Checklist preview
+            if (note.layout === 'checklist' && note.checklist && note.checklist.length > 0) {
+                var done = note.checklist.filter(function(c) { return c.done; }).length;
+                html += '<div class="note-card-checklist-preview">';
+                html += '<div class="note-card-progress"><div class="note-card-progress-bar" style="width:' + (note.checklist.length > 0 ? Math.round(done / note.checklist.length * 100) : 0) + '%"></div></div>';
+                html += '<span class="note-card-progress-text">' + done + '/' + note.checklist.length + '</span>';
+                var previewItems = note.checklist.slice(0, 3);
+                for (var pi = 0; pi < previewItems.length; pi++) {
+                    html += '<div class="note-card-check-item' + (previewItems[pi].done ? ' done' : '') + '">' + (previewItems[pi].done ? '&#9745; ' : '&#9744; ') + escapeHtml(previewItems[pi].text) + '</div>';
+                }
+                if (note.checklist.length > 3) html += '<div class="note-card-check-more">+' + (note.checklist.length - 3) + ' meer</div>';
+                html += '</div>';
+            } else {
+                html += '<p class="note-card-preview">' + escapeHtml((note.content || '').substring(0, 120)) + (note.content && note.content.length > 120 ? '...' : '') + '</p>';
+            }
 
             if (note.tags && note.tags.length > 0) {
                 html += '<div class="note-card-tags">';
@@ -2558,11 +2609,17 @@ function renderNoteEditor(noteId) {
     var category = note ? note.tagCategory : 'other';
     var layout = note ? note.layout : 'text-only';
     var image = note ? note.image : null;
+    var images = note ? (note.images || []) : [];
+    var checklist = note ? (note.checklist || []) : [];
+    var pinned = note ? !!note.pinned : false;
 
     var html = '<div class="notes-page">';
     html += '<div class="notes-header">';
     html += '<button class="btn btn-ghost" data-action="back-to-notes">&larr; Terug</button>';
     html += '<h1>' + (note ? 'Notitie Bewerken' : 'Nieuwe Notitie') + '</h1>';
+    if (note) {
+        html += '<button class="btn btn-ghost btn-sm note-pin-toggle' + (pinned ? ' active' : '') + '" data-action="toggle-note-pin" data-note-id="' + note.id + '" title="' + (pinned ? 'Losmaken' : 'Vastpinnen') + '">&#128204; ' + (pinned ? 'Vastgepind' : 'Vastpinnen') + '</button>';
+    }
     html += '</div>';
 
     html += '<div class="note-editor">';
@@ -2586,10 +2643,12 @@ function renderNoteEditor(noteId) {
     html += '<label class="text-dim" style="font-size:0.8rem;">Indeling:</label>';
     html += '<div class="note-layout-options">';
     var layouts = [
-        { id: 'text-only', icon: '\ud83d\udcdd', label: 'Alleen tekst' },
-        { id: 'image-top', icon: '\ud83d\uddbc\ufe0f\u2191', label: 'Afbeelding boven' },
-        { id: 'image-right', icon: '\ud83d\udcdd\ud83d\uddbc\ufe0f', label: 'Afbeelding rechts' },
-        { id: 'image-left', icon: '\ud83d\uddbc\ufe0f\ud83d\udcdd', label: 'Afbeelding links' }
+        { id: 'text-only', icon: '\ud83d\udcdd', label: 'Tekst' },
+        { id: 'image-top', icon: '\ud83d\uddbc\ufe0f', label: 'Afbeelding' },
+        { id: 'image-right', icon: '\ud83d\udcdd\ud83d\uddbc\ufe0f', label: 'Rechts' },
+        { id: 'image-left', icon: '\ud83d\uddbc\ufe0f\ud83d\udcdd', label: 'Links' },
+        { id: 'gallery', icon: '\ud83d\uddbc\ufe0f\ud83d\uddbc\ufe0f', label: 'Galerij' },
+        { id: 'checklist', icon: '\u2611\ufe0f', label: 'Checklist' }
     ];
     for (var li = 0; li < layouts.length; li++) {
         var lo = layouts[li];
@@ -2598,19 +2657,42 @@ function renderNoteEditor(noteId) {
     html += '</div>';
     html += '</div>';
 
-    // Image upload (if layout includes image)
-    if (layout !== 'text-only') {
-        html += '<div class="note-image-section">';
-        if (image) {
-            html += '<div class="note-image-preview"><img src="' + image + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">Verwijderen</button></div>';
-        } else {
-            html += '<label class="note-image-upload"><span>+ Afbeelding toevoegen</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
-        }
+    // Image upload (single image layouts)
+    var singleImageLayouts = ['image-top', 'image-right', 'image-left'];
+    html += '<div class="note-image-section" style="display:' + (singleImageLayouts.indexOf(layout) >= 0 ? 'block' : 'none') + '">';
+    if (image) {
+        html += '<div class="note-image-preview"><img src="' + image + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">Verwijderen</button></div>';
+    } else {
+        html += '<label class="note-image-upload"><span>+ Afbeelding toevoegen</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
+    }
+    html += '</div>';
+
+    // Gallery upload (multi-image)
+    html += '<div class="note-gallery-section" style="display:' + (layout === 'gallery' ? 'block' : 'none') + '">';
+    html += '<div class="note-gallery-grid" id="note-gallery-grid">';
+    for (var gi = 0; gi < images.length; gi++) {
+        html += '<div class="note-gallery-thumb" data-gallery-idx="' + gi + '"><img src="' + images[gi] + '" alt=""><button class="note-gallery-remove" data-action="remove-gallery-image" data-idx="' + gi + '">&times;</button></div>';
+    }
+    html += '<label class="note-gallery-add"><span>+</span><input type="file" accept="image/*" data-action="upload-gallery-image" style="display:none" multiple></label>';
+    html += '</div>';
+    html += '</div>';
+
+    // Checklist editor
+    html += '<div class="note-checklist-section" style="display:' + (layout === 'checklist' ? 'block' : 'none') + '">';
+    html += '<div class="note-checklist" id="note-checklist">';
+    for (var cli = 0; cli < checklist.length; cli++) {
+        html += '<div class="note-checklist-item" data-check-idx="' + cli + '">';
+        html += '<input type="checkbox" class="note-check-box" data-action="toggle-check" data-idx="' + cli + '"' + (checklist[cli].done ? ' checked' : '') + '>';
+        html += '<input type="text" class="note-check-text" data-action="edit-check-text" data-idx="' + cli + '" value="' + escapeAttr(checklist[cli].text) + '" placeholder="Item...">';
+        html += '<button class="note-check-remove" data-action="remove-check-item" data-idx="' + cli + '">&times;</button>';
         html += '</div>';
     }
+    html += '</div>';
+    html += '<button class="btn btn-ghost btn-sm" data-action="add-check-item">+ Item toevoegen</button>';
+    html += '</div>';
 
-    // Content
-    html += '<textarea class="edit-textarea note-content-input" id="note-content" placeholder="Schrijf je notitie...">' + escapeHtml(content) + '</textarea>';
+    // Content (hidden for checklist layout)
+    html += '<textarea class="edit-textarea note-content-input" id="note-content" placeholder="Schrijf je notitie..." style="display:' + (layout === 'checklist' ? 'none' : 'block') + '">' + escapeHtml(content) + '</textarea>';
 
     // Tags
     html += '<div class="note-tags-section">';
@@ -2648,10 +2730,23 @@ function renderNoteView(noteId) {
     var html = '<div class="notes-page">';
     html += '<div class="notes-header">';
     html += '<button class="btn btn-ghost" data-action="back-to-notes">&larr; Terug</button>';
+    html += '<div class="notes-header-right">';
+    if (note.pinned) html += '<span class="note-view-pin">&#128204; Vastgepind</span>';
+    html += '<button class="btn btn-ghost btn-sm" data-action="toggle-note-pin" data-note-id="' + note.id + '">' + (note.pinned ? 'Losmaken' : '&#128204; Vastpinnen') + '</button>';
     html += '<button class="btn btn-ghost btn-sm" data-action="edit-note" data-note-id="' + note.id + '">Bewerken</button>';
+    html += '</div>';
     html += '</div>';
 
     html += '<div class="note-view note-layout-' + (note.layout || 'text-only') + '">';
+
+    // Gallery layout
+    if (note.layout === 'gallery' && note.images && note.images.length > 0) {
+        html += '<div class="note-view-gallery">';
+        for (var gi = 0; gi < note.images.length; gi++) {
+            html += '<div class="note-view-gallery-img"><img src="' + note.images[gi] + '" alt=""></div>';
+        }
+        html += '</div>';
+    }
 
     if (note.image && note.layout === 'image-top') {
         html += '<div class="note-view-img"><img src="' + note.image + '" alt=""></div>';
@@ -2663,12 +2758,32 @@ function renderNoteView(noteId) {
     }
 
     html += '<div class="note-view-text">';
-    html += '<div class="note-view-cat" style="color:' + cat.color + '">' + cat.icon + ' ' + cat.name + '</div>';
+    html += '<div class="note-view-meta"><span class="note-view-cat" style="color:' + cat.color + '">' + cat.icon + ' ' + cat.name + '</span><span class="note-view-date">' + formatNoteDate(note.updated) + '</span></div>';
     html += '<h1>' + escapeHtml(note.title || 'Naamloos') + '</h1>';
 
-    var paragraphs = (note.content || '').split('\n\n');
-    for (var p = 0; p < paragraphs.length; p++) {
-        if (paragraphs[p].trim()) html += '<p>' + escapeHtml(paragraphs[p].trim()) + '</p>';
+    // Checklist view
+    if (note.layout === 'checklist' && note.checklist && note.checklist.length > 0) {
+        var done = note.checklist.filter(function(c) { return c.done; }).length;
+        html += '<div class="note-view-checklist">';
+        html += '<div class="note-view-progress"><div class="note-view-progress-fill" style="width:' + Math.round(done / note.checklist.length * 100) + '%"></div></div>';
+        html += '<p class="note-view-progress-label">' + done + ' van ' + note.checklist.length + ' voltooid</p>';
+        for (var vci = 0; vci < note.checklist.length; vci++) {
+            html += '<div class="note-view-check-item' + (note.checklist[vci].done ? ' done' : '') + '" data-action="toggle-view-check" data-note-id="' + note.id + '" data-idx="' + vci + '">';
+            html += (note.checklist[vci].done ? '&#9745; ' : '&#9744; ') + escapeHtml(note.checklist[vci].text);
+            html += '</div>';
+        }
+        html += '</div>';
+    }
+
+    // Text content with preserved newlines
+    if (note.layout !== 'checklist') {
+        var paragraphs = (note.content || '').split('\n\n');
+        for (var p = 0; p < paragraphs.length; p++) {
+            if (paragraphs[p].trim()) {
+                var lines = escapeHtml(paragraphs[p].trim()).replace(/\n/g, '<br>');
+                html += '<p>' + lines + '</p>';
+            }
+        }
     }
 
     if (note.tags && note.tags.length > 0) {
@@ -3816,14 +3931,20 @@ function bindPageEvents(route) {
         }
 
         // Pick layout in editor
-        if (target.matches('[data-action="pick-note-layout"]')) {
+        if (target.matches('[data-action="pick-note-layout"]') || target.closest('[data-action="pick-note-layout"]')) {
+            var layoutBtn = target.matches('[data-action="pick-note-layout"]') ? target : target.closest('[data-action="pick-note-layout"]');
             document.querySelectorAll('.note-layout-option').forEach(function(b) { b.classList.remove('active'); });
-            target.classList.add('active');
-            var newLayout = target.dataset.layout;
-            var currentHasImage = document.querySelector('.note-image-section');
-            if ((newLayout === 'text-only' && currentHasImage) || (newLayout !== 'text-only' && !currentHasImage)) {
-                if (currentHasImage) currentHasImage.style.display = newLayout === 'text-only' ? 'none' : 'block';
-            }
+            layoutBtn.classList.add('active');
+            var newLayout = layoutBtn.dataset.layout;
+            var singleImgLayouts = ['image-top', 'image-right', 'image-left'];
+            var imgSection = document.querySelector('.note-image-section');
+            var gallerySection = document.querySelector('.note-gallery-section');
+            var checkSection = document.querySelector('.note-checklist-section');
+            var contentArea = document.getElementById('note-content');
+            if (imgSection) imgSection.style.display = singleImgLayouts.indexOf(newLayout) >= 0 ? 'block' : 'none';
+            if (gallerySection) gallerySection.style.display = newLayout === 'gallery' ? 'block' : 'none';
+            if (checkSection) checkSection.style.display = newLayout === 'checklist' ? 'block' : 'none';
+            if (contentArea) contentArea.style.display = newLayout === 'checklist' ? 'none' : 'block';
             return;
         }
 
@@ -3845,31 +3966,56 @@ function bindPageEvents(route) {
             var noteLayout = noteActiveLayout ? noteActiveLayout.dataset.layout : 'text-only';
             var noteImage = noteImg ? noteImg.src : null;
 
+            // Collect gallery images
+            var galleryImages = [];
+            document.querySelectorAll('.note-gallery-thumb img').forEach(function(img) {
+                if (img.src && img.src.indexOf('data:') === 0) galleryImages.push(img.src);
+            });
+
+            // Collect checklist items
+            var checklistItems = [];
+            document.querySelectorAll('.note-checklist-item').forEach(function(item) {
+                var checkbox = item.querySelector('.note-check-box');
+                var textInput = item.querySelector('.note-check-text');
+                if (textInput && textInput.value.trim()) {
+                    checklistItems.push({ text: textInput.value.trim(), done: checkbox ? checkbox.checked : false });
+                }
+            });
+
+            var noteObj = {
+                title: noteTitleEl.value.trim(),
+                content: noteContentEl ? noteContentEl.value : '',
+                tags: noteTags,
+                tagCategory: noteCategory,
+                layout: noteLayout,
+                image: noteImage && noteImage.indexOf('data:') === 0 ? noteImage : null,
+                images: galleryImages,
+                checklist: checklistItems,
+                updated: Date.now()
+            };
+
             if (saveNoteId) {
                 for (var sni = 0; sni < noteData.notes.length; sni++) {
                     if (noteData.notes[sni].id === saveNoteId) {
-                        noteData.notes[sni].title = noteTitleEl.value.trim();
-                        noteData.notes[sni].content = noteContentEl ? noteContentEl.value : '';
-                        noteData.notes[sni].tags = noteTags;
-                        noteData.notes[sni].tagCategory = noteCategory;
-                        noteData.notes[sni].layout = noteLayout;
-                        if (noteImage && noteImage.indexOf('data:') === 0) noteData.notes[sni].image = noteImage;
-                        noteData.notes[sni].updated = Date.now();
+                        var existing = noteData.notes[sni];
+                        existing.title = noteObj.title;
+                        existing.content = noteObj.content;
+                        existing.tags = noteObj.tags;
+                        existing.tagCategory = noteObj.tagCategory;
+                        existing.layout = noteObj.layout;
+                        if (noteObj.image) existing.image = noteObj.image;
+                        else if (noteLayout === 'text-only' || noteLayout === 'gallery' || noteLayout === 'checklist') existing.image = null;
+                        existing.images = noteObj.images;
+                        existing.checklist = noteObj.checklist;
+                        existing.updated = noteObj.updated;
                         break;
                     }
                 }
             } else {
-                noteData.notes.push({
-                    id: 'n' + Date.now(),
-                    title: noteTitleEl.value.trim(),
-                    content: noteContentEl ? noteContentEl.value : '',
-                    tags: noteTags,
-                    tagCategory: noteCategory,
-                    image: noteImage && noteImage.indexOf('data:') === 0 ? noteImage : null,
-                    layout: noteLayout,
-                    created: Date.now(),
-                    updated: Date.now()
-                });
+                noteObj.id = 'n' + Date.now();
+                noteObj.created = Date.now();
+                noteObj.pinned = false;
+                noteData.notes.push(noteObj);
             }
 
             saveNotesData(noteData);
@@ -3894,6 +4040,71 @@ function bindPageEvents(route) {
             if (noteImgPreview) {
                 noteImgPreview.outerHTML = '<label class="note-image-upload"><span>+ Afbeelding toevoegen</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
             }
+            return;
+        }
+
+        // Toggle pin on note
+        if (target.matches('[data-action="toggle-note-pin"]') || target.closest('[data-action="toggle-note-pin"]')) {
+            var pinBtn = target.matches('[data-action="toggle-note-pin"]') ? target : target.closest('[data-action="toggle-note-pin"]');
+            var pinNoteId = pinBtn.dataset.noteId;
+            var pinData = getNotesData();
+            for (var pni = 0; pni < pinData.notes.length; pni++) {
+                if (pinData.notes[pni].id === pinNoteId) {
+                    pinData.notes[pni].pinned = !pinData.notes[pni].pinned;
+                    break;
+                }
+            }
+            saveNotesData(pinData);
+            renderApp();
+            return;
+        }
+
+        // Remove gallery image
+        if (target.matches('[data-action="remove-gallery-image"]')) {
+            var thumbEl = target.closest('.note-gallery-thumb');
+            if (thumbEl) thumbEl.remove();
+            return;
+        }
+
+        // Add checklist item
+        if (target.matches('[data-action="add-check-item"]')) {
+            var checklistEl = document.getElementById('note-checklist');
+            if (checklistEl) {
+                var newIdx = checklistEl.children.length;
+                var itemHtml = '<div class="note-checklist-item" data-check-idx="' + newIdx + '">';
+                itemHtml += '<input type="checkbox" class="note-check-box" data-action="toggle-check" data-idx="' + newIdx + '">';
+                itemHtml += '<input type="text" class="note-check-text" data-action="edit-check-text" data-idx="' + newIdx + '" value="" placeholder="Item...">';
+                itemHtml += '<button class="note-check-remove" data-action="remove-check-item" data-idx="' + newIdx + '">&times;</button>';
+                itemHtml += '</div>';
+                checklistEl.insertAdjacentHTML('beforeend', itemHtml);
+                var newInput = checklistEl.lastElementChild.querySelector('.note-check-text');
+                if (newInput) newInput.focus();
+            }
+            return;
+        }
+
+        // Remove checklist item
+        if (target.matches('[data-action="remove-check-item"]')) {
+            var checkItemEl = target.closest('.note-checklist-item');
+            if (checkItemEl) checkItemEl.remove();
+            return;
+        }
+
+        // Toggle checklist item in view mode
+        if (target.matches('[data-action="toggle-view-check"]') || target.closest('[data-action="toggle-view-check"]')) {
+            var checkEl = target.matches('[data-action="toggle-view-check"]') ? target : target.closest('[data-action="toggle-view-check"]');
+            var tvNoteId = checkEl.dataset.noteId;
+            var tvIdx = parseInt(checkEl.dataset.idx, 10);
+            var tvData = getNotesData();
+            for (var tvi = 0; tvi < tvData.notes.length; tvi++) {
+                if (tvData.notes[tvi].id === tvNoteId && tvData.notes[tvi].checklist && tvData.notes[tvi].checklist[tvIdx]) {
+                    tvData.notes[tvi].checklist[tvIdx].done = !tvData.notes[tvi].checklist[tvIdx].done;
+                    tvData.notes[tvi].updated = Date.now();
+                    break;
+                }
+            }
+            saveNotesData(tvData);
+            renderApp();
             return;
         }
 
@@ -5019,6 +5230,41 @@ function bindPageEvents(route) {
                     nimg.src = ev.target.result;
                 };
                 noteReader.readAsDataURL(noteFile);
+            }
+            e.target.value = '';
+            return;
+        }
+
+        // Gallery multi-image upload
+        if (e.target.matches('[data-action="upload-gallery-image"]')) {
+            var galleryFiles = e.target.files;
+            if (galleryFiles && galleryFiles.length > 0) {
+                for (var gfi = 0; gfi < galleryFiles.length; gfi++) {
+                    (function(file) {
+                        var gr = new FileReader();
+                        gr.onload = function(ev) {
+                            var gimg = new Image();
+                            gimg.onload = function() {
+                                var gc = document.createElement('canvas');
+                                var gmax = 800;
+                                var gw = gimg.width, gh = gimg.height;
+                                if (gw > gmax || gh > gmax) { if (gw > gh) { gh = gh * (gmax / gw); gw = gmax; } else { gw = gw * (gmax / gh); gh = gmax; } }
+                                gc.width = gw; gc.height = gh;
+                                gc.getContext('2d').drawImage(gimg, 0, 0, gw, gh);
+                                var gBase64 = gc.toDataURL('image/jpeg', 0.7);
+                                var grid = document.getElementById('note-gallery-grid');
+                                if (grid) {
+                                    var addBtn = grid.querySelector('.note-gallery-add');
+                                    var idx = grid.querySelectorAll('.note-gallery-thumb').length;
+                                    var thumbHtml = '<div class="note-gallery-thumb" data-gallery-idx="' + idx + '"><img src="' + gBase64 + '" alt=""><button class="note-gallery-remove" data-action="remove-gallery-image" data-idx="' + idx + '">&times;</button></div>';
+                                    if (addBtn) addBtn.insertAdjacentHTML('beforebegin', thumbHtml);
+                                }
+                            };
+                            gimg.src = ev.target.result;
+                        };
+                        gr.readAsDataURL(file);
+                    })(galleryFiles[gfi]);
+                }
             }
             e.target.value = '';
             return;
