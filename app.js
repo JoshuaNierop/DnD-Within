@@ -47,8 +47,14 @@ function isDM() {
 }
 
 function canEdit(charId) {
+    // Only the character's own player can edit their character page
     var u = currentUser();
-    return u && (u.role === 'dm' || u.characterId === charId);
+    return u && u.characterId === charId;
+}
+
+function canEditWorld() {
+    // Only the DM can edit world content (maps, lore, timeline, etc.)
+    return isDM();
 }
 
 // ============================================================
@@ -178,49 +184,43 @@ function saveCharState(charId, state) {
     if (typeof syncUpload === 'function') syncUpload(key);
 }
 
-function loadCharConfigEdits(charId) {
-    var saved = localStorage.getItem('dw_charconfig_' + charId);
-    if (saved) {
-        try { return JSON.parse(saved); } catch(e) {}
-    }
-    return {};
-}
-
-function saveCharConfigEdit(charId, field, value) {
-    var edits = loadCharConfigEdits(charId);
-    edits[field] = value;
+function saveCharConfig(charId, config) {
     var key = 'dw_charconfig_' + charId;
-    localStorage.setItem(key, JSON.stringify(edits));
+    localStorage.setItem(key, JSON.stringify(config));
     if (typeof syncUpload === 'function') syncUpload(key);
 }
 
+function saveCharConfigField(charId, field, value) {
+    var config = loadCharConfig(charId);
+    if (!config) return;
+    if (field === 'personality' && typeof value === 'object') {
+        config.personality = Object.assign({}, config.personality, value);
+    } else if (field === 'appearance' && Array.isArray(value)) {
+        config.appearance = value.slice();
+    } else if (field === 'quotes' && Array.isArray(value)) {
+        config.quotes = value.slice();
+    } else {
+        config[field] = value;
+    }
+    saveCharConfig(charId, config);
+}
+
 function loadCharConfig(charId) {
-    var base = CHAR_DEFAULTS[charId];
-    if (!base) {
-        // Check for fully custom char in localStorage
-        var custom = localStorage.getItem('dw_charconfig_' + charId);
-        if (custom) {
-            try { return JSON.parse(custom); } catch (e) { /* ignore */ }
-        }
-        return null;
+    var saved = localStorage.getItem('dw_charconfig_' + charId);
+    if (saved) {
+        try {
+            var config = JSON.parse(saved);
+            if (!config.name) config.name = t('char.newcharacter');
+            return config;
+        } catch (e) { /* ignore */ }
     }
-    var edits = loadCharConfigEdits(charId);
-    // Deep merge edits over base
-    var config = JSON.parse(JSON.stringify(base)); // clone
-    for (var key in edits) {
-        if (key === 'personality' && typeof edits[key] === 'object') {
-            config.personality = Object.assign({}, config.personality, edits[key]);
-        } else if (key === 'appearance' && Array.isArray(edits[key])) {
-            config.appearance = edits[key].slice();
-        } else if (key === 'quotes' && Array.isArray(edits[key])) {
-            config.quotes = edits[key].slice();
-        } else {
-            config[key] = edits[key];
-        }
+    // Fallback to SEED_DATA for first-time use (before Firebase sync)
+    if (typeof SEED_DATA !== 'undefined' && SEED_DATA[charId]) {
+        var config = JSON.parse(JSON.stringify(SEED_DATA[charId]));
+        if (!config.name) config.name = t('char.newcharacter');
+        return config;
     }
-    // Default name fallback for untranslated defaults
-    if (!config.name) config.name = t('char.newcharacter');
-    return config;
+    return null;
 }
 
 function loadImage(charId, type) {
@@ -234,14 +234,14 @@ function saveImage(charId, type, base64) {
 }
 
 // ============================================================
-// Section 4: Character Defaults
+// Section 4: Seed Data (initial campaign data, used for first-time Firebase setup)
 // ============================================================
 
-var CHAR_DEFAULTS = {
+var SEED_DATA = {
     ren: {
         id: "ren", name: "Ren Ashvane", player: "ren",
         race: "woodElf", className: "rogue", subclass: "scout",
-        background: "wayfarer", alignment: "Chaotic Good", age: 19,
+        background: "Wayfarer", alignment: "Chaotic Good", age: 19,
         accentColor: "#22d3ee",
         baseAbilities: { str: 10, dex: 16, con: 14, int: 14, wis: 12, cha: 10 },
         backgroundBonuses: { str: 0, dex: 1, con: 1, int: 0, wis: 0, cha: 2 },
@@ -293,7 +293,7 @@ var CHAR_DEFAULTS = {
     saya: {
         id: "saya", name: "Saya Ashvane", player: "saya",
         race: "woodElf", className: "sorcerer", subclass: "wildMagic",
-        background: "wayfarer", alignment: "Chaotic Good", age: 19,
+        background: "Wayfarer", alignment: "Chaotic Good", age: 19,
         accentColor: "#f472b6",
         baseAbilities: { str: 8, dex: 15, con: 14, int: 12, wis: 10, cha: 17 },
         backgroundBonuses: { str: 0, dex: 1, con: 1, int: 0, wis: 0, cha: 2 },
@@ -339,7 +339,7 @@ var CHAR_DEFAULTS = {
     ranger: {
         id: "ranger", name: null, player: "ranger",
         race: "human", className: "ranger", subclass: "hunter",
-        background: "guide", alignment: "Neutral Good", age: 25,
+        background: "Guide", alignment: "Neutral Good", age: 25,
         accentColor: "#4ade80",
         baseAbilities: { str: 12, dex: 16, con: 14, int: 10, wis: 15, cha: 8 },
         backgroundBonuses: { str: 0, dex: 1, con: 0, int: 0, wis: 2, cha: 0 },
@@ -359,7 +359,7 @@ var CHAR_DEFAULTS = {
     wizard: {
         id: "wizard", name: null, player: "wizard",
         race: "halfling", className: "wizard", subclass: "evocation",
-        background: "sage", alignment: "Neutral", age: 40,
+        background: "Sage", alignment: "Neutral", age: 40,
         accentColor: "#818cf8",
         baseAbilities: { str: 8, dex: 14, con: 14, int: 17, wis: 12, cha: 10 },
         backgroundBonuses: { str: 0, dex: 0, con: 1, int: 2, wis: 0, cha: 0 },
@@ -378,7 +378,7 @@ var CHAR_DEFAULTS = {
     paladin: {
         id: "paladin", name: null, player: "paladin",
         race: "tiefling", className: "paladin", subclass: "devotion",
-        background: "soldier", alignment: "Lawful Good", age: 28,
+        background: "Soldier", alignment: "Lawful Good", age: 28,
         accentColor: "#fbbf24",
         baseAbilities: { str: 16, dex: 10, con: 14, int: 8, wis: 12, cha: 15 },
         backgroundBonuses: { str: 2, dex: 0, con: 1, int: 0, wis: 0, cha: 0 },
@@ -398,7 +398,7 @@ var CHAR_DEFAULTS = {
     druid: {
         id: "druid", name: null, player: "druid",
         race: "aasimar", className: "druid", subclass: "land",
-        background: "acolyte", alignment: "Neutral Good", age: 30,
+        background: "Acolyte", alignment: "Neutral Good", age: 30,
         accentColor: "#34d399",
         baseAbilities: { str: 10, dex: 14, con: 14, int: 12, wis: 17, cha: 8 },
         backgroundBonuses: { str: 0, dex: 0, con: 1, int: 0, wis: 2, cha: 0 },
@@ -417,7 +417,7 @@ var CHAR_DEFAULTS = {
     fighter: {
         id: "fighter", name: null, player: "fighter",
         race: "tiefling", className: "fighter", subclass: "champion",
-        background: "soldier", alignment: "Chaotic Neutral", age: 22,
+        background: "Soldier", alignment: "Chaotic Neutral", age: 22,
         accentColor: "#f87171",
         baseAbilities: { str: 16, dex: 14, con: 15, int: 10, wis: 12, cha: 8 },
         backgroundBonuses: { str: 2, dex: 0, con: 1, int: 0, wis: 0, cha: 0 },
@@ -437,7 +437,7 @@ var CHAR_DEFAULTS = {
     warlock: {
         id: "warlock", name: null, player: "warlock",
         race: "tiefling", className: "warlock", subclass: "fiend",
-        background: "charlatan", alignment: "Chaotic Neutral", age: 26,
+        background: "Charlatan", alignment: "Chaotic Neutral", age: 26,
         accentColor: "#a78bfa",
         baseAbilities: { str: 8, dex: 14, con: 14, int: 12, wis: 10, cha: 17 },
         backgroundBonuses: { str: 0, dex: 0, con: 1, int: 0, wis: 0, cha: 2 },
@@ -588,7 +588,23 @@ function hasSpellcasting(className) {
 }
 
 function getCharacterIds() {
-    return ['ren', 'saya', 'ranger', 'wizard', 'paladin', 'druid', 'fighter', 'warlock'];
+    // Collect character IDs from localStorage configs + SEED_DATA
+    var ids = {};
+    // From localStorage
+    for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key.indexOf('dw_charconfig_') === 0) {
+            ids[key.substring(14)] = true;
+        }
+    }
+    // From SEED_DATA fallback
+    if (typeof SEED_DATA !== 'undefined') {
+        var seedKeys = Object.keys(SEED_DATA);
+        for (var j = 0; j < seedKeys.length; j++) {
+            ids[seedKeys[j]] = true;
+        }
+    }
+    return Object.keys(ids);
 }
 
 // ============================================================
@@ -921,7 +937,8 @@ function renderDashboard() {
         var syncSt = typeof getSyncStatus === 'function' ? getSyncStatus() : 'not-configured';
         if (syncSt === 'online') {
             html += '<p style="color:var(--success);font-size:0.85rem;margin-bottom:0.75rem;">' + t('dm.sync.connected') + '</p>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="sync-upload-all">' + t('dm.sync.uploadall') + '</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="sync-upload-all">' + t('dm.sync.uploadall') + '</button> ';
+            html += '<button class="btn btn-ghost btn-sm" data-action="sync-seed-campaign" style="margin-top:0.5rem;">Seed Campaign Data</button>';
         } else if (syncSt === 'not-configured') {
             html += '<p style="color:var(--text-dim);font-size:0.85rem;">' + t('dm.sync.notconfig') + '</p>';
         } else {
@@ -4288,9 +4305,18 @@ function bindPageEvents(route) {
 
         // Sync upload all
         if (target.matches('[data-action="sync-upload-all"]')) {
-            if (typeof syncUploadAll === 'function') syncUploadAll();
+            if (typeof syncSeedCampaign === 'function') syncSeedCampaign();
+            else if (typeof syncUploadAll === 'function') syncUploadAll();
             target.textContent = t('dm.sync.uploaded');
             setTimeout(function() { target.textContent = t('dm.sync.uploadall'); }, 2000);
+            return;
+        }
+
+        // Seed campaign data to Firebase
+        if (target.matches('[data-action="sync-seed-campaign"]')) {
+            if (typeof syncSeedCampaign === 'function') syncSeedCampaign();
+            target.textContent = 'Seeded!';
+            setTimeout(function() { target.textContent = 'Seed Campaign Data'; }, 2000);
             return;
         }
 
@@ -4401,7 +4427,7 @@ function bindPageEvents(route) {
                 if (nameInputEl) {
                     var newName = nameInputEl.value.trim();
                     if (newName) {
-                        saveCharConfigEdit(charId, 'name', newName);
+                        saveCharConfigField(charId, 'name', newName);
                         config = loadCharConfig(charId);
                     }
                 }
@@ -4423,7 +4449,7 @@ function bindPageEvents(route) {
                 var colorBtn = target.matches('[data-action="select-color"]') ? target : target.closest('[data-action="select-color"]');
                 var newColor = colorBtn.dataset.color;
                 if (newColor && canEdit(charId)) {
-                    saveCharConfigEdit(charId, 'accentColor', newColor);
+                    saveCharConfigField(charId, 'accentColor', newColor);
                     document.documentElement.style.setProperty('--accent', newColor);
                     config = loadCharConfig(charId);
                     renderApp();
@@ -4493,14 +4519,14 @@ function bindPageEvents(route) {
                     var aIdx = parseInt(saveFieldName.replace('appearance', ''));
                     var curAppearance = (config.appearance || ['', '']).slice();
                     curAppearance[aIdx] = newVal;
-                    saveCharConfigEdit(charId, 'appearance', curAppearance);
+                    saveCharConfigField(charId, 'appearance', curAppearance);
                 } else if (saveFieldName.indexOf('personality.') === 0) {
                     var ppKey = saveFieldName.replace('personality.', '');
-                    var curPersonality = loadCharConfigEdits(charId).personality || {};
+                    var curPersonality = config.personality ? Object.assign({}, config.personality) : {};
                     curPersonality[ppKey] = newVal;
-                    saveCharConfigEdit(charId, 'personality', curPersonality);
+                    saveCharConfigField(charId, 'personality', curPersonality);
                 } else if (saveFieldName === 'backstory') {
-                    saveCharConfigEdit(charId, 'backstory', newVal);
+                    saveCharConfigField(charId, 'backstory', newVal);
                 }
 
                 config = loadCharConfig(charId);
@@ -4523,7 +4549,7 @@ function bindPageEvents(route) {
                     if (quoteVal) {
                         var curQuotes = (config.quotes || []).slice();
                         curQuotes.push(quoteVal);
-                        saveCharConfigEdit(charId, 'quotes', curQuotes);
+                        saveCharConfigField(charId, 'quotes', curQuotes);
                         config = loadCharConfig(charId);
                         renderApp();
                     }
@@ -4539,7 +4565,7 @@ function bindPageEvents(route) {
                 if (!isNaN(qIdx)) {
                     var curQ = (config.quotes || []).slice();
                     curQ.splice(qIdx, 1);
-                    saveCharConfigEdit(charId, 'quotes', curQ);
+                    saveCharConfigField(charId, 'quotes', curQ);
                     config = loadCharConfig(charId);
                     renderApp();
                 }
