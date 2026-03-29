@@ -292,6 +292,19 @@ var SEED_DATA = {
             { name: 'Houten drakenbeeldje', weight: 0.25, notes: 'Gesneden door vader' },
             { name: 'Rope (50ft)', weight: 10, notes: '"Je hebt altijd touw nodig"' },
             { name: "Burglar's pack", weight: 0, notes: 'Inhoud al verdeeld' }
+        ],
+        charTimeline: [
+            { age: "0", event: "Geboren in een dorp aan de rand van het Slangenmoeras. Tweelingbroer van Saya." },
+            { age: "7", event: "De Slangenmars verwoest het dorp. Moeder Lira en vader Dorin komen om. Tweeling overleeft." },
+            { age: "7-17", event: "Opgegroeid in de sloppenwijken van Velthaven. Leerde stelen, rennen, en overleven." },
+            { age: "17", event: "De rivier. Iets ergs gebeurde. Sindsdien bang voor water." },
+            { age: "19", event: "Verlaat Velthaven met Saya. Het avontuur begint." }
+        ],
+        family: [
+            { name: "Saya Ashvane", relation: "Tweelingzus", status: "Alive", notes: "Mijn gelijke, mijn partner." },
+            { name: "Lira Ashvane", relation: "Moeder", status: "Deceased", notes: "Voormalige avonturier. Viel als laatste tijdens de Slangenmars." },
+            { name: "Dorin Ashvane", relation: "Vader", status: "Deceased", notes: "Stille houtsnijder. Stierf naast zijn draak-bondgenoot Vuuradem." },
+            { name: "Vuuradem", relation: "Vaders bondgenoot", status: "Deceased", notes: "Draak. Stierf samen met Dorin." }
         ]
     },
 
@@ -338,6 +351,20 @@ var SEED_DATA = {
             { name: "Burglar's pack", weight: 0, notes: 'Inhoud al verdeeld' },
             { name: 'Set versleten kleding', weight: 3, notes: '' },
             { name: 'Nette outfit', weight: 4, notes: 'Voor als ze iemand moet oplichten' }
+        ],
+        charTimeline: [
+            { age: "0", event: "Geboren in een dorp aan de rand van het Slangenmoeras. Tweelingzus van Ren." },
+            { age: "7", event: "De Slangenmars verwoest het dorp. Ouders komen om. Tweeling overleeft." },
+            { age: "7-17", event: "Opgegroeid in de sloppenwijken van Velthaven." },
+            { age: "13", event: "Stak per ongeluk een marktkraam in brand. Niet met een fakkel \u2014 met haar handen. Wild Magic ontdekt." },
+            { age: "13-19", event: "Leerde zichzelf magie. Geen academie, geen leraar, geen boeken." },
+            { age: "19", event: "Verlaat Velthaven met Ren. Het avontuur begint." }
+        ],
+        family: [
+            { name: "Ren Ashvane", relation: "Tweelingbroer", status: "Alive", notes: "De enige die niet wegrende toen ik in brand stond." },
+            { name: "Lira Ashvane", relation: "Moeder", status: "Deceased", notes: "Voormalige avonturier. 'Huilen mag. Maar huil terwijl je doorloopt.'" },
+            { name: "Dorin Ashvane", relation: "Vader", status: "Deceased", notes: "Stille houtsnijder die drakenbeeldjes sneed." },
+            { name: "Vuuradem", relation: "Vaders bondgenoot", status: "Deceased", notes: "Draak. Stierf samen met Dorin." }
         ]
     },
 
