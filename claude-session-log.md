@@ -1,5 +1,83 @@
 # Session Log — D&D Within
 
+### Recap — 2026-03-30 (sessie 6)
+
+**What was done:**
+Massive feature sprint — ~40 features gebouwd in één sessie:
+
+**Bugfixes:**
+- [object Object] tag rendering fix in note view + card preview
+- Operator precedence bug in prepared spells header
+- Missing --accent-rgb CSS variable
+- Duplicate .welcome-banner CSS definitie
+- Missing base .portrait-fire class
+- Focus-visible accessibility outlines
+
+**Gameplay features:**
+- Global dice roller (alle spelers, floating button, nat20/nat1, roll history)
+- Short rest: automatisch HD rollen voor healing
+- Long rest: full recovery + concentration reset
+- Concentration tracking in combat tab
+- Combat log (damage/heal/rest met timestamps)
+- Weapon attack/damage roll buttons met crit detection
+- Spell detail tooltips (casting time, range, components, duration, desc)
+- Prepared spells quick reference in combat tab
+- Quest tracker op dashboard (add/complete/delete)
+- Party gold tracker op dashboard
+- XP tracker met progress bar per level
+- NPC tracker onder lore (naam, locatie, dispositie, notes)
+- DM whisper system (private berichten naar spelers)
+- Condition beschrijvingen op hover (alle 14 D&D conditions)
+- Inventory categorieën (Weapons, Armor, Potions, Gear, Other)
+
+**Visueel:**
+- SVG feTurbulence flame effects (organische vlammen rond portrait)
+- Canvas midpoint-displacement lightning (level 20, gefixt: geen zwart scherm)
+- Class ambient particle system (8 unieke class-specifieke effecten)
+- SVG ability score radar chart
+- SVG navbar iconen (Feather-style)
+- Page transition animaties (fade-out/in)
+- Backstory paragraph staggered reveal
+- Toast notification system
+- Dashboard banner + campaign naam customisatie
+- Level-based portrait effects (5 tiers)
+- Family tree boomvorm
+- Character timeline (full width)
+
+**Technisch:**
+- Firebase folder herstructurering (characters/config|state|images|notes)
+- Admin mode (admin/admin, kan alles bewerken)
+- Deep linking voor character tabs (#/characters/ren/combat)
+- Real-time presence (wie is online, Firebase onDisconnect)
+- PWA offline support (service worker + manifest)
+- Tag categorieën systeem
+- Map categorieën
+- Timeline event layouts (6 types) + inline editing
+- DM notes verplaatst naar Ren via Firebase REST API
+
+**Data:**
+- Zwaardnamen: "Advies" en "Aandacht"
+- Ren & Saya: family tree + character timeline geseeded
+- Background capitalisatie gefixt (Wayfarer, Guide, etc.)
+
+**Files modified:**
+- app.js (~7000 regels), style.css (~6200 regels), sync.js, effects.js (NIEUW), index.html
+- manifest.json (NIEUW), sw.js (NIEUW)
+
+**Current state:**
+- Alle features gebouwd en gepusht naar GitHub Pages
+- 30 test items staan klaar
+- Firebase test mode rules verlopen 2026-04-28
+- Nog niet browser-getest — verwacht bugs
+
+**Next steps:**
+- Alle 30 test items doorlopen
+- Portrait flame/lightning effecten visueel verfijnen
+- Firebase security rules voor productie
+- Eventueel: skeleton loading, code splitting
+
+---
+
 ### Recap — 2026-03-29 (sessie 5)
 
 **What was done:**
