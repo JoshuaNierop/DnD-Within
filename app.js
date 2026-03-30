@@ -721,24 +721,19 @@ function renderApp() {
 
         html += '</main>';
 
-        // Global dice roller (all users)
+        // Global dice roller (multi-dice hand system)
         html += '<div class="dice-fab" data-action="toggle-dice-panel" title="Roll Dice">&#127922;</div>';
         html += '<div class="dice-panel" id="dice-panel" style="display:none;">';
         html += '<div class="dice-panel-header"><span>Dice Roller</span><button class="dice-panel-close" data-action="toggle-dice-panel">&times;</button></div>';
-        html += '<div class="dice-panel-buttons">';
-        var diceTypes = [4, 6, 8, 10, 12, 20, 100];
-        for (var di = 0; di < diceTypes.length; di++) {
-            html += '<button class="dice-panel-btn" data-action="roll-dice-global" data-die="' + diceTypes[di] + '">d' + diceTypes[di] + '</button>';
-        }
-        html += '</div>';
-        html += '<div class="dice-panel-result" id="dice-panel-result"></div>';
-        html += '<div class="dice-panel-log" id="dice-panel-log"></div>';
+        html += '<div id="dice-panel-content"></div>';
         html += '</div>';
     }
 
-    // Page transition
+    // Page transition — only on actual route change
     var mainEl = app.querySelector('.main-content');
-    if (mainEl && !app._firstRender) {
+    var routeChanged = app._lastRoute !== route.path;
+    app._lastRoute = route.path;
+    if (mainEl && routeChanged && !app._firstRender) {
         mainEl.classList.add('page-exit');
         setTimeout(function() {
             app.innerHTML = html;
@@ -759,32 +754,12 @@ function renderApp() {
 }
 
 function postRenderEffects(route) {
-    if (typeof LightningSystem !== 'undefined') LightningSystem.stop();
-    if (typeof AmbientSystem !== 'undefined') AmbientSystem.stop();
-
     if (route.parts[0] === 'characters' && route.parts[1]) {
         var effectCfg = loadCharConfig(route.parts[1]);
-        var effectState = loadCharState(route.parts[1]);
-        var effectLvl = effectState ? effectState.level : 1;
         var effectColor = effectCfg ? effectCfg.accentColor : '#22d3ee';
-        var effectClass = effectCfg ? effectCfg.className : '';
-
-        // Flame particles (level 9+)
-        if (effectLvl >= 9 && typeof createFlameParticles === 'function') {
-            var fusionEl = document.getElementById('portrait-fusion-fire');
-            createFlameParticles(fusionEl, effectColor, effectLvl >= 17 ? 20 : effectLvl >= 13 ? 16 : 12);
-        }
-
-        // Canvas lightning (level 20)
-        if (effectLvl >= 20 && typeof LightningSystem !== 'undefined') {
-            LightningSystem.init(effectColor);
-            LightningSystem.start(effectColor);
-        }
-
-        // Class ambient particles
-        if (typeof AmbientSystem !== 'undefined') {
-            AmbientSystem.init(effectClass, effectColor);
-            AmbientSystem.start();
+        var portraitWrap = document.querySelector('.char-portrait-wrap');
+        if (typeof GlowRing !== 'undefined') {
+            GlowRing.apply(portraitWrap, effectColor);
         }
     }
 }
@@ -1253,18 +1228,7 @@ function renderCharacterSheet(charId) {
     var banner = loadImage(charId, 'banner');
     var portrait = loadImage(charId, 'portrait');
 
-    // Level tier for visual effects
-    var lvl = state.level || 1;
-    var tierClass = '';
-    if (lvl >= 20) tierClass = ' level-tier-5 level-20';
-    else if (lvl >= 17) tierClass = ' level-tier-5';
-    else if (lvl >= 13) tierClass = ' level-tier-4';
-    else if (lvl >= 9) tierClass = ' level-tier-3';
-    else if (lvl >= 5) tierClass = ' level-tier-2';
-    else tierClass = ' level-tier-1 level-sub-' + lvl;
-
-    var html = '<div class="character-page' + tierClass + '" data-char-id="' + charId + '" style="--char-accent:' + (config.accentColor || 'var(--accent)') + '">';
-    html += '<canvas id="ambient-canvas" class="ambient-canvas"></canvas>';
+    var html = '<div class="character-page" data-char-id="' + charId + '" style="--char-accent:' + (config.accentColor || 'var(--accent)') + '">';
 
     // Banner section
     html += '<div class="char-banner">';
@@ -1280,15 +1244,6 @@ function renderCharacterSheet(charId) {
 
     // Portrait overlapping banner
     html += '<div class="char-portrait-wrap">';
-
-    // Flame effects behind portrait (tier 3+)
-    if (lvl >= 9) {
-        html += '<div class="portrait-fire" id="portrait-fire"></div>';
-    }
-    // Fusion flame particles (tier 3+)
-    if (lvl >= 9) {
-        html += '<div class="portrait-fusion-fire" id="portrait-fusion-fire"></div>';
-    }
 
     html += '<div class="char-portrait">';
     if (portrait) {
@@ -2840,7 +2795,7 @@ function renderEventForm(evIdx, ev) {
     var prefix = isNew ? '' : 'edit-';
     var html = '';
     html += '<input type="text" class="edit-input" id="' + prefix + 'ev-title" placeholder="' + t('timeline.eventtitle') + '" value="' + escapeAttr(ev.title || '') + '">';
-    html += '<textarea class="edit-textarea" id="' + prefix + 'ev-desc" placeholder="' + t('timeline.eventdesc') + '" style="min-height:60px;">' + escapeHtml(ev.desc || '') + '</textarea>';
+    html += '<textarea class="edit-textarea auto-grow" id="' + prefix + 'ev-desc" placeholder="' + t('timeline.eventdesc') + '" style="min-height:60px;" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)">' + escapeHtml(ev.desc || '') + '</textarea>';
     html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
     html += '<input type="text" class="edit-input" id="' + prefix + 'ev-session" placeholder="' + t('timeline.eventsession') + '" style="width:80px;" value="' + escapeAttr(ev.session || '') + '">';
     html += '<select class="edit-input" id="' + prefix + 'ev-type" style="flex:1;">';
@@ -4130,6 +4085,14 @@ function showLevelUpModal(charId, config, state) {
                 state.asiChoices[newLevel] = asiChoice;
             }
 
+            // Increase current HP by the HP gain from leveling up
+            var oldMaxHP = getHP(config, { level: newLevel - 1, asiChoices: state.asiChoices || {}, customAbilities: state.customAbilities });
+            var newMaxHP = getHP(config, state);
+            var hpGain = newMaxHP - oldMaxHP;
+            if (hpGain > 0 && state.currentHP !== null) {
+                state.currentHP = Math.min(newMaxHP, state.currentHP + hpGain);
+            }
+
             saveCharState(charId, state);
             modal.remove();
             if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
@@ -5147,30 +5110,38 @@ function bindPageEvents(route) {
         // Global dice panel toggle
         if (target.matches('[data-action="toggle-dice-panel"]') || target.closest('[data-action="toggle-dice-panel"]')) {
             var panel = document.getElementById('dice-panel');
-            if (panel) panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+            if (panel) {
+                var wasHidden = panel.style.display === 'none';
+                panel.style.display = wasHidden ? 'flex' : 'none';
+                if (wasHidden && typeof DiceHand !== 'undefined') DiceHand.render();
+            }
             return;
         }
 
-        // Global dice roller
-        if (target.matches('[data-action="roll-dice-global"]')) {
-            var die = parseInt(target.dataset.die);
-            var result = Math.floor(Math.random() * die) + 1;
-            var resultEl = document.getElementById('dice-panel-result');
-            var logEl = document.getElementById('dice-panel-log');
-            if (resultEl) {
-                var isNat20 = die === 20 && result === 20;
-                var isNat1 = die === 20 && result === 1;
-                resultEl.innerHTML = '<span class="dice-roll-value' + (isNat20 ? ' nat20' : '') + (isNat1 ? ' nat1' : '') + '">' + result + '</span><span class="dice-roll-label">d' + die + (isNat20 ? ' — NATURAL 20!' : '') + (isNat1 ? ' — Critical Fail!' : '') + '</span>';
-                resultEl.classList.add('dice-animate');
-                setTimeout(function() { resultEl.classList.remove('dice-animate'); }, 400);
-            }
-            if (logEl) {
-                var logEntry = document.createElement('div');
-                logEntry.className = 'dice-log-entry';
-                logEntry.textContent = 'd' + die + ': ' + result;
-                logEl.insertBefore(logEntry, logEl.firstChild);
-                if (logEl.children.length > 10) logEl.removeChild(logEl.lastChild);
-            }
+        // Dice hand: add die
+        if (target.matches('[data-action="dice-add"]')) {
+            if (typeof DiceHand !== 'undefined') DiceHand.add(parseInt(target.dataset.die));
+            return;
+        }
+        // Dice hand: remove from hand
+        if (target.matches('[data-action="dice-remove-hand"]')) {
+            if (typeof DiceHand !== 'undefined') DiceHand.remove(parseInt(target.dataset.idx));
+            return;
+        }
+        // Dice hand: roll
+        if (target.matches('[data-action="dice-roll-hand"]')) {
+            if (typeof DiceHand !== 'undefined') DiceHand.roll();
+            return;
+        }
+        // Dice hand: reset
+        if (target.matches('[data-action="dice-reset"]')) {
+            if (typeof DiceHand !== 'undefined') DiceHand.reset();
+            return;
+        }
+        // Dice hand: return result to pool
+        if (target.matches('[data-action="dice-remove-result"]') || target.closest('[data-action="dice-remove-result"]')) {
+            var chip = target.matches('[data-action="dice-remove-result"]') ? target : target.closest('[data-action="dice-remove-result"]');
+            if (typeof DiceHand !== 'undefined') DiceHand.removeResult(parseInt(chip.dataset.idx));
             return;
         }
 

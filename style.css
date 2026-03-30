@@ -5547,252 +5547,7 @@ body.modal-open {
     max-width: 680px;
 }
 
-/* ============================================================
-   Level-Based Portrait Effects v3 — Organic & Impressive
-   ============================================================ */
-
-@keyframes orbitalSweep {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Thick dancing fire shadows — organic, asymmetric movement */
-@keyframes thickFireDance {
-    0% {
-        box-shadow:
-            0 -12px 30px 4px var(--char-accent, var(--accent)),
-            8px -8px 25px 2px var(--char-accent, var(--accent)),
-            -10px -6px 28px 3px var(--char-accent, var(--accent)),
-            4px 0 20px 1px var(--char-accent, var(--accent)),
-            -6px 2px 18px 2px var(--char-accent, var(--accent));
-    }
-    20% {
-        box-shadow:
-            -6px -18px 35px 6px var(--char-accent, var(--accent)),
-            10px -10px 22px 3px var(--char-accent, var(--accent)),
-            -12px -4px 30px 4px var(--char-accent, var(--accent)),
-            6px -2px 22px 2px var(--char-accent, var(--accent)),
-            -4px 4px 16px 1px var(--char-accent, var(--accent));
-    }
-    40% {
-        box-shadow:
-            4px -14px 32px 5px var(--char-accent, var(--accent)),
-            -8px -12px 28px 4px var(--char-accent, var(--accent)),
-            10px -6px 24px 2px var(--char-accent, var(--accent)),
-            -6px -8px 26px 3px var(--char-accent, var(--accent)),
-            2px 2px 18px 1px var(--char-accent, var(--accent));
-    }
-    60% {
-        box-shadow:
-            -4px -20px 38px 7px var(--char-accent, var(--accent)),
-            12px -6px 26px 3px var(--char-accent, var(--accent)),
-            -14px -8px 32px 5px var(--char-accent, var(--accent)),
-            8px -4px 20px 2px var(--char-accent, var(--accent)),
-            -8px 0 22px 2px var(--char-accent, var(--accent));
-    }
-    80% {
-        box-shadow:
-            6px -16px 34px 6px var(--char-accent, var(--accent)),
-            -10px -14px 30px 4px var(--char-accent, var(--accent)),
-            8px -8px 26px 3px var(--char-accent, var(--accent)),
-            -4px -10px 28px 4px var(--char-accent, var(--accent)),
-            -2px 2px 20px 1px var(--char-accent, var(--accent));
-    }
-    100% {
-        box-shadow:
-            0 -12px 30px 4px var(--char-accent, var(--accent)),
-            8px -8px 25px 2px var(--char-accent, var(--accent)),
-            -10px -6px 28px 3px var(--char-accent, var(--accent)),
-            4px 0 20px 1px var(--char-accent, var(--accent)),
-            -6px 2px 18px 2px var(--char-accent, var(--accent));
-    }
-}
-
-@keyframes stormPulse {
-    0%, 100% { opacity: 0.35; }
-    50% { opacity: 0.65; }
-}
-
 .character-page { position: relative; }
-
-/* --- Tier 1: Level 1-4 — Orbiting thick gradient + glow --- */
-.level-tier-1 .char-portrait {
-    border-color: var(--char-accent, var(--accent));
-}
-.level-sub-1 .char-portrait { box-shadow: 0 0 8px var(--char-accent, var(--accent)); }
-.level-sub-2 .char-portrait { box-shadow: 0 0 12px var(--char-accent, var(--accent)); }
-.level-sub-3 .char-portrait { box-shadow: 0 0 16px var(--char-accent, var(--accent)); }
-.level-tier-1:not(.level-sub-1):not(.level-sub-2):not(.level-sub-3) .char-portrait {
-    box-shadow: 0 0 20px var(--char-accent, var(--accent));
-}
-.level-tier-1 .char-portrait-wrap::before {
-    content: '';
-    position: absolute;
-    inset: -5px;
-    border-radius: 50%;
-    background: conic-gradient(
-        from 0deg,
-        transparent 0deg, transparent 220deg,
-        var(--char-accent, var(--accent)) 260deg,
-        var(--char-accent, var(--accent)) 330deg,
-        transparent 350deg, transparent 360deg
-    );
-    animation: orbitalSweep 4s linear infinite;
-    pointer-events: none;
-    z-index: -1;
-    filter: blur(2px);
-}
-.level-sub-1 .char-portrait-wrap::before { opacity: 0.2; }
-.level-sub-2 .char-portrait-wrap::before { opacity: 0.35; }
-.level-sub-3 .char-portrait-wrap::before { opacity: 0.5; }
-.level-tier-1:not(.level-sub-1):not(.level-sub-2):not(.level-sub-3) .char-portrait-wrap::before { opacity: 0.65; }
-
-/* --- Tier 2: Level 5-8 — THICK dancing fire shadows --- */
-.level-tier-2 .char-portrait {
-    border-color: var(--char-accent, var(--accent));
-    animation: thickFireDance 1.8s ease-in-out infinite;
-}
-.level-tier-2 .char-portrait-wrap::before {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    background: conic-gradient(
-        from 0deg,
-        transparent 0deg, transparent 180deg,
-        var(--char-accent, var(--accent)) 230deg,
-        var(--char-accent, var(--accent)) 340deg,
-        transparent 355deg, transparent 360deg
-    );
-    animation: orbitalSweep 3s linear infinite;
-    pointer-events: none;
-    z-index: -1;
-    opacity: 0.6;
-    filter: blur(3px);
-}
-.level-tier-2 .char-portrait-wrap::after {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    background: conic-gradient(
-        from 180deg,
-        transparent 0deg, transparent 200deg,
-        var(--char-accent, var(--accent)) 250deg,
-        var(--char-accent, var(--accent)) 320deg,
-        transparent 345deg, transparent 360deg
-    );
-    animation: orbitalSweep 5s linear infinite reverse;
-    pointer-events: none;
-    z-index: -1;
-    opacity: 0.4;
-    filter: blur(4px);
-}
-
-/* --- Base flame classes --- */
-.portrait-fire {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: -1;
-}
-.portrait-fusion-fire {
-    position: absolute;
-    inset: -25px;
-    border-radius: 50%;
-    overflow: hidden;
-    filter: blur(5px) contrast(18);
-    background: #000;
-    mix-blend-mode: screen;
-    pointer-events: none;
-    z-index: -1;
-}
-.flame-spark {
-    position: absolute;
-    bottom: 35%;
-    border-radius: 50%;
-    animation: sparkRise 1.2s ease-in infinite;
-}
-
-/* --- Tier 3: Level 9-12 — SVG turbulence flames --- */
-.level-tier-3 .char-portrait {
-    border-color: var(--char-accent, var(--accent));
-    box-shadow: 0 0 20px var(--char-accent, var(--accent));
-}
-.level-tier-3 .portrait-fire {
-    position: absolute;
-    inset: -20px;
-    border-radius: 50%;
-    background: radial-gradient(circle, transparent 40%, var(--char-accent, var(--accent)) 55%, transparent 75%);
-    filter: url(#flame-warp);
-    opacity: 0.7;
-    pointer-events: none;
-    z-index: -1;
-    animation: flamePulse 2s ease-in-out infinite alternate;
-}
-
-/* --- Tier 4: Level 13-16 — Intense SVG flames --- */
-.level-tier-4 .char-portrait {
-    border-color: var(--char-accent, var(--accent));
-    box-shadow: 0 0 28px var(--char-accent, var(--accent));
-}
-.level-tier-4 .portrait-fire {
-    position: absolute;
-    inset: -28px;
-    border-radius: 50%;
-    background: radial-gradient(circle, transparent 35%, var(--char-accent, var(--accent)) 48%, var(--char-accent, var(--accent)) 58%, transparent 72%);
-    filter: url(#flame-warp-intense);
-    opacity: 0.75;
-    pointer-events: none;
-    z-index: -1;
-    animation: flamePulse 1.8s ease-in-out infinite alternate;
-}
-.level-tier-4 .char-banner::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, transparent 50%, rgba(var(--accent-rgb, 34,211,238), 0.06));
-    animation: stormPulse 3s ease-in-out infinite;
-    pointer-events: none;
-}
-
-/* --- Tier 5: Level 17-19 — Inferno SVG flames --- */
-.level-tier-5 .char-portrait {
-    border-color: var(--char-accent, var(--accent));
-    box-shadow: 0 0 35px var(--char-accent, var(--accent)), 0 0 60px rgba(var(--accent-rgb, 34,211,238), 0.2);
-}
-.level-tier-5 .portrait-fire {
-    position: absolute;
-    inset: -35px;
-    border-radius: 50%;
-    background: radial-gradient(circle, transparent 30%, var(--char-accent, var(--accent)) 42%, var(--char-accent, var(--accent)) 55%, transparent 68%);
-    filter: url(#flame-warp-inferno);
-    opacity: 0.8;
-    pointer-events: none;
-    z-index: -1;
-    animation: flamePulse 1.5s ease-in-out infinite alternate;
-}
-.level-tier-5 .char-banner::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, transparent 40%, rgba(var(--accent-rgb, 34,211,238), 0.1));
-    animation: stormPulse 2s ease-in-out infinite;
-    pointer-events: none;
-}
-
-/* --- Level 20: Inferno + Canvas lightning (JS handles lightning) --- */
-.level-20 .char-portrait {
-    box-shadow:
-        0 0 40px var(--char-accent, var(--accent)),
-        0 0 80px var(--char-accent, var(--accent)),
-        0 0 120px rgba(var(--accent-rgb, 34,211,238), 0.3);
-}
-.level-20 .portrait-fire {
-    inset: -40px;
-    opacity: 0.85;
-}
-
 /* Accessibility: focus-visible for keyboard navigation */
 :focus-visible {
     outline: 2px solid var(--accent);
@@ -5803,23 +5558,70 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     outline-offset: 2px;
 }
 
-@keyframes sparkRise {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-65px) scale(0.2); }
+/* ============================================================
+   Portrait Glow Ring — rotating tapered border
+   ============================================================ */
+@keyframes glowRingSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-@keyframes flamePulse {
-    0% { opacity: 0.6; transform: scale(0.96); }
-    100% { opacity: 0.85; transform: scale(1.04); }
-}
-
-/* Ensure portrait-wrap stacking */
-.level-tier-1 .char-portrait-wrap,
-.level-tier-2 .char-portrait-wrap,
-.level-tier-3 .char-portrait-wrap,
-.level-tier-4 .char-portrait-wrap,
-.level-tier-5 .char-portrait-wrap {
+.glow-ring {
+    --ring-color: var(--char-accent, var(--accent));
     z-index: 2;
+}
+
+.glow-ring::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    /* Tapered ring: thick portion fades gradually to thin */
+    background: conic-gradient(
+        from 0deg,
+        var(--ring-color) 0deg,
+        var(--ring-color) 30deg,
+        color-mix(in srgb, var(--ring-color) 70%, transparent) 60deg,
+        color-mix(in srgb, var(--ring-color) 40%, transparent) 90deg,
+        color-mix(in srgb, var(--ring-color) 15%, transparent) 120deg,
+        transparent 150deg,
+        transparent 300deg,
+        color-mix(in srgb, var(--ring-color) 10%, transparent) 330deg,
+        color-mix(in srgb, var(--ring-color) 50%, transparent) 345deg,
+        var(--ring-color) 360deg
+    );
+    animation: glowRingSpin 3s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+    /* Mask to create the ring shape — hollow center */
+    -webkit-mask: radial-gradient(circle, transparent 62%, black 64%);
+    mask: radial-gradient(circle, transparent 62%, black 64%);
+}
+
+/* Glow layer — blurred copy for the light bloom effect */
+.glow-ring::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        var(--ring-color) 0deg,
+        var(--ring-color) 30deg,
+        color-mix(in srgb, var(--ring-color) 60%, transparent) 60deg,
+        color-mix(in srgb, var(--ring-color) 25%, transparent) 90deg,
+        transparent 130deg,
+        transparent 310deg,
+        color-mix(in srgb, var(--ring-color) 40%, transparent) 345deg,
+        var(--ring-color) 360deg
+    );
+    animation: glowRingSpin 3s linear infinite;
+    pointer-events: none;
+    z-index: -2;
+    -webkit-mask: radial-gradient(circle, transparent 54%, black 58%, black 72%, transparent 76%);
+    mask: radial-gradient(circle, transparent 54%, black 58%, black 72%, transparent 76%);
+    filter: blur(6px);
+    opacity: 0.6;
 }
 
 /* ============================================================
@@ -5877,63 +5679,86 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     font-size: 1.2rem;
     cursor: pointer;
 }
-.dice-panel-buttons {
+/* Dice Hand System */
+#dice-panel-content { padding: 0.75rem 1rem; }
+.dice-pool {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    padding: 0.75rem 1rem;
+    gap: 0.35rem;
+    margin-bottom: 0.75rem;
 }
-.dice-panel-btn {
+.dice-pool-btn {
     flex: 1;
-    min-width: 44px;
-    padding: 0.5rem;
+    min-width: 40px;
+    padding: 0.4rem;
     background: var(--bg-block);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     color: var(--text-main);
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.15s;
     font-family: inherit;
 }
-.dice-panel-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(var(--accent-rgb), 0.1);
-}
-.dice-panel-btn:active { transform: scale(0.92); }
-.dice-panel-result {
-    padding: 0.75rem 1rem;
-    text-align: center;
-    min-height: 48px;
+.dice-pool-btn:hover { border-color: var(--accent); color: var(--accent); }
+.dice-pool-btn:active { transform: scale(0.9); }
+.dice-hand {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
-.dice-roll-value {
-    font-size: 2rem;
+.dice-hand-label { font-size: 0.75rem; color: var(--text-dim); margin-right: 0.25rem; }
+.dice-chip {
+    padding: 0.2rem 0.5rem;
+    background: rgba(var(--accent-rgb), 0.15);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.dice-chip:hover { background: rgba(var(--accent-rgb), 0.3); }
+.dice-hand-actions { display: flex; gap: 0.4rem; margin-bottom: 0.75rem; }
+.dice-results { text-align: center; }
+.dice-total {
+    font-size: 2.5rem;
     font-weight: 800;
     color: var(--accent);
+    text-shadow: 0 0 20px var(--accent-glow);
+    animation: diceRollBounce 0.4s ease-out;
 }
-.dice-roll-value.nat20 { color: var(--gold); text-shadow: 0 0 12px var(--gold); }
-.dice-roll-value.nat1 { color: var(--danger); }
-.dice-roll-label { font-size: 0.8rem; color: var(--text-dim); }
-.dice-animate { animation: diceRollBounce 0.4s ease-out; }
 @keyframes diceRollBounce {
-    0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
-    60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
-    100% { transform: scale(1) rotate(0deg); }
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
 }
-.dice-panel-log {
-    padding: 0 1rem 0.75rem;
-    max-height: 80px;
-    overflow-y: auto;
+.dice-result-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+.dice-result-chip {
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-radius: 6px;
     font-size: 0.75rem;
     color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
 }
-.dice-log-entry { padding: 0.1rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.dice-result-chip:hover { border-color: var(--accent); }
+.dice-result-chip.max { color: var(--gold); border-color: var(--gold); }
+.dice-result-chip.min { color: var(--danger); border-color: var(--danger); }
+
+/* Auto-grow textarea */
+.auto-grow { overflow: hidden; resize: none; }
 
 /* ============================================================
    Page Transitions
@@ -6079,21 +5904,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ============================================================
    Combat Log
    ============================================================ */
-.combat-log-section { margin-top: 0.25rem; }
-.combat-log { display: flex; flex-direction: column; gap: 0.15rem; margin-top: 0.3rem; }
+.combat-log-section { margin-top: 0.5rem; }
+.combat-log { display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.4rem; }
 .combat-log-entry {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.2rem 0.4rem;
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    border-radius: 4px;
+    gap: 0.5rem;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-block);
+    border-left: 3px solid var(--text-dim);
 }
-.combat-log-damage { color: var(--danger); }
-.combat-log-heal { color: var(--success); }
-.combat-log-rest { color: var(--accent); }
-.combat-log-time { margin-left: auto; opacity: 0.5; font-size: 0.65rem; }
+.combat-log-damage { border-left-color: var(--danger); color: var(--danger); }
+.combat-log-heal { border-left-color: var(--success); color: var(--success); }
+.combat-log-rest { border-left-color: var(--accent); color: var(--accent); }
+.combat-log-time { margin-left: auto; opacity: 0.4; font-size: 0.65rem; color: var(--text-dim); }
 
 /* ============================================================
    NPC Tracker
@@ -6218,18 +6044,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .whisper-card p { margin: 0; font-size: 0.9rem; color: var(--text-main); flex: 1; }
 .dash-whisper-send { margin-bottom: 1.5rem; }
 
-/* ============================================================
-   Ambient Canvas (Class Particles)
-   ============================================================ */
-.ambient-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    display: none;
-}
 .character-page { position: relative; overflow: hidden; }
 
 /* ============================================================

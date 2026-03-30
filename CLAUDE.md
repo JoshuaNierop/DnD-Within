@@ -24,7 +24,7 @@ Interactive D&D 5.5e character sheet en campaign management SPA voor 8 spelers.
 8 characters: Ren, Saya + 6 anderen — elk met unieke class/race/subclass
 
 ## Features
-- Level-based portrait effects (5 tiers + level 20 crackle)
+- Animated glow ring portrait border (conic-gradient, rotating taper)
 - Spell prep system, item tracking, combat stats
 - Maps met portal linking tussen dimensies
 - Notes (6 layouts), Timeline events

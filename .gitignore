@@ -1,0 +1,16 @@
+# Claude Code session files
+claude-session-log.md
+.claude-session-active
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Credentials
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/
