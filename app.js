@@ -7,18 +7,38 @@
 // Section 1: User / Auth System
 // ============================================================
 
-const USERS = {
-    admin:   { name: "Admin", role: "admin", characterId: null, password: "admin" },
-    dm:      { name: "Dungeon Master", role: "dm", characterId: null, password: "dm" },
-    ren:     { name: "Joshua", role: "player", characterId: "ren", password: "ren" },
-    saya:    { name: "Speler 2", role: "player", characterId: "saya", password: "saya" },
-    ranger:  { name: "Speler 3", role: "player", characterId: "ranger", password: "ranger" },
-    wizard:  { name: "Speler 4", role: "player", characterId: "wizard", password: "wizard" },
-    paladin: { name: "Speler 5", role: "player", characterId: "paladin", password: "paladin" },
-    druid:   { name: "Speler 6", role: "player", characterId: "druid", password: "druid" },
-    fighter: { name: "Speler 7", role: "player", characterId: "fighter", password: "fighter" },
-    warlock: { name: "Speler 8", role: "player", characterId: "warlock", password: "warlock" }
+var DEFAULT_USERS = {
+    admin:   { name: "Admin", role: "admin", password: "admin" },
+    dm:      { name: "Dungeon Master", role: "dm", password: "dm" },
+    ren:     { name: "Joshua", role: "player", password: "ren" },
+    saya:    { name: "Speler 2", role: "player", password: "saya" },
+    ranger:  { name: "Speler 3", role: "player", password: "ranger" },
+    wizard:  { name: "Speler 4", role: "player", password: "wizard" },
+    paladin: { name: "Speler 5", role: "player", password: "paladin" },
+    druid:   { name: "Speler 6", role: "player", password: "druid" },
+    fighter: { name: "Speler 7", role: "player", password: "fighter" },
+    warlock: { name: "Speler 8", role: "player", password: "warlock" }
 };
+
+// Users cache populated from Firebase; falls back to DEFAULT_USERS
+var usersCache = null;
+
+function getUserData(userId) {
+    if (usersCache && usersCache[userId]) return usersCache[userId];
+    if (DEFAULT_USERS[userId]) return DEFAULT_USERS[userId];
+    return null;
+}
+
+function getUserCharacters(userId) {
+    var u = getUserData(userId);
+    if (u && u.characters && Array.isArray(u.characters)) return u.characters;
+    return [];
+}
+
+function userOwnsCharacter(userId, charId) {
+    var chars = getUserCharacters(userId);
+    return chars.indexOf(charId) !== -1;
+}
 
 function getSession() {
     return JSON.parse(localStorage.getItem('dw_session') || 'null');
@@ -34,7 +54,7 @@ function clearSession() {
 
 function currentUser() {
     var s = getSession();
-    return s ? USERS[s.userId] : null;
+    return s ? getUserData(s.userId) : null;
 }
 
 function currentUserId() {
@@ -55,7 +75,9 @@ function isDM() {
 function canEdit(charId) {
     var u = currentUser();
     if (u && u.role === 'admin') return true;
-    return u && u.characterId === charId;
+    var uid = currentUserId();
+    if (!uid) return false;
+    return userOwnsCharacter(uid, charId);
 }
 
 function canEditWorld() {
@@ -317,10 +339,10 @@ var SEED_DATA = {
             { age: "19", event: "Verlaat Velthaven met Saya. Het avontuur begint." }
         ],
         family: [
-            { name: "Saya Ashvane", relation: "Tweelingzus", status: "Alive", notes: "Mijn gelijke, mijn partner." },
-            { name: "Lira Ashvane", relation: "Moeder", status: "Deceased", notes: "Voormalige avonturier. Viel als laatste tijdens de Slangenmars." },
-            { name: "Dorin Ashvane", relation: "Vader", status: "Deceased", notes: "Stille houtsnijder. Stierf naast zijn draak-bondgenoot Vuuradem." },
-            { name: "Vuuradem", relation: "Vaders bondgenoot", status: "Deceased", notes: "Draak. Stierf samen met Dorin." }
+            { name: "Lira Ashvane", relation: "Moeder", tier: "parent", status: "Deceased", notes: "Voormalige avonturier." },
+            { name: "Dorin Ashvane", relation: "Vader", tier: "parent", status: "Deceased", notes: "Stille houtsnijder." },
+            { name: "Vuuradem", relation: "Vaders bondgenoot", tier: "parent", status: "Deceased", notes: "Draak." },
+            { name: "Saya Ashvane", relation: "Tweelingzus", tier: "sibling", status: "Alive", linkedChar: "saya", notes: "Mijn gelijke, mijn partner." }
         ]
     },
 
@@ -377,10 +399,10 @@ var SEED_DATA = {
             { age: "19", event: "Verlaat Velthaven met Ren. Het avontuur begint." }
         ],
         family: [
-            { name: "Ren Ashvane", relation: "Tweelingbroer", status: "Alive", notes: "De enige die niet wegrende toen ik in brand stond." },
-            { name: "Lira Ashvane", relation: "Moeder", status: "Deceased", notes: "Voormalige avonturier. 'Huilen mag. Maar huil terwijl je doorloopt.'" },
-            { name: "Dorin Ashvane", relation: "Vader", status: "Deceased", notes: "Stille houtsnijder die drakenbeeldjes sneed." },
-            { name: "Vuuradem", relation: "Vaders bondgenoot", status: "Deceased", notes: "Draak. Stierf samen met Dorin." }
+            { name: "Lira Ashvane", relation: "Moeder", tier: "parent", status: "Deceased", notes: "Voormalige avonturier." },
+            { name: "Dorin Ashvane", relation: "Vader", tier: "parent", status: "Deceased", notes: "Stille houtsnijder." },
+            { name: "Vuuradem", relation: "Vaders bondgenoot", tier: "parent", status: "Deceased", notes: "Draak." },
+            { name: "Ren Ashvane", relation: "Tweelingbroer", tier: "sibling", status: "Alive", linkedChar: "ren", notes: "De enige die niet wegrende." }
         ]
     },
 
@@ -656,7 +678,8 @@ function classDisplayName(className) {
     var names = {
         rogue: 'Rogue', sorcerer: 'Sorcerer', ranger: 'Ranger',
         wizard: 'Wizard', paladin: 'Paladin', druid: 'Druid',
-        fighter: 'Fighter', warlock: 'Warlock'
+        fighter: 'Fighter', warlock: 'Warlock',
+        barbarian: 'Barbarian', bard: 'Bard', cleric: 'Cleric', monk: 'Monk'
     };
     return names[className] || capitalize(className);
 }
@@ -673,7 +696,8 @@ function subclassDisplayName(subclass) {
 function raceDisplayName(race) {
     var names = {
         woodElf: 'Wood Elf', halfElf: 'Half-Elf', human: 'Human',
-        halfling: 'Halfling', tiefling: 'Tiefling', aasimar: 'Aasimar'
+        halfling: 'Halfling', tiefling: 'Tiefling', aasimar: 'Aasimar',
+        dwarf: 'Dwarf', gnome: 'Gnome', goliath: 'Goliath', orc: 'Orc', dragonborn: 'Dragonborn'
     };
     return names[race] || capitalize(race);
 }
@@ -1001,7 +1025,7 @@ function renderNavbar(route) {
         html += '<span class="sync-indicator sync-offline" title="' + t('nav.sync.offline') + '">&#9729;</span>';
     }
     html += '<button class="nav-lang-btn" data-action="toggle-lang" title="' + t('nav.language') + '">' + (getLang() === 'nl' ? 'NL' : 'EN') + '</button>';
-    html += '<span class="nav-avatar">' + escapeHtml(user ? user.name.charAt(0) : '') + '</span>';
+    html += '<span class="nav-avatar" data-action="open-profile" title="Profiel instellingen" style="cursor:pointer;">' + escapeHtml(user ? user.name.charAt(0) : '') + '</span>';
     html += '<button class="nav-logout" data-action="logout">' + t('nav.logout') + '</button>';
     html += '</div>';
     html += '<button class="nav-toggle" data-action="toggle-nav">&#9776;</button>';
@@ -1217,7 +1241,7 @@ function renderDashboard() {
         var cstate = loadCharState(cid);
         if (!ccfg) continue;
 
-        var isOwn = user && user.characterId === cid;
+        var isOwn = userOwnsCharacter(currentUserId(), cid);
         html += renderCharCard(cid, ccfg, cstate, isOwn);
     }
 
@@ -1514,16 +1538,44 @@ function renderCharacterList() {
     html += '<div class="character-cards">';
 
     var charIds = getCharacterIds();
-    var user = currentUser();
+    var uid = currentUserId();
+    var myChars = getUserCharacters(uid);
 
+    // Show own characters first
+    var ownIds = [];
+    var otherIds = [];
     for (var i = 0; i < charIds.length; i++) {
-        var cid = charIds[i];
+        if (myChars.indexOf(charIds[i]) !== -1) {
+            ownIds.push(charIds[i]);
+        } else {
+            otherIds.push(charIds[i]);
+        }
+    }
+
+    for (var i = 0; i < ownIds.length; i++) {
+        var cid = ownIds[i];
         var cfg = loadCharConfig(cid);
         var state = loadCharState(cid);
         if (!cfg) continue;
+        html += renderCharCard(cid, cfg, state, true);
+    }
 
-        var isOwn = user && user.characterId === cid;
-        html += renderCharCard(cid, cfg, state, isOwn);
+    // Create character card
+    html += '<div class="char-card char-card-create" data-action="open-create-wizard">';
+    html += '<div class="char-card-img"><div class="char-card-placeholder" style="font-size:2.5rem;">+</div></div>';
+    html += '<div class="char-card-overlay">';
+    html += '<span class="char-card-name">Nieuw Character</span>';
+    html += '<span class="char-card-detail">Maak een nieuw character aan</span>';
+    html += '</div>';
+    html += '</div>';
+
+    // Other players' characters
+    for (var i = 0; i < otherIds.length; i++) {
+        var cid = otherIds[i];
+        var cfg = loadCharConfig(cid);
+        var state = loadCharState(cid);
+        if (!cfg) continue;
+        html += renderCharCard(cid, cfg, state, false);
     }
 
     html += '</div>';
@@ -2675,40 +2727,12 @@ function renderTabStory(charId, config, state) {
         html += '</div>';
     }
 
-    // === Family / Connections ===
+    // === Family Tree ===
     var family = config.family || [];
     if (family.length > 0 || editable) {
         html += '<div class="sheet-block">';
         html += '<h2>Family & Connections</h2>';
-        if (family.length > 0) {
-            html += '<div class="family-tree">';
-            for (var fi = 0; fi < family.length; fi++) {
-                var fm = family[fi];
-                var statusClass = fm.status === 'Deceased' || fm.status === 'Overleden' ? ' deceased' : '';
-                html += '<div class="family-member' + statusClass + '">';
-                html += '<div class="family-connector"></div>';
-                html += '<div class="family-info">';
-                html += '<strong>' + escapeHtml(fm.name || '') + '</strong>';
-                html += '<span class="family-relation">' + escapeHtml(fm.relation || '') + '</span>';
-                if (fm.status) html += '<span class="family-status">' + escapeHtml(fm.status) + '</span>';
-                if (fm.notes) html += '<span class="family-notes">' + escapeHtml(fm.notes) + '</span>';
-                html += '</div>';
-                if (editable) {
-                    html += '<button class="family-remove" data-action="remove-family" data-idx="' + fi + '">&times;</button>';
-                }
-                html += '</div>';
-            }
-            html += '</div>';
-        }
-        if (editable) {
-            html += '<div class="family-add">';
-            html += '<input type="text" class="edit-input" id="fam-name" placeholder="Name" style="flex:1;">';
-            html += '<input type="text" class="edit-input" id="fam-relation" placeholder="Relation" style="width:100px;">';
-            html += '<input type="text" class="edit-input" id="fam-status" placeholder="Status" style="width:80px;">';
-            html += '<input type="text" class="edit-input" id="fam-notes" placeholder="Notes" style="flex:1;">';
-            html += '<button class="edit-save" data-action="add-family">+</button>';
-            html += '</div>';
-        }
+        html += renderFamilyTree(family, charId, config.name, editable);
         html += '</div>';
     }
 
@@ -2716,6 +2740,142 @@ function renderTabStory(charId, config, state) {
         html += '<p class="block-note">' + t('story.nostory') + '</p>';
     }
 
+    html += '</div>';
+    return html;
+}
+
+// ============================================================
+// Section 18b: Family Tree Renderer (shared between character page and DM NPCs)
+// ============================================================
+
+function guessTier(relation) {
+    var r = (relation || '').toLowerCase();
+    if (r.indexOf('vader') >= 0 || r.indexOf('moeder') >= 0 || r.indexOf('father') >= 0 || r.indexOf('mother') >= 0 || r.indexOf('parent') >= 0 || r.indexOf('opa') >= 0 || r.indexOf('oma') >= 0 || r.indexOf('grand') >= 0) return 'parent';
+    if (r.indexOf('zoon') >= 0 || r.indexOf('dochter') >= 0 || r.indexOf('son') >= 0 || r.indexOf('daughter') >= 0 || r.indexOf('child') >= 0 || r.indexOf('kind') >= 0) return 'child';
+    return 'sibling';
+}
+
+function renderFamilyTree(family, contextId, selfName, editable) {
+    var html = '';
+    // Sort members into tiers — use explicit tier or guess from relation
+    var parents = [], siblings = [], children = [], others = [];
+    for (var fi = 0; fi < family.length; fi++) {
+        var fm = family[fi];
+        fm._idx = fi;
+        var tier = fm.tier || guessTier(fm.relation);
+        if (tier === 'parent') parents.push(fm);
+        else if (tier === 'child') children.push(fm);
+        else siblings.push(fm);
+    }
+
+    html += '<div class="ftree">';
+
+    // === PARENTS ROW ===
+    if (parents.length > 0 || editable) {
+        html += '<div class="ftree-tier ftree-parents">';
+        if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="parent" title="Add parent">+</button>';
+        for (var pi = 0; pi < parents.length; pi++) {
+            html += renderFamilyNode(parents[pi], editable, contextId);
+        }
+        html += '</div>';
+        html += '<div class="ftree-connector-v"></div>';
+    }
+
+    // === SIBLINGS ROW (includes self) ===
+    html += '<div class="ftree-tier ftree-siblings">';
+    if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="sibling" title="Add sibling">+</button>';
+    // Self node
+    if (selfName) {
+        html += '<div class="ftree-node ftree-self">';
+        html += '<div class="ftree-node-inner">';
+        html += '<strong>' + escapeHtml(selfName) + '</strong>';
+        html += '<span class="ftree-relation">Self</span>';
+        html += '</div></div>';
+    }
+    for (var si = 0; si < siblings.length; si++) {
+        html += renderFamilyNode(siblings[si], editable, contextId);
+    }
+    html += '</div>';
+
+    // === CHILDREN ROW ===
+    if (children.length > 0 || editable) {
+        html += '<div class="ftree-connector-v"></div>';
+        html += '<div class="ftree-tier ftree-children">';
+        if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="child" title="Add child">+</button>';
+        for (var ci = 0; ci < children.length; ci++) {
+            html += renderFamilyNode(children[ci], editable, contextId);
+        }
+        html += '</div>';
+    }
+
+    html += '</div>';
+
+    // === ADD FORM (hidden, shown when + is clicked) ===
+    if (editable) {
+        html += '<div class="ftree-add-form" id="ftree-add-form" style="display:none;">';
+        html += '<div class="ftree-form-row">';
+        html += '<select class="edit-input" id="fam-source" style="width:auto;">';
+        html += '<option value="custom">Custom entry</option>';
+        // List characters
+        var charIds = getCharacterIds();
+        for (var chi = 0; chi < charIds.length; chi++) {
+            if (charIds[chi] === contextId) continue;
+            var chcfg = loadCharConfig(charIds[chi]);
+            if (chcfg && chcfg.name) html += '<option value="char:' + charIds[chi] + '">' + escapeHtml(chcfg.name) + ' (character)</option>';
+        }
+        // List NPCs
+        var npcData = getNPCData();
+        var npcs = npcData.npcs || [];
+        for (var ni = 0; ni < npcs.length; ni++) {
+            html += '<option value="npc:' + ni + '">' + escapeHtml(npcs[ni].name) + ' (NPC)</option>';
+        }
+        html += '</select>';
+        html += '</div>';
+        html += '<div class="ftree-form-row">';
+        html += '<input type="text" class="edit-input" id="fam-name" placeholder="Name" style="flex:1;">';
+        html += '<input type="text" class="edit-input" id="fam-relation" placeholder="Relation (e.g. Mother)" style="flex:1;">';
+        html += '</div>';
+        html += '<div class="ftree-form-row">';
+        html += '<select class="edit-input" id="fam-status" style="width:auto;">';
+        html += '<option value="Alive">Alive</option>';
+        html += '<option value="Deceased">Deceased</option>';
+        html += '<option value="Unknown">Unknown</option>';
+        html += '</select>';
+        html += '<input type="text" class="edit-input" id="fam-notes" placeholder="Notes (optional)" style="flex:1;">';
+        html += '<button class="edit-save" data-action="save-family">Save</button>';
+        html += '<button class="edit-cancel" data-action="cancel-family">Cancel</button>';
+        html += '</div>';
+        html += '<input type="hidden" id="fam-tier" value="">';
+        html += '</div>';
+    }
+
+    return html;
+}
+
+function renderFamilyNode(fm, editable, contextId) {
+    var isDead = fm.status === 'Deceased' || fm.status === 'Overleden';
+    var html = '<div class="ftree-node' + (isDead ? ' deceased' : '') + '">';
+    // Link to character or NPC page if linked
+    var linkStart = '', linkEnd = '';
+    if (fm.linkedChar && fm.linkedChar !== contextId) {
+        linkStart = '<a href="#/characters/' + fm.linkedChar + '" class="ftree-link">';
+        linkEnd = '</a>';
+    }
+    html += linkStart;
+    html += '<div class="ftree-node-inner">';
+    html += '<strong>' + escapeHtml(fm.name || '') + '</strong>';
+    html += '<span class="ftree-relation">' + escapeHtml(fm.relation || '') + '</span>';
+    if (fm.status) {
+        var statusIcon = isDead ? '&#9876;' : '&#9679;';
+        var statusColor = isDead ? 'var(--danger)' : 'var(--success)';
+        html += '<span class="ftree-status" style="color:' + statusColor + '">' + statusIcon + ' ' + escapeHtml(fm.status) + '</span>';
+    }
+    if (fm.notes) html += '<span class="ftree-notes">' + escapeHtml(fm.notes) + '</span>';
+    html += '</div>';
+    html += linkEnd;
+    if (editable) {
+        html += '<button class="ftree-remove" data-action="remove-family" data-idx="' + fm._idx + '">&times;</button>';
+    }
     html += '</div>';
     return html;
 }
@@ -4964,13 +5124,19 @@ function bindPageEvents(route) {
                 var username = usernameEl.value.trim().toLowerCase();
                 var password = passwordEl.value;
 
-                // Find user by username (match against user ID or name)
+                // Find user by username — check usersCache first, then DEFAULT_USERS
                 var matchedId = null;
-                for (var uid in USERS) {
-                    if (uid === username || USERS[uid].name.toLowerCase() === username) {
-                        matchedId = uid;
-                        break;
+                var lookupSources = [usersCache, DEFAULT_USERS];
+                for (var si = 0; si < lookupSources.length; si++) {
+                    var src = lookupSources[si];
+                    if (!src) continue;
+                    for (var uid in src) {
+                        if (uid === username || (src[uid].name && src[uid].name.toLowerCase() === username)) {
+                            matchedId = uid;
+                            break;
+                        }
                     }
+                    if (matchedId) break;
                 }
 
                 if (!matchedId) {
@@ -4978,7 +5144,8 @@ function bindPageEvents(route) {
                     return;
                 }
 
-                if (USERS[matchedId].password !== password) {
+                var userData = getUserData(matchedId);
+                if (!userData || userData.password !== password) {
                     if (errorEl) { errorEl.textContent = t('login.error.password'); errorEl.style.display = 'block'; }
                     return;
                 }
@@ -5819,25 +5986,72 @@ function bindPageEvents(route) {
                 return;
             }
 
-            // Add family member
-            if (target.matches('[data-action="add-family"]')) {
+            // Show family add form for specific tier
+            if (target.matches('[data-action="add-family"]') || target.closest('[data-action="add-family"]')) {
+                var btn = target.matches('[data-action="add-family"]') ? target : target.closest('[data-action="add-family"]');
                 if (!canEdit(charId)) return;
-                var famName = document.getElementById('fam-name');
-                var famRelation = document.getElementById('fam-relation');
-                var famStatus = document.getElementById('fam-status');
-                var famNotes = document.getElementById('fam-notes');
-                if (famName && famName.value.trim()) {
-                    var fam = (config.family || []).slice();
-                    fam.push({
-                        name: famName.value.trim(),
-                        relation: famRelation ? famRelation.value.trim() : '',
-                        status: famStatus ? famStatus.value.trim() : '',
-                        notes: famNotes ? famNotes.value.trim() : ''
-                    });
-                    saveCharConfigField(charId, 'family', fam);
-                    config = loadCharConfig(charId);
-                    renderApp();
+                var form = document.getElementById('ftree-add-form');
+                var tierInput = document.getElementById('fam-tier');
+                if (form && tierInput) {
+                    tierInput.value = btn.dataset.tier || 'sibling';
+                    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                    // Reset form
+                    var nameEl = document.getElementById('fam-name');
+                    if (nameEl) nameEl.value = '';
+                    var relEl = document.getElementById('fam-relation');
+                    if (relEl) relEl.value = '';
+                    var notesEl = document.getElementById('fam-notes');
+                    if (notesEl) notesEl.value = '';
                 }
+                return;
+            }
+
+            // Save family member from form
+            if (target.matches('[data-action="save-family"]')) {
+                if (!canEdit(charId)) return;
+                var sourceEl = document.getElementById('fam-source');
+                var nameEl = document.getElementById('fam-name');
+                var relEl = document.getElementById('fam-relation');
+                var statusEl = document.getElementById('fam-status');
+                var notesEl = document.getElementById('fam-notes');
+                var tierEl = document.getElementById('fam-tier');
+                var source = sourceEl ? sourceEl.value : 'custom';
+                var entry = {
+                    name: nameEl ? nameEl.value.trim() : '',
+                    relation: relEl ? relEl.value.trim() : '',
+                    status: statusEl ? statusEl.value : 'Alive',
+                    notes: notesEl ? notesEl.value.trim() : '',
+                    tier: tierEl ? tierEl.value : 'sibling'
+                };
+                // Auto-fill from character or NPC source
+                if (source.indexOf('char:') === 0) {
+                    var srcCharId = source.substring(5);
+                    var srcCfg = loadCharConfig(srcCharId);
+                    if (srcCfg) {
+                        if (!entry.name) entry.name = srcCfg.name;
+                        entry.linkedChar = srcCharId;
+                    }
+                } else if (source.indexOf('npc:') === 0) {
+                    var srcNpcIdx = parseInt(source.substring(4));
+                    var npcList = getNPCData().npcs || [];
+                    if (npcList[srcNpcIdx]) {
+                        if (!entry.name) entry.name = npcList[srcNpcIdx].name;
+                        entry.linkedNpc = srcNpcIdx;
+                    }
+                }
+                if (!entry.name) return;
+                var fam = (config.family || []).slice();
+                fam.push(entry);
+                saveCharConfigField(charId, 'family', fam);
+                config = loadCharConfig(charId);
+                renderApp();
+                return;
+            }
+
+            // Cancel family add
+            if (target.matches('[data-action="cancel-family"]')) {
+                var form = document.getElementById('ftree-add-form');
+                if (form) form.style.display = 'none';
                 return;
             }
 
@@ -6870,6 +7084,25 @@ function bindPageEvents(route) {
             return;
         }
 
+        // Family source picker — auto-fill name from selected character/NPC
+        if (target.matches('#fam-source')) {
+            var nameEl = document.getElementById('fam-name');
+            if (!nameEl) return;
+            var val = target.value;
+            if (val.indexOf('char:') === 0) {
+                var cid = val.substring(5);
+                var cfg = loadCharConfig(cid);
+                if (cfg) nameEl.value = cfg.name;
+            } else if (val.indexOf('npc:') === 0) {
+                var nIdx = parseInt(val.substring(4));
+                var nList = getNPCData().npcs || [];
+                if (nList[nIdx]) nameEl.value = nList[nIdx].name;
+            } else {
+                nameEl.value = '';
+            }
+            return;
+        }
+
         // Show custom NPC name when "custom" selected in initiative
         if (target.matches('#init-char')) {
             var customField = document.getElementById('init-custom-name');
@@ -7330,10 +7563,921 @@ function patchTooltipEvents() {
 }
 
 // ============================================================
+// Section 32a: Profile / Credentials Modal
+// ============================================================
+
+function renderProfileModal() {
+    var uid = currentUserId();
+    var u = getUserData(uid);
+    if (!u) return '';
+
+    var html = '<div class="modal-overlay" data-action="close-profile-modal">';
+    html += '<div class="modal-card modal-profile" onclick="event.stopPropagation();">';
+    html += '<div class="modal-header">';
+    html += '<h2>Profiel Instellingen</h2>';
+    html += '<button class="modal-close" data-action="close-profile-modal">&times;</button>';
+    html += '</div>';
+    html += '<div class="modal-body">';
+    html += '<div class="login-field">';
+    html += '<label class="login-label">Gebruikersnaam</label>';
+    html += '<input type="text" class="login-input" value="' + escapeAttr(uid) + '" disabled style="opacity:0.5;">';
+    html += '</div>';
+    html += '<div class="login-field">';
+    html += '<label class="login-label">Weergavenaam</label>';
+    html += '<input type="text" class="login-input" id="profile-display-name" value="' + escapeAttr(u.name) + '" placeholder="Weergavenaam">';
+    html += '</div>';
+    html += '<div class="login-field">';
+    html += '<label class="login-label">Nieuw wachtwoord</label>';
+    html += '<input type="password" class="login-input" id="profile-new-password" placeholder="Laat leeg om niet te wijzigen">';
+    html += '</div>';
+    html += '<div class="login-field">';
+    html += '<label class="login-label">Bevestig wachtwoord</label>';
+    html += '<input type="password" class="login-input" id="profile-confirm-password" placeholder="Bevestig nieuw wachtwoord">';
+    html += '</div>';
+    html += '<p class="login-error" id="profile-error" style="display:none;"></p>';
+    html += '<p class="profile-success" id="profile-success" style="display:none;">Opgeslagen!</p>';
+    html += '<button class="login-submit" data-action="save-profile">Opslaan</button>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+function openProfileModal() {
+    var existing = document.querySelector('.modal-overlay.profile-modal-active');
+    if (existing) { existing.remove(); return; }
+
+    var div = document.createElement('div');
+    div.className = 'profile-modal-active';
+    div.innerHTML = renderProfileModal();
+    document.body.appendChild(div);
+    lockBodyScroll();
+}
+
+function closeProfileModal() {
+    var el = document.querySelector('.profile-modal-active');
+    if (el) el.remove();
+    unlockBodyScroll();
+}
+
+function handleSaveProfile() {
+    var uid = currentUserId();
+    var u = getUserData(uid);
+    if (!u) return;
+
+    var nameEl = document.getElementById('profile-display-name');
+    var passEl = document.getElementById('profile-new-password');
+    var confirmEl = document.getElementById('profile-confirm-password');
+    var errorEl = document.getElementById('profile-error');
+    var successEl = document.getElementById('profile-success');
+
+    var newName = nameEl ? nameEl.value.trim() : '';
+    var newPass = passEl ? passEl.value : '';
+    var confirmPass = confirmEl ? confirmEl.value : '';
+
+    if (errorEl) { errorEl.style.display = 'none'; }
+    if (successEl) { successEl.style.display = 'none'; }
+
+    if (!newName) {
+        if (errorEl) { errorEl.textContent = 'Weergavenaam mag niet leeg zijn.'; errorEl.style.display = 'block'; }
+        return;
+    }
+
+    if (newPass && newPass !== confirmPass) {
+        if (errorEl) { errorEl.textContent = 'Wachtwoorden komen niet overeen.'; errorEl.style.display = 'block'; }
+        return;
+    }
+
+    // Update the user data
+    if (!usersCache) usersCache = {};
+    if (!usersCache[uid]) usersCache[uid] = JSON.parse(JSON.stringify(u));
+
+    usersCache[uid].name = newName;
+    if (newPass) usersCache[uid].password = newPass;
+
+    // Save to Firebase
+    if (typeof syncSaveUser === 'function') syncSaveUser(uid, usersCache[uid]);
+
+    // Cache locally
+    localStorage.setItem('dw_users', JSON.stringify(usersCache));
+
+    if (successEl) { successEl.style.display = 'block'; }
+    showToast('Profiel opgeslagen!', 'success');
+
+    // Re-render navbar to show updated name
+    setTimeout(function() { closeProfileModal(); renderApp(); }, 800);
+}
+
+// ============================================================
+// Section 32b: Character Creation Wizard
+// ============================================================
+
+var wizardState = null;
+
+function initWizardState() {
+    wizardState = {
+        step: 1,
+        name: '',
+        race: '',
+        className: '',
+        background: '',
+        baseAbilities: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+        bgBonusChoice: { plus2: '', plus1: '' },
+        subclass: '',
+        alignment: 'True Neutral',
+        age: '',
+        accentColor: '#22d3ee',
+        skills: [],
+        cantrips: [],
+        appearance: '',
+        personality: { traits: '', ideal: '', bond: '', flaw: '' },
+        backstory: ''
+    };
+}
+
+function getWizardRaces() {
+    var raceKeys = ['human', 'halfling', 'tiefling', 'aasimar', 'woodElf', 'dwarf', 'gnome', 'goliath', 'orc', 'dragonborn'];
+    return raceKeys.filter(function(r) { return DATA[r] && !DATA[r].legacy; });
+}
+
+function getWizardClasses() {
+    var classKeys = ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'];
+    return classKeys.filter(function(c) { return DATA[c] && DATA[c].hitDie; });
+}
+
+function getWizardBackgrounds() {
+    var bgs = DATA.backgrounds;
+    if (!bgs) return [];
+    return Object.keys(bgs).filter(function(b) { return !bgs[b].legacy; });
+}
+
+function getWizardSubclasses(className) {
+    var classData = DATA[className];
+    if (!classData || !classData.subclasses) return [];
+    return Object.keys(classData.subclasses).filter(function(s) {
+        return !classData.subclasses[s].legacy;
+    });
+}
+
+function renderWizardModal() {
+    if (!wizardState) return '';
+    var step = wizardState.step;
+    var totalSteps = 6;
+
+    var html = '<div class="modal-overlay wizard-overlay" data-action="close-wizard">';
+    html += '<div class="wizard-modal" onclick="event.stopPropagation();">';
+
+    // Header with progress
+    html += '<div class="wizard-header">';
+    html += '<h2 class="wizard-title">Nieuw Character</h2>';
+    html += '<button class="modal-close" data-action="close-wizard">&times;</button>';
+    html += '</div>';
+
+    // Step indicator
+    html += '<div class="wizard-steps">';
+    var stepLabels = ['Basis', 'Achtergrond', 'Details', 'Vaardigheden', 'Verhaal', 'Overzicht'];
+    for (var si = 1; si <= totalSteps; si++) {
+        var stepClass = 'wizard-step-dot';
+        if (si < step) stepClass += ' completed';
+        if (si === step) stepClass += ' active';
+        html += '<div class="' + stepClass + '"><span class="step-num">' + (si < step ? '&#10003;' : si) + '</span><span class="step-label">' + stepLabels[si - 1] + '</span></div>';
+        if (si < totalSteps) html += '<div class="step-connector' + (si < step ? ' completed' : '') + '"></div>';
+    }
+    html += '</div>';
+
+    // Step content
+    html += '<div class="wizard-content">';
+
+    if (step === 1) html += renderWizardStep1();
+    else if (step === 2) html += renderWizardStep2();
+    else if (step === 3) html += renderWizardStep3();
+    else if (step === 4) html += renderWizardStep4();
+    else if (step === 5) html += renderWizardStep5();
+    else if (step === 6) html += renderWizardStep6();
+
+    html += '</div>';
+
+    // Navigation buttons
+    html += '<div class="wizard-nav">';
+    if (step > 1) {
+        html += '<button class="btn btn-ghost" data-action="wizard-prev">&larr; Vorige</button>';
+    } else {
+        html += '<div></div>';
+    }
+    if (step < totalSteps) {
+        html += '<button class="btn btn-primary" data-action="wizard-next">Volgende &rarr;</button>';
+    } else {
+        html += '<button class="btn btn-primary" data-action="wizard-create">Character Aanmaken</button>';
+    }
+    html += '</div>';
+
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+function renderWizardStep1() {
+    var html = '<h3 class="wizard-step-title">Basisgegevens</h3>';
+
+    // Character name
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Character Naam *</label>';
+    html += '<input type="text" class="wizard-input" id="wizard-name" value="' + escapeAttr(wizardState.name) + '" placeholder="Voer een naam in...">';
+    html += '</div>';
+
+    // Race
+    var races = getWizardRaces();
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Ras / Species *</label>';
+    html += '<select class="wizard-select" id="wizard-race" data-action="wizard-race-change">';
+    html += '<option value="">-- Kies een ras --</option>';
+    for (var i = 0; i < races.length; i++) {
+        var sel = wizardState.race === races[i] ? ' selected' : '';
+        html += '<option value="' + races[i] + '"' + sel + '>' + raceDisplayName(races[i]) + '</option>';
+    }
+    html += '</select>';
+    html += '</div>';
+
+    // Race features preview
+    if (wizardState.race && DATA[wizardState.race]) {
+        var raceData = DATA[wizardState.race];
+        html += '<div class="wizard-preview">';
+        html += '<h4>' + raceDisplayName(wizardState.race) + ' Features</h4>';
+        if (raceData.speed) html += '<p class="wizard-detail"><strong>Speed:</strong> ' + raceData.speed + 'ft</p>';
+        if (raceData.darkvision) html += '<p class="wizard-detail"><strong>Darkvision:</strong> ' + raceData.darkvision + 'ft</p>';
+        if (raceData.features) {
+            for (var fi = 0; fi < raceData.features.length; fi++) {
+                html += '<p class="wizard-detail"><strong>' + escapeHtml(raceData.features[fi].name) + ':</strong> ' + escapeHtml(raceData.features[fi].desc) + '</p>';
+            }
+        }
+        html += '</div>';
+    }
+
+    // Class
+    var classes = getWizardClasses();
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Klasse *</label>';
+    html += '<select class="wizard-select" id="wizard-class" data-action="wizard-class-change">';
+    html += '<option value="">-- Kies een klasse --</option>';
+    for (var i = 0; i < classes.length; i++) {
+        var sel = wizardState.className === classes[i] ? ' selected' : '';
+        html += '<option value="' + classes[i] + '"' + sel + '>' + classDisplayName(classes[i]) + '</option>';
+    }
+    html += '</select>';
+    html += '</div>';
+
+    // Class info preview
+    if (wizardState.className && DATA[wizardState.className]) {
+        var classData = DATA[wizardState.className];
+        html += '<div class="wizard-preview">';
+        html += '<h4>' + classDisplayName(wizardState.className) + ' Info</h4>';
+        html += '<p class="wizard-detail"><strong>Hit Die:</strong> d' + classData.hitDie + '</p>';
+        html += '<p class="wizard-detail"><strong>Saving Throws:</strong> ' + classData.savingThrows.map(function(s) { return s.toUpperCase(); }).join(', ') + '</p>';
+        if (classData.cantripsKnown) {
+            html += '<p class="wizard-detail"><strong>Spellcasting:</strong> Ja (cantrips bij level 1: ' + classData.cantripsKnown[1] + ')</p>';
+        } else {
+            html += '<p class="wizard-detail"><strong>Spellcasting:</strong> Nee</p>';
+        }
+        html += '</div>';
+    }
+
+    return html;
+}
+
+function renderWizardStep2() {
+    var html = '<h3 class="wizard-step-title">Achtergrond & Ability Scores</h3>';
+
+    // Background
+    var bgs = getWizardBackgrounds();
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Achtergrond *</label>';
+    html += '<select class="wizard-select" id="wizard-background" data-action="wizard-bg-change">';
+    html += '<option value="">-- Kies een achtergrond --</option>';
+    for (var i = 0; i < bgs.length; i++) {
+        var bgData = DATA.backgrounds[bgs[i]];
+        var sel = wizardState.background === bgs[i] ? ' selected' : '';
+        html += '<option value="' + bgs[i] + '"' + sel + '>' + bgData.name + '</option>';
+    }
+    html += '</select>';
+    html += '</div>';
+
+    // Background info
+    if (wizardState.background && DATA.backgrounds[wizardState.background]) {
+        var bg = DATA.backgrounds[wizardState.background];
+        html += '<div class="wizard-preview">';
+        html += '<h4>' + bg.name + '</h4>';
+        html += '<p class="wizard-detail">' + escapeHtml(bg.desc) + '</p>';
+        html += '<p class="wizard-detail"><strong>Skills:</strong> ' + bg.skills.join(', ') + '</p>';
+        html += '<p class="wizard-detail"><strong>Tool:</strong> ' + bg.tool + '</p>';
+        html += '<p class="wizard-detail"><strong>Feat:</strong> ' + bg.feat + '</p>';
+        html += '<p class="wizard-detail"><strong>Ability Scores:</strong> ' + bg.abilityScores.join(', ') + ' (+2 en +1 verdeeld)</p>';
+
+        // Background bonus distribution
+        html += '<div class="wizard-bg-bonus">';
+        html += '<label class="wizard-label">Verdeel bonussen (+2 en +1):</label>';
+        html += '<div class="wizard-bonus-row">';
+        for (var bi = 0; bi < bg.abilityScores.length; bi++) {
+            var ab = bg.abilityScores[bi];
+            var isPlus2 = wizardState.bgBonusChoice.plus2 === ab;
+            var isPlus1 = wizardState.bgBonusChoice.plus1 === ab;
+            html += '<div class="wizard-bonus-item">';
+            html += '<span class="wizard-bonus-label">' + ab + '</span>';
+            html += '<select class="wizard-select wizard-select-sm" data-action="wizard-bonus-change" data-ability="' + ab + '">';
+            html += '<option value=""' + (!isPlus2 && !isPlus1 ? ' selected' : '') + '>--</option>';
+            html += '<option value="2"' + (isPlus2 ? ' selected' : '') + '>+2</option>';
+            html += '<option value="1"' + (isPlus1 ? ' selected' : '') + '>+1</option>';
+            html += '</select>';
+            html += '</div>';
+        }
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+    }
+
+    // Ability Scores
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Ability Scores (basis)</label>';
+    html += '<div class="wizard-abilities">';
+    var abs = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    for (var i = 0; i < abs.length; i++) {
+        var ab = abs[i];
+        html += '<div class="wizard-ability">';
+        html += '<label>' + ab.toUpperCase() + '</label>';
+        html += '<input type="number" class="wizard-input wizard-input-sm" data-action="wizard-ability" data-ability="' + ab + '" value="' + wizardState.baseAbilities[ab] + '" min="3" max="20">';
+        html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    return html;
+}
+
+function renderWizardStep3() {
+    var html = '<h3 class="wizard-step-title">Subclass & Details</h3>';
+
+    // Subclass
+    if (wizardState.className) {
+        var subclasses = getWizardSubclasses(wizardState.className);
+        if (subclasses.length > 0) {
+            html += '<div class="wizard-field">';
+            html += '<label class="wizard-label">Subclass</label>';
+            html += '<select class="wizard-select" id="wizard-subclass">';
+            html += '<option value="">-- Kies een subclass --</option>';
+            for (var i = 0; i < subclasses.length; i++) {
+                var subData = DATA[wizardState.className].subclasses[subclasses[i]];
+                var sel = wizardState.subclass === subclasses[i] ? ' selected' : '';
+                html += '<option value="' + subclasses[i] + '"' + sel + '>' + (subData.name || subclassDisplayName(subclasses[i])) + '</option>';
+            }
+            html += '</select>';
+            html += '</div>';
+        }
+    }
+
+    // Alignment
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Alignment</label>';
+    var alignments = ['Lawful Good', 'Neutral Good', 'Chaotic Good', 'Lawful Neutral', 'True Neutral', 'Chaotic Neutral', 'Lawful Evil', 'Neutral Evil', 'Chaotic Evil'];
+    html += '<select class="wizard-select" id="wizard-alignment">';
+    for (var i = 0; i < alignments.length; i++) {
+        var sel = wizardState.alignment === alignments[i] ? ' selected' : '';
+        html += '<option value="' + alignments[i] + '"' + sel + '>' + alignments[i] + '</option>';
+    }
+    html += '</select>';
+    html += '</div>';
+
+    // Age
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Leeftijd (optioneel)</label>';
+    html += '<input type="number" class="wizard-input wizard-input-sm" id="wizard-age" value="' + (wizardState.age || '') + '" min="1" max="999" placeholder="Leeftijd">';
+    html += '</div>';
+
+    // Accent Color
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Accent Kleur</label>';
+    html += '<div class="wizard-colors">';
+    for (var ci = 0; ci < COLOR_THEMES.length; ci++) {
+        var theme = COLOR_THEMES[ci];
+        var selClass = wizardState.accentColor === theme.accent ? ' selected' : '';
+        html += '<span class="color-option' + selClass + '" data-action="wizard-color" data-color="' + theme.accent + '" style="background:' + theme.accent + ';" title="' + theme.name + '"></span>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    return html;
+}
+
+function renderWizardStep4() {
+    var html = '<h3 class="wizard-step-title">Vaardigheden & Proficiencies</h3>';
+
+    if (!wizardState.className || !DATA[wizardState.className]) {
+        html += '<p class="wizard-detail">Kies eerst een klasse in Stap 1.</p>';
+        return html;
+    }
+
+    var classData = DATA[wizardState.className];
+    var skillOpts = classData.skillOptions || [];
+    var skillCount = classData.skillCount || 2;
+
+    // All skills list for "any"
+    var allSkills = ["acrobatics", "animal handling", "arcana", "athletics", "deception", "history", "insight", "intimidation", "investigation", "medicine", "nature", "perception", "performance", "persuasion", "religion", "sleight of hand", "stealth", "survival"];
+
+    var availableSkills = skillOpts.indexOf("any") !== -1 ? allSkills : skillOpts;
+
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Kies ' + skillCount + ' vaardigheden:</label>';
+    html += '<div class="wizard-skill-grid">';
+    for (var i = 0; i < availableSkills.length; i++) {
+        var sk = availableSkills[i];
+        var checked = wizardState.skills.indexOf(sk) !== -1;
+        var disabled = !checked && wizardState.skills.length >= skillCount;
+        html += '<label class="wizard-skill-item' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '">';
+        html += '<input type="checkbox" data-action="wizard-skill" data-skill="' + sk + '"' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '>';
+        html += '<span>' + capitalize(sk) + '</span>';
+        html += '</label>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // Cantrips for spellcasters
+    if (classData.cantripsKnown && classData.cantripsKnown[1] > 0) {
+        var cantripsCount = classData.cantripsKnown[1];
+        var spellData = DATA.spells && DATA.spells[wizardState.className] && DATA.spells[wizardState.className][0];
+        if (spellData && spellData.length > 0) {
+            html += '<div class="wizard-field">';
+            html += '<label class="wizard-label">Kies ' + cantripsCount + ' cantrips:</label>';
+            html += '<div class="wizard-skill-grid">';
+            for (var i = 0; i < spellData.length; i++) {
+                var sp = spellData[i];
+                var checked = wizardState.cantrips.indexOf(sp.name) !== -1;
+                var disabled = !checked && wizardState.cantrips.length >= cantripsCount;
+                html += '<label class="wizard-skill-item' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '">';
+                html += '<input type="checkbox" data-action="wizard-cantrip" data-cantrip="' + escapeAttr(sp.name) + '"' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '>';
+                html += '<span>' + escapeHtml(sp.name) + '</span>';
+                html += '</label>';
+            }
+            html += '</div>';
+            html += '</div>';
+        }
+    }
+
+    return html;
+}
+
+function renderWizardStep5() {
+    var html = '<h3 class="wizard-step-title">Verhaal & Uiterlijk</h3>';
+
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Uiterlijk</label>';
+    html += '<textarea class="wizard-textarea" id="wizard-appearance" placeholder="Beschrijf het uiterlijk van je character...">' + escapeHtml(wizardState.appearance) + '</textarea>';
+    html += '</div>';
+
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Persoonlijkheidskenmerken</label>';
+    html += '<textarea class="wizard-textarea wizard-textarea-sm" id="wizard-traits" placeholder="Traits...">' + escapeHtml(wizardState.personality.traits) + '</textarea>';
+    html += '</div>';
+
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Ideaal</label>';
+    html += '<textarea class="wizard-textarea wizard-textarea-sm" id="wizard-ideal" placeholder="Ideal...">' + escapeHtml(wizardState.personality.ideal) + '</textarea>';
+    html += '</div>';
+
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Band</label>';
+    html += '<textarea class="wizard-textarea wizard-textarea-sm" id="wizard-bond" placeholder="Bond...">' + escapeHtml(wizardState.personality.bond) + '</textarea>';
+    html += '</div>';
+
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Zwakheid</label>';
+    html += '<textarea class="wizard-textarea wizard-textarea-sm" id="wizard-flaw" placeholder="Flaw...">' + escapeHtml(wizardState.personality.flaw) + '</textarea>';
+    html += '</div>';
+
+    html += '<div class="wizard-field">';
+    html += '<label class="wizard-label">Backstory</label>';
+    html += '<textarea class="wizard-textarea wizard-textarea-lg" id="wizard-backstory" placeholder="Het verhaal van je character...">' + escapeHtml(wizardState.backstory) + '</textarea>';
+    html += '</div>';
+
+    return html;
+}
+
+function renderWizardStep6() {
+    var html = '<h3 class="wizard-step-title">Overzicht</h3>';
+
+    html += '<div class="wizard-summary">';
+
+    // Name & basics
+    html += '<div class="wizard-summary-section">';
+    html += '<h4>Basisgegevens</h4>';
+    html += '<p><strong>Naam:</strong> ' + escapeHtml(wizardState.name || '(niet ingevuld)') + '</p>';
+    html += '<p><strong>Ras:</strong> ' + (wizardState.race ? raceDisplayName(wizardState.race) : '(niet gekozen)') + '</p>';
+    html += '<p><strong>Klasse:</strong> ' + (wizardState.className ? classDisplayName(wizardState.className) : '(niet gekozen)') + '</p>';
+    html += '</div>';
+
+    // Background
+    html += '<div class="wizard-summary-section">';
+    html += '<h4>Achtergrond</h4>';
+    var bgName = wizardState.background && DATA.backgrounds[wizardState.background] ? DATA.backgrounds[wizardState.background].name : '(niet gekozen)';
+    html += '<p><strong>Achtergrond:</strong> ' + bgName + '</p>';
+
+    // Ability scores with bonuses
+    var abs = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    var bgBonuses = calcBgBonuses();
+    html += '<p><strong>Ability Scores:</strong></p>';
+    html += '<div class="wizard-abilities wizard-abilities-summary">';
+    for (var i = 0; i < abs.length; i++) {
+        var ab = abs[i];
+        var base = wizardState.baseAbilities[ab];
+        var bonus = bgBonuses[ab] || 0;
+        var total = base + bonus;
+        html += '<div class="wizard-ability">';
+        html += '<label>' + ab.toUpperCase() + '</label>';
+        html += '<span class="wizard-ability-total">' + total + '</span>';
+        if (bonus > 0) html += '<span class="wizard-ability-bonus">(+' + bonus + ')</span>';
+        html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // Details
+    html += '<div class="wizard-summary-section">';
+    html += '<h4>Details</h4>';
+    if (wizardState.subclass) html += '<p><strong>Subclass:</strong> ' + subclassDisplayName(wizardState.subclass) + '</p>';
+    html += '<p><strong>Alignment:</strong> ' + wizardState.alignment + '</p>';
+    if (wizardState.age) html += '<p><strong>Leeftijd:</strong> ' + wizardState.age + '</p>';
+    html += '</div>';
+
+    // Skills
+    if (wizardState.skills.length > 0) {
+        html += '<div class="wizard-summary-section">';
+        html += '<h4>Vaardigheden</h4>';
+        html += '<p>' + wizardState.skills.map(function(s) { return capitalize(s); }).join(', ') + '</p>';
+        html += '</div>';
+    }
+
+    // Cantrips
+    if (wizardState.cantrips.length > 0) {
+        html += '<div class="wizard-summary-section">';
+        html += '<h4>Cantrips</h4>';
+        html += '<p>' + wizardState.cantrips.join(', ') + '</p>';
+        html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+function calcBgBonuses() {
+    var bonuses = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
+    if (wizardState.bgBonusChoice.plus2) {
+        var ab2 = wizardState.bgBonusChoice.plus2.toLowerCase();
+        if (bonuses.hasOwnProperty(ab2)) bonuses[ab2] = 2;
+    }
+    if (wizardState.bgBonusChoice.plus1) {
+        var ab1 = wizardState.bgBonusChoice.plus1.toLowerCase();
+        if (bonuses.hasOwnProperty(ab1)) bonuses[ab1] = 1;
+    }
+    return bonuses;
+}
+
+function saveWizardStepData() {
+    var step = wizardState.step;
+    if (step === 1) {
+        var nameEl = document.getElementById('wizard-name');
+        var raceEl = document.getElementById('wizard-race');
+        var classEl = document.getElementById('wizard-class');
+        if (nameEl) wizardState.name = nameEl.value.trim();
+        if (raceEl) wizardState.race = raceEl.value;
+        if (classEl) {
+            var newClass = classEl.value;
+            if (newClass !== wizardState.className) {
+                wizardState.className = newClass;
+                wizardState.skills = [];
+                wizardState.cantrips = [];
+                wizardState.subclass = '';
+            }
+        }
+    } else if (step === 2) {
+        var bgEl = document.getElementById('wizard-background');
+        if (bgEl) wizardState.background = bgEl.value;
+        // Ability scores saved via change events
+    } else if (step === 3) {
+        var subEl = document.getElementById('wizard-subclass');
+        var alignEl = document.getElementById('wizard-alignment');
+        var ageEl = document.getElementById('wizard-age');
+        if (subEl) wizardState.subclass = subEl.value;
+        if (alignEl) wizardState.alignment = alignEl.value;
+        if (ageEl) wizardState.age = ageEl.value ? parseInt(ageEl.value) : '';
+    } else if (step === 5) {
+        var appEl = document.getElementById('wizard-appearance');
+        var traitsEl = document.getElementById('wizard-traits');
+        var idealEl = document.getElementById('wizard-ideal');
+        var bondEl = document.getElementById('wizard-bond');
+        var flawEl = document.getElementById('wizard-flaw');
+        var backstoryEl = document.getElementById('wizard-backstory');
+        if (appEl) wizardState.appearance = appEl.value;
+        if (traitsEl) wizardState.personality.traits = traitsEl.value;
+        if (idealEl) wizardState.personality.ideal = idealEl.value;
+        if (bondEl) wizardState.personality.bond = bondEl.value;
+        if (flawEl) wizardState.personality.flaw = flawEl.value;
+        if (backstoryEl) wizardState.backstory = backstoryEl.value;
+    }
+}
+
+function generateCharId(name) {
+    if (!name) return 'char_' + Date.now();
+    var id = name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20);
+    // Avoid collisions
+    if (loadCharConfig(id)) {
+        id = id + '_' + Math.random().toString(36).substring(2, 6);
+    }
+    return id || 'char_' + Date.now();
+}
+
+function createCharacterFromWizard() {
+    if (!wizardState.name || !wizardState.race || !wizardState.className) {
+        showToast('Vul naam, ras en klasse in (Stap 1).', 'error');
+        return false;
+    }
+
+    var charId = generateCharId(wizardState.name);
+    var bgBonuses = calcBgBonuses();
+
+    var config = {
+        id: charId,
+        name: wizardState.name,
+        player: currentUserId(),
+        race: wizardState.race,
+        className: wizardState.className,
+        subclass: wizardState.subclass || '',
+        background: wizardState.background ? (DATA.backgrounds[wizardState.background] ? DATA.backgrounds[wizardState.background].name : wizardState.background) : '',
+        alignment: wizardState.alignment,
+        age: wizardState.age || null,
+        accentColor: wizardState.accentColor,
+        baseAbilities: Object.assign({}, wizardState.baseAbilities),
+        backgroundBonuses: bgBonuses,
+        defaultSkills: wizardState.skills.slice(),
+        defaultCantrips: wizardState.cantrips.slice(),
+        defaultPrepared: [],
+        weapons: [],
+        appearance: wizardState.appearance ? [wizardState.appearance] : [],
+        personality: Object.assign({}, wizardState.personality),
+        backstory: wizardState.backstory || '',
+        quotes: [],
+        defaultItems: [],
+        charTimeline: [],
+        family: []
+    };
+
+    // Save config
+    saveCharConfig(charId, config);
+
+    // Save default state
+    var defaultState = {
+        level: 1,
+        skills: wizardState.skills.slice(),
+        expertise: [],
+        cantrips: wizardState.cantrips.slice(),
+        prepared: [],
+        metamagic: [],
+        asiChoices: {},
+        favorites: [],
+        items: [],
+        customAbilities: null,
+        currentHP: null,
+        tempHP: 0,
+        deathSaves: { successes: 0, failures: 0 },
+        conditions: [],
+        spellSlotsUsed: {},
+        hitDiceUsed: 0,
+        inspiration: false,
+        gold: 0,
+        notes: ''
+    };
+    saveCharState(charId, defaultState);
+
+    // Add character to user's characters array
+    var uid = currentUserId();
+    if (!usersCache) usersCache = {};
+    if (!usersCache[uid]) {
+        var u = getUserData(uid);
+        usersCache[uid] = u ? JSON.parse(JSON.stringify(u)) : { name: uid, role: 'player', password: uid };
+    }
+    if (!usersCache[uid].characters) usersCache[uid].characters = [];
+    if (usersCache[uid].characters.indexOf(charId) === -1) {
+        usersCache[uid].characters.push(charId);
+    }
+
+    // Save to Firebase
+    if (typeof syncSaveUser === 'function') syncSaveUser(uid, usersCache[uid]);
+    localStorage.setItem('dw_users', JSON.stringify(usersCache));
+
+    showToast('Character "' + wizardState.name + '" aangemaakt!', 'success');
+    return charId;
+}
+
+function openWizard() {
+    initWizardState();
+    var div = document.createElement('div');
+    div.id = 'wizard-container';
+    div.innerHTML = renderWizardModal();
+    document.body.appendChild(div);
+    lockBodyScroll();
+    bindWizardEvents();
+}
+
+function closeWizard() {
+    var el = document.getElementById('wizard-container');
+    if (el) el.remove();
+    wizardState = null;
+    unlockBodyScroll();
+}
+
+function refreshWizard() {
+    var el = document.getElementById('wizard-container');
+    if (el) {
+        el.innerHTML = renderWizardModal();
+        bindWizardEvents();
+    }
+}
+
+function bindWizardEvents() {
+    var container = document.getElementById('wizard-container');
+    if (!container) return;
+
+    container.onclick = function(e) {
+        var target = e.target;
+
+        if (target.matches('[data-action="close-wizard"]') || target.closest('[data-action="close-wizard"]')) {
+            if (target.matches('.wizard-overlay') || target.matches('.modal-close') || target.closest('.modal-close')) {
+                closeWizard();
+                return;
+            }
+        }
+
+        if (target.matches('[data-action="wizard-prev"]') || target.closest('[data-action="wizard-prev"]')) {
+            saveWizardStepData();
+            if (wizardState.step > 1) {
+                wizardState.step--;
+                refreshWizard();
+            }
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-next"]') || target.closest('[data-action="wizard-next"]')) {
+            saveWizardStepData();
+            if (wizardState.step < 6) {
+                wizardState.step++;
+                refreshWizard();
+            }
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-create"]') || target.closest('[data-action="wizard-create"]')) {
+            saveWizardStepData();
+            var newCharId = createCharacterFromWizard();
+            if (newCharId) {
+                closeWizard();
+                navigate('/characters/' + newCharId);
+            }
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-color"]') || target.closest('[data-action="wizard-color"]')) {
+            var colorEl = target.matches('[data-action="wizard-color"]') ? target : target.closest('[data-action="wizard-color"]');
+            wizardState.accentColor = colorEl.dataset.color;
+            refreshWizard();
+            return;
+        }
+
+        // Skill checkbox
+        if (target.matches('[data-action="wizard-skill"]')) {
+            var sk = target.dataset.skill;
+            var idx = wizardState.skills.indexOf(sk);
+            if (target.checked && idx === -1) {
+                wizardState.skills.push(sk);
+            } else if (!target.checked && idx !== -1) {
+                wizardState.skills.splice(idx, 1);
+            }
+            refreshWizard();
+            return;
+        }
+
+        // Cantrip checkbox
+        if (target.matches('[data-action="wizard-cantrip"]')) {
+            var cn = target.dataset.cantrip;
+            var idx = wizardState.cantrips.indexOf(cn);
+            if (target.checked && idx === -1) {
+                wizardState.cantrips.push(cn);
+            } else if (!target.checked && idx !== -1) {
+                wizardState.cantrips.splice(idx, 1);
+            }
+            refreshWizard();
+            return;
+        }
+    };
+
+    container.onchange = function(e) {
+        var target = e.target;
+
+        if (target.matches('[data-action="wizard-race-change"]')) {
+            wizardState.race = target.value;
+            refreshWizard();
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-class-change"]')) {
+            var newClass = target.value;
+            if (newClass !== wizardState.className) {
+                wizardState.className = newClass;
+                wizardState.skills = [];
+                wizardState.cantrips = [];
+                wizardState.subclass = '';
+            }
+            refreshWizard();
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-bg-change"]')) {
+            wizardState.background = target.value;
+            wizardState.bgBonusChoice = { plus2: '', plus1: '' };
+            refreshWizard();
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-bonus-change"]')) {
+            var ab = target.dataset.ability;
+            var val = target.value;
+            // Clear previous assignment of this ability
+            if (wizardState.bgBonusChoice.plus2 === ab) wizardState.bgBonusChoice.plus2 = '';
+            if (wizardState.bgBonusChoice.plus1 === ab) wizardState.bgBonusChoice.plus1 = '';
+            // Set new
+            if (val === '2') {
+                // If another ability already has +2, clear it
+                if (wizardState.bgBonusChoice.plus2 && wizardState.bgBonusChoice.plus2 !== ab) {
+                    // Keep it, but override
+                }
+                wizardState.bgBonusChoice.plus2 = ab;
+            } else if (val === '1') {
+                wizardState.bgBonusChoice.plus1 = ab;
+            }
+            refreshWizard();
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-ability"]')) {
+            var ab = target.dataset.ability;
+            var val = parseInt(target.value) || 10;
+            wizardState.baseAbilities[ab] = Math.max(3, Math.min(20, val));
+            return;
+        }
+    };
+}
+
+// ============================================================
+// Section 32c: Profile & Wizard Event Wiring (in main click handler)
+// ============================================================
+
+// Attach profile and wizard listeners to document body for global modals
+document.addEventListener('click', function(e) {
+    var target = e.target;
+
+    // Open profile modal
+    if (target.matches('[data-action="open-profile"]') || target.closest('[data-action="open-profile"]')) {
+        openProfileModal();
+        return;
+    }
+
+    // Close profile modal
+    if (target.matches('[data-action="close-profile-modal"]') || target.closest('[data-action="close-profile-modal"]')) {
+        if (target.matches('.modal-overlay') || target.matches('.modal-close') || target.closest('.modal-close')) {
+            closeProfileModal();
+            return;
+        }
+    }
+
+    // Save profile
+    if (target.matches('[data-action="save-profile"]') || target.closest('[data-action="save-profile"]')) {
+        handleSaveProfile();
+        return;
+    }
+
+    // Open character creation wizard
+    if (target.matches('[data-action="open-create-wizard"]') || target.closest('[data-action="open-create-wizard"]')) {
+        openWizard();
+        return;
+    }
+});
+
+// ============================================================
 // Section 32: Initialization
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Load cached users from localStorage (available before Firebase connects)
+    try {
+        var cachedUsers = localStorage.getItem('dw_users');
+        if (cachedUsers) usersCache = JSON.parse(cachedUsers);
+    } catch (e) { usersCache = null; }
+
     initMobileSupport();
     if (typeof initFirebaseSync === 'function') initFirebaseSync();
     initRouter();
