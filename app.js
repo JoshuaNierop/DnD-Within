@@ -888,97 +888,7 @@ function postRenderEffects(route) {
     initInitiativeDragDrop();
 }
 
-function initInitiativeDragDrop() {
-    var col = document.querySelector('.init-col-order');
-    if (!col) return;
-    var dragIdx = null;
-
-    col.addEventListener('dragstart', function(e) {
-        var entry = e.target.closest('.init-entry');
-        if (!entry) return;
-        dragIdx = parseInt(entry.dataset.initIdx);
-        entry.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-    });
-
-    col.addEventListener('dragend', function(e) {
-        var entry = e.target.closest('.init-entry');
-        if (entry) entry.classList.remove('dragging');
-        var placeholder = col.querySelector('.init-drop-placeholder');
-        if (placeholder) placeholder.remove();
-        dragIdx = null;
-    });
-
-    col.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        var afterEl = getDragAfterElement(col, e.clientY);
-        var placeholder = col.querySelector('.init-drop-placeholder');
-        if (!placeholder) {
-            placeholder = document.createElement('div');
-            placeholder.className = 'init-drop-placeholder';
-        }
-        if (afterEl) {
-            col.insertBefore(placeholder, afterEl);
-        } else {
-            col.appendChild(placeholder);
-        }
-    });
-
-    col.addEventListener('dragleave', function(e) {
-        if (!col.contains(e.relatedTarget)) {
-            var placeholder = col.querySelector('.init-drop-placeholder');
-            if (placeholder) placeholder.remove();
-        }
-    });
-
-    col.addEventListener('drop', function(e) {
-        e.preventDefault();
-        var placeholder = col.querySelector('.init-drop-placeholder');
-        if (placeholder) placeholder.remove();
-        if (dragIdx === null) return;
-        var afterEl = getDragAfterElement(col, e.clientY);
-        var entries = col.querySelectorAll('.init-entry');
-        var dropIdx = entries.length;
-        if (afterEl) {
-            for (var i = 0; i < entries.length; i++) {
-                if (entries[i] === afterEl) { dropIdx = i; break; }
-            }
-        }
-        if (dropIdx > dragIdx) dropIdx--;
-        if (dropIdx === dragIdx) return;
-        var initData = JSON.parse(localStorage.getItem('dw_initiative') || '{"entries":[],"currentTurn":0,"round":1,"npcs":[]}');
-        var moved = initData.entries.splice(dragIdx, 1)[0];
-        initData.entries.splice(dropIdx, 0, moved);
-        // Adjust currentTurn pointer
-        var ct = initData.currentTurn;
-        if (dragIdx === ct) {
-            initData.currentTurn = dropIdx;
-        } else if (dragIdx < ct && dropIdx >= ct) {
-            initData.currentTurn--;
-        } else if (dragIdx > ct && dropIdx <= ct) {
-            initData.currentTurn++;
-        }
-        localStorage.setItem('dw_initiative', JSON.stringify(initData));
-        if (typeof syncUpload === 'function') syncUpload('dw_initiative');
-        renderApp();
-    });
-
-    function getDragAfterElement(container, y) {
-        var els = Array.prototype.slice.call(container.querySelectorAll('.init-entry:not(.dragging)'));
-        var closest = null;
-        var closestOffset = Number.NEGATIVE_INFINITY;
-        for (var i = 0; i < els.length; i++) {
-            var box = els[i].getBoundingClientRect();
-            var offset = y - box.top - box.height / 2;
-            if (offset < 0 && offset > closestOffset) {
-                closestOffset = offset;
-                closest = els[i];
-            }
-        }
-        return closest;
-    }
-}
+// initInitiativeDragDrop is defined after renderDMInitiative
 
 // ============================================================
 // Section 9: Login Page
@@ -1311,9 +1221,7 @@ function renderDMPage(subpage) {
     // Tab bar
     var tabs = [
         { id: 'initiative', label: t('dm.initiative'), icon: '&#9876;' },
-        { id: 'npcs', label: 'NPCs', icon: '&#127917;' },
-        { id: 'whispers', label: 'Whispers', icon: '&#128172;' },
-        { id: 'sync', label: t('dm.cloudsync'), icon: '&#9729;' }
+        { id: 'npcs', label: 'NPCs', icon: '&#127917;' }
     ];
     html += '<div class="dm-tabs">';
     for (var ti = 0; ti < tabs.length; ti++) {
@@ -1327,12 +1235,9 @@ function renderDMPage(subpage) {
 
     if (activeSection === 'initiative') {
         html += renderDMInitiative();
+        html += renderDMDiceRoller();
     } else if (activeSection === 'npcs') {
         html += renderDMNPCs();
-    } else if (activeSection === 'whispers') {
-        html += renderDMWhispers();
-    } else if (activeSection === 'sync') {
-        html += renderDMSync();
     }
 
     html += '</div>';
@@ -1352,7 +1257,7 @@ function renderDMInitiative() {
     html += '<span class="init-round">' + t('dm.round') + ' ' + initRound + '</span>';
     if (entries.length > 0) {
         html += '<button class="btn btn-sm btn-primary" data-action="next-turn">' + t('dm.nextturn') + ' &rarr;</button>';
-        html += '<button class="btn btn-ghost btn-sm" data-action="clear-init">' + t('dm.resetinit') + '</button>';
+        html += '<button class="btn btn-ghost btn-sm" data-action="reset-init">Reset</button>';
     }
     html += '</div>';
 
@@ -1370,15 +1275,16 @@ function renderDMInitiative() {
             if (entries[ei].charId === iCharIds[ici]) { inInit = true; break; }
         }
         if (!inInit) {
-            html += '<div class="init-available" data-action="init-add-player" data-char-id="' + iCharIds[ici] + '">';
+            html += '<div class="init-available init-draggable" draggable="true" data-drag-type="player" data-char-id="' + iCharIds[ici] + '">';
+            html += '<span class="init-drag-handle">&#9776;</span>';
             html += '<span style="color:' + iccfg.accentColor + '">' + escapeHtml(iccfg.name) + '</span>';
             html += '</div>';
         }
     }
     html += '</div>';
 
-    // CENTER: Ordered initiative
-    html += '<div class="init-col init-col-order" data-action="init-drop-zone">';
+    // CENTER: Ordered initiative (drop zone)
+    html += '<div class="init-col init-col-order" id="init-drop-zone">';
     html += '<div class="init-col-title">Initiative Order</div>';
     for (var ii = 0; ii < entries.length; ii++) {
         var entry = entries[ii];
@@ -1388,14 +1294,13 @@ function renderDMInitiative() {
             var ecfg = loadCharConfig(entry.charId);
             if (ecfg) entryColor = ecfg.accentColor;
         }
-        html += '<div class="init-entry' + (isCurrent ? ' current' : '') + '" draggable="true" data-init-idx="' + ii + '" style="border-left-color:' + entryColor + '">';
+        html += '<div class="init-entry init-draggable" draggable="true" data-drag-type="reorder" data-init-idx="' + ii + '" data-init-current="' + (isCurrent ? '1' : '0') + '" style="border-left-color:' + entryColor + '">';
         html += '<span class="init-drag-handle">&#9776;</span>';
-        html += '<span class="init-roll">' + entry.initiative + '</span>';
         html += '<span class="init-name">' + escapeHtml(entry.name) + '</span>';
         html += '<button class="init-remove" data-action="remove-init" data-init-idx="' + ii + '">&times;</button>';
         html += '</div>';
     }
-    if (entries.length === 0) html += '<p class="text-dim" style="text-align:center;padding:1rem 0;">Click players or NPCs to add</p>';
+    if (entries.length === 0) html += '<p class="text-dim init-drop-hint" style="text-align:center;padding:1rem 0;">Drag players or NPCs here</p>';
     html += '</div>';
 
     // RIGHT: NPCs/Monsters
@@ -1409,7 +1314,8 @@ function renderDMInitiative() {
         }
         if (!inInit) {
             var npcColor = inpc.disposition === 'hostile' ? 'var(--danger)' : inpc.disposition === 'friendly' ? 'var(--success)' : 'var(--warning)';
-            html += '<div class="init-available init-npc" data-action="init-add-npc" data-npc-idx="' + ni + '" style="border-left-color:' + npcColor + '">';
+            html += '<div class="init-available init-npc init-draggable" draggable="true" data-drag-type="npc" data-npc-idx="' + ni + '" style="border-left-color:' + npcColor + '">';
+            html += '<span class="init-drag-handle">&#9776;</span>';
             html += '<span>' + escapeHtml(inpc.name) + '</span>';
             html += '<button class="init-npc-del" data-action="init-delete-npc" data-npc-idx="' + ni + '">&times;</button>';
             html += '</div>';
@@ -1429,6 +1335,115 @@ function renderDMInitiative() {
     html += '</div>'; // init-columns
     html += '</div>'; // dm-tool-card
     return html;
+}
+
+function initInitiativeDragDrop() {
+    var dropZone = document.getElementById('init-drop-zone');
+    if (!dropZone) return;
+
+    var dragData = null;
+
+    document.querySelectorAll('.init-draggable').forEach(function(el) {
+        el.addEventListener('dragstart', function(e) {
+            dragData = {
+                type: el.dataset.dragType,
+                charId: el.dataset.charId,
+                npcIdx: el.dataset.npcIdx,
+                initIdx: el.dataset.initIdx
+            };
+            el.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', '');
+        });
+        el.addEventListener('dragend', function() {
+            el.classList.remove('dragging');
+            dropZone.classList.remove('drag-over');
+            document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
+            dragData = null;
+        });
+    });
+
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        dropZone.classList.add('drag-over');
+
+        // Show drop indicator between entries
+        document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
+        var entries = dropZone.querySelectorAll('.init-entry');
+        var insertBefore = null;
+        for (var i = 0; i < entries.length; i++) {
+            var rect = entries[i].getBoundingClientRect();
+            if (e.clientY < rect.top + rect.height / 2) {
+                insertBefore = entries[i];
+                break;
+            }
+        }
+        var indicator = document.createElement('div');
+        indicator.className = 'init-drop-indicator';
+        if (insertBefore) {
+            dropZone.insertBefore(indicator, insertBefore);
+        } else {
+            dropZone.appendChild(indicator);
+        }
+    });
+
+    dropZone.addEventListener('dragleave', function(e) {
+        if (!dropZone.contains(e.relatedTarget)) {
+            dropZone.classList.remove('drag-over');
+            document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
+        }
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
+        if (!dragData) return;
+
+        var initData = JSON.parse(localStorage.getItem('dw_initiative') || '{"entries":[],"currentTurn":0,"round":1,"npcs":[]}');
+
+        // Determine insert position
+        var entryEls = dropZone.querySelectorAll('.init-entry');
+        var insertIdx = initData.entries.length;
+        for (var i = 0; i < entryEls.length; i++) {
+            var rect = entryEls[i].getBoundingClientRect();
+            if (e.clientY < rect.top + rect.height / 2) {
+                insertIdx = parseInt(entryEls[i].dataset.initIdx);
+                break;
+            }
+        }
+
+        if (dragData.type === 'player') {
+            var cfg = loadCharConfig(dragData.charId);
+            if (!cfg) return;
+            var newEntry = { name: cfg.name, charId: dragData.charId };
+            initData.entries.splice(insertIdx, 0, newEntry);
+        } else if (dragData.type === 'npc') {
+            var nIdx = parseInt(dragData.npcIdx);
+            var npc = initData.npcs[nIdx];
+            if (!npc) return;
+            var newEntry = { name: npc.name, npcIdx: nIdx, disposition: npc.disposition };
+            initData.entries.splice(insertIdx, 0, newEntry);
+        } else if (dragData.type === 'reorder') {
+            var oldIdx = parseInt(dragData.initIdx);
+            var moved = initData.entries.splice(oldIdx, 1)[0];
+            if (insertIdx > oldIdx) insertIdx--;
+            initData.entries.splice(insertIdx, 0, moved);
+            // Adjust currentTurn
+            if (initData.currentTurn === oldIdx) {
+                initData.currentTurn = insertIdx;
+            } else if (oldIdx < initData.currentTurn && insertIdx >= initData.currentTurn) {
+                initData.currentTurn--;
+            } else if (oldIdx > initData.currentTurn && insertIdx <= initData.currentTurn) {
+                initData.currentTurn++;
+            }
+        }
+
+        localStorage.setItem('dw_initiative', JSON.stringify(initData));
+        if (typeof syncUpload === 'function') syncUpload('dw_initiative');
+        renderApp();
+    });
 }
 
 function renderDMNPCs() {
@@ -1506,23 +1521,8 @@ function renderDMWhispers() {
     return html;
 }
 
-function renderDMSync() {
+function renderDMDiceRoller() {
     var html = '<div class="dm-tool-card">';
-    html += '<h3>&#9729; ' + t('dm.cloudsync') + '</h3>';
-    var syncSt = typeof getSyncStatus === 'function' ? getSyncStatus() : 'not-configured';
-    if (syncSt === 'online') {
-        html += '<p style="color:var(--success);font-size:0.85rem;margin-bottom:0.75rem;">' + t('dm.sync.connected') + '</p>';
-        html += '<button class="btn btn-ghost btn-sm" data-action="sync-upload-all">' + t('dm.sync.uploadall') + '</button> ';
-        html += '<button class="btn btn-ghost btn-sm" data-action="sync-seed-campaign" style="margin-top:0.5rem;">Seed Campaign Data</button>';
-    } else if (syncSt === 'not-configured') {
-        html += '<p style="color:var(--text-dim);font-size:0.85rem;">' + t('dm.sync.notconfig') + '</p>';
-    } else {
-        html += '<p style="color:var(--warning);font-size:0.85rem;">' + t('dm.sync.offline') + '</p>';
-    }
-
-    // Quick Dice Roller
-    html += '</div>';
-    html += '<div class="dm-tool-card">';
     html += '<h3>' + t('dm.diceroller') + '</h3>';
     html += '<div class="dice-buttons">';
     var dice = [4, 6, 8, 10, 12, 20, 100];
@@ -5628,24 +5628,7 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Add player to initiative
-        if (target.matches('[data-action="init-add-player"]') || target.closest('[data-action="init-add-player"]')) {
-            var btn = target.closest('[data-action="init-add-player"]') || target;
-            var cId = btn.dataset.charId;
-            var cfg = loadCharConfig(cId);
-            if (!cfg) return;
-            var roll = prompt('Initiative roll for ' + cfg.name + ':');
-            if (roll === null) return;
-            var initData = JSON.parse(localStorage.getItem('dw_initiative') || '{"entries":[],"currentTurn":0,"round":1,"npcs":[]}');
-            initData.entries.push({ name: cfg.name, charId: cId, initiative: parseInt(roll) || 0 });
-            initData.entries.sort(function(a, b) { return b.initiative - a.initiative; });
-            localStorage.setItem('dw_initiative', JSON.stringify(initData));
-            if (typeof syncUpload === 'function') syncUpload('dw_initiative');
-            renderApp();
-            return;
-        }
-
-        // Delete NPC from initiative pool (must be before add-npc handler)
+        // Delete NPC from initiative pool
         if (target.matches('[data-action="init-delete-npc"]') || target.closest('[data-action="init-delete-npc"]')) {
             e.stopPropagation();
             var delBtn = target.closest('[data-action="init-delete-npc"]') || target;
@@ -5653,25 +5636,8 @@ function bindPageEvents(route) {
             var initData = JSON.parse(localStorage.getItem('dw_initiative') || '{"entries":[],"currentTurn":0,"round":1,"npcs":[]}');
             if (!isNaN(nIdx) && initData.npcs) {
                 initData.npcs.splice(nIdx, 1);
-                initData.entries = initData.entries.filter(function(e) { return e.npcIdx !== nIdx; });
+                initData.entries = initData.entries.filter(function(ent) { return ent.npcIdx !== nIdx; });
             }
-            localStorage.setItem('dw_initiative', JSON.stringify(initData));
-            if (typeof syncUpload === 'function') syncUpload('dw_initiative');
-            renderApp();
-            return;
-        }
-
-        // Add NPC to initiative
-        if (target.matches('[data-action="init-add-npc"]') || target.closest('[data-action="init-add-npc"]')) {
-            var btn = target.closest('[data-action="init-add-npc"]') || target;
-            var nIdx = parseInt(btn.dataset.npcIdx);
-            var initData = JSON.parse(localStorage.getItem('dw_initiative') || '{"entries":[],"currentTurn":0,"round":1,"npcs":[]}');
-            var npc = initData.npcs[nIdx];
-            if (!npc) return;
-            var roll = prompt('Initiative roll for ' + npc.name + ':');
-            if (roll === null) return;
-            initData.entries.push({ name: npc.name, npcIdx: nIdx, initiative: parseInt(roll) || 0, disposition: npc.disposition });
-            initData.entries.sort(function(a, b) { return b.initiative - a.initiative; });
             localStorage.setItem('dw_initiative', JSON.stringify(initData));
             if (typeof syncUpload === 'function') syncUpload('dw_initiative');
             renderApp();
@@ -5721,8 +5687,8 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Clear initiative
-        if (target.matches('[data-action="clear-init"]')) {
+        // Reset initiative (entries back to their boxes, keep NPCs, reset round)
+        if (target.matches('[data-action="reset-init"]')) {
             var initData = JSON.parse(localStorage.getItem('dw_initiative') || '{"entries":[],"currentTurn":0,"round":1,"npcs":[]}');
             initData.entries = [];
             initData.currentTurn = 0;
