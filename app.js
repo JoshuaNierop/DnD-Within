@@ -703,7 +703,41 @@ function raceDisplayName(race) {
 }
 
 function hasSpellcasting(className) {
-    return ['sorcerer', 'wizard', 'druid', 'ranger', 'paladin', 'warlock'].indexOf(className) !== -1;
+    return ['sorcerer', 'wizard', 'druid', 'ranger', 'paladin', 'warlock', 'bard', 'cleric'].indexOf(className) !== -1;
+}
+
+function getInfoFieldOptions(field, config) {
+    if (field === 'race') {
+        var races = ['human', 'woodElf', 'halfElf', 'halfling', 'tiefling', 'aasimar', 'dwarf', 'gnome', 'goliath', 'orc', 'dragonborn'];
+        return races.map(function(r) { return { value: r, label: raceDisplayName(r) }; });
+    }
+    if (field === 'className') {
+        var classes = ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'];
+        return classes.map(function(c) { return { value: c, label: classDisplayName(c) }; });
+    }
+    if (field === 'subclass') {
+        var classData = DATA[config.className];
+        if (classData && classData.subclasses) {
+            var subs = Object.keys(classData.subclasses);
+            return subs.map(function(s) {
+                var subData = classData.subclasses[s];
+                return { value: s, label: subData.name || subclassDisplayName(s) };
+            });
+        }
+        return [];
+    }
+    if (field === 'background') {
+        var bgs = DATA.backgrounds ? Object.keys(DATA.backgrounds) : [];
+        return bgs.map(function(b) {
+            var bgData = DATA.backgrounds[b];
+            return { value: bgData.name || b, label: bgData.name || capitalize(b) };
+        });
+    }
+    if (field === 'alignment') {
+        var aligns = ['Lawful Good', 'Neutral Good', 'Chaotic Good', 'Lawful Neutral', 'True Neutral', 'Chaotic Neutral', 'Lawful Evil', 'Neutral Evil', 'Chaotic Evil'];
+        return aligns.map(function(a) { return { value: a, label: a }; });
+    }
+    return [];
 }
 
 function getQuestData() {
@@ -1776,15 +1810,53 @@ function renderTabOverview(charId, config, state) {
     html += '</div>';
 
     // Info grid
+    var editable = canEdit(charId);
     html += '<div class="info-grid">';
-    html += '<div class="info-item" data-tip="' + escapeAttr(raceDisplayName(config.race)) + '"><span class="label">' + t('overview.race') + '</span><span class="value">' + raceDisplayName(config.race) + '</span></div>';
-    html += '<div class="info-item" data-tip="' + escapeAttr(classDisplayName(config.className)) + '"><span class="label">' + t('overview.class') + '</span><span class="value">' + classDisplayName(config.className) + '</span></div>';
-    if (isSubclassVisible(config, state)) {
-        html += '<div class="info-item" data-tip="' + escapeAttr(subclassDisplayName(config.subclass)) + '"><span class="label">' + t('overview.subclass') + '</span><span class="value">' + subclassDisplayName(config.subclass) + '</span></div>';
+
+    // Race
+    html += '<div class="info-item" data-tip="' + escapeAttr(raceDisplayName(config.race)) + '">';
+    html += '<span class="label">' + t('overview.race') + '</span>';
+    html += '<span class="value info-value-display" data-info-field="race">' + raceDisplayName(config.race) + '</span>';
+    if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="race" title="' + t('generic.edit') + '">&#9998;</button>';
+    html += '</div>';
+
+    // Class
+    html += '<div class="info-item" data-tip="' + escapeAttr(classDisplayName(config.className)) + '">';
+    html += '<span class="label">' + t('overview.class') + '</span>';
+    html += '<span class="value info-value-display" data-info-field="className">' + classDisplayName(config.className) + '</span>';
+    if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="className" title="' + t('generic.edit') + '">&#9998;</button>';
+    html += '</div>';
+
+    // Subclass
+    if (isSubclassVisible(config, state) || editable) {
+        html += '<div class="info-item" data-tip="' + escapeAttr(subclassDisplayName(config.subclass)) + '">';
+        html += '<span class="label">' + t('overview.subclass') + '</span>';
+        html += '<span class="value info-value-display" data-info-field="subclass">' + (config.subclass ? subclassDisplayName(config.subclass) : '-') + '</span>';
+        if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="subclass" title="' + t('generic.edit') + '">&#9998;</button>';
+        html += '</div>';
     }
-    html += '<div class="info-item" data-tip="' + escapeAttr(config.background || '') + '"><span class="label">' + t('overview.background') + '</span><span class="value">' + escapeHtml(config.background || '-') + '</span></div>';
-    html += '<div class="info-item" data-tip="' + escapeAttr(config.alignment || '') + '"><span class="label">' + t('overview.alignment') + '</span><span class="value">' + escapeHtml(config.alignment || '-') + '</span></div>';
-    html += '<div class="info-item"><span class="label">' + t('overview.age') + '</span><span class="value">' + (config.age || '-') + '</span></div>';
+
+    // Background
+    html += '<div class="info-item" data-tip="' + escapeAttr(config.background || '') + '">';
+    html += '<span class="label">' + t('overview.background') + '</span>';
+    html += '<span class="value info-value-display" data-info-field="background">' + escapeHtml(config.background || '-') + '</span>';
+    if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="background" title="' + t('generic.edit') + '">&#9998;</button>';
+    html += '</div>';
+
+    // Alignment
+    html += '<div class="info-item" data-tip="' + escapeAttr(config.alignment || '') + '">';
+    html += '<span class="label">' + t('overview.alignment') + '</span>';
+    html += '<span class="value info-value-display" data-info-field="alignment">' + escapeHtml(config.alignment || '-') + '</span>';
+    if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="alignment" title="' + t('generic.edit') + '">&#9998;</button>';
+    html += '</div>';
+
+    // Age
+    html += '<div class="info-item">';
+    html += '<span class="label">' + t('overview.age') + '</span>';
+    html += '<span class="value info-value-display" data-info-field="age">' + (config.age || '-') + '</span>';
+    if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="age" title="' + t('generic.edit') + '">&#9998;</button>';
+    html += '</div>';
+
     html += '</div>';
 
     // Appearance
@@ -2242,12 +2314,26 @@ function renderTabCombat(charId, config, state) {
     html += '</div>';
 
     // === Weapons ===
+    html += '<div class="sheet-block">';
+    html += '<h2>' + t('combat.weapons') + '</h2>';
     if (config.weapons && config.weapons.length > 0) {
-        html += '<div class="sheet-block">';
-        html += '<h2>' + t('combat.weapons') + '</h2>';
-        html += renderWeaponsHTML(config, state);
-        html += '</div>';
+        html += renderWeaponsHTML(config, state, editable, charId);
     }
+    if (editable) {
+        html += '<button class="btn btn-ghost btn-sm" data-action="add-weapon" style="margin-top:0.5rem;">+ Add Weapon</button>';
+        html += '<div class="weapon-add-form" style="display:none;">';
+        html += '<input type="text" class="edit-input weapon-name-input" placeholder="Weapon name">';
+        html += '<input type="text" class="edit-input weapon-dmg-input" placeholder="Damage (e.g. 1d8)" style="width:80px;">';
+        html += '<select class="edit-input weapon-type-input">';
+        html += '<option value="slashing">Slashing</option><option value="piercing">Piercing</option><option value="bludgeoning">Bludgeoning</option>';
+        html += '</select>';
+        html += '<label class="weapon-finesse-label"><input type="checkbox" class="weapon-finesse-input"> Finesse</label>';
+        html += '<div class="edit-actions">';
+        html += '<button class="edit-save" data-action="confirm-weapon">&#10003;</button>';
+        html += '<button class="edit-cancel" data-action="cancel-weapon">&#10005;</button>';
+        html += '</div></div>';
+    }
+    html += '</div>';
 
     // === Sneak Attack for rogues ===
     if (config.className === 'rogue') {
@@ -2398,7 +2484,7 @@ function renderTabCombat(charId, config, state) {
     html += '</div>';
     return html;
 }
-function renderWeaponsHTML(config, state) {
+function renderWeaponsHTML(config, state, editable, charId) {
     var dexMod = getMod(getAbilityScore(config, state, 'dex'));
     var strMod = getMod(getAbilityScore(config, state, 'str'));
     var profBonus = getProfBonus(state.level);
@@ -2419,6 +2505,9 @@ function renderWeaponsHTML(config, state) {
         html += '<span class="weapon-hit">' + formatMod(hitBonus) + '</span>';
         html += '<span class="weapon-dmg">' + dmgStr + (weapon.type && weapon.type !== '-' ? ' ' + weapon.type : '') + '</span>';
         html += '<button class="weapon-roll-btn" data-action="roll-attack" data-hit="' + hitBonus + '" data-dmg="' + escapeAttr(weapon.dmg) + '" data-dmg-mod="' + damageMod + '" data-weapon="' + escapeAttr(weapon.name) + '" title="Roll Attack">&#127922;</button>';
+        if (editable) {
+            html += '<button class="btn-inline-delete" data-action="delete-weapon" data-weapon-idx="' + w + '" title="Remove">&times;</button>';
+        }
         html += '</div>';
     }
     html += '</div>';
@@ -5837,6 +5926,134 @@ function bindPageEvents(route) {
                     saveCharConfigField(charId, 'accentColor', newColor);
                     document.documentElement.style.setProperty('--accent', newColor);
                     config = loadCharConfig(charId);
+                    renderApp();
+                }
+                return;
+            }
+
+            // Edit info-grid field (race, class, subclass, background, alignment, age)
+            if (target.matches('[data-action="edit-info"]') || target.closest('[data-action="edit-info"]')) {
+                if (!canEdit(charId)) return;
+                var infoBtn = target.matches('[data-action="edit-info"]') ? target : target.closest('[data-action="edit-info"]');
+                var infoField = infoBtn.dataset.infoField;
+                var infoItem = infoBtn.closest('.info-item');
+                var valueDisplay = infoItem ? infoItem.querySelector('.info-value-display') : null;
+                if (!infoItem || !valueDisplay || infoItem.querySelector('.info-edit-select, .info-edit-input')) return;
+
+                infoBtn.style.display = 'none';
+                valueDisplay.style.display = 'none';
+
+                if (infoField === 'age') {
+                    var ageInput = document.createElement('input');
+                    ageInput.type = 'number';
+                    ageInput.className = 'edit-input info-edit-input';
+                    ageInput.value = config.age || '';
+                    ageInput.min = '1';
+                    ageInput.setAttribute('data-info-field', 'age');
+                    infoItem.appendChild(ageInput);
+                    ageInput.focus();
+                    ageInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            var newAge = parseInt(ageInput.value) || null;
+                            saveCharConfigField(charId, 'age', newAge);
+                            renderApp();
+                        } else if (e.key === 'Escape') {
+                            renderApp();
+                        }
+                    });
+                    ageInput.addEventListener('blur', function() {
+                        var newAge = parseInt(ageInput.value) || null;
+                        if (newAge !== (config.age || null)) {
+                            saveCharConfigField(charId, 'age', newAge);
+                        }
+                        renderApp();
+                    });
+                } else {
+                    var options = getInfoFieldOptions(infoField, config);
+                    var currentVal = infoField === 'background' ? (config.background || '') : (config[infoField] || '');
+                    var sel = document.createElement('select');
+                    sel.className = 'edit-input info-edit-select';
+                    sel.setAttribute('data-info-field', infoField);
+                    if (infoField === 'subclass') {
+                        var emptyOpt = document.createElement('option');
+                        emptyOpt.value = '';
+                        emptyOpt.textContent = '— Select —';
+                        sel.appendChild(emptyOpt);
+                    }
+                    for (var oi = 0; oi < options.length; oi++) {
+                        var opt = document.createElement('option');
+                        opt.value = options[oi].value;
+                        opt.textContent = options[oi].label;
+                        if (options[oi].value === currentVal) opt.selected = true;
+                        sel.appendChild(opt);
+                    }
+                    infoItem.appendChild(sel);
+                    sel.focus();
+                    sel.addEventListener('change', function() {
+                        var newVal = sel.value;
+                        if (infoField === 'className') {
+                            saveCharConfigField(charId, 'className', newVal);
+                            saveCharConfigField(charId, 'subclass', '');
+                        } else {
+                            saveCharConfigField(charId, infoField, newVal);
+                        }
+                        renderApp();
+                    });
+                    sel.addEventListener('blur', function() {
+                        renderApp();
+                    });
+                }
+                return;
+            }
+
+            // Add weapon
+            if (target.matches('[data-action="add-weapon"]')) {
+                if (!canEdit(charId)) return;
+                var wForm = app.querySelector('.weapon-add-form');
+                if (wForm) {
+                    wForm.style.display = wForm.style.display === 'none' ? 'flex' : 'none';
+                    if (wForm.style.display !== 'none') {
+                        var wNameInput = wForm.querySelector('.weapon-name-input');
+                        if (wNameInput) wNameInput.focus();
+                    }
+                }
+                return;
+            }
+
+            // Confirm weapon
+            if (target.matches('[data-action="confirm-weapon"]')) {
+                if (!canEdit(charId)) return;
+                var wFormEl = app.querySelector('.weapon-add-form');
+                if (wFormEl) {
+                    var wName = (wFormEl.querySelector('.weapon-name-input') || {}).value || '';
+                    var wDmg = (wFormEl.querySelector('.weapon-dmg-input') || {}).value || '1d4';
+                    var wType = (wFormEl.querySelector('.weapon-type-input') || {}).value || 'slashing';
+                    var wFinesse = !!(wFormEl.querySelector('.weapon-finesse-input') || {}).checked;
+                    wName = wName.trim();
+                    if (wName) {
+                        if (!config.weapons) config.weapons = [];
+                        config.weapons.push({ name: wName, dmg: wDmg, type: wType, finesse: wFinesse });
+                        saveCharConfig(charId, config);
+                        renderApp();
+                    }
+                }
+                return;
+            }
+
+            // Cancel weapon
+            if (target.matches('[data-action="cancel-weapon"]')) {
+                var wFormEl2 = app.querySelector('.weapon-add-form');
+                if (wFormEl2) wFormEl2.style.display = 'none';
+                return;
+            }
+
+            // Delete weapon
+            if (target.matches('[data-action="delete-weapon"]')) {
+                if (!canEdit(charId)) return;
+                var wIdx = parseInt(target.dataset.weaponIdx);
+                if (!isNaN(wIdx) && config.weapons && config.weapons[wIdx] !== undefined) {
+                    config.weapons.splice(wIdx, 1);
+                    saveCharConfig(charId, config);
                     renderApp();
                 }
                 return;

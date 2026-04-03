@@ -971,6 +971,70 @@ a { color: inherit; text-decoration: none; }
 
 .info-item[data-tooltip]:hover .value { color: var(--accent); }
 
+/* Info-grid inline editing */
+.info-item {
+    position: relative;
+}
+.info-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 0.65rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.info-item:hover .info-edit-btn { opacity: 1; }
+.info-edit-btn:hover { color: var(--accent); border-color: var(--accent); }
+.info-edit-select, .info-edit-input {
+    width: 100%;
+    padding: 0.3rem 0.5rem;
+    background: var(--bg-dark);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    font-size: 0.85rem;
+    font-family: inherit;
+}
+.info-edit-select:focus, .info-edit-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb, 34,211,238), 0.25);
+}
+
+/* Weapon add form */
+.weapon-add-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: var(--bg-block);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+}
+.weapon-add-form .edit-input {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.85rem;
+}
+.weapon-finesse-label {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
 /* ===== ABILITY SCORES ===== */
 .ability-scores {
     display: grid;
@@ -4955,6 +5019,10 @@ body.modal-open {
     /* -- Hover-dependent elements: always visible on touch -- */
     .editable-field .edit-trigger,
     .char-name-wrap .edit-trigger {
+        opacity: 0.6 !important;
+    }
+
+    .info-edit-btn {
         opacity: 0.6 !important;
     }
 
