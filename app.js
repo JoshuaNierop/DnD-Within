@@ -710,6 +710,55 @@ function hasSpellcasting(className) {
     return ['sorcerer', 'wizard', 'druid', 'ranger', 'paladin', 'warlock', 'bard', 'cleric'].indexOf(className) !== -1;
 }
 
+// Resolve spell list for a class+level. Supports both formats:
+// Old: DATA.spells[class][level] = [{name, time, ...}, ...]
+// New: DATA.spells[class][level] = ["SpellName", ...] + DATA.spellPool
+function getSpellsForLevel(className, level) {
+    if (!DATA.spells || !DATA.spells[className]) return [];
+    var list = DATA.spells[className][level];
+    if (!list || list.length === 0) return [];
+    // If first entry is a string, resolve from spellPool
+    if (typeof list[0] === 'string' && DATA.spellPool) {
+        return list.map(function(name) {
+            var s = DATA.spellPool[name];
+            return s ? Object.assign({ name: name }, s) : { name: name, desc: '' };
+        });
+    }
+    return list;
+}
+
+// Get all spell levels for a class as {0: [...], 1: [...], ...}
+function getSpellListForClass(className) {
+    if (!DATA.spells || !DATA.spells[className]) return {};
+    var result = {};
+    var raw = DATA.spells[className];
+    for (var lvl in raw) {
+        result[lvl] = getSpellsForLevel(className, parseInt(lvl));
+    }
+    return result;
+}
+
+// Lookup a single spell by name (for tooltips)
+function lookupSpell(spellName) {
+    if (DATA.spellPool && DATA.spellPool[spellName]) {
+        return Object.assign({ name: spellName }, DATA.spellPool[spellName]);
+    }
+    // Fallback: search old-format lists
+    if (DATA.spells) {
+        var classNames = Object.keys(DATA.spells);
+        for (var cn = 0; cn < classNames.length; cn++) {
+            var classList = DATA.spells[classNames[cn]];
+            for (var lvl = 0; lvl <= 9; lvl++) {
+                var spells = classList[lvl] || [];
+                for (var i = 0; i < spells.length; i++) {
+                    if (typeof spells[i] === 'object' && spells[i].name === spellName) return spells[i];
+                }
+            }
+        }
+    }
+    return null;
+}
+
 function getInfoFieldOptions(field, config) {
     if (field === 'race') {
         var races = ['human', 'woodElf', 'halfElf', 'halfling', 'tiefling', 'aasimar', 'dwarf', 'gnome', 'goliath', 'orc', 'dragonborn'];
@@ -886,6 +935,8 @@ function postRenderEffects(route) {
     }
     // Initiative drag-and-drop
     initInitiativeDragDrop();
+    // Family tree SVG lines
+    postRenderFamilyTree();
 }
 
 // initInitiativeDragDrop is defined after renderDMInitiative
@@ -1235,7 +1286,6 @@ function renderDMPage(subpage) {
 
     if (activeSection === 'initiative') {
         html += renderDMInitiative();
-        html += renderDMDiceRoller();
     } else if (activeSection === 'npcs') {
         html += renderDMNPCs();
     }
@@ -1275,7 +1325,7 @@ function renderDMInitiative() {
             if (entries[ei].charId === iCharIds[ici]) { inInit = true; break; }
         }
         if (!inInit) {
-            html += '<div class="init-available init-draggable" draggable="true" data-drag-type="player" data-char-id="' + iCharIds[ici] + '">';
+            html += '<div class="init-available init-draggable" data-drag-type="player" data-char-id="' + iCharIds[ici] + '">';
             html += '<span class="init-drag-handle">&#9776;</span>';
             html += '<span style="color:' + iccfg.accentColor + '">' + escapeHtml(iccfg.name) + '</span>';
             html += '</div>';
@@ -1294,7 +1344,7 @@ function renderDMInitiative() {
             var ecfg = loadCharConfig(entry.charId);
             if (ecfg) entryColor = ecfg.accentColor;
         }
-        html += '<div class="init-entry init-draggable" draggable="true" data-drag-type="reorder" data-init-idx="' + ii + '" data-init-current="' + (isCurrent ? '1' : '0') + '" style="border-left-color:' + entryColor + '">';
+        html += '<div class="init-entry init-draggable" data-drag-type="reorder" data-init-idx="' + ii + '" data-init-current="' + (isCurrent ? '1' : '0') + '" style="border-left-color:' + entryColor + '">';
         html += '<span class="init-drag-handle">&#9776;</span>';
         html += '<span class="init-name">' + escapeHtml(entry.name) + '</span>';
         html += '<button class="init-remove" data-action="remove-init" data-init-idx="' + ii + '">&times;</button>';
@@ -1314,7 +1364,7 @@ function renderDMInitiative() {
         }
         if (!inInit) {
             var npcColor = inpc.disposition === 'hostile' ? 'var(--danger)' : inpc.disposition === 'friendly' ? 'var(--success)' : 'var(--warning)';
-            html += '<div class="init-available init-npc init-draggable" draggable="true" data-drag-type="npc" data-npc-idx="' + ni + '" style="border-left-color:' + npcColor + '">';
+            html += '<div class="init-available init-npc init-draggable" data-drag-type="npc" data-npc-idx="' + ni + '" style="border-left-color:' + npcColor + '">';
             html += '<span class="init-drag-handle">&#9776;</span>';
             html += '<span>' + escapeHtml(inpc.name) + '</span>';
             html += '<button class="init-npc-del" data-action="init-delete-npc" data-npc-idx="' + ni + '">&times;</button>';
@@ -1341,108 +1391,133 @@ function initInitiativeDragDrop() {
     var dropZone = document.getElementById('init-drop-zone');
     if (!dropZone) return;
 
-    var dragData = null;
+    var dragState = null;
+    var ghost = null;
 
-    document.querySelectorAll('.init-draggable').forEach(function(el) {
-        el.addEventListener('dragstart', function(e) {
-            dragData = {
-                type: el.dataset.dragType,
-                charId: el.dataset.charId,
-                npcIdx: el.dataset.npcIdx,
-                initIdx: el.dataset.initIdx
-            };
-            el.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', '');
-        });
-        el.addEventListener('dragend', function() {
-            el.classList.remove('dragging');
-            dropZone.classList.remove('drag-over');
-            document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
-            dragData = null;
-        });
-    });
+    function getInsertIdx(y) {
+        var entries = dropZone.querySelectorAll('.init-entry');
+        var initData = JSON.parse(localStorage.getItem('dw_initiative') || '{"entries":[]}');
+        var idx = initData.entries.length;
+        for (var i = 0; i < entries.length; i++) {
+            var rect = entries[i].getBoundingClientRect();
+            if (y < rect.top + rect.height / 2) {
+                idx = parseInt(entries[i].dataset.initIdx);
+                break;
+            }
+        }
+        return idx;
+    }
 
-    dropZone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        dropZone.classList.add('drag-over');
-
-        // Show drop indicator between entries
+    function showIndicator(y) {
         document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
         var entries = dropZone.querySelectorAll('.init-entry');
         var insertBefore = null;
         for (var i = 0; i < entries.length; i++) {
             var rect = entries[i].getBoundingClientRect();
-            if (e.clientY < rect.top + rect.height / 2) {
-                insertBefore = entries[i];
-                break;
-            }
+            if (y < rect.top + rect.height / 2) { insertBefore = entries[i]; break; }
         }
         var indicator = document.createElement('div');
         indicator.className = 'init-drop-indicator';
-        if (insertBefore) {
-            dropZone.insertBefore(indicator, insertBefore);
-        } else {
-            dropZone.appendChild(indicator);
-        }
-    });
+        if (insertBefore) dropZone.insertBefore(indicator, insertBefore);
+        else dropZone.appendChild(indicator);
+    }
 
-    dropZone.addEventListener('dragleave', function(e) {
-        if (!dropZone.contains(e.relatedTarget)) {
-            dropZone.classList.remove('drag-over');
-            document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
-        }
-    });
-
-    dropZone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        dropZone.classList.remove('drag-over');
+    function cleanup() {
+        if (ghost) { ghost.remove(); ghost = null; }
         document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
-        if (!dragData) return;
+        document.querySelectorAll('.init-draggable.dragging').forEach(function(el) { el.classList.remove('dragging'); });
+        dropZone.classList.remove('drag-over');
+        dragState = null;
+    }
 
+    function doDrop(y) {
+        if (!dragState) return;
         var initData = JSON.parse(localStorage.getItem('dw_initiative') || '{"entries":[],"currentTurn":0,"round":1,"npcs":[]}');
+        var insertIdx = getInsertIdx(y);
 
-        // Determine insert position
-        var entryEls = dropZone.querySelectorAll('.init-entry');
-        var insertIdx = initData.entries.length;
-        for (var i = 0; i < entryEls.length; i++) {
-            var rect = entryEls[i].getBoundingClientRect();
-            if (e.clientY < rect.top + rect.height / 2) {
-                insertIdx = parseInt(entryEls[i].dataset.initIdx);
-                break;
-            }
-        }
-
-        if (dragData.type === 'player') {
-            var cfg = loadCharConfig(dragData.charId);
-            if (!cfg) return;
-            var newEntry = { name: cfg.name, charId: dragData.charId };
-            initData.entries.splice(insertIdx, 0, newEntry);
-        } else if (dragData.type === 'npc') {
-            var nIdx = parseInt(dragData.npcIdx);
+        if (dragState.type === 'player') {
+            var cfg = loadCharConfig(dragState.charId);
+            if (!cfg) { cleanup(); return; }
+            initData.entries.splice(insertIdx, 0, { name: cfg.name, charId: dragState.charId });
+        } else if (dragState.type === 'npc') {
+            var nIdx = parseInt(dragState.npcIdx);
             var npc = initData.npcs[nIdx];
-            if (!npc) return;
-            var newEntry = { name: npc.name, npcIdx: nIdx, disposition: npc.disposition };
-            initData.entries.splice(insertIdx, 0, newEntry);
-        } else if (dragData.type === 'reorder') {
-            var oldIdx = parseInt(dragData.initIdx);
+            if (!npc) { cleanup(); return; }
+            initData.entries.splice(insertIdx, 0, { name: npc.name, npcIdx: nIdx, disposition: npc.disposition });
+        } else if (dragState.type === 'reorder') {
+            var oldIdx = parseInt(dragState.initIdx);
             var moved = initData.entries.splice(oldIdx, 1)[0];
             if (insertIdx > oldIdx) insertIdx--;
             initData.entries.splice(insertIdx, 0, moved);
-            // Adjust currentTurn
-            if (initData.currentTurn === oldIdx) {
-                initData.currentTurn = insertIdx;
-            } else if (oldIdx < initData.currentTurn && insertIdx >= initData.currentTurn) {
-                initData.currentTurn--;
-            } else if (oldIdx > initData.currentTurn && insertIdx <= initData.currentTurn) {
-                initData.currentTurn++;
-            }
+            if (initData.currentTurn === oldIdx) initData.currentTurn = insertIdx;
+            else if (oldIdx < initData.currentTurn && insertIdx >= initData.currentTurn) initData.currentTurn--;
+            else if (oldIdx > initData.currentTurn && insertIdx <= initData.currentTurn) initData.currentTurn++;
         }
 
         localStorage.setItem('dw_initiative', JSON.stringify(initData));
         if (typeof syncUpload === 'function') syncUpload('dw_initiative');
+        cleanup();
         renderApp();
+    }
+
+    document.querySelectorAll('.init-draggable').forEach(function(el) {
+        el.addEventListener('pointerdown', function(e) {
+            if (e.button && e.button !== 0) return;
+            e.preventDefault();
+            el.setPointerCapture(e.pointerId);
+            dragState = {
+                type: el.dataset.dragType,
+                charId: el.dataset.charId,
+                npcIdx: el.dataset.npcIdx,
+                initIdx: el.dataset.initIdx,
+                pointerId: e.pointerId,
+                startX: e.clientX,
+                startY: e.clientY,
+                started: false
+            };
+        });
+
+        el.addEventListener('pointermove', function(e) {
+            if (!dragState || dragState.pointerId !== e.pointerId) return;
+            var dx = e.clientX - dragState.startX;
+            var dy = e.clientY - dragState.startY;
+            if (!dragState.started && Math.abs(dx) + Math.abs(dy) < 8) return;
+
+            if (!dragState.started) {
+                dragState.started = true;
+                el.classList.add('dragging');
+                ghost = document.createElement('div');
+                ghost.className = 'init-drag-ghost';
+                ghost.textContent = el.textContent.trim();
+                document.body.appendChild(ghost);
+            }
+
+            ghost.style.left = e.clientX + 'px';
+            ghost.style.top = e.clientY + 'px';
+
+            var dzRect = dropZone.getBoundingClientRect();
+            if (e.clientX >= dzRect.left && e.clientX <= dzRect.right && e.clientY >= dzRect.top && e.clientY <= dzRect.bottom) {
+                dropZone.classList.add('drag-over');
+                showIndicator(e.clientY);
+            } else {
+                dropZone.classList.remove('drag-over');
+                document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
+            }
+        });
+
+        el.addEventListener('pointerup', function(e) {
+            if (!dragState || dragState.pointerId !== e.pointerId) return;
+            if (!dragState.started) { cleanup(); return; }
+
+            var dzRect = dropZone.getBoundingClientRect();
+            if (e.clientX >= dzRect.left && e.clientX <= dzRect.right && e.clientY >= dzRect.top && e.clientY <= dzRect.bottom) {
+                doDrop(e.clientY);
+            } else {
+                cleanup();
+            }
+        });
+
+        el.addEventListener('pointercancel', function() { cleanup(); });
     });
 }
 
@@ -1469,6 +1544,13 @@ function renderDMNPCs() {
             html += '</div>';
             if (npc.location) html += '<p class="npc-location">&#128205; ' + escapeHtml(npc.location) + '</p>';
             if (npc.notes) html += '<p class="npc-notes">' + escapeHtml(npc.notes) + '</p>';
+            // NPC family tree
+            var npcFamily = npc.family || [];
+            if (npcFamily.length > 0 || isDM()) {
+                html += '<div class="npc-family-section">';
+                html += renderFamilyTree(npcFamily, 'npc:' + ni, npc.name, isDM());
+                html += '</div>';
+            }
             html += '<div class="npc-actions">';
             html += '<button class="btn btn-ghost btn-sm" data-action="edit-npc" data-npc-idx="' + ni + '">Edit</button>';
             html += '<button class="btn btn-ghost btn-sm" data-action="delete-npc" data-npc-idx="' + ni + '" style="color:var(--danger);">Delete</button>';
@@ -2574,8 +2656,8 @@ function renderTabSpells(charId, config, state) {
     var preparedCount = state.prepared.length;
     var favorites = state.favorites || [];
     var classData = DATA[className];
-    var spellList = (DATA.spells && DATA.spells[className]) ? DATA.spells[className] : {};
-    var hasCantrips = !!spellList[0];
+    var spellList = getSpellListForClass(className);
+    var hasCantrips = spellList[0] && spellList[0].length > 0;
     var maxCantrips = hasCantrips ? getMaxCantrips(state.level, className) : 0;
 
     // Determine spell slot info and max spell level
@@ -2851,47 +2933,67 @@ function renderTabStory(charId, config, state) {
 
 function guessTier(relation) {
     var r = (relation || '').toLowerCase();
-    if (r.indexOf('vader') >= 0 || r.indexOf('moeder') >= 0 || r.indexOf('father') >= 0 || r.indexOf('mother') >= 0 || r.indexOf('parent') >= 0 || r.indexOf('opa') >= 0 || r.indexOf('oma') >= 0 || r.indexOf('grand') >= 0) return 'parent';
+    if (r.indexOf('grootvader') >= 0 || r.indexOf('grootmoeder') >= 0 || r.indexOf('grandfather') >= 0 || r.indexOf('grandmother') >= 0 || r.indexOf('grandparent') >= 0 || r.indexOf('opa') >= 0 || r.indexOf('oma') >= 0) return 'grandparent';
+    if (r.indexOf('vader') >= 0 || r.indexOf('moeder') >= 0 || r.indexOf('father') >= 0 || r.indexOf('mother') >= 0 || r.indexOf('parent') >= 0) return 'parent';
+    if (r.indexOf('partner') >= 0 || r.indexOf('spouse') >= 0 || r.indexOf('husband') >= 0 || r.indexOf('wife') >= 0 || r.indexOf('echtgeno') >= 0 || r.indexOf('vrouw') >= 0 || r.indexOf('man') >= 0 && r.length <= 6) return 'partner';
     if (r.indexOf('zoon') >= 0 || r.indexOf('dochter') >= 0 || r.indexOf('son') >= 0 || r.indexOf('daughter') >= 0 || r.indexOf('child') >= 0 || r.indexOf('kind') >= 0) return 'child';
     return 'sibling';
 }
 
 function renderFamilyTree(family, contextId, selfName, editable) {
     var html = '';
-    // Sort members into tiers — use explicit tier or guess from relation
-    var parents = [], siblings = [], children = [], others = [];
+    var grandparents = [], parents = [], partners = [], siblings = [], children = [];
     for (var fi = 0; fi < family.length; fi++) {
         var fm = family[fi];
         fm._idx = fi;
         var tier = fm.tier || guessTier(fm.relation);
-        if (tier === 'parent') parents.push(fm);
+        if (tier === 'grandparent') grandparents.push(fm);
+        else if (tier === 'parent') parents.push(fm);
+        else if (tier === 'partner') partners.push(fm);
         else if (tier === 'child') children.push(fm);
         else siblings.push(fm);
     }
 
-    html += '<div class="ftree">';
+    html += '<div class="ftree" id="ftree-root">';
+
+    // === GRANDPARENTS ROW ===
+    if (grandparents.length > 0 || editable) {
+        html += '<div class="ftree-tier ftree-grandparents" data-tier-id="grandparent">';
+        html += '<span class="ftree-tier-label">Grandparents</span>';
+        if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="grandparent" title="Add grandparent">+</button>';
+        for (var gi = 0; gi < grandparents.length; gi++) {
+            html += renderFamilyNode(grandparents[gi], editable, contextId);
+        }
+        html += '</div>';
+    }
 
     // === PARENTS ROW ===
     if (parents.length > 0 || editable) {
-        html += '<div class="ftree-tier ftree-parents">';
+        html += '<div class="ftree-tier ftree-parents" data-tier-id="parent">';
+        html += '<span class="ftree-tier-label">Parents</span>';
         if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="parent" title="Add parent">+</button>';
         for (var pi = 0; pi < parents.length; pi++) {
             html += renderFamilyNode(parents[pi], editable, contextId);
         }
         html += '</div>';
-        html += '<div class="ftree-connector-v"></div>';
     }
 
-    // === SIBLINGS ROW (includes self) ===
-    html += '<div class="ftree-tier ftree-siblings">';
+    // === SELF + PARTNERS + SIBLINGS ROW ===
+    html += '<div class="ftree-tier ftree-siblings" data-tier-id="sibling">';
+    html += '<span class="ftree-tier-label">Family</span>';
     if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="sibling" title="Add sibling">+</button>';
-    // Self node
     if (selfName) {
         html += '<div class="ftree-node ftree-self">';
         html += '<div class="ftree-node-inner">';
         html += '<strong>' + escapeHtml(selfName) + '</strong>';
         html += '<span class="ftree-relation">Self</span>';
         html += '</div></div>';
+    }
+    for (var pti = 0; pti < partners.length; pti++) {
+        html += renderFamilyNode(partners[pti], editable, contextId);
+    }
+    if (editable && partners.length === 0) {
+        html += '<button class="ftree-add-btn ftree-add-partner" data-action="add-family" data-tier="partner" title="Add partner">+ Partner</button>';
     }
     for (var si = 0; si < siblings.length; si++) {
         html += renderFamilyNode(siblings[si], editable, contextId);
@@ -2900,8 +3002,8 @@ function renderFamilyTree(family, contextId, selfName, editable) {
 
     // === CHILDREN ROW ===
     if (children.length > 0 || editable) {
-        html += '<div class="ftree-connector-v"></div>';
-        html += '<div class="ftree-tier ftree-children">';
+        html += '<div class="ftree-tier ftree-children" data-tier-id="child">';
+        html += '<span class="ftree-tier-label">Children</span>';
         if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="child" title="Add child">+</button>';
         for (var ci = 0; ci < children.length; ci++) {
             html += renderFamilyNode(children[ci], editable, contextId);
@@ -2909,22 +3011,22 @@ function renderFamilyTree(family, contextId, selfName, editable) {
         html += '</div>';
     }
 
+    // SVG overlay for connection lines (drawn after render via postRenderFamilyTree)
+    html += '<svg class="ftree-svg" id="ftree-svg"></svg>';
     html += '</div>';
 
-    // === ADD FORM (hidden, shown when + is clicked) ===
+    // === ADD FORM ===
     if (editable) {
         html += '<div class="ftree-add-form" id="ftree-add-form" style="display:none;">';
         html += '<div class="ftree-form-row">';
         html += '<select class="edit-input" id="fam-source" style="width:auto;">';
         html += '<option value="custom">Custom entry</option>';
-        // List characters
         var charIds = getCharacterIds();
         for (var chi = 0; chi < charIds.length; chi++) {
             if (charIds[chi] === contextId) continue;
             var chcfg = loadCharConfig(charIds[chi]);
             if (chcfg && chcfg.name) html += '<option value="char:' + charIds[chi] + '">' + escapeHtml(chcfg.name) + ' (character)</option>';
         }
-        // List NPCs
         var npcData = getNPCData();
         var npcs = npcData.npcs || [];
         for (var ni = 0; ni < npcs.length; ni++) {
@@ -2934,7 +3036,7 @@ function renderFamilyTree(family, contextId, selfName, editable) {
         html += '</div>';
         html += '<div class="ftree-form-row">';
         html += '<input type="text" class="edit-input" id="fam-name" placeholder="Name" style="flex:1;">';
-        html += '<input type="text" class="edit-input" id="fam-relation" placeholder="Relation (e.g. Mother)" style="flex:1;">';
+        html += '<input type="text" class="edit-input" id="fam-relation" placeholder="Relation (e.g. Mother, Partner)" style="flex:1;">';
         html += '</div>';
         html += '<div class="ftree-form-row">';
         html += '<select class="edit-input" id="fam-status" style="width:auto;">';
@@ -2953,10 +3055,105 @@ function renderFamilyTree(family, contextId, selfName, editable) {
     return html;
 }
 
+// Draw SVG connection lines between family tree tiers
+function postRenderFamilyTree() {
+    var root = document.getElementById('ftree-root');
+    var svg = document.getElementById('ftree-svg');
+    if (!root || !svg) return;
+
+    var rootRect = root.getBoundingClientRect();
+    svg.setAttribute('width', rootRect.width);
+    svg.setAttribute('height', rootRect.height);
+    svg.innerHTML = '';
+
+    var tiers = root.querySelectorAll('.ftree-tier');
+    for (var i = 0; i < tiers.length - 1; i++) {
+        var upperTier = tiers[i];
+        var lowerTier = tiers[i + 1];
+        var upperNodes = upperTier.querySelectorAll('.ftree-node');
+        var lowerNodes = lowerTier.querySelectorAll('.ftree-node');
+        if (upperNodes.length === 0 || lowerNodes.length === 0) continue;
+
+        // Find center bottom of upper tier nodes
+        var upperCenters = [];
+        for (var u = 0; u < upperNodes.length; u++) {
+            var ur = upperNodes[u].getBoundingClientRect();
+            upperCenters.push({ x: ur.left + ur.width / 2 - rootRect.left, y: ur.bottom - rootRect.top });
+        }
+        // Find center top of lower tier nodes
+        var lowerCenters = [];
+        for (var l = 0; l < lowerNodes.length; l++) {
+            var lr = lowerNodes[l].getBoundingClientRect();
+            lowerCenters.push({ x: lr.left + lr.width / 2 - rootRect.left, y: lr.top - rootRect.top });
+        }
+
+        // Draw from each upper node to a midpoint, then fan out to lower nodes
+        var midY = (upperCenters[0].y + lowerCenters[0].y) / 2;
+
+        // Upper nodes → horizontal bar
+        if (upperCenters.length > 1) {
+            var leftX = Math.min.apply(null, upperCenters.map(function(c) { return c.x; }));
+            var rightX = Math.max.apply(null, upperCenters.map(function(c) { return c.x; }));
+            drawLine(svg, leftX, midY, rightX, midY);
+        }
+        for (var ui = 0; ui < upperCenters.length; ui++) {
+            drawLine(svg, upperCenters[ui].x, upperCenters[ui].y, upperCenters[ui].x, midY);
+        }
+
+        // Midpoint → lower nodes
+        if (lowerCenters.length > 1) {
+            var leftX2 = Math.min.apply(null, lowerCenters.map(function(c) { return c.x; }));
+            var rightX2 = Math.max.apply(null, lowerCenters.map(function(c) { return c.x; }));
+            drawLine(svg, leftX2, midY, rightX2, midY);
+        }
+        for (var li = 0; li < lowerCenters.length; li++) {
+            drawLine(svg, lowerCenters[li].x, midY, lowerCenters[li].x, lowerCenters[li].y);
+        }
+
+        // Connect upper bar to lower bar if they don't overlap
+        if (upperCenters.length > 0 && lowerCenters.length > 0) {
+            var ucx = upperCenters.reduce(function(s, c) { return s + c.x; }, 0) / upperCenters.length;
+            var lcx = lowerCenters.reduce(function(s, c) { return s + c.x; }, 0) / lowerCenters.length;
+            if (upperCenters.length === 1 && lowerCenters.length === 1) {
+                // Direct line already drawn
+            } else if (upperCenters.length === 1) {
+                drawLine(svg, upperCenters[0].x, midY, upperCenters[0].x, midY);
+            }
+        }
+    }
+
+    // Draw partner connection (heart line between self and partner)
+    var selfNode = root.querySelector('.ftree-self');
+    var partnerNodes = root.querySelectorAll('.ftree-node-partner');
+    if (selfNode && partnerNodes.length > 0) {
+        for (var pn = 0; pn < partnerNodes.length; pn++) {
+            var sr = selfNode.getBoundingClientRect();
+            var pr = partnerNodes[pn].getBoundingClientRect();
+            var sy = sr.top + sr.height / 2 - rootRect.top;
+            var sx = sr.right - rootRect.left;
+            var px = pr.left - rootRect.left;
+            var py = pr.top + pr.height / 2 - rootRect.top;
+            var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', sx); line.setAttribute('y1', sy);
+            line.setAttribute('x2', px); line.setAttribute('y2', py);
+            line.setAttribute('class', 'ftree-line ftree-line-partner');
+            svg.appendChild(line);
+        }
+    }
+}
+
+function drawLine(svg, x1, y1, x2, y2) {
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('class', 'ftree-line');
+    svg.appendChild(line);
+}
+
 function renderFamilyNode(fm, editable, contextId) {
     var isDead = fm.status === 'Deceased' || fm.status === 'Overleden';
-    var html = '<div class="ftree-node' + (isDead ? ' deceased' : '') + '">';
-    // Link to character or NPC page if linked
+    var isPartner = (fm.tier || guessTier(fm.relation)) === 'partner';
+    var html = '<div class="ftree-node' + (isDead ? ' deceased' : '') + (isPartner ? ' ftree-node-partner' : '') + '">';
     var linkStart = '', linkEnd = '';
     if (fm.linkedChar && fm.linkedChar !== contextId) {
         linkStart = '<a href="#/characters/' + fm.linkedChar + '" class="ftree-link">';
@@ -3096,8 +3293,22 @@ function renderTabInventory(charId, config, state) {
         for (var ci = 0; ci < catItems.length; ci++) {
             var cItem = catItems[ci].item;
             var cIdx = catItems[ci].idx;
+            // Look up weapon mastery from DATA.items.weapons
+            var masteryTag = '';
+            if (catKey === 'weapons' && DATA.items && DATA.items.weapons) {
+                var weaponName = (cItem.name || '').toLowerCase();
+                for (var wi = 0; wi < DATA.items.weapons.length; wi++) {
+                    var dw = DATA.items.weapons[wi];
+                    if (dw.mastery && dw.name.toLowerCase() === weaponName) {
+                        var mKey = dw.mastery;
+                        var mDesc = DATA.items.weaponMasteryDesc && DATA.items.weaponMasteryDesc[mKey] ? DATA.items.weaponMasteryDesc[mKey] : '';
+                        masteryTag = '<span class="item-mastery" title="' + escapeAttr(mDesc) + '">' + capitalize(mKey) + '</span>';
+                        break;
+                    }
+                }
+            }
             html += '<div class="item-row">';
-            html += '<span class="item-name">' + escapeHtml(cItem.name) + '</span>';
+            html += '<span class="item-name">' + escapeHtml(cItem.name) + masteryTag + '</span>';
             html += '<span class="item-weight">' + cItem.weight + ' lbs</span>';
             html += '<span class="item-notes">' + (cItem.notes ? escapeHtml(cItem.notes) : '-') + '</span>';
             if (editable) {
@@ -4227,22 +4438,7 @@ function removeTooltipPopup() {
 }
 
 function showSpellTooltip(spellName, anchorEl) {
-    var spellData = null;
-    if (DATA.spells) {
-        var classNames = Object.keys(DATA.spells);
-        for (var cn = 0; cn < classNames.length && !spellData; cn++) {
-            var classList = DATA.spells[classNames[cn]];
-            for (var lvl = 0; lvl <= 9 && !spellData; lvl++) {
-                var spells = classList[lvl] || [];
-                for (var i = 0; i < spells.length; i++) {
-                    if (spells[i].name === spellName) {
-                        spellData = spells[i];
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    var spellData = lookupSpell(spellName);
     if (!spellData) return;
 
     var tooltipHtml = '<div>';
@@ -4371,13 +4567,13 @@ function showLevelUpModal(charId, config, state) {
     // Check if ASI level
     var isASI = (classData.asiLevels || []).indexOf(newLevel) !== -1;
 
-    // Check if subclass selection level (level 3 typically, or subclass.level)
+    // Check if subclass selection needed (at subclass level OR past it without one)
     var needsSubclass = false;
     if (classData.subclasses && !config.subclass) {
         var subclassKeys = Object.keys(classData.subclasses);
         for (var sk = 0; sk < subclassKeys.length; sk++) {
             var sub = classData.subclasses[subclassKeys[sk]];
-            if (sub.level === newLevel) {
+            if (sub.level <= newLevel) {
                 needsSubclass = true;
                 break;
             }
@@ -4765,13 +4961,23 @@ function renderLevelUpFeatPicker(modal, config, state, level, onChoice) {
     var abilities = getAllAbilityScores(config, state);
     var feats = DATA.feats || [];
 
+    // Collect already-chosen feats
+    var chosenFeats = {};
+    if (state.asiChoices) {
+        for (var lvl in state.asiChoices) {
+            var ch = state.asiChoices[lvl];
+            if (ch && ch.type === 'feat' && ch.feat) chosenFeats[ch.feat] = true;
+        }
+    }
+
     var html = '<div class="feat-grid-full" style="margin-top:0.75rem;">';
     for (var i = 0; i < feats.length; i++) {
         var feat = feats[i];
         var meetsPrereq = checkPrerequisite(feat, abilities, config);
-        html += '<div class="feat-card-full levelup-feat-pick' + (meetsPrereq ? '' : ' unavailable') + '" data-feat="' + escapeAttr(feat.name) + '">';
+        var alreadyChosen = !feat.repeatable && chosenFeats[feat.name];
+        html += '<div class="feat-card-full levelup-feat-pick' + (!meetsPrereq || alreadyChosen ? ' unavailable' : '') + '" data-feat="' + escapeAttr(feat.name) + '">';
         html += '<div class="feat-card-header">';
-        html += '<h4>' + escapeHtml(feat.name) + '</h4>';
+        html += '<h4>' + escapeHtml(feat.name) + (alreadyChosen ? ' <span style="font-size:0.7rem;opacity:0.6;">(already chosen)</span>' : '') + '</h4>';
         if (feat.prereq) {
             html += '<span class="feat-prereq-badge">' + escapeHtml(JSON.stringify(feat.prereq).replace(/[{}"]/g, '').replace(/:/g, ' ').replace(/,/g, ', ')) + '</span>';
         }
@@ -4930,6 +5136,17 @@ function showFeatPicker(charId, config, state, level) {
     var abilities = getAllAbilityScores(config, state);
     var feats = DATA.feats || [];
 
+    // Collect already-chosen feats (non-repeatable)
+    var chosenFeats = {};
+    if (state.asiChoices) {
+        for (var lvl in state.asiChoices) {
+            var ch = state.asiChoices[lvl];
+            if (ch && ch.type === 'feat' && ch.feat && parseInt(lvl) !== level) {
+                chosenFeats[ch.feat] = true;
+            }
+        }
+    }
+
     var html = '<div class="asi-panel" data-asi-level="' + level + '">';
     html += '<h4>Level ' + level + ' \u2014 ' + t('stats.asi.feat') + '</h4>';
     html += '<div class="feat-grid-full">';
@@ -4937,9 +5154,10 @@ function showFeatPicker(charId, config, state, level) {
     for (var i = 0; i < feats.length; i++) {
         var feat = feats[i];
         var meetsPrereq = checkPrerequisite(feat, abilities, config);
-        html += '<div class="feat-card-full' + (meetsPrereq ? '' : ' unavailable') + '" data-feat="' + escapeAttr(feat.name) + '">';
+        var alreadyChosen = !feat.repeatable && chosenFeats[feat.name];
+        html += '<div class="feat-card-full' + (!meetsPrereq || alreadyChosen ? ' unavailable' : '') + '" data-feat="' + escapeAttr(feat.name) + '">';
         html += '<div class="feat-card-header">';
-        html += '<h4>' + escapeHtml(feat.name) + '</h4>';
+        html += '<h4>' + escapeHtml(feat.name) + (alreadyChosen ? ' <span style="font-size:0.7rem;opacity:0.6;">(already chosen)</span>' : '') + '</h4>';
         if (feat.prereq) {
             html += '<span class="feat-prereq-badge">' + escapeHtml(JSON.stringify(feat.prereq).replace(/[{}"]/g, '').replace(/:/g, ' ').replace(/,/g, ', ')) + '</span>';
         }
@@ -5443,6 +5661,85 @@ function bindPageEvents(route) {
                 saveNotesData(delNoteData);
                 navigate('/notes');
             }
+            return;
+        }
+
+        // --- NPC Family Tree handlers (DM page) ---
+        if (isDM() && (target.matches('[data-action="add-family"]') || target.closest('[data-action="add-family"]'))) {
+            var btn = target.matches('[data-action="add-family"]') ? target : target.closest('[data-action="add-family"]');
+            var form = document.getElementById('ftree-add-form');
+            var tierInput = document.getElementById('fam-tier');
+            if (form && tierInput) {
+                tierInput.value = btn.dataset.tier || 'sibling';
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                var nameEl = document.getElementById('fam-name');
+                if (nameEl) nameEl.value = '';
+                var relEl = document.getElementById('fam-relation');
+                if (relEl) relEl.value = '';
+                var notesEl = document.getElementById('fam-notes');
+                if (notesEl) notesEl.value = '';
+            }
+            return;
+        }
+        if (isDM() && target.matches('[data-action="save-family"]')) {
+            // Find which NPC card this form belongs to
+            var npcCard = target.closest('.npc-card');
+            if (!npcCard) return;
+            var npcIdx = -1;
+            var npcCards = document.querySelectorAll('.npc-card');
+            for (var nc = 0; nc < npcCards.length; nc++) {
+                if (npcCards[nc] === npcCard) { npcIdx = nc; break; }
+            }
+            if (npcIdx < 0) return;
+            var sourceEl = document.getElementById('fam-source');
+            var nameEl = document.getElementById('fam-name');
+            var relEl = document.getElementById('fam-relation');
+            var statusEl = document.getElementById('fam-status');
+            var notesEl = document.getElementById('fam-notes');
+            var tierEl = document.getElementById('fam-tier');
+            var source = sourceEl ? sourceEl.value : 'custom';
+            var entry = {
+                name: nameEl ? nameEl.value.trim() : '',
+                relation: relEl ? relEl.value.trim() : '',
+                status: statusEl ? statusEl.value : 'Alive',
+                notes: notesEl ? notesEl.value.trim() : '',
+                tier: tierEl ? tierEl.value : 'sibling'
+            };
+            if (source.indexOf('char:') === 0) {
+                var srcCharId = source.substring(5);
+                var srcCfg = loadCharConfig(srcCharId);
+                if (srcCfg) { if (!entry.name) entry.name = srcCfg.name; entry.linkedChar = srcCharId; }
+            }
+            if (!entry.name) return;
+            var npcData = getNPCData();
+            if (!npcData.npcs[npcIdx].family) npcData.npcs[npcIdx].family = [];
+            npcData.npcs[npcIdx].family.push(entry);
+            saveNPCData(npcData);
+            renderApp();
+            return;
+        }
+        if (isDM() && target.matches('[data-action="cancel-family"]')) {
+            var form = document.getElementById('ftree-add-form');
+            if (form) form.style.display = 'none';
+            return;
+        }
+        if (isDM() && target.matches('[data-action="remove-family"]')) {
+            var npcCard = target.closest('.npc-card');
+            if (!npcCard) return;
+            var npcIdx = -1;
+            var npcCards = document.querySelectorAll('.npc-card');
+            for (var nc = 0; nc < npcCards.length; nc++) {
+                if (npcCards[nc] === npcCard) { npcIdx = nc; break; }
+            }
+            if (npcIdx < 0) return;
+            var famIdx = parseInt(target.dataset.idx);
+            if (isNaN(famIdx)) return;
+            var npcData = getNPCData();
+            var fam = (npcData.npcs[npcIdx].family || []).slice();
+            fam.splice(famIdx, 1);
+            npcData.npcs[npcIdx].family = fam;
+            saveNPCData(npcData);
+            renderApp();
             return;
         }
 
@@ -8221,7 +8518,7 @@ function renderWizardStep4() {
     // Cantrips for spellcasters
     if (classData.cantripsKnown && classData.cantripsKnown[1] > 0) {
         var cantripsCount = classData.cantripsKnown[1];
-        var spellData = DATA.spells && DATA.spells[wizardState.className] && DATA.spells[wizardState.className][0];
+        var spellData = getSpellsForLevel(wizardState.className, 0);
         if (spellData && spellData.length > 0) {
             html += '<div class="wizard-field">';
             html += '<label class="wizard-label">Kies ' + cantripsCount + ' cantrips:</label>';

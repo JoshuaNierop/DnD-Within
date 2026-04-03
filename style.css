@@ -1760,7 +1760,18 @@ a { color: inherit; text-decoration: none; }
     font-size: 0.85rem;
 }
 
-.item-name { color: var(--text-main); }
+.item-name { color: var(--text-main); display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.item-mastery {
+    font-size: 0.65rem;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 100px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: help;
+}
 .item-weight { color: var(--text-dim); font-size: 0.75rem; white-space: nowrap; }
 .item-notes { color: var(--text-dim); font-size: 0.75rem; font-style: italic; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -5485,18 +5496,31 @@ body.modal-open {
 .sheet-block:has(.ftree) { grid-column: 1 / -1; }
 
 .ftree {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0;
-    padding: 1rem 0;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
 }
 
-/* Vertical connector between tiers */
-.ftree-connector-v {
-    width: 2px;
-    height: 24px;
-    background: var(--border);
+/* SVG overlay for connection lines */
+.ftree-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+.ftree-line {
+    stroke: var(--border);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+}
+.ftree-line-partner {
+    stroke: var(--accent);
+    stroke-dasharray: 4 3;
+    stroke-opacity: 0.6;
 }
 
 /* Tier row */
@@ -5506,24 +5530,22 @@ body.modal-open {
     justify-content: center;
     gap: 0.75rem;
     position: relative;
-    padding: 0.5rem 0;
+    padding: 0.25rem 0;
 }
 
-/* Horizontal connector across siblings in a tier */
-.ftree-tier::before {
-    content: '';
+.ftree-tier-label {
     position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 80px);
-    max-width: 500px;
-    height: 2px;
-    background: var(--border);
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    opacity: 0.5;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
 }
-/* Hide connector if only one node */
-.ftree-tier:has(> :nth-child(2)):not(:has(> :nth-child(4)))::before { width: 60%; }
-.ftree-tier:not(:has(> :nth-child(3)))::before { display: none; }
 
 /* Node card */
 .ftree-node {
@@ -5535,6 +5557,7 @@ body.modal-open {
     min-width: 120px;
     max-width: 180px;
     transition: opacity 0.2s;
+    z-index: 1;
 }
 
 .ftree-node-inner {
@@ -5547,27 +5570,20 @@ body.modal-open {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     width: 100%;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.ftree-node:hover .ftree-node-inner { border-color: var(--accent); }
+.ftree-node:hover .ftree-node-inner { border-color: var(--accent); box-shadow: 0 0 12px rgba(var(--accent-rgb, 34,211,238), 0.15); }
 .ftree-node.deceased { opacity: 0.5; }
 .ftree-node.deceased:hover { opacity: 0.8; }
 .ftree-node.ftree-self .ftree-node-inner {
     border-color: var(--accent);
     background: color-mix(in srgb, var(--accent) 8%, var(--bg-card));
 }
-
-/* Vertical drop line from tier connector to node */
-.ftree-node::before {
-    content: '';
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    width: 2px;
-    height: 12px;
-    background: var(--border);
-    transform: translateX(-50%);
+.ftree-node-partner .ftree-node-inner {
+    border-style: dashed;
+    border-color: var(--accent);
+    border-width: 1px;
 }
 
 /* Node text */
@@ -5606,11 +5622,12 @@ body.modal-open {
     justify-content: center;
     opacity: 0;
     transition: all 0.2s;
+    z-index: 2;
 }
 .ftree-node:hover .ftree-remove { opacity: 1; }
 .ftree-remove:hover { color: var(--danger); border-color: var(--danger); }
 
-/* Add button per tier */
+/* Add buttons */
 .ftree-add-btn {
     width: 32px;
     height: 32px;
@@ -5625,8 +5642,16 @@ body.modal-open {
     justify-content: center;
     transition: all 0.2s;
     align-self: center;
+    z-index: 1;
 }
 .ftree-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+.ftree-add-partner {
+    width: auto;
+    height: auto;
+    border-radius: 100px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.7rem;
+}
 
 /* Add form */
 .ftree-add-form {
@@ -5649,6 +5674,7 @@ body.modal-open {
     .ftree-node { min-width: 100px; max-width: 140px; }
     .ftree-node-inner { padding: 0.4rem 0.5rem; }
     .ftree-node-inner strong { font-size: 0.75rem; }
+    .ftree-tier-label { display: none; }
 }
 
 /* ============================================================
@@ -6284,6 +6310,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     margin-top: 0.5rem;
 }
 .init-add-npc-form .edit-input { font-size: 0.75rem; padding: 0.25rem 0.4rem; }
+
+.init-drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    background: var(--bg-elevated);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+    color: var(--text-bright);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    opacity: 0.92;
+}
+.init-draggable { touch-action: none; }
 
 @media (max-width: 700px) {
     .init-columns { grid-template-columns: 1fr; }
