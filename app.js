@@ -1391,6 +1391,10 @@ function initInitiativeDragDrop() {
     var dropZone = document.getElementById('init-drop-zone');
     if (!dropZone) return;
 
+    // Shared state stored on the dropZone so document listeners can access it
+    if (dropZone._initDragBound) return; // prevent double-binding
+    dropZone._initDragBound = true;
+
     var dragState = null;
     var ghost = null;
 
@@ -1422,11 +1426,20 @@ function initInitiativeDragDrop() {
         else dropZone.appendChild(indicator);
     }
 
+    function isOverDropZone(x, y) {
+        var dz = document.getElementById('init-drop-zone');
+        if (!dz) return false;
+        var r = dz.getBoundingClientRect();
+        // Add 20px padding for easier targeting
+        return x >= r.left - 20 && x <= r.right + 20 && y >= r.top - 20 && y <= r.bottom + 20;
+    }
+
     function cleanup() {
         if (ghost) { ghost.remove(); ghost = null; }
         document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
         document.querySelectorAll('.init-draggable.dragging').forEach(function(el) { el.classList.remove('dragging'); });
-        dropZone.classList.remove('drag-over');
+        var dz = document.getElementById('init-drop-zone');
+        if (dz) dz.classList.remove('drag-over');
         dragState = null;
     }
 
@@ -1460,12 +1473,13 @@ function initInitiativeDragDrop() {
         renderApp();
     }
 
+    // Use document-level move/up so pointer capture isn't needed
     document.querySelectorAll('.init-draggable').forEach(function(el) {
         el.addEventListener('pointerdown', function(e) {
             if (e.button && e.button !== 0) return;
             e.preventDefault();
-            el.setPointerCapture(e.pointerId);
             dragState = {
+                el: el,
                 type: el.dataset.dragType,
                 charId: el.dataset.charId,
                 npcIdx: el.dataset.npcIdx,
@@ -1476,48 +1490,45 @@ function initInitiativeDragDrop() {
                 started: false
             };
         });
+    });
 
-        el.addEventListener('pointermove', function(e) {
-            if (!dragState || dragState.pointerId !== e.pointerId) return;
-            var dx = e.clientX - dragState.startX;
-            var dy = e.clientY - dragState.startY;
-            if (!dragState.started && Math.abs(dx) + Math.abs(dy) < 8) return;
+    document.addEventListener('pointermove', function(e) {
+        if (!dragState || dragState.pointerId !== e.pointerId) return;
+        var dx = e.clientX - dragState.startX;
+        var dy = e.clientY - dragState.startY;
+        if (!dragState.started && Math.abs(dx) + Math.abs(dy) < 8) return;
 
-            if (!dragState.started) {
-                dragState.started = true;
-                el.classList.add('dragging');
-                ghost = document.createElement('div');
-                ghost.className = 'init-drag-ghost';
-                ghost.textContent = el.textContent.trim();
-                document.body.appendChild(ghost);
-            }
+        if (!dragState.started) {
+            dragState.started = true;
+            dragState.el.classList.add('dragging');
+            ghost = document.createElement('div');
+            ghost.className = 'init-drag-ghost';
+            ghost.textContent = dragState.el.textContent.trim();
+            document.body.appendChild(ghost);
+        }
 
-            ghost.style.left = e.clientX + 'px';
-            ghost.style.top = e.clientY + 'px';
+        ghost.style.left = e.clientX + 'px';
+        ghost.style.top = e.clientY + 'px';
 
-            var dzRect = dropZone.getBoundingClientRect();
-            if (e.clientX >= dzRect.left && e.clientX <= dzRect.right && e.clientY >= dzRect.top && e.clientY <= dzRect.bottom) {
-                dropZone.classList.add('drag-over');
-                showIndicator(e.clientY);
-            } else {
-                dropZone.classList.remove('drag-over');
-                document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
-            }
-        });
+        var dz = document.getElementById('init-drop-zone');
+        if (dz && isOverDropZone(e.clientX, e.clientY)) {
+            dz.classList.add('drag-over');
+            showIndicator(e.clientY);
+        } else {
+            if (dz) dz.classList.remove('drag-over');
+            document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
+        }
+    });
 
-        el.addEventListener('pointerup', function(e) {
-            if (!dragState || dragState.pointerId !== e.pointerId) return;
-            if (!dragState.started) { cleanup(); return; }
+    document.addEventListener('pointerup', function(e) {
+        if (!dragState || dragState.pointerId !== e.pointerId) return;
+        if (!dragState.started) { cleanup(); return; }
 
-            var dzRect = dropZone.getBoundingClientRect();
-            if (e.clientX >= dzRect.left && e.clientX <= dzRect.right && e.clientY >= dzRect.top && e.clientY <= dzRect.bottom) {
-                doDrop(e.clientY);
-            } else {
-                cleanup();
-            }
-        });
-
-        el.addEventListener('pointercancel', function() { cleanup(); });
+        if (isOverDropZone(e.clientX, e.clientY)) {
+            doDrop(e.clientY);
+        } else {
+            cleanup();
+        }
     });
 }
 
