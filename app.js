@@ -1062,9 +1062,11 @@ function renderApp() {
         return;
     }
     app._firstRender = false;
+    if (!routeChanged) app.classList.add('no-animate');
     app.innerHTML = html;
     bindPageEvents(route);
     postRenderEffects(route);
+    if (!routeChanged) requestAnimationFrame(function() { app.classList.remove('no-animate'); });
 }
 
 function postRenderEffects(route) {
@@ -9023,6 +9025,10 @@ function renderProfileModal() {
     html += '<input type="text" class="login-input" id="profile-display-name" value="' + escapeAttr(u.name) + '" placeholder="Weergavenaam">';
     html += '</div>';
     html += '<div class="login-field">';
+    html += '<label class="login-label">Huidig wachtwoord</label>';
+    html += '<input type="password" class="login-input" id="profile-current-password" placeholder="Vereist bij wachtwoord wijziging">';
+    html += '</div>';
+    html += '<div class="login-field">';
     html += '<label class="login-label">Nieuw wachtwoord</label>';
     html += '<input type="password" class="login-input" id="profile-new-password" placeholder="Laat leeg om niet te wijzigen">';
     html += '</div>';
@@ -9067,12 +9073,14 @@ function handleSaveProfile() {
     if (!u) return;
 
     var nameEl = document.getElementById('profile-display-name');
+    var currentPassEl = document.getElementById('profile-current-password');
     var passEl = document.getElementById('profile-new-password');
     var confirmEl = document.getElementById('profile-confirm-password');
     var errorEl = document.getElementById('profile-error');
     var successEl = document.getElementById('profile-success');
 
     var newName = nameEl ? nameEl.value.trim() : '';
+    var currentPass = currentPassEl ? currentPassEl.value : '';
     var newPass = passEl ? passEl.value : '';
     var confirmPass = confirmEl ? confirmEl.value : '';
 
@@ -9084,9 +9092,19 @@ function handleSaveProfile() {
         return;
     }
 
-    if (newPass && newPass !== confirmPass) {
-        if (errorEl) { errorEl.textContent = 'Wachtwoorden komen niet overeen.'; errorEl.style.display = 'block'; }
-        return;
+    if (newPass) {
+        if (!currentPass) {
+            if (errorEl) { errorEl.textContent = 'Voer je huidige wachtwoord in om je wachtwoord te wijzigen.'; errorEl.style.display = 'block'; }
+            return;
+        }
+        if (u.password !== currentPass) {
+            if (errorEl) { errorEl.textContent = 'Huidig wachtwoord is onjuist.'; errorEl.style.display = 'block'; }
+            return;
+        }
+        if (newPass !== confirmPass) {
+            if (errorEl) { errorEl.textContent = 'Wachtwoorden komen niet overeen.'; errorEl.style.display = 'block'; }
+            return;
+        }
     }
 
     // Update the user data
@@ -9815,12 +9833,14 @@ function bindWizardEvents() {
         var target = e.target;
 
         if (target.matches('[data-action="wizard-race-change"]')) {
+            saveWizardStepData();
             wizardState.race = target.value;
             refreshWizard();
             return;
         }
 
         if (target.matches('[data-action="wizard-class-change"]')) {
+            saveWizardStepData();
             var newClass = target.value;
             if (newClass !== wizardState.className) {
                 wizardState.className = newClass;
@@ -9833,6 +9853,7 @@ function bindWizardEvents() {
         }
 
         if (target.matches('[data-action="wizard-bg-change"]')) {
+            saveWizardStepData();
             wizardState.background = target.value;
             wizardState.bgBonusChoice = { plus2: '', plus1: '' };
             refreshWizard();
@@ -9840,6 +9861,7 @@ function bindWizardEvents() {
         }
 
         if (target.matches('[data-action="wizard-bonus-change"]')) {
+            saveWizardStepData();
             var ab = target.dataset.ability;
             var val = target.value;
             // Clear previous assignment of this ability
@@ -9957,6 +9979,10 @@ function renderSettings() {
         html += '<input type="text" class="settings-input" id="settings-display-name" value="' + escapeAttr(u.name) + '" placeholder="Weergavenaam">';
         html += '</div>';
         html += '<div class="settings-field">';
+        html += '<label class="settings-label">Huidig wachtwoord</label>';
+        html += '<input type="password" class="settings-input" id="settings-current-password" placeholder="Vereist bij wachtwoord wijziging">';
+        html += '</div>';
+        html += '<div class="settings-field">';
         html += '<label class="settings-label">Nieuw wachtwoord</label>';
         html += '<input type="password" class="settings-input" id="settings-new-password" placeholder="Laat leeg om niet te wijzigen">';
         html += '</div>';
@@ -10019,26 +10045,38 @@ function handleSaveSettings() {
     if (!u) return;
 
     var nameEl = document.getElementById('settings-display-name');
+    var currentPassEl = document.getElementById('settings-current-password');
     var passEl = document.getElementById('settings-new-password');
     var confirmEl = document.getElementById('settings-confirm-password');
     var errorEl = document.getElementById('settings-error');
     var successEl = document.getElementById('settings-success');
 
-    var newName = nameEl ? nameEl.value.trim() : '';
+    var newName = nameEl ? nameEl.value.trim() : u.name;
+    var currentPass = currentPassEl ? currentPassEl.value : '';
     var newPass = passEl ? passEl.value : '';
     var confirmPass = confirmEl ? confirmEl.value : '';
 
     if (errorEl) { errorEl.style.display = 'none'; }
     if (successEl) { successEl.style.display = 'none'; }
 
-    if (!newName) {
+    if (nameEl && !newName) {
         if (errorEl) { errorEl.textContent = 'Weergavenaam mag niet leeg zijn.'; errorEl.style.display = 'block'; }
         return;
     }
 
-    if (newPass && newPass !== confirmPass) {
-        if (errorEl) { errorEl.textContent = 'Wachtwoorden komen niet overeen.'; errorEl.style.display = 'block'; }
-        return;
+    if (newPass) {
+        if (!currentPass) {
+            if (errorEl) { errorEl.textContent = 'Voer je huidige wachtwoord in om je wachtwoord te wijzigen.'; errorEl.style.display = 'block'; }
+            return;
+        }
+        if (u.password !== currentPass) {
+            if (errorEl) { errorEl.textContent = 'Huidig wachtwoord is onjuist.'; errorEl.style.display = 'block'; }
+            return;
+        }
+        if (newPass !== confirmPass) {
+            if (errorEl) { errorEl.textContent = 'Wachtwoorden komen niet overeen.'; errorEl.style.display = 'block'; }
+            return;
+        }
     }
 
     // Update user data
