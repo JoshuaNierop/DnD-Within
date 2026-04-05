@@ -535,6 +535,7 @@ var TRANSLATIONS = {
         // Navbar extras
         'nav.party': 'Party',
         'nav.home': 'Home',
+        'nav.menu': 'Menu',
         'nav.profile': 'Profiel instellingen',
         'nav.dm': 'DM',
         'nav.player': 'Speler',
@@ -574,7 +575,9 @@ var TRANSLATIONS = {
 
         // Generic select
         'generic.select': '— Selecteer —',
-        'generic.saved': 'Opgeslagen!'
+        'generic.saved': 'Opgeslagen!',
+        'generic.yes': 'Ja',
+        'generic.no': 'Nee'
     },
 
     en: {
@@ -1108,6 +1111,7 @@ var TRANSLATIONS = {
         // Navbar extras
         'nav.party': 'Party',
         'nav.home': 'Home',
+        'nav.menu': 'Menu',
         'nav.profile': 'Profile settings',
         'nav.dm': 'DM',
         'nav.player': 'Player',
@@ -1147,7 +1151,9 @@ var TRANSLATIONS = {
 
         // Generic select
         'generic.select': '— Select —',
-        'generic.saved': 'Saved!'
+        'generic.saved': 'Saved!',
+        'generic.yes': 'Yes',
+        'generic.no': 'No'
     }
 };
 

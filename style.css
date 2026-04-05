@@ -6034,11 +6034,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .main-content {
     animation: none;
 }
-#app.no-animate .main-content,
-#app.no-animate .dashboard,
-#app.no-animate .welcome-banner,
-#app.no-animate .char-card {
+#app.no-animate,
+#app.no-animate *,
+#app.no-animate *::before,
+#app.no-animate *::after {
     animation: none !important;
+    transition: none !important;
 }
 .page-exit {
     opacity: 0;
@@ -6412,8 +6413,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .init-available:hover { border-color: var(--accent); }
 .init-available.dragging { opacity: 0.3; }
-.init-col-order.drag-over { background: rgba(var(--accent-rgb, 34,211,238), 0.05); border-style: dashed; }
-.init-drop-indicator { height: 3px; background: var(--accent); border-radius: 2px; margin: 0.2rem 0; }
+.init-col-order.drag-over { background: rgba(var(--accent-rgb, 34,211,238), 0.08); border-style: dashed; border-width: 2px; }
+.init-drop-indicator { height: 4px; background: var(--accent); border-radius: 2px; margin: 0.25rem 0; box-shadow: 0 0 8px var(--accent-glow); }
 .init-npc { border-left: 3px solid; }
 .init-npc-del {
     background: none;
@@ -6603,7 +6604,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .wizard-modal {
     background: var(--bg-dark);
     width: 100%;
-    max-width: 720px;
+    max-width: 960px;
     margin: auto;
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
@@ -6637,11 +6638,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     align-items: center;
     justify-content: center;
     gap: 0;
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1.5rem;
     background: var(--bg-card);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
-    overflow-x: auto;
+    overflow: visible;
 }
 
 .wizard-step-dot {
@@ -6695,10 +6696,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     width: 24px;
     height: 2px;
     background: var(--border);
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     flex-shrink: 0;
 }
 .step-connector.completed { background: var(--success); }
+
+/* Wizard two-panel body */
+.wizard-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+}
 
 /* Wizard content area */
 .wizard-content {
@@ -6708,6 +6717,99 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    min-width: 0;
+}
+
+/* Wizard sidebar — persistent character summary */
+.wizard-sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border-left: 1px solid var(--border);
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+.wizard-sidebar-title {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 0.25rem;
+}
+.wizard-sidebar-portrait {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    background: var(--bg-block);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.wizard-sidebar-name {
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    word-break: break-word;
+}
+.wizard-sidebar-detail {
+    font-size: 0.75rem;
+    color: var(--text-main);
+    text-align: center;
+}
+.wizard-sidebar-abilities {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.3rem;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+.wizard-sidebar-ab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem;
+}
+.wizard-sidebar-ab-label {
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.wizard-sidebar-ab-val {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-bright);
+}
+.wizard-sidebar-section {
+    width: 100%;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+.wizard-sidebar-section-title {
+    width: 100%;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-bottom: 0.1rem;
+}
+.wizard-sidebar-tag {
+    font-size: 0.65rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.1rem 0.4rem;
+    color: var(--text-main);
 }
 
 .wizard-step-title {
@@ -6773,14 +6875,34 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .wizard-textarea-sm { min-height: 50px; }
 .wizard-textarea-lg { min-height: 140px; }
 
-/* Wizard preview boxes */
+/* Wizard preview boxes (collapsible details) */
 .wizard-preview {
     background: var(--bg-block);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     margin-top: 0.25rem;
 }
+.wizard-preview summary {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    padding: 0.25rem 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.wizard-preview summary::before {
+    content: '▸';
+    font-size: 0.7rem;
+    transition: transform 0.2s;
+}
+.wizard-preview[open] summary::before {
+    transform: rotate(90deg);
+}
+.wizard-preview summary::-webkit-details-marker { display: none; }
 
 .wizard-preview h4 {
     font-size: 0.85rem;
@@ -6964,6 +7086,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         max-height: 100vh;
         max-height: 100dvh;
     }
+
+    .wizard-sidebar { display: none; }
 
     .wizard-steps {
         padding: 0.75rem 0.5rem;

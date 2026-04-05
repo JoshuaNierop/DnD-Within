@@ -786,7 +786,7 @@ function initInitiativeDragDrop() {
     function getInsertIdx(y) {
         var dz = getDropZone();
         if (!dz) return 0;
-        var entries = dz.querySelectorAll('.init-entry');
+        var entries = dz.querySelectorAll('.init-entry:not(.dragging)');
         var initData = JSON.parse(localStorage.getItem('dw_initiative') || '{"entries":[]}');
         var idx = initData.entries.length;
         for (var i = 0; i < entries.length; i++) {
@@ -803,7 +803,7 @@ function initInitiativeDragDrop() {
         document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
         var dz = getDropZone();
         if (!dz) return;
-        var entries = dz.querySelectorAll('.init-entry');
+        var entries = dz.querySelectorAll('.init-entry:not(.dragging)');
         var insertBefore = null;
         for (var i = 0; i < entries.length; i++) {
             var rect = entries[i].getBoundingClientRect();
@@ -812,7 +812,12 @@ function initInitiativeDragDrop() {
         var indicator = document.createElement('div');
         indicator.className = 'init-drop-indicator';
         if (insertBefore) dz.insertBefore(indicator, insertBefore);
-        else dz.appendChild(indicator);
+        else {
+            // Insert before the hint text if it exists, otherwise append
+            var hint = dz.querySelector('.init-drop-hint');
+            if (hint) dz.insertBefore(indicator, hint);
+            else dz.appendChild(indicator);
+        }
     }
 
     function isOverDropZone(x, y) {
@@ -823,6 +828,9 @@ function initInitiativeDragDrop() {
     }
 
     function cleanup() {
+        if (_initDrag && _initDrag.el) {
+            try { _initDrag.el.releasePointerCapture(_initDrag.pointerId); } catch (ex) {}
+        }
         if (_initGhost) { _initGhost.remove(); _initGhost = null; }
         document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
         document.querySelectorAll('.init-draggable.dragging').forEach(function(el) { el.classList.remove('dragging'); });
@@ -863,6 +871,8 @@ function initInitiativeDragDrop() {
 
     // Document-level delegation: works even after DOM re-renders
     document.addEventListener('pointerdown', function(e) {
+        // Don't start drag on remove/delete buttons
+        if (e.target.closest('.init-remove') || e.target.closest('.init-npc-del')) return;
         var el = e.target.closest('.init-draggable');
         if (!el) return;
         if (e.button && e.button !== 0) return;
@@ -889,9 +899,12 @@ function initInitiativeDragDrop() {
         if (!_initDrag.started) {
             _initDrag.started = true;
             _initDrag.el.classList.add('dragging');
+            try { _initDrag.el.setPointerCapture(e.pointerId); } catch (ex) {}
             _initGhost = document.createElement('div');
             _initGhost.className = 'init-drag-ghost';
-            _initGhost.textContent = _initDrag.el.textContent.trim();
+            // Use only the name text, not button text
+            var nameEl = _initDrag.el.querySelector('.init-name') || _initDrag.el.querySelector('span:nth-child(2)');
+            _initGhost.textContent = nameEl ? nameEl.textContent.trim() : _initDrag.el.textContent.trim();
             document.body.appendChild(_initGhost);
         }
 

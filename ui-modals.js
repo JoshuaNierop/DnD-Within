@@ -209,17 +209,46 @@ function renderWizardModal() {
     }
     html += '</div>';
 
-    // Step content
-    html += '<div class="wizard-content">';
+    // Two-panel layout: main content + sidebar summary
+    html += '<div class="wizard-body">';
 
+    // Main content
+    html += '<div class="wizard-content">';
     if (step === 1) html += renderWizardStep1();
     else if (step === 2) html += renderWizardStep2();
     else if (step === 3) html += renderWizardStep3();
     else if (step === 4) html += renderWizardStep4();
     else if (step === 5) html += renderWizardStep5();
     else if (step === 6) html += renderWizardStep6();
-
     html += '</div>';
+
+    // Persistent sidebar with live character summary
+    html += '<div class="wizard-sidebar">';
+    html += '<div class="wizard-sidebar-title">' + t('wizard.step.summary') + '</div>';
+    var sidebarColor = wizardState.accentColor || 'var(--accent)';
+    html += '<div class="wizard-sidebar-portrait" style="border-color:' + sidebarColor + '"><span style="font-size:2rem;opacity:0.3;">&#128100;</span></div>';
+    html += '<div class="wizard-sidebar-name" style="color:' + sidebarColor + '">' + escapeHtml(wizardState.name || '???') + '</div>';
+    if (wizardState.race) html += '<div class="wizard-sidebar-detail">' + raceDisplayName(wizardState.race) + '</div>';
+    if (wizardState.className) html += '<div class="wizard-sidebar-detail">' + classDisplayName(wizardState.className) + '</div>';
+    if (wizardState.subclass) html += '<div class="wizard-sidebar-detail" style="color:var(--text-dim);font-size:0.7rem;">' + subclassDisplayName(wizardState.subclass) + '</div>';
+    if (wizardState.background && DATA.backgrounds[wizardState.background]) html += '<div class="wizard-sidebar-detail">' + DATA.backgrounds[wizardState.background].name + '</div>';
+    // Ability scores mini display
+    var abs = ['str','dex','con','int','wis','cha'];
+    html += '<div class="wizard-sidebar-abilities">';
+    for (var ai = 0; ai < abs.length; ai++) {
+        html += '<div class="wizard-sidebar-ab"><span class="wizard-sidebar-ab-label">' + abs[ai].toUpperCase() + '</span><span class="wizard-sidebar-ab-val">' + wizardState.baseAbilities[abs[ai]] + '</span></div>';
+    }
+    html += '</div>';
+    if (wizardState.skills.length > 0) {
+        html += '<div class="wizard-sidebar-section"><span class="wizard-sidebar-section-title">Skills</span>';
+        for (var si2 = 0; si2 < wizardState.skills.length; si2++) {
+            html += '<span class="wizard-sidebar-tag">' + capitalize(wizardState.skills[si2]) + '</span>';
+        }
+        html += '</div>';
+    }
+    html += '</div>';
+
+    html += '</div>'; // wizard-body
 
     // Navigation buttons
     html += '<div class="wizard-nav">';
@@ -262,11 +291,11 @@ function renderWizardStep1() {
     html += '</select>';
     html += '</div>';
 
-    // Race features preview
+    // Race features preview (collapsible)
     if (wizardState.race && DATA[wizardState.race]) {
         var raceData = DATA[wizardState.race];
-        html += '<div class="wizard-preview">';
-        html += '<h4>' + raceDisplayName(wizardState.race) + ' Features</h4>';
+        html += '<details class="wizard-preview" open>';
+        html += '<summary>' + raceDisplayName(wizardState.race) + ' Features</summary>';
         if (raceData.speed) html += '<p class="wizard-detail"><strong>Speed:</strong> ' + raceData.speed + 'ft</p>';
         if (raceData.darkvision) html += '<p class="wizard-detail"><strong>Darkvision:</strong> ' + raceData.darkvision + 'ft</p>';
         if (raceData.features) {
@@ -274,7 +303,7 @@ function renderWizardStep1() {
                 html += '<p class="wizard-detail"><strong>' + escapeHtml(raceData.features[fi].name) + ':</strong> ' + escapeHtml(raceData.features[fi].desc) + '</p>';
             }
         }
-        html += '</div>';
+        html += '</details>';
     }
 
     // Class
@@ -290,19 +319,19 @@ function renderWizardStep1() {
     html += '</select>';
     html += '</div>';
 
-    // Class info preview
+    // Class info preview (collapsible)
     if (wizardState.className && DATA[wizardState.className]) {
         var classData = DATA[wizardState.className];
-        html += '<div class="wizard-preview">';
-        html += '<h4>' + classDisplayName(wizardState.className) + ' Info</h4>';
+        html += '<details class="wizard-preview" open>';
+        html += '<summary>' + classDisplayName(wizardState.className) + ' Info</summary>';
         html += '<p class="wizard-detail"><strong>Hit Die:</strong> d' + classData.hitDie + '</p>';
         html += '<p class="wizard-detail"><strong>Saving Throws:</strong> ' + classData.savingThrows.map(function(s) { return s.toUpperCase(); }).join(', ') + '</p>';
         if (classData.cantripsKnown) {
-            html += '<p class="wizard-detail"><strong>Spellcasting:</strong> Ja (cantrips bij level 1: ' + classData.cantripsKnown[1] + ')</p>';
+            html += '<p class="wizard-detail"><strong>Spellcasting:</strong> ' + t('generic.yes') + ' (cantrips: ' + classData.cantripsKnown[1] + ')</p>';
         } else {
-            html += '<p class="wizard-detail"><strong>Spellcasting:</strong> Nee</p>';
+            html += '<p class="wizard-detail"><strong>Spellcasting:</strong> ' + t('generic.no') + '</p>';
         }
-        html += '</div>';
+        html += '</details>';
     }
 
     return html;
@@ -325,11 +354,11 @@ function renderWizardStep2() {
     html += '</select>';
     html += '</div>';
 
-    // Background info
+    // Background info (collapsible)
     if (wizardState.background && DATA.backgrounds[wizardState.background]) {
         var bg = DATA.backgrounds[wizardState.background];
-        html += '<div class="wizard-preview">';
-        html += '<h4>' + bg.name + '</h4>';
+        html += '<details class="wizard-preview" open>';
+        html += '<summary>' + bg.name + '</summary>';
         html += '<p class="wizard-detail">' + escapeHtml(bg.desc) + '</p>';
         html += '<p class="wizard-detail"><strong>Skills:</strong> ' + bg.skills.join(', ') + '</p>';
         html += '<p class="wizard-detail"><strong>Tool:</strong> ' + bg.tool + '</p>';
@@ -355,7 +384,7 @@ function renderWizardStep2() {
         }
         html += '</div>';
         html += '</div>';
-        html += '</div>';
+        html += '</details>';
     }
 
     // Ability Scores
