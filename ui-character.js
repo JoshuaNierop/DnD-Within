@@ -294,6 +294,9 @@ function renderFeaturesSummary(config, state) {
     var html = '<div class="sheet-block features-summary">';
     html += '<h2>' + t('overview.classfeatures') + '</h2>';
 
+    // Class features category
+    html += '<div class="features-category">';
+    html += '<h3>' + t('overview.classfeatures') + '</h3>';
     for (var lvl = 1; lvl <= state.level; lvl++) {
         var features = classData.features ? (classData.features[lvl] || []) : [];
         for (var f = 0; f < features.length; f++) {
@@ -305,31 +308,32 @@ function renderFeaturesSummary(config, state) {
             html += '</div>';
         }
     }
-
-    // Subclass features
+    // Subclass features inside class category
     if (isSubclassVisible(config, state)) {
-    var subData = classData.subclasses && classData.subclasses[config.subclass];
-    if (subData) {
-        html += '<h3 style="margin-top:1rem;">' + t('overview.subclassfeatures') + '</h3>';
-        for (var lvl2 = 1; lvl2 <= state.level; lvl2++) {
-            var subFeatures = subData.features ? (subData.features[lvl2] || []) : [];
-            for (var sf = 0; sf < subFeatures.length; sf++) {
-                var sfeat = subFeatures[sf];
-                var isNew2 = (lvl2 === state.level);
-                html += '<div class="feature-card' + (isNew2 ? ' new-feature' : '') + '">';
-                html += '<h4>' + escapeHtml(sfeat.name) + ' <span class="feature-level">(Level ' + lvl2 + ')</span></h4>';
-                html += '<p>' + escapeHtml(sfeat.desc) + '</p>';
-                html += '</div>';
+        var subData = classData.subclasses && classData.subclasses[config.subclass];
+        if (subData) {
+            html += '<h4 style="margin-top:0.75rem; color:var(--text-dim); font-size:0.85rem;">' + t('overview.subclassfeatures') + '</h4>';
+            for (var lvl2 = 1; lvl2 <= state.level; lvl2++) {
+                var subFeatures = subData.features ? (subData.features[lvl2] || []) : [];
+                for (var sf = 0; sf < subFeatures.length; sf++) {
+                    var sfeat = subFeatures[sf];
+                    var isNew2 = (lvl2 === state.level);
+                    html += '<div class="feature-card' + (isNew2 ? ' new-feature' : '') + '">';
+                    html += '<h4>' + escapeHtml(sfeat.name) + ' <span class="feature-level">(Level ' + lvl2 + ')</span></h4>';
+                    html += '<p>' + escapeHtml(sfeat.desc) + '</p>';
+                    html += '</div>';
+                }
             }
         }
     }
-    }
+    html += '</div>';
 
-    // Racial features
+    // Racial traits category
     var raceKey = config.race;
     var raceData = DATA[raceKey];
     if (raceData && raceData.features) {
-        html += '<h3 style="margin-top:1rem;">' + t('overview.racialtraits') + ' (' + raceDisplayName(config.race) + ')</h3>';
+        html += '<div class="features-category">';
+        html += '<h3>' + t('overview.racialtraits') + ' (' + raceDisplayName(config.race) + ')</h3>';
         for (var rf = 0; rf < raceData.features.length; rf++) {
             var rfeat = raceData.features[rf];
             html += '<div class="feature-card">';
@@ -337,6 +341,7 @@ function renderFeaturesSummary(config, state) {
             html += '<p>' + escapeHtml(rfeat.desc) + '</p>';
             html += '</div>';
         }
+        html += '</div>';
     }
 
     html += '</div>';
