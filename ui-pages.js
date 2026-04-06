@@ -100,18 +100,6 @@ function renderNavbar(route) {
     html += '<span class="dm-toggle-label">' + (isDMMode() ? 'DM' : 'Player') + '</span>';
     html += '</button>';
 
-    html += '<div class="theme-picker-wrap">';
-    html += '<button class="theme-picker-btn" data-action="toggle-theme-picker" title="' + t('nav.theme') + '">&#127912;</button>';
-    html += '<div class="theme-picker-popup" id="theme-picker" style="display:none;">';
-    html += '<div class="theme-picker-grid">';
-    for (var ti = 0; ti < COLOR_THEMES.length; ti++) {
-        var theme = COLOR_THEMES[ti];
-        var themeActive = getUserTheme() === theme.id;
-        html += '<button class="theme-option' + (themeActive ? ' active' : '') + '" data-action="select-theme" data-theme="' + theme.id + '" style="background:' + theme.accent + ';" title="' + theme.name + '"></button>';
-    }
-    html += '</div>';
-    html += '</div>';
-    html += '</div>';
     // Sync status
     var syncStatus = typeof getSyncStatus === 'function' ? getSyncStatus() : 'not-configured';
     if (syncStatus === 'online') {
@@ -134,7 +122,6 @@ function renderNavbar(route) {
             html += '<span class="campaign-label">' + escapeHtml(campaigns[userCampaigns[0]].name) + '</span>';
         }
     }
-    html += '<button class="nav-lang-btn" data-action="toggle-lang" title="' + t('nav.language') + '">' + (getLang() === 'nl' ? 'NL' : 'EN') + '</button>';
     html += '<span class="nav-avatar" data-action="open-profile" title="' + t('nav.profile') + '" style="cursor:pointer;">' + escapeHtml(user ? user.name.charAt(0) : '') + '</span>';
     html += '<button class="nav-logout" data-action="logout">' + t('nav.logout') + '</button>';
     html += '</div>';

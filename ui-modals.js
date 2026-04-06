@@ -786,7 +786,38 @@ function closeWizard() {
 
 function refreshWizard() {
     var el = document.getElementById('wizard-container');
-    if (el) {
+    if (!el) return;
+
+    // Try partial update for smooth transitions (only content + sidebar)
+    var contentEl = el.querySelector('.wizard-content');
+    var sidebarEl = el.querySelector('.wizard-sidebar');
+    if (contentEl && sidebarEl) {
+        // Build new modal HTML to extract parts
+        var tmp = document.createElement('div');
+        tmp.innerHTML = renderWizardModal();
+        var newContent = tmp.querySelector('.wizard-content');
+        var newSidebar = tmp.querySelector('.wizard-sidebar');
+        var newSteps = tmp.querySelector('.wizard-steps');
+        var newFooter = tmp.querySelector('.wizard-footer');
+
+        // Update step indicator
+        var stepsEl = el.querySelector('.wizard-steps');
+        if (stepsEl && newSteps) stepsEl.innerHTML = newSteps.innerHTML;
+
+        // Crossfade content
+        contentEl.classList.add('wizard-fade-out');
+        setTimeout(function() {
+            if (newContent) contentEl.innerHTML = newContent.innerHTML;
+            if (newSidebar) sidebarEl.innerHTML = newSidebar.innerHTML;
+            var footerEl = el.querySelector('.wizard-footer');
+            if (footerEl && newFooter) footerEl.innerHTML = newFooter.innerHTML;
+            contentEl.classList.remove('wizard-fade-out');
+            contentEl.classList.add('wizard-fade-in');
+            setTimeout(function() { contentEl.classList.remove('wizard-fade-in'); }, 200);
+            bindWizardEvents();
+        }, 120);
+    } else {
+        // Fallback: full replace
         el.innerHTML = renderWizardModal();
         bindWizardEvents();
     }

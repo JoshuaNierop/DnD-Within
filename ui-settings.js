@@ -71,6 +71,9 @@ function renderSettings() {
             html += '</button>';
         }
         html += '</div></div>';
+        html += '</div></section>';
+        html += '<section class="settings-section">';
+        html += '<div class="settings-card">';
         html += '<div class="settings-field">';
         html += '<label class="settings-label">' + t('settings.language') + '</label>';
         html += '<div class="settings-lang-options">';
@@ -92,10 +95,12 @@ function renderSettings() {
         html += '</div></section>';
     }
 
-    // === Save & messages ===
-    html += '<p class="settings-error" id="settings-error" style="display:none;"></p>';
-    html += '<p class="settings-success" id="settings-success" style="display:none;"></p>';
-    html += '<button class="btn btn-primary settings-save" data-action="save-settings">' + t('generic.save') + '</button>';
+    // === Save & messages (only on account tab) ===
+    if (settingsTab === 'account') {
+        html += '<p class="settings-error" id="settings-error" style="display:none;"></p>';
+        html += '<p class="settings-success" id="settings-success" style="display:none;"></p>';
+        html += '<button class="btn btn-primary settings-save" data-action="save-settings">' + t('generic.save') + '</button>';
+    }
 
     html += '</div>';
     return html;
