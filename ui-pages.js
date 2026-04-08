@@ -94,11 +94,13 @@ function renderNavbar(route) {
     html += '</div>';
     html += '<div class="nav-right">';
 
-    // DM mode toggle
-    html += '<button class="dm-toggle' + (isDMMode() ? ' active' : '') + '" data-action="toggle-dm-mode" title="DM Mode">';
-    html += svgI('<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>');
-    html += '<span class="dm-toggle-label">' + (isDMMode() ? 'DM' : 'Player') + '</span>';
-    html += '</button>';
+    // DM mode toggle (only for campaign DMs and admins)
+    if (isAdmin() || isCampaignDM()) {
+        html += '<button class="dm-toggle' + (isDMMode() ? ' active' : '') + '" data-action="toggle-dm-mode" title="' + t('nav.dmtoggle.title') + '">';
+        html += svgI('<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>');
+        html += '<span class="dm-toggle-label">' + (isDMMode() ? 'DM' : 'Player') + '</span>';
+        html += '</button>';
+    }
 
     // Sync status
     var syncStatus = typeof getSyncStatus === 'function' ? getSyncStatus() : 'not-configured';
@@ -523,33 +525,30 @@ function renderDashboard() {
         html += '</div>';
     }
 
-    // Quest tracker
+    // Quest tracker (DM only)
+    if (isDM()) {
     var questData = getQuestData();
     html += '<div class="dash-quests">';
     html += '<div class="dash-quests-header">';
     html += '<h2 class="section-title">' + t('dash.quests') + '</h2>';
-    if (isDM()) {
-        html += '<button class="btn btn-ghost btn-sm" data-action="add-quest">' + t('dash.addquest') + '</button>';
-    }
+    html += '<button class="btn btn-ghost btn-sm" data-action="add-quest">' + t('dash.addquest') + '</button>';
     html += '</div>';
 
     // Quest add form (hidden by default)
-    if (isDM()) {
-        html += '<div class="quest-add-form" id="quest-add-form" style="display:none;">';
-        html += '<input type="text" class="edit-input" id="quest-title" placeholder="' + t('quest.title.plh') + '">';
-        html += '<textarea class="edit-textarea auto-grow" id="quest-desc" placeholder="' + t('quest.desc.plh') + '" style="min-height:40px;" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)"></textarea>';
-        html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
-        html += '<input type="text" class="edit-input" id="quest-giver" placeholder="' + t('quest.giver.plh') + '" style="flex:1;">';
-        html += '<input type="text" class="edit-input" id="quest-reward" placeholder="' + t('quest.reward.plh') + '" style="flex:1;">';
-        html += '<input type="text" class="edit-input" id="quest-tags" placeholder="' + t('quest.tags.plh') + '" style="flex:1;">';
-        html += '</div>';
-        html += '<div class="edit-actions">';
-        html += '<button class="edit-save" data-action="save-quest">' + t('quest.save') + '</button>';
-        html += '<button class="edit-cancel" data-action="cancel-quest">' + t('generic.cancel') + '</button>';
-        html += '</div>';
-        html += '<input type="hidden" id="quest-edit-idx" value="">';
-        html += '</div>';
-    }
+    html += '<div class="quest-add-form" id="quest-add-form" style="display:none;">';
+    html += '<input type="text" class="edit-input" id="quest-title" placeholder="' + t('quest.title.plh') + '">';
+    html += '<textarea class="edit-textarea auto-grow" id="quest-desc" placeholder="' + t('quest.desc.plh') + '" style="min-height:40px;" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)"></textarea>';
+    html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
+    html += '<input type="text" class="edit-input" id="quest-giver" placeholder="' + t('quest.giver.plh') + '" style="flex:1;">';
+    html += '<input type="text" class="edit-input" id="quest-reward" placeholder="' + t('quest.reward.plh') + '" style="flex:1;">';
+    html += '<input type="text" class="edit-input" id="quest-tags" placeholder="' + t('quest.tags.plh') + '" style="flex:1;">';
+    html += '</div>';
+    html += '<div class="edit-actions">';
+    html += '<button class="edit-save" data-action="save-quest">' + t('quest.save') + '</button>';
+    html += '<button class="edit-cancel" data-action="cancel-quest">' + t('generic.cancel') + '</button>';
+    html += '</div>';
+    html += '<input type="hidden" id="quest-edit-idx" value="">';
+    html += '</div>';
 
     if (questData.active.length === 0 && questData.completed.length === 0) {
         html += '<p class="text-dim">' + t('quest.empty') + '</p>';
@@ -574,13 +573,11 @@ function renderDashboard() {
             }
         }
         html += '</div>';
-        if (isDM()) {
-            html += '<div class="quest-actions">';
-            html += '<button class="btn btn-ghost btn-sm" data-action="edit-quest" data-quest-idx="' + qi + '" title="Edit">&#9998;</button>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="complete-quest" data-quest-idx="' + qi + '" title="Complete">&#10003;</button>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="delete-quest" data-quest-idx="' + qi + '" style="color:var(--danger);" title="Delete">&times;</button>';
-            html += '</div>';
-        }
+        html += '<div class="quest-actions">';
+        html += '<button class="btn btn-ghost btn-sm" data-action="edit-quest" data-quest-idx="' + qi + '" title="Edit">&#9998;</button>';
+        html += '<button class="btn btn-ghost btn-sm" data-action="complete-quest" data-quest-idx="' + qi + '" title="Complete">&#10003;</button>';
+        html += '<button class="btn btn-ghost btn-sm" data-action="delete-quest" data-quest-idx="' + qi + '" style="color:var(--danger);" title="Delete">&times;</button>';
+        html += '</div>';
         html += '</div>';
     }
     if (questData.completed.length > 0) {
@@ -591,6 +588,7 @@ function renderDashboard() {
         html += '</details>';
     }
     html += '</div>';
+    } // end isDM() quest section
 
     // Party overview
     html += '<div class="party-section">';
@@ -895,6 +893,8 @@ function initInitiativeDragDrop() {
             document.body.appendChild(_initGhost);
         }
 
+        _initDrag.lastX = e.clientX;
+        _initDrag.lastY = e.clientY;
         _initGhost.style.left = e.clientX + 'px';
         _initGhost.style.top = e.clientY + 'px';
 
@@ -912,8 +912,17 @@ function initInitiativeDragDrop() {
         if (!_initDrag || _initDrag.pointerId !== e.pointerId) return;
         if (!_initDrag.started) { cleanup(); return; }
 
-        if (isOverDropZone(e.clientX, e.clientY)) {
-            doDrop(e.clientY);
+        // Release capture before checking position
+        if (_initDrag.el) {
+            try { _initDrag.el.releasePointerCapture(e.pointerId); } catch (ex) {}
+        }
+
+        // Use last known position from pointermove if pointerup coords seem off
+        var dropY = e.clientY;
+        if (_initDrag.lastY !== undefined) dropY = _initDrag.lastY;
+
+        if (isOverDropZone(e.clientX || _initDrag.lastX, dropY)) {
+            doDrop(dropY);
         } else {
             cleanup();
         }
@@ -1070,6 +1079,11 @@ function renderDMCampaigns() {
         html += '<div>';
         html += '<strong style="color:var(--text-bright);">' + escapeHtml(camp.name) + '</strong>';
         if (isActive) html += ' <span style="font-size:0.65rem;color:var(--accent);">' + t('home.active') + '</span>';
+        if (camp.dm) {
+            var dmData = getUserData(camp.dm);
+            var dmName = dmData ? dmData.name : camp.dm;
+            html += '<br><span class="campaign-dm-badge" style="font-size:0.7rem;">DM: ' + escapeHtml(dmName) + '</span>';
+        }
         html += '<br><span style="font-size:0.75rem;color:var(--text-dim);">' + memberCount + t('dm.families.members') + partyCount + t('home.inparty') + '</span>';
         if (camp.inviteCode) html += '<br><span style="font-size:0.7rem;color:var(--text-dim);">' + t('home.invitecode') + '<strong>' + escapeHtml(camp.inviteCode) + '</strong></span>';
         html += '</div>';

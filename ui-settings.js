@@ -66,7 +66,7 @@ function renderSettings() {
             var theme = COLOR_THEMES[ti];
             var themeActive = getUserTheme() === theme.id;
             html += '<button class="settings-theme-option' + (themeActive ? ' active' : '') + '" data-action="settings-select-theme" data-theme="' + theme.id + '">';
-            html += '<span class="settings-theme-swatch" style="background:' + theme.accent + ';"></span>';
+            html += '<span class="settings-theme-swatch" style="background:linear-gradient(135deg, ' + theme.accent + ' 40%, ' + theme.secondary + ' 70%, ' + theme.tertiary + ');"></span>';
             html += '<span class="settings-theme-name">' + theme.name + '</span>';
             html += '</button>';
         }

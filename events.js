@@ -17,7 +17,8 @@ function handleImageUpload(file, charId, type, maxSize) {
         var img = new Image();
         img.onload = function() {
             var canvas = document.createElement('canvas');
-            var maxDim = type === 'banner' ? 1200 : 400;
+            var maxDim = type === 'banner' ? 1600 : 600;
+            var quality = type === 'banner' ? 0.85 : 0.9;
             var w = img.width;
             var h = img.height;
             if (w > maxDim || h > maxDim) {
@@ -33,7 +34,7 @@ function handleImageUpload(file, charId, type, maxSize) {
             canvas.height = h;
             var ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
-            var compressed = canvas.toDataURL('image/jpeg', 0.7);
+            var compressed = canvas.toDataURL('image/jpeg', quality);
             try {
                 saveImage(charId, type, compressed);
                 renderApp();
@@ -577,12 +578,34 @@ function bindPageEvents(route) {
             var cId = target.dataset.campaignId;
             var camps = getCampaigns();
             if (camps[cId]) {
-                var newName = prompt('Nieuwe naam:', camps[cId].name);
-                if (newName && newName.trim()) {
-                    camps[cId].name = newName.trim();
-                    saveCampaigns(camps);
-                    renderApp();
-                }
+                var overlay = document.createElement('div');
+                overlay.className = 'modal-overlay';
+                overlay.innerHTML = '<div class="modal-card" onclick="event.stopPropagation();" style="max-width:400px;padding:1.5rem;">' +
+                    '<div class="modal-header"><h2>' + t('dm.camp.rename') + '</h2><button class="modal-close" data-action="close-rename-modal">&times;</button></div>' +
+                    '<input type="text" class="edit-input" id="rename-campaign-input" value="' + escapeAttr(camps[cId].name) + '" style="width:100%;margin:1rem 0;">' +
+                    '<div style="display:flex;gap:0.5rem;justify-content:flex-end;">' +
+                    '<button class="btn btn-ghost btn-sm" data-action="close-rename-modal">' + t('generic.cancel') + '</button>' +
+                    '<button class="btn btn-primary btn-sm" data-action="confirm-rename-campaign" data-campaign-id="' + escapeAttr(cId) + '">' + t('quest.save') + '</button>' +
+                    '</div></div>';
+                overlay.addEventListener('click', function(ev) {
+                    if (ev.target === overlay || ev.target.matches('[data-action="close-rename-modal"]') || ev.target.closest('[data-action="close-rename-modal"]')) {
+                        overlay.remove();
+                    }
+                    if (ev.target.matches('[data-action="confirm-rename-campaign"]') || ev.target.closest('[data-action="confirm-rename-campaign"]')) {
+                        var input = document.getElementById('rename-campaign-input');
+                        var newName = input ? input.value.trim() : '';
+                        if (newName) {
+                            var c = getCampaigns();
+                            c[cId].name = newName;
+                            saveCampaigns(c);
+                            overlay.remove();
+                            renderApp();
+                        }
+                    }
+                });
+                document.body.appendChild(overlay);
+                var inp = document.getElementById('rename-campaign-input');
+                if (inp) { inp.focus(); inp.select(); }
             }
             return;
         }
@@ -1621,6 +1644,18 @@ function bindPageEvents(route) {
                         badge
                     );
                 }
+                return;
+            }
+
+            // Item autocomplete option click
+            if (target.matches('.item-autocomplete-option')) {
+                var nameInput = app.querySelector('.item-name-input');
+                if (nameInput) {
+                    nameInput.value = target.dataset.value;
+                    nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                var drop = document.querySelector('.item-autocomplete-dropdown');
+                if (drop) drop.remove();
                 return;
             }
 
@@ -2804,11 +2839,17 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Auto-fill weight from datalist
+        // Auto-fill weight from datalist + custom mobile autocomplete
         if (target.matches('.item-name-input')) {
             var val = target.value.trim();
+            var lowerVal = val.toLowerCase();
+            // Remove existing dropdown
+            var oldDrop = document.querySelector('.item-autocomplete-dropdown');
+            if (oldDrop) oldDrop.remove();
+
             if (typeof DATA !== 'undefined' && DATA.items) {
                 var cats = Object.keys(DATA.items);
+                // Auto-fill weight on exact match
                 for (var ci = 0; ci < cats.length; ci++) {
                     var catItems = DATA.items[cats[ci]];
                     if (Array.isArray(catItems)) {
@@ -2819,9 +2860,35 @@ function bindPageEvents(route) {
                             if (iName === val && iWeight !== undefined) {
                                 var wInput = app.querySelector('.item-weight-input');
                                 if (wInput) wInput.value = iWeight;
-                                return;
                             }
                         }
+                    }
+                }
+                // Build custom dropdown for mobile
+                if (lowerVal.length >= 1) {
+                    var matches = [];
+                    for (var ci2 = 0; ci2 < cats.length; ci2++) {
+                        var catItems2 = DATA.items[cats[ci2]];
+                        if (Array.isArray(catItems2)) {
+                            for (var di2 = 0; di2 < catItems2.length; di2++) {
+                                var d2 = catItems2[di2];
+                                var n2 = typeof d2 === 'string' ? d2 : d2.name;
+                                if (n2.toLowerCase().indexOf(lowerVal) >= 0) matches.push(n2);
+                            }
+                        }
+                    }
+                    if (matches.length > 0 && matches.length <= 20) {
+                        var dropdown = document.createElement('div');
+                        dropdown.className = 'item-autocomplete-dropdown';
+                        for (var mi = 0; mi < matches.length; mi++) {
+                            var opt = document.createElement('div');
+                            opt.className = 'item-autocomplete-option';
+                            opt.textContent = matches[mi];
+                            opt.dataset.value = matches[mi];
+                            dropdown.appendChild(opt);
+                        }
+                        target.parentNode.style.position = 'relative';
+                        target.parentNode.appendChild(dropdown);
                     }
                 }
             }

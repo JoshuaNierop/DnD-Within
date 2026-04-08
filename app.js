@@ -90,6 +90,11 @@ function renderApp() {
         html += renderBugFab();
     }
 
+    // Clean up any stray drag ghosts/indicators from initiative tracker
+    var strayGhost = document.querySelector('.init-drag-ghost');
+    if (strayGhost) strayGhost.remove();
+    document.querySelectorAll('.init-drop-indicator').forEach(function(ind) { ind.remove(); });
+
     // Page transition — only on actual page change (not tab switches)
     var mainEl = app.querySelector('.main-content');
     var basePath = '/' + route.parts.slice(0, 2).join('/');

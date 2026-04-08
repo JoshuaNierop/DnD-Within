@@ -79,6 +79,7 @@ function setDMMode(enabled) {
 function isDM() {
     var u = currentUser();
     if (u && u.role === 'admin') return true;
+    if (isCampaignDM()) return true;
     return isDMMode();
 }
 
@@ -136,18 +137,18 @@ function showToast(message, type) {
 // ============================================================
 
 var COLOR_THEMES = [
-    { id: 'ocean', name: 'Ocean', accent: '#22d3ee', bg: '#0a0a0f' },
-    { id: 'rose', name: 'Rose', accent: '#f472b6', bg: '#0a0a0f' },
-    { id: 'emerald', name: 'Emerald', accent: '#34d399', bg: '#0a0a0f' },
-    { id: 'amber', name: 'Amber', accent: '#fbbf24', bg: '#0a0a0f' },
-    { id: 'violet', name: 'Violet', accent: '#a78bfa', bg: '#0a0a0f' },
-    { id: 'crimson', name: 'Crimson', accent: '#f87171', bg: '#0a0a0f' },
-    { id: 'indigo', name: 'Indigo', accent: '#818cf8', bg: '#0a0a0f' },
-    { id: 'teal', name: 'Teal', accent: '#2dd4bf', bg: '#0a0a0f' },
-    { id: 'sunset', name: 'Sunset', accent: '#fb923c', bg: '#0a0a0f' },
-    { id: 'sakura', name: 'Sakura', accent: '#f9a8d4', bg: '#0a0a0f' },
-    { id: 'gold', name: 'Gold', accent: '#f0c040', bg: '#0a0a0f' },
-    { id: 'ice', name: 'Ice', accent: '#7dd3fc', bg: '#0a0a0f' }
+    { id: 'ocean', name: 'Ocean', accent: '#22d3ee', secondary: '#0891b2', tertiary: '#164e63' },
+    { id: 'rose', name: 'Rose', accent: '#f472b6', secondary: '#db2777', tertiary: '#831843' },
+    { id: 'emerald', name: 'Emerald', accent: '#34d399', secondary: '#059669', tertiary: '#064e3b' },
+    { id: 'amber', name: 'Amber', accent: '#fbbf24', secondary: '#d97706', tertiary: '#78350f' },
+    { id: 'violet', name: 'Violet', accent: '#a78bfa', secondary: '#7c3aed', tertiary: '#4c1d95' },
+    { id: 'crimson', name: 'Crimson', accent: '#f87171', secondary: '#dc2626', tertiary: '#7f1d1d' },
+    { id: 'indigo', name: 'Indigo', accent: '#818cf8', secondary: '#4f46e5', tertiary: '#312e81' },
+    { id: 'teal', name: 'Teal', accent: '#2dd4bf', secondary: '#0d9488', tertiary: '#134e4a' },
+    { id: 'sunset', name: 'Sunset', accent: '#fb923c', secondary: '#ea580c', tertiary: '#7c2d12' },
+    { id: 'sakura', name: 'Sakura', accent: '#f9a8d4', secondary: '#ec4899', tertiary: '#831843' },
+    { id: 'gold', name: 'Gold', accent: '#f0c040', secondary: '#ca8a04', tertiary: '#713f12' },
+    { id: 'ice', name: 'Ice', accent: '#7dd3fc', secondary: '#0284c7', tertiary: '#0c4a6e' }
 ];
 
 function getUserTheme() {
@@ -166,8 +167,11 @@ function applyUserTheme() {
         if (COLOR_THEMES[i].id === themeId) { theme = COLOR_THEMES[i]; break; }
     }
     if (theme) {
-        document.documentElement.style.setProperty('--accent', theme.accent);
-        document.documentElement.style.setProperty('--accent-glow', theme.accent + '25');
+        var root = document.documentElement;
+        root.style.setProperty('--accent', theme.accent);
+        root.style.setProperty('--accent-glow', theme.accent + '25');
+        root.style.setProperty('--accent-secondary', theme.secondary);
+        root.style.setProperty('--accent-tertiary', theme.tertiary);
     }
 }
 
@@ -183,7 +187,7 @@ function setActiveCampaign(campaignId) {
     localStorage.setItem('dw_active_campaign', campaignId);
 }
 
-var DEFAULT_VALORIA = { name: 'Valoria', dm: 'ren', created: Date.now(), members: ['ren','saya','ancha','varragoth','placeholder','io','lira','nero'], party: { ren: 'ren', saya: 'saya', ancha: 'ancha', varragoth: 'varragoth', placeholder: 'placeholder', io: 'io', lira: 'lira', nero: 'nero' }, inviteCode: 'VALORIA' };
+var DEFAULT_VALORIA = { name: 'The Serpent of Valoria', dm: 'dm', created: Date.now(), members: ['dm','ren','saya','ancha','varragoth','placeholder','io','lira','nero'], party: { ren: 'ren', saya: 'saya', ancha: 'ancha', varragoth: 'varragoth', placeholder: 'placeholder', io: 'io', lira: 'lira', nero: 'nero' }, inviteCode: 'VALORIA' };
 
 function getCampaigns() {
     var saved = localStorage.getItem('dw_campaigns');
