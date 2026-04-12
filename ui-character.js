@@ -701,6 +701,26 @@ function renderTabCombat(charId, config, state) {
     html += '<span style="font-size:0.9rem;color:var(--text-dim)">' + t('combat.inspiration') + '</span>';
     html += '</div>';
 
+    // === Exhaustion (1-6) ===
+    var exhaustionLevel = state.exhaustion || 0;
+    html += '<div class="exhaustion-block" style="display:flex;align-items:center;gap:0.5rem;margin:0.5rem 0;flex-wrap:wrap;">';
+    html += '<span style="font-size:0.9rem;color:var(--text-dim);">Exhaustion:</span>';
+    html += '<div class="exhaustion-dots" style="display:flex;gap:0.25rem;">';
+    for (var exi = 1; exi <= 6; exi++) {
+        var exFilled = exi <= exhaustionLevel ? ' filled' : '';
+        var exAction = editable ? 'data-action="set-exhaustion" data-level="' + exi + '"' : '';
+        html += '<div class="exhaustion-dot' + exFilled + '" ' + exAction + ' title="Level ' + exi + ': -' + (exi * 2) + ' op d20 rolls" style="width:20px;height:20px;border:2px solid var(--border,#555);border-radius:4px;cursor:' + (editable ? 'pointer' : 'default') + ';' + (exFilled ? 'background:var(--danger,#b33);' : '') + '"></div>';
+    }
+    html += '</div>';
+    if (exhaustionLevel > 0) {
+        html += '<span style="font-size:0.8rem;color:var(--danger,#b33);">-' + (exhaustionLevel * 2) + ' op alle d20 rolls</span>';
+        if (editable) html += '<button class="btn btn-ghost btn-sm" data-action="set-exhaustion" data-level="0" style="margin-left:auto;font-size:0.75rem;">Clear</button>';
+    }
+    html += '</div>';
+
+    // === Class Resource Trackers ===
+    html += renderClassResourcesHTML(config, state, editable);
+
     // === Core Stats Grid ===
     html += '<div class="combat-stats">';
     html += '<div class="combat-stat"><span class="stat-value">' + ac + '</span><span class="stat-label">AC</span></div>';
@@ -882,6 +902,111 @@ function renderTabCombat(charId, config, state) {
     html += '</div>';
     return html;
 }
+function renderClassResourcesHTML(config, state, editable) {
+    var cn = config.className;
+    var lvl = state.level;
+    var pb = getProfBonus(lvl);
+    var resources = [];
+
+    function resDots(key, max, color) {
+        var used = state[key] || 0;
+        var dots = '<div class="resource-dots" style="display:flex;gap:0.25rem;">';
+        for (var i = 0; i < max; i++) {
+            var filled = i < used ? ' used' : '';
+            var act = editable ? 'data-action="toggle-resource" data-resource="' + key + '" data-idx="' + i + '"' : '';
+            dots += '<div class="resource-dot' + filled + '" ' + act + ' style="width:16px;height:16px;border:2px solid ' + (color || 'var(--accent,#a80)') + ';border-radius:50%;cursor:' + (editable ? 'pointer' : 'default') + ';' + (filled ? 'background:' + (color || 'var(--accent,#a80)') + ';' : '') + '"></div>';
+        }
+        dots += '</div>';
+        return dots;
+    }
+
+    function resPool(key, max, label, unit) {
+        var used = state[key] || 0;
+        var remaining = max - used;
+        var html = '<div class="resource-row" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">';
+        html += '<span style="min-width:140px;font-size:0.85rem;">' + label + ':</span>';
+        html += '<strong style="font-variant-numeric:tabular-nums;">' + remaining + '</strong>';
+        html += '<span style="font-size:0.8rem;color:var(--text-dim);">/ ' + max + (unit ? ' ' + unit : '') + '</span>';
+        if (editable) {
+            html += '<input type="number" min="0" max="' + max + '" value="' + used + '" data-action="set-resource" data-resource="' + key + '" data-max="' + max + '" style="width:56px;margin-left:auto;font-size:0.85rem;padding:2px 4px;">';
+        }
+        html += '</div>';
+        return html;
+    }
+
+    // Barbarian — Rage
+    if (cn === 'barbarian' && DATA.barbarian && DATA.barbarian.rages) {
+        var rages = DATA.barbarian.rages[lvl] || 2;
+        resources.push({ label: 'Rage (long rest)', html: resDots('rageUsed', rages, 'var(--danger,#b33)') });
+    }
+    // Monk — Focus Points
+    if (cn === 'monk' && DATA.monk && DATA.monk.focusPoints) {
+        var fp = DATA.monk.focusPoints[lvl] || 0;
+        if (fp > 0) resources.push({ label: 'Focus Points', html: resPool('focusPointsUsed', fp, 'Focus Points (short rest)') });
+    }
+    // Cleric / Paladin — Channel Divinity (2024: PB per long rest, short rest refresh cleric lvl 2+)
+    if (cn === 'cleric' || cn === 'paladin') {
+        var cdMax = lvl >= 1 ? Math.min(pb, 3) : 0;
+        if (cdMax > 0) {
+            resources.push({ label: 'Channel Divinity', html: resDots('channelDivinityUsed', cdMax, 'var(--accent,#c80)') });
+        }
+    }
+    // Bard — Bardic Inspiration
+    if (cn === 'bard') {
+        var chaMod = getMod(getAbilityScore(config, state, 'cha'));
+        var biMax = Math.max(1, chaMod);
+        resources.push({ label: 'Bardic Inspiration (' + (lvl >= 5 ? 'short' : 'long') + ' rest)', html: resDots('bardicInspirationUsed', biMax, 'var(--accent,#8af)') });
+    }
+    // Paladin — Lay on Hands pool (5 × lvl HP)
+    if (cn === 'paladin') {
+        var lohMax = 5 * lvl;
+        resources.push({ label: 'Lay on Hands', html: resPool('layOnHandsUsed', lohMax, 'Lay on Hands pool', 'HP') });
+    }
+    // Sorcerer — Sorcery Points
+    if (cn === 'sorcerer' && DATA.sorcerer && DATA.sorcerer.sorceryPoints) {
+        var sp = DATA.sorcerer.sorceryPoints[lvl] || 0;
+        if (sp > 0) resources.push({ label: 'Sorcery Points (long rest)', html: resPool('sorceryPointsUsed', sp, 'Sorcery Points') });
+    }
+    // Fighter — Second Wind, Action Surge, Indomitable
+    if (cn === 'fighter') {
+        var swMax = lvl >= 15 ? 4 : (lvl >= 7 ? 3 : 2);
+        resources.push({ label: 'Second Wind (short rest)', html: resDots('secondWindUsed', swMax, 'var(--success,#3a3)') });
+        if (lvl >= 2) {
+            var asMax = lvl >= 17 ? 2 : 1;
+            resources.push({ label: 'Action Surge (short rest)', html: resDots('actionSurgeUsed', asMax, 'var(--warning,#ca3)') });
+        }
+        if (lvl >= 9) {
+            var indMax = lvl >= 17 ? 3 : (lvl >= 13 ? 2 : 1);
+            resources.push({ label: 'Indomitable (long rest)', html: resDots('indomitableUsed', indMax, 'var(--accent,#a80)') });
+        }
+    }
+    // Druid — Wild Shape
+    if (cn === 'druid' && lvl >= 2) {
+        var wsMax = lvl >= 20 ? 99 : 2;
+        resources.push({ label: 'Wild Shape (' + (lvl >= 20 ? '∞' : 'short rest') + ')', html: resDots('wildShapeUsed', Math.min(wsMax, 6), 'var(--success,#3a3)') });
+    }
+    // Warlock — Pact slots already rendered elsewhere; Mystic Arcanum (lvl 11+)
+    if (cn === 'warlock' && lvl >= 11) {
+        var arcMax = lvl >= 17 ? 4 : (lvl >= 15 ? 3 : (lvl >= 13 ? 2 : 1));
+        resources.push({ label: 'Mystic Arcanum (long rest)', html: resDots('mysticArcanumUsed', arcMax, 'var(--accent,#b6a)') });
+    }
+    // Generic — Heroic Inspiration (already in inspiration toggle)
+
+    if (resources.length === 0) return '';
+
+    var html = '<div class="sheet-block class-resources">';
+    html += '<h2>Class Resources</h2>';
+    for (var i = 0; i < resources.length; i++) {
+        var r = resources[i];
+        html += '<div class="resource-row" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap;">';
+        html += '<span style="min-width:180px;font-size:0.85rem;">' + r.label + ':</span>';
+        html += r.html;
+        html += '</div>';
+    }
+    html += '</div>';
+    return html;
+}
+
 function renderWeaponsHTML(config, state, editable, charId) {
     var dexMod = getMod(getAbilityScore(config, state, 'dex'));
     var strMod = getMod(getAbilityScore(config, state, 'str'));

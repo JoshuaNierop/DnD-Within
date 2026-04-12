@@ -1883,6 +1883,16 @@ function bindPageEvents(route) {
                     if (!state.spellSlotsUsed) state.spellSlotsUsed = {};
                     state.spellSlotsUsed['pact'] = 0;
                 }
+                // Short rest resource refresh (2024 PHB)
+                if (config.className === 'monk') state.focusPointsUsed = 0;
+                if (config.className === 'fighter') {
+                    state.secondWindUsed = 0;
+                    state.actionSurgeUsed = 0;
+                }
+                if (config.className === 'bard' && state.level >= 5) state.bardicInspirationUsed = 0;
+                if (config.className === 'druid' && state.level >= 2) state.wildShapeUsed = 0;
+                // Cleric Channel Divinity: short rest refresh vanaf lvl 2
+                if ((config.className === 'cleric' || config.className === 'paladin') && state.level >= 2) state.channelDivinityUsed = 0;
                 // Spend hit dice to heal
                 var hdAvailable = state.level - (state.hitDiceUsed || 0);
                 if (hdAvailable > 0 && state.currentHP !== null) {
@@ -1920,6 +1930,20 @@ function bindPageEvents(route) {
                 state.concentrating = null;
                 var hitDiceToRestore = Math.ceil(state.level / 2);
                 state.hitDiceUsed = Math.max(0, (state.hitDiceUsed || 0) - hitDiceToRestore);
+                // Reset alle class resources op long rest (2024 PHB: meeste class features refresh)
+                state.rageUsed = 0;
+                state.focusPointsUsed = 0;
+                state.channelDivinityUsed = 0;
+                state.bardicInspirationUsed = 0;
+                state.layOnHandsUsed = 0;
+                state.sorceryPointsUsed = 0;
+                state.secondWindUsed = 0;
+                state.actionSurgeUsed = 0;
+                state.indomitableUsed = 0;
+                state.wildShapeUsed = 0;
+                state.mysticArcanumUsed = 0;
+                // Exhaustion: -1 level per long rest
+                if (state.exhaustion && state.exhaustion > 0) state.exhaustion = state.exhaustion - 1;
                 // Log
                 if (!state.combatLog) state.combatLog = [];
                 state.combatLog.unshift({ type: 'rest', source: 'Long Rest — Full recovery', time: Date.now() });
@@ -1954,6 +1978,41 @@ function bindPageEvents(route) {
             if (target.matches('[data-action="toggle-inspiration"]') || target.closest('[data-action="toggle-inspiration"]')) {
                 if (!canEdit(charId)) return;
                 state.inspiration = !state.inspiration;
+                saveCharState(charId, state);
+                renderApp();
+                return;
+            }
+
+            // Exhaustion level setter
+            var exEl = target.matches('[data-action="set-exhaustion"]') ? target : target.closest('[data-action="set-exhaustion"]');
+            if (exEl) {
+                if (!canEdit(charId)) return;
+                var newLevel = parseInt(exEl.dataset.level);
+                if (isNaN(newLevel)) return;
+                // Toggle: als klik op huidige level → clear, anders zet op dat level
+                if (state.exhaustion === newLevel) {
+                    state.exhaustion = newLevel - 1;
+                    if (state.exhaustion < 0) state.exhaustion = 0;
+                } else {
+                    state.exhaustion = newLevel;
+                }
+                saveCharState(charId, state);
+                renderApp();
+                return;
+            }
+
+            // Class resource toggle (dot UI)
+            var resEl = target.matches('[data-action="toggle-resource"]') ? target : target.closest('[data-action="toggle-resource"]');
+            if (resEl) {
+                if (!canEdit(charId)) return;
+                var resKey = resEl.dataset.resource;
+                var resIdx = parseInt(resEl.dataset.idx);
+                var cur = state[resKey] || 0;
+                if (resIdx < cur) {
+                    state[resKey] = resIdx;
+                } else {
+                    state[resKey] = resIdx + 1;
+                }
                 saveCharState(charId, state);
                 renderApp();
                 return;
@@ -2573,6 +2632,21 @@ function bindPageEvents(route) {
             var concState = loadCharState(charId);
             concState.concentrating = target.value || null;
             saveCharState(charId, concState);
+            renderApp();
+            return;
+        }
+
+        // Class resource pool (Lay on Hands, Focus Points, Sorcery Points) via number input
+        if (target.matches('[data-action="set-resource"]')) {
+            if (!charId || !canEdit(charId)) return;
+            var resState = loadCharState(charId);
+            var resKey = target.dataset.resource;
+            var resMax = parseInt(target.dataset.max);
+            var v = parseInt(target.value) || 0;
+            if (v < 0) v = 0;
+            if (!isNaN(resMax) && v > resMax) v = resMax;
+            resState[resKey] = v;
+            saveCharState(charId, resState);
             renderApp();
             return;
         }
