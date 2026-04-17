@@ -11,3 +11,7 @@
 ## Migratie naar Sanctum
 
 - [ ] P2 — Repo privé maken (zie `project_dnd_within_migration.md` memory)
+
+## Characters
+
+- [x] P1 — Ren & Saya Ashvane herzien naar Aasimar tweeling (2024 PHB). Ren: Rogue/Soulknife/Criminal. Saya: Sorcerer/Draconic/Hermit. Build + config + state gesynced naar Firebase op 2026-04-18. Bron: `~/Documents/Claude/Projects/Hobby/Ashvane-Twins/Characters.md`.

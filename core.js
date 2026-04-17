@@ -403,126 +403,149 @@ function saveImage(charId, type, base64) {
 var SEED_DATA = {
     ren: {
         id: "ren", name: "Ren Ashvane", player: "ren",
-        race: "woodElf", className: "rogue", subclass: "scout",
-        background: "Wayfarer", alignment: "Chaotic Good", age: 19,
-        accentColor: "#22d3ee",
-        baseAbilities: { str: 10, dex: 16, con: 14, int: 14, wis: 12, cha: 10 },
-        backgroundBonuses: { str: 0, dex: 1, con: 1, int: 0, wis: 0, cha: 2 },
-        defaultSkills: ["stealth", "sleight of hand", "perception", "acrobatics", "investigation", "athletics"],
+        race: "aasimar", className: "rogue", subclass: "soulknife",
+        background: "Criminal", alignment: "Chaotic Neutral", age: 19,
+        accentColor: "#d4a017",
+        baseAbilities: { str: 10, dex: 17, con: 15, int: 13, wis: 12, cha: 8 },
+        backgroundBonuses: { str: 0, dex: 2, con: 1, int: 0, wis: 0, cha: 0 },
+        defaultSkills: ["stealth", "sleight of hand", "perception", "investigation", "acrobatics", "insight"],
         defaultExpertise: ["stealth", "sleight of hand"],
+        defaultCantrips: ["Light"],
+        languages: ["Common", "Draconic"],
         weapons: [
-            { name: 'Shortsword "Advies"', hit: null, dmg: "1d6", type: "piercing", finesse: true },
-            { name: 'Shortsword "Aandacht"', hit: null, dmg: "1d6", type: "piercing", finesse: true },
-            { name: 'Shortbow', hit: null, dmg: "1d6", type: "piercing" },
-            { name: 'Dagger (thrown)', hit: null, dmg: "1d4", type: "piercing", finesse: true }
+            { name: "Shortsword", hit: null, dmg: "1d6", type: "piercing", finesse: true, mastery: "Vex" },
+            { name: "Shortsword (offhand)", hit: null, dmg: "1d6", type: "piercing", finesse: true, mastery: "Vex" },
+            { name: "Dagger", hit: null, dmg: "1d4", type: "piercing", finesse: true, mastery: "Nick" },
+            { name: "Dagger (thrown)", hit: null, dmg: "1d4", type: "piercing", finesse: true, mastery: "Nick" },
+            { name: "Shortbow", hit: null, dmg: "1d6", type: "piercing", mastery: "Vex" }
         ],
         appearance: [
-            "Hoekig gezicht, scherpe kaaklijnen en ingevallen wangen. Donkerbruin haar, kort aan de zijkanten en langer bovenop, rommelig. Amberkleurige ogen, altijd half samengeknepen. Wit litteken dwars over zijn linkerwenkbrauw.",
-            "Licht gebruinde huid, eeltige handen. Iets langer dan Saya, mager en pezig. Draagt vaders donkerbruine leren jas die twee maten te groot is. Zachtzolen laarzen \u2014 bijna geluidloos."
+            "Hoge jukbeenderen, scherpe kaaklijn die aan het einde net iets afrondt, rechte smalle neus, volle bovenlip smaller dan de onderlip. Amandelvormige amberkleurige ogen, onder fel licht bijna goud. Haar: licht goudblond, zelf ongelijk geknipt met een mes, korter bij de linker slaap waar een klein litteken door zijn wenkbrauw loopt. Valt wanordelijk over zijn voorhoofd.",
+            "Huid: lichte olijftint met warmere ondertoon. Gouden Aasimar-sproeten over neusbrug, jukbeenderen, schouders, onderarmen — licht oplichtend bij sterk maanlicht. Pezige, hoekige bouw, schouders iets breder door jaren klimmen en dragen. Littekens: dwars over de linker wenkbrauw, twee op de rechter onderarm, talloze kleine krassen op de knokkels. Uitdrukking: neutraal met licht opgetrokken rechter mondhoek — niet geamuseerd, gewoon aan het tellen.",
+            "Kleding: kort getailleerd leren vest over linnen hemd, donkergroen wollen jas tot op de heup. Donkere smalle broek, zachte gedempte laarzen tot halverwege de kuit. Riem met drie openlijke mesheften en een gesp van koperkleurig staal. Geen cape \u2014 kapes haken. Vaders (Sevrics) mantelvoering draagt hij als halsdoek onder zijn jas. Binnenkant kraag: een met koperdraad geborduurde spiraal \u2014 Saya heeft hem geborduurd, niet zichtbaar van buiten."
         ],
         personality: {
-            traits: "Scant elke kamer binnen 3 seconden: uitgangen, wapens, bedreigingen. Praat weinig tegen vreemden, maar wordt warm zodra hij iemand vertrouwt.",
-            ideal: "Overleven is geen talent. Het is een keuze die je elke dag opnieuw maakt.",
-            bond: "Saya. Niet 'mijn zusje dat ik moet beschermen' \u2014 maar mijn gelijke, mijn partner.",
-            flaw: "Vertrouwt niemand behalve Saya. Het kost hem weken om iemand binnen te laten.",
-            fear: "Water. De rivier. Leeftijd 17."
+            traits: "Telt bij binnenkomst, hardop als het mag, in zichzelf als het niet mag: messen, uitgangen, vrienden. Raakt onbewust het heft van zijn linkermes aan met zijn duim als hij nadenkt \u2014 Saya gebruikt het als thermometer voor zijn stemming. Maakt dingen met zijn handen zodra ze rusten: figuurtjes, sloten, reparaties.",
+            ideal: "Controle. Als alles in het gareel ligt kan niemand je nog iets afpakken. Het werkt niet, maar hij blijft het proberen.",
+            bond: "Saya. Geen grote broer, geen zusje \u2014 mijn gelijke. Als één valt, valt de ander ook. Dat weten we. Dat vinden we eng.",
+            flaw: "Vertrouwen komt traag. 'Orde' is een verdacht woord. Paladins van Law-eden, uniformen, iedereen die te snel vraagt waar hij vandaan komt \u2014 minder krediet, meteen.",
+            fear: "Dat iemand ontdekt dat de naam Ashvane ergens nog gedragen wordt. Dat ze Saya vinden vóór hem."
         },
-        backstory: "Ren en Saya Ashvane werden geboren in een klein dorp aan de rand van het Slangenmoeras. Hun moeder Lira was een voormalige avonturier; hun vader Dorin een stille houtsnijder die drakenbeeldjes sneed bij het kampvuur.\n\nZe waren zeven toen de Slangenmars kwam. Slangenwezens verwoestten hun dorp in \u00e9\u00e9n nacht. Lira viel als laatste. Dorin stierf naast zijn draak-bondgenoot Vuuradem.\n\nDe tweeling overleefde. In de sloppenwijken van Velthaven leerden ze stelen, rennen, en vertrouwen op niemand behalve elkaar. Ren werd de schaduw \u2014 stil, snel, dodelijk met zijn dolken Advies en Aandacht.\n\nWat moeder altijd zei: \"Tel je messen. Tel je uitgangen. Tel je vrienden. In die volgorde.\"\n\nHij draagt nog steeds vaders leren jas en het houten drakenbeeldje. De jas is twee maten te groot. Het beeldje zit in de binnenzak, rechts, waar zijn hand het kan raken zonder dat iemand het ziet.",
+        backstory: "Ren en Saya Ashvane zijn negentien. Tweeling, onafscheidelijk, geen van beide weet wie ouder is. Geen van beide vindt de vraag interessant.\n\nHun ouders waren Iskren (Human, Ranger \u2014 gedeserteerd uit een leger waar ze niet meer achter stond) en Sevric (Human, Wizard, kaartenmaker-strateeg). De tweeling was Human tot hun elfde \u2014 toen de sproeten goud werden (Ren) en zilver (Saya), en de ouders twee weken later verdwenen zonder lichamen, zonder graf, zonder bericht. Op de laatste avond: \"Als we over drie dagen niet terug zijn, ga je naar de grot met de koperkleurige steen. Wacht daar. Dan ga je naar het westen.\"\n\nDrie dagen werden vijf, werden zeven. Ze wachtten. Zes maanden later verscheen Yrrevan the Half-Answer \u2014 een oude koperen draak die een week de grot deelde, hun konijnen at, raadsels achterliet. Haar afscheidsles: \"Leer welke schaduwen van jou zijn en welke niet. De meeste mensen vechten hun leven lang tegen schaduwen die een ander geworpen heeft.\" Ren denkt dat het over schuld gaat; hij durft het Saya niet te vragen.\n\nSindsdien: stad naar stad, klein baantje naar kleine diefstal, nooit lang genoeg ergens om wortel te schieten. Ren doet het ruwe werk. Hij sliep licht en wordt wakker zonder beweging \u2014 ogen open, rest stil.",
         quotes: [
+            "Tel je messen, de uitgangen en je vrienden. In die volgorde.",
             "Er is altijd een uitweg. En als die er niet is, maak je er een.",
-            "Vertrouwen is duur. Ik betaal liever met staal.",
-            "Stilte is geen leegte. Het is informatie.",
             "Plan A werkt nooit. Daarom heb ik er zesentwintig.",
             "Je hoeft niet onzichtbaar te zijn. Je hoeft alleen maar oninteressant te lijken.",
-            "Ik slaap niet. Ik wacht met mijn ogen dicht."
+            "Ik slaap niet. Ik wacht met mijn ogen dicht.",
+            "Noem me geen jongen."
         ],
         defaultItems: [
-            { name: 'Studded leather armor', weight: 13, notes: 'Zelf in elkaar gezet' },
-            { name: 'Shortsword "Advies"', weight: 2, notes: '' },
-            { name: 'Shortsword "Aandacht"', weight: 2, notes: '' },
-            { name: 'Shortbow', weight: 2, notes: '' },
-            { name: 'Arrows (20)', weight: 1, notes: '' },
-            { name: 'Dagger', weight: 1, notes: '' },
-            { name: 'Dagger', weight: 1, notes: '' },
-            { name: 'Dagger', weight: 1, notes: '"Tel je messen"' },
-            { name: "Thieves' tools", weight: 1, notes: '' },
-            { name: 'Vaders leren jas', weight: 4, notes: 'Twee maten te groot, onvervangbaar' },
-            { name: 'Houten drakenbeeldje', weight: 0.25, notes: 'Gesneden door vader' },
-            { name: 'Rope (50ft)', weight: 10, notes: '"Je hebt altijd touw nodig"' },
-            { name: "Burglar's pack", weight: 0, notes: 'Inhoud al verdeeld' }
+            { name: "Studded leather armor", weight: 13, notes: "Zachte lederen, gedempte gespen" },
+            { name: "Shortsword", weight: 2, notes: "Weapon mastery: Vex" },
+            { name: "Shortsword", weight: 2, notes: "Offhand. Weapon mastery: Vex" },
+            { name: "Dagger", weight: 1, notes: "Linker heft \u2014 raakt hem aan als hij nadenkt. Mastery: Nick" },
+            { name: "Dagger", weight: 1, notes: "Rechter heft" },
+            { name: "Dagger", weight: 1, notes: "Derde openlijke heft op riem" },
+            { name: "Dagger", weight: 1, notes: "Matras-mes \u2014 Iskren heeft hem erin gelegd 'voor het geval dat'" },
+            { name: "Dagger", weight: 1, notes: "Reserve" },
+            { name: "Dagger", weight: 1, notes: "Reserve" },
+            { name: "Shortbow", weight: 2, notes: "" },
+            { name: "Arrows (20)", weight: 1, notes: "" },
+            { name: "Thieves' Tools", weight: 1, notes: "Van background \u2014 proficient" },
+            { name: "Burglar's Pack", weight: 42, notes: "Rope, crowbar, hamer, 10 pitons, lantaarn, olie, tinderbox, 5 dagen rations, waterzak" },
+            { name: "Sevrics mantelvoering", weight: 0.5, notes: "Halsdoek onder zijn jas. Dezelfde stof als in Saya's kraag." },
+            { name: "Koperen gesp", weight: 0.2, notes: "Riem. Verweerd koper \u2014 naar Yrrevan, maar niemand zegt het hardop." },
+            { name: "Houten figuurtjes", weight: 0.5, notes: "Zelf gesneden als de handen rusten." },
+            { name: "Sevrics opgevouwen kaart", weight: 0.1, notes: "Pas recent ontvouwd. Teken: koperkleurige steen in rotswand." }
         ],
         charTimeline: [
-            { age: "0", event: "Geboren in een dorp aan de rand van het Slangenmoeras. Tweelingbroer van Saya." },
-            { age: "7", event: "De Slangenmars verwoest het dorp. Moeder Lira en vader Dorin komen om. Tweeling overleeft." },
-            { age: "7-17", event: "Opgegroeid in de sloppenwijken van Velthaven. Leerde stelen, rennen, en overleven." },
-            { age: "17", event: "De rivier. Iets ergs gebeurde. Sindsdien bang voor water." },
-            { age: "19", event: "Verlaat Velthaven met Saya. Het avontuur begint." }
+            { age: "0", event: "Geboren als tweeling met Saya. Ouders Iskren (Ranger) en Sevric (Wizard-Diviner)." },
+            { age: "0-11", event: "Opgegroeid als Human. Donkerblond, geen sproeten. Geleerd lezen uit boeken die Sevric op vreemde plekken haalde; messen geteld met Iskren." },
+            { age: "11", event: "Ouders verdwijnen. Geen lichamen, geen graf. Ren en Saya wachten in een grot met een koperkleurige steen in de wand, zoals Sevric en Iskren zeiden." },
+            { age: "11", event: "Celestial erfenis manifesteert: Human naar Aasimar. Sproeten worden goud in golven." },
+            { age: "13", event: "Yrrevan the Half-Answer, oude koperen draak, deelt een week hun grot. Afscheidsles: 'Leer welke schaduwen van jou zijn en welke niet.'" },
+            { age: "13", event: "Saya steekt per ongeluk een marktkraam in brand. Sindsdien doet Ren meer het ruwe werk, Saya plant en tekent." },
+            { age: "13-19", event: "Stad naar stad, nooit lang ergens. Klein baantje naar kleine diefstal. Sparen voor iets dat ze nog niet hardop benoemd hebben." },
+            { age: "19", event: "Iemand is naar hen gaan vragen. De naam Ashvane werd uitgesproken op een plek waar dat niet hoorde. Ren vond een gevouwen kaart in Sevrics oude mantel. Nu ontvouwd." }
         ],
         family: [
-            { name: "Lira Ashvane", relation: "Moeder", tier: "parent", status: "Deceased", notes: "Voormalige avonturier." },
-            { name: "Dorin Ashvane", relation: "Vader", tier: "parent", status: "Deceased", notes: "Stille houtsnijder." },
-            { name: "Vuuradem", relation: "Vaders bondgenoot", tier: "parent", status: "Deceased", notes: "Draak." },
-            { name: "Saya Ashvane", relation: "Tweelingzus", tier: "sibling", status: "Alive", linkedChar: "saya", notes: "Mijn gelijke, mijn partner." }
+            { name: "Iskren Ashvane", relation: "Moeder", tier: "parent", status: "Missing", notes: "Human. Ranger (Hunter), Soldier background. Gedeserteerde veteraan. Verdwenen \u2014 geen lichaam, geen graf. 'Tel je messen, de uitgangen en je vrienden.'" },
+            { name: "Sevric Ashvane", relation: "Vader", tier: "parent", status: "Missing", notes: "Human. Wizard (Diviner), Scribe background. Stille strateeg, kaartenmaker. Verdwenen met Iskren. Zijn kaarten en mantel kwamen naar Ren en Saya." },
+            { name: "Yrrevan the Half-Answer", relation: "Mentor", tier: "mentor", status: "Last seen 6 years ago", notes: "Oude koperen draak. Deelde een week de grot. Geeft op elke vraag precies de helft van het antwoord." },
+            { name: "Saya Ashvane", relation: "Tweelingzus", tier: "sibling", status: "Alive", linkedChar: "saya", notes: "Mijn gelijke. Als één valt, valt de ander ook." }
         ]
     },
 
     saya: {
         id: "saya", name: "Saya Ashvane", player: "saya",
-        race: "woodElf", className: "sorcerer", subclass: "wildMagic",
-        background: "Wayfarer", alignment: "Chaotic Good", age: 19,
-        accentColor: "#f472b6",
-        baseAbilities: { str: 8, dex: 15, con: 14, int: 12, wis: 10, cha: 17 },
-        backgroundBonuses: { str: 0, dex: 1, con: 1, int: 0, wis: 0, cha: 2 },
-        defaultSkills: ["deception", "persuasion", "arcana", "sleight of hand"],
-        defaultCantrips: ["Fire Bolt", "Prestidigitation", "Minor Illusion", "Mage Hand"],
-        defaultPrepared: ["Shield", "Mage Armor", "Chaos Bolt", "Disguise Self"],
-        weapons: [],
+        race: "aasimar", className: "sorcerer", subclass: "draconic",
+        background: "Hermit", alignment: "Chaotic Good", age: 19,
+        accentColor: "#b8c5d1",
+        baseAbilities: { str: 8, dex: 13, con: 15, int: 12, wis: 10, cha: 17 },
+        backgroundBonuses: { str: 0, dex: 0, con: 1, int: 0, wis: 0, cha: 2 },
+        defaultSkills: ["medicine", "religion", "arcana", "insight"],
+        defaultCantrips: ["Light", "Fire Bolt", "Prestidigitation", "Minor Illusion", "Mage Hand"],
+        defaultPrepared: ["Shield", "Mage Armor", "Chromatic Orb", "Burning Hands"],
+        languages: ["Common", "Draconic"],
+        draconicAncestry: "Copper (acid damage) \u2014 plan voor level 3, gekozen naar Yrrevan.",
+        weapons: [
+            { name: "Dagger", hit: null, dmg: "1d4", type: "piercing", finesse: true }
+        ],
         appearance: [
-            "Smal gezicht met hoge jukbeenderen en een scherpe kin. Donkerbruin haar in een slordige vlecht. Amberkleurige ogen met goudvlekjes \u2014 die violet oplichten als haar magie piekt.",
-            "Licht gebruinde huid met sproeten. Vingers bevlekt met inkt. Draagt een oversized donkerpaars linnen overhemd. Moeders koperen ring aan een koord om haar nek."
+            "Hoge jukbeenderen, scherpe kaaklijn die aan het einde iets afrondt, rechte smalle neus, volle bovenlip iets smaller dan de onderlip. Amandelvormige amberkleurige ogen, onder fel licht bijna goud. Haar: lang zilverblond, tot onder de schouderbladen \u2014 duidelijk koeler van tint dan Rens goud. Meestal in een slordige vlecht over haar linkerschouder, soms opgestoken met een potlood.",
+            "Huid: lichte olijftint met koelere ondertoon. Zilveren Aasimar-sproeten verdeeld als een sterrenkaart over wangen en neusbrug, op haar schouders en rug in patronen die ze zelf tekent. Inkt- en houtskoolvegen die nooit helemaal weggaan \u2014 vingers, pols, soms een vlek op haar kaak. Magere structuur zoals Ren, zonder zijn opgebouwde schouderbreedte. Littekens: een dunne op haar rechterhand (kraambrand, dertien jaar), een verbleekte op haar rug die ze niet zelf kan zien en waar ze niet naar vraagt. Uitdrukking: onbewogen, kin een fractie omhoog \u2014 niet hautain, gewoon aan het observeren.",
+            "Kleding: bosgroene lange mantel met kap; de kraag is ingenaaid uit Sevrics oude mantel. Houtskoolgrijze linnen tuniek met zijsplitten over een donkere broek (geen jurk \u2014 praktisch). Zachte laarzen tot halverwege de kuit, \u00e9\u00e9n maat kleiner dan die van Ren. Aan haar riem: een leren schetsboek, een etui met potloden en krijt, een leren buidel met verzamelde kleinigheden. Om haar linkerpols een gevlochten koperdraadje. Binnenkant kraag: met koperdraad geborduurde spiraal \u2014 zelf geborduurd, Ren heeft dezelfde."
         ],
         personality: {
-            traits: "Neuriet altijd. Tekent kaarten van alles. Praat snel, denkt sneller, liegt het snelst. Maar nooit tegen Ren.",
-            ideal: "Controle is een illusie. Maar het is m\u00edjn illusie, en ik ben er goed in.",
-            bond: "Ren. De enige die niet wegrende toen ik in brand stond.",
-            flaw: "Moet alles in kaart brengen. Als ze het niet kan tekenen, begrijpt ze het niet.",
-            fear: "Stilte. Stilte is wat er was vlak voordat de slangen kwamen."
+            traits: "Tekent. Altijd. Mensen, handen, daken, lichtval op water. Praat tegen vuur \u2014 korte zinnetjes, alsof ze checkt of het luistert. Neuriet in Draconic zonder te weten dat het Draconic is. Verzamelt kleintjes: een knoop, scherf blauw glas, een droge bloem. Onder druk wordt ze k\u00e1lmer, niet minder.",
+            ideal: "Begrip. Als ze de wereld kan vastleggen, kan de wereld haar niet nog eens verrassen. Het werkt niet, maar ze blijft tekenen.",
+            bond: "Ren. Halve zinnen, zelfde kleurenpalet, zelfde stof op onverwachte plekken. Als \u00e9\u00e9n valt, valt de ander ook.",
+            flaw: "Raakt markten niet meer aan. Weigert de hoop op haar ouders volledig te begraven \u2014 dat noemt ze realisme. Heeft een hekel aan vragen over haar haarkleur.",
+            fear: "Zichzelf. Wat ze zonder wil kan doen als haar magie ongevraagd naar buiten komt."
         },
-        backstory: "Tweelingzus van Ren, geboren in hetzelfde dorp aan het Slangenmoeras. Waar Ren de schaduw werd, werd Saya de vonk.\n\nToen ze dertien was, stak ze per ongeluk een marktkraam in brand. Niet met een fakkel \u2014 met haar handen. De Wild Magic was altijd al in haar bloed geweest. Ze leerde zichzelf alles: geen academie, geen leraar, geen boeken.\n\nZe vult elke stilte, want stilte is wat er was vlak voordat de slangen kwamen. Ze tekent kaarten van alles en iedereen. Als ze het niet kan tekenen, begrijpt ze het niet.\n\nMoeders koperen ring hangt aan een gevlochten koord om haar nek. Ze raakt hem aan als ze nadenkt. Als een reflex.\n\nWat moeder altijd zei: \"Huilen mag. Maar huil terwijl je doorloopt.\"",
+        backstory: "Tweelingzus van Ren. Negentien. Ze was Human tot haar elfde \u2014 zilveren sproeten kwamen in golven op in de maanden nadat hun ouders Iskren (Ranger) en Sevric (Wizard-Diviner) verdwenen. Geen lichamen, geen graf, geen bericht. De tweeling deed wat hen gezegd was: naar de grot met de koperkleurige steen. Ze wachtten. Ze bleven wachten.\n\nZes maanden later kwam Yrrevan the Half-Answer, een oude koperen draak die een week bleef. Op elke vraag gaf ze precies de helft van het antwoord. Haar afscheidsles: \"Leer welke schaduwen van jou zijn en welke niet.\" Saya denkt dat het over identiteit gaat; ze durft Ren niet te vragen of hij hetzelfde denkt.\n\nOp haar dertiende stak ze per ongeluk een marktkraam in brand \u2014 niet met een fakkel, met haar handen. De marktkoopman riep: \"Not my cabbages!\" Sindsdien houdt ze zich op de achtergrond bij criminaliteit; Ren doet het ruwe werk en zij plant. Ze leerde zichzelf alles: geen academie, geen leraar, geen boeken die ze zelf heeft gekozen.\n\nHaar magie is sterker geworden, soms zonder dat ze het wil. Ze droomt van koper. Als het er écht op aankomt beweegt er iets anders door haar heen \u2014 of dat Aasimar is, of Yrrevan, of altijd al bij haar hoorde, weet ze niet. Ze houdt het privé. Zelfs voor Ren, een beetje.",
         quotes: [
-            "Magie is niet iets wat ik heb geleerd. Het is iets wat weigerde om stil te zijn.",
-            "Controle is een illusie. Maar het is m\u00edjn illusie, en ik ben er goed in.",
-            "Ik teken kaarten van plekken die niet meer bestaan. Zo weet ik waar ik ben geweest.",
-            "Vuur lost meer op dan je denkt. Niet alles. Maar meer dan je denkt.",
-            "Elke stilte is een vraag. Ik geef liever antwoord dan dat ik wacht.",
-            "Als de magie me niet gehoorzaamt, gehoorzaam ik de magie. We komen er wel uit."
+            "Leer welke schaduwen van jou zijn en welke niet.",
+            "Ik teken zodat de wereld me niet nog eens verrast.",
+            "Ik hoef het niet te noemen. Jij ziet het ook.",
+            "Vuur luistert. Tenminste, dat doet het kleine vuur.",
+            "Mijn magie gehoorzaamt me niet. Ik gehoorzaam haar. We komen er wel uit.",
+            "Stel je vraag maar. Ik beantwoord liever de helft dan te wachten."
         ],
         defaultItems: [
-            { name: 'Component pouch', weight: 2, notes: 'Rammelt als ze loopt' },
-            { name: 'Dagger', weight: 1, notes: '"Nooit naar buiten zonder je dolk"' },
-            { name: 'Schetsboek', weight: 1, notes: '' },
-            { name: 'Schetsboek', weight: 1, notes: '' },
-            { name: 'Schetsboek', weight: 1, notes: '' },
-            { name: 'Schetsboek', weight: 1, notes: 'Vol kaarten van elke plek' },
-            { name: 'Inkt & pen set', weight: 0.5, notes: '' },
-            { name: 'Koperen ring (aan koord)', weight: 0, notes: "Moeders ring" },
-            { name: "Burglar's pack", weight: 0, notes: 'Inhoud al verdeeld' },
-            { name: 'Set versleten kleding', weight: 3, notes: '' },
-            { name: 'Nette outfit', weight: 4, notes: 'Voor als ze iemand moet oplichten' }
+            { name: "Mantel met Sevrics kraag", weight: 4, notes: "Bosgroen, lange kap. Kraag ingenaaid uit Sevrics oude mantel \u2014 zelfde stof als Rens halsdoek." },
+            { name: "Linnen tuniek (houtskoolgrijs)", weight: 3, notes: "Zijsplitten, praktisch" },
+            { name: "Donkere broek + laarzen", weight: 3, notes: "" },
+            { name: "Dagger", weight: 1, notes: "Iskren-regel: 'Nooit naar buiten zonder je dolk.'" },
+            { name: "Component pouch", weight: 2, notes: "Sorcerer focus \u2014 V/S/M zonder gold-cost components." },
+            { name: "Schetsboek (I)", weight: 1, notes: "Vroeg \u2014 grot, eerste weken in vreemde steden." },
+            { name: "Schetsboek (II)", weight: 1, notes: "Gezichten. Alleen gezichten van iedereen die ze vertrouwden, een paar weken lang." },
+            { name: "Schetsboek (III)", weight: 1, notes: "Kaarten van plekken die niet meer bestaan." },
+            { name: "Schetsboek (IV)", weight: 1, notes: "Handen. Honderden handen \u2014 die van Ren, die van de draak, van zichzelf." },
+            { name: "Potloden & krijt etui", weight: 0.5, notes: "Zwart krijt, rood krijt, drie potloden van verschillende hardheid." },
+            { name: "Inkt & veer", weight: 0.5, notes: "Voor de kaarten waar houtskool vervaagt." },
+            { name: "Herbalism Kit", weight: 3, notes: "Van background. Ze leerde het zichzelf tijdens de grotjaren." },
+            { name: "Gevlochten koperdraadje (linkerpols)", weight: 0.1, notes: "Naar Yrrevan \u2014 maar ze zegt het niet hardop." },
+            { name: "Buidel met kleintjes", weight: 0.5, notes: "Een knoop, scherf blauw glas, een droge bloem, een stukje perkament met Sevrics handschrift, een klein stukje geschaafd koper." },
+            { name: "Scholar's Pack", weight: 10, notes: "Rugzak, boek, inkt, pen, 10 vellen perkament, zakje zand, klein mes." },
+            { name: "Reserve traveler's clothes", weight: 4, notes: "Zelfde palet: bosgroen, houtskoolgrijs, ongebleekt linnen." }
         ],
         charTimeline: [
-            { age: "0", event: "Geboren in een dorp aan de rand van het Slangenmoeras. Tweelingzus van Ren." },
-            { age: "7", event: "De Slangenmars verwoest het dorp. Ouders komen om. Tweeling overleeft." },
-            { age: "7-17", event: "Opgegroeid in de sloppenwijken van Velthaven." },
-            { age: "13", event: "Stak per ongeluk een marktkraam in brand. Niet met een fakkel \u2014 met haar handen. Wild Magic ontdekt." },
-            { age: "13-19", event: "Leerde zichzelf magie. Geen academie, geen leraar, geen boeken." },
-            { age: "19", event: "Verlaat Velthaven met Ren. Het avontuur begint." }
+            { age: "0", event: "Geboren als tweeling met Ren. Ouders Iskren (Ranger) en Sevric (Wizard-Diviner)." },
+            { age: "0-11", event: "Opgegroeid als Human. Donkerblond, geen sproeten. Leerde lezen uit boeken die Sevric op vreemde plekken haalde; tekende haar eerste kaart vóór ze tien was." },
+            { age: "11", event: "Ouders verdwijnen. Geen lichamen, geen graf. Saya sneed een stuk uit Sevrics reservemantel en stopte het in haar zak. Saya en Ren wachten in de grot met een koperkleurige steen in de wand." },
+            { age: "11", event: "Celestial erfenis manifesteert: Human naar Aasimar. Sproeten worden zilver in golven; vormen patronen op schouders en rug die ze zelf tekent." },
+            { age: "13", event: "Yrrevan the Half-Answer, oude koperen draak, deelt een week hun grot. Afscheidsles: 'Leer welke schaduwen van jou zijn en welke niet.'" },
+            { age: "13", event: "Eerste magie manifesteert: steekt per ongeluk een marktkraam in brand met haar handen. 'Not my cabbages!' Sindsdien houdt ze zich op de achtergrond bij criminaliteit." },
+            { age: "13-19", event: "Leerde zichzelf magie. Geen academie, geen leraar, geen boeken die ze zelf koos. Tekende vier schetsboeken vol." },
+            { age: "19", event: "Haar magie wordt sterker, soms zonder dat ze het wil. Ze droomt van koper. Iemand vraagt naar de naam Ashvane. Sevrics kaart is ontvouwd." }
         ],
         family: [
-            { name: "Lira Ashvane", relation: "Moeder", tier: "parent", status: "Deceased", notes: "Voormalige avonturier." },
-            { name: "Dorin Ashvane", relation: "Vader", tier: "parent", status: "Deceased", notes: "Stille houtsnijder." },
-            { name: "Vuuradem", relation: "Vaders bondgenoot", tier: "parent", status: "Deceased", notes: "Draak." },
-            { name: "Ren Ashvane", relation: "Tweelingbroer", tier: "sibling", status: "Alive", linkedChar: "ren", notes: "De enige die niet wegrende." }
+            { name: "Iskren Ashvane", relation: "Moeder", tier: "parent", status: "Missing", notes: "Human. Ranger (Hunter), Soldier background. Gedeserteerde veteraan. Verdwenen \u2014 geen lichaam, geen graf. 'Huilen mag. Maar huil terwijl je doorloopt' is niet van haar, dat verzon Saya later." },
+            { name: "Sevric Ashvane", relation: "Vader", tier: "parent", status: "Missing", notes: "Human. Wizard (Diviner), Scribe background. Stille strateeg, kaartenmaker. Saya heeft dat van hem." },
+            { name: "Yrrevan the Half-Answer", relation: "Mentor", tier: "mentor", status: "Last seen 6 years ago", notes: "Oude koperen draak. Saya droomt soms van haar en weet niet of dat magie is of geheugen." },
+            { name: "Ren Ashvane", relation: "Tweelingbroer", tier: "sibling", status: "Alive", linkedChar: "ren", notes: "Mijn gelijke. Halve zinnen, geen hi\u00ebrarchie." }
         ]
     },
 
