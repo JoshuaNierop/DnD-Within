@@ -80,11 +80,14 @@ function renderApp() {
         html += '</main>';
 
         // Global dice roller (multi-dice hand system)
-        html += '<div class="dice-fab" data-action="toggle-dice-panel" title="Roll Dice"><svg class="dice-fab-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="50,6 92,30 92,74 50,98 8,74 8,30" fill="currentColor" stroke="rgba(0,0,0,0.4)" stroke-width="2" stroke-linejoin="round"/><polygon points="50,6 92,30 50,54 8,30" fill="rgba(255,255,255,0.22)"/><polygon points="92,30 92,74 50,98 50,54" fill="rgba(0,0,0,0.22)"/><text x="50" y="63" text-anchor="middle" font-family="Georgia,serif" font-size="28" font-weight="bold" fill="#fff">20</text></svg></div>';
+        html += '<div class="dice-fab" data-action="toggle-dice-panel" title="Roll Dice"><svg class="dice-fab-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><polygon points="50,8 90,32 90,70 50,92 10,70 10,32"/><polygon points="50,30 72,44 64,66 36,66 28,44"/><line x1="50" y1="8" x2="50" y2="30"/><line x1="90" y1="32" x2="72" y2="44"/><line x1="90" y1="70" x2="64" y2="66"/><line x1="50" y1="92" x2="50" y2="66" opacity="0.7"/><line x1="10" y1="70" x2="36" y2="66"/><line x1="10" y1="32" x2="28" y2="44"/><text x="50" y="56" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="700" fill="currentColor" stroke="none">20</text></svg></div>';
         html += '<div class="dice-panel" id="dice-panel" style="display:none;">';
         html += '<div class="dice-panel-header"><span>Dice Roller</span><button class="dice-panel-close" data-action="toggle-dice-panel">&times;</button></div>';
         html += '<div id="dice-panel-content"></div>';
         html += '</div>';
+
+        // Notes quick-access FAB
+        html += '<a class="notes-fab" href="#/notes" title="Notities"><svg class="notes-fab-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="22" y="12" width="58" height="78" rx="4"/><line x1="32" y1="12" x2="32" y2="90"/><circle cx="32" cy="26" r="2.5" fill="currentColor" stroke="none"/><circle cx="32" cy="50" r="2.5" fill="currentColor" stroke="none"/><circle cx="32" cy="74" r="2.5" fill="currentColor" stroke="none"/><line x1="44" y1="32" x2="70" y2="32"/><line x1="44" y1="50" x2="70" y2="50"/><line x1="44" y1="68" x2="62" y2="68"/></svg></a>';
 
         // Bug reporter FAB (only in debug mode)
         html += renderBugFab();

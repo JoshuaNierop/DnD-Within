@@ -82,29 +82,10 @@ var DiceHand = {
 
         var html = '';
 
-        // Pool buttons
-        html += '<div class="dice-pool">';
-        var dice = [4, 6, 8, 10, 12, 20, 100];
-        for (var i = 0; i < dice.length; i++) {
-            html += '<button class="dice-pool-btn" data-action="dice-add" data-die="' + dice[i] + '">d' + dice[i] + '</button>';
-        }
-        html += '</div>';
+        // Top area — grows upward with results/hand/actions (stays anchored above fixed pool)
+        html += '<div class="dice-top">';
 
-        // Hand
-        if (this.hand.length > 0) {
-            html += '<div class="dice-hand">';
-            html += '<span class="dice-hand-label">Hand:</span>';
-            for (var i = 0; i < this.hand.length; i++) {
-                html += '<span class="dice-chip" data-action="dice-remove-hand" data-idx="' + i + '">d' + this.hand[i].die + '</span>';
-            }
-            html += '</div>';
-            html += '<div class="dice-hand-actions">';
-            html += '<button class="btn btn-primary btn-sm" data-action="dice-roll-hand">Roll (' + this.hand.length + ')</button>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="dice-reset">Reset</button>';
-            html += '</div>';
-        }
-
-        // Results
+        // Results (topmost)
         if (this.results && this.results.length > 0) {
             var total = this.getTotal();
             html += '<div class="dice-results">';
@@ -119,16 +100,51 @@ var DiceHand = {
                 html += '</span>';
             }
             html += '</div>';
-            html += '<div class="dice-hand-actions">';
-            html += '<button class="btn btn-primary btn-sm" data-action="dice-roll-hand">Re-roll</button>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="dice-reset">Reset</button>';
-            html += '</div>';
             html += '</div>';
         }
 
-        if (this.hand.length === 0 && !this.results) {
-            html += '<p class="text-dim" style="text-align:center;font-size:0.8rem;margin-top:0.5rem;">Click dice to add to hand</p>';
+        // Hand chips
+        if (this.hand.length > 0) {
+            html += '<div class="dice-hand">';
+            html += '<span class="dice-hand-label">Hand:</span>';
+            for (var i = 0; i < this.hand.length; i++) {
+                html += '<span class="dice-chip" data-action="dice-remove-hand" data-idx="' + i + '">d' + this.hand[i].die + '</span>';
+            }
+            html += '</div>';
         }
+
+        // Empty state hint
+        if (this.hand.length === 0 && !this.results) {
+            html += '<p class="text-dim dice-empty-hint">Click dice below to add to hand</p>';
+        }
+
+        html += '</div>'; // /.dice-top
+
+        // Bottom area — fixed: pool + roll/reset. Stays anchored so buttons never shift.
+        html += '<div class="dice-bottom">';
+
+        // Pool buttons
+        html += '<div class="dice-pool">';
+        var dice = [4, 6, 8, 10, 12, 20, 100];
+        for (var i = 0; i < dice.length; i++) {
+            html += '<button class="dice-pool-btn" data-action="dice-add" data-die="' + dice[i] + '">d' + dice[i] + '</button>';
+        }
+        html += '</div>';
+
+        // Actions row — always present so layout is stable
+        var hasRollable = this.hand.length > 0;
+        var hasReset = this.hand.length > 0 || (this.results && this.results.length > 0);
+        var canReroll = !hasRollable && this.results && this.lastHand && this.lastHand.length > 0;
+        var rollLabel = hasRollable
+            ? 'Roll (' + this.hand.length + ')'
+            : (canReroll ? 'Re-roll' : 'Roll');
+        var rollDisabled = !hasRollable && !canReroll ? ' disabled' : '';
+        html += '<div class="dice-hand-actions">';
+        html += '<button class="btn btn-primary btn-sm dice-roll-btn" data-action="dice-roll-hand"' + rollDisabled + '>' + rollLabel + '</button>';
+        html += '<button class="btn btn-ghost btn-sm dice-reset-btn" data-action="dice-reset"' + (hasReset ? '' : ' disabled') + '>Reset</button>';
+        html += '</div>';
+
+        html += '</div>'; // /.dice-bottom
 
         panel.innerHTML = html;
     }
