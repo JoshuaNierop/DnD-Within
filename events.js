@@ -2476,6 +2476,26 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="zoom-out"]')) { mapZoom = Math.max(mapZoom / 1.3, 0.3); renderApp(); return; }
         if (target.matches('[data-action="zoom-reset"]')) { mapZoom = 1; mapPanX = 0; mapPanY = 0; renderApp(); return; }
 
+        // Rename map
+        if (target.matches('[data-action="rename-map"]') || target.closest('[data-action="rename-map"]')) {
+            var renBtn = target.closest('[data-action="rename-map"]') || target;
+            var renMapId = renBtn.dataset.mapId;
+            if (renMapId) {
+                var mDataRen = getMapsData();
+                var mDimRen = mDataRen.dimensions[activeDimension];
+                if (mDimRen && mDimRen.maps) {
+                    var curMap = mDimRen.maps.find(function(m){ return m.id === renMapId; });
+                    var newName = prompt('New map name:', curMap ? curMap.name : '');
+                    if (newName && newName.trim() && curMap) {
+                        curMap.name = newName.trim();
+                        saveMapsData(mDataRen);
+                        renderApp();
+                    }
+                }
+            }
+            return;
+        }
+
         // Delete map
         if (target.matches('[data-action="delete-map"]') || target.closest('[data-action="delete-map"]')) {
             var delBtn = target.closest('[data-action="delete-map"]') || target;

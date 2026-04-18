@@ -89,6 +89,7 @@ function renderMaps() {
         if (isDM()) {
             html += '<button class="btn btn-ghost btn-sm" data-action="add-pin">' + t('maps.addpin') + '</button>';
             html += '<label class="btn btn-ghost btn-sm">' + t('maps.changeimage') + '<input type="file" accept="image/*" data-action="update-map-image" data-map-id="' + map.id + '" style="display:none"></label>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="rename-map" data-map-id="' + map.id + '">&#9998; Rename</button>';
             html += '<button class="btn btn-ghost btn-sm" data-action="delete-map" data-map-id="' + map.id + '" style="color:var(--danger);">&#128465; Delete map</button>';
         }
         html += '</div>';
