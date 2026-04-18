@@ -215,8 +215,14 @@ function renderTabOverview(charId, config, state) {
     if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="className" title="' + t('generic.edit') + '">&#9998;</button>';
     html += '</div>';
 
-    // Subclass
-    if (isSubclassVisible(config, state) || editable) {
+    // Subclass — hidden until character reaches subclass-selection level
+    var subclassUnlockLevel = 3;
+    var classDataSC = DATA[config.className];
+    if (classDataSC && classDataSC.subclasses) {
+        var subKeys = Object.keys(classDataSC.subclasses);
+        if (subKeys.length) subclassUnlockLevel = classDataSC.subclasses[subKeys[0]].level || 3;
+    }
+    if (isSubclassVisible(config, state) || (editable && state.level >= subclassUnlockLevel)) {
         html += '<div class="info-item" data-tip="' + escapeAttr(subclassDisplayName(config.subclass)) + '">';
         html += '<span class="label">' + t('overview.subclass') + '</span>';
         html += '<span class="value info-value-display" data-info-field="subclass">' + (config.subclass ? subclassDisplayName(config.subclass) : '-') + '</span>';
