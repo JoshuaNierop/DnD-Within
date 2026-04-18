@@ -80,7 +80,7 @@ function renderApp() {
         html += '</main>';
 
         // Global dice roller (multi-dice hand system)
-        html += '<div class="dice-fab" data-action="toggle-dice-panel" title="Roll Dice">&#127922;</div>';
+        html += '<div class="dice-fab" data-action="toggle-dice-panel" title="Roll Dice"><svg class="dice-fab-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="50,6 92,30 92,74 50,98 8,74 8,30" fill="currentColor" stroke="rgba(0,0,0,0.4)" stroke-width="2" stroke-linejoin="round"/><polygon points="50,6 92,30 50,54 8,30" fill="rgba(255,255,255,0.22)"/><polygon points="92,30 92,74 50,98 50,54" fill="rgba(0,0,0,0.22)"/><text x="50" y="63" text-anchor="middle" font-family="Georgia,serif" font-size="28" font-weight="bold" fill="#fff">20</text></svg></div>';
         html += '<div class="dice-panel" id="dice-panel" style="display:none;">';
         html += '<div class="dice-panel-header"><span>Dice Roller</span><button class="dice-panel-close" data-action="toggle-dice-panel">&times;</button></div>';
         html += '<div id="dice-panel-content"></div>';

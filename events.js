@@ -3004,8 +3004,13 @@ function bindPageEvents(route) {
         // Notes search
         if (target.matches('[data-action="search-notes"]') || target.matches('.notes-search-input')) {
             notesSearch = target.value;
-            clearTimeout(target._searchTimeout);
-            target._searchTimeout = setTimeout(function() { renderApp(); }, 300);
+            var caret = target.selectionStart;
+            clearTimeout(window._notesSearchTimer);
+            window._notesSearchTimer = setTimeout(function() {
+                renderApp();
+                var input = document.querySelector('.notes-search-input');
+                if (input) { input.focus(); try { input.setSelectionRange(caret, caret); } catch(e){} }
+            }, 250);
         }
 
         // Session number (DM) - no longer uses input

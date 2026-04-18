@@ -5949,6 +5949,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 20px var(--accent-glow);
     animation: none;
 }
+.dice-fab-icon {
+    width: 38px;
+    height: 38px;
+    color: var(--accent);
+    pointer-events: none;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+.dice-fab:hover .dice-fab-icon { color: var(--accent-secondary); }
 .dice-panel {
     position: fixed;
     bottom: 5rem;
@@ -7549,6 +7557,22 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
     margin-top: 0.2rem;
     display: block;
 }
+.bug-type-toggle { display: flex; gap: 0.5rem; }
+.bug-type-option { cursor: pointer; }
+.bug-type-option input { display: none; }
+.bug-type-chip {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.45rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;
+    border: 1.5px solid var(--border); color: var(--text-dim);
+    background: transparent; transition: all 0.2s;
+}
+.bug-type-option input:checked + .bug-type-bug {
+    border-color: #f87171; color: #f87171; background: rgba(248,113,113,0.1);
+}
+.bug-type-option input:checked + .bug-type-feature {
+    border-color: var(--accent); color: var(--accent); background: rgba(129,140,248,0.1);
+}
+
 .bug-textarea {
     width: 100%;
     background: rgba(255,255,255,0.04);
