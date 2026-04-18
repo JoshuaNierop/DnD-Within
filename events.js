@@ -2476,6 +2476,24 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="zoom-out"]')) { mapZoom = Math.max(mapZoom / 1.3, 0.3); renderApp(); return; }
         if (target.matches('[data-action="zoom-reset"]')) { mapZoom = 1; mapPanX = 0; mapPanY = 0; renderApp(); return; }
 
+        // Delete map
+        if (target.matches('[data-action="delete-map"]') || target.closest('[data-action="delete-map"]')) {
+            var delBtn = target.closest('[data-action="delete-map"]') || target;
+            var delMapId = delBtn.dataset.mapId;
+            if (delMapId && confirm('Are you sure you want to delete this map? This cannot be undone.')) {
+                var mDataDel = getMapsData();
+                var mDimDel = mDataDel.dimensions[activeDimension];
+                if (mDimDel && mDimDel.maps) {
+                    mDimDel.maps = mDimDel.maps.filter(function(m){ return m.id !== delMapId; });
+                    saveMapsData(mDataDel);
+                    activeMapId = null;
+                    window._mapHistory = [];
+                    renderApp();
+                }
+            }
+            return;
+        }
+
         // Add pin mode
         if (target.matches('[data-action="add-pin"]')) {
             addingPin = true;
