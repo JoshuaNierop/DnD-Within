@@ -921,6 +921,25 @@ function bindPageEvents(route) {
             return;
         }
 
+        // Quick notes panel toggle
+        if (target.matches('[data-action="toggle-notes-panel"]') || target.closest('[data-action="toggle-notes-panel"]')) {
+            var npanel = document.getElementById('notes-panel');
+            if (npanel) {
+                var nWasHidden = npanel.style.display === 'none';
+                npanel.style.display = nWasHidden ? 'flex' : 'none';
+                if (nWasHidden && typeof QuickNotes !== 'undefined') QuickNotes.render();
+            }
+            return;
+        }
+        if (target.matches('[data-action="qnote-cat"]')) {
+            if (typeof QuickNotes !== 'undefined') QuickNotes.setCategory(target.dataset.cat);
+            return;
+        }
+        if (target.matches('[data-action="qnote-save"]')) {
+            if (typeof QuickNotes !== 'undefined') QuickNotes.save();
+            return;
+        }
+
         // Dice hand: add die
         if (target.matches('[data-action="dice-add"]')) {
             if (typeof DiceHand !== 'undefined') DiceHand.add(parseInt(target.dataset.die));
