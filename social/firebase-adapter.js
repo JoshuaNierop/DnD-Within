@@ -287,9 +287,54 @@ export function createFirebaseAdapter({
         let es = null;
         let stopped = false;
         let pollFallback = null;
+        // Lokale snapshot van de subscribed sub-tree. Firebase SSE stuurt
+        // diff-events: {path: "/", data: {...full root...}} bij init,
+        // daarna {path: "/<childKey>", data: {...}} bij wijzigingen.
+        // We mergen die in `snapshot` en emitten altijd de volledige tree
+        // zodat consumers (friends-page, chat-list) niet hun eigen merge-logic
+        // hoeven te schrijven.
+        let snapshot = null;
+
+        function applyDiff(diffPath, diffData) {
+            const segs = String(diffPath || '/').split('/').filter(Boolean);
+            if (segs.length === 0) {
+                // Root replace
+                snapshot = (diffData === null || diffData === undefined) ? null : diffData;
+                return;
+            }
+            // Diepere paden: zorg dat snapshot een object is en navigeer/maak
+            if (snapshot === null || typeof snapshot !== 'object') snapshot = {};
+            let node = snapshot;
+            for (let i = 0; i < segs.length - 1; i++) {
+                const key = segs[i];
+                if (node[key] === null || typeof node[key] !== 'object') node[key] = {};
+                node = node[key];
+            }
+            const lastKey = segs[segs.length - 1];
+            if (diffData === null || diffData === undefined) {
+                delete node[lastKey];
+            } else {
+                node[lastKey] = diffData;
+            }
+        }
+
+        function applyPatch(diffPath, diffData) {
+            // Patch is shallow merge op het opgegeven path (kind van root)
+            const segs = String(diffPath || '/').split('/').filter(Boolean);
+            if (snapshot === null || typeof snapshot !== 'object') snapshot = {};
+            let node = snapshot;
+            for (let i = 0; i < segs.length; i++) {
+                const key = segs[i];
+                if (node[key] === null || typeof node[key] !== 'object') node[key] = {};
+                node = node[key];
+            }
+            for (const [k, v] of Object.entries(diffData || {})) {
+                if (v === null || v === undefined) delete node[k];
+                else node[k] = v;
+            }
+        }
 
         function startPolling() {
-            // Fallback: poll elke 4s
             let lastJson = '';
             const tick = async () => {
                 if (stopped) return;
@@ -298,7 +343,8 @@ export function createFirebaseAdapter({
                     const json = JSON.stringify(data);
                     if (json !== lastJson) {
                         lastJson = json;
-                        onValue(data);
+                        snapshot = data;
+                        onValue(snapshot);
                     }
                 } catch (e) {
                     onError?.(e);
@@ -314,14 +360,16 @@ export function createFirebaseAdapter({
                 es = new EventSource(url(path));
                 es.addEventListener('put', (e) => {
                     try {
-                        const { data } = JSON.parse(e.data);
-                        onValue(data, 'put');
+                        const msg = JSON.parse(e.data);
+                        applyDiff(msg.path, msg.data);
+                        onValue(snapshot, 'put');
                     } catch (err) { onError?.(err); }
                 });
                 es.addEventListener('patch', (e) => {
                     try {
-                        const { data } = JSON.parse(e.data);
-                        onValue(data, 'patch');
+                        const msg = JSON.parse(e.data);
+                        applyPatch(msg.path, msg.data);
+                        onValue(snapshot, 'patch');
                     } catch (err) { onError?.(err); }
                 });
                 es.addEventListener('keep-alive', () => {});
