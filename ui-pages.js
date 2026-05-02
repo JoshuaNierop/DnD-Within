@@ -1204,17 +1204,9 @@ function renderCharCard(cid, cfg, state, isOwn) {
         html += '<div class="char-card-placeholder">&#128100;</div>';
     }
     html += '</div>';
+    var firstName = String(cfg.name || '').split(' ')[0];
     html += '<div class="char-card-overlay">';
-    html += '<span class="char-card-name">' + escapeHtml(cfg.name) + '</span>';
-    html += '<span class="char-card-detail">' + raceDisplayName(cfg.race) + ' ' + classDisplayName(cfg.className) + '</span>';
-    html += '<span class="char-card-detail">Level ' + state.level + '</span>';
-    // HP mini bar
-    var maxHP = getHP(cfg, state);
-    var curHP = state.currentHP !== null ? state.currentHP : maxHP;
-    var hpPct = maxHP > 0 ? Math.max(0, Math.min(100, Math.round((curHP / maxHP) * 100))) : 100;
-    var hpCol = hpPct > 50 ? 'var(--success)' : (hpPct > 25 ? 'var(--warning)' : 'var(--danger)');
-    html += '<div class="char-card-hp"><div class="char-card-hp-fill" style="width:' + hpPct + '%;background:' + hpCol + '"></div><span class="char-card-hp-text">' + curHP + '/' + maxHP + '</span></div>';
-    if (isOwn) html += '<span class="char-card-badge">' + t('char.yours') + '</span>';
+    html += '<span class="char-card-name">' + escapeHtml(firstName) + '</span>';
     html += '</div>';
     html += '</a>';
     return html;

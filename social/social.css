@@ -163,32 +163,40 @@
     text-transform: uppercase;
 }
 
-/* ============ Chat Widget (floating, bottom-right) ============ */
+/* ============ Chat Widget (floating, bottom-right) ============
+   FAB stack: dice (slot 0, 1.5rem) — chat (slot 1, 6rem) — bug (slot 2, 10.5rem).
+   Style matched aan .dice-fab / .bug-fab voor visuele consistentie.
+   Unieke kleur: cyan (#22d3ee), onderscheidend van gold dice + red bug. */
 #social-chat-widget {
     position: fixed;
-    bottom: 1rem;
-    right: 1rem;
+    bottom: 6rem;
+    right: 1.5rem;
     z-index: 9999;
     color: var(--text, #e8e9ee);
     font-family: inherit;
 }
 
 #social-chat-widget .scw-fab {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
-    background: var(--accent, #7c5cff);
-    color: #fff;
-    border: none;
+    background: #1a1a2e;
+    color: #22d3ee;
+    border: 2px solid #22d3ee;
     cursor: pointer;
     display: grid;
     place-items: center;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    transition: transform 0.15s;
+    box-shadow: 0 2px 12px rgba(34, 211, 238, 0.3);
+    transition: all 0.2s;
     position: relative;
 }
-#social-chat-widget .scw-fab:hover { transform: scale(1.05); }
-#social-chat-widget .scw-fab svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
+#social-chat-widget .scw-fab:hover {
+    transform: scale(1.1);
+    border-color: #67e8f9;
+    color: #67e8f9;
+    box-shadow: 0 4px 20px rgba(34, 211, 238, 0.5);
+}
+#social-chat-widget .scw-fab svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2; }
 #social-chat-widget .scw-fab .scw-badge {
     position: absolute;
     top: -4px;
