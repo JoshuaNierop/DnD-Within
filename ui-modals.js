@@ -191,26 +191,25 @@ function renderWizardModal() {
     var html = '<div class="modal-overlay wizard-overlay">';
     html += '<div class="wizard-modal">';
 
-    // Header with progress
+    // Header
     html += '<div class="wizard-header">';
     html += '<h2 class="wizard-title">' + t('wizard.title') + '</h2>';
     html += '<button class="modal-close" data-action="close-wizard">&times;</button>';
     html += '</div>';
 
-    // Step indicator
-    html += '<div class="wizard-steps">';
+    // Three-panel body: vertical stepper (left) + content (center) + summary sidebar (right)
+    html += '<div class="wizard-body">';
+
+    // Vertical stepper sidebar
+    html += '<aside class="wizard-steps">';
     var stepLabels = [t('wizard.step.basics'), t('wizard.step.background'), t('wizard.step.details'), t('wizard.step.skills'), t('wizard.step.story'), t('wizard.step.summary')];
     for (var si = 1; si <= totalSteps; si++) {
         var stepClass = 'wizard-step-dot';
         if (si < step) stepClass += ' completed';
         if (si === step) stepClass += ' active';
         html += '<div class="' + stepClass + '"><span class="step-num">' + (si < step ? '&#10003;' : si) + '</span><span class="step-label">' + stepLabels[si - 1] + '</span></div>';
-        if (si < totalSteps) html += '<div class="step-connector' + (si < step ? ' completed' : '') + '"></div>';
     }
-    html += '</div>';
-
-    // Two-panel layout: main content + sidebar summary
-    html += '<div class="wizard-body">';
+    html += '</aside>';
 
     // Main content
     html += '<div class="wizard-content">';
@@ -289,9 +288,6 @@ function renderWizardStep1() {
         html += '<option value="' + races[i] + '"' + sel + '>' + raceDisplayName(races[i]) + '</option>';
     }
     html += '</select>';
-    html += '</div>';
-
-    // Race features preview (collapsible)
     if (wizardState.race && DATA[wizardState.race]) {
         var raceData = DATA[wizardState.race];
         html += '<details class="wizard-preview" open>';
@@ -305,6 +301,7 @@ function renderWizardStep1() {
         }
         html += '</details>';
     }
+    html += '</div>';
 
     // Class
     var classes = getWizardClasses();
@@ -317,9 +314,6 @@ function renderWizardStep1() {
         html += '<option value="' + classes[i] + '"' + sel + '>' + classDisplayName(classes[i]) + '</option>';
     }
     html += '</select>';
-    html += '</div>';
-
-    // Class info preview (collapsible)
     if (wizardState.className && DATA[wizardState.className]) {
         var classData = DATA[wizardState.className];
         html += '<details class="wizard-preview" open>';
@@ -333,6 +327,7 @@ function renderWizardStep1() {
         }
         html += '</details>';
     }
+    html += '</div>';
 
     return html;
 }
@@ -352,9 +347,6 @@ function renderWizardStep2() {
         html += '<option value="' + bgs[i] + '"' + sel + '>' + bgData.name + '</option>';
     }
     html += '</select>';
-    html += '</div>';
-
-    // Background info (collapsible)
     if (wizardState.background && DATA.backgrounds[wizardState.background]) {
         var bg = DATA.backgrounds[wizardState.background];
         html += '<details class="wizard-preview" open>';
@@ -386,6 +378,7 @@ function renderWizardStep2() {
         html += '</div>';
         html += '</details>';
     }
+    html += '</div>';
 
     // Ability Scores
     html += '<div class="wizard-field">';

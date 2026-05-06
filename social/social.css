@@ -164,12 +164,13 @@
 }
 
 /* ============ Chat Widget (floating, bottom-right) ============
-   FAB stack: dice (slot 0, 1.5rem) — chat (slot 1, 6rem) — bug (slot 2, 10.5rem).
-   Style matched aan .dice-fab / .bug-fab voor visuele consistentie.
-   Unieke kleur: cyan (#22d3ee), onderscheidend van gold dice + red bug. */
+   FAB stack: dice (slot 0) — notes (slot 1) — chat (slot 2) — bug (slot 3).
+   Slot vars in style.css :root; --fab-slot-N geeft positie. Renumber slot om te swappen.
+   Style matched aan .dice-fab / .notes-fab / .bug-fab voor visuele consistentie.
+   Unieke kleur: cyan (#22d3ee), onderscheidend van gold dice / purple notes / red bug. */
 #social-chat-widget {
     position: fixed;
-    bottom: 6rem;
+    bottom: var(--fab-slot-2, 10.5rem);
     right: 1.5rem;
     z-index: 9999;
     color: var(--text, #e8e9ee);
