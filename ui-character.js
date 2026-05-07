@@ -401,13 +401,14 @@ function renderAbilityRadar(config, state) {
     }
     svg += '<polygon points="' + dataPts.join(' ') + '" fill="rgba(var(--accent-rgb, 34,211,238), 0.2)" stroke="var(--char-accent, var(--accent))" stroke-width="2"/>';
 
-    // Labels + values
+    // Labels + values — stacked as one text element per axis so they always align.
     for (var i = 0; i < 6; i++) {
         var score = getAbilityScore(config, state, abilities[i]);
-        var lp = polarToXY(i * 60, r + 16);
-        svg += '<text x="' + lp.x + '" y="' + lp.y + '" text-anchor="middle" dominant-baseline="middle" fill="var(--text-dim)" font-size="9" font-weight="600">' + labels[i] + '</text>';
-        var vp = polarToXY(i * 60, r + 28);
-        svg += '<text x="' + vp.x + '" y="' + vp.y + '" text-anchor="middle" dominant-baseline="middle" fill="var(--accent)" font-size="10" font-weight="700">' + score + '</text>';
+        var lp = polarToXY(i * 60, r + 22);
+        svg += '<text x="' + lp.x + '" y="' + lp.y + '" text-anchor="middle" font-family="inherit">';
+        svg += '<tspan x="' + lp.x + '" dy="-0.2em" fill="var(--text-dim)" font-size="9" font-weight="600">' + labels[i] + '</tspan>';
+        svg += '<tspan x="' + lp.x + '" dy="1.15em" fill="var(--accent)" font-size="11" font-weight="700">' + score + '</tspan>';
+        svg += '</text>';
     }
 
     svg += '</svg>';
