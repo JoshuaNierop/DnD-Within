@@ -2563,6 +2563,15 @@ a { color: inherit; text-decoration: none; }
 .pin-label { background: rgba(0,0,0,0.8); color: var(--text-bright); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 100px; white-space: nowrap; margin-top: 0.2rem; pointer-events: none; }
 .pin-link-icon { opacity: 0.6; font-size: 0.65rem; }
 
+/* Portal area: invisible oval clickable region (replaces pin-dot for linked pins) */
+.map-pin.is-portal-area { transform: none; border-radius: 50%; background: transparent; }
+.map-pin.is-portal-area .pin-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin-top: 0; opacity: 0; transition: opacity 0.2s; }
+.map-pin.is-portal-area:hover .pin-label { opacity: 1; }
+.map-canvas.is-dm .map-pin.is-portal-area { outline: 1px dashed rgba(124, 92, 255, 0.55); background: rgba(124, 92, 255, 0.06); }
+.map-canvas.is-dm .map-pin.is-portal-area:hover { background: rgba(124, 92, 255, 0.2); outline-color: var(--accent); }
+.map-canvas.is-dm .map-pin.is-portal-area .pin-label { opacity: 0.9; }
+.map-pin.is-portal-area .pin-delete { top: 4px; right: 4px; }
+
 .map-breadcrumb-sep { color: var(--text-dim); font-size: 1.1rem; margin: 0 0.25rem; }
 
 .pin-delete { position: absolute; top: -8px; right: -16px; width: 18px; height: 18px; border-radius: 50%; background: var(--danger); border: none; color: white; font-size: 0.7rem; cursor: pointer; display: none; align-items: center; justify-content: center; }

@@ -910,24 +910,54 @@ function initInitiativeDragDrop() {
         }
     });
 
-    document.addEventListener('pointerup', function(e) {
-        if (!_initDrag || _initDrag.pointerId !== e.pointerId) return;
+    function finishDrag(e) {
+        if (!_initDrag) return;
         if (!_initDrag.started) { cleanup(); return; }
 
-        // Release capture before checking position
         if (_initDrag.el) {
-            try { _initDrag.el.releasePointerCapture(e.pointerId); } catch (ex) {}
+            try { _initDrag.el.releasePointerCapture(_initDrag.pointerId); } catch (ex) {}
         }
 
-        // Use last known position from pointermove if pointerup coords seem off
-        var dropY = e.clientY;
-        if (_initDrag.lastY !== undefined) dropY = _initDrag.lastY;
+        var x = (e && typeof e.clientX === 'number' && e.clientX) ? e.clientX : _initDrag.lastX;
+        var y = (e && typeof e.clientY === 'number' && e.clientY) ? e.clientY : _initDrag.lastY;
+        if (typeof x !== 'number') x = _initDrag.lastX;
+        if (typeof y !== 'number') y = _initDrag.lastY;
 
-        if (isOverDropZone(e.clientX || _initDrag.lastX, dropY)) {
-            doDrop(dropY);
-        } else {
+        try {
+            if (typeof x === 'number' && typeof y === 'number' && isOverDropZone(x, y)) {
+                doDrop(y);
+            } else {
+                cleanup();
+            }
+        } catch (ex) {
             cleanup();
         }
+    }
+
+    document.addEventListener('pointerup', function(e) {
+        // Accept any pointerup while a drag is active — pointerId mismatch should
+        // not strand the ghost on the cursor.
+        if (!_initDrag) return;
+        if (_initDrag.pointerId !== undefined && e.pointerId !== undefined &&
+            _initDrag.pointerId !== e.pointerId) {
+            // Different pointer (e.g., second touch); ignore but only if main drag still active.
+            return;
+        }
+        finishDrag(e);
+    });
+
+    // Failsafes: if the browser cancels the gesture or capture is lost, drop the ghost.
+    document.addEventListener('pointercancel', function(e) {
+        if (!_initDrag) return;
+        cleanup();
+    });
+    document.addEventListener('lostpointercapture', function(e) {
+        if (!_initDrag || !_initDrag.started) return;
+        finishDrag(e);
+    });
+    // Esc cancels an in-flight drag.
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && _initDrag) cleanup();
     });
 }
 

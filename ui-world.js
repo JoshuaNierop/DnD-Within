@@ -96,7 +96,7 @@ function renderMaps() {
 
         // Map viewer
         html += '<div class="map-viewer" id="map-viewer">';
-        html += '<div class="map-canvas" id="map-canvas" style="transform: scale(' + mapZoom + ') translate(' + mapPanX + 'px, ' + mapPanY + 'px);">';
+        html += '<div class="map-canvas' + (isDM() ? ' is-dm' : '') + '" id="map-canvas" style="transform: scale(' + mapZoom + ') translate(' + mapPanX + 'px, ' + mapPanY + 'px);">';
 
         if (map.image) {
             html += '<img src="' + map.image + '" alt="' + escapeAttr(map.name) + '" class="map-image" draggable="false">';
@@ -124,18 +124,32 @@ function renderMaps() {
         for (var pi = 0; pi < pins.length; pi++) {
             var pin = pins[pi];
             var isLink = pin.targetMap && allMapsLookup[pin.targetMap];
-            var pinClass = isLink ? 'map-pin has-link' : 'map-pin';
-            html += '<div class="' + pinClass + '" style="left:' + pin.x + '%;top:' + pin.y + '%;" data-pin-idx="' + pi + '"';
+            var isPortalArea = isLink && (pin.w > 0 || pin.h > 0);
+            var pinClass = 'map-pin';
+            if (isLink) pinClass += ' has-link';
+            if (isPortalArea) pinClass += ' is-portal-area';
+
+            var styleStr;
+            if (isPortalArea) {
+                var pw = pin.w > 0 ? pin.w : 8;
+                var ph = pin.h > 0 ? pin.h : 5;
+                styleStr = 'left:' + (pin.x - pw / 2) + '%;top:' + (pin.y - ph / 2) + '%;width:' + pw + '%;height:' + ph + '%;';
+            } else {
+                styleStr = 'left:' + pin.x + '%;top:' + pin.y + '%;';
+            }
+            html += '<div class="' + pinClass + '" style="' + styleStr + '" data-pin-idx="' + pi + '"';
             if (isLink) {
                 var targetInfo = allMapsLookup[pin.targetMap];
                 html += ' data-action="goto-map" data-target="' + pin.targetMap + '" data-target-dim="' + targetInfo.dimIdx + '"';
                 html += ' title="Ga naar: ' + escapeAttr(targetInfo.name) + '"';
             }
             html += '>';
-            if (isLink) {
-                html += '<div class="pin-dot pin-portal">&#9670;</div>';
-            } else {
-                html += '<div class="pin-dot"></div>';
+            if (!isPortalArea) {
+                if (isLink) {
+                    html += '<div class="pin-dot pin-portal">&#9670;</div>';
+                } else {
+                    html += '<div class="pin-dot"></div>';
+                }
             }
             if (pin.label) {
                 html += '<span class="pin-label">' + escapeHtml(pin.label);

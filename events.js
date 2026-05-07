@@ -2773,6 +2773,12 @@ function bindPageEvents(route) {
                     }
                 }
                 modalHtml += '</select>';
+                modalHtml += '<div id="pin-portal-size" style="display:none;flex-direction:column;gap:0.4rem;padding:0.5rem;border:1px dashed var(--border);border-radius:6px;">';
+                modalHtml += '<label style="font-size:0.75rem;color:var(--text-dim);">Onzichtbare portal-ovaal (% van kaart)</label>';
+                modalHtml += '<div style="display:flex;gap:0.5rem;">';
+                modalHtml += '<input type="number" class="edit-input" id="pin-portal-w" placeholder="Breedte" min="1" max="100" step="0.5" value="8" style="flex:1;">';
+                modalHtml += '<input type="number" class="edit-input" id="pin-portal-h" placeholder="Hoogte" min="1" max="100" step="0.5" value="5" style="flex:1;">';
+                modalHtml += '</div></div>';
                 modalHtml += '</div>';
                 modalHtml += '<div class="modal-actions" style="margin-top:1rem;">';
                 modalHtml += '<button class="btn btn-primary" data-modal-action="save-pin">' + t('generic.save') + '</button>';
@@ -2784,6 +2790,13 @@ function bindPageEvents(route) {
                 if (typeof lockBodyScroll === 'function') lockBodyScroll();
                 var pinLabelInput = document.getElementById('pin-label-input');
                 if (pinLabelInput) pinLabelInput.focus();
+                var pinLinkSelectEl = document.getElementById('pin-link-select');
+                var pinPortalSizeEl = document.getElementById('pin-portal-size');
+                if (pinLinkSelectEl && pinPortalSizeEl) {
+                    pinLinkSelectEl.addEventListener('change', function() {
+                        pinPortalSizeEl.style.display = pinLinkSelectEl.value ? 'flex' : 'none';
+                    });
+                }
 
                 var pinModal = document.getElementById('pin-modal');
                 pinModal.addEventListener('click', function(me) {
@@ -2799,18 +2812,29 @@ function bindPageEvents(route) {
                         // Empty label allowed: dot-only pin for locations already named on the map
 
                         var targetMapId = linkEl ? linkEl.value : null;
+                        var portalW = null, portalH = null;
+                        if (targetMapId) {
+                            var pwEl = document.getElementById('pin-portal-w');
+                            var phEl = document.getElementById('pin-portal-h');
+                            var pwVal = pwEl ? parseFloat(pwEl.value) : NaN;
+                            var phVal = phEl ? parseFloat(phEl.value) : NaN;
+                            portalW = (isFinite(pwVal) && pwVal > 0) ? Math.min(pwVal, 100) : 8;
+                            portalH = (isFinite(phVal) && phVal > 0) ? Math.min(phVal, 100) : 5;
+                        }
                         var mData2 = getMapsData();
                         var mDim2 = mData2.dimensions[activeDimension];
                         for (var cmi2 = 0; cmi2 < mDim2.maps.length; cmi2++) {
                             if (mDim2.maps[cmi2].id === activeMapId) {
                                 if (!Array.isArray(mDim2.maps[cmi2].pins)) mDim2.maps[cmi2].pins = mDim2.maps[cmi2].pins ? Object.values(mDim2.maps[cmi2].pins) : [];
-                                mDim2.maps[cmi2].pins.push({
+                                var newPin = {
                                     id: 'pin' + Date.now(),
                                     x: pinX,
                                     y: pinY,
                                     label: label,
                                     targetMap: targetMapId || null
-                                });
+                                };
+                                if (targetMapId) { newPin.w = portalW; newPin.h = portalH; }
+                                mDim2.maps[cmi2].pins.push(newPin);
                                 break;
                             }
                         }
