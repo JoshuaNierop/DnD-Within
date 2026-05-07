@@ -249,15 +249,15 @@ function renderWizardModal() {
 
     html += '</div>'; // wizard-body
 
-    // Navigation buttons
+    // Navigation buttons — Prev op step 1 = Cancel (sluit wizard)
     html += '<div class="wizard-nav">';
     if (step > 1) {
-        html += '<button class="btn btn-ghost" data-action="wizard-prev">&larr; ' + t('wizard.prev') + '</button>';
+        html += '<button class="btn btn-ghost" data-action="wizard-prev">' + t('wizard.prev') + '</button>';
     } else {
-        html += '<div></div>';
+        html += '<button class="btn btn-ghost" data-action="wizard-cancel">' + (t('generic.cancel') || 'Cancel') + '</button>';
     }
     if (step < totalSteps) {
-        html += '<button class="btn btn-primary" data-action="wizard-next">' + t('wizard.next') + ' &rarr;</button>';
+        html += '<button class="btn btn-primary" data-action="wizard-next">' + t('wizard.next') + '</button>';
     } else {
         html += '<button class="btn btn-primary" data-action="wizard-create">' + t('wizard.create') + '</button>';
     }
@@ -791,13 +791,13 @@ function refreshWizard() {
         var newContent = tmp.querySelector('.wizard-content');
         var newSidebar = tmp.querySelector('.wizard-sidebar');
         var newSteps = tmp.querySelector('.wizard-steps');
-        var newFooter = tmp.querySelector('.wizard-footer');
+        var newNav = tmp.querySelector('.wizard-nav');
 
-        // Replace footer + steps immediately so prev/next listeners point at fresh
+        // Replace nav + steps immediately so prev/next listeners point at fresh
         // nodes — without this, repeated clicks during the 120ms crossfade still
         // hit the old listener and advance multiple steps at once.
-        var footerEl = el.querySelector('.wizard-footer');
-        if (footerEl && newFooter) footerEl.innerHTML = newFooter.innerHTML;
+        var navEl = el.querySelector('.wizard-nav');
+        if (navEl && newNav) navEl.innerHTML = newNav.innerHTML;
         var stepsEl = el.querySelector('.wizard-steps');
         if (stepsEl && newSteps) stepsEl.innerHTML = newSteps.innerHTML;
         bindWizardEvents();
@@ -836,6 +836,12 @@ function bindWizardEvents() {
         e.stopPropagation();
         saveWizardStepData();
         if (wizardState.step > 1) { wizardState.step--; refreshWizard(); }
+    });
+
+    var cancelBtn = container.querySelector('[data-action="wizard-cancel"]');
+    if (cancelBtn) cancelBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        closeWizard();
     });
 
     var nextBtn = container.querySelector('[data-action="wizard-next"]');
