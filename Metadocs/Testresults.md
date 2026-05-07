@@ -174,7 +174,7 @@
 76. **Portrait glow ring** — conic-gradient synct niet altijd met portrait positie
 77. **SEED_DATA verouderd** — Ren = Half-Elf/Scout (beide legacy)
 78. **Campaign invite systeem** — niet af
-79. **Firebase security rules verlopen 2026-04-28** — nog **15 dagen** — ⚠️ deadline nadert
+79. ~~**Firebase security rules verlopen 2026-04-28**~~ — ✅ **DONE** — verlengd tot 2027-04-28 (commit `883e952`, 2026-04-16)
 
 ### 4.6 Playwright smoke bevindingen
 80. Spells tab rendert 0 elementen voor Rogue lvl 2 (verwacht; AT pas lvl 3) — **test herhalen met caster character op lvl 3+** om third-caster bug te verifiëren
@@ -189,7 +189,7 @@
 2. Blade Ward + True Strike herschrijven (2× desc update)
 3. Warlock + Ranger prepared spell formules in `engine.js`
 4. Feat `abilityBonus` auto-toekenning bij `choice.ability`
-5. Firebase security rules verlengen (deadline 2026-04-28)
+5. ~~Firebase security rules verlengen (deadline 2026-04-28)~~ — ✅ DONE (2026-04-16, geldig tot 2027-04-28)
 
 **Deze maand (P1):**
 6. Third-caster spell slot tabel + EK/AT `spellcastingAbility` override

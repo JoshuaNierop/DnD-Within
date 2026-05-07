@@ -4053,48 +4053,38 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
         top: 80px;
         margin-bottom: 0;
         padding: 1rem;
-        display: grid;
-        grid-template-columns: 16px 1fr;
-        grid-template-rows: auto 1fr;
+        display: flex;
+        flex-direction: column;
         gap: 0.6rem;
-        align-items: stretch;
     }
     .tab-combat > .hp-tracker .hp-display {
-        grid-column: 1 / -1;
-        grid-row: 1;
         margin-bottom: 0;
     }
     .tab-combat > .hp-tracker .hp-current { font-size: 2rem; }
     .tab-combat > .hp-tracker .hp-bar {
-        grid-column: 1;
-        grid-row: 2;
-        height: 100%;
-        min-height: 140px;
-        width: 14px;
+        height: 8px;
+        width: 100%;
         margin: 0;
         position: relative;
         background: var(--bg-block);
+        border-radius: 4px;
+        overflow: hidden;
     }
     .tab-combat > .hp-tracker .hp-bar-fill {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100% !important;
-        height: var(--hp-bar-h, 100%);
-        transition: height 0.5s ease, background 0.3s;
+        position: relative;
+        height: 100%;
+        width: var(--hp-bar-h, 100%);
+        transition: width 0.5s ease, background 0.3s;
     }
     .tab-combat > .hp-tracker .hp-controls {
-        grid-column: 2;
-        grid-row: 2;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr auto;
         grid-auto-flow: row;
-        gap: 0.4rem;
-        align-content: start;
+        gap: 0.4rem 0.5rem;
+        align-items: center;
     }
     .tab-combat > .hp-tracker .hp-input { width: 100%; }
-    .tab-combat > .hp-tracker .hp-btn { width: 100%; }
+    .tab-combat > .hp-tracker .hp-btn { width: 100%; min-width: 80px; }
     .tab-combat > .inspiration-toggle {
         max-width: 280px;
         padding: 0.45rem 0.7rem;
