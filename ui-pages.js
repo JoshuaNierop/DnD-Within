@@ -1064,7 +1064,11 @@ function renderDMFamilies() {
         return html;
     }
 
-    // Family pills (one per surname)
+    // Two-column layout on wide screens: pills column + panel column
+    var splitClass = familiesExpandedId ? 'famdiag-split has-panel' : 'famdiag-split';
+    html += '<div class="' + splitClass + '">';
+
+    // Family pills (one per surname) — left column
     html += '<div class="famdiag-pills">';
     for (var fi = 0; fi < filtered.length; fi++) {
         var f = filtered[fi];
@@ -1080,12 +1084,14 @@ function renderDMFamilies() {
     }
     html += '</div>';
 
-    // Show selected family
+    // Show selected family — right column
     if (familiesExpandedId) {
         html += '<div class="famdiag-panel">';
         html += renderFamilyDiagram(familiesExpandedId, true);
         html += '</div>';
     }
+
+    html += '</div>'; // famdiag-split
 
     html += '</div>';
     return html;

@@ -8040,6 +8040,35 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
 }
 .famdiag-search { flex: 1 1 200px; min-width: 200px; }
 
+.famdiag-split {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+@media (min-width: 900px) {
+    .famdiag-split.has-panel {
+        display: grid;
+        grid-template-columns: minmax(180px, 220px) 1fr;
+        gap: 1rem;
+        align-items: start;
+    }
+    .famdiag-split.has-panel .famdiag-pills {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        max-height: calc(100vh - 240px);
+        overflow-y: auto;
+        margin-bottom: 0;
+    }
+    .famdiag-split.has-panel .famdiag-pill {
+        width: 100%;
+        min-width: 0;
+    }
+    .famdiag-split.has-panel .famdiag-panel {
+        margin-top: 0;
+        min-width: 0;
+    }
+}
+
 .famdiag-pills {
     display: flex;
     flex-wrap: wrap;
