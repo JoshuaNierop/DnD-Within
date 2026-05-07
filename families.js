@@ -316,6 +316,9 @@ function getFamilyView(familyId) {
     var data = getFamiliesData();
     var fam = data.families[familyId];
     if (!fam) return null;
+    // Firebase serializes empty arrays as null — coerce back to [].
+    if (!Array.isArray(fam.members)) fam.members = fam.members ? Object.values(fam.members) : [];
+    if (!Array.isArray(fam.unions)) fam.unions = fam.unions ? Object.values(fam.unions) : [];
     var memberSet = {};
     for (var i = 0; i < fam.members.length; i++) memberSet[fam.members[i]] = data.members[fam.members[i]];
     // Unions visible: any union where ≥1 partner is in this family

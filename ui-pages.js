@@ -832,14 +832,16 @@ function initInitiativeDragDrop() {
         var insertIdx = getInsertIdx(y);
 
         if (_initDrag.type === 'player') {
-            var cfg = loadCharConfig(_initDrag.charId);
-            if (!cfg) { cleanup(); return; }
-            initData.entries.splice(insertIdx, 0, { name: cfg.name, charId: _initDrag.charId });
+            if (!_initDrag.charId) { cleanup(); return; }
+            var cfg = (typeof loadCharConfig === 'function') ? loadCharConfig(_initDrag.charId) : null;
+            var playerName = (cfg && cfg.name) ? cfg.name : (_initDrag.snapshotName || _initDrag.charId);
+            initData.entries.splice(insertIdx, 0, { name: playerName, charId: _initDrag.charId });
         } else if (_initDrag.type === 'npc') {
             var nIdx = parseInt(_initDrag.npcIdx);
             var npc = initData.npcs[nIdx];
-            if (!npc) { cleanup(); return; }
-            initData.entries.splice(insertIdx, 0, { name: npc.name, npcIdx: nIdx, disposition: npc.disposition });
+            var npcName = (npc && npc.name) ? npc.name : (_initDrag.snapshotName || ('NPC ' + (isFinite(nIdx) ? nIdx : '')));
+            var npcDisp = npc ? npc.disposition : 'unknown';
+            initData.entries.splice(insertIdx, 0, { name: npcName, npcIdx: isFinite(nIdx) ? nIdx : null, disposition: npcDisp });
         } else if (_initDrag.type === 'reorder') {
             var oldIdx = parseInt(_initDrag.initIdx);
             var moved = initData.entries.splice(oldIdx, 1)[0];
@@ -863,6 +865,10 @@ function initInitiativeDragDrop() {
         var el = e.target.closest('.init-draggable');
         if (!el) return;
         if (e.button && e.button !== 0) return;
+        // Snapshot the visible name from the row so doDrop has a fallback when
+        // loadCharConfig isn't available (e.g., after a sync purge).
+        var nameNode = el.querySelector('.init-name') || el.querySelector('span:not(.init-drag-handle)');
+        var snapshotName = nameNode ? (nameNode.textContent || '').trim() : '';
         e.preventDefault();
         _initDrag = {
             el: el,
@@ -870,6 +876,7 @@ function initInitiativeDragDrop() {
             charId: el.dataset.charId,
             npcIdx: el.dataset.npcIdx,
             initIdx: el.dataset.initIdx,
+            snapshotName: snapshotName,
             pointerId: e.pointerId,
             startX: e.clientX,
             startY: e.clientY,

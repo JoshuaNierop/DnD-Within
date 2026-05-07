@@ -655,12 +655,52 @@ function bindPageEvents(route) {
             return;
         }
         if (target.matches('[data-action="famdiag-create-family"]')) {
-            var newSurname = prompt('Familienaam (achternaam):');
-            if (newSurname && newSurname.trim()) {
-                var fnew = createFamily(newSurname.trim());
+            var existingCreate = document.getElementById('famdiag-create-modal');
+            if (existingCreate) existingCreate.remove();
+
+            var fcHtml = '<div class="modal-overlay" id="famdiag-create-modal">';
+            fcHtml += '<div class="modal-box famdiag-edit-box">';
+            fcHtml += '<div class="modal-header"><h3>Nieuwe familie</h3>';
+            fcHtml += '<button class="modal-close" data-fc-action="cancel" aria-label="Sluiten">&times;</button></div>';
+            fcHtml += '<div class="famdiag-edit-grid" style="grid-template-columns:1fr;">';
+            fcHtml += '<label class="famdiag-edit-field"><span>Familienaam (achternaam)</span><input type="text" class="edit-input" id="fc-surname" autofocus placeholder="bv. Stormwind"></label>';
+            fcHtml += '<label class="famdiag-edit-field"><span>Notities (optioneel)</span><textarea class="edit-input" id="fc-notes" rows="3" placeholder="Korte beschrijving, oorsprong, etc."></textarea></label>';
+            fcHtml += '</div>';
+            fcHtml += '<div class="modal-actions">';
+            fcHtml += '<button class="btn btn-ghost" data-fc-action="cancel">Annuleren</button>';
+            fcHtml += '<button class="btn btn-primary" data-fc-action="save">Aanmaken</button>';
+            fcHtml += '</div></div></div>';
+
+            document.body.insertAdjacentHTML('beforeend', fcHtml);
+            if (typeof lockBodyScroll === 'function') lockBodyScroll();
+            var fcModal = document.getElementById('famdiag-create-modal');
+            var fcInput = document.getElementById('fc-surname');
+            if (fcInput) fcInput.focus();
+
+            function fcClose() {
+                fcModal.remove();
+                if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+            }
+            function fcSave() {
+                var surname = (document.getElementById('fc-surname').value || '').trim();
+                if (!surname) { fcInput && fcInput.focus(); return; }
+                var notes = (document.getElementById('fc-notes').value || '').trim();
+                var fnew = createFamily(surname, notes || undefined);
                 familiesExpandedId = fnew.id;
+                fcClose();
                 renderApp();
             }
+            fcModal.addEventListener('click', function(me) {
+                var actEl = me.target.closest('[data-fc-action]');
+                var act = actEl ? actEl.dataset.fcAction : null;
+                if (me.target === fcModal) act = 'cancel';
+                if (act === 'cancel') fcClose();
+                else if (act === 'save') fcSave();
+            });
+            fcModal.addEventListener('keydown', function(ke) {
+                if (ke.key === 'Escape') fcClose();
+                else if (ke.key === 'Enter' && ke.target.tagName === 'INPUT') fcSave();
+            });
             return;
         }
         if (target.matches('[data-action="famdiag-rename"]') || target.closest('[data-action="famdiag-rename"]')) {
