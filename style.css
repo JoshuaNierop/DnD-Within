@@ -2570,11 +2570,24 @@ a { color: inherit; text-decoration: none; }
 .map-canvas.is-dm .map-pin.is-portal-area { outline: 1px dashed rgba(124, 92, 255, 0.55); background: rgba(124, 92, 255, 0.06); }
 .map-canvas.is-dm .map-pin.is-portal-area:hover { background: rgba(124, 92, 255, 0.2); outline-color: var(--accent); }
 .map-canvas.is-dm .map-pin.is-portal-area .pin-label { opacity: 0.9; }
-.map-pin.is-portal-area .pin-delete { top: 4px; right: 4px; }
+.map-pin.is-portal-area .pin-delete { top: 6px; right: 6px; }
+
+/* Family-diagram edit-member modal */
+.famdiag-edit-box { max-width: 460px; width: 100%; }
+.famdiag-edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem 0.75rem; margin-top: 1rem; }
+.famdiag-edit-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.famdiag-edit-field span { font-size: 0.78rem; color: var(--text-dim); font-weight: 500; }
+.famdiag-edit-field .edit-input { padding: 0.55rem 0.7rem; font-size: 0.9rem; }
+@media (max-width: 500px) {
+    .famdiag-edit-grid { grid-template-columns: 1fr; }
+}
 
 .map-breadcrumb-sep { color: var(--text-dim); font-size: 1.1rem; margin: 0 0.25rem; }
 
-.pin-delete { position: absolute; top: -8px; right: -16px; width: 18px; height: 18px; border-radius: 50%; background: var(--danger); border: none; color: white; font-size: 0.7rem; cursor: pointer; display: none; align-items: center; justify-content: center; }
+.pin-delete { position: absolute; top: -10px; right: -22px; width: 26px; height: 26px; border-radius: 50%; background: var(--danger); border: 2px solid var(--bg-dark); color: white; font-size: 0.95rem; line-height: 1; cursor: pointer; display: none; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.4); z-index: 12; }
+.pin-delete:hover { transform: scale(1.1); }
+.map-canvas.is-dm .pin-delete { display: flex; opacity: 0.85; }
+.map-canvas.is-dm .map-pin:hover .pin-delete { opacity: 1; }
 .map-pin:hover .pin-delete { display: flex; }
 
 /* Zoom Controls */

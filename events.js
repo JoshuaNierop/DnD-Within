@@ -777,27 +777,66 @@ function bindPageEvents(route) {
             var emid = ebtn.dataset.memberId;
             var emem = getMember(emid);
             if (!emem) return;
-            var newFirst = prompt('Voornaam:', emem.firstName || '');
-            if (newFirst === null) return;
-            var newLast = prompt('Achternaam:', emem.lastName || '');
-            if (newLast === null) return;
-            var newBirth = prompt('Geboortejaar (optioneel):', emem.birth || '');
-            if (newBirth === null) return;
-            var newDeath = prompt('Sterfjaar (leeg = nog levend):', emem.death || '');
-            if (newDeath === null) return;
-            var newRace = prompt('Ras (optioneel):', emem.race || '');
-            if (newRace === null) return;
-            var newGender = prompt('Geslacht (man/vrouw/neutraal, leeg = onbekend):', emem.gender || '');
-            if (newGender === null) return;
-            updateMember(emid, {
-                firstName: newFirst.trim(),
-                lastName: newLast.trim(),
-                birth: newBirth.trim(),
-                death: newDeath.trim(),
-                race: newRace.trim(),
-                gender: newGender.trim()
+
+            var existing = document.getElementById('famdiag-edit-modal');
+            if (existing) existing.remove();
+
+            var fmHtml = '<div class="modal-overlay" id="famdiag-edit-modal">';
+            fmHtml += '<div class="modal-box famdiag-edit-box">';
+            fmHtml += '<div class="modal-header"><h3>Familielid bewerken</h3>';
+            fmHtml += '<button class="modal-close" data-fam-action="cancel" aria-label="Sluiten">&times;</button></div>';
+            fmHtml += '<div class="famdiag-edit-grid">';
+            fmHtml += '<label class="famdiag-edit-field"><span>Voornaam</span><input type="text" class="edit-input" id="fm-first" value="' + escapeAttr(emem.firstName || '') + '" autofocus></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Achternaam</span><input type="text" class="edit-input" id="fm-last" value="' + escapeAttr(emem.lastName || '') + '"></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Geboortejaar</span><input type="text" class="edit-input" id="fm-birth" value="' + escapeAttr(emem.birth || '') + '" placeholder="optioneel"></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Sterfjaar</span><input type="text" class="edit-input" id="fm-death" value="' + escapeAttr(emem.death || '') + '" placeholder="leeg = nog levend"></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Ras</span><input type="text" class="edit-input" id="fm-race" value="' + escapeAttr(emem.race || '') + '" placeholder="optioneel"></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Geslacht</span><select class="edit-input" id="fm-gender">';
+            var genderOpts = [{v:'',l:'— onbekend —'},{v:'man',l:'Man'},{v:'vrouw',l:'Vrouw'},{v:'neutraal',l:'Neutraal'}];
+            for (var gi=0; gi<genderOpts.length; gi++) {
+                var sel = (emem.gender || '') === genderOpts[gi].v ? ' selected' : '';
+                fmHtml += '<option value="' + genderOpts[gi].v + '"' + sel + '>' + genderOpts[gi].l + '</option>';
+            }
+            fmHtml += '</select></label>';
+            fmHtml += '</div>';
+            fmHtml += '<div class="modal-actions">';
+            fmHtml += '<button class="btn btn-ghost" data-fam-action="cancel">Annuleren</button>';
+            fmHtml += '<button class="btn btn-primary" data-fam-action="save">Opslaan</button>';
+            fmHtml += '</div></div></div>';
+
+            document.body.insertAdjacentHTML('beforeend', fmHtml);
+            if (typeof lockBodyScroll === 'function') lockBodyScroll();
+            var fmModal = document.getElementById('famdiag-edit-modal');
+            var fmFirstInput = document.getElementById('fm-first');
+            if (fmFirstInput) { fmFirstInput.focus(); fmFirstInput.select(); }
+
+            function fmClose() {
+                fmModal.remove();
+                if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+            }
+            function fmSave() {
+                updateMember(emid, {
+                    firstName: (document.getElementById('fm-first').value || '').trim(),
+                    lastName: (document.getElementById('fm-last').value || '').trim(),
+                    birth: (document.getElementById('fm-birth').value || '').trim(),
+                    death: (document.getElementById('fm-death').value || '').trim(),
+                    race: (document.getElementById('fm-race').value || '').trim(),
+                    gender: (document.getElementById('fm-gender').value || '').trim()
+                });
+                fmClose();
+                renderApp();
+            }
+            fmModal.addEventListener('click', function(me) {
+                var actEl = me.target.closest('[data-fam-action]');
+                var act = actEl ? actEl.dataset.famAction : null;
+                if (me.target === fmModal) act = 'cancel';
+                if (act === 'cancel') fmClose();
+                else if (act === 'save') fmSave();
             });
-            renderApp();
+            fmModal.addEventListener('keydown', function(ke) {
+                if (ke.key === 'Escape') fmClose();
+                else if (ke.key === 'Enter' && ke.target.tagName === 'INPUT') fmSave();
+            });
             return;
         }
         if (target.matches('[data-action="famdiag-remove-member"]') || target.closest('[data-action="famdiag-remove-member"]')) {
