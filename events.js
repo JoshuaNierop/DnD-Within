@@ -654,6 +654,30 @@ function bindPageEvents(route) {
             renderApp();
             return;
         }
+
+        if (target.matches('[data-action="famdiag-zoom-fit"]')) {
+            var fitFid = target.dataset.familyId;
+            var fitWrap = document.querySelector('.famdiag-wrap[data-family-id="' + fitFid + '"]');
+            if (fitWrap) {
+                var scrollEl = fitWrap.querySelector('.famdiag-canvas-scroll');
+                var canvasEl = fitWrap.querySelector('.famdiag-canvas');
+                if (scrollEl && canvasEl) {
+                    var canvasW = parseFloat(canvasEl.style.width) || canvasEl.scrollWidth;
+                    var canvasH = parseFloat(canvasEl.style.height) || canvasEl.scrollHeight;
+                    var availW = scrollEl.clientWidth - 16;
+                    var availH = scrollEl.clientHeight - 16;
+                    var scale = Math.min(availW / canvasW, availH / canvasH, 1);
+                    if (!isFinite(scale) || scale <= 0) scale = 1;
+                    scale = Math.max(0.4, Math.min(1.5, scale));
+                    scrollEl.style.setProperty('--famdiag-scale', scale.toFixed(3));
+                    var fitSlider = fitWrap.querySelector('input[data-action="famdiag-zoom-slider"]');
+                    if (fitSlider) fitSlider.value = scale;
+                    var fitPct = document.getElementById('famdiag-zoom-pct-' + fitFid);
+                    if (fitPct) fitPct.textContent = Math.round(scale * 100) + '%';
+                }
+            }
+            return;
+        }
         if (target.matches('[data-action="famdiag-create-family"]')) {
             var existingCreate = document.getElementById('famdiag-create-modal');
             if (existingCreate) existingCreate.remove();
@@ -3272,6 +3296,19 @@ function bindPageEvents(route) {
     // ---- Input delegation ----
     app.oninput = function(e) {
         var target = e.target;
+
+        if (target.matches('input[data-action="famdiag-zoom-slider"]')) {
+            var zfid = target.dataset.familyId;
+            var zwrap = document.querySelector('.famdiag-wrap[data-family-id="' + zfid + '"]');
+            var zscroll = zwrap ? zwrap.querySelector('.famdiag-canvas-scroll') : null;
+            if (zscroll) {
+                var zval = parseFloat(target.value) || 1;
+                zscroll.style.setProperty('--famdiag-scale', zval.toFixed(3));
+                var zpct = document.getElementById('famdiag-zoom-pct-' + zfid);
+                if (zpct) zpct.textContent = Math.round(zval * 100) + '%';
+            }
+            return;
+        }
 
         // NPC search
         if (target.matches('#npc-search')) {

@@ -8077,17 +8077,38 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
 }
 
 .famdiag-canvas-scroll {
-    overflow-x: auto;
-    overflow-y: visible;
+    overflow: auto;
+    max-height: calc(100vh - 240px);
     -webkit-overflow-scrolling: touch;
     background: var(--bg);
     border-radius: var(--radius);
-    padding: 0.25rem;
+    padding: 0.5rem;
+    --famdiag-scale: 1;
 }
 .famdiag-canvas {
     position: relative;
     margin: 0 auto;
+    transform: scale(var(--famdiag-scale, 1));
+    transform-origin: top left;
 }
+.famdiag-zoom {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+.famdiag-zoom input[type="range"] { width: 110px; accent-color: var(--accent); }
+.famdiag-zoom button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.72rem;
+}
+.famdiag-zoom button:hover { color: var(--text-bright); border-color: var(--accent); }
 .famdiag-svg {
     position: absolute;
     top: 0;

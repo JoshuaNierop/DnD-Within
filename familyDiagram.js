@@ -19,6 +19,11 @@ function renderFamilyDiagram(familyId, editable) {
     html += '<h3 class="famdiag-title">' + escapeHtml(fam.surname || '(geen achternaam)') + '</h3>';
     if (editable) {
         html += '<div class="famdiag-header-actions">';
+        html += '<div class="famdiag-zoom" data-family-id="' + escapeAttr(familyId) + '">';
+        html += '<button data-action="famdiag-zoom-fit" data-family-id="' + escapeAttr(familyId) + '" title="Fit to screen">Fit</button>';
+        html += '<input type="range" min="0.4" max="1.5" step="0.05" value="1" data-action="famdiag-zoom-slider" data-family-id="' + escapeAttr(familyId) + '">';
+        html += '<span class="famdiag-zoom-pct" id="famdiag-zoom-pct-' + escapeAttr(familyId) + '">100%</span>';
+        html += '</div>';
         html += '<button class="btn btn-ghost btn-sm" data-action="famdiag-rename" data-family-id="' + escapeAttr(familyId) + '">Rename</button>';
         html += '<button class="btn btn-ghost btn-sm" data-action="famdiag-add-root" data-family-id="' + escapeAttr(familyId) + '">+ Member</button>';
         html += '<button class="btn btn-ghost btn-sm" data-action="famdiag-delete-family" data-family-id="' + escapeAttr(familyId) + '" style="color:var(--danger);">Delete</button>';
