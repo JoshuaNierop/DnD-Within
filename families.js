@@ -29,6 +29,23 @@ function getFamiliesData() {
             if (!p.families) p.families = {};
             if (!p.members) p.members = {};
             if (!p.unions) p.unions = {};
+            // Firebase serializes empty arrays/maps as null. Coerce per-family arrays
+            // back to [] so push/length never crash on a fresh family.
+            var fids = Object.keys(p.families);
+            for (var i = 0; i < fids.length; i++) {
+                var fam = p.families[fids[i]];
+                if (!fam) continue;
+                if (!Array.isArray(fam.members)) fam.members = fam.members ? Object.values(fam.members) : [];
+                if (!Array.isArray(fam.unions)) fam.unions = fam.unions ? Object.values(fam.unions) : [];
+            }
+            // Same for unions: partnerIds + childIds may come back null.
+            var uids = Object.keys(p.unions);
+            for (var j = 0; j < uids.length; j++) {
+                var un = p.unions[uids[j]];
+                if (!un) continue;
+                if (!Array.isArray(un.partnerIds)) un.partnerIds = un.partnerIds ? Object.values(un.partnerIds) : [];
+                if (!Array.isArray(un.childIds)) un.childIds = un.childIds ? Object.values(un.childIds) : [];
+            }
             return p;
         } catch (e) {}
     }

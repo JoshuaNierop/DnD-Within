@@ -753,10 +753,67 @@ function bindPageEvents(route) {
             var arfid = arbtn.dataset.familyId;
             var arfam = getFamily(arfid);
             if (!arfam) return;
-            var arName = prompt('Voornaam van het nieuwe lid:');
-            if (!arName) return;
-            createMember(arfid, { firstName: arName.trim(), lastName: arfam.surname || '' });
-            renderApp();
+
+            var existingArMod = document.getElementById('famdiag-addroot-modal');
+            if (existingArMod) existingArMod.remove();
+
+            var arHtml = '<div class="modal-overlay" id="famdiag-addroot-modal">';
+            arHtml += '<div class="modal-box famdiag-edit-box">';
+            arHtml += '<div class="modal-header"><h3>Familielid toevoegen</h3>';
+            arHtml += '<button class="modal-close" data-ar-action="cancel" aria-label="Sluiten">&times;</button></div>';
+            arHtml += '<div class="famdiag-edit-grid">';
+            arHtml += '<label class="famdiag-edit-field"><span>Voornaam</span><input type="text" class="edit-input" id="ar-first" autofocus></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Achternaam</span><input type="text" class="edit-input" id="ar-last" value="' + escapeAttr(arfam.surname || '') + '"></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Geboortejaar</span><input type="text" class="edit-input" id="ar-birth" placeholder="optioneel"></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Sterfjaar</span><input type="text" class="edit-input" id="ar-death" placeholder="leeg = nog levend"></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Ras</span><input type="text" class="edit-input" id="ar-race" placeholder="optioneel"></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Geslacht</span><select class="edit-input" id="ar-gender">';
+            var arGender = [{v:'',l:'— onbekend —'},{v:'man',l:'Man'},{v:'vrouw',l:'Vrouw'},{v:'neutraal',l:'Neutraal'}];
+            for (var arGi=0; arGi<arGender.length; arGi++) {
+                arHtml += '<option value="' + arGender[arGi].v + '">' + arGender[arGi].l + '</option>';
+            }
+            arHtml += '</select></label>';
+            arHtml += '</div>';
+            arHtml += '<div class="modal-actions">';
+            arHtml += '<button class="btn btn-ghost" data-ar-action="cancel">Annuleren</button>';
+            arHtml += '<button class="btn btn-primary" data-ar-action="save">Toevoegen</button>';
+            arHtml += '</div></div></div>';
+
+            document.body.insertAdjacentHTML('beforeend', arHtml);
+            if (typeof lockBodyScroll === 'function') lockBodyScroll();
+            var arModal = document.getElementById('famdiag-addroot-modal');
+            var arFirstInput = document.getElementById('ar-first');
+            if (arFirstInput) arFirstInput.focus();
+
+            function arClose() {
+                arModal.remove();
+                if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+            }
+            function arSave() {
+                var arFirst = (document.getElementById('ar-first').value || '').trim();
+                if (!arFirst) { arFirstInput && arFirstInput.focus(); return; }
+                createMember(arfid, {
+                    firstName: arFirst,
+                    lastName: (document.getElementById('ar-last').value || '').trim(),
+                    birth: (document.getElementById('ar-birth').value || '').trim(),
+                    death: (document.getElementById('ar-death').value || '').trim(),
+                    race: (document.getElementById('ar-race').value || '').trim(),
+                    gender: (document.getElementById('ar-gender').value || '').trim()
+                });
+                arClose();
+                renderApp();
+            }
+            arModal.addEventListener('click', function(me) {
+                var actEl = me.target.closest('[data-ar-action]');
+                var act = actEl ? actEl.dataset.arAction : null;
+                if (me.target === arModal) act = 'cancel';
+                if (act === 'cancel') arClose();
+                else if (act === 'save') arSave();
+            });
+            arModal.addEventListener('keydown', function(ke) {
+                if (ke.key === 'Escape') arClose();
+                else if (ke.key === 'Enter' && ke.target.tagName === 'INPUT') arSave();
+            });
             return;
         }
         if (target.matches('[data-action="famdiag-add-partner"]') || target.closest('[data-action="famdiag-add-partner"]')) {
