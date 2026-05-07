@@ -25,6 +25,14 @@ function renderApp() {
     var app = document.getElementById('app');
     var html = '';
 
+    // Auto-migrate families on first render after login (idempotent)
+    if (user && typeof migrateFamilies === 'function' && typeof getFamiliesData === 'function') {
+        var _famData = getFamiliesData();
+        if (Object.keys(_famData.families).length === 0 && Object.keys(_famData.members).length === 0) {
+            try { migrateFamilies(); } catch (e) { console.warn('[families] auto-migration failed', e); }
+        }
+    }
+
     if (route.path === '/login' || !user) {
         html = renderLogin();
     } else if (route.parts[0] === 'join' && route.parts[1]) {
@@ -141,8 +149,12 @@ function postRenderEffects(route) {
     }
     // Initiative drag-and-drop
     initInitiativeDragDrop();
-    // Family tree SVG lines
-    postRenderFamilyTree();
+    // Family diagram SVG lines — find all rendered diagrams and draw lines
+    var diags = document.querySelectorAll('.famdiag-wrap[data-family-id]');
+    for (var di = 0; di < diags.length; di++) {
+        var fid = diags[di].dataset.familyId;
+        if (typeof postRenderFamilyDiagram === 'function') postRenderFamilyDiagram(fid);
+    }
 }
 
 // initInitiativeDragDrop is defined after renderDMInitiative

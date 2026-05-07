@@ -7981,3 +7981,201 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
 }
 .toggle-switch input:checked + .toggle-slider { background: color-mix(in srgb, var(--accent) 30%, transparent); }
 .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--accent); }
+
+/* ============================================================
+   Family Diagram (new families datamodel)
+   ============================================================ */
+
+.famdiag-wrap {
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: 0.75rem 0;
+}
+.famdiag-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.famdiag-title {
+    margin: 0;
+    color: var(--accent);
+    font-size: 1.05rem;
+    letter-spacing: 0.05em;
+}
+.famdiag-header-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.famdiag-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+.famdiag-search { flex: 1 1 200px; min-width: 200px; }
+
+.famdiag-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+}
+.famdiag-pill {
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    min-width: 110px;
+    transition: transform 0.15s, background 0.15s;
+}
+.famdiag-pill:hover { background: var(--bg-card); transform: translateY(-1px); }
+.famdiag-pill.active { background: color-mix(in srgb, var(--accent) 15%, var(--bg-block)); border-color: var(--accent); }
+.famdiag-pill-name { font-weight: 600; font-size: 0.9rem; color: var(--text-bright); }
+.famdiag-pill-count { font-size: 0.7rem; color: var(--text-dim); }
+
+.famdiag-panel {
+    border-left: 3px solid var(--accent);
+    padding: 0.75rem;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+}
+
+.famdiag-canvas-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 0.25rem;
+}
+.famdiag-canvas {
+    position: relative;
+    margin: 0 auto;
+}
+.famdiag-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+.famdiag-line { stroke: var(--text-dim); stroke-width: 1.5; fill: none; }
+.famdiag-line-partner { stroke: var(--accent); stroke-width: 2; }
+.famdiag-line-child { stroke: var(--text-dim); stroke-width: 1.5; }
+
+.famdiag-card {
+    position: absolute;
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.5rem 0.6rem;
+    box-sizing: border-box;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.15rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.famdiag-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.famdiag-card-name {
+    font-weight: 600;
+    color: var(--text-bright);
+    font-size: 0.85rem;
+    line-height: 1.2;
+    word-break: break-word;
+}
+.famdiag-card-years {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+}
+.famdiag-card-meta {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-style: italic;
+}
+.famdiag-card-deceased {
+    opacity: 0.75;
+    border-style: dashed;
+}
+.famdiag-card-guest {
+    background: color-mix(in srgb, var(--text-dim) 10%, var(--bg-block));
+    border-style: dashed;
+}
+.famdiag-card-guest .famdiag-card-name { color: var(--text); }
+
+/* Edit/remove buttons */
+.famdiag-card-edit, .famdiag-card-remove {
+    position: absolute;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+    padding: 0;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+.famdiag-card:hover .famdiag-card-edit, .famdiag-card:hover .famdiag-card-remove { opacity: 1; }
+.famdiag-card-edit { right: 22px; }
+.famdiag-card-remove { right: 2px; color: var(--danger); }
+.famdiag-card-edit:hover, .famdiag-card-remove:hover { background: var(--bg-card); }
+
+/* Add-dots */
+.famdiag-dot {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.famdiag-canvas:hover .famdiag-dot { opacity: 0.65; }
+.famdiag-dot:hover { opacity: 1; transform: scale(1.2); background: var(--accent); color: var(--bg); }
+
+.famdiag-dot-partner-l { left: -10px; top: 50%; transform: translateY(-50%); }
+.famdiag-dot-partner-l:hover { transform: translateY(-50%) scale(1.2); }
+.famdiag-dot-partner-r { right: -10px; top: 50%; transform: translateY(-50%); }
+.famdiag-dot-partner-r:hover { transform: translateY(-50%) scale(1.2); }
+.famdiag-dot-parent { left: 50%; top: -10px; transform: translateX(-50%); }
+.famdiag-dot-parent:hover { transform: translateX(-50%) scale(1.2); }
+.famdiag-dot-childadd { /* positioned via inline left/top from JS */ }
+
+.famdiag-empty-add { padding: 1rem; text-align: center; }
+
+@media (max-width: 700px) {
+    .famdiag-pill { min-width: 90px; padding: 0.4rem 0.55rem; }
+    .famdiag-pill-name { font-size: 0.8rem; }
+    .famdiag-pill-count { font-size: 0.65rem; }
+}

@@ -976,10 +976,10 @@ function renderDMNPCs() {
             html += '</div>';
             html += '<div class="npc-details">';
             if (npc.notes) html += '<p class="npc-notes">' + escapeHtml(npc.notes) + '</p>';
-            var npcFamily = npc.family || [];
-            if (npcFamily.length > 0 || isDM()) {
+            var npcPrimaryFam = (typeof findPrimaryFamilyByLink === 'function') ? findPrimaryFamilyByLink(null, String(realIdx)) : null;
+            if (npcPrimaryFam && npcPrimaryFam.family) {
                 html += '<div class="npc-family-section">';
-                html += renderFamilyTree(npcFamily, 'npc:' + realIdx, npc.name, isDM());
+                html += renderFamilyDiagram(npcPrimaryFam.family.id, false);
                 html += '</div>';
             }
             html += '<div class="npc-actions">';
@@ -996,84 +996,58 @@ function renderDMNPCs() {
     return html;
 }
 
-var familiesExpandedId = null;
+var familiesExpandedId = null;       // family ID being viewed
+var familiesSearchQuery = '';
 
 function renderDMFamilies() {
+    // Auto-migrate once
+    if (typeof migrateFamilies === 'function') {
+        var data = (typeof getFamiliesData === 'function') ? getFamiliesData() : null;
+        if (data && Object.keys(data.families).length === 0 && Object.keys(data.members).length === 0) {
+            try { migrateFamilies(); } catch (e) { console.warn('[families] migration failed', e); }
+        }
+    }
+
     var html = '<div class="dm-tool-card">';
     html += '<h3>Family Trees</h3>';
 
-    // Collect all people: characters + NPCs with families
-    var people = [];
-    var charIds = getCharacterIds();
-    for (var ci = 0; ci < charIds.length; ci++) {
-        var cfg = loadCharConfig(charIds[ci]);
-        if (!cfg) continue;
-        var family = cfg.family || [];
-        people.push({ id: charIds[ci], name: cfg.name, color: cfg.accentColor || 'var(--accent)', family: family, type: 'character', contextId: charIds[ci] });
-    }
-    var npcData = getNPCData();
-    var npcs = npcData.npcs || [];
-    for (var ni = 0; ni < npcs.length; ni++) {
-        var npc = npcs[ni];
-        if ((npc.family || []).length > 0) {
-            people.push({ id: 'npc:' + ni, name: npc.name, color: 'var(--text-dim)', family: npc.family, type: 'npc', contextId: 'npc:' + ni });
-        }
+    var families = (typeof listFamilies === 'function') ? listFamilies() : [];
+    var query = (familiesSearchQuery || '').trim().toLowerCase();
+    var filtered = query ? families.filter(function(f) { return (f.surname || '').toLowerCase().indexOf(query) >= 0; }) : families;
+
+    // Search + add new
+    html += '<div class="famdiag-toolbar">';
+    html += '<input type="text" class="edit-input famdiag-search" id="famdiag-search-input" placeholder="Zoek op familienaam..." value="' + escapeAttr(familiesSearchQuery) + '" />';
+    html += '<button class="btn btn-primary btn-sm" data-action="famdiag-create-family">+ Nieuwe familie</button>';
+    html += '</div>';
+
+    if (families.length === 0) {
+        html += '<p class="text-dim">Nog geen families. Klik "+ Nieuwe familie" of voeg leden toe via de characters/NPCs.</p>';
+        html += '</div>';
+        return html;
     }
 
-    if (people.length === 0) {
-        html += '<p class="text-dim">Nog geen family trees aangemaakt.</p>';
+    // Family pills (one per surname)
+    html += '<div class="famdiag-pills">';
+    for (var fi = 0; fi < filtered.length; fi++) {
+        var f = filtered[fi];
+        var memberCount = (f.members || []).length;
+        var isActive = familiesExpandedId === f.id;
+        html += '<button class="famdiag-pill' + (isActive ? ' active' : '') + '" data-action="famdiag-select-family" data-family-id="' + escapeAttr(f.id) + '">';
+        html += '<span class="famdiag-pill-name">' + escapeHtml(f.surname || '(naamloos)') + '</span>';
+        html += '<span class="famdiag-pill-count">' + memberCount + ' ' + (memberCount === 1 ? 'lid' : 'leden') + '</span>';
+        html += '</button>';
     }
-
-    // Auto-group by last name (everything after the last space in the name)
-    var byLastName = {};
-    people.forEach(function(p) {
-        var parts = (p.name || '').trim().split(/\s+/);
-        if (parts.length < 2) return;
-        var last = parts[parts.length - 1];
-        if (!byLastName[last]) byLastName[last] = [];
-        byLastName[last].push(p);
-    });
-    var surnames = Object.keys(byLastName).filter(function(sn){ return byLastName[sn].length > 1; }).sort();
-    if (surnames.length) {
-        html += '<div class="families-surnames" style="margin:1rem 0;padding:0.75rem;background:var(--bg-block);border-radius:var(--radius);">';
-        html += '<h4 style="margin:0 0 0.5rem;">By surname</h4>';
-        for (var si = 0; si < surnames.length; si++) {
-            var sn = surnames[si];
-            html += '<div style="margin-bottom:0.35rem;"><strong>' + escapeHtml(sn) + '</strong>: ';
-            html += byLastName[sn].map(function(p){ return '<span style="color:' + p.color + ';">' + escapeHtml(p.name) + '</span>'; }).join(', ');
-            html += '</div>';
-        }
-        html += '</div>';
-    }
-
-    // Person grid
-    html += '<div class="families-person-grid">';
-    for (var pi = 0; pi < people.length; pi++) {
-        var p = people[pi];
-        var memberCount = p.family.length;
-        var isExpanded = familiesExpandedId === p.id;
-        html += '<div class="families-person-card' + (isExpanded ? ' expanded' : '') + '" data-action="toggle-family-person" data-person-id="' + escapeAttr(p.id) + '" style="--person-color:' + p.color + '">';
-        html += '<div class="families-person-header">';
-        html += '<span class="families-person-name">' + escapeHtml(p.name) + '</span>';
-        if (p.type === 'npc') html += '<span class="families-person-badge">NPC</span>';
-        html += '<span class="families-person-count">' + memberCount + ' ' + (memberCount === 1 ? 'member' : 'members') + '</span>';
-        html += '</div>';
-        html += '</div>';
+    if (filtered.length === 0) {
+        html += '<span class="text-dim">Geen families gevonden voor "' + escapeHtml(query) + '"</span>';
     }
     html += '</div>';
 
-    // Show expanded family tree below the grid
+    // Show selected family
     if (familiesExpandedId) {
-        var expanded = null;
-        for (var ei = 0; ei < people.length; ei++) {
-            if (people[ei].id === familiesExpandedId) { expanded = people[ei]; break; }
-        }
-        if (expanded) {
-            html += '<div class="families-tree-panel" style="border-left: 3px solid ' + expanded.color + ';">';
-            html += '<h4 style="color:' + expanded.color + ';margin-bottom:0.75rem;">' + escapeHtml(expanded.name) + '\'s Family</h4>';
-            html += renderFamilyTree(expanded.family, expanded.contextId, expanded.name, true);
-            html += '</div>';
-        }
+        html += '<div class="famdiag-panel">';
+        html += renderFamilyDiagram(familiesExpandedId, true);
+        html += '</div>';
     }
 
     html += '</div>';

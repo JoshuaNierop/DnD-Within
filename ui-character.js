@@ -1348,16 +1348,22 @@ function renderTabStory(charId, config, state) {
         html += '</div>';
     }
 
-    // === Family Tree ===
-    var family = config.family || [];
-    if (family.length > 0 || editable) {
+    // === Family Tree (new families datamodel — read-only on character sheet) ===
+    var primaryFamilyForChar = (typeof findPrimaryFamilyByLink === 'function') ? findPrimaryFamilyByLink(charId, null) : null;
+    var hasFamilyDiagram = primaryFamilyForChar && primaryFamilyForChar.family;
+    if (hasFamilyDiagram) {
         html += '<div class="sheet-block">';
         html += '<h2>Family & Connections</h2>';
-        html += renderFamilyTree(family, charId, config.name, editable);
+        html += renderFamilyDiagram(primaryFamilyForChar.family.id, false);
+        html += '</div>';
+    } else if (editable) {
+        html += '<div class="sheet-block">';
+        html += '<h2>Family & Connections</h2>';
+        html += '<p class="text-dim">Geen familie gekoppeld. Voeg deze character toe via de DM Family Trees pagina.</p>';
         html += '</div>';
     }
 
-    if (!editable && !config.backstory && !hasPersonality && quotes.length === 0 && charTimeline.length === 0 && family.length === 0) {
+    if (!editable && !config.backstory && !hasPersonality && quotes.length === 0 && charTimeline.length === 0 && !hasFamilyDiagram) {
         html += '<p class="block-note">' + t('story.nostory') + '</p>';
     }
 
@@ -1366,255 +1372,9 @@ function renderTabStory(charId, config, state) {
 }
 
 // ============================================================
-// Section 18b: Family Tree Renderer (shared between character page and DM NPCs)
+// Section 18b: (Removed — old tier-based family tree renderer)
+// Replaced by familyDiagram.js + families.js (per-family graph model).
 // ============================================================
-
-function guessTier(relation) {
-    var r = (relation || '').toLowerCase();
-    if (r.indexOf('grootvader') >= 0 || r.indexOf('grootmoeder') >= 0 || r.indexOf('grandfather') >= 0 || r.indexOf('grandmother') >= 0 || r.indexOf('grandparent') >= 0 || r.indexOf('opa') >= 0 || r.indexOf('oma') >= 0) return 'grandparent';
-    if (r.indexOf('vader') >= 0 || r.indexOf('moeder') >= 0 || r.indexOf('father') >= 0 || r.indexOf('mother') >= 0 || r.indexOf('parent') >= 0) return 'parent';
-    if (r.indexOf('partner') >= 0 || r.indexOf('spouse') >= 0 || r.indexOf('husband') >= 0 || r.indexOf('wife') >= 0 || r.indexOf('echtgeno') >= 0 || r.indexOf('vrouw') >= 0 || r.indexOf('man') >= 0 && r.length <= 6) return 'partner';
-    if (r.indexOf('zoon') >= 0 || r.indexOf('dochter') >= 0 || r.indexOf('son') >= 0 || r.indexOf('daughter') >= 0 || r.indexOf('child') >= 0 || r.indexOf('kind') >= 0) return 'child';
-    return 'sibling';
-}
-
-function renderFamilyTree(family, contextId, selfName, editable) {
-    var html = '';
-    var grandparents = [], parents = [], partners = [], siblings = [], children = [];
-    for (var fi = 0; fi < family.length; fi++) {
-        var fm = family[fi];
-        fm._idx = fi;
-        var tier = fm.tier || guessTier(fm.relation);
-        if (tier === 'grandparent') grandparents.push(fm);
-        else if (tier === 'parent') parents.push(fm);
-        else if (tier === 'partner') partners.push(fm);
-        else if (tier === 'child') children.push(fm);
-        else siblings.push(fm);
-    }
-
-    html += '<div class="ftree" id="ftree-root">';
-
-    // === GRANDPARENTS ROW ===
-    if (grandparents.length > 0 || editable) {
-        html += '<div class="ftree-tier ftree-grandparents" data-tier-id="grandparent">';
-        html += '<span class="ftree-tier-label">Grandparents</span>';
-        if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="grandparent" title="Add grandparent">+</button>';
-        for (var gi = 0; gi < grandparents.length; gi++) {
-            html += renderFamilyNode(grandparents[gi], editable, contextId);
-        }
-        html += '</div>';
-    }
-
-    // === PARENTS ROW ===
-    if (parents.length > 0 || editable) {
-        html += '<div class="ftree-tier ftree-parents" data-tier-id="parent">';
-        html += '<span class="ftree-tier-label">Parents</span>';
-        if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="parent" title="Add parent">+</button>';
-        for (var pi = 0; pi < parents.length; pi++) {
-            html += renderFamilyNode(parents[pi], editable, contextId);
-        }
-        html += '</div>';
-    }
-
-    // === SELF + PARTNERS + SIBLINGS ROW ===
-    html += '<div class="ftree-tier ftree-siblings" data-tier-id="sibling">';
-    html += '<span class="ftree-tier-label">Family</span>';
-    if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="sibling" title="Add sibling">+</button>';
-    if (selfName) {
-        html += '<div class="ftree-node ftree-self">';
-        html += '<div class="ftree-node-inner">';
-        html += '<strong>' + escapeHtml(selfName) + '</strong>';
-        html += '<span class="ftree-relation">Self</span>';
-        html += '</div></div>';
-    }
-    for (var pti = 0; pti < partners.length; pti++) {
-        html += renderFamilyNode(partners[pti], editable, contextId);
-    }
-    if (editable && partners.length === 0) {
-        html += '<button class="ftree-add-btn ftree-add-partner" data-action="add-family" data-tier="partner" title="Add partner">+ Partner</button>';
-    }
-    for (var si = 0; si < siblings.length; si++) {
-        html += renderFamilyNode(siblings[si], editable, contextId);
-    }
-    html += '</div>';
-
-    // === CHILDREN ROW ===
-    if (children.length > 0 || editable) {
-        html += '<div class="ftree-tier ftree-children" data-tier-id="child">';
-        html += '<span class="ftree-tier-label">Children</span>';
-        if (editable) html += '<button class="ftree-add-btn" data-action="add-family" data-tier="child" title="Add child">+</button>';
-        for (var ci = 0; ci < children.length; ci++) {
-            html += renderFamilyNode(children[ci], editable, contextId);
-        }
-        html += '</div>';
-    }
-
-    // SVG overlay for connection lines (drawn after render via postRenderFamilyTree)
-    html += '<svg class="ftree-svg" id="ftree-svg"></svg>';
-    html += '</div>';
-
-    // === ADD FORM ===
-    if (editable) {
-        html += '<div class="ftree-add-form" id="ftree-add-form" style="display:none;">';
-        html += '<div class="ftree-form-row">';
-        html += '<select class="edit-input" id="fam-source" style="width:auto;">';
-        html += '<option value="custom">Custom entry</option>';
-        var charIds = getCharacterIds();
-        for (var chi = 0; chi < charIds.length; chi++) {
-            if (charIds[chi] === contextId) continue;
-            var chcfg = loadCharConfig(charIds[chi]);
-            if (chcfg && chcfg.name) html += '<option value="char:' + charIds[chi] + '">' + escapeHtml(chcfg.name) + ' (character)</option>';
-        }
-        var npcData = getNPCData();
-        var npcs = npcData.npcs || [];
-        for (var ni = 0; ni < npcs.length; ni++) {
-            html += '<option value="npc:' + ni + '">' + escapeHtml(npcs[ni].name) + ' (NPC)</option>';
-        }
-        html += '</select>';
-        html += '</div>';
-        html += '<div class="ftree-form-row">';
-        html += '<input type="text" class="edit-input" id="fam-name" placeholder="Name" style="flex:1;">';
-        html += '<input type="text" class="edit-input" id="fam-relation" placeholder="Relation (e.g. Mother, Partner)" style="flex:1;">';
-        html += '</div>';
-        html += '<div class="ftree-form-row">';
-        html += '<select class="edit-input" id="fam-status" style="width:auto;">';
-        html += '<option value="Alive">Alive</option>';
-        html += '<option value="Deceased">Deceased</option>';
-        html += '<option value="Unknown">Unknown</option>';
-        html += '</select>';
-        html += '<input type="text" class="edit-input" id="fam-notes" placeholder="Notes (optional)" style="flex:1;">';
-        html += '<button class="edit-save" data-action="save-family">Save</button>';
-        html += '<button class="edit-cancel" data-action="cancel-family">Cancel</button>';
-        html += '</div>';
-        html += '<input type="hidden" id="fam-tier" value="">';
-        html += '</div>';
-    }
-
-    return html;
-}
-
-// Draw SVG connection lines between family tree tiers
-function postRenderFamilyTree() {
-    var root = document.getElementById('ftree-root');
-    var svg = document.getElementById('ftree-svg');
-    if (!root || !svg) return;
-
-    var rootRect = root.getBoundingClientRect();
-    svg.setAttribute('width', rootRect.width);
-    svg.setAttribute('height', rootRect.height);
-    svg.innerHTML = '';
-
-    var tiers = root.querySelectorAll('.ftree-tier');
-    for (var i = 0; i < tiers.length - 1; i++) {
-        var upperTier = tiers[i];
-        var lowerTier = tiers[i + 1];
-        var upperNodes = upperTier.querySelectorAll('.ftree-node');
-        var lowerNodes = lowerTier.querySelectorAll('.ftree-node');
-        if (upperNodes.length === 0 || lowerNodes.length === 0) continue;
-
-        // Find center bottom of upper tier nodes
-        var upperCenters = [];
-        for (var u = 0; u < upperNodes.length; u++) {
-            var ur = upperNodes[u].getBoundingClientRect();
-            upperCenters.push({ x: ur.left + ur.width / 2 - rootRect.left, y: ur.bottom - rootRect.top });
-        }
-        // Find center top of lower tier nodes
-        var lowerCenters = [];
-        for (var l = 0; l < lowerNodes.length; l++) {
-            var lr = lowerNodes[l].getBoundingClientRect();
-            lowerCenters.push({ x: lr.left + lr.width / 2 - rootRect.left, y: lr.top - rootRect.top });
-        }
-
-        // Draw from each upper node to a midpoint, then fan out to lower nodes
-        var midY = (upperCenters[0].y + lowerCenters[0].y) / 2;
-
-        // Upper nodes → horizontal bar
-        if (upperCenters.length > 1) {
-            var leftX = Math.min.apply(null, upperCenters.map(function(c) { return c.x; }));
-            var rightX = Math.max.apply(null, upperCenters.map(function(c) { return c.x; }));
-            drawLine(svg, leftX, midY, rightX, midY);
-        }
-        for (var ui = 0; ui < upperCenters.length; ui++) {
-            drawLine(svg, upperCenters[ui].x, upperCenters[ui].y, upperCenters[ui].x, midY);
-        }
-
-        // Midpoint → lower nodes
-        if (lowerCenters.length > 1) {
-            var leftX2 = Math.min.apply(null, lowerCenters.map(function(c) { return c.x; }));
-            var rightX2 = Math.max.apply(null, lowerCenters.map(function(c) { return c.x; }));
-            drawLine(svg, leftX2, midY, rightX2, midY);
-        }
-        for (var li = 0; li < lowerCenters.length; li++) {
-            drawLine(svg, lowerCenters[li].x, midY, lowerCenters[li].x, lowerCenters[li].y);
-        }
-
-        // Connect upper bar to lower bar if they don't overlap
-        if (upperCenters.length > 0 && lowerCenters.length > 0) {
-            var ucx = upperCenters.reduce(function(s, c) { return s + c.x; }, 0) / upperCenters.length;
-            var lcx = lowerCenters.reduce(function(s, c) { return s + c.x; }, 0) / lowerCenters.length;
-            if (upperCenters.length === 1 && lowerCenters.length === 1) {
-                // Direct line already drawn
-            } else if (upperCenters.length === 1) {
-                drawLine(svg, upperCenters[0].x, midY, upperCenters[0].x, midY);
-            }
-        }
-    }
-
-    // Draw partner connection (heart line between self and partner)
-    var selfNode = root.querySelector('.ftree-self');
-    var partnerNodes = root.querySelectorAll('.ftree-node-partner');
-    if (selfNode && partnerNodes.length > 0) {
-        for (var pn = 0; pn < partnerNodes.length; pn++) {
-            var sr = selfNode.getBoundingClientRect();
-            var pr = partnerNodes[pn].getBoundingClientRect();
-            var sy = sr.top + sr.height / 2 - rootRect.top;
-            var sx = sr.right - rootRect.left;
-            var px = pr.left - rootRect.left;
-            var py = pr.top + pr.height / 2 - rootRect.top;
-            var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', sx); line.setAttribute('y1', sy);
-            line.setAttribute('x2', px); line.setAttribute('y2', py);
-            line.setAttribute('class', 'ftree-line ftree-line-partner');
-            svg.appendChild(line);
-        }
-    }
-}
-
-function drawLine(svg, x1, y1, x2, y2) {
-    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-    line.setAttribute('class', 'ftree-line');
-    svg.appendChild(line);
-}
-
-function renderFamilyNode(fm, editable, contextId) {
-    var isDead = fm.status === 'Deceased' || fm.status === 'Overleden';
-    var isPartner = (fm.tier || guessTier(fm.relation)) === 'partner';
-    var html = '<div class="ftree-node' + (isDead ? ' deceased' : '') + (isPartner ? ' ftree-node-partner' : '') + '">';
-    var linkStart = '', linkEnd = '';
-    if (fm.linkedChar && fm.linkedChar !== contextId) {
-        linkStart = '<a href="#/characters/' + fm.linkedChar + '" class="ftree-link">';
-        linkEnd = '</a>';
-    }
-    html += linkStart;
-    html += '<div class="ftree-node-inner">';
-    html += '<strong>' + escapeHtml(fm.name || '') + '</strong>';
-    html += '<span class="ftree-relation">' + escapeHtml(fm.relation || '') + '</span>';
-    if (fm.status) {
-        var statusIcon = isDead ? '&#9876;' : '&#9679;';
-        var statusColor = isDead ? 'var(--danger)' : 'var(--success)';
-        html += '<span class="ftree-status" style="color:' + statusColor + '">' + statusIcon + ' ' + escapeHtml(fm.status) + '</span>';
-    }
-    if (fm.notes) html += '<span class="ftree-notes">' + escapeHtml(fm.notes) + '</span>';
-    html += '</div>';
-    html += linkEnd;
-    if (editable) {
-        html += '<button class="ftree-remove" data-action="remove-family" data-idx="' + fm._idx + '" data-context-id="' + escapeAttr(contextId || '') + '">&times;</button>';
-    }
-    html += '</div>';
-    return html;
-}
 
 // ============================================================
 // Section 19: Tab — Inventory

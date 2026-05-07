@@ -646,14 +646,178 @@ function bindPageEvents(route) {
             return;
         }
 
-        // --- Families: person toggle ---
-        if (target.matches('[data-action="toggle-family-person"]') || target.closest('[data-action="toggle-family-person"]')) {
-            var personCard = target.closest('[data-person-id]');
-            if (personCard) {
-                var pid = personCard.dataset.personId;
-                familiesExpandedId = familiesExpandedId === pid ? null : pid;
+        // --- Family Diagram handlers (DM page + character sheet) ---
+        if (target.matches('[data-action="famdiag-select-family"]') || target.closest('[data-action="famdiag-select-family"]')) {
+            var sel = target.matches('[data-action="famdiag-select-family"]') ? target : target.closest('[data-action="famdiag-select-family"]');
+            var fid = sel.dataset.familyId;
+            familiesExpandedId = familiesExpandedId === fid ? null : fid;
+            renderApp();
+            return;
+        }
+        if (target.matches('[data-action="famdiag-create-family"]')) {
+            var newSurname = prompt('Familienaam (achternaam):');
+            if (newSurname && newSurname.trim()) {
+                var fnew = createFamily(newSurname.trim());
+                familiesExpandedId = fnew.id;
                 renderApp();
             }
+            return;
+        }
+        if (target.matches('[data-action="famdiag-rename"]') || target.closest('[data-action="famdiag-rename"]')) {
+            var rbtn = target.matches('[data-action="famdiag-rename"]') ? target : target.closest('[data-action="famdiag-rename"]');
+            var rfid = rbtn.dataset.familyId;
+            var rfam = getFamily(rfid);
+            if (!rfam) return;
+            var rnew = prompt('Nieuwe familienaam:', rfam.surname || '');
+            if (rnew !== null) { renameFamily(rfid, rnew.trim()); renderApp(); }
+            return;
+        }
+        if (target.matches('[data-action="famdiag-delete-family"]') || target.closest('[data-action="famdiag-delete-family"]')) {
+            var dbtn = target.matches('[data-action="famdiag-delete-family"]') ? target : target.closest('[data-action="famdiag-delete-family"]');
+            var dfid = dbtn.dataset.familyId;
+            var dfam = getFamily(dfid);
+            if (!dfam) return;
+            if (confirm('Familie "' + (dfam.surname || '(naamloos)') + '" en alle leden verwijderen?')) {
+                deleteFamily(dfid);
+                if (familiesExpandedId === dfid) familiesExpandedId = null;
+                renderApp();
+            }
+            return;
+        }
+        if (target.matches('[data-action="famdiag-add-root"]') || target.closest('[data-action="famdiag-add-root"]')) {
+            var arbtn = target.matches('[data-action="famdiag-add-root"]') ? target : target.closest('[data-action="famdiag-add-root"]');
+            var arfid = arbtn.dataset.familyId;
+            var arfam = getFamily(arfid);
+            if (!arfam) return;
+            var arName = prompt('Voornaam van het nieuwe lid:');
+            if (!arName) return;
+            createMember(arfid, { firstName: arName.trim(), lastName: arfam.surname || '' });
+            renderApp();
+            return;
+        }
+        if (target.matches('[data-action="famdiag-add-partner"]') || target.closest('[data-action="famdiag-add-partner"]')) {
+            var apbtn = target.matches('[data-action="famdiag-add-partner"]') ? target : target.closest('[data-action="famdiag-add-partner"]');
+            var apMid = apbtn.dataset.memberId;
+            var apMem = getMember(apMid);
+            if (!apMem) return;
+            // Check if already partnered in own family — if so, ask if user wants 2nd marriage (skip for v1, just block)
+            var existingP = findUnionsAsPartner(apMid).filter(function(u) { return u.partnerIds.length >= 2; });
+            if (existingP.length > 0) { alert('Deze persoon heeft al een partner. Multi-partner ondersteuning komt later.'); return; }
+            var apName = prompt('Voornaam van de partner:');
+            if (!apName) return;
+            var apLast = prompt('Achternaam van de partner (leeg = zelfde familie):', apMem.lastName || '') || '';
+            apLast = apLast.trim();
+            // Determine target family for new partner
+            var apTargetFamId;
+            if (!apLast || apLast.toLowerCase() === (apMem.lastName || '').toLowerCase()) {
+                apTargetFamId = apMem.familyId;
+                apLast = apMem.lastName || '';
+            } else {
+                var apFam = findOrCreateFamilyBySurname(apLast);
+                apTargetFamId = apFam.id;
+            }
+            var newPartner = createMember(apTargetFamId, { firstName: apName.trim(), lastName: apLast });
+            createUnion(apMid, newPartner.id);
+            renderApp();
+            return;
+        }
+        if (target.matches('[data-action="famdiag-add-parent"]') || target.closest('[data-action="famdiag-add-parent"]')) {
+            var ppbtn = target.matches('[data-action="famdiag-add-parent"]') ? target : target.closest('[data-action="famdiag-add-parent"]');
+            var ppMid = ppbtn.dataset.memberId;
+            var ppMem = getMember(ppMid);
+            if (!ppMem) return;
+            var existingChildUnion = findUnionAsChild(ppMid);
+            var ppName = prompt('Voornaam van de ouder:');
+            if (!ppName) return;
+            var ppLast = prompt('Achternaam van de ouder (leeg = zelfde familie):', ppMem.lastName || '') || '';
+            ppLast = ppLast.trim();
+            var ppTargetFamId;
+            if (!ppLast || ppLast.toLowerCase() === (ppMem.lastName || '').toLowerCase()) {
+                ppTargetFamId = ppMem.familyId;
+                ppLast = ppMem.lastName || '';
+            } else {
+                var ppFam = findOrCreateFamilyBySurname(ppLast);
+                ppTargetFamId = ppFam.id;
+            }
+            var newParent = createMember(ppTargetFamId, { firstName: ppName.trim(), lastName: ppLast });
+            if (existingChildUnion) {
+                addPartnerToUnion(existingChildUnion.id, newParent.id);
+            } else {
+                var newPU = createUnion(newParent.id);
+                if (newPU) addChildToUnion(newPU.id, ppMid);
+            }
+            renderApp();
+            return;
+        }
+        if (target.matches('[data-action="famdiag-add-child"]') || target.closest('[data-action="famdiag-add-child"]')) {
+            var acbtn = target.matches('[data-action="famdiag-add-child"]') ? target : target.closest('[data-action="famdiag-add-child"]');
+            var acUid = acbtn.dataset.unionId;
+            var acFid = acbtn.dataset.familyId;
+            var acUni = getUnion(acUid);
+            if (!acUni) return;
+            var acName = prompt('Voornaam van het kind:');
+            if (!acName) return;
+            // Default child surname = surname of family currently being viewed
+            var acFam = getFamily(acFid);
+            var acDefaultLast = acFam ? (acFam.surname || '') : '';
+            var acLast = prompt('Achternaam (leeg = ' + (acDefaultLast || 'geen') + '):', acDefaultLast) || '';
+            acLast = acLast.trim();
+            var acTargetFamId = acFid;
+            if (acLast && acLast.toLowerCase() !== (acDefaultLast || '').toLowerCase()) {
+                var acTF = findOrCreateFamilyBySurname(acLast);
+                acTargetFamId = acTF.id;
+            }
+            var newChild = createMember(acTargetFamId, { firstName: acName.trim(), lastName: acLast });
+            addChildToUnion(acUid, newChild.id);
+            renderApp();
+            return;
+        }
+        if (target.matches('[data-action="famdiag-edit-member"]') || target.closest('[data-action="famdiag-edit-member"]')) {
+            var ebtn = target.matches('[data-action="famdiag-edit-member"]') ? target : target.closest('[data-action="famdiag-edit-member"]');
+            var emid = ebtn.dataset.memberId;
+            var emem = getMember(emid);
+            if (!emem) return;
+            var newFirst = prompt('Voornaam:', emem.firstName || '');
+            if (newFirst === null) return;
+            var newLast = prompt('Achternaam:', emem.lastName || '');
+            if (newLast === null) return;
+            var newBirth = prompt('Geboortejaar (optioneel):', emem.birth || '');
+            if (newBirth === null) return;
+            var newDeath = prompt('Sterfjaar (leeg = nog levend):', emem.death || '');
+            if (newDeath === null) return;
+            var newRace = prompt('Ras (optioneel):', emem.race || '');
+            if (newRace === null) return;
+            var newGender = prompt('Geslacht (man/vrouw/neutraal, leeg = onbekend):', emem.gender || '');
+            if (newGender === null) return;
+            updateMember(emid, {
+                firstName: newFirst.trim(),
+                lastName: newLast.trim(),
+                birth: newBirth.trim(),
+                death: newDeath.trim(),
+                race: newRace.trim(),
+                gender: newGender.trim()
+            });
+            renderApp();
+            return;
+        }
+        if (target.matches('[data-action="famdiag-remove-member"]') || target.closest('[data-action="famdiag-remove-member"]')) {
+            var rbtn2 = target.matches('[data-action="famdiag-remove-member"]') ? target : target.closest('[data-action="famdiag-remove-member"]');
+            var rmid = rbtn2.dataset.memberId;
+            var rmem = getMember(rmid);
+            if (!rmem) return;
+            var rname = ((rmem.firstName || '') + ' ' + (rmem.lastName || '')).trim() || '(naamloos)';
+            if (confirm('Lid "' + rname + '" verwijderen uit familie?')) {
+                deleteMember(rmid);
+                renderApp();
+            }
+            return;
+        }
+        if (target.matches('[data-action="famdiag-open-link"]') || target.closest('[data-action="famdiag-open-link"]')) {
+            var olbtn = target.matches('[data-action="famdiag-open-link"]') ? target : target.closest('[data-action="famdiag-open-link"]');
+            var lt = olbtn.dataset.linkType;
+            var lid = olbtn.dataset.linkId;
+            if (lt === 'character') navigate('/characters/' + lid);
+            else if (lt === 'npc') navigate('/lore/npcs');
             return;
         }
 
@@ -3015,6 +3179,19 @@ function bindPageEvents(route) {
                 var cursorPos = target.selectionStart;
                 renderApp();
                 var el = document.getElementById('npc-search');
+                if (el) { el.focus(); el.setSelectionRange(cursorPos, cursorPos); }
+            }, 200);
+            return;
+        }
+
+        // Family search
+        if (target.matches('#famdiag-search-input')) {
+            familiesSearchQuery = target.value;
+            clearTimeout(target._searchTimer);
+            target._searchTimer = setTimeout(function() {
+                var cursorPos = target.selectionStart;
+                renderApp();
+                var el = document.getElementById('famdiag-search-input');
                 if (el) { el.focus(); el.setSelectionRange(cursorPos, cursorPos); }
             }, 200);
             return;
