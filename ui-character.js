@@ -372,7 +372,7 @@ function renderAbilityRadar(config, state) {
         return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
     }
 
-    var svg = '<svg class="ability-radar" viewBox="0 0 180 180" width="180" height="180">';
+    var svg = '<svg class="ability-radar" viewBox="-18 -18 216 216" width="200" height="200">';
 
     // Grid rings
     for (var ring = 1; ring <= 4; ring++) {
