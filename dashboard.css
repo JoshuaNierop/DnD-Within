@@ -178,14 +178,6 @@
 .widget-error { color: var(--danger, #f87171); font-size: 0.8rem; }
 
 /* Edit-mode handles */
-.widget-drag-overlay {
-    position: absolute;
-    inset: 0;
-    cursor: grab;
-    background: transparent;
-    z-index: 5;
-}
-.widget-drag-overlay:active { cursor: grabbing; }
 .widget-resize-handle {
     position: absolute;
     right: 2px;
@@ -201,11 +193,15 @@
 }
 .widget-resize-handle:hover { opacity: 1; }
 
-/* While dragging, suppress pointer events on widget bodies so overlay catches drag. */
-.dashboard.is-editing .widget-body { pointer-events: none; user-select: none; }
-.dashboard.is-editing .widget-header { pointer-events: auto; }
-.dashboard.is-editing .widget-resize-handle { pointer-events: auto; }
-.dashboard.is-editing .widget-drag-overlay { pointer-events: auto; }
+/* In edit mode the whole widget is grabbable; interactive children opt-out via tag check. */
+.dashboard.is-editing .widget { cursor: grab; user-select: none; }
+.dashboard.is-editing .widget:active { cursor: grabbing; }
+.dashboard.is-editing .widget [contenteditable="true"],
+.dashboard.is-editing .widget input,
+.dashboard.is-editing .widget textarea,
+.dashboard.is-editing .widget button,
+.dashboard.is-editing .widget label,
+.dashboard.is-editing .widget select { cursor: auto; user-select: text; }
 
 /* Drop preview cell */
 .dash-drop-preview {
@@ -496,6 +492,46 @@
 .widget .slot-dots { display: flex; gap: 0.2rem; flex-wrap: wrap; }
 .widget .slot-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--char-accent, var(--accent, #22d3ee)); cursor: pointer; opacity: 0.9; }
 .widget .slot-dot.used { background: transparent; border: 2px solid var(--text-dim, #555); opacity: 0.5; }
+
+/* Death saves */
+.widget-death-saves { display: flex; flex-direction: column; gap: 0.4rem; }
+.widget-death-saves .death-save-group { display: flex; align-items: center; gap: 0.5rem; }
+.widget-death-saves .death-save-group label { font-size: 0.75rem; color: var(--text-dim); min-width: 70px; }
+.widget-death-saves .death-save-dots { display: flex; gap: 0.3rem; }
+.widget-death-saves .death-save-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border, #555); cursor: pointer; }
+.widget-death-saves .death-save-dot.success.filled { background: var(--success, #4ade80); border-color: var(--success, #4ade80); }
+.widget-death-saves .death-save-dot.failure.filled { background: var(--danger, #f87171); border-color: var(--danger, #f87171); }
+
+/* Inspiration */
+.widget-inspiration { display: flex; align-items: center; justify-content: center; }
+.widget-inspiration .inspiration-toggle { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.4rem 0.8rem; }
+.widget-inspiration .inspiration-star { font-size: 1.5rem; color: var(--text-dim); transition: color 0.15s; }
+.widget-inspiration .inspiration-star.active { color: var(--warning, #fbbf24); text-shadow: 0 0 8px rgba(251,191,36,0.4); }
+.widget-inspiration .inspiration-label { font-size: 0.85rem; color: var(--text-dim); }
+
+/* Exhaustion */
+.widget-exhaustion .exhaustion-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.widget-exhaustion .exhaustion-current-label { font-size: 0.85rem; min-width: 50px; }
+.widget-exhaustion .exhaustion-dots { display: flex; gap: 0.25rem; }
+.widget-exhaustion .exhaustion-dot { width: 18px; height: 18px; border: 2px solid var(--border, #555); border-radius: 4px; cursor: pointer; }
+.widget-exhaustion .exhaustion-dot.filled { background: var(--danger, #b33); border-color: var(--danger, #b33); }
+.widget-exhaustion .exhaustion-penalty { font-size: 0.75rem; color: var(--danger, #f87171); }
+
+/* Combat log */
+.widget-combat-log .combat-log { display: flex; flex-direction: column; gap: 0.25rem; }
+.widget-combat-log .combat-log-entry { display: flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.4rem; font-size: 0.8rem; border-radius: 4px; background: rgba(255,255,255,0.02); }
+.widget-combat-log .combat-log-time { margin-left: auto; color: var(--text-dim); font-size: 0.7rem; font-family: monospace; }
+.widget-combat-log .btn-inline-delete { background: transparent; border: none; color: var(--text-dim); cursor: pointer; padding: 0.1rem 0.3rem; font-size: 0.9rem; }
+.widget-combat-log .btn-inline-delete:hover { color: var(--danger, #f87171); }
+
+/* Ability radar */
+.widget-ability-radar { display: flex; align-items: center; justify-content: center; padding: 0.4rem; }
+.widget-ability-radar svg { max-width: 100%; max-height: 100%; height: auto; }
+
+/* Sneak attack */
+.widget-sneak-attack { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; }
+.widget-sneak-attack .sneak-amount { font-size: 1.6rem; font-weight: 700; color: var(--char-accent, var(--accent, #22d3ee)); }
+.widget-sneak-attack .sneak-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
 
 /* XP tracker compact */
 .widget .xp-tracker .xp-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }

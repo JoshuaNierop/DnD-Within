@@ -122,6 +122,76 @@ var WIDGET_REGISTRY = {
         maxSize: [12, 4],
         render: function(ctx) { return renderWidgetClassResources(ctx); }
     },
+    'death-saves': {
+        label: 'Death Saves',
+        category: 'combat',
+        icon: '☠',
+        description: '3 successes / 3 failures tracker (visible when HP ≤ 0).',
+        defaultSize: [4, 2],
+        minSize: [3, 2],
+        maxSize: [12, 3],
+        render: function(ctx) { return renderWidgetDeathSaves(ctx); }
+    },
+    'inspiration': {
+        label: 'Inspiration',
+        category: 'combat',
+        icon: '★',
+        description: 'Heroic Inspiration toggle.',
+        defaultSize: [3, 1],
+        minSize: [2, 1],
+        maxSize: [6, 2],
+        render: function(ctx) { return renderWidgetInspiration(ctx); }
+    },
+    'exhaustion': {
+        label: 'Exhaustion',
+        category: 'combat',
+        icon: '⚠',
+        description: 'Exhaustion level tracker (0–6).',
+        defaultSize: [4, 1],
+        minSize: [3, 1],
+        maxSize: [8, 2],
+        render: function(ctx) { return renderWidgetExhaustion(ctx); }
+    },
+    'combat-log': {
+        label: 'Combat Log',
+        category: 'combat',
+        icon: '⌬',
+        description: 'Recent damage/heal/rest events.',
+        defaultSize: [6, 4],
+        minSize: [4, 2],
+        maxSize: [12, 8],
+        render: function(ctx) { return renderWidgetCombatLog(ctx); }
+    },
+    'ability-radar': {
+        label: 'Ability Radar',
+        category: 'core',
+        icon: '⬡',
+        description: '6-axis radar chart of ability scores.',
+        defaultSize: [4, 4],
+        minSize: [3, 3],
+        maxSize: [8, 8],
+        render: function(ctx) { return renderWidgetAbilityRadar(ctx); }
+    },
+    'sneak-attack': {
+        label: 'Sneak Attack',
+        category: 'combat',
+        icon: '🗡',
+        description: 'Sneak attack damage by level (rogue).',
+        defaultSize: [3, 1],
+        minSize: [2, 1],
+        maxSize: [6, 2],
+        render: function(ctx) { return renderWidgetSneakAttack(ctx); }
+    },
+    'metamagic': {
+        label: 'Metamagic',
+        category: 'spells',
+        icon: '◈',
+        description: 'Sorcerer metamagic options.',
+        defaultSize: [6, 3],
+        minSize: [4, 2],
+        maxSize: [12, 6],
+        render: function(ctx) { return renderWidgetMetamagic(ctx); }
+    },
 
     // ---- Custom / generic ----
     'text': {
@@ -371,10 +441,10 @@ function renderWidgetText(ctx) {
     var editable = ctx.editable;
     var html = '<div class="widget-body widget-text">';
     if (title || editable) {
-        html += '<h3 class="widget-text-title"' + (editable ? ' contenteditable="true" data-action="widget-text-title" data-wid="' + inst.wid + '"' : '') + '>' + escapeHtml(title || (editable ? 'Title…' : '')) + '</h3>';
+        html += '<h3 class="widget-text-title"' + (editable ? ' contenteditable="true" data-action="widget-text-title" data-wid="' + inst.wid + '"' : '') + '>' + escapeHtml(title) + '</h3>';
     }
     html += '<div class="widget-text-body"' + (editable ? ' contenteditable="true" data-action="widget-text-body" data-wid="' + inst.wid + '"' : '') + '>';
-    html += body ? escapeHtml(body).replace(/\n/g, '<br>') : (editable ? '<span class="widget-placeholder">Write here…</span>' : '');
+    if (body) html += escapeHtml(body).replace(/\n/g, '<br>');
     html += '</div>';
     html += '</div>';
     return html;
@@ -430,6 +500,104 @@ function renderWidgetInventory(ctx) {
     if (editable) html += '<button class="btn btn-ghost btn-sm" data-action="goto-inventory-tab">Manage →</button>';
     html += '</div>';
     return html;
+}
+
+function renderWidgetDeathSaves(ctx) {
+    var state = ctx.state, editable = ctx.editable;
+    var ds = state.deathSaves || { successes: 0, failures: 0 };
+    var html = '<div class="widget-body widget-death-saves">';
+    html += '<div class="death-save-group"><label>Successes</label><div class="death-save-dots">';
+    for (var si = 0; si < 3; si++) {
+        var sFilled = si < ds.successes ? ' filled' : '';
+        html += '<div class="death-save-dot success' + sFilled + '" ' + (editable ? 'data-action="toggle-death-save" data-save-type="successes" data-save-idx="' + si + '"' : '') + '></div>';
+    }
+    html += '</div></div>';
+    html += '<div class="death-save-group"><label>Failures</label><div class="death-save-dots">';
+    for (var fi = 0; fi < 3; fi++) {
+        var fFilled = fi < ds.failures ? ' filled' : '';
+        html += '<div class="death-save-dot failure' + fFilled + '" ' + (editable ? 'data-action="toggle-death-save" data-save-type="failures" data-save-idx="' + fi + '"' : '') + '></div>';
+    }
+    html += '</div></div>';
+    if (editable) html += '<button class="btn btn-ghost btn-sm" data-action="reset-death-saves">Reset</button>';
+    html += '</div>';
+    return html;
+}
+
+function renderWidgetInspiration(ctx) {
+    var state = ctx.state, editable = ctx.editable;
+    var html = '<div class="widget-body widget-inspiration">';
+    html += '<div class="inspiration-toggle" ' + (editable ? 'data-action="toggle-inspiration"' : '') + '>';
+    html += '<span class="inspiration-star' + (state.inspiration ? ' active' : '') + '">★</span>';
+    html += '<span class="inspiration-label">Heroic Inspiration</span>';
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+function renderWidgetExhaustion(ctx) {
+    var state = ctx.state, editable = ctx.editable;
+    var lvl = state.exhaustion || 0;
+    var html = '<div class="widget-body widget-exhaustion">';
+    html += '<div class="exhaustion-row">';
+    html += '<span class="exhaustion-current-label">Lvl ' + lvl + '</span>';
+    html += '<div class="exhaustion-dots">';
+    for (var i = 1; i <= 6; i++) {
+        var filled = i <= lvl ? ' filled' : '';
+        html += '<div class="exhaustion-dot' + filled + '" ' + (editable ? 'data-action="set-exhaustion" data-level="' + i + '"' : '') + ' title="Level ' + i + ': −' + (i * 2) + ' op d20 rolls"></div>';
+    }
+    html += '</div>';
+    if (lvl > 0) html += '<span class="exhaustion-penalty">−' + (lvl * 2) + ' op d20</span>';
+    if (editable && lvl > 0) html += '<button class="btn btn-ghost btn-sm" data-action="set-exhaustion" data-level="0">Clear</button>';
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+function renderWidgetCombatLog(ctx) {
+    var state = ctx.state, editable = ctx.editable;
+    var log = state.combatLog || [];
+    var html = '<div class="widget-body widget-combat-log">';
+    if (!log.length) {
+        html += '<p class="block-note">No combat events yet.</p>';
+    } else {
+        html += '<div class="combat-log">';
+        for (var i = 0; i < Math.min(log.length, 30); i++) {
+            var e = log[i];
+            var icon = e.type === 'damage' ? '🔴' : e.type === 'heal' ? '🟢' : '😴';
+            var text = e.type === 'damage' ? '−' + e.amount + ' damage' : e.type === 'heal' ? '+' + e.amount + ' healed' : (e.source || 'Rest');
+            if (e.source && e.type !== 'rest') text += ' (' + e.source + ')';
+            var time = e.time ? new Date(e.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            html += '<div class="combat-log-entry combat-log-' + e.type + '">' + icon + ' ' + escapeHtml(text) + '<span class="combat-log-time">' + time + '</span>';
+            if (editable) html += '<button class="btn-inline-delete" data-action="delete-combat-log" data-log-idx="' + i + '" title="Remove">×</button>';
+            html += '</div>';
+        }
+        html += '</div>';
+        if (editable) html += '<button class="btn btn-ghost btn-sm" data-action="clear-combat-log">Clear log</button>';
+    }
+    html += '</div>';
+    return html;
+}
+
+function renderWidgetAbilityRadar(ctx) {
+    if (typeof renderAbilityRadar !== 'function') return widgetEmpty('Radar unavailable');
+    var html = '<div class="widget-body widget-ability-radar">';
+    try { html += renderAbilityRadar(ctx.config, ctx.state); } catch (e) { html += widgetEmpty('Radar render failed'); }
+    html += '</div>';
+    return html;
+}
+
+function renderWidgetSneakAttack(ctx) {
+    var config = ctx.config, state = ctx.state;
+    if (config.className !== 'rogue') return widgetEmpty('Rogue only');
+    var dmg = (DATA.rogue && DATA.rogue.sneakAttack) ? DATA.rogue.sneakAttack[state.level] || '1d6' : '1d6';
+    return '<div class="widget-body widget-sneak-attack"><div class="sneak-amount">' + dmg + '</div><div class="sneak-label">Sneak Attack</div></div>';
+}
+
+function renderWidgetMetamagic(ctx) {
+    var config = ctx.config;
+    if (config.className !== 'sorcerer') return widgetEmpty('Sorcerer only');
+    if (typeof renderMetamagicHTML !== 'function') return widgetEmpty('Metamagic unavailable');
+    return '<div class="widget-body">' + renderMetamagicHTML(ctx.charId, ctx.config, ctx.state) + '</div>';
 }
 
 function renderWidgetFamilyDiagram(ctx) {

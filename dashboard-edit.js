@@ -116,7 +116,14 @@ function renderDashboardEditSidebar(charId, tabId) {
             html += '<span>' + escapeHtml(def.label) + '</span>';
             html += '</div>';
             html += '<div class="dash-palette-item-desc">' + escapeHtml(def.description || '') + '</div>';
-            html += '<div class="dash-palette-item-sizes">' + def.minSize.join('×') + ' → ' + def.maxSize.join('×') + ' (def ' + def.defaultSize.join('×') + ')</div>';
+            html += '<div class="dash-size-picker">';
+            var sizeOptions = computePaletteSizes(def);
+            for (var so = 0; so < sizeOptions.length; so++) {
+                var sz = sizeOptions[so];
+                var isDefault = sz[0] === def.defaultSize[0] && sz[1] === def.defaultSize[1];
+                html += '<button class="dash-size-option' + (isDefault ? ' active' : '') + '" data-size="' + sz[0] + 'x' + sz[1] + '" title="' + sz[0] + ' columns × ' + sz[1] + ' rows">' + sz[0] + '×' + sz[1] + '</button>';
+            }
+            html += '</div>';
             html += '</div>';
         }
     }
@@ -201,7 +208,7 @@ function dashboardInitEditPointerHandlers() {
     if (grid._dashHandlersBound) return;
     grid._dashHandlersBound = true;
 
-    // Pointer-down on widget header / overlay → start move
+    // Pointer-down on widget → resize if on handle, else move (unless on an interactive child).
     grid.addEventListener('pointerdown', function(e) {
         if (!isDashboardEditMode()) return;
         var resizeH = e.target.closest && e.target.closest('.widget-resize-handle');
@@ -212,9 +219,12 @@ function dashboardInitEditPointerHandlers() {
             startDrag({ mode: 'resize', wid: widR, w: w.w, h: w.h, startX: w.x, startY: w.y }, e, grid);
             return;
         }
-        var overlay = e.target.closest && e.target.closest('.widget-drag-overlay');
-        if (overlay) {
-            var widM = overlay.dataset.wid;
+        // Skip drag if pointer started on an interactive child (button, input, contenteditable).
+        var interactive = e.target.closest && e.target.closest('button, input, textarea, select, label, [contenteditable="true"]');
+        if (interactive) return;
+        var widgetEl = e.target.closest && e.target.closest('.widget');
+        if (widgetEl) {
+            var widM = widgetEl.dataset.wid;
             var w = dashboardWidgetByWid(widM);
             if (!w) return;
             startDrag({ mode: 'move', wid: widM, w: w.w, h: w.h, startX: w.x, startY: w.y }, e, grid);
@@ -233,17 +243,64 @@ function dashboardInitPalettePointerHandlers() {
     if (sidebar._dashHandlersBound) return;
     sidebar._dashHandlersBound = true;
 
+    // Size button clicks (no drag) — toggle active size for that palette item.
+    sidebar.addEventListener('click', function(e) {
+        var sizeBtn = e.target.closest && e.target.closest('.dash-size-option');
+        if (!sizeBtn) return;
+        e.stopPropagation();
+        var item = sizeBtn.closest('.dash-palette-item');
+        if (!item) return;
+        var sibs = item.querySelectorAll('.dash-size-option');
+        for (var i = 0; i < sibs.length; i++) sibs[i].classList.remove('active');
+        sizeBtn.classList.add('active');
+    });
+
     sidebar.addEventListener('pointerdown', function(e) {
+        // Skip drag if pointer landed on a size-option button.
+        if (e.target.closest && e.target.closest('.dash-size-option')) return;
         var item = e.target.closest && e.target.closest('.dash-palette-item');
         if (!item) return;
         var type = item.dataset.paletteType;
         var def = WIDGET_REGISTRY[type];
         if (!def) return;
+        // Read the currently selected size for this item, fall back to default.
+        var activeBtn = item.querySelector('.dash-size-option.active');
+        var w, h;
+        if (activeBtn) {
+            var parts = activeBtn.dataset.size.split('x');
+            w = parseInt(parts[0], 10);
+            h = parseInt(parts[1], 10);
+        } else {
+            w = def.defaultSize[0]; h = def.defaultSize[1];
+        }
         var grid = document.querySelector('.dashboard.is-editing .dashboard-grid');
         if (!grid) return;
-        startDrag({ mode: 'palette', type: type, w: def.defaultSize[0], h: def.defaultSize[1] }, e, grid);
+        startDrag({ mode: 'palette', type: type, w: w, h: h }, e, grid);
         item.classList.add('is-dragging');
     });
+}
+
+// Build a small set of size options for a widget: min, default, max (deduped),
+// optionally with one intermediate if the range is wide.
+function computePaletteSizes(def) {
+    var sizes = [];
+    function key(arr) { return arr[0] + 'x' + arr[1]; }
+    var seen = {};
+    function add(arr) {
+        var k = key(arr);
+        if (!seen[k]) { seen[k] = true; sizes.push(arr.slice()); }
+    }
+    add(def.minSize);
+    // Optional intermediate between min and default if both differ enough.
+    var midW = Math.round((def.minSize[0] + def.defaultSize[0]) / 2);
+    var midH = Math.round((def.minSize[1] + def.defaultSize[1]) / 2);
+    if (midW !== def.minSize[0] && midW !== def.defaultSize[0]) add([midW, midH]);
+    add(def.defaultSize);
+    var midW2 = Math.round((def.defaultSize[0] + def.maxSize[0]) / 2);
+    var midH2 = Math.round((def.defaultSize[1] + def.maxSize[1]) / 2);
+    if (midW2 !== def.defaultSize[0] && midW2 !== def.maxSize[0]) add([midW2, midH2]);
+    add(def.maxSize);
+    return sizes;
 }
 
 function startDrag(opts, e, grid) {
@@ -394,7 +451,8 @@ function dashboardHandleAction(action, target, event) {
         var charIdEl = document.querySelector('.character-page');
         var charId = charIdEl && charIdEl.dataset.charId;
         var tabId = dash.dataset.tabId;
-        if (dashboardEditMode) dashboardExitEditMode(false);
+        // Done auto-saves current breakpoint so users don't lose work.
+        if (dashboardEditMode) dashboardExitEditMode(true);
         else dashboardEnterEditMode(charId, tabId);
         return true;
     }
@@ -420,6 +478,11 @@ function dashboardHandleAction(action, target, event) {
         if (confirm('Clear saved layout for ' + DASHBOARD_BREAKPOINTS[dashboardActiveBP()].label + '? This will revert to auto-reflow from desktop.')) {
             dashboardClearCurrentBP();
         }
+        return true;
+    }
+    if (action === 'dashboard-compact') {
+        dashboardCompact();
+        if (typeof renderApp === 'function') renderApp();
         return true;
     }
     if (action === 'dashboard-save-as-template') {
@@ -456,6 +519,113 @@ function dashboardPostRender() {
     if (isDashboardEditMode()) {
         dashboardInitEditPointerHandlers();
         dashboardInitPalettePointerHandlers();
+    }
+    dashboardBindWidgetContentEditors();
+}
+
+// ====================================================================
+// Widget content editing (text title/body, image upload)
+// View-mode editing — survives without entering edit-mode. Persists to saved layout
+// (auto-creates if necessary so subsequent renders show the edit).
+// ====================================================================
+
+function dashboardBindWidgetContentEditors() {
+    var charPage = document.querySelector('.character-page');
+    if (!charPage) return;
+    var charId = charPage.dataset.charId;
+    var dash = charPage.querySelector('.dashboard');
+    if (!dash) return;
+    var tabId = dash.dataset.tabId;
+    if (!charId || !tabId) return;
+    if (!canEdit(charId)) return;
+
+    // Text widgets — save on blur of contenteditable
+    var editables = dash.querySelectorAll('[contenteditable="true"][data-action^="widget-text-"]');
+    for (var i = 0; i < editables.length; i++) {
+        var el = editables[i];
+        if (el._dashBound) continue;
+        el._dashBound = true;
+        el.addEventListener('blur', function(e) {
+            var t = e.currentTarget;
+            var wid = t.dataset.wid;
+            var field = t.dataset.action === 'widget-text-title' ? 'title' : 'body';
+            var newValue = (t.textContent || '').trim();
+            dashboardUpdateWidgetConfig(charId, tabId, wid, field, newValue);
+        });
+        // Prevent Enter from bubbling drag/etc; allow line breaks in body only
+        el.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.currentTarget.dataset.action === 'widget-text-title') {
+                e.preventDefault();
+                e.currentTarget.blur();
+            }
+        });
+    }
+
+    // Image upload
+    var fileInputs = dash.querySelectorAll('input[type="file"][data-action="widget-image-upload"]');
+    for (var j = 0; j < fileInputs.length; j++) {
+        var fi = fileInputs[j];
+        if (fi._dashBound) continue;
+        fi._dashBound = true;
+        fi.addEventListener('change', function(e) {
+            var inp = e.currentTarget;
+            var wid = inp.dataset.wid;
+            var file = inp.files && inp.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                dashboardUpdateWidgetConfig(charId, tabId, wid, 'src', ev.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+function dashboardUpdateWidgetConfig(charId, tabId, wid, field, value) {
+    // Materialise saved layout if missing so wid is stable.
+    var layout = loadTabLayout(charId, tabId);
+    var bp = dashboardActiveBP();
+    if (!layout) {
+        // Use current rendered widgets as the seed (they already have wids assigned by the latest render).
+        var rendered = Array.from(document.querySelectorAll('.dashboard[data-tab-id="' + tabId + '"] .widget')).map(function(el) {
+            return {
+                wid: el.dataset.wid,
+                type: el.dataset.type,
+                x: parseInt(el.dataset.x, 10) || 0,
+                y: parseInt(el.dataset.y, 10) || 0,
+                w: parseInt(el.dataset.w, 10) || 1,
+                h: parseInt(el.dataset.h, 10) || 1,
+                config: {}
+            };
+        });
+        // Preserve existing config from the in-memory rendered widgets if any (text default config).
+        // Pull from default layout to recover original config (titles like "Allies"/"Enemies").
+        var defaults = dashboardDefaultLayoutForTab(tabId);
+        // Match by index/type — defaults order matches rendered for fresh dashboards.
+        for (var i = 0; i < rendered.length && i < defaults.desktop.length; i++) {
+            if (rendered[i].type === defaults.desktop[i].type && defaults.desktop[i].config) {
+                rendered[i].config = JSON.parse(JSON.stringify(defaults.desktop[i].config));
+            }
+        }
+        layout = { primary: bp, desktop: null, tablet: null, mobile: null };
+        layout[bp] = rendered;
+        // If current bp isn't desktop, populate desktop with the same widgets at the same coords (best-effort).
+        if (bp !== 'desktop') layout.desktop = rendered.slice();
+    }
+    // Find widget in current bp's layout (or primary).
+    var arr = layout[bp] || layout[layout.primary] || layout.desktop;
+    if (!Array.isArray(arr)) return;
+    for (var k = 0; k < arr.length; k++) {
+        if (arr[k].wid === wid) {
+            if (!arr[k].config) arr[k].config = {};
+            arr[k].config[field] = value;
+            break;
+        }
+    }
+    saveTabLayout(charId, tabId, layout);
+    // No re-render needed for text (DOM already shows the edit). For image upload, re-render to show.
+    if (field === 'src') {
+        if (typeof renderApp === 'function') renderApp();
     }
 }
 

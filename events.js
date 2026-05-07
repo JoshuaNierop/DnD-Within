@@ -1377,8 +1377,13 @@ function bindPageEvents(route) {
         // --- Character Sheet Events ---
         if (charId && config && state) {
             // Tab switching
-            if (target.matches('.tab-btn')) {
-                activeTab = target.dataset.tab || 'overview';
+            if (target.matches('.tab-btn') || target.closest('.tab-btn')) {
+                var tabBtn = target.matches('.tab-btn') ? target : target.closest('.tab-btn');
+                // If user is in dashboard edit mode for the current tab, auto-save before switching.
+                if (typeof isDashboardEditMode === 'function' && isDashboardEditMode()) {
+                    dashboardExitEditMode(true);
+                }
+                activeTab = tabBtn.dataset.tab || 'overview';
                 // Update URL for deep linking without triggering hashchange
                 var newHash = '#/characters/' + charId + '/' + activeTab;
                 history.replaceState(null, '', newHash);

@@ -22,7 +22,14 @@ function renderDashboardTab(charId, tabId) {
     var bp = dashboardActiveBP();
     var cols = DASHBOARD_BREAKPOINTS[bp].cols;
 
-    var widgets = getActiveLayoutForBreakpoint(charId, tabId, bp) || [];
+    // In edit mode, render from the in-memory working layout (mutations from drag/resize
+    // are kept here until the user saves). Outside edit mode, load fresh from storage.
+    var widgets;
+    if (dashboardEditMode && dashboardEditingCharId === charId && dashboardEditingTabId === tabId && Array.isArray(dashboardWorkingLayout)) {
+        widgets = dashboardWorkingLayout;
+    } else {
+        widgets = getActiveLayoutForBreakpoint(charId, tabId, bp) || [];
+    }
     ensureWidgetIds(widgets);
 
     var hasSavedForBP = (function() {
@@ -55,6 +62,7 @@ function renderDashboardTab(charId, tabId) {
         html += '<button class="dash-tool-btn' + (dashboardGridVisible ? ' active' : '') + '" data-action="dashboard-toggle-grid" title="Toggle grid lines">⊞ Grid</button>';
         html += '<button class="dash-tool-btn' + (dashboardEditMode ? ' active' : '') + '" data-action="dashboard-toggle-edit" title="Edit dashboard">' + (dashboardEditMode ? '✓ Done' : '✎ Edit') + '</button>';
         if (dashboardEditMode) {
+            html += '<button class="dash-tool-btn" data-action="dashboard-compact" title="Compact: pull widgets up to remove gaps">⇧ Compact</button>';
             html += '<button class="dash-tool-btn" data-action="dashboard-save-bp" title="Save current layout for ' + DASHBOARD_BREAKPOINTS[bp].label + '">💾 Save ' + DASHBOARD_BREAKPOINTS[bp].label + '</button>';
             if (hasSavedForBP && bp !== 'desktop') {
                 html += '<button class="dash-tool-btn dash-tool-danger" data-action="dashboard-clear-bp" title="Clear saved layout for this breakpoint (revert to auto-reflow)">⌫ Clear ' + DASHBOARD_BREAKPOINTS[bp].label + '</button>';
@@ -136,7 +144,6 @@ function renderWidgetCard(charId, config, state, editable, instance, bp) {
 
     if (editable && dashboardEditMode) {
         html += '<div class="widget-resize-handle" data-resize="se" data-wid="' + instance.wid + '"></div>';
-        html += '<div class="widget-drag-overlay" data-drag-handle="1" data-wid="' + instance.wid + '"></div>';
     }
 
     html += '</div>';

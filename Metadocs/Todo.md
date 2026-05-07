@@ -9,15 +9,18 @@
 - [x] P1 — Tab-management modal (add/hide/rename/reorder/delete custom tabs) + nieuwe defaults: Overview, Stats, Social, Exploring, Combat, Spells, Story, Family, Inventory
 - [x] P1 — Convert-to-dashboard knop voor legacy tabs (Overview/Stats/Combat/Spells/Story/Inventory)
 - [x] P1 — Auto-reflow algoritme (starred-first + bottom-left-fill, geen lege vlakken)
-- [ ] P2 — Size picker in palette (preview formaat kiezen vóór drop, binnen min/max range — nu pakt-ie defaultSize)
+- [x] P2 — Size picker in palette (3-5 size opties per widget, klik = active, daarna drag)
+- [x] P2 — Widget configuratie-UI (text widget title/body editen via contentEditable, image upload binnen widget)
+- [x] P3 — Compact-knop (pull widgets up, geen gaps)
+- [x] P3 — Meer widgets: combat-log, death-saves, exhaustion, inspiration, metamagic, sneak-attack, ability-radar
+- [x] P2 — Edit-mode UX: drag werkt vanaf hele widget (interactive children opt-out via tag check), niet meer overlay
+- [x] P2 — Tab-switch tijdens edit mode: auto-save current bp
 - [ ] P2 — Touch drag verfijnen voor mobiel (pointer events werken al; testen op echt device)
-- [ ] P2 — Widget configuratie-UI (text widget title/body editen, image upload binnen widget zelf)
 - [ ] P2 — Templates: gebruiker kan opgeslagen template kopiëren naar andere character via Tab manage modal
 - [ ] P2 — Family-diagram widget hooken aan de bestaande family system zodra een character een family heeft
-- [ ] P3 — Compact-knop (rearrange to remove gaps) in toolbar
 - [ ] P3 — Undo/redo binnen edit mode
-- [ ] P3 — Meer widgets: combat-log, death-saves, exhaustion, inspiration, metamagic, sneak-attack, ability-radar
 - [ ] P3 — Default layouts voor Overview/Combat opnieuw bekijken (nu nog naïef — willen meer dichtgeplaatste defaults)
+- [ ] P3 — Visual feedback voor "unsaved changes" indicator in edit mode
 
 ## Bug Tracker — Migrated to Central Hub (2026-04-22)
 
