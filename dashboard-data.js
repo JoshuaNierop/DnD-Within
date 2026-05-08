@@ -262,6 +262,32 @@ function reflowLayout(widgets, oldCols, newCols) {
     return placed;
 }
 
+// Normalize a saved layout so each breakpoint has tightly-packed, non-overlapping widgets.
+// Runs reflowLayout in-place per breakpoint at the SAME column count — purely a clean-up pass.
+// Idempotent: a tight layout passes through unchanged.
+function normalizeLayout(layout) {
+    if (!layout) return layout;
+    var bps = ['desktop', 'tablet', 'mobile'];
+    for (var i = 0; i < bps.length; i++) {
+        var bp = bps[i];
+        var arr = layout[bp];
+        if (!Array.isArray(arr) || !arr.length) continue;
+        var cols = DASHBOARD_BREAKPOINTS[bp].cols;
+        layout[bp] = reflowLayout(arr, cols, cols);
+    }
+    return layout;
+}
+
+// One-shot normalization: reads, normalizes, writes back if changed.
+function ensureLayoutNormalized(charId, tabId) {
+    var raw = loadTabLayout(charId, tabId);
+    if (!raw) return; // default layout will be normalized on first save
+    var before = JSON.stringify(raw);
+    normalizeLayout(raw);
+    var after = JSON.stringify(raw);
+    if (before !== after) saveTabLayout(charId, tabId, raw);
+}
+
 // Generate a unique widget instance id.
 function generateWidgetId() {
     return 'w_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);

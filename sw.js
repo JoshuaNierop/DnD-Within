@@ -1,5 +1,5 @@
 // Cache version — bump this on every deploy to force update
-var CACHE_VERSION = 15;
+var CACHE_VERSION = 16;
 var CACHE_NAME = 'dnd-within-v' + CACHE_VERSION;
 var ASSETS = [
     './',
