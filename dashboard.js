@@ -189,8 +189,8 @@ function dashboardInitGridstack() {
 
     dashGridInstance = GridStack.init({
         column: cols,
-        cellHeight: 40,
-        margin: 6,
+        cellHeight: 20,
+        margin: 4,
         float: false,
         animate: true,
         staticGrid: !dashboardEditMode,
