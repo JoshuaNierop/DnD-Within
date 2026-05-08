@@ -138,6 +138,17 @@ export function mountChatWidget(host, adapter, opts = {}) {
                     await adapter.sendMessage(state.activeChatId, state.activeOtherUid, text);
                     ta.value = '';
                     ta.style.height = 'auto';
+                    const myUid = adapter.getCurrentUid();
+                    state.messages = [
+                        ...state.messages,
+                        { id: `_pending_${Date.now()}`, from: myUid, text, ts: Date.now() },
+                    ];
+                    state.sending = false;
+                    if (state.mode === 'chat' && state.activeChatId) {
+                        render();
+                        scrollMsgsToBottom();
+                    }
+                    return;
                 } catch (err) {
                     alert('Bericht verzenden mislukt: ' + (err.message || err));
                 } finally {
