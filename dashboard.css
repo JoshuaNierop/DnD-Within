@@ -114,9 +114,9 @@ html[data-font-size="large"] { font-size: 18px; }
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    /* Ruimte links + rechts: rechts genoeg voor floating dashboard-toolbar (32px)
-       én de FAB-keten (notes/chat/dice/bug, ~52px + 24px right offset = 76px). */
-    padding: 0 5.5rem 0 0.5rem;
+    /* Clearance voor toolbar/FABs zit nu in .char-right-rail (grid kolom 3, 80px).
+       Dash-stage padding is alleen visuele inset. */
+    padding: 0 0.5rem;
 }
 .tab-content > .dashboard .grid-stack { min-height: 100%; width: 100%; }
 .dash-toolbar-group { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
@@ -330,25 +330,28 @@ html[data-font-size="large"] { font-size: 18px; }
 /* ====================================================================
    Edit Sidebar (palette)
    ==================================================================== */
+/* Sidebar leeft inline in .char-left-rail (grid kolom 1, 56px in edit-mode).
+   Cats altijd zichtbaar (56px). Content panel klapt rechtswaarts uit op hover/click,
+   overlapt tijdelijk de middle-col zonder dashboard te verschuiven. */
 .dash-edit-sidebar {
-    position: fixed;
-    top: 56px; /* onder fixed topbar (navbar = 56px hoog) */
-    left: 0;
-    max-width: 90vw;
-    height: calc(100vh - 56px);
+    position: relative;
+    width: 100%;
+    height: 100%;
     background: var(--bg, #0f0f12);
     border-right: 1px solid var(--border, rgba(255,255,255,0.1));
     display: flex;
-    flex-direction: row; /* cats links, content rechts (was row-reverse) */
-    z-index: 90;
-    transform: translateX(-100%);
-    transition: transform 0.2s ease-out;
-    box-shadow: 8px 0 30px rgba(0,0,0,0.4);
+    flex-direction: row;
+    z-index: 50;
 }
-/* Auto-hide widget-content: standaard alleen cats zichtbaar (56px breed).
-   Desktop: hover op sidebar opent content. Mobile/tablet: click op cat toggelt .cat-open. */
 .dash-edit-sidebar .dash-sidebar-content {
+    position: absolute;
+    top: 0;
+    left: 100%; /* start direct rechts van de cats-strip, klapt rechtswaarts uit */
     width: 264px;
+    height: 100%;
+    background: var(--bg, #0f0f12);
+    border-right: 1px solid var(--border, rgba(255,255,255,0.1));
+    box-shadow: 8px 0 24px rgba(0,0,0,0.4);
     transition: width 0.2s ease-out, opacity 0.2s ease-out;
     overflow: hidden;
 }
@@ -358,14 +361,15 @@ html[data-font-size="large"] { font-size: 18px; }
     padding-left: 0;
     padding-right: 0;
     pointer-events: none;
+    box-shadow: none;
+    border-right: none;
 }
 @media (hover: none) {
-    /* Touch devices: hover-state stays toggled, click-only via .cat-open */
     .dash-edit-sidebar:not(.cat-open) .dash-sidebar-content {
         width: 0; opacity: 0; padding-left: 0; padding-right: 0; pointer-events: none;
+        box-shadow: none; border-right: none;
     }
 }
-.dash-edit-sidebar.open { transform: translateX(0); }
 
 .dash-sidebar-cats {
     width: 56px;
@@ -674,7 +678,7 @@ html[data-font-size="large"] { font-size: 18px; }
    ==================================================================== */
 @media (max-width: 640px) {
     .dashboard-toolbar { padding: 0.4rem; }
-    .dash-edit-sidebar { width: 100vw; max-width: 100vw; }
+    /* Sidebar inline in grid (.char-left-rail) — geen 100vw override meer nodig. */
     .widget-header { padding: 0.25rem 0.5rem; font-size: 0.7rem; }
     .widget-body { padding: 0.4rem 0.5rem; }
 }

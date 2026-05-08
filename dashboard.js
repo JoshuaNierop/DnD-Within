@@ -100,10 +100,8 @@ function renderDashboardTab(charId, tabId) {
     html += '</div>';
     html += '</div>';
 
-    // Edit-mode sidebar palette
-    if (dashboardEditMode && editable && typeof renderDashboardEditSidebar === 'function') {
-        html += renderDashboardEditSidebar(charId, tabId);
-    }
+    // Edit-mode sidebar palette wordt door ui-character.js in .char-left-rail gerenderd
+    // (3-kolom grid layout) — niet meer als overlay binnen .dashboard.
 
     html += '</div>'; // .dashboard
     return html;

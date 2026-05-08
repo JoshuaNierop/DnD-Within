@@ -13,10 +13,30 @@ function renderCharacterSheet(charId) {
 
     var state = loadCharState(charId);
     var editable = canEdit(charId);
+    var editMode = (typeof isDashboardEditMode === 'function' && isDashboardEditMode());
 
-    var html = '<div class="character-page" data-char-id="' + charId + '" style="--char-accent:' + (config.accentColor || 'var(--accent)') + '">';
+    // Tabs config (gebruikt voor zowel tab-bar als activeTab fallback).
+    var dashCfg = (typeof loadDashboardConfig === 'function') ? loadDashboardConfig(charId) : { tabs: [] };
+    var tabs = dashCfg.tabs.filter(function(t) { return !t.hidden; });
+    if (!hasSpellcasting(config.className)) {
+        tabs = tabs.filter(function(t) { return t.id !== 'spells'; });
+    }
+    var validIds = tabs.map(function(t) { return t.id; });
+    if (validIds.indexOf(activeTab) === -1 && validIds.length) activeTab = validIds[0];
 
-    // Floating header-actions (gear) — op alle tab-pagina's beschikbaar
+    // 3-kolom grid: [left-rail (sidebar palette in edit mode)] [main (tabs+dashboard)] [right-rail (FAB-clearance)]
+    var html = '<div class="character-page char-grid' + (editMode ? ' is-edit-mode' : '') + '" data-char-id="' + charId + '" style="--char-accent:' + (config.accentColor || 'var(--accent)') + '">';
+
+    // LEFT RAIL — widget-category sidebar (gevuld in edit mode, anders 0 breed via grid)
+    html += '<aside class="char-left-rail">';
+    if (editMode && editable && typeof renderDashboardEditSidebar === 'function') {
+        html += renderDashboardEditSidebar(charId, activeTab);
+    }
+    html += '</aside>';
+
+    // MAIN COLUMN — header-actions, tab-bar, dashboard
+    html += '<main class="char-main-col">';
+
     if (editable) {
         html += '<div class="header-actions" id="options-dropdown">';
         html += '<button class="options-toggle" data-action="toggle-options">&#9881;</button>';
@@ -31,22 +51,11 @@ function renderCharacterSheet(charId) {
         html += '</div>';
     }
 
-    // Tab bar — bovenaan op de pagina (sourced from dashboard config: defaults + custom + hidden flags)
-    var dashCfg = (typeof loadDashboardConfig === 'function') ? loadDashboardConfig(charId) : { tabs: [] };
-    var tabs = dashCfg.tabs.filter(function(t) { return !t.hidden; });
-    // Hide spells tab for non-casters (system rule, doesn't override user hidden choice).
-    if (!hasSpellcasting(config.className)) {
-        tabs = tabs.filter(function(t) { return t.id !== 'spells'; });
-    }
-    // Ensure activeTab is valid (fallback to overview).
-    var validIds = tabs.map(function(t) { return t.id; });
-    if (validIds.indexOf(activeTab) === -1 && validIds.length) activeTab = validIds[0];
-
     html += '<div class="tab-bar tab-bar-extended">';
     for (var ti = 0; ti < tabs.length; ti++) {
         var tt = tabs[ti];
         var lbl = tt.system ? t('tab.' + tt.id) : tt.label;
-        if (lbl && lbl.indexOf('tab.') === 0) lbl = tt.label || tt.id; // fallback if no i18n key
+        if (lbl && lbl.indexOf('tab.') === 0) lbl = tt.label || tt.id;
         html += '<button class="tab-btn' + (activeTab === tt.id ? ' active' : '') + (tt.custom ? ' is-custom' : '') + '" data-tab="' + tt.id + '">';
         if (tt.icon) html += '<span class="tab-btn-icon">' + tt.icon + '</span>';
         html += '<span>' + escapeHtml(lbl || tt.id) + '</span>';
@@ -57,14 +66,18 @@ function renderCharacterSheet(charId) {
     }
     html += '</div>';
 
-    // (Quote is verplaatst naar Overview-tab binnen char-identity-card)
-
-    // Tab content — alle character-tabs zijn dashboards (defaults in dashboard-data.js).
     html += '<div class="tab-content">';
     if (typeof renderDashboardTab === 'function') {
         html += renderDashboardTab(charId, activeTab);
     }
     html += '</div>';
+
+    html += '</main>';
+
+    // RIGHT RAIL — visual spacer voor FAB-stack (dice/notes/bug zijn body-level fixed
+    // en zitten visueel in deze 80px kolom). Toolbar (fixed) zit ook hier visueel.
+    html += '<aside class="char-right-rail"></aside>';
+
     html += '</div>';
     return html;
 }
