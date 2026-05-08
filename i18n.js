@@ -488,12 +488,13 @@ var TRANSLATIONS = {
         'dm.whisper.sentto': 'Whisper verstuurd naar ',
 
         // Bug Reporter
-        'bug.title': 'Bug Rapporteren',
+        'bug.title': 'Developer',
         'bug.element': 'Element',
         'bug.page': 'Pagina',
         'bug.type': 'Type',
         'bug.type.bug': 'Bug',
         'bug.type.feature': 'Feature',
+        'bug.type.design': 'Design',
         'bug.description': 'Beschrijving',
         'bug.plh': 'Wat ging er mis?',
         'bug.submit': 'Verzenden',
@@ -1070,12 +1071,13 @@ var TRANSLATIONS = {
         'dm.whisper.sentto': 'Whisper sent to ',
 
         // Bug Reporter
-        'bug.title': 'Report Bug',
+        'bug.title': 'Developer',
         'bug.element': 'Element',
         'bug.page': 'Page',
         'bug.type': 'Type',
         'bug.type.bug': 'Bug',
         'bug.type.feature': 'Feature',
+        'bug.type.design': 'Design',
         'bug.description': 'Description',
         'bug.plh': 'What went wrong?',
         'bug.submit': 'Submit',

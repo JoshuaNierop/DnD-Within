@@ -8227,6 +8227,9 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
 .bug-type-option input:checked + .bug-type-feature {
     border-color: var(--accent); color: var(--accent); background: rgba(129,140,248,0.1);
 }
+.bug-type-option input:checked + .bug-type-design {
+    border-color: #f0b454; color: #f0b454; background: rgba(240,180,84,0.12);
+}
 
 .bug-textarea {
     width: 100%;

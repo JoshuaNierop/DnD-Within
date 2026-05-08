@@ -319,6 +319,7 @@ function openBugReportModal() {
     html += '<div class="bug-type-toggle">';
     html += '<label class="bug-type-option"><input type="radio" name="bug-type" value="bug" checked><span class="bug-type-chip bug-type-bug">&#x1FAB2; ' + t('bug.type.bug') + '</span></label>';
     html += '<label class="bug-type-option"><input type="radio" name="bug-type" value="feature"><span class="bug-type-chip bug-type-feature">&#x2728; ' + t('bug.type.feature') + '</span></label>';
+    html += '<label class="bug-type-option"><input type="radio" name="bug-type" value="design"><span class="bug-type-chip bug-type-design">&#x1F3A8; ' + (t('bug.type.design') === 'bug.type.design' ? 'Design' : t('bug.type.design')) + '</span></label>';
     html += '</div></div>';
     html += '<div class="bug-field"><label class="bug-label">' + t('bug.description') + '</label>';
     html += '<textarea class="bug-textarea" id="bug-description" rows="4" placeholder="' + t('bug.plh') + '"></textarea></div>';
@@ -374,7 +375,7 @@ function submitBugReport() {
         status: 'open'
     };
 
-    var typeLabel = reportType === 'feature' ? 'Feature' : 'Bug';
+    var typeLabel = reportType === 'feature' ? 'Feature' : reportType === 'design' ? 'Design' : 'Bug';
     submitBugToHub(bug).then(function(res) {
         closeBugReportModal();
         showToast(typeLabel + ' ' + t('bug.reported'), 'success');
@@ -386,7 +387,7 @@ function submitBugReport() {
 
 function renderBugFab() {
     if (!isDebugMode()) return '';
-    return '<div class="bug-fab" data-action="start-bug-selector" title="Bug rapporteren">' +
+    return '<div class="bug-fab" data-action="start-bug-selector" title="Developer">' +
         '<svg class="bug-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M8 2l1.5 3M16 2l-1.5 3"/>' +
         '<path d="M3 10h2M19 10h2M3 14h2M19 14h2"/>' +

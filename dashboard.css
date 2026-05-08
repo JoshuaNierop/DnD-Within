@@ -12,7 +12,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.6rem 0.75rem;
-    margin: 0.5rem 0;
+    margin: 0 0 0.5rem;
     border-radius: 10px;
     background: var(--bg-elevated, rgba(255,255,255,0.04));
     border: 1px solid var(--border, rgba(255,255,255,0.08));
@@ -57,7 +57,11 @@
 /* ====================================================================
    Grid
    ==================================================================== */
-.dashboard { --dash-gap: 0.6rem; }
+.dashboard {
+    --dash-gap: 0.6rem;
+    padding-top: 0;
+    margin-top: 0;
+}
 .dashboard .dash-stage {
     position: relative;
     min-height: 200px;
@@ -109,12 +113,12 @@
     background-image:
         linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
-    background-size: 8.333% 80px;
+    background-size: 8.333% 40px;
 }
 .dashboard.bp-tablet.show-grid .grid-stack,
-.dashboard.bp-tablet.is-editing .grid-stack { background-size: 12.5% 80px; }
+.dashboard.bp-tablet.is-editing .grid-stack { background-size: 12.5% 40px; }
 .dashboard.bp-mobile.show-grid .grid-stack,
-.dashboard.bp-mobile.is-editing .grid-stack { background-size: 25% 80px; }
+.dashboard.bp-mobile.is-editing .grid-stack { background-size: 25% 40px; }
 
 .dashboard-empty {
     text-align: center;
