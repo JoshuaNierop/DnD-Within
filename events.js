@@ -9,6 +9,18 @@ function handleImageUpload(file, charId, type, maxSize) {
     if (!file) return;
     maxSize = maxSize || 500000; // 500KB default
 
+    if (type === 'portrait') {
+        showImageCropper(file, { aspectRatio: 1, maxDim: 600, quality: 0.9, title: t('crop.title') || 'Portret bijsnijden' }, function(dataUrl) {
+            try {
+                saveImage(charId, 'portrait', dataUrl);
+                renderApp();
+            } catch (err) {
+                showWarning(t('warn.imagetoolarge'));
+            }
+        });
+        return;
+    }
+
     var reader = new FileReader();
     reader.onload = function(e) {
         var result = e.target.result;
@@ -43,6 +55,185 @@ function handleImageUpload(file, charId, type, maxSize) {
             }
         };
         img.src = result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Crop modal: pan/zoom + fixed-aspect frame, output via canvas drawImage
+function showImageCropper(file, opts, callback) {
+    var aspect = opts.aspectRatio || 1;
+    var maxDim = opts.maxDim || 600;
+    var quality = opts.quality || 0.9;
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+            var overlay = document.createElement('div');
+            overlay.className = 'modal-overlay crop-overlay';
+            overlay.innerHTML =
+                '<div class="crop-modal">' +
+                    '<div class="crop-modal-header"><h3>' + (opts.title || 'Afbeelding bijsnijden') + '</h3></div>' +
+                    '<div class="crop-stage" id="crop-stage">' +
+                        '<div class="crop-frame" id="crop-frame"></div>' +
+                    '</div>' +
+                    '<div class="crop-controls">' +
+                        '<label class="crop-zoom-label">Zoom' +
+                            '<input type="range" id="crop-zoom" min="1" max="4" step="0.01" value="1">' +
+                        '</label>' +
+                        '<p class="crop-hint">Sleep om te verschuiven · scroll/pinch om te zoomen</p>' +
+                    '</div>' +
+                    '<div class="crop-actions">' +
+                        '<button type="button" class="btn" id="crop-cancel">Annuleren</button>' +
+                        '<button type="button" class="btn btn-primary" id="crop-apply">Toepassen</button>' +
+                    '</div>' +
+                '</div>';
+            document.body.appendChild(overlay);
+
+            var stage = overlay.querySelector('#crop-stage');
+            var frame = overlay.querySelector('#crop-frame');
+            var zoomEl = overlay.querySelector('#crop-zoom');
+
+            // Stage maat: max 80vmin × 80vmin met aspect 1, of 80vw × auto
+            var stageRect = stage.getBoundingClientRect();
+            var frameW = stageRect.width * 0.8;
+            var frameH = frameW / aspect;
+            if (frameH > stageRect.height * 0.85) {
+                frameH = stageRect.height * 0.85;
+                frameW = frameH * aspect;
+            }
+            frame.style.width = frameW + 'px';
+            frame.style.height = frameH + 'px';
+            frame.style.left = ((stageRect.width - frameW) / 2) + 'px';
+            frame.style.top = ((stageRect.height - frameH) / 2) + 'px';
+
+            var imgEl = document.createElement('img');
+            imgEl.src = img.src;
+            imgEl.className = 'crop-img';
+            imgEl.draggable = false;
+            stage.insertBefore(imgEl, frame);
+
+            var imgRatio = img.width / img.height;
+            var baseScale;
+            if (imgRatio > aspect) {
+                baseScale = frameH / img.height;
+            } else {
+                baseScale = frameW / img.width;
+            }
+            var scale = baseScale;
+            var frameLeft = (stageRect.width - frameW) / 2;
+            var frameTop = (stageRect.height - frameH) / 2;
+            var tx = frameLeft + (frameW - img.width * scale) / 2;
+            var ty = frameTop + (frameH - img.height * scale) / 2;
+
+            function clampPan() {
+                var iw = img.width * scale;
+                var ih = img.height * scale;
+                var minTx = frameLeft + frameW - iw;
+                var maxTx = frameLeft;
+                var minTy = frameTop + frameH - ih;
+                var maxTy = frameTop;
+                if (iw < frameW) { tx = frameLeft + (frameW - iw) / 2; }
+                else { tx = Math.min(maxTx, Math.max(minTx, tx)); }
+                if (ih < frameH) { ty = frameTop + (frameH - ih) / 2; }
+                else { ty = Math.min(maxTy, Math.max(minTy, ty)); }
+            }
+
+            function applyTransform() {
+                clampPan();
+                imgEl.style.transformOrigin = '0 0';
+                imgEl.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + scale + ')';
+            }
+            applyTransform();
+
+            var dragging = false;
+            var dragStart = null;
+
+            function pointerCoords(ev) {
+                if (ev.touches && ev.touches[0]) return { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
+                return { x: ev.clientX, y: ev.clientY };
+            }
+            function onPointerDown(ev) {
+                dragging = true;
+                var p = pointerCoords(ev);
+                dragStart = { x: p.x - tx, y: p.y - ty };
+                ev.preventDefault();
+            }
+            function onPointerMove(ev) {
+                if (!dragging) return;
+                var p = pointerCoords(ev);
+                tx = p.x - dragStart.x;
+                ty = p.y - dragStart.y;
+                applyTransform();
+                ev.preventDefault();
+            }
+            function onPointerUp() { dragging = false; }
+
+            stage.addEventListener('mousedown', onPointerDown);
+            stage.addEventListener('touchstart', onPointerDown, { passive: false });
+            window.addEventListener('mousemove', onPointerMove);
+            window.addEventListener('touchmove', onPointerMove, { passive: false });
+            window.addEventListener('mouseup', onPointerUp);
+            window.addEventListener('touchend', onPointerUp);
+
+            zoomEl.addEventListener('input', function() {
+                var zoomFactor = parseFloat(zoomEl.value);
+                var oldScale = scale;
+                scale = baseScale * zoomFactor;
+                // zoom around frame center
+                var cx = frameLeft + frameW / 2;
+                var cy = frameTop + frameH / 2;
+                tx = cx - (cx - tx) * (scale / oldScale);
+                ty = cy - (cy - ty) * (scale / oldScale);
+                applyTransform();
+            });
+
+            stage.addEventListener('wheel', function(ev) {
+                ev.preventDefault();
+                var current = parseFloat(zoomEl.value);
+                var step = ev.deltaY > 0 ? -0.15 : 0.15;
+                var next = Math.max(1, Math.min(4, current + step));
+                zoomEl.value = next;
+                zoomEl.dispatchEvent(new Event('input'));
+            }, { passive: false });
+
+            function cleanup() {
+                window.removeEventListener('mousemove', onPointerMove);
+                window.removeEventListener('touchmove', onPointerMove);
+                window.removeEventListener('mouseup', onPointerUp);
+                window.removeEventListener('touchend', onPointerUp);
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }
+
+            overlay.querySelector('#crop-cancel').addEventListener('click', cleanup);
+            overlay.addEventListener('click', function(ev) {
+                if (ev.target === overlay) cleanup();
+            });
+
+            overlay.querySelector('#crop-apply').addEventListener('click', function() {
+                // Convert frame-region (in stage coords) to source-image coords
+                var sx = (frameLeft - tx) / scale;
+                var sy = (frameTop - ty) / scale;
+                var sw = frameW / scale;
+                var sh = frameH / scale;
+                if (sx < 0) { sw += sx; sx = 0; }
+                if (sy < 0) { sh += sy; sy = 0; }
+                if (sx + sw > img.width) sw = img.width - sx;
+                if (sy + sh > img.height) sh = img.height - sy;
+
+                var outW = Math.min(maxDim, Math.round(sw));
+                var outH = Math.round(outW * (sh / sw));
+                var canvas = document.createElement('canvas');
+                canvas.width = outW;
+                canvas.height = outH;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+                var dataUrl = canvas.toDataURL('image/jpeg', quality);
+                cleanup();
+                callback(dataUrl);
+            });
+        };
+        img.src = e.target.result;
     };
     reader.readAsDataURL(file);
 }
