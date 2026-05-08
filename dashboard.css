@@ -57,8 +57,10 @@
 /* ====================================================================
    Grid
    ==================================================================== */
-.dashboard {
-    --dash-gap: 0.6rem;
+.dashboard { --dash-gap: 0.6rem; }
+/* Widget-dashboard binnen tab-content (character pages): geen extra top-spacing,
+   verschilt van .dashboard op de home-page die juist navbar-clearance nodig heeft. */
+.tab-content > .dashboard {
     padding-top: 0;
     margin-top: 0;
 }
