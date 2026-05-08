@@ -7972,7 +7972,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 90;
+    z-index: 95;
     text-decoration: none;
     box-shadow: 0 2px 12px rgba(167, 139, 250, 0.3);
     transition: all 0.2s;

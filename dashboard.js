@@ -78,6 +78,10 @@ function renderDashboardTab(charId, tabId) {
     }
     html += '</div></div>';
 
+    // Quick-action knoppen: notes panel + dice panel (FAB-equivalenten in toolbar)
+    html += '<button class="dash-tool-btn" data-action="toggle-notes-panel" title="Notities">📝</button>';
+    html += '<button class="dash-tool-btn" data-action="toggle-dice-panel" title="Dice roller">🎲</button>';
+
     if (editable) {
         html += '<button class="dash-tool-btn' + (dashboardGridVisible ? ' active' : '') + '" data-action="dashboard-toggle-grid" title="Grid lijnen tonen">⊞</button>';
         html += '<button class="dash-tool-btn' + (dashboardEditMode ? ' active' : '') + '" data-action="dashboard-toggle-edit" title="Edit dashboard">' + (dashboardEditMode ? '✓' : '✎') + '</button>';
