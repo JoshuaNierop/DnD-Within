@@ -92,15 +92,23 @@
 html[data-font-size="small"] { font-size: 14px; }
 html[data-font-size="large"] { font-size: 18px; }
 .dash-stage { position: relative; }
-/* Maak de grid groter, vult resterend scherm onder topbar+tabs */
+/* Dashboard vult exact de ruimte onder de tabs tot de bodem van het scherm.
+   Niet erbuiten: overflow blijft binnen .dash-stage (intern scroll als grid groter wordt). */
 .tab-content > .dashboard {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 56px - 80px);
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
     position: relative;
 }
-.tab-content > .dashboard .dash-stage,
-.tab-content > .dashboard .grid-stack { flex: 1 1 auto; }
+.tab-content > .dashboard .dash-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.tab-content > .dashboard .grid-stack { min-height: 100%; }
 .dash-toolbar-group { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
 .dash-bp-toggle .dash-bp-btn,
 .dash-tool-btn {

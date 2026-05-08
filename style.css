@@ -627,13 +627,21 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ===== CHARACTER SHEET ===== */
+/* Full-width voor dashboard-tabs. Padding rechts houdt FAB-stack vrij (dice/notes/bug),
+   padding links spiegelt visueel maar laat ruimte voor toekomstige left-rail. */
 .character-page {
     padding-top: 56px;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    padding-bottom: 4rem;
+    /* 80px = 52px FAB + 24px right + small gap. Symmetrisch zodat dashboard
+       gecentreerd staat met clearance voor (toekomstige) buttons aan beide zijden. */
+    padding-left: 80px;
+    padding-right: 80px;
+    padding-bottom: 0;
+    margin: 0;
+    max-width: none;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     position: relative;
     z-index: 1;
 }
@@ -1036,9 +1044,14 @@ a { color: inherit; text-decoration: none; }
 }
 
 .tab-content {
-    padding: 1.5rem;
+    padding: 0.5rem 0 0 0;
     animation: fadeIn 0.3s ease-out;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
+.character-page > .tab-bar { flex-shrink: 0; }
 
 /* ===== SHEET GRID (reused from character sheet tabs) ===== */
 .sheet-grid {
@@ -3560,7 +3573,9 @@ footer {
     .header-info h1 { font-size: 1.3rem; }
     .tab-bar { padding: 0 0.5rem; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .tab-btn { padding: 0.5rem 0.8rem; font-size: 0.8rem; }
-    .tab-content { padding: 1rem; }
+    /* Mobile: dashboard near-full-width; FABs zweven over grid-rechtsonder. */
+    .character-page { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .tab-content { padding: 0.25rem 0 0 0; }
     .sheet-grid { grid-template-columns: 1fr; gap: 1rem; }
 
     /* Abilities */
@@ -3691,6 +3706,11 @@ footer {
     .main-content {
         padding-inline: clamp(1.5rem, 3vw, 3rem);
     }
+}
+/* Character-page beheert zelf zijn padding (FAB-clearance + full-width dashboards). */
+.main-content:has(> .character-page) {
+    padding-inline: 0;
+    min-height: 0;
 }
 
 /* ===== GOLD ROW (Inventory) ===== */

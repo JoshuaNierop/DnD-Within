@@ -59,32 +59,11 @@ function renderCharacterSheet(charId) {
 
     // (Quote is verplaatst naar Overview-tab binnen char-identity-card)
 
-    // Tab content
+    // Tab content — alle character-tabs zijn dashboards (defaults in dashboard-data.js).
     html += '<div class="tab-content">';
-
-    // Stats is nu volwaardig dashboard-tab (geen legacy meer)
-    var legacyTab = ['overview', 'combat', 'spells', 'story', 'inventory'].indexOf(activeTab) >= 0;
-    var savedLayout = (typeof loadTabLayout === 'function') ? loadTabLayout(charId, activeTab) : null;
-    // For legacy tabs without a saved dashboard layout, use the original renderers (preserves existing UX).
-    // For new tabs (social/exploring/family) or once user creates a dashboard layout, use the dashboard renderer.
-    if (legacyTab && !savedLayout) {
-        if (activeTab === 'overview') html += renderTabOverview(charId, config, state);
-        else if (activeTab === 'stats') html += renderTabStats(charId, config, state);
-        else if (activeTab === 'combat') html += renderTabCombat(charId, config, state);
-        else if (activeTab === 'spells') html += renderTabSpells(charId, config, state);
-        else if (activeTab === 'story') html += renderTabStory(charId, config, state);
-        else if (activeTab === 'inventory') html += renderTabInventory(charId, config, state);
-        // "Try as dashboard" hint for editors so they can opt in
-        if (editable) {
-            html += '<div class="legacy-tab-dashboard-hint" style="margin-top:1rem;padding:0.6rem;border:1px dashed var(--border);border-radius:8px;text-align:center;font-size:0.85rem;color:var(--text-dim);">';
-            html += 'New: convert this tab to a customisable dashboard ';
-            html += '<button class="btn btn-ghost btn-sm" data-action="convert-to-dashboard" data-tab-id="' + activeTab + '">Convert →</button>';
-            html += '</div>';
-        }
-    } else if (typeof renderDashboardTab === 'function') {
+    if (typeof renderDashboardTab === 'function') {
         html += renderDashboardTab(charId, activeTab);
     }
-
     html += '</div>';
     html += '</div>';
     return html;
