@@ -15,13 +15,25 @@ var addingPin = false;
 function getMapsData() {
     var saved = localStorage.getItem('dw_maps');
     if (saved) {
-        try { return JSON.parse(saved); } catch(e) {}
+        try {
+            var parsed = JSON.parse(saved);
+            // Migration: 'Valoria' was de wereld-naam, niet de dimensie. Default = Material Plane.
+            if (parsed && Array.isArray(parsed.dimensions)) {
+                for (var i = 0; i < parsed.dimensions.length; i++) {
+                    if (parsed.dimensions[i] && parsed.dimensions[i].name === 'Valoria') {
+                        parsed.dimensions[i].name = 'Material Plane';
+                        if (parsed.dimensions[i].id === 'valoria') parsed.dimensions[i].id = 'material-plane';
+                    }
+                }
+            }
+            return parsed;
+        } catch(e) {}
     }
     return {
         dimensions: [
             {
-                id: 'valoria',
-                name: 'Valoria',
+                id: 'material-plane',
+                name: 'Material Plane',
                 maps: [
                     { id: 'world', name: t('maps.worldmap'), image: null, isRoot: true, pins: [] }
                 ]
@@ -46,6 +58,8 @@ function renderMaps() {
     // Dimension tabs at top
     html += '<div class="maps-header">';
     html += '<h1>' + t('maps.title') + '</h1>';
+    html += '<div class="dimension-section">';
+    html += '<span class="dimension-label">' + (t('maps.dimension') === 'maps.dimension' ? 'Dimensie' : t('maps.dimension')) + '</span>';
     html += '<div class="dimension-tabs">';
     for (var d = 0; d < dims.length; d++) {
         var activeClass = d === activeDimension ? ' active' : '';
@@ -55,7 +69,8 @@ function renderMaps() {
         html += '<button class="dimension-tab dimension-add" data-action="add-dimension">+</button>';
     }
     html += '</div>';
-    html += '</div>';
+    html += '</div>'; // end dimension-section
+    html += '</div>'; // end maps-header
 
     if (activeMapId) {
         // MAP VIEWER MODE
@@ -208,7 +223,6 @@ function renderMaps() {
             cardHtml += '<div class="map-card-info">';
             cardHtml += '<span class="map-card-name">' + escapeHtml(gm.name) + '</span>';
             if (gm.isRoot) cardHtml += '<span class="map-card-badge">' + t('maps.mainmap') + '</span>';
-            cardHtml += '<span class="map-card-pins">' + (gm.pins ? gm.pins.length : 0) + ' pins</span>';
             cardHtml += '</div>';
             if (isDM()) {
                 cardHtml += '<button class="map-card-delete" data-action="delete-map" data-map-id="' + gm.id + '">&times;</button>';

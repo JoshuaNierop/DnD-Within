@@ -67,9 +67,7 @@ function renderNavbar(route) {
     html += '<div class="nav-links">';
 
     if (inCampaignView) {
-        // Back to main menu
-        html += '<a class="nav-link nav-back" href="#/home"><span class="nav-icon">' + svgI('<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>') + '</span><span class="nav-text">' + t('nav.menu') + '</span></a>';
-        html += '<span class="nav-separator">|</span>';
+        // (Back-to-menu link weggehaald — D&D Within logo links nu naar #/home)
         // Campaign links
         for (var i = 0; i < campLinks.length; i++) {
             var link = campLinks[i];
