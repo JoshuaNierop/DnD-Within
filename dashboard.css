@@ -114,6 +114,8 @@ html[data-font-size="large"] { font-size: 18px; }
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
+    /* Ruimte links + rechts zodat de floating toolbar niet over de grid komt */
+    padding: 0 3rem 0 0.5rem;
 }
 .tab-content > .dashboard .grid-stack { min-height: 100%; width: 100%; }
 .dash-toolbar-group { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
@@ -329,15 +331,16 @@ html[data-font-size="large"] { font-size: 18px; }
    ==================================================================== */
 .dash-edit-sidebar {
     position: fixed;
-    top: 0; left: 0;
+    top: 56px; /* onder fixed topbar (navbar = 56px hoog) */
+    left: 0;
     width: 320px;
     max-width: 90vw;
-    height: 100vh;
+    height: calc(100vh - 56px);
     background: var(--bg, #0f0f12);
     border-right: 1px solid var(--border, rgba(255,255,255,0.1));
     display: flex;
     flex-direction: row-reverse; /* widget-cards naast cat-icons; cats blijven aan dashboard-zijde */
-    z-index: 1000;
+    z-index: 90; /* lager dan navbar (z:100) zodat hij niet erover gaat */
     transform: translateX(-100%);
     transition: transform 0.2s ease-out;
     box-shadow: 8px 0 30px rgba(0,0,0,0.4);
