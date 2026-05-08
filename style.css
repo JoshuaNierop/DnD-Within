@@ -677,10 +677,22 @@ a { color: inherit; text-decoration: none; }
 .char-banner:hover .image-upload-overlay { opacity: 1; }
 
 /* Portrait overlapping banner */
+.char-top-row {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 1.5rem 2rem 0.5rem;
+    min-height: 80px;
+}
+
+/* Char-banner is uitgefaseerd; verberg restjes van oude states */
+.char-banner { display: none !important; }
+
 .char-portrait-wrap {
     position: relative;
-    margin-top: -60px;
-    margin-left: 2rem;
+    margin-top: 1.25rem;
+    margin-left: 1rem;
     z-index: 2;
     display: inline-block;
 }
@@ -800,9 +812,25 @@ a { color: inherit; text-decoration: none; }
 /* Header actions dropdown */
 .header-actions {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 1rem;
+    right: 1.5rem;
+    z-index: 3;
 }
+
+/* Char-identity-card binnen Overview-tab — eerste blok, vervangt oude char-header */
+.char-identity-card {
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    animation: fadeUp 0.4s ease-out;
+}
+.char-identity-card .char-name-wrap { margin: 0 0 0.4rem; }
+.char-identity-card .char-title { margin: 0 0 0.85rem; color: var(--text-dim); font-size: 0.95rem; }
+.char-identity-card .level-control { margin-bottom: 0.6rem; }
+.char-identity-card .xp-tracker { margin-top: 0.25rem; }
 
 .options-toggle {
     padding: 0.3rem 0.7rem;
@@ -3430,10 +3458,12 @@ footer {
     .character-cards { grid-template-columns: repeat(2, 1fr); }
 
     /* Character sheet */
-    .char-banner { height: 140px; }
-    .char-portrait-wrap { margin-left: 1rem; margin-top: -40px; }
+    .char-top-row { padding: 1rem 1rem 0.25rem; }
+    .char-portrait-wrap { margin-left: 0.5rem; margin-top: 0.5rem; }
     .char-portrait { width: 80px; height: 80px; }
     .char-header { padding: 0.75rem 1rem; }
+    .header-actions { top: 0.5rem; right: 1rem; }
+    .char-identity-card { padding: 1rem 1.1rem; }
     .header-info h1 { font-size: 1.3rem; }
     .tab-bar { padding: 0 0.5rem; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .tab-btn { padding: 0.5rem 0.8rem; font-size: 0.8rem; }

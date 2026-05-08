@@ -14,31 +14,13 @@ function renderCharacterSheet(charId) {
     var state = loadCharState(charId);
     var editable = canEdit(charId);
 
-    var classLabel = classDisplayName(config.className);
-    var subLabel = subclassDisplayName(config.subclass);
-    var raceLabel = raceDisplayName(config.race);
-
-    // Banner
-    var banner = loadImage(charId, 'banner');
     var portrait = loadImage(charId, 'portrait');
 
     var html = '<div class="character-page" data-char-id="' + charId + '" style="--char-accent:' + (config.accentColor || 'var(--accent)') + '">';
 
-    // Banner section
-    html += '<div class="char-banner">';
-    if (banner) {
-        html += '<img src="' + banner + '" alt="">';
-    } else {
-        html += '<div class="banner-placeholder">Banner</div>';
-    }
-    if (editable) {
-        html += '<label class="image-upload-overlay" title="' + t('banner.upload') + '"><span class="upload-icon">&#128247;</span><input type="file" accept="image/*" data-action="upload-banner" style="display:none"></label>';
-    }
-    html += '</div>';
-
-    // Portrait overlapping banner
+    // Top row: portrait + floating header actions (info/level/xp leven nu in Overview-tab)
+    html += '<div class="char-top-row">';
     html += '<div class="char-portrait-wrap">';
-
     html += '<div class="char-portrait">';
     if (portrait) {
         html += '<img src="' + portrait + '" alt="">';
@@ -51,66 +33,6 @@ function renderCharacterSheet(charId) {
     html += '</div>';
     html += '</div>';
 
-    // Header
-    html += '<div class="char-header">';
-    html += '<div class="header-info">';
-    html += '<h1 class="char-name-wrap">';
-    html += '<span class="char-name-display">' + escapeHtml(config.name) + '</span>';
-    if (editable) {
-        html += '<button class="edit-trigger" data-action="edit-name" title="' + t('char.editname') + '">&#9998;</button>';
-        var colorOptions = ['#22d3ee','#f472b6','#4ade80','#818cf8','#fbbf24','#34d399','#f87171','#a78bfa','#fb923c','#e879f9','#38bdf8','#facc15'];
-        html += '<span class="color-picker-wrap">';
-        html += '<span class="color-dot" data-action="pick-color" style="background:' + config.accentColor + ';" title="' + t('char.pickcolor') + '"></span>';
-        html += '<div class="color-picker-popup" style="display:none;">';
-        for (var ci = 0; ci < colorOptions.length; ci++) {
-            var selClass = colorOptions[ci] === config.accentColor ? ' selected' : '';
-            html += '<span class="color-option' + selClass + '" data-action="select-color" data-color="' + colorOptions[ci] + '" style="background:' + colorOptions[ci] + ';"></span>';
-        }
-        html += '</div></span>';
-    }
-    html += '</h1>';
-    html += '<p class="char-title">';
-    html += '<span class="info-item" data-tip="' + escapeAttr(raceLabel) + '"><span class="value">' + raceLabel + '</span></span>';
-    html += ' &mdash; ';
-    html += '<span class="info-item" data-tip="' + escapeAttr(classLabel) + '"><span class="value">' + classLabel + '</span></span>';
-    if (isSubclassVisible(config, state)) {
-        html += ' &mdash; ';
-        html += '<span class="info-item" data-tip="' + escapeAttr(subLabel) + '"><span class="value">' + subLabel + '</span></span>';
-    }
-    html += '</p>';
-
-    // Level control
-    if (editable) {
-        html += '<div class="level-control">';
-        html += '<button class="level-btn" data-action="level-down"' + (state.level <= 1 ? ' disabled' : '') + '>&minus;</button>';
-        html += '<span class="level-display">Level ' + state.level + '</span>';
-        html += '<button class="level-btn" data-action="level-up"' + (state.level >= 20 ? ' disabled' : '') + '>&plus;</button>';
-        html += '</div>';
-    } else {
-        html += '<div class="level-control"><span class="level-display">Level ' + state.level + '</span></div>';
-    }
-
-    // XP tracker
-    var xpThresholds = [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000];
-    var currentXP = state.xp || 0;
-    var xpForCurrent = xpThresholds[state.level - 1] || 0;
-    var xpForNext = xpThresholds[state.level] || xpThresholds[19];
-    var xpProgress = state.level >= 20 ? 100 : Math.min(100, Math.round((currentXP - xpForCurrent) / (xpForNext - xpForCurrent) * 100));
-    html += '<div class="xp-tracker">';
-    html += '<div class="xp-bar"><div class="xp-bar-fill" style="width:' + xpProgress + '%"></div></div>';
-    html += '<span class="xp-label">' + currentXP.toLocaleString() + ' / ' + (state.level >= 20 ? 'MAX' : xpForNext.toLocaleString()) + ' XP</span>';
-    if (editable) {
-        html += '<div class="xp-controls">';
-        html += '<button class="btn btn-ghost btn-sm xp-btn-minus" data-action="remove-xp">&minus;XP</button>';
-        html += '<input type="number" class="xp-input" id="xp-add-input" value="100" min="1" style="width:70px;">';
-        html += '<button class="btn btn-ghost btn-sm xp-btn-plus" data-action="add-xp">+XP</button>';
-        html += '</div>';
-    }
-    html += '</div>';
-
-    html += '</div>';
-
-    // Header actions (inside char-header for absolute positioning)
     if (editable) {
         html += '<div class="header-actions" id="options-dropdown">';
         html += '<button class="options-toggle" data-action="toggle-options">&#9881;</button>';
@@ -124,8 +46,7 @@ function renderCharacterSheet(charId) {
         html += '</div>';
         html += '</div>';
     }
-
-    html += '</div>';
+    html += '</div>'; // end char-top-row
 
     // Quote
     var quotes = config.quotes || [];
@@ -198,7 +119,69 @@ function renderCharacterSheet(charId) {
 // ============================================================
 
 function renderTabOverview(charId, config, state) {
-    var html = '<div class="sheet-grid">';
+    var editable = canEdit(charId);
+    var classLabel = classDisplayName(config.className);
+    var subLabel = subclassDisplayName(config.subclass);
+    var raceLabel = raceDisplayName(config.race);
+
+    var html = '';
+
+    // Char-identity-card — naam, race/class/sub, level, xp (alleen op overview)
+    html += '<div class="char-identity-card">';
+    html += '<h1 class="char-name-wrap">';
+    html += '<span class="char-name-display">' + escapeHtml(config.name) + '</span>';
+    if (editable) {
+        html += '<button class="edit-trigger" data-action="edit-name" title="' + t('char.editname') + '">&#9998;</button>';
+        var colorOptions = ['#22d3ee','#f472b6','#4ade80','#818cf8','#fbbf24','#34d399','#f87171','#a78bfa','#fb923c','#e879f9','#38bdf8','#facc15'];
+        html += '<span class="color-picker-wrap">';
+        html += '<span class="color-dot" data-action="pick-color" style="background:' + config.accentColor + ';" title="' + t('char.pickcolor') + '"></span>';
+        html += '<div class="color-picker-popup" style="display:none;">';
+        for (var ci = 0; ci < colorOptions.length; ci++) {
+            var selClass = colorOptions[ci] === config.accentColor ? ' selected' : '';
+            html += '<span class="color-option' + selClass + '" data-action="select-color" data-color="' + colorOptions[ci] + '" style="background:' + colorOptions[ci] + ';"></span>';
+        }
+        html += '</div></span>';
+    }
+    html += '</h1>';
+    html += '<p class="char-title">';
+    html += '<span class="info-item" data-tip="' + escapeAttr(raceLabel) + '"><span class="value">' + raceLabel + '</span></span>';
+    html += ' &mdash; ';
+    html += '<span class="info-item" data-tip="' + escapeAttr(classLabel) + '"><span class="value">' + classLabel + '</span></span>';
+    if (isSubclassVisible(config, state)) {
+        html += ' &mdash; ';
+        html += '<span class="info-item" data-tip="' + escapeAttr(subLabel) + '"><span class="value">' + subLabel + '</span></span>';
+    }
+    html += '</p>';
+
+    if (editable) {
+        html += '<div class="level-control">';
+        html += '<button class="level-btn" data-action="level-down"' + (state.level <= 1 ? ' disabled' : '') + '>&minus;</button>';
+        html += '<span class="level-display">Level ' + state.level + '</span>';
+        html += '<button class="level-btn" data-action="level-up"' + (state.level >= 20 ? ' disabled' : '') + '>&plus;</button>';
+        html += '</div>';
+    } else {
+        html += '<div class="level-control"><span class="level-display">Level ' + state.level + '</span></div>';
+    }
+
+    var xpThresholds = [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000];
+    var currentXP = state.xp || 0;
+    var xpForCurrent = xpThresholds[state.level - 1] || 0;
+    var xpForNext = xpThresholds[state.level] || xpThresholds[19];
+    var xpProgress = state.level >= 20 ? 100 : Math.min(100, Math.round((currentXP - xpForCurrent) / (xpForNext - xpForCurrent) * 100));
+    html += '<div class="xp-tracker">';
+    html += '<div class="xp-bar"><div class="xp-bar-fill" style="width:' + xpProgress + '%"></div></div>';
+    html += '<span class="xp-label">' + currentXP.toLocaleString() + ' / ' + (state.level >= 20 ? 'MAX' : xpForNext.toLocaleString()) + ' XP</span>';
+    if (editable) {
+        html += '<div class="xp-controls">';
+        html += '<button class="btn btn-ghost btn-sm xp-btn-minus" data-action="remove-xp">&minus;XP</button>';
+        html += '<input type="number" class="xp-input" id="xp-add-input" value="100" min="1" style="width:70px;">';
+        html += '<button class="btn btn-ghost btn-sm xp-btn-plus" data-action="add-xp">+XP</button>';
+        html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>'; // end char-identity-card
+
+    html += '<div class="sheet-grid">';
 
     // Quick stats row
     var hp = getHP(config, state);
@@ -214,7 +197,6 @@ function renderTabOverview(charId, config, state) {
     html += '</div>';
 
     // Info grid
-    var editable = canEdit(charId);
     html += '<div class="info-grid">';
 
     // Race
