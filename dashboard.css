@@ -70,6 +70,49 @@
     padding: 0.25rem;
 }
 
+/* ====================================================================
+   Mobile preview op laptop/tablet — toon dashboard in phone-formaat
+   met device frame, gecentreerd. Schaalt naar een mobiel scherm.
+   ==================================================================== */
+@media (min-width: 641px) {
+    .dashboard.bp-mobile .dashboard-grid {
+        max-width: 380px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0.85rem;
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        background: var(--bg-card);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45),
+                    inset 0 0 0 6px rgba(255, 255, 255, 0.02);
+        --dash-row-h: 64px;
+    }
+    .dashboard.bp-mobile .dashboard-grid::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90px;
+        height: 6px;
+        background: var(--border);
+        border-radius: 0 0 8px 8px;
+        opacity: 0.6;
+    }
+}
+@media (min-width: 1025px) {
+    .dashboard.bp-tablet .dashboard-grid {
+        max-width: 760px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--bg-card);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+}
+
 .dashboard.show-grid .dashboard-grid,
 .dashboard.is-editing .dashboard-grid {
     background-image:
