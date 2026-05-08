@@ -67,7 +67,7 @@ function renderNavbar(route) {
 
     if (inCampaignView) {
         // Back to main menu
-        html += '<a class="nav-link nav-back" href="#/home"><span class="nav-icon">' + svgI('<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>') + '</span>' + t('nav.menu') + '</a>';
+        html += '<a class="nav-link nav-back" href="#/home"><span class="nav-icon">' + svgI('<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>') + '</span><span class="nav-text">' + t('nav.menu') + '</span></a>';
         html += '<span class="nav-separator">|</span>';
         // Campaign links
         for (var i = 0; i < campLinks.length; i++) {
@@ -78,7 +78,7 @@ function renderNavbar(route) {
             if (link.path === '/lore' && route.parts[0] === 'lore') isActive = true;
             if (link.path === '/notes' && route.parts[0] === 'notes') isActive = true;
             if (link.path === '/dm' && route.parts[0] === 'dm') isActive = true;
-            html += '<a class="nav-link' + (isActive ? ' active' : '') + '" href="#' + link.path + '"><span class="nav-icon">' + link.icon + '</span>' + link.label + '</a>';
+            html += '<a class="nav-link' + (isActive ? ' active' : '') + '" href="#' + link.path + '"><span class="nav-icon">' + link.icon + '</span><span class="nav-text">' + link.label + '</span></a>';
         }
     } else {
         // Main menu links
@@ -87,7 +87,7 @@ function renderNavbar(route) {
             var pActive = route.path === plink.path || (plink.path === '/home' && route.path === '/');
             if (plink.path === '/characters' && route.parts[0] === 'characters') pActive = true;
             if (plink.path === '/settings' && route.path === '/settings') pActive = true;
-            html += '<a class="nav-link' + (pActive ? ' active' : '') + '" href="#' + plink.path + '"><span class="nav-icon">' + plink.icon + '</span>' + plink.label + '</a>';
+            html += '<a class="nav-link' + (pActive ? ' active' : '') + '" href="#' + plink.path + '"><span class="nav-icon">' + plink.icon + '</span><span class="nav-text">' + plink.label + '</span></a>';
         }
     }
 
