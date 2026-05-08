@@ -18,13 +18,13 @@
     border: 1px solid var(--border, rgba(255,255,255,0.08));
 }
 
-/* Verticale floating toolbar rechtsboven het dashboard. Drie kleine icon-knoppen
-   (schermtype + grid + edit). Schermtype-knop heeft popover voor mobile/tablet/desktop. */
+/* Verticale toolbar — fixed aan rechter viewport-rand, in de FAB-clearance kolom (80px breed).
+   Niet binnen dashboard (zou content overlappen). Onder navbar, boven FAB-stack. */
 .dashboard-toolbar.dash-toolbar-vertical {
-    position: absolute;
-    top: 0.4rem;
-    right: 0.4rem;
-    z-index: 10;
+    position: fixed;
+    top: 68px; /* navbar 56px + 12px gap */
+    right: 0.6rem;
+    z-index: 80;
     flex-direction: column;
     flex-wrap: nowrap;
     gap: 0.35rem;
@@ -32,6 +32,8 @@
     background: rgba(20, 20, 25, 0.85);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 10px;
     align-items: stretch;
     justify-content: flex-start;
 }
@@ -93,13 +95,18 @@ html[data-font-size="small"] { font-size: 14px; }
 html[data-font-size="large"] { font-size: 18px; }
 .dash-stage { position: relative; }
 /* Dashboard vult exact de ruimte onder de tabs tot de bodem van het scherm.
-   Niet erbuiten: overflow blijft binnen .dash-stage (intern scroll als grid groter wordt). */
+   Override van home-page .dashboard (max-width 1100px, margin auto, etc.) — character-tab
+   dashboard moet near-full-width zijn binnen character-page padding. */
 .tab-content > .dashboard {
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
     min-height: 0;
     height: 100%;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
     position: relative;
 }
 .tab-content > .dashboard .dash-stage {
@@ -108,7 +115,7 @@ html[data-font-size="large"] { font-size: 18px; }
     overflow-y: auto;
     overflow-x: hidden;
 }
-.tab-content > .dashboard .grid-stack { min-height: 100%; }
+.tab-content > .dashboard .grid-stack { min-height: 100%; width: 100%; }
 .dash-toolbar-group { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
 .dash-bp-toggle .dash-bp-btn,
 .dash-tool-btn {
@@ -322,18 +329,18 @@ html[data-font-size="large"] { font-size: 18px; }
    ==================================================================== */
 .dash-edit-sidebar {
     position: fixed;
-    top: 0; right: 0;
+    top: 0; left: 0;
     width: 320px;
     max-width: 90vw;
     height: 100vh;
     background: var(--bg, #0f0f12);
-    border-left: 1px solid var(--border, rgba(255,255,255,0.1));
+    border-right: 1px solid var(--border, rgba(255,255,255,0.1));
     display: flex;
-    flex-direction: row;
+    flex-direction: row-reverse; /* widget-cards naast cat-icons; cats blijven aan dashboard-zijde */
     z-index: 1000;
-    transform: translateX(100%);
+    transform: translateX(-100%);
     transition: transform 0.2s ease-out;
-    box-shadow: -8px 0 30px rgba(0,0,0,0.4);
+    box-shadow: 8px 0 30px rgba(0,0,0,0.4);
 }
 .dash-edit-sidebar.open { transform: translateX(0); }
 
@@ -345,7 +352,8 @@ html[data-font-size="large"] { font-size: 18px; }
     flex-direction: column;
     padding: 0.5rem 0;
     gap: 0.25rem;
-    border-right: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-left: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-right: none;
     overflow-y: auto;
 }
 .dash-sidebar-cat {
@@ -359,12 +367,12 @@ html[data-font-size="large"] { font-size: 18px; }
     align-items: center;
     gap: 0.2rem;
     font-size: 0.65rem;
-    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
 }
 .dash-sidebar-cat:hover { color: var(--text, #fff); background: rgba(255,255,255,0.04); }
 .dash-sidebar-cat.active {
     color: var(--char-accent, var(--accent, #22d3ee));
-    border-left-color: var(--char-accent, var(--accent, #22d3ee));
+    border-right-color: var(--char-accent, var(--accent, #22d3ee));
     background: rgba(255,255,255,0.04);
 }
 .dash-sidebar-cat-icon { font-size: 1.1rem; }
