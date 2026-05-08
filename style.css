@@ -3681,7 +3681,19 @@ footer {
     .combat-stats { grid-template-columns: repeat(2, 1fr); }
     .spell-grid { grid-template-columns: 1fr; }
     .features-summary { flex-direction: column; }
-    .tab-btn { padding: 0.4rem 0.6rem; font-size: 0.75rem; }
+    /* Tabs on mobile: stack icon above text so the label stays readable
+       even when 5+ tabs need to fit on a narrow screen. */
+    .tab-btn {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.7rem;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 52px;
+        line-height: 1.1;
+        text-align: center;
+    }
+    .tab-bar-extended .tab-btn { flex-direction: column; gap: 2px; }
+    .tab-btn-icon { font-size: 1.05rem; opacity: 0.85; }
     .char-banner { height: 100px; }
     .char-portrait { width: 64px; height: 64px; }
     .hp-current { font-size: 2rem; }

@@ -165,6 +165,12 @@ function postRenderEffects(route) {
         var fid = diags[di].dataset.familyId;
         if (typeof postRenderFamilyDiagram === 'function') postRenderFamilyDiagram(fid);
     }
+    // Social chat widget — safety net: re-mount if it disappeared (e.g. after a
+    // body-level mutation by a third-party script or extension stripped the FAB).
+    if (window.dndSocial && !document.getElementById('social-chat-widget')) {
+        try { window.dndSocial.unmount(); } catch (e) {}
+        try { window.dndSocial.mount(); } catch (e) {}
+    }
 }
 
 // initInitiativeDragDrop is defined after renderDMInitiative
