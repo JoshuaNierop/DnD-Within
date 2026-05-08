@@ -261,6 +261,20 @@ function dashboardHandleAction(action, target, event) {
         if (pop) pop.hidden = !pop.hidden;
         return true;
     }
+    if (action === 'dashboard-toggle-fs-menu') {
+        var fwrap = target.closest('.dash-fs-popover-wrap');
+        var fpop = fwrap && fwrap.querySelector('.dash-fs-popover');
+        if (fpop) fpop.hidden = !fpop.hidden;
+        return true;
+    }
+    if (action === 'dashboard-set-fs') {
+        var fs = target.dataset.fs;
+        var fpop2 = target.closest('.dash-fs-popover');
+        if (fpop2) fpop2.hidden = true;
+        if (typeof setFontSize === 'function') setFontSize(fs);
+        if (typeof renderApp === 'function') renderApp();
+        return true;
+    }
     if (action === 'dashboard-set-bp') {
         var bp = target.dataset.bp;
         var pop2 = target.closest('.dash-bp-popover');

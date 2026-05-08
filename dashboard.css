@@ -63,6 +63,34 @@
     text-align: left;
 }
 .dash-bp-current { font-size: 1rem !important; }
+
+/* Font-size popover (zelfde stijl als bp-popover) */
+.dash-fs-popover-wrap { position: relative; }
+.dash-fs-popover {
+    position: absolute;
+    top: 0;
+    right: calc(100% + 0.4rem);
+    background: var(--bg-card, #15151c);
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 10px;
+    padding: 0.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    min-width: 140px;
+    z-index: 11;
+}
+.dash-fs-popover[hidden] { display: none; }
+.dash-fs-popover .dash-bp-btn {
+    justify-content: flex-start;
+    text-align: left;
+}
+.dash-fs-current { font-size: 0.95rem !important; font-weight: 600; }
+
+/* Globale font-size scaling — toegepast via data-font-size op <html> */
+html[data-font-size="small"] { font-size: 14px; }
+html[data-font-size="large"] { font-size: 18px; }
 .dash-stage { position: relative; }
 /* Maak de grid groter, vult resterend scherm onder topbar+tabs */
 .tab-content > .dashboard {

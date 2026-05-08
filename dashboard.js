@@ -61,6 +61,23 @@ function renderDashboardTab(charId, tabId) {
     html += '</div>'; // popover
     html += '</div>'; // wrap
 
+    // Font-size knop met popover (S/M/L)
+    var fsCurrent = (typeof getFontSize === 'function') ? getFontSize() : 'medium';
+    var fsIcons = { small: 'A⁻', medium: 'A', large: 'A⁺' };
+    var fsLabels = { small: 'Klein', medium: 'Middel', large: 'Groot' };
+    html += '<div class="dash-fs-popover-wrap">';
+    html += '<button class="dash-tool-btn dash-fs-current" data-action="dashboard-toggle-fs-menu" title="Lettergrootte: ' + fsLabels[fsCurrent] + '">' + fsIcons[fsCurrent] + '</button>';
+    html += '<div class="dash-fs-popover" hidden>';
+    var fsList = ['small', 'medium', 'large'];
+    for (var fi = 0; fi < fsList.length; fi++) {
+        var fk = fsList[fi];
+        var fActive = fk === fsCurrent;
+        html += '<button class="dash-bp-btn' + (fActive ? ' active' : '') + '" data-action="dashboard-set-fs" data-fs="' + fk + '">';
+        html += '<span class="dash-bp-icon">' + fsIcons[fk] + '</span><span class="dash-bp-label">' + fsLabels[fk] + '</span>';
+        html += '</button>';
+    }
+    html += '</div></div>';
+
     if (editable) {
         html += '<button class="dash-tool-btn' + (dashboardGridVisible ? ' active' : '') + '" data-action="dashboard-toggle-grid" title="Grid lijnen tonen">⊞</button>';
         html += '<button class="dash-tool-btn' + (dashboardEditMode ? ' active' : '') + '" data-action="dashboard-toggle-edit" title="Edit dashboard">' + (dashboardEditMode ? '✓' : '✎') + '</button>';

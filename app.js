@@ -181,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (e) { usersCache = null; }
 
     initMobileSupport();
+    if (typeof applyFontSize === 'function') applyFontSize(getFontSize());
     if (typeof initFirebaseSync === 'function') initFirebaseSync();
     initRouter();
     patchTooltipEvents();
