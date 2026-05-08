@@ -875,6 +875,20 @@ a { color: inherit; text-decoration: none; }
 .char-identity-card .char-title { margin: 0 0 0.85rem; color: var(--text-dim); font-size: 0.95rem; }
 .char-identity-card .level-control { margin-bottom: 0.6rem; }
 .char-identity-card .xp-tracker { margin-top: 0.25rem; }
+/* Extras-blok onderin identity-card: quote + combat-stats + info-grid (niet-dubbele velden) */
+.char-identity-card { flex-wrap: wrap; }
+.char-identity-extras {
+    flex: 1 0 100%;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.char-identity-extras .header-quote-row { margin: 0; }
+.char-identity-extras .combat-stats { margin: 0; }
+.char-identity-extras .info-grid { margin: 0; }
 @media (max-width: 600px) {
     .char-identity-card { flex-direction: column; align-items: center; text-align: center; }
     .char-identity-card .char-name-wrap { justify-content: center; }

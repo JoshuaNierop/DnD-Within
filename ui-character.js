@@ -57,15 +57,7 @@ function renderCharacterSheet(charId) {
     }
     html += '</div>';
 
-    // Quote
-    var quotes = config.quotes || [];
-    if (quotes.length > 0) {
-        var quoteText = quotes[Math.floor(Math.random() * quotes.length)];
-        html += '<div class="header-quote-row">';
-        html += '<p class="char-quote-dynamic">&ldquo;' + escapeHtml(quoteText) + '&rdquo;</p>';
-        html += '<button class="quote-refresh-btn" data-action="refresh-quote" title="' + t('char.refreshquote') + '">&#8635;</button>';
-        html += '</div>';
-    }
+    // (Quote is verplaatst naar Overview-tab binnen char-identity-card)
 
     // Tab content
     html += '<div class="tab-content">';
@@ -178,16 +170,25 @@ function renderTabOverview(charId, config, state) {
     }
     html += '</div>';
     html += '</div>'; // end char-identity-info
-    html += '</div>'; // end char-identity-card
 
-    html += '<div class="sheet-grid">';
+    // Identity-card extras: quote + combat-stats + info (alleen niet-dubbele velden)
+    html += '<div class="char-identity-extras">';
 
-    // Quick stats row
+    // Quote (alleen op overview, in identity-card)
+    var quotes = config.quotes || [];
+    if (quotes.length > 0) {
+        var quoteText = quotes[Math.floor(Math.random() * quotes.length)];
+        html += '<div class="header-quote-row">';
+        html += '<p class="char-quote-dynamic">&ldquo;' + escapeHtml(quoteText) + '&rdquo;</p>';
+        html += '<button class="quote-refresh-btn" data-action="refresh-quote" title="' + t('char.refreshquote') + '">&#8635;</button>';
+        html += '</div>';
+    }
+
+    // Combat-stats: HP, AC, Initiative, Prof. Bonus (verplaatst naar identity-card)
     var hp = getHP(config, state);
     var ac = getAC(config, state);
     var profBonus = getProfBonus(state.level);
     var dexMod = getMod(getAbilityScore(config, state, 'dex'));
-
     html += '<div class="combat-stats">';
     html += '<div class="combat-stat"><span class="stat-value">' + hp + '</span><span class="stat-label">HP</span></div>';
     html += '<div class="combat-stat"><span class="stat-value">' + ac + '</span><span class="stat-label">AC</span></div>';
@@ -195,37 +196,8 @@ function renderTabOverview(charId, config, state) {
     html += '<div class="combat-stat"><span class="stat-value">+' + profBonus + '</span><span class="stat-label">Prof. Bonus</span></div>';
     html += '</div>';
 
-    // Info grid
+    // Info-grid: alleen niet-dubbele velden (race/class/subclass staan al in char-title)
     html += '<div class="info-grid">';
-
-    // Race
-    html += '<div class="info-item" data-tip="' + escapeAttr(raceDisplayName(config.race)) + '">';
-    html += '<span class="label">' + t('overview.race') + '</span>';
-    html += '<span class="value info-value-display" data-info-field="race">' + raceDisplayName(config.race) + '</span>';
-    if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="race" title="' + t('generic.edit') + '">&#9998;</button>';
-    html += '</div>';
-
-    // Class
-    html += '<div class="info-item" data-tip="' + escapeAttr(classDisplayName(config.className)) + '">';
-    html += '<span class="label">' + t('overview.class') + '</span>';
-    html += '<span class="value info-value-display" data-info-field="className">' + classDisplayName(config.className) + '</span>';
-    if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="className" title="' + t('generic.edit') + '">&#9998;</button>';
-    html += '</div>';
-
-    // Subclass — hidden until character reaches subclass-selection level
-    var subclassUnlockLevel = 3;
-    var classDataSC = DATA[config.className];
-    if (classDataSC && classDataSC.subclasses) {
-        var subKeys = Object.keys(classDataSC.subclasses);
-        if (subKeys.length) subclassUnlockLevel = classDataSC.subclasses[subKeys[0]].level || 3;
-    }
-    if (isSubclassVisible(config, state) || (editable && state.level >= subclassUnlockLevel)) {
-        html += '<div class="info-item" data-tip="' + escapeAttr(subclassDisplayName(config.subclass)) + '">';
-        html += '<span class="label">' + t('overview.subclass') + '</span>';
-        html += '<span class="value info-value-display" data-info-field="subclass">' + (config.subclass ? subclassDisplayName(config.subclass) : '-') + '</span>';
-        if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="subclass" title="' + t('generic.edit') + '">&#9998;</button>';
-        html += '</div>';
-    }
 
     // Background
     html += '<div class="info-item" data-tip="' + escapeAttr(config.background || '') + '">';
@@ -248,7 +220,11 @@ function renderTabOverview(charId, config, state) {
     if (editable) html += '<button class="info-edit-btn" data-action="edit-info" data-info-field="age" title="' + t('generic.edit') + '">&#9998;</button>';
     html += '</div>';
 
-    html += '</div>';
+    html += '</div>'; // end info-grid
+    html += '</div>'; // end char-identity-extras
+    html += '</div>'; // end char-identity-card
+
+    html += '<div class="sheet-grid">';
 
     // Appearance
     var appearanceArr = config.appearance || [];
