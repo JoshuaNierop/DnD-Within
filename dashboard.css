@@ -17,6 +17,62 @@
     background: var(--bg-elevated, rgba(255,255,255,0.04));
     border: 1px solid var(--border, rgba(255,255,255,0.08));
 }
+
+/* Verticale floating toolbar rechtsboven het dashboard. Drie kleine icon-knoppen
+   (schermtype + grid + edit). Schermtype-knop heeft popover voor mobile/tablet/desktop. */
+.dashboard-toolbar.dash-toolbar-vertical {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    z-index: 10;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    background: rgba(20, 20, 25, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    align-items: stretch;
+    justify-content: flex-start;
+}
+.dashboard-toolbar.dash-toolbar-vertical .dash-tool-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    justify-content: center;
+    font-size: 0.95rem;
+}
+.dash-bp-popover-wrap { position: relative; }
+.dash-bp-popover {
+    position: absolute;
+    top: 0;
+    right: calc(100% + 0.4rem);
+    background: var(--bg-card, #15151c);
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 10px;
+    padding: 0.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    min-width: 140px;
+}
+.dash-bp-popover[hidden] { display: none; }
+.dash-bp-popover .dash-bp-btn {
+    justify-content: flex-start;
+    text-align: left;
+}
+.dash-bp-current { font-size: 1rem !important; }
+.dash-stage { position: relative; }
+/* Maak de grid groter, vult resterend scherm onder topbar+tabs */
+.tab-content > .dashboard {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 56px - 80px);
+    position: relative;
+}
+.tab-content > .dashboard .dash-stage,
+.tab-content > .dashboard .grid-stack { flex: 1 1 auto; }
 .dash-toolbar-group { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
 .dash-bp-toggle .dash-bp-btn,
 .dash-tool-btn {

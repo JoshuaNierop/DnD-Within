@@ -255,8 +255,16 @@ function dashboardHandleAction(action, target, event) {
         dashboardToggleGrid();
         return true;
     }
+    if (action === 'dashboard-toggle-bp-menu') {
+        var wrap = target.closest('.dash-bp-popover-wrap');
+        var pop = wrap && wrap.querySelector('.dash-bp-popover');
+        if (pop) pop.hidden = !pop.hidden;
+        return true;
+    }
     if (action === 'dashboard-set-bp') {
         var bp = target.dataset.bp;
+        var pop2 = target.closest('.dash-bp-popover');
+        if (pop2) pop2.hidden = true;
         dashboardSetBP(bp);
         return true;
     }

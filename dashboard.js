@@ -38,10 +38,15 @@ function renderDashboardTab(charId, tabId) {
 
     var html = '<div class="dashboard ' + (dashboardEditMode ? 'is-editing ' : '') + (dashboardGridVisible ? 'show-grid ' : '') + 'bp-' + bp + '" data-tab-id="' + tabId + '" data-cols="' + cols + '" data-bp="' + bp + '">';
 
-    // Toolbar
-    html += '<div class="dashboard-toolbar">';
-    html += '<div class="dash-toolbar-group dash-bp-toggle" role="tablist" aria-label="Layout breakpoint">';
+    // Toolbar — verticaal floating rechtsboven, 3 kleine icon-knoppen + edit-modus extras
+    var bpIcons = { mobile: '📱', tablet: '🭿', desktop: '🖥' };
     var bps = ['mobile', 'tablet', 'desktop'];
+    html += '<div class="dashboard-toolbar dash-toolbar-vertical">';
+
+    // Screen-type knop met popover
+    html += '<div class="dash-bp-popover-wrap">';
+    html += '<button class="dash-tool-btn dash-bp-current" data-action="dashboard-toggle-bp-menu" title="Schermtype: ' + DASHBOARD_BREAKPOINTS[bp].label + '">' + bpIcons[bp] + '</button>';
+    html += '<div class="dash-bp-popover" hidden>';
     for (var i = 0; i < bps.length; i++) {
         var bId = bps[i];
         var isActive = bId === bp;
@@ -49,26 +54,24 @@ function renderDashboardTab(charId, tabId) {
             var l = loadTabLayout(charId, tabId) || dashboardDefaultLayoutForTab(tabId);
             return !!(l && Array.isArray(l[k]) && l[k].length);
         })(bId);
-        var icon = bId === 'mobile' ? '📱' : bId === 'tablet' ? '🭿' : '🖥';
         html += '<button class="dash-bp-btn' + (isActive ? ' active' : '') + (hasLayout ? ' has-layout' : '') + '" data-action="dashboard-set-bp" data-bp="' + bId + '" title="' + DASHBOARD_BREAKPOINTS[bId].label + (hasLayout ? ' — saved layout' : ' — auto-reflow') + '">';
-        html += '<span class="dash-bp-icon">' + icon + '</span><span class="dash-bp-label">' + DASHBOARD_BREAKPOINTS[bId].label + '</span>';
+        html += '<span class="dash-bp-icon">' + bpIcons[bId] + '</span><span class="dash-bp-label">' + DASHBOARD_BREAKPOINTS[bId].label + '</span>';
         html += '</button>';
     }
-    html += '</div>';
+    html += '</div>'; // popover
+    html += '</div>'; // wrap
 
     if (editable) {
-        html += '<div class="dash-toolbar-group dash-toolbar-actions">';
-        html += '<button class="dash-tool-btn' + (dashboardGridVisible ? ' active' : '') + '" data-action="dashboard-toggle-grid" title="Toggle grid lines">⊞ Grid</button>';
-        html += '<button class="dash-tool-btn' + (dashboardEditMode ? ' active' : '') + '" data-action="dashboard-toggle-edit" title="Edit dashboard">' + (dashboardEditMode ? '✓ Done' : '✎ Edit') + '</button>';
+        html += '<button class="dash-tool-btn' + (dashboardGridVisible ? ' active' : '') + '" data-action="dashboard-toggle-grid" title="Grid lijnen tonen">⊞</button>';
+        html += '<button class="dash-tool-btn' + (dashboardEditMode ? ' active' : '') + '" data-action="dashboard-toggle-edit" title="Edit dashboard">' + (dashboardEditMode ? '✓' : '✎') + '</button>';
         if (dashboardEditMode) {
-            html += '<button class="dash-tool-btn" data-action="dashboard-compact" title="Compact: pull widgets up to remove gaps">⇧ Compact</button>';
-            html += '<button class="dash-tool-btn" data-action="dashboard-save-bp" title="Save current layout for ' + DASHBOARD_BREAKPOINTS[bp].label + '">💾 Save ' + DASHBOARD_BREAKPOINTS[bp].label + '</button>';
+            html += '<button class="dash-tool-btn" data-action="dashboard-compact" title="Compact: trek widgets omhoog om gaten weg te halen">⇧</button>';
+            html += '<button class="dash-tool-btn" data-action="dashboard-save-bp" title="Save layout voor ' + DASHBOARD_BREAKPOINTS[bp].label + '">💾</button>';
             if (hasSavedForBP && bp !== 'desktop') {
-                html += '<button class="dash-tool-btn dash-tool-danger" data-action="dashboard-clear-bp" title="Clear saved layout for this breakpoint (revert to auto-reflow)">⌫ Clear ' + DASHBOARD_BREAKPOINTS[bp].label + '</button>';
+                html += '<button class="dash-tool-btn dash-tool-danger" data-action="dashboard-clear-bp" title="Clear saved layout voor ' + DASHBOARD_BREAKPOINTS[bp].label + ' (auto-reflow vanaf desktop)">⌫</button>';
             }
-            html += '<button class="dash-tool-btn" data-action="dashboard-save-as-template" title="Save as template">⎘ Save as template</button>';
+            html += '<button class="dash-tool-btn" data-action="dashboard-save-as-template" title="Save as template">⎘</button>';
         }
-        html += '</div>';
     }
     html += '</div>';
 
