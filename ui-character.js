@@ -14,9 +14,22 @@ function renderCharacterSheet(charId) {
     var state = loadCharState(charId);
     var editable = canEdit(charId);
 
-    var portrait = loadImage(charId, 'portrait');
-
     var html = '<div class="character-page" data-char-id="' + charId + '" style="--char-accent:' + (config.accentColor || 'var(--accent)') + '">';
+
+    // Floating header-actions (gear) — op alle tab-pagina's beschikbaar
+    if (editable) {
+        html += '<div class="header-actions" id="options-dropdown">';
+        html += '<button class="options-toggle" data-action="toggle-options">&#9881;</button>';
+        html += '<div class="options-menu">';
+        html += '<button class="header-btn" data-action="export-char">&#128190; ' + t('char.save') + '</button>';
+        html += '<label class="header-btn">&#128194; ' + t('char.load') + '<input type="file" accept=".json" data-action="import-char" style="display:none"></label>';
+        html += '<button class="header-btn header-btn-danger" data-action="reset-char">&#128260; ' + t('char.reset') + '</button>';
+        if (isDM() || (currentUser() && currentUser().role === 'admin')) {
+            html += '<button class="header-btn header-btn-danger" data-action="delete-char">&#128465; Delete character</button>';
+        }
+        html += '</div>';
+        html += '</div>';
+    }
 
     // Tab bar — bovenaan op de pagina (sourced from dashboard config: defaults + custom + hidden flags)
     var dashCfg = (typeof loadDashboardConfig === 'function') ? loadDashboardConfig(charId) : { tabs: [] };
@@ -43,36 +56,6 @@ function renderCharacterSheet(charId) {
         html += '<button class="tab-manage-btn" data-action="open-tab-manage" title="Manage tabs">⚙ Tabs</button>';
     }
     html += '</div>';
-
-    // Top row: portrait + gear — net onder de tabbladen
-    html += '<div class="char-top-row">';
-    html += '<div class="char-portrait-wrap">';
-    html += '<div class="char-portrait">';
-    if (portrait) {
-        html += '<img src="' + portrait + '" alt="">';
-    } else {
-        html += '<span class="portrait-placeholder">&#128100;</span>';
-    }
-    if (editable) {
-        html += '<label class="image-upload-overlay" title="' + t('portrait.upload') + '"><span class="upload-icon">&#128247;</span><input type="file" accept="image/*" data-action="upload-portrait" style="display:none"></label>';
-    }
-    html += '</div>';
-    html += '</div>';
-
-    if (editable) {
-        html += '<div class="header-actions" id="options-dropdown">';
-        html += '<button class="options-toggle" data-action="toggle-options">&#9881;</button>';
-        html += '<div class="options-menu">';
-        html += '<button class="header-btn" data-action="export-char">&#128190; ' + t('char.save') + '</button>';
-        html += '<label class="header-btn">&#128194; ' + t('char.load') + '<input type="file" accept=".json" data-action="import-char" style="display:none"></label>';
-        html += '<button class="header-btn header-btn-danger" data-action="reset-char">&#128260; ' + t('char.reset') + '</button>';
-        if (isDM() || (currentUser() && currentUser().role === 'admin')) {
-            html += '<button class="header-btn header-btn-danger" data-action="delete-char">&#128465; Delete character</button>';
-        }
-        html += '</div>';
-        html += '</div>';
-    }
-    html += '</div>'; // end char-top-row
 
     // Quote
     var quotes = config.quotes || [];
@@ -124,11 +107,25 @@ function renderTabOverview(charId, config, state) {
     var classLabel = classDisplayName(config.className);
     var subLabel = subclassDisplayName(config.subclass);
     var raceLabel = raceDisplayName(config.race);
+    var portrait = loadImage(charId, 'portrait');
 
     var html = '';
 
-    // Char-identity-card — naam, race/class/sub, level, xp (alleen op overview)
+    // Char-identity-card — portret + naam + race/class/sub + level + xp (alleen op overview)
     html += '<div class="char-identity-card">';
+    html += '<div class="char-identity-portrait char-portrait-wrap">';
+    html += '<div class="char-portrait">';
+    if (portrait) {
+        html += '<img src="' + portrait + '" alt="">';
+    } else {
+        html += '<span class="portrait-placeholder">&#128100;</span>';
+    }
+    if (editable) {
+        html += '<label class="image-upload-overlay" title="' + t('portrait.upload') + '"><span class="upload-icon">&#128247;</span><input type="file" accept="image/*" data-action="upload-portrait" style="display:none"></label>';
+    }
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="char-identity-info">';
     html += '<h1 class="char-name-wrap">';
     html += '<span class="char-name-display">' + escapeHtml(config.name) + '</span>';
     if (editable) {
@@ -180,6 +177,7 @@ function renderTabOverview(charId, config, state) {
         html += '</div>';
     }
     html += '</div>';
+    html += '</div>'; // end char-identity-info
     html += '</div>'; // end char-identity-card
 
     html += '<div class="sheet-grid">';

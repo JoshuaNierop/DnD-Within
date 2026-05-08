@@ -817,7 +817,8 @@ a { color: inherit; text-decoration: none; }
     z-index: 3;
 }
 
-/* Char-identity-card binnen Overview-tab — eerste blok, vervangt oude char-header */
+/* Char-identity-card binnen Overview-tab — portret + naam/race/class/level/xp.
+   Profielfoto leeft alleen hier (niet op andere character-tabs). */
 .char-identity-card {
     background: var(--bg-block);
     border: 1px solid var(--border);
@@ -825,12 +826,22 @@ a { color: inherit; text-decoration: none; }
     padding: 1.25rem 1.5rem;
     margin-bottom: 1rem;
     position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
     animation: fadeUp 0.4s ease-out;
 }
+.char-identity-portrait { flex: 0 0 auto; margin: 0; }
+.char-identity-info { flex: 1 1 auto; min-width: 0; }
 .char-identity-card .char-name-wrap { margin: 0 0 0.4rem; }
 .char-identity-card .char-title { margin: 0 0 0.85rem; color: var(--text-dim); font-size: 0.95rem; }
 .char-identity-card .level-control { margin-bottom: 0.6rem; }
 .char-identity-card .xp-tracker { margin-top: 0.25rem; }
+@media (max-width: 600px) {
+    .char-identity-card { flex-direction: column; align-items: center; text-align: center; }
+    .char-identity-card .char-name-wrap { justify-content: center; }
+    .char-identity-card .level-control { justify-content: center; }
+}
 
 .options-toggle {
     padding: 0.3rem 0.7rem;
