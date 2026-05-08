@@ -189,7 +189,8 @@ function dashboardInitGridstack() {
 
     dashGridInstance = GridStack.init({
         column: cols,
-        cellHeight: 20,
+        // 'auto' makes each cell square: cellHeight equals (gridWidth/columns).
+        cellHeight: 'auto',
         margin: 4,
         float: false,
         animate: true,
@@ -212,12 +213,7 @@ function dashboardInitGridstack() {
         var minW = 1, minH = 1, maxW = cols, maxH = 99;
         if (def) {
             content = buildWidgetContent(def, inst, ctx, editable);
-            if (def.minSize) {
-                minW = def.minSize[0];
-                // cellHeight is halved (40→20), so halve the minimum row count
-                // too — otherwise widgets cannot shrink to their visual minimum.
-                minH = Math.max(1, Math.ceil(def.minSize[1] / 2));
-            }
+            if (def.minSize) { minW = def.minSize[0]; minH = def.minSize[1]; }
             if (def.maxSize) { maxW = def.maxSize[0]; maxH = def.maxSize[1]; }
         } else {
             content = '<div class="widget-header"><span class="widget-title">Unknown widget</span></div>' +
