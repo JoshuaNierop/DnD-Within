@@ -45,15 +45,13 @@ var WIDGET_REGISTRY = {
     },
     'ability-scores': {
         // 6 abilities horizontaal, elk verticaal: name + score(big) + mod = 3 lines.
-        // Plus edit-toggle-row + widget-header. Body bij H=4 ≈ 116px past inhoud
-        // (95px) ruim, en de 6 cells houden visuele consistentie. Bij H=3 wordt
-        // de mod-regel afgekapt (#abil_min4_required).
+        // Header is absolute (no row), cells dense — H=3 past nu de 3 lines.
         label: 'Ability Scores',
         category: 'core',
         icon: '◇',
         description: 'STR / DEX / CON / INT / WIS / CHA.',
         defaultSize: [9, 4],
-        minSize: [6, 4],
+        minSize: [6, 3],
         maxSize: [12, 6],
         render: function(ctx) { return renderWidgetAbilityScores(ctx); }
     },
@@ -64,7 +62,7 @@ var WIDGET_REGISTRY = {
         icon: '⛨',
         description: 'Saving throw proficiencies + modifiers.',
         defaultSize: [4, 4],
-        minSize: [3, 4],
+        minSize: [2, 4],
         maxSize: [12, 7],
         render: function(ctx) { return renderWidgetSavingThrows(ctx); }
     },

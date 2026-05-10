@@ -350,6 +350,7 @@ html[data-font-size="large"] .dashboard {
     padding: var(--widget-pad-y, 0.35rem) var(--widget-pad-x, 0.5rem);
     overflow: auto;
     min-height: 0;
+    position: relative;
     /* Uniform widget font: every value, label, button, list item inside a
        widget body shares the same size so the dashboard reads as one
        coherent surface (#lqSMbCN2). Per-widget rules below are normalised
@@ -679,31 +680,44 @@ html[data-font-size="large"] .dashboard {
 .widget .combat-stat .stat-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
 
 /* Ability scores inside widget — strip the legacy padding/margins from
-   style.css so 6 abilities + edit-header passen in een H=3 widget. */
-.widget .ability-edit-header { margin-bottom: 0.2rem; }
-.widget .ability-edit-header .edit-toggle-btn {
-    width: 20px; height: 20px; padding: 0; font-size: 0.7em;
+   style.css. Header is absolute (no layout space) and reveals on hover;
+   ability cells are denser (#abil_min4_required relaxed to H=3). */
+.widget .ability-edit-header {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    margin: 0;
+    z-index: 2;
+    pointer-events: none;
 }
+.widget .ability-edit-header .edit-toggle-btn {
+    width: 18px; height: 18px; padding: 0; font-size: 0.65em;
+    opacity: 0;
+    pointer-events: auto;
+    transition: opacity 0.15s;
+}
+.grid-stack-item-content:hover .widget .ability-edit-header .edit-toggle-btn,
+.widget .ability-edit-header .edit-toggle-btn:focus { opacity: 1; }
 .widget .ability-scores {
-    gap: 0.25rem;
+    gap: 0.2rem;
     grid-template-columns: repeat(6, 1fr);
 }
 .widget .ability {
-    padding: 0.2rem 0.15rem;
-    border-radius: 6px;
+    padding: 0.1rem 0.1rem;
+    border-radius: 5px;
 }
 .widget .ability-name {
-    font-size: 0.65em;
+    font-size: 0.6em;
     letter-spacing: 0.5px;
-    margin-bottom: 0.1rem;
+    margin-bottom: 0.05rem;
 }
 .widget .ability-score {
-    font-size: 1.25em;
-    line-height: 1.1;
+    font-size: 1.05em;
+    line-height: 1.05;
 }
 .widget .ability-mod {
-    font-size: 0.85em;
-    line-height: 1.1;
+    font-size: 0.75em;
+    line-height: 1.05;
 }
 
 /* Slot tracker inside widget */
