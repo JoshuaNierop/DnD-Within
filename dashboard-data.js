@@ -17,9 +17,9 @@ var DASHBOARD_DEFAULT_TABS = [
 ];
 
 // URL of the standalone Widget Editor — externe app waar custom widgets
-// gebouwd worden uit blocks. Override met window.WIDGET_EDITOR_URL als je
-// een productie-deploy hebt (bv https://widget-editor.dnd-within.app/).
-var WIDGET_EDITOR_URL = (typeof window !== 'undefined' && window.WIDGET_EDITOR_URL) || 'http://localhost:8766/';
+// gebouwd worden uit blocks. Default: live Cloudflare Pages deploy.
+// Override met window.WIDGET_EDITOR_URL voor lokaal-development (bv 'http://localhost:8766/').
+var WIDGET_EDITOR_URL = (typeof window !== 'undefined' && window.WIDGET_EDITOR_URL) || 'https://dnd-widget-editor.pages.dev/';
 
 // Breakpoint definitions. Width thresholds in CSS pixels.
 // cellMode 'fixed-px' = cellHeight uit dashboardCellHeightPx() (gekoppeld aan font-size).
