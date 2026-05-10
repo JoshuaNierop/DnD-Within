@@ -113,12 +113,19 @@ html[data-font-size="large"] { font-size: 18px; }
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    overflow-x: hidden;
-    /* Clearance voor toolbar/FABs zit nu in .char-right-rail (grid kolom 3, 80px).
-       Dash-stage padding is alleen visuele inset. */
+    /* Grid is vast in px (cols × cellH). Bij smal scherm scrollt het horizontaal
+       — celbreedte krimpt NIET mee zodat cells altijd vierkant blijven. */
+    overflow-x: auto;
     padding: 0 0.5rem;
 }
-.tab-content > .dashboard .grid-stack { min-height: 100%; width: 100%; }
+.tab-content > .dashboard .grid-stack {
+    min-height: 100%;
+    /* width = cols × cellH (vierkante cells, geen viewport-schaling). */
+    width: calc(var(--dash-cols) * var(--dash-cell-h));
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+}
 .dash-toolbar-group { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
 .dash-bp-toggle .dash-bp-btn,
 .dash-tool-btn {
@@ -164,7 +171,7 @@ html[data-font-size="large"] { font-size: 18px; }
    Pas alle drie waardes samen aan als de font-mapping verandert. */
 .dashboard {
     --dash-gap: 0.6rem;
-    --dash-cell-h: 34px;
+    --dash-cell-h: 52px;   /* === cellW; cells zijn vierkant */
     --dash-cols: 12;
     --widget-font-size: 13.5px;
     --widget-line-h: 1.35;
@@ -173,12 +180,12 @@ html[data-font-size="large"] { font-size: 18px; }
     --widget-header-h: 22px;
 }
 html[data-font-size="small"] .dashboard {
-    --dash-cell-h: 30px;
+    --dash-cell-h: 44px;
     --widget-font-size: 12px;
     --widget-header-h: 20px;
 }
 html[data-font-size="large"] .dashboard {
-    --dash-cell-h: 40px;
+    --dash-cell-h: 60px;
     --widget-font-size: 16px;
     --widget-header-h: 24px;
 }
@@ -203,7 +210,7 @@ html[data-font-size="large"] .dashboard {
 /* Mobile preview frame on larger screens */
 @media (min-width: 641px) {
     .dashboard.bp-mobile .grid-stack {
-        max-width: 380px;
+        /* width blijft cols × cellH (vierkante cells) — frame is visueel */
         margin-left: auto;
         margin-right: auto;
         padding: 0.85rem;
@@ -226,7 +233,6 @@ html[data-font-size="large"] .dashboard {
 }
 @media (min-width: 1025px) {
     .dashboard.bp-tablet .grid-stack {
-        max-width: 760px;
         margin-left: auto;
         margin-right: auto;
         padding: 1rem;
@@ -242,15 +248,8 @@ html[data-font-size="large"] .dashboard {
     background-image:
         linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
-    /* Cell-grid overlay schaalt mee met --dash-cols × --dash-cell-h.
-       Mobile (auto-square) houdt cellHeight uit de grid-stack inline-style; we
-       gebruiken dezelfde waarde als cell-width (relatief op basis van cols). */
-    background-size: calc(100% / var(--dash-cols)) var(--dash-cell-h);
-}
-.dashboard.bp-mobile.show-grid .grid-stack,
-.dashboard.bp-mobile.is-editing .grid-stack {
-    /* Bij auto-square = cell h ≈ cell w → overlay volgt cell-width. */
-    background-size: calc(100% / var(--dash-cols)) calc(100% / var(--dash-cols));
+    /* Vierkante cells: horizontaal én verticaal cellH. */
+    background-size: var(--dash-cell-h) var(--dash-cell-h);
 }
 
 .dashboard-empty {

@@ -25,9 +25,9 @@ var WIDGET_EDITOR_URL = (typeof window !== 'undefined' && window.WIDGET_EDITOR_U
 // cellMode 'fixed-px' = cellHeight uit dashboardCellHeightPx() (gekoppeld aan font-size).
 //          'auto-square' = GridStack 'auto' (cell square, schaalt met stage-width).
 var DASHBOARD_BREAKPOINTS = {
-    desktop: { cols: 12, minWidth: 1025, label: 'Desktop', cellMode: 'fixed-px'   },
-    tablet:  { cols: 8,  minWidth: 641,  label: 'Tablet',  cellMode: 'fixed-px'   },
-    mobile:  { cols: 6,  minWidth: 0,    label: 'Mobile',  cellMode: 'auto-square'}
+    desktop: { cols: 12, minWidth: 1025, label: 'Desktop', cellMode: 'fixed-px' },
+    tablet:  { cols: 8,  minWidth: 641,  label: 'Tablet',  cellMode: 'fixed-px' },
+    mobile:  { cols: 6,  minWidth: 0,    label: 'Mobile',  cellMode: 'fixed-px' }
 };
 
 function dashboardCurrentBreakpoint() {
@@ -37,13 +37,15 @@ function dashboardCurrentBreakpoint() {
     return 'mobile';
 }
 
-// Dashboard cell-height (px) voor fixed-px breakpoints. Gekoppeld aan body font-size
-// — kleiner font → kleinere cell → 1 regel tekst past in 1 unit.
+// Dashboard cell-size (px) — cells zijn VIERKANT (cellW = cellH). Gekoppeld
+// aan body font-size, maar groter dan strict "1 regel" zodat widget-content
+// (header + body + controls) zonder clipping past en de grid leesbaar blijft.
+// Grid totaal-breedte = cols × cellSize, vast (geen viewport-scaling).
 function dashboardCellHeightPx() {
     var fs = (typeof getFontSize === 'function') ? getFontSize() : 'medium';
-    if (fs === 'small')  return 30;
-    if (fs === 'large')  return 40;
-    return 34; // medium
+    if (fs === 'small')  return 44;
+    if (fs === 'large')  return 60;
+    return 52; // medium
 }
 
 // Body font-size in px (informatief — voor sizing-berekeningen).
