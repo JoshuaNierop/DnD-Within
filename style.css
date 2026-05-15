@@ -7938,6 +7938,75 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     letter-spacing: 0.05em;
 }
 
+/* Session-info rows on campaign cards — DT/DD pairs, label-left value-right */
+.campaign-session-info {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1rem;
+    margin: 0.75rem 0 0;
+    padding: 0.6rem 0 0;
+    border-block-start: 1px solid color-mix(in srgb, var(--hairline-gold) 80%, transparent);
+    font-size: 0.85rem;
+}
+.campaign-session-info > .campaign-session-row {
+    display: contents; /* let dt/dd participate in the parent grid */
+}
+.campaign-session-info dt {
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    align-self: center;
+}
+.campaign-session-info dd {
+    margin: 0;
+    color: var(--text-main);
+    font-variant-numeric: tabular-nums;
+    align-self: center;
+}
+.campaign-session-info dd.text-dim {
+    color: var(--text-dim);
+    font-style: italic;
+    font-variant-numeric: normal;
+}
+
+/* Floating edit pencil for DMs (top-right corner of the card) */
+.campaign-session-edit {
+    position: absolute;
+    inset-block-start: 0.6rem;
+    inset-inline-end: 0.6rem;
+    background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
+    border: 1px solid var(--hairline-gold);
+    color: var(--accent-warm);
+    inline-size: 28px;
+    block-size: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s, background 0.2s;
+}
+.campaign-home-card:hover .campaign-session-edit,
+.campaign-home-card:focus-within .campaign-session-edit {
+    opacity: 1;
+}
+.campaign-session-edit:hover {
+    background: color-mix(in srgb, var(--accent-warm) 18%, var(--bg-elevated));
+    transform: scale(1.06);
+}
+.campaign-session-edit:focus-visible {
+    opacity: 1;
+    outline: 2px solid var(--accent-warm);
+    outline-offset: 2px;
+}
+/* Always show the edit pencil on touch devices (no hover) */
+@media (hover: none) {
+    .campaign-session-edit { opacity: 0.85; }
+}
+
 .campaign-home-stats {
     display: flex;
     gap: 1.25rem;

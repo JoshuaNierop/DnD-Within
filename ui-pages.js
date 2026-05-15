@@ -2,6 +2,23 @@
 // Requires: core.js
 
 // ============================================================
+// Helpers
+// ============================================================
+
+// Format an ISO datetime string ("2026-04-18T19:00" or "2026-04-18") for display.
+// Uses the active i18n language as Intl locale so dates render naturally (NL/EN).
+function formatNextSession(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    var locale = (typeof getLang === 'function' && getLang() === 'en') ? 'en-US' : 'nl-NL';
+    var hasTime = /T\d/.test(iso);
+    var opts = { month: 'short', day: 'numeric' };
+    if (hasTime) { opts.hour = '2-digit'; opts.minute = '2-digit'; }
+    return new Intl.DateTimeFormat(locale, opts).format(d);
+}
+
+// ============================================================
 // Section 9: Login Page
 // ============================================================
 
@@ -193,11 +210,33 @@ function renderHome() {
             html += '<span class="campaign-dm-badge">DM: ' + escapeHtml(dmName) + '</span>';
         }
         html += '</div>';
+
+        // Session info — number + next-session date (DM-editable)
+        html += '<dl class="campaign-session-info">';
+        html += '<div class="campaign-session-row">';
+        html += '<dt>' + t('home.session') + '</dt>';
+        html += '<dd>#' + (camp.sessionCount > 0 ? camp.sessionCount : '—') + '</dd>';
+        html += '</div>';
+        html += '<div class="campaign-session-row">';
+        html += '<dt>' + t('home.nextsession') + '</dt>';
+        if (camp.nextSession) {
+            html += '<dd>' + escapeHtml(formatNextSession(camp.nextSession)) + '</dd>';
+        } else {
+            html += '<dd class="text-dim">' + t('home.nosession') + '</dd>';
+        }
+        html += '</div>';
+        html += '</dl>';
+
         html += '<div class="campaign-home-stats">';
         html += '<span>' + memberCount + t('home.players') + '</span>';
         html += '<span>' + partyCount + t('home.inparty') + '</span>';
         html += '</div>';
         if (isActive) html += '<span class="campaign-active-badge">' + t('home.active') + '</span>';
+
+        // DM controls: edit session info button (stops propagation so card-click doesn't fire)
+        if (isDMOfCamp) {
+            html += '<button type="button" class="campaign-session-edit" data-action="edit-campaign-session" data-campaign-id="' + escapeAttr(cId) + '" title="' + t('home.editsession') + '" aria-label="' + t('home.editsession') + '">✎</button>';
+        }
 
         // Show invite code for DM
         if (isDMOfCamp && camp.inviteCode) {

@@ -678,10 +678,15 @@ function bindPageEvents(route) {
 
         // --- Home: enter campaign ---
         if (target.matches('[data-action="enter-campaign"]') || target.closest('[data-action="enter-campaign"]')) {
-            var card = target.matches('[data-action="enter-campaign"]') ? target : target.closest('[data-action="enter-campaign"]');
-            setActiveCampaign(card.dataset.campaignId);
-            navigate('/dashboard');
-            return;
+            // Don't navigate when the click originated on a per-card action button (edit, delete, etc.)
+            if (target.matches('[data-action="edit-campaign-session"]') || target.closest('[data-action="edit-campaign-session"]')) {
+                // Fall through — the dedicated handler below will pick this up.
+            } else {
+                var card = target.matches('[data-action="enter-campaign"]') ? target : target.closest('[data-action="enter-campaign"]');
+                setActiveCampaign(card.dataset.campaignId);
+                navigate('/dashboard');
+                return;
+            }
         }
 
         // --- Home: join campaign by code ---
@@ -824,6 +829,56 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="activate-campaign"]')) {
             setActiveCampaign(target.dataset.campaignId);
             renderApp();
+            return;
+        }
+        if (target.matches('[data-action="edit-campaign-session"]') || target.closest('[data-action="edit-campaign-session"]')) {
+            // Stop the card-wide enter-campaign click from also firing
+            ev.stopPropagation();
+            ev.preventDefault();
+            var btn = target.matches('[data-action="edit-campaign-session"]') ? target : target.closest('[data-action="edit-campaign-session"]');
+            var cId = btn.dataset.campaignId;
+            var camps = getCampaigns();
+            var camp = camps[cId];
+            if (!camp) return;
+            var currentCount = camp.sessionCount || 0;
+            var currentDate = camp.nextSession || '';
+
+            var overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML =
+                '<div class="modal-card" onclick="event.stopPropagation();" style="max-width:420px;padding:1.5rem;">' +
+                    '<div class="modal-header"><h2>' + t('home.editsession') + '</h2><button class="modal-close" data-action="close-session-modal">&times;</button></div>' +
+                    '<label class="login-label" style="display:block;margin-block:0.75rem 0.25rem;">' + t('home.sessionnumber') + '</label>' +
+                    '<input type="number" min="0" step="1" class="edit-input" id="edit-session-count" value="' + (currentCount || '') + '" style="width:100%;">' +
+                    '<label class="login-label" style="display:block;margin-block:1rem 0.25rem;">' + t('home.sessiondate') + '</label>' +
+                    '<input type="datetime-local" class="edit-input" id="edit-session-date" value="' + escapeAttr(currentDate) + '" style="width:100%;">' +
+                    '<div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.25rem;">' +
+                        '<button class="btn btn-ghost btn-sm" data-action="close-session-modal">' + t('generic.cancel') + '</button>' +
+                        '<button class="btn btn-primary btn-sm" data-action="confirm-edit-session" data-campaign-id="' + escapeAttr(cId) + '">' + t('quest.save') + '</button>' +
+                    '</div>' +
+                '</div>';
+            overlay.addEventListener('click', function(evt) {
+                if (evt.target === overlay || evt.target.matches('[data-action="close-session-modal"]') || evt.target.closest('[data-action="close-session-modal"]')) {
+                    overlay.remove();
+                    return;
+                }
+                if (evt.target.matches('[data-action="confirm-edit-session"]') || evt.target.closest('[data-action="confirm-edit-session"]')) {
+                    var countEl = document.getElementById('edit-session-count');
+                    var dateEl = document.getElementById('edit-session-date');
+                    var c = getCampaigns();
+                    if (c[cId]) {
+                        var countVal = countEl ? parseInt(countEl.value, 10) : 0;
+                        c[cId].sessionCount = (isNaN(countVal) || countVal < 0) ? 0 : countVal;
+                        c[cId].nextSession = dateEl && dateEl.value ? dateEl.value : '';
+                        saveCampaigns(c);
+                    }
+                    overlay.remove();
+                    renderApp();
+                }
+            });
+            document.body.appendChild(overlay);
+            var inp = document.getElementById('edit-session-count');
+            if (inp) { inp.focus(); inp.select(); }
             return;
         }
         if (target.matches('[data-action="rename-campaign"]')) {
