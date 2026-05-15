@@ -444,7 +444,7 @@ function renderParty() {
 
 function renderDashboard() {
     var user = currentUser();
-    var html = '<div class="dashboard">';
+    var html = '<div class="homepage">';
 
     // Session number (DM can set)
     var sessionNum = localStorage.getItem('dw_session_number') || '0';
