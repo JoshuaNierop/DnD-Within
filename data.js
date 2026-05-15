@@ -2050,10 +2050,9 @@ const DATA = {
         { name: "Crafter", category: "origin", desc: "Proficiency met 3 artisan tools naar keuze. 20% korting op nonmagical items. Je kunt eenvoudige items overnight craften (touw, toortsen, etc.).", prereq: null },
         { name: "Healer", category: "origin", desc: "Met een Healer's Kit als action: herstel 1d6 + 4 + target's aantal Hit Dice aan HP bij een creature (1x per short/long rest per creature). Stabiliseer een creature op 0 HP als bonus action.", prereq: null },
         { name: "Lucky", category: "origin", desc: "Je hebt Luck Points gelijk aan je proficiency bonus, hersteld na long rest. Besteed 1 punt om een extra d20 te rollen na het zien van je rol en kies welke telt. Ook te gebruiken op een attack roll tegen jou.", prereq: null },
-        { name: "Magic Initiate", category: "origin", desc: "Kies Cleric, Druid, of Wizard spell list. Leer 2 cantrips en 1 first-level spell. Cast de spell 1x gratis/long rest of met spell slots. Je mag deze feat vaker kiezen (andere list).", prereq: null, repeatable: true },
-        { name: "Magic Initiate (Cleric)", category: "origin", desc: "Leer 2 cleric cantrips en 1 first-level cleric spell. Cast de spell 1x gratis/long rest of met spell slots. WIS is je spellcasting ability voor deze spells.", prereq: null, spellList: "cleric" },
-        { name: "Magic Initiate (Druid)", category: "origin", desc: "Leer 2 druid cantrips en 1 first-level druid spell. Cast de spell 1x gratis/long rest of met spell slots. WIS is je spellcasting ability voor deze spells.", prereq: null, spellList: "druid" },
-        { name: "Magic Initiate (Wizard)", category: "origin", desc: "Leer 2 wizard cantrips en 1 first-level wizard spell. Cast de spell 1x gratis/long rest of met spell slots. INT is je spellcasting ability voor deze spells.", prereq: null, spellList: "wizard" },
+        { name: "Magic Initiate (Cleric)", category: "origin", desc: "Leer 2 cleric cantrips en 1 first-level cleric spell. Cast de spell 1x gratis/long rest of met spell slots. WIS is je spellcasting ability voor deze spells. Mag opnieuw gekozen worden voor een andere spell list.", prereq: null, spellList: "cleric", repeatable: true },
+        { name: "Magic Initiate (Druid)", category: "origin", desc: "Leer 2 druid cantrips en 1 first-level druid spell. Cast de spell 1x gratis/long rest of met spell slots. WIS is je spellcasting ability voor deze spells. Mag opnieuw gekozen worden voor een andere spell list.", prereq: null, spellList: "druid", repeatable: true },
+        { name: "Magic Initiate (Wizard)", category: "origin", desc: "Leer 2 wizard cantrips en 1 first-level wizard spell. Cast de spell 1x gratis/long rest of met spell slots. INT is je spellcasting ability voor deze spells. Mag opnieuw gekozen worden voor een andere spell list.", prereq: null, spellList: "wizard", repeatable: true },
         { name: "Musician", category: "origin", desc: "Proficiency met 3 muziekinstrumenten naar keuze. Na een short/long rest: speel een lied en geef Heroic Inspiration aan allies gelijk aan je proficiency bonus.", prereq: null },
         { name: "Savage Attacker", category: "origin", desc: "Eén keer per beurt als je melee weapon damage rolt, rol de damage dice opnieuw en gebruik het hoogste resultaat.", prereq: null },
         { name: "Skilled", category: "origin", desc: "Proficiency in 3 skills of tools naar keuze. Je mag deze feat vaker kiezen (andere skills/tools).", prereq: null },
@@ -2135,7 +2134,8 @@ const DATA = {
     ],
 
     // ===== BACKGROUNDS (5.5e / 2024 PHB — 16 core + 1 legacy) =====
-    // Each provides: 3 ability scores (+2/+1 or +1/+1/+1), 2 skills, 1 tool, 1 origin feat
+    // Each provides: 3 ability scores (+2/+1 or +1/+1/+1), 2 skills, 1 tool, 1 origin feat, equipment (Choice A = themed gear + GP, Choice B = 50 GP).
+    // Equipment lists below zijn best-recall van 2024 PHB Ch.4 Backgrounds — verifieer tegen PHB voordat je op production rekent.
     backgrounds: {
         // --- LEGACY (niet in 2024 PHB) ---
         urchin: {
@@ -2145,7 +2145,11 @@ const DATA = {
             skills: ["Sleight of Hand", "Stealth"],
             tool: "Thieves' Tools",
             feat: "Lucky",
-            desc: "LEGACY (niet in 2024 PHB). Opgegroeid op straat. Je kent de stad beter dan wie dan ook."
+            desc: "LEGACY (niet in 2024 PHB). Opgegroeid op straat. Je kent de stad beter dan wie dan ook.",
+            equipment: {
+                A: { items: ["Small knife", "Map of city", "Pet mouse", "Token from parents", "Common clothes", "Pouch"], gp: 10 },
+                B: { gp: 50 }
+            }
         },
 
         // --- 2024 PHB BACKGROUNDS ---
@@ -2155,7 +2159,11 @@ const DATA = {
             skills: ["Insight", "Religion"],
             tool: "Calligrapher's Supplies",
             feat: "Magic Initiate (Cleric)",
-            desc: "Je hebt je leven gewijd aan de dienst van een tempel of religieuze orde. Je kent de rituelen en overtuigingen van je geloof."
+            desc: "Je hebt je leven gewijd aan de dienst van een tempel of religieuze orde. Je kent de rituelen en overtuigingen van je geloof.",
+            equipment: {
+                A: { items: ["Calligrapher's Supplies", "Book (prayers)", "Holy Symbol", "Parchment (10 sheets)", "Robe"], gp: 8 },
+                B: { gp: 50 }
+            }
         },
         artisan: {
             name: "Artisan",
@@ -2163,7 +2171,11 @@ const DATA = {
             skills: ["Investigation", "Persuasion"],
             tool: "Artisan's Tools",
             feat: "Crafter",
-            desc: "Je bent opgeleid als ambachtsman. Je maakt dingen met je handen en hebt een scherp oog voor kwaliteit."
+            desc: "Je bent opgeleid als ambachtsman. Je maakt dingen met je handen en hebt een scherp oog voor kwaliteit.",
+            equipment: {
+                A: { items: ["Artisan's Tools (one of your choice)", "Pouch (x2)", "Traveler's Clothes"], gp: 32 },
+                B: { gp: 50 }
+            }
         },
         charlatan: {
             name: "Charlatan",
@@ -2171,7 +2183,11 @@ const DATA = {
             skills: ["Deception", "Sleight of Hand"],
             tool: "Forgery Kit",
             feat: "Skilled",
-            desc: "Je hebt altijd een talent gehad voor het misleiden van anderen. Valse identiteiten, oplichterij en bedrog zijn je specialiteit."
+            desc: "Je hebt altijd een talent gehad voor het misleiden van anderen. Valse identiteiten, oplichterij en bedrog zijn je specialiteit.",
+            equipment: {
+                A: { items: ["Costume", "Forgery Kit", "Bottle of ink", "Quill", "Sealing wax", "Parchment (12 sheets)", "Pouch"], gp: 15 },
+                B: { gp: 50 }
+            }
         },
         criminal: {
             name: "Criminal",
@@ -2179,7 +2195,11 @@ const DATA = {
             skills: ["Sleight of Hand", "Stealth"],
             tool: "Thieves' Tools",
             feat: "Alert",
-            desc: "Je hebt een verleden in de misdaad. Of het nu diefstal, smokkel of erger was — je kent de schaduwzijde van de maatschappij."
+            desc: "Je hebt een verleden in de misdaad. Of het nu diefstal, smokkel of erger was — je kent de schaduwzijde van de maatschappij.",
+            equipment: {
+                A: { items: ["Dagger (x2)", "Thieves' Tools", "Crowbar", "Pouch (x2)", "Traveler's Clothes"], gp: 16 },
+                B: { gp: 50 }
+            }
         },
         entertainer: {
             name: "Entertainer",
@@ -2187,7 +2207,11 @@ const DATA = {
             skills: ["Acrobatics", "Performance"],
             tool: "Musical Instrument",
             feat: "Musician",
-            desc: "Je leeft voor het publiek. Als muzikant, danser, acteur of verteller weet je hoe je een menigte moet boeien."
+            desc: "Je leeft voor het publiek. Als muzikant, danser, acteur of verteller weet je hoe je een menigte moet boeien.",
+            equipment: {
+                A: { items: ["Musical Instrument (one of your choice)", "Perfume", "Costume", "Traveler's Clothes"], gp: 11 },
+                B: { gp: 50 }
+            }
         },
         farmer: {
             name: "Farmer",
@@ -2195,7 +2219,11 @@ const DATA = {
             skills: ["Animal Handling", "Nature"],
             tool: "Carpenter's Tools",
             feat: "Tough",
-            desc: "Je bent opgegroeid op het land. Hard werken, de seizoenen en de natuur hebben je gevormd tot wie je bent."
+            desc: "Je bent opgegroeid op het land. Hard werken, de seizoenen en de natuur hebben je gevormd tot wie je bent.",
+            equipment: {
+                A: { items: ["Carpenter's Tools", "Shovel", "Iron Pot", "Traveler's Clothes", "Pouch"], gp: 30 },
+                B: { gp: 50 }
+            }
         },
         guard: {
             name: "Guard",
@@ -2203,7 +2231,11 @@ const DATA = {
             skills: ["Athletics", "Perception"],
             tool: "Gaming Set",
             feat: "Alert",
-            desc: "Je hebt gediend als wachter, stadswacht of lijfwacht. Je bent getraind om gevaar te herkennen en te reageren."
+            desc: "Je hebt gediend als wachter, stadswacht of lijfwacht. Je bent getraind om gevaar te herkennen en te reageren.",
+            equipment: {
+                A: { items: ["Spear", "Light Crossbow", "Bolts (20)", "Quiver", "Gaming Set (one of your choice)", "Hooded Lantern", "Manacles", "Traveler's Clothes", "Pouch"], gp: 12 },
+                B: { gp: 50 }
+            }
         },
         guide: {
             name: "Guide",
@@ -2211,7 +2243,11 @@ const DATA = {
             skills: ["Stealth", "Survival"],
             tool: "Cartographer's Tools",
             feat: "Magic Initiate (Druid)",
-            desc: "Je hebt je leven lang reizigers door de wildernis geleid. Je kent de paden en gevaren van de natuur."
+            desc: "Je hebt je leven lang reizigers door de wildernis geleid. Je kent de paden en gevaren van de natuur.",
+            equipment: {
+                A: { items: ["Shortbow", "Arrows (20)", "Quiver", "Cartographer's Tools", "Musical Instrument (one of your choice)", "Bedroll", "Traveler's Clothes", "Pouch"], gp: 3 },
+                B: { gp: 50 }
+            }
         },
         hermit: {
             name: "Hermit",
@@ -2219,7 +2255,11 @@ const DATA = {
             skills: ["Medicine", "Religion"],
             tool: "Herbalism Kit",
             feat: "Healer",
-            desc: "Je hebt jarenlang in afzondering geleefd — mediterend, studerend of genezend. Je draagt wijsheid mee uit de stilte."
+            desc: "Je hebt jarenlang in afzondering geleefd — mediterend, studerend of genezend. Je draagt wijsheid mee uit de stilte.",
+            equipment: {
+                A: { items: ["Quarterstaff", "Herbalism Kit", "Bedroll", "Book (philosophy)", "Lamp", "Oil flask (x3)", "Traveler's Clothes", "Pouch"], gp: 16 },
+                B: { gp: 50 }
+            }
         },
         merchant: {
             name: "Merchant",
@@ -2227,7 +2267,11 @@ const DATA = {
             skills: ["Animal Handling", "Persuasion"],
             tool: "Navigator's Tools",
             feat: "Lucky",
-            desc: "Je bent een handelaar, koopman of marktverkoper. Je kent de waarde van goederen en de kunst van het onderhandelen."
+            desc: "Je bent een handelaar, koopman of marktverkoper. Je kent de waarde van goederen en de kunst van het onderhandelen.",
+            equipment: {
+                A: { items: ["Navigator's Tools", "Pouch (x2)", "Mule with Saddlebags", "Traveler's Clothes"], gp: 22 },
+                B: { gp: 50 }
+            }
         },
         noble: {
             name: "Noble",
@@ -2235,7 +2279,11 @@ const DATA = {
             skills: ["History", "Persuasion"],
             tool: "Gaming Set",
             feat: "Skilled",
-            desc: "Je bent geboren in een adellijke familie met invloed en rijkdom. Je kent de etiquette van het hof en de last van verwachtingen."
+            desc: "Je bent geboren in een adellijke familie met invloed en rijkdom. Je kent de etiquette van het hof en de last van verwachtingen.",
+            equipment: {
+                A: { items: ["Gaming Set (one of your choice)", "Fine Clothes", "Signet Ring", "Scroll of Pedigree", "Pouch"], gp: 29 },
+                B: { gp: 50 }
+            }
         },
         sage: {
             name: "Sage",
@@ -2243,7 +2291,11 @@ const DATA = {
             skills: ["Arcana", "History"],
             tool: "Calligrapher's Supplies",
             feat: "Magic Initiate (Wizard)",
-            desc: "Jarenlang heb je kennis vergaard uit boeken en bibliotheken. Je bent een expert in je vakgebied."
+            desc: "Jarenlang heb je kennis vergaard uit boeken en bibliotheken. Je bent een expert in je vakgebied.",
+            equipment: {
+                A: { items: ["Quarterstaff", "Calligrapher's Supplies", "Book (history)", "Parchment (8 sheets)", "Bottle of ink", "Quill", "Robe"], gp: 8 },
+                B: { gp: 50 }
+            }
         },
         sailor: {
             name: "Sailor",
@@ -2251,7 +2303,11 @@ const DATA = {
             skills: ["Acrobatics", "Perception"],
             tool: "Navigator's Tools",
             feat: "Tavern Brawler",
-            desc: "Je hebt gevaren op de open zee. Stormen, piraten en verre havens — je hebt het allemaal meegemaakt."
+            desc: "Je hebt gevaren op de open zee. Stormen, piraten en verre havens — je hebt het allemaal meegemaakt.",
+            equipment: {
+                A: { items: ["Dagger", "Navigator's Tools", "Rope (50 ft)", "Traveler's Clothes", "Pouch"], gp: 20 },
+                B: { gp: 50 }
+            }
         },
         scribe: {
             name: "Scribe",
@@ -2259,7 +2315,11 @@ const DATA = {
             skills: ["Investigation", "Perception"],
             tool: "Calligrapher's Supplies",
             feat: "Skilled",
-            desc: "Je hebt gewerkt als schrijver, kopiist of archivaris. Details ontgaan je zelden en je pen is je beste vriend."
+            desc: "Je hebt gewerkt als schrijver, kopiist of archivaris. Details ontgaan je zelden en je pen is je beste vriend.",
+            equipment: {
+                A: { items: ["Calligrapher's Supplies", "Fine Clothes", "Lamp", "Oil flask (x3)", "Parchment (12 sheets)", "Bottle of ink", "Quill", "Pouch"], gp: 23 },
+                B: { gp: 50 }
+            }
         },
         soldier: {
             name: "Soldier",
@@ -2267,7 +2327,11 @@ const DATA = {
             skills: ["Athletics", "Intimidation"],
             tool: "Gaming Set",
             feat: "Savage Attacker",
-            desc: "Je hebt gediend in een leger of militie. Je kent de discipline van het slagveld en de kameraadschap van soldaten."
+            desc: "Je hebt gediend in een leger of militie. Je kent de discipline van het slagveld en de kameraadschap van soldaten.",
+            equipment: {
+                A: { items: ["Spear", "Shortbow", "Arrows (20)", "Quiver", "Gaming Set (one of your choice)", "Healer's Kit", "Traveler's Clothes", "Pouch"], gp: 14 },
+                B: { gp: 50 }
+            }
         },
         wayfarer: {
             name: "Wayfarer",
@@ -2275,7 +2339,11 @@ const DATA = {
             skills: ["Insight", "Stealth"],
             tool: "Thieves' Tools",
             feat: "Lucky",
-            desc: "Je bent een zwerver, een reiziger zonder vaste bestemming. De weg is je thuis en je overleefd door je instincten."
+            desc: "Je bent een zwerver, een reiziger zonder vaste bestemming. De weg is je thuis en je overleefd door je instincten.",
+            equipment: {
+                A: { items: ["Dagger (x2)", "Thieves' Tools", "Gaming Set (one of your choice)", "Pouch (x2)", "Traveler's Clothes"], gp: 16 },
+                B: { gp: 50 }
+            }
         }
     },
 

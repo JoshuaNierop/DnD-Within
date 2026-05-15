@@ -1,9 +1,16 @@
 # D&D Within — Testresults
 
-**Datum:** 2026-04-13
+**Datum:** 2026-04-13 (audit), **bijgewerkt 2026-05-15** (P0-status herzien)
 **Scope:** Volledige 5.5e regelaudit + UI-gaten audit + Playwright smoke test
 **Campaign version:** Valoria
 **Bronbestanden gecontroleerd:** `data.js` (3072), `engine.js` (216), `ui-character.js` (2482), `ui-modals.js`, `ui-pages.js`, `ui-world.js`, `events.js`, `sync.js`, `app.js`, `core.js`, `i18n.js`, `sw.js`, `index.html`, `style.css`
+
+## P0-status update (2026-05-15)
+Alle 11 P0-issues uit deze audit zijn opgelost of waren al opgelost ten tijde van re-verificatie:
+- ✅ Items 1-4 (spell descriptions Blade Ward, True Strike, Divine Smite, Hunter's Mark) — al gefixed in `data.js`
+- ✅ Items 5-9 (engine.js — Ranger/Warlock prepared, getAC equipped armor, HP Dwarven Toughness/Tough, feat abilityBonus choice) — al gefixed
+- ✅ Item 10 (Magic Initiate feat-naam mismatch) — 3 varianten `Magic Initiate (Cleric/Druid/Wizard)` aanwezig + `repeatable:true` flag (2026-05-15)
+- ✅ Item 11 (Equipment Choice A/B op backgrounds) — `equipment: {A, B}` toegevoegd aan alle 16 PHB-backgrounds + urchin (2026-05-15, best-recall 2024 PHB Ch.4, GP-bedragen vereisen PHB-verificatie voor publicatie)
 
 ---
 
@@ -184,12 +191,13 @@
 
 ## 5. Aanbevolen fix-volgorde
 
-**Deze week (P0):**
-1. Magic Initiate feat-name bug (1 regel fix, maar breekt 3 backgrounds)
-2. Blade Ward + True Strike herschrijven (2× desc update)
-3. Warlock + Ranger prepared spell formules in `engine.js`
-4. Feat `abilityBonus` auto-toekenning bij `choice.ability`
+**Deze week (P0):** — ✅ ALL DONE (2026-05-15)
+1. ~~Magic Initiate feat-name bug~~ — ✅ DONE (3 varianten + repeatable)
+2. ~~Blade Ward + True Strike herschrijven~~ — ✅ DONE (al gefixed)
+3. ~~Warlock + Ranger prepared spell formules in `engine.js`~~ — ✅ DONE
+4. ~~Feat `abilityBonus` auto-toekenning bij `choice.ability`~~ — ✅ DONE
 5. ~~Firebase security rules verlengen (deadline 2026-04-28)~~ — ✅ DONE (2026-04-16, geldig tot 2027-04-28)
+6. ~~Equipment Choice A/B op backgrounds~~ — ✅ DONE (best-recall PHB data, verify GP)
 
 **Deze maand (P1):**
 6. Third-caster spell slot tabel + EK/AT `spellcastingAbility` override
