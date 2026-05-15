@@ -194,21 +194,5 @@ document.addEventListener('DOMContentLoaded', function() {
     initRouter();
     patchTooltipEvents();
 
-    // Dashboard: re-render on viewport breakpoint change so auto-reflow updates.
-    var lastBP = (typeof dashboardCurrentBreakpoint === 'function') ? dashboardCurrentBreakpoint() : null;
-    var resizeTimeout = null;
-    window.addEventListener('resize', function() {
-        if (resizeTimeout) clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(function() {
-            if (typeof dashboardCurrentBreakpoint !== 'function') return;
-            var nowBP = dashboardCurrentBreakpoint();
-            // Only re-render if we're not in edit mode (which uses preview bp) and bp changed.
-            if (!isDashboardEditMode || !isDashboardEditMode()) {
-                if (nowBP !== lastBP) {
-                    lastBP = nowBP;
-                    if (typeof renderApp === 'function') renderApp();
-                }
-            }
-        }, 150);
-    });
+    // Dashboard packing is now handled by CSS auto-fit (no JS resize listener needed).
 });

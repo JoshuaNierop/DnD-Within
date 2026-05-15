@@ -272,7 +272,7 @@ function bindPageEvents(route) {
         if (actionEl) {
             var action = actionEl.dataset.action;
             // Dashboard-specific actions handled in dashboard-edit.js
-            if ((action && action.indexOf('dashboard-') === 0) || action === 'widget-toggle-star' || action === 'widget-remove' || action === 'dash-sidebar-cat' || action === 'dash-sidebar-close') {
+            if ((action && action.indexOf('dashboard-') === 0) || action === 'widget-toggle-star' || action === 'widget-remove' || action === 'widget-cycle-size' || action === 'dash-sidebar-cat' || action === 'dash-sidebar-close' || action === 'dash-add-widget') {
                 if (typeof dashboardHandleAction === 'function' && dashboardHandleAction(action, actionEl, e)) return;
             }
             if (action === 'open-tab-manage' && charId) {
@@ -281,10 +281,10 @@ function bindPageEvents(route) {
             }
             if (action === 'convert-to-dashboard' && charId) {
                 var tid = actionEl.dataset.tabId;
-                if (tid && typeof loadTabLayout === 'function' && typeof saveTabLayout === 'function') {
-                    var def = dashboardDefaultLayoutForTab(tid);
-                    ensureWidgetIds(def.desktop);
-                    saveTabLayout(charId, tid, def);
+                if (tid && typeof saveTabWidgets === 'function') {
+                    var defaults = dashboardDefaultWidgetsForTab(tid);
+                    ensureWidgetIds(defaults);
+                    saveTabWidgets(charId, tid, defaults);
                     if (typeof renderApp === 'function') renderApp();
                 }
                 return;

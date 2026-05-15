@@ -34,7 +34,7 @@ function renderWidgetDemo() {
     html += '<header class="widget-demo-header">';
     html += '<div>';
     html += '<h1>Widget Configuraties</h1>';
-    html += '<p class="widget-demo-sub">Cell ' + cellH + 'px · body-font ' + fontPx + 'px · ' + DASHBOARD_BREAKPOINTS[bp].cols + ' cols (' + bp + ')</p>';
+    html += '<p class="widget-demo-sub">Cell ~' + cellH + 'px · body-font ' + fontPx + 'px · intrinsic auto-fit grid (S/M/L/XL spans)</p>';
     html += '</div>';
     html += '<div class="widget-demo-actions">';
     var fsCurrent = (typeof getFontSize === 'function') ? getFontSize() : 'medium';

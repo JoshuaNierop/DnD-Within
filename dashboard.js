@@ -1,67 +1,81 @@
-// D&D Within — Dashboard Renderer (Gridstack-based)
-// Renders a tab as a dashboard with Gridstack engine for drag/resize/pack.
-// Edit-mode toolbar + working-layout lifecycle live in dashboard-edit.js.
-// Requires: dashboard-data.js, widgets.js, core.js, gridstack-all.js (CDN)
+// D&D Within — Dashboard Renderer (Intrinsic CSS Grid)
+//
+// Replaces the old Gridstack-based renderer with a pure CSS-grid approach:
+//   - OUTER  .dashboard       repeat(auto-fit, minmax(MIN, 1fr))  (CSS)
+//   - WIDGET .widget          --span via data-size attribute       (CSS)
+//
+// Each widget's "size" is one of 'S' | 'M' | 'L' | 'XL' (span 1/2/3/4).
+// The user cycles size by clicking the ⬡ button in the widget header.
+//
+// Requires: dashboard-data.js, widgets.js, core.js (no CDN dependency).
 
-// Toggle state: which breakpoint is being PREVIEWED. Defaults to actual viewport breakpoint.
-var dashboardPreviewBP = null;
-
-function dashboardActiveBP() { return dashboardPreviewBP || dashboardCurrentBreakpoint(); }
-
-// Edit mode global flag (set by dashboard-edit.js).
+// Edit-mode flag — set by dashboard-edit.js
 var dashboardEditMode = false;
-var dashboardGridVisible = false;
 
 function isDashboardEditMode() { return !!dashboardEditMode; }
 
-// Active Gridstack instance — destroyed and recreated on every dashboardPostRender.
-var dashGridInstance = null;
-
-// Context cached during init so 'added' events (palette drag) can re-render with full data.
+// Context cached during render so single-widget refresh has the data it needs.
 var dashRenderCtx = null;
 
-// Render the dashboard tab shell. Gridstack is initialised in dashboardPostRender below.
+// Render the dashboard tab shell. CSS-grid does the layout work — no post-init
+// step needed for the grid itself.
 function renderDashboardTab(charId, tabId) {
-    var bp = dashboardActiveBP();
-    var cols = DASHBOARD_BREAKPOINTS[bp].cols;
     var editable = canEdit(charId);
 
-    // One-shot normalization on first render (idempotent for already-tight layouts).
-    if (typeof ensureLayoutNormalized === 'function') {
-        try { ensureLayoutNormalized(charId, tabId); } catch (e) {}
+    var widgets = loadTabWidgets(charId, tabId);
+    if (!widgets || !widgets.length) {
+        // First-open: fall back to the default layout (now flat, size-keyed)
+        widgets = dashboardDefaultWidgetsForTab(tabId);
+    }
+    ensureWidgetIds(widgets);
+
+    var config = loadCharConfig(charId);
+    var state = loadCharState(charId);
+
+    dashRenderCtx = { charId: charId, tabId: tabId, config: config, state: state, editable: editable };
+
+    var html = '<div class="dashboard' + (dashboardEditMode ? ' is-editing' : '') + '" data-tab-id="' + tabId + '" data-char-id="' + charId + '">';
+
+    // Toolbar — verticaal floating rechtsboven
+    html += renderDashboardToolbar(charId, tabId, editable);
+
+    // Widget grid (intrinsic — CSS handles placement)
+    if (!widgets.length) {
+        html += '<div class="dashboard-empty">';
+        html += '<p>Dit dashboard is leeg.</p>';
+        if (editable) {
+            html += '<button class="btn btn-primary" data-action="dashboard-toggle-edit">✎ Bewerken</button>';
+        }
+        html += '</div>';
+    } else {
+        for (var i = 0; i < widgets.length; i++) {
+            var inst = widgets[i];
+            var def = WIDGET_REGISTRY[inst.type];
+            var size = inst.size || 'M';
+            var ctx = {
+                charId: charId, config: config, state: state,
+                editable: editable, instance: inst
+            };
+            html += '<div class="widget widget-' + inst.type + (inst.starred ? ' is-starred' : '') + '"';
+            html += ' data-wid="' + inst.wid + '"';
+            html += ' data-type="' + inst.type + '"';
+            html += ' data-size="' + size + '">';
+            html += buildWidgetContent(def, inst, ctx, editable);
+            html += '</div>';
+        }
     }
 
-    var hasSavedForBP = (function() {
-        var l = loadTabLayout(charId, tabId) || dashboardDefaultLayoutForTab(tabId);
-        return !!(l && Array.isArray(l[bp]) && l[bp].length);
-    })();
+    html += '</div>'; // .dashboard
+    return html;
+}
 
-    var html = '<div class="dashboard ' + (dashboardEditMode ? 'is-editing ' : '') + (dashboardGridVisible ? 'show-grid ' : '') + 'bp-' + bp + '" data-tab-id="' + tabId + '" data-cols="' + cols + '" data-bp="' + bp + '">';
+// Toolbar (icon-only buttons rechtsboven) — unchanged from the old renderer
+// except active-state cleanup and no breakpoint preview anymore (auto-fit
+// handles responsive width). FS-popover is kept (it sets html[data-font-size]).
+function renderDashboardToolbar(charId, tabId, editable) {
+    var html = '<div class="dashboard-toolbar dash-toolbar-vertical">';
 
-    // Toolbar — verticaal floating rechtsboven, 3 kleine icon-knoppen + edit-modus extras
-    var bpIcons = { mobile: '📱', tablet: '🭿', desktop: '🖥' };
-    var bps = ['mobile', 'tablet', 'desktop'];
-    html += '<div class="dashboard-toolbar dash-toolbar-vertical">';
-
-    // Screen-type knop met popover
-    html += '<div class="dash-bp-popover-wrap">';
-    html += '<button class="dash-tool-btn dash-bp-current" data-action="dashboard-toggle-bp-menu" title="Schermtype: ' + DASHBOARD_BREAKPOINTS[bp].label + '">' + bpIcons[bp] + '</button>';
-    html += '<div class="dash-bp-popover" hidden>';
-    for (var i = 0; i < bps.length; i++) {
-        var bId = bps[i];
-        var isActive = bId === bp;
-        var hasLayout = (function(k) {
-            var l = loadTabLayout(charId, tabId) || dashboardDefaultLayoutForTab(tabId);
-            return !!(l && Array.isArray(l[k]) && l[k].length);
-        })(bId);
-        html += '<button class="dash-bp-btn' + (isActive ? ' active' : '') + (hasLayout ? ' has-layout' : '') + '" data-action="dashboard-set-bp" data-bp="' + bId + '" title="' + DASHBOARD_BREAKPOINTS[bId].label + (hasLayout ? ' — saved layout' : ' — auto-reflow') + '">';
-        html += '<span class="dash-bp-icon">' + bpIcons[bId] + '</span><span class="dash-bp-label">' + DASHBOARD_BREAKPOINTS[bId].label + '</span>';
-        html += '</button>';
-    }
-    html += '</div>'; // popover
-    html += '</div>'; // wrap
-
-    // Font-size knop met popover (S/M/L)
+    // Font-size popover (S/M/L)
     var fsCurrent = (typeof getFontSize === 'function') ? getFontSize() : 'medium';
     var fsIcons = { small: 'A⁻', medium: 'A', large: 'A⁺' };
     var fsLabels = { small: 'Klein', medium: 'Middel', large: 'Groot' };
@@ -78,231 +92,130 @@ function renderDashboardTab(charId, tabId) {
     }
     html += '</div></div>';
 
-    // Quick-action knoppen: notes panel + dice panel (FAB-equivalenten in toolbar)
+    // Quick-actions
     html += '<button class="dash-tool-btn" data-action="toggle-notes-panel" title="Notities">📝</button>';
     html += '<button class="dash-tool-btn" data-action="toggle-dice-panel" title="Dice roller">🎲</button>';
     html += '<a class="dash-tool-btn" href="' + (typeof WIDGET_EDITOR_URL !== 'undefined' ? WIDGET_EDITOR_URL : 'http://localhost:8766/') + '?back=' + encodeURIComponent(window.location.href) + '" target="_blank" rel="noopener" title="Open Widget Editor">⚒</a>';
 
     if (editable) {
-        html += '<button class="dash-tool-btn' + (dashboardGridVisible ? ' active' : '') + '" data-action="dashboard-toggle-grid" title="Grid lijnen tonen">⊞</button>';
         html += '<button class="dash-tool-btn' + (dashboardEditMode ? ' active' : '') + '" data-action="dashboard-toggle-edit" title="Edit dashboard">' + (dashboardEditMode ? '✓' : '✎') + '</button>';
         if (dashboardEditMode) {
-            html += '<button class="dash-tool-btn" data-action="dashboard-compact" title="Compact: trek widgets omhoog om gaten weg te halen">⇧</button>';
-            html += '<button class="dash-tool-btn" data-action="dashboard-save-bp" title="Save layout voor ' + DASHBOARD_BREAKPOINTS[bp].label + '">💾</button>';
-            if (hasSavedForBP && bp !== 'desktop') {
-                html += '<button class="dash-tool-btn dash-tool-danger" data-action="dashboard-clear-bp" title="Clear saved layout voor ' + DASHBOARD_BREAKPOINTS[bp].label + ' (auto-reflow vanaf desktop)">⌫</button>';
-            }
             html += '<button class="dash-tool-btn" data-action="dashboard-save-as-template" title="Save as template">⎘</button>';
         }
     }
     html += '</div>';
-
-    // Empty grid container — Gridstack populates in dashboardPostRender.
-    html += '<div class="dash-stage">';
-    html += '<div class="grid-stack" data-cols="' + cols + '"></div>';
-    html += '<div class="dashboard-empty" data-empty-hint hidden><p>This dashboard is empty.</p>';
-    if (editable) html += '<button class="btn btn-primary" data-action="dashboard-toggle-edit">✎ Edit dashboard</button>';
-    html += '</div>';
-    html += '</div>';
-
-    // Edit-mode sidebar palette wordt door ui-character.js in .char-left-rail gerenderd
-    // (3-kolom grid layout) — niet meer als overlay binnen .dashboard.
-
-    html += '</div>'; // .dashboard
     return html;
 }
 
-// Build the inner HTML for one widget (header + body via def.render(ctx)).
+// Build inner HTML for one widget — header (icon, title, actions) + body.
 function buildWidgetContent(def, inst, ctx, editable) {
+    var size = inst.size || 'M';
     var html = '<div class="widget-header">';
-    html += '<span class="widget-icon">' + (def.icon || '◇') + '</span>';
-    html += '<span class="widget-title">' + escapeHtml(def.label) + '</span>';
+    html += '<span class="widget-icon">' + (def && def.icon || '◇') + '</span>';
+    html += '<span class="widget-title">' + escapeHtml(def && def.label || inst.type) + '</span>';
+
+    // Resize cycle button — always available to editable users (not gated by edit mode)
+    if (editable) {
+        html += '<button class="widget-action widget-resize" data-action="widget-cycle-size" data-wid="' + inst.wid + '" title="Cycle size (S → M → L → XL)" aria-label="Cycle widget size">' + size + '</button>';
+    }
+    // Star + remove only in edit mode
     if (editable && dashboardEditMode) {
-        html += '<button class="widget-star' + (inst.starred ? ' active' : '') + '" data-action="widget-toggle-star" data-wid="' + inst.wid + '" title="Star (stays at top on reflow)">★</button>';
-        html += '<button class="widget-remove" data-action="widget-remove" data-wid="' + inst.wid + '" title="Remove">×</button>';
+        html += '<button class="widget-action widget-star' + (inst.starred ? ' active' : '') + '" data-action="widget-toggle-star" data-wid="' + inst.wid + '" title="Pin to top">★</button>';
+        html += '<button class="widget-action widget-remove" data-action="widget-remove" data-wid="' + inst.wid + '" title="Remove">×</button>';
     }
     html += '</div>';
 
-    try {
-        html += def.render(ctx);
-    } catch (e) {
-        html += '<div class="widget-body widget-error">Render error: ' + escapeHtml(String(e && e.message || e)) + '</div>';
+    html += '<div class="widget-body">';
+    if (def && typeof def.render === 'function') {
+        try {
+            html += def.render(ctx);
+        } catch (e) {
+            html += '<div class="widget-error">Render error: ' + escapeHtml(String(e && e.message || e)) + '</div>';
+        }
+    } else {
+        html += '<div class="widget-error">Unknown widget type: ' + escapeHtml(inst.type) + '</div>';
     }
+    html += '</div>';
+
     return html;
 }
 
-// Initialise (or re-initialise) Gridstack for the currently rendered dashboard.
-// Called from dashboardPostRender after every renderApp().
-function dashboardInitGridstack() {
-    var dashEl = document.querySelector('.dashboard');
-    if (!dashEl) {
-        // No dashboard on screen — clean up any leftover instance.
-        if (dashGridInstance) {
-            try { dashGridInstance.destroy(false); } catch (e) {}
-            dashGridInstance = null;
-        }
-        return;
-    }
-    var gridEl = dashEl.querySelector('.grid-stack');
-    if (!gridEl) return;
-
-    // Gather context.
-    var charPage = document.querySelector('.character-page');
-    var charId = charPage && charPage.dataset.charId;
-    var tabId = dashEl.dataset.tabId;
-    var bp = dashboardActiveBP();
-    var cols = DASHBOARD_BREAKPOINTS[bp].cols;
-    if (!charId || !tabId) return;
-
-    // Working layout vs persisted.
-    var widgets;
-    if (dashboardEditMode && dashboardEditingCharId === charId && dashboardEditingTabId === tabId && Array.isArray(dashboardWorkingLayout)) {
-        widgets = dashboardWorkingLayout;
-    } else {
-        widgets = getActiveLayoutForBreakpoint(charId, tabId, bp) || [];
-    }
-    ensureWidgetIds(widgets);
-
-    var config = loadCharConfig(charId);
-    var state = loadCharState(charId);
-    var editable = canEdit(charId);
-
-    dashRenderCtx = { charId: charId, tabId: tabId, bp: bp, config: config, state: state, editable: editable };
-
-    // Tear down any previous instance + clean DOM.
-    if (dashGridInstance) {
-        try { dashGridInstance.destroy(false); } catch (e) {}
-        dashGridInstance = null;
-    }
-    gridEl.innerHTML = '';
-    gridEl.className = 'grid-stack';
-    Array.from(gridEl.attributes).forEach(function(a) {
-        if (a.name.indexOf('gs-') === 0) gridEl.removeAttribute(a.name);
-    });
-
-    var emptyHint = dashEl.querySelector('[data-empty-hint]');
-    if (emptyHint) emptyHint.hidden = !!widgets.length;
-
-    if (typeof GridStack === 'undefined') {
-        gridEl.innerHTML = '<p class="block-note">Gridstack failed to load. Reload page.</p>';
-        return;
-    }
-
-    var bpCfg = DASHBOARD_BREAKPOINTS[bp];
-    var cellHeight = (bpCfg.cellMode === 'fixed-px') ? dashboardCellHeightPx() : 'auto';
-
-    dashGridInstance = GridStack.init({
-        column: cols,
-        cellHeight: cellHeight,
-        margin: 4,
-        float: false,
-        animate: true,
-        staticGrid: !dashboardEditMode,
-        handle: '.widget-header',
-        resizable: { handles: 'se, sw, e, s, w' },
-        disableOneColumnMode: true,
-        acceptWidgets: dashboardEditMode,
-        // Touch / mobile resize: force jQuery-UI touch shim and always show
-        // the resize handles so a finger-tap actually grabs them.
-        alwaysShowResizeHandle: 'mobile',
-    }, gridEl);
-
-    // Add widgets.
-    widgets.forEach(function(inst) {
-        var def = WIDGET_REGISTRY[inst.type];
-        var ctx = { charId: charId, config: config, state: state, editable: editable, instance: inst, breakpoint: bp };
-
-        var content;
-        var minW = 1, minH = 1, maxW = cols, maxH = 99;
-        if (def) {
-            content = buildWidgetContent(def, inst, ctx, editable);
-            if (def.minSize) { minW = def.minSize[0]; minH = def.minSize[1]; }
-            if (def.maxSize) { maxW = def.maxSize[0]; maxH = def.maxSize[1]; }
-        } else {
-            content = '<div class="widget-header"><span class="widget-title">Unknown widget</span></div>' +
-                      '<div class="widget-body widget-error">Unknown type: ' + escapeHtml(inst.type) + '</div>';
-        }
-
-        var node = {
-            id: inst.wid,
-            x: inst.x || 0, y: inst.y || 0,
-            w: Math.min(inst.w || 1, cols),
-            h: inst.h || 1,
-            minW: minW, minH: minH,
-            maxW: Math.min(maxW, cols), maxH: maxH,
-            content: content,
-        };
-        var el = dashGridInstance.addWidget(node);
-        el.dataset.wid = inst.wid;
-        el.dataset.type = inst.type;
-        el.classList.add('widget', 'widget-' + inst.type);
-        if (inst.starred) el.classList.add('is-starred');
-        if (dashboardEditMode) el.classList.add('is-editing');
-    });
-
-    // In edit mode: sync grid changes back to working layout, and handle palette drops.
-    if (dashboardEditMode) {
-        dashGridInstance.on('change', function(_event, items) {
-            if (!Array.isArray(dashboardWorkingLayout)) return;
-            items.forEach(function(node) {
-                for (var i = 0; i < dashboardWorkingLayout.length; i++) {
-                    var w = dashboardWorkingLayout[i];
-                    if (w.wid === node.id) {
-                        w.x = node.x; w.y = node.y; w.w = node.w; w.h = node.h;
-                        break;
-                    }
-                }
-            });
-        });
-
-        dashGridInstance.on('added', function(_event, items) {
-            // Items added by Gridstack drag-in from palette won't have id matching working layout.
-            // Detect new items, hydrate working layout, then re-render so def.render(ctx) is applied.
-            var hadNew = false;
-            items.forEach(function(node) {
-                if (node.id && dashboardWidgetByWid(node.id)) return; // already tracked
-                var elNode = node.el;
-                if (!elNode) return;
-                var type = elNode.dataset.paletteType || elNode.getAttribute('data-palette-type');
-                if (!type) return;
-                var wid = generateWidgetId();
-                if (!Array.isArray(dashboardWorkingLayout)) dashboardWorkingLayout = [];
-                dashboardWorkingLayout.push({
-                    wid: wid, type: type,
-                    x: node.x, y: node.y, w: node.w, h: node.h,
-                    starred: false, config: {}
-                });
-                hadNew = true;
-            });
-            if (hadNew && typeof renderApp === 'function') setTimeout(renderApp, 0);
-        });
-    }
-
-    // Setup external drag-in for palette items in edit mode.
-    if (dashboardEditMode && typeof GridStack.setupDragIn === 'function') {
-        GridStack.setupDragIn('.dash-palette-item', { appendTo: 'body', helper: 'clone' });
-    }
-}
-
-// Re-render a single widget body (without rebuilding the whole grid).
-// Used by view-mode text/image edits that already wrote to storage and want
-// the visible body to reflect new content (e.g. uploaded image).
+// Re-render a single widget body (without rebuilding the whole dashboard).
+// Called after a state mutation that already wrote to storage.
 function dashboardRefreshWidget(wid) {
-    if (!dashGridInstance || !dashRenderCtx) return false;
-    var el = document.querySelector('.grid-stack-item[data-wid="' + wid + '"]');
+    if (!dashRenderCtx) return false;
+    var el = document.querySelector('.widget[data-wid="' + wid + '"]');
     if (!el) return false;
     var type = el.dataset.type;
     var def = WIDGET_REGISTRY[type];
     if (!def) return false;
-    var widgets = getActiveLayoutForBreakpoint(dashRenderCtx.charId, dashRenderCtx.tabId, dashRenderCtx.bp) || [];
+    var widgets = loadTabWidgets(dashRenderCtx.charId, dashRenderCtx.tabId) || [];
     var inst = null;
     for (var i = 0; i < widgets.length; i++) if (widgets[i].wid === wid) { inst = widgets[i]; break; }
     if (!inst) return false;
-    var content = el.querySelector('.grid-stack-item-content');
-    if (!content) return false;
-    content.innerHTML = buildWidgetContent(def, inst, {
+    el.innerHTML = buildWidgetContent(def, inst, {
         charId: dashRenderCtx.charId, config: dashRenderCtx.config, state: dashRenderCtx.state,
-        editable: dashRenderCtx.editable, instance: inst, breakpoint: dashRenderCtx.bp
+        editable: dashRenderCtx.editable, instance: inst
     }, dashRenderCtx.editable);
+    el.dataset.size = inst.size || 'M';
+    return true;
+}
+
+// Cycle a widget through the available sizes: S → M → L → XL → S
+var DASHBOARD_SIZES = ['S', 'M', 'L', 'XL'];
+function cycleWidgetSize(charId, tabId, wid) {
+    var widgets = loadTabWidgets(charId, tabId) || dashboardDefaultWidgetsForTab(tabId);
+    var changed = false;
+    for (var i = 0; i < widgets.length; i++) {
+        if (widgets[i].wid === wid) {
+            var cur = widgets[i].size || 'M';
+            var idx = DASHBOARD_SIZES.indexOf(cur);
+            widgets[i].size = DASHBOARD_SIZES[(idx + 1) % DASHBOARD_SIZES.length];
+            changed = true;
+            break;
+        }
+    }
+    if (changed) saveTabWidgets(charId, tabId, widgets);
+    return changed;
+}
+
+// Toggle star on a widget (pinned widgets keep their leading position when
+// the user re-orders or resets).
+function toggleWidgetStar(charId, tabId, wid) {
+    var widgets = loadTabWidgets(charId, tabId) || dashboardDefaultWidgetsForTab(tabId);
+    for (var i = 0; i < widgets.length; i++) {
+        if (widgets[i].wid === wid) {
+            widgets[i].starred = !widgets[i].starred;
+            saveTabWidgets(charId, tabId, widgets);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Remove a widget from the tab.
+function removeWidget(charId, tabId, wid) {
+    var widgets = loadTabWidgets(charId, tabId) || dashboardDefaultWidgetsForTab(tabId);
+    for (var i = 0; i < widgets.length; i++) {
+        if (widgets[i].wid === wid) {
+            widgets.splice(i, 1);
+            saveTabWidgets(charId, tabId, widgets);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Add a widget at the end of the tab.
+function addWidget(charId, tabId, type, size) {
+    var widgets = loadTabWidgets(charId, tabId) || dashboardDefaultWidgetsForTab(tabId) || [];
+    widgets.push({
+        wid: generateWidgetId(),
+        type: type,
+        size: size || 'M',
+        starred: false,
+        config: {}
+    });
+    saveTabWidgets(charId, tabId, widgets);
     return true;
 }
