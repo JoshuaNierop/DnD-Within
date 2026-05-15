@@ -137,27 +137,24 @@ html[data-font-size="large"] { font-size: 18px; }
    than <MIN>, the inner min() falls back to 100% so a single track always
    fits. Above that, auto-fit packs as many <MIN>-wide tracks as possible. */
 .dashboard {
-    /* Tokens — tweakable per font-size */
-    --dash-min: 18rem;
-    --dash-gap: 0.75rem;
-    --dash-max-span: 4;
-    /* Toolbar clearance — floating vertical toolbar lives at inset-inline-end: 0.6rem
-       and is ~32-40px wide. Reserve breathing room on the right so widgets never
-       slide under it. */
+    /* Fixed-column grid. Widget width is span in --dash-cols units; height in
+       --dash-row-h units. Changing either re-packs the widget content via
+       container queries on aspect-ratio + auto-fit inner grids. */
+    --dash-cols: 12;
+    --dash-row-h: 3.25rem;
+    --dash-gap: 0.5rem;
     --dash-toolbar-gutter: 4rem;
 
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(var(--dash-min), 100%), 1fr));
+    grid-template-columns: repeat(var(--dash-cols), minmax(0, 1fr));
+    grid-auto-rows: var(--dash-row-h);
     gap: var(--dash-gap);
     align-content: start;
+    grid-auto-flow: row dense;   /* let smaller widgets fill gaps after larger ones */
 
-    /* The dashboard itself is a container so widgets can opt to react to its
-       width as well (next iteration). */
     container-type: inline-size;
     container-name: dashboard;
 
-    /* Constrain max-width to ~90% so there is always whitespace around the
-       grid (left for layout breathing, right for the floating toolbar). */
     inline-size: 100%;
     max-inline-size: min(100%, 1500px);
     margin-inline: auto;
@@ -166,10 +163,12 @@ html[data-font-size="large"] { font-size: 18px; }
     padding-inline-end: var(--dash-toolbar-gutter);
 }
 
-/* On narrow screens the toolbar shifts to bottom — we reclaim the gutter. */
-@media (max-width: 640px) {
-    .dashboard { padding-inline-end: 1rem; --dash-toolbar-gutter: 1rem; }
-}
+/* Responsive column counts. CSS only — no JS recalculation needed because
+   widgets use `grid-column: span min(var(--w), var(--dash-cols))`. */
+@media (max-width: 1100px) { .dashboard { --dash-cols: 10; } }
+@media (max-width: 900px)  { .dashboard { --dash-cols: 8;  --dash-row-h: 3rem; } }
+@media (max-width: 640px)  { .dashboard { --dash-cols: 6;  padding-inline-end: 1rem; --dash-toolbar-gutter: 1rem; } }
+@media (max-width: 480px)  { .dashboard { --dash-cols: 4; } }
 
 html[data-font-size="small"] .dashboard {
     --dash-min: 15rem;
@@ -215,28 +214,31 @@ html[data-font-size="large"] .dashboard {
    - container-type: inline-size → @container queries can react to OWN width
    - Inner grid is set up but content layout is left to widget bodies for now */
 .widget {
-    --span: 1;
-    grid-column: span min(var(--span), var(--dash-max-span));
+    /* Defaults — overridden inline via style="--w:N; --h:N" from dashboard.js */
+    --w: 4;
+    --h: 3;
 
-    container-type: inline-size;
+    /* Span both axes. Clamp width to the actual dashboard col-count so a
+       widget that wants 8 cols on desktop still fits on a 4-col phone. */
+    grid-column: span min(var(--w), var(--dash-cols));
+    grid-row: span var(--h);
+
+    /* size-axis container queries enable aspect-ratio reflow on the inner grids. */
+    container-type: size;
     container-name: widget;
 
     display: grid;
     grid-template-rows: auto 1fr;
-    min-block-size: 8rem;
+    min-block-size: 0;
+    min-inline-size: 0;
+    overflow: hidden;
+    isolation: isolate;
 
     background: var(--bg-card);
     border: 1px solid var(--hairline-gold);
     border-radius: var(--radius);
-    overflow: hidden;
-    isolation: isolate;
     transition: border-color 0.15s, box-shadow 0.15s;
 }
-
-.widget[data-size="S"]  { --span: 1; --aspect: 1; }
-.widget[data-size="M"]  { --span: 2; --aspect: 2; }
-.widget[data-size="L"]  { --span: 3; --aspect: 3; }
-.widget[data-size="XL"] { --span: 4; --aspect: 4; }
 
 .widget:hover {
     border-color: var(--accent-warm-soft);
@@ -311,11 +313,14 @@ html[data-font-size="large"] .dashboard {
     outline-offset: 1px;
 }
 .widget-resize {
-    /* Shows the current size letter (S/M/L/XL) instead of a generic glyph */
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 0.7em;
-    letter-spacing: 0;
+    font-size: 0.68em;
+    letter-spacing: 0.02em;
+    inline-size: auto;
+    min-inline-size: 28px;
+    padding-inline: 0.3rem;
+    gap: 0.15rem;
 }
 .widget-star.active { color: var(--warning); opacity: 1; }
 .widget-star.active:hover { color: var(--warning); }
@@ -346,8 +351,11 @@ html[data-font-size="large"] .dashboard {
     font-size: var(--widget-body-size);
     line-height: var(--widget-line-height);
     position: relative;
-    display: flex;
-    flex-direction: column;
+    /* Body is its own grid so children can self-fit. Default: single-column
+       flow; per-widget overrides set their own template-columns/rows. */
+    display: grid;
+    grid-auto-rows: min-content;
+    align-content: start;
     gap: var(--widget-row-gap);
 }
 .widget-body, .widget-body * { font-size: inherit; }
@@ -735,63 +743,106 @@ html[data-font-size="large"] .dashboard {
     font-size: 0.85em;
 }
 
+.widget-hp { gap: 0.45rem; }
 .widget-hp .hp-bar {
     block-size: 6px;
     background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
     border-radius: 4px;
     overflow: hidden;
-    margin-block: 0.25rem 0.35rem;
-    border: 1px solid color-mix(in srgb, var(--hairline-gold) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--hairline-gold) 50%, transparent);
 }
 .widget-hp .hp-bar-fill { block-size: 100%; transition: inline-size 0.3s; }
 .widget-hp .hp-display {
     display: flex;
     align-items: baseline;
+    justify-content: center;
     gap: 0.35rem;
     font-family: var(--font-display);
     font-weight: 600;
 }
 .widget-hp .hp-current { font-size: 1.85rem; line-height: 1; }
-.widget-hp .hp-max     { font-size: 1.1rem; color: var(--text-dim); }
-.widget-hp .hp-separator { opacity: 0.4; font-size: 1.1rem; }
+.widget-hp .hp-max     { font-size: 1.05rem; color: var(--text-dim); }
+.widget-hp .hp-separator { opacity: 0.4; font-size: 1.05rem; }
 .widget-hp .hp-temp {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: var(--accent);
-    margin-inline-start: 0.5rem;
+    margin-inline-start: 0.4rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
+/* Controls — compact 3-col grid (one column per action). Each column is an
+   input + tiny button stacked. No full-width bars. */
 .widget-hp .hp-controls {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.3rem 0.4rem;
-    align-items: center;
-    margin-block-start: 0.25rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+    align-items: stretch;
+}
+.widget-hp .hp-control-group {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 0.2rem;
+    min-inline-size: 0;
 }
 .widget-hp .hp-input {
     inline-size: 100%;
-    padding: 0.25rem 0.45rem;
+    padding: 0.25rem 0.4rem;
     font-size: 0.78rem;
     background: var(--bg-elevated);
     border: 1px solid var(--hairline-gold);
     border-radius: 4px;
     color: var(--text-main);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    min-inline-size: 0;
+}
+/* Portrait HP widget → single column stacked controls */
+@container widget (aspect-ratio < 0.7) {
+    .widget-hp .hp-controls { grid-template-columns: 1fr; }
+}
+/* Very wide HP widget → 6-col single row (input + button side by side per action) */
+@container widget (aspect-ratio > 3.5) {
+    .widget-hp .hp-controls { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .widget-hp .hp-control-group { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; grid-column: span 2; }
 }
 
-/* Core stats — small intrinsic grid inside the widget body. The 60px minmax
-   means 1 / 2 / 3 / 4 / 5 columns appear automatically as widget widens. */
+/* Core stats — auto-fit intrinsic grid. Both width AND height of the widget
+   trigger different arrangements:
+     - wide+short widget  → 5×1 row
+     - square            → 3×2 or 2×3
+     - narrow+tall        → 1×5 column
+   The base rule handles width reflow via minmax + 1fr; the container query
+   forces single-column stacking when the widget is markedly portrait. */
 .widget .combat-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
-    gap: 0.5rem;
+    grid-auto-rows: minmax(2.4rem, 1fr);
+    gap: 0.4rem;
     text-align: center;
-    align-items: end;
+    block-size: 100%;
 }
 .widget .combat-stat {
-    padding: 0.25rem 0.15rem;
+    padding: 0.3rem 0.25rem;
     border-radius: 6px;
     background: color-mix(in srgb, var(--bg-elevated) 35%, transparent);
     border: 1px solid color-mix(in srgb, var(--hairline-gold) 50%, transparent);
+    display: grid;
+    place-content: center;
+    gap: 0.1rem;
+    min-block-size: 0;
+}
+/* Portrait widget (narrow + tall): force single-column stack */
+@container widget (aspect-ratio < 0.65) {
+    .widget .combat-stats {
+        grid-template-columns: 1fr;
+    }
+}
+/* Wide+short landscape: ensure single row even when content could wrap */
+@container widget (aspect-ratio > 4) {
+    .widget .combat-stats {
+        grid-auto-rows: 1fr;
+        grid-auto-flow: column;
+    }
 }
 .widget .combat-stat .stat-value {
     font-family: var(--font-display);
@@ -828,12 +879,27 @@ html[data-font-size="large"] .dashboard {
 }
 .widget:hover .ability-edit-header .edit-toggle-btn,
 .widget .ability-edit-header .edit-toggle-btn:focus { opacity: 1; }
-/* Abilities — intrinsic grid: 2 / 3 / 6 columns as widget widens.
-   minmax(54px, 1fr) means 3 cols fit at ~16rem widget, 6 cols at ~28rem. */
+/* Abilities — intrinsic auto-fit grid for natural 2/3/6-column reflow.
+   Container queries force the layout at extreme aspect ratios. */
 .widget .ability-scores {
     display: grid !important;
     grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
+    grid-auto-rows: minmax(2.6rem, 1fr);
     gap: 0.35rem !important;
+    block-size: 100%;
+    align-content: stretch;
+}
+@container widget (aspect-ratio < 0.55) {
+    .widget .ability-scores {
+        grid-template-columns: 1fr;
+        grid-auto-rows: minmax(2.4rem, 1fr);
+    }
+}
+@container widget (aspect-ratio > 3.5) {
+    .widget .ability-scores {
+        grid-template-columns: repeat(6, 1fr);
+        grid-auto-rows: 1fr;
+    }
 }
 .widget .ability {
     padding: 0.3rem 0.2rem;
@@ -1041,19 +1107,25 @@ html[data-font-size="large"] .dashboard {
     letter-spacing: 0.02em;
 }
 .widget .xp-tracker .xp-controls {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 0.35rem;
     margin-block-start: 0.4rem;
     align-items: center;
+    justify-items: stretch;
+    max-inline-size: 100%;
 }
 .widget .xp-tracker .xp-input {
-    inline-size: 70px;
+    inline-size: 100%;
     padding: 0.25rem 0.4rem;
     font-size: 0.78rem;
     background: var(--bg-elevated);
     border: 1px solid var(--hairline-gold);
     border-radius: 4px;
     color: var(--text-main);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    min-inline-size: 0;
 }
 
 /* ============================================================================

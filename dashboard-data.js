@@ -48,13 +48,15 @@ function dashboardCellHeightPx() {
     return 52;
 }
 
-// Map a legacy `w` (1-12 grid units) to a discrete size for migration.
-function _widthToSize(w) {
-    var n = parseInt(w, 10) || 1;
-    if (n <= 3) return 'S';
-    if (n <= 6) return 'M';
-    if (n <= 9) return 'L';
-    return 'XL';
+// Map a legacy discrete size back to a [w, h] pair for the W×H model.
+function _sizeToWH(size) {
+    switch (size) {
+        case 'S':  return [2, 2];
+        case 'M':  return [4, 3];
+        case 'L':  return [6, 4];
+        case 'XL': return [12, 5];
+    }
+    return [4, 3];
 }
 
 // ====================================================================
@@ -74,9 +76,8 @@ function loadDashboardConfig(charId) {
     if (!Array.isArray(saved.tabs))   saved.tabs   = [];
     if (!saved.widgets || typeof saved.widgets !== 'object') saved.widgets = {};
 
-    // Legacy migration: old shape had `layouts: { tabId: {desktop:[...], tablet:[...], mobile:[...]} }`
-    // with x/y/w/h per widget. We pick the desktop layout (richest), sort by y/x, map w → size,
-    // and write back. Triggers ONCE per character.
+    // Migration A: legacy Gridstack shape {layouts: {tabId: {desktop:[{x,y,w,h}], ...}}}
+    // → flat per-tab array with explicit w/h.
     if (saved.layouts && typeof saved.layouts === 'object' && !Object.keys(saved.widgets).length) {
         var migrated = {};
         for (var tabId in saved.layouts) {
@@ -93,7 +94,8 @@ function loadDashboardConfig(charId) {
                 return {
                     wid: w.wid || generateWidgetId(),
                     type: w.type,
-                    size: _widthToSize(w.w),
+                    w: w.w || 4,
+                    h: w.h || 3,
                     starred: !!w.starred,
                     config: w.config || {}
                 };
@@ -101,8 +103,31 @@ function loadDashboardConfig(charId) {
         }
         saved.widgets = migrated;
         delete saved.layouts;
-        // Persist migration result so we don't redo this every load.
         try { localStorage.setItem(key, JSON.stringify({ tabs: saved.tabs, widgets: saved.widgets })); } catch (e) {}
+    }
+
+    // Migration B: intermediate shape {widgets: {tabId: [{size: 'M'}]}}
+    // (the S/M/L/XL phase that just happened) → fold size → w/h pair.
+    if (saved.widgets && typeof saved.widgets === 'object') {
+        var dirty = false;
+        for (var tid in saved.widgets) {
+            if (!Object.prototype.hasOwnProperty.call(saved.widgets, tid)) continue;
+            var arr = saved.widgets[tid];
+            if (!Array.isArray(arr)) continue;
+            for (var ai = 0; ai < arr.length; ai++) {
+                var w2 = arr[ai];
+                if (w2 && w2.size && (typeof w2.w !== 'number' || typeof w2.h !== 'number')) {
+                    var wh = _sizeToWH(w2.size);
+                    w2.w = wh[0];
+                    w2.h = wh[1];
+                    delete w2.size;
+                    dirty = true;
+                }
+            }
+        }
+        if (dirty) {
+            try { localStorage.setItem(key, JSON.stringify({ tabs: saved.tabs, widgets: saved.widgets })); } catch (e) {}
+        }
     }
 
     // Merge stored tab overrides with defaults
@@ -178,10 +203,13 @@ function loadTabWidgets(charId, tabId) {
 function saveTabWidgets(charId, tabId, widgets) {
     var cfg = loadDashboardConfig(charId);
     cfg.widgets[tabId] = widgets.map(function(w) {
+        var def = WIDGET_REGISTRY[w.type] || {};
+        var fallback = def.defaultSize || [4, 3];
         return {
             wid: w.wid || generateWidgetId(),
             type: w.type,
-            size: w.size || 'M',
+            w: parseInt(w.w, 10) || fallback[0],
+            h: parseInt(w.h, 10) || fallback[1],
             starred: !!w.starred,
             config: w.config || {}
         };
@@ -189,63 +217,62 @@ function saveTabWidgets(charId, tabId, widgets) {
     saveDashboardConfig(charId, cfg);
 }
 
-// Default per-tab widget layouts (flat array, size-keyed). These are returned
-// as a deep clone so callers can mutate freely.
+// Default per-tab widget layouts. Returned as deep clone so callers can mutate.
 function dashboardDefaultWidgetsForTab(tabId) {
     var src = DASHBOARD_DEFAULT_WIDGETS[tabId];
     if (!src) return [];
     return JSON.parse(JSON.stringify(src));
 }
 
-// New flat defaults — size-keyed, no x/y/w/h.
-// Widgets are rendered in array order; the auto-fit grid packs them.
+// Defaults in W×H grid units. Order in array = render order; the dashboard
+// outer grid auto-flows dense so smaller widgets fill gaps after larger ones.
 var DASHBOARD_DEFAULT_WIDGETS = {
     overview: [
-        { type: 'hp-tracker',     size: 'M' },
-        { type: 'core-stats',     size: 'L' },
-        { type: 'xp-tracker',     size: 'M' },
-        { type: 'ability-scores', size: 'XL' },
-        { type: 'quote',          size: 'XL' }
+        { type: 'hp-tracker',     w: 4, h: 3 },
+        { type: 'core-stats',     w: 8, h: 2 },
+        { type: 'xp-tracker',     w: 8, h: 2 },
+        { type: 'ability-scores', w: 12, h: 3 },
+        { type: 'quote',          w: 12, h: 2 }
     ],
     stats: [
-        { type: 'ability-scores', size: 'XL' },
-        { type: 'saving-throws',  size: 'M' },
-        { type: 'skills',         size: 'M' },
-        { type: 'ability-radar',  size: 'M' }
+        { type: 'ability-scores', w: 12, h: 3 },
+        { type: 'saving-throws',  w: 4,  h: 4 },
+        { type: 'skills',         w: 4,  h: 5 },
+        { type: 'ability-radar',  w: 4,  h: 4 }
     ],
     combat: [
-        { type: 'hp-tracker',     size: 'M' },
-        { type: 'core-stats',     size: 'L' },
-        { type: 'death-saves',    size: 'S' },
-        { type: 'inspiration',    size: 'S' },
-        { type: 'weapons',        size: 'L' },
-        { type: 'combat-log',     size: 'M' }
+        { type: 'hp-tracker',     w: 4, h: 3 },
+        { type: 'core-stats',     w: 8, h: 2 },
+        { type: 'death-saves',    w: 4, h: 2 },
+        { type: 'inspiration',    w: 2, h: 2 },
+        { type: 'weapons',        w: 6, h: 4 },
+        { type: 'combat-log',     w: 6, h: 4 }
     ],
     spells: [
-        { type: 'spell-slots',     size: 'M' },
-        { type: 'spells-prepared', size: 'L' },
-        { type: 'metamagic',       size: 'M' }
+        { type: 'spell-slots',     w: 6, h: 4 },
+        { type: 'spells-prepared', w: 6, h: 5 },
+        { type: 'metamagic',       w: 6, h: 4 }
     ],
     story: [
-        { type: 'quote', size: 'XL' },
-        { type: 'text',  size: 'L', config: { title: 'Background', body: '' } },
-        { type: 'image', size: 'M' }
+        { type: 'quote', w: 12, h: 2 },
+        { type: 'text',  w: 8,  h: 5, config: { title: 'Background', body: '' } },
+        { type: 'image', w: 4,  h: 5 }
     ],
     inventory: [
-        { type: 'inventory', size: 'L' },
-        { type: 'text',      size: 'M', config: { title: 'Notes', body: '' } }
+        { type: 'inventory', w: 8, h: 5 },
+        { type: 'text',      w: 4, h: 5, config: { title: 'Notes', body: '' } }
     ],
     social: [
-        { type: 'text',  size: 'M', config: { title: 'Allies', body: '' } },
-        { type: 'text',  size: 'M', config: { title: 'Enemies', body: '' } },
-        { type: 'image', size: 'XL' }
+        { type: 'text',  w: 6,  h: 4, config: { title: 'Allies', body: '' } },
+        { type: 'text',  w: 6,  h: 4, config: { title: 'Enemies', body: '' } },
+        { type: 'image', w: 12, h: 5 }
     ],
     exploring: [
-        { type: 'image', size: 'XL' },
-        { type: 'text',  size: 'XL', config: { title: 'Locations', body: '' } }
+        { type: 'image', w: 12, h: 5 },
+        { type: 'text',  w: 12, h: 4, config: { title: 'Locations', body: '' } }
     ],
     family: [
-        { type: 'family-diagram', size: 'XL' }
+        { type: 'family-diagram', w: 12, h: 7 }
     ]
 };
 
@@ -309,10 +336,13 @@ function applyTemplateToTab(charId, templateId, targetTabId) {
     for (var i = 0; i < templates.length; i++) if (templates[i].id === templateId) { tpl = templates[i]; break; }
     if (!tpl) return false;
     var cloned = (tpl.widgets || []).map(function(w) {
+        var def = WIDGET_REGISTRY[w.type] || {};
+        var fb = def.defaultSize || [4, 3];
         return {
             wid: generateWidgetId(),
             type: w.type,
-            size: w.size || 'M',
+            w: parseInt(w.w, 10) || fb[0],
+            h: parseInt(w.h, 10) || fb[1],
             starred: !!w.starred,
             config: w.config || {}
         };

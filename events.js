@@ -272,7 +272,7 @@ function bindPageEvents(route) {
         if (actionEl) {
             var action = actionEl.dataset.action;
             // Dashboard-specific actions handled in dashboard-edit.js
-            if ((action && action.indexOf('dashboard-') === 0) || action === 'widget-toggle-star' || action === 'widget-remove' || action === 'widget-cycle-size' || action === 'dash-sidebar-cat' || action === 'dash-sidebar-close' || action === 'dash-add-widget') {
+            if ((action && action.indexOf('dashboard-') === 0) || action === 'widget-toggle-star' || action === 'widget-remove' || action === 'widget-cycle-w' || action === 'widget-cycle-h' || action === 'dash-sidebar-cat' || action === 'dash-sidebar-close' || action === 'dash-add-widget') {
                 if (typeof dashboardHandleAction === 'function' && dashboardHandleAction(action, actionEl, e)) return;
             }
             if (action === 'open-tab-manage' && charId) {

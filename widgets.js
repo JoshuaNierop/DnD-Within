@@ -312,13 +312,21 @@ function renderWidgetHP(ctx) {
     html += '</div>';
     html += '<div class="hp-bar"><div class="hp-bar-fill" style="width:' + hpPct + '%;background:' + hpColor + '"></div></div>';
     if (editable) {
+        // Compact 3-col controls: each column is input + button stacked.
+        // Container query collapses to 1 col on narrow widgets / wide row on landscape.
         html += '<div class="hp-controls">';
+        html += '<div class="hp-control-group">';
         html += '<input type="number" class="hp-input" id="damage-input" min="0" placeholder="0">';
         html += '<button class="hp-btn hp-btn-damage" data-action="take-damage">Damage</button>';
+        html += '</div>';
+        html += '<div class="hp-control-group">';
         html += '<input type="number" class="hp-input" id="heal-input" min="0" placeholder="0">';
         html += '<button class="hp-btn hp-btn-heal" data-action="heal">Heal</button>';
+        html += '</div>';
+        html += '<div class="hp-control-group">';
         html += '<input type="number" class="hp-input" id="temp-hp-input" min="0" placeholder="0" value="' + tempHP + '">';
-        html += '<button class="hp-btn hp-btn-temp" data-action="set-temp-hp">Temp HP</button>';
+        html += '<button class="hp-btn hp-btn-temp" data-action="set-temp-hp">Temp</button>';
+        html += '</div>';
         html += '</div>';
     }
     html += '</div>';

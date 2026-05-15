@@ -51,7 +51,7 @@ function renderDashboardTab(charId, tabId) {
         for (var i = 0; i < widgets.length; i++) {
             var inst = widgets[i];
             var def = WIDGET_REGISTRY[inst.type];
-            var size = inst.size || 'M';
+            var dims = resolveWidgetDims(def, inst);
             var ctx = {
                 charId: charId, config: config, state: state,
                 editable: editable, instance: inst
@@ -59,7 +59,7 @@ function renderDashboardTab(charId, tabId) {
             html += '<div class="widget widget-' + inst.type + (inst.starred ? ' is-starred' : '') + '"';
             html += ' data-wid="' + inst.wid + '"';
             html += ' data-type="' + inst.type + '"';
-            html += ' data-size="' + size + '">';
+            html += ' style="--w:' + dims.w + ';--h:' + dims.h + '">';
             html += buildWidgetContent(def, inst, ctx, editable);
             html += '</div>';
         }
@@ -107,19 +107,28 @@ function renderDashboardToolbar(charId, tabId, editable) {
     return html;
 }
 
+// Resolve W×H for a widget instance, falling back to def.defaultSize then [4,3].
+function resolveWidgetDims(def, inst) {
+    var w = parseInt(inst && inst.w, 10);
+    var h = parseInt(inst && inst.h, 10);
+    if (!w && def && def.defaultSize) w = def.defaultSize[0];
+    if (!h && def && def.defaultSize) h = def.defaultSize[1];
+    if (!w) w = 4;
+    if (!h) h = 3;
+    return { w: w, h: h };
+}
+
 // Build inner HTML for one widget — header (icon, title, actions) + body.
 function buildWidgetContent(def, inst, ctx, editable) {
-    var size = inst.size || 'M';
+    var dims = resolveWidgetDims(def, inst);
     var html = '<div class="widget-header">';
     html += '<span class="widget-icon">' + (def && def.icon || '◇') + '</span>';
     html += '<span class="widget-title">' + escapeHtml(def && def.label || inst.type) + '</span>';
 
-    // Resize cycle button — always available to editable users (not gated by edit mode)
-    if (editable) {
-        html += '<button class="widget-action widget-resize" data-action="widget-cycle-size" data-wid="' + inst.wid + '" title="Cycle size (S → M → L → XL)" aria-label="Cycle widget size">' + size + '</button>';
-    }
-    // Star + remove only in edit mode
+    // Resize controls only in edit mode — two cycle buttons for width and height.
     if (editable && dashboardEditMode) {
+        html += '<button class="widget-action widget-resize widget-resize-w" data-action="widget-cycle-w" data-wid="' + inst.wid + '" title="Width: click to increase (wraps at max)" aria-label="Cycle width">↔ ' + dims.w + '</button>';
+        html += '<button class="widget-action widget-resize widget-resize-h" data-action="widget-cycle-h" data-wid="' + inst.wid + '" title="Height: click to increase (wraps at max)" aria-label="Cycle height">↕ ' + dims.h + '</button>';
         html += '<button class="widget-action widget-star' + (inst.starred ? ' active' : '') + '" data-action="widget-toggle-star" data-wid="' + inst.wid + '" title="Pin to top">★</button>';
         html += '<button class="widget-action widget-remove" data-action="widget-remove" data-wid="' + inst.wid + '" title="Remove">×</button>';
     }
@@ -161,22 +170,31 @@ function dashboardRefreshWidget(wid) {
     return true;
 }
 
-// Cycle a widget through the available sizes: S → M → L → XL → S
-var DASHBOARD_SIZES = ['S', 'M', 'L', 'XL'];
-function cycleWidgetSize(charId, tabId, wid) {
+// Cycle width or height of a widget — wraps from max back to min.
+// Step uses def.minSize and def.maxSize as bounds (with sane fallbacks).
+function cycleWidgetDim(charId, tabId, wid, dimKey) {
     var widgets = loadTabWidgets(charId, tabId) || dashboardDefaultWidgetsForTab(tabId);
     var changed = false;
     for (var i = 0; i < widgets.length; i++) {
-        if (widgets[i].wid === wid) {
-            var cur = widgets[i].size || 'M';
-            var idx = DASHBOARD_SIZES.indexOf(cur);
-            widgets[i].size = DASHBOARD_SIZES[(idx + 1) % DASHBOARD_SIZES.length];
-            changed = true;
-            break;
-        }
+        if (widgets[i].wid !== wid) continue;
+        var def = WIDGET_REGISTRY[widgets[i].type] || {};
+        var minSize = def.minSize || [2, 2];
+        var maxSize = def.maxSize || [12, 8];
+        var idx = (dimKey === 'w') ? 0 : 1;
+        var current = parseInt(widgets[i][dimKey], 10);
+        if (!current) current = def.defaultSize ? def.defaultSize[idx] : (idx ? 3 : 4);
+        var next = current + 1;
+        if (next > maxSize[idx]) next = minSize[idx];
+        widgets[i][dimKey] = next;
+        changed = true;
+        break;
     }
     if (changed) saveTabWidgets(charId, tabId, widgets);
     return changed;
+}
+// Back-compat alias for any old callers
+function cycleWidgetSize(charId, tabId, wid) {
+    return cycleWidgetDim(charId, tabId, wid, 'w');
 }
 
 // Toggle star on a widget (pinned widgets keep their leading position when
@@ -206,13 +224,16 @@ function removeWidget(charId, tabId, wid) {
     return false;
 }
 
-// Add a widget at the end of the tab.
-function addWidget(charId, tabId, type, size) {
+// Add a widget at the end of the tab using its default W×H.
+function addWidget(charId, tabId, type) {
     var widgets = loadTabWidgets(charId, tabId) || dashboardDefaultWidgetsForTab(tabId) || [];
+    var def = WIDGET_REGISTRY[type] || {};
+    var dims = def.defaultSize || [4, 3];
     widgets.push({
         wid: generateWidgetId(),
         type: type,
-        size: size || 'M',
+        w: dims[0],
+        h: dims[1],
         starred: false,
         config: {}
     });

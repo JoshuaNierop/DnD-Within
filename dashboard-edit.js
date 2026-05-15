@@ -130,11 +130,12 @@ function dashboardHandleAction(action, target, event) {
         }
         return true;
     }
-    if (action === 'widget-cycle-size') {
+    if (action === 'widget-cycle-w' || action === 'widget-cycle-h') {
         var charPage1 = document.querySelector('.character-page');
         var dash1 = target.closest('.dashboard');
         if (!charPage1 || !dash1) return true;
-        cycleWidgetSize(charPage1.dataset.charId, dash1.dataset.tabId, target.dataset.wid);
+        var dim = (action === 'widget-cycle-w') ? 'w' : 'h';
+        cycleWidgetDim(charPage1.dataset.charId, dash1.dataset.tabId, target.dataset.wid, dim);
         if (typeof renderApp === 'function') renderApp();
         return true;
     }
@@ -176,7 +177,7 @@ function dashboardHandleAction(action, target, event) {
         if (!charPage4 || !dashboardEditingTabId) return true;
         var type = target.dataset.type;
         if (!type) return true;
-        addWidget(charPage4.dataset.charId, dashboardEditingTabId, type, 'M');
+        addWidget(charPage4.dataset.charId, dashboardEditingTabId, type);
         if (typeof renderApp === 'function') renderApp();
         return true;
     }
