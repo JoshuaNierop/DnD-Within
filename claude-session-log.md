@@ -1,5 +1,32 @@
 # Session Log — D&D Within
 
+### Recap — 2026-05-15 14:50 — P0 audit closure
+
+**What was done:**
+- Audit van 2026-04-13 (Testresults.md) re-verified: 9 van 11 P0-issues bleken al gefixed in `data.js` / `engine.js` tussen audit en vandaag (Blade Ward/True Strike/Divine Smite/Hunter's Mark specs, Ranger/Warlock prepared, getAC equipped armor, HP Dwarven Toughness + Tough feat, feat abilityBonus choice — allen reeds aanwezig).
+- Magic Initiate feat-naam mismatch (P0 #10): duplicate entries opgeruimd, 3 varianten Cleric/Druid/Wizard met `spellList` + `repeatable:true`. Background-feat references matchen nu.
+- Equipment Choice A/B (P0 #11): `equipment: {A:{items, gp}, B:{gp:50}}` toegevoegd aan alle 17 backgrounds (16 PHB + urchin legacy). Lists = best-recall 2024 PHB Ch.4 via `dnd-5.5e-mechanics` agent.
+- `Testresults.md` + `Todo.md` bijgewerkt naar nieuwe P0-status (alle 11 done).
+- Commit `977702e` gepushed naar master → GitHub Pages auto-deploy.
+
+**Files modified:**
+- `data.js` — feat-array opgeschoond + equipment toegevoegd aan backgrounds
+- `Metadocs/Testresults.md` — P0-status update header + fix-volgorde checked off
+- `Metadocs/Todo.md` — audit follow-ups sectie met PHB GP-verificatie als P2
+- `.nexus` — dirty flag
+
+**Current state:**
+- Alle P0 5.5e correctheidsissues opgelost.
+- Equipment data is best-recall — GP-bedragen vereisen nog PHB Ch.4 sanity-check voor production-quality.
+- UI voor Choice A/B picker bestaat nog niet (data ligt klaar voor wizard).
+
+**Next steps:**
+- Modern-CSS review van het hele project (verzoek user).
+- P1 stack: spell-list gaps, Fighting Style feats als feat-category, High Elf/Drow species, Battle Master maneuvers data.
+- P2: Equipment picker UI in character creation wizard.
+
+---
+
 ### Recap — 2026-04-04 (sessie 11 + 12)
 
 **What was done:**
