@@ -425,8 +425,11 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
 .login-submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
 .login-error { color: var(--danger); font-size: 0.85rem; text-align: center; margin-top: 0.5rem; }
 
-/* ===== HOMEPAGE (campaign home) ===== */
-.homepage {
+/* ===== PAGE WRAPPERS (dashboard = campaign-home, party, DM tools, etc.) =====
+   .dashboard here is the legacy page-wrapper (padding/max-width). Character
+   widget-grid styling lives in dashboard.css scoped to .tab-content > .dashboard
+   so it doesn't conflict with this page-layout primitive. */
+.dashboard {
     padding-block-start: 76px;
     max-inline-size: 1100px;
     margin-inline: auto;
@@ -5289,7 +5292,7 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 }
 
 /* ===== PAGE GLOBAL h1 CONSISTENCY ===== */
-.homepage h1 {
+.dashboard h1 {
     color: var(--text-bright);
 }
 
@@ -5335,7 +5338,7 @@ select.edit-input option {
 }
 
 /* ===== FADEUP ON ALL PAGES ===== */
-.homepage,
+.dashboard,
 .character-page,
 .maps-page,
 .timeline-page,
@@ -5550,7 +5553,7 @@ body.modal-open {
     .navbar {
         padding-block-start: env(safe-area-inset-top);
     }
-    .homepage, .character-page, .notes-page, .lore-page, .maps-page, .timeline-page {
+    .dashboard, .character-page, .notes-page, .lore-page, .maps-page, .timeline-page {
         padding-inline-start: max(env(safe-area-inset-left, 0px), 0.75rem);
         padding-inline-end: max(env(safe-area-inset-right, 0px), 0.75rem);
     }

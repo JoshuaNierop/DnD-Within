@@ -136,10 +136,10 @@ html[data-font-size="large"] { font-size: 18px; }
    The killer trick is `minmax(min(<MIN>, 100%), 1fr)`. On a viewport narrower
    than <MIN>, the inner min() falls back to 100% so a single track always
    fits. Above that, auto-fit packs as many <MIN>-wide tracks as possible. */
-.dashboard {
-    /* Fixed-column grid. Widget width is span in --dash-cols units; height in
-       --dash-row-h units. Changing either re-packs the widget content via
-       container queries on aspect-ratio + auto-fit inner grids. */
+/* IMPORTANT: All widget-grid rules below are scoped to .tab-content > .dashboard
+   so they ONLY apply to the character-page widget grids, not to the legacy
+   campaign-home page (which also wraps in <div class="dashboard">). */
+.tab-content > .dashboard {
     --dash-cols: 12;
     --dash-row-h: 3.25rem;
     --dash-gap: 0.5rem;
@@ -150,7 +150,7 @@ html[data-font-size="large"] { font-size: 18px; }
     grid-auto-rows: var(--dash-row-h);
     gap: var(--dash-gap);
     align-content: start;
-    grid-auto-flow: row dense;   /* let smaller widgets fill gaps after larger ones */
+    grid-auto-flow: row dense;
 
     container-type: inline-size;
     container-name: dashboard;
@@ -163,30 +163,22 @@ html[data-font-size="large"] { font-size: 18px; }
     padding-inline-end: var(--dash-toolbar-gutter);
 }
 
-/* Responsive column counts. CSS only — no JS recalculation needed because
-   widgets use `grid-column: span min(var(--w), var(--dash-cols))`. */
-@media (max-width: 1100px) { .dashboard { --dash-cols: 10; } }
-@media (max-width: 900px)  { .dashboard { --dash-cols: 8;  --dash-row-h: 3rem; } }
-@media (max-width: 640px)  { .dashboard { --dash-cols: 6;  padding-inline-end: 1rem; --dash-toolbar-gutter: 1rem; } }
-@media (max-width: 480px)  { .dashboard { --dash-cols: 4; } }
+/* Responsive column counts scoped to character dashboards only. */
+@media (max-width: 1100px) { .tab-content > .dashboard { --dash-cols: 10; } }
+@media (max-width: 900px)  { .tab-content > .dashboard { --dash-cols: 8;  --dash-row-h: 3rem; } }
+@media (max-width: 640px)  { .tab-content > .dashboard { --dash-cols: 6;  padding-inline-end: 1rem; --dash-toolbar-gutter: 1rem; } }
+@media (max-width: 480px)  { .tab-content > .dashboard { --dash-cols: 4; } }
 
-html[data-font-size="small"] .dashboard {
+html[data-font-size="small"] .tab-content > .dashboard {
     --dash-min: 15rem;
     --dash-gap: 0.6rem;
 }
-html[data-font-size="large"] .dashboard {
+html[data-font-size="large"] .tab-content > .dashboard {
     --dash-min: 22rem;
     --dash-gap: 1rem;
 }
 
-/* The dashboard fills the tab body in character-page layout. */
-.tab-content > .dashboard {
-    inline-size: 100%;
-    max-inline-size: none;
-    margin: 0;
-}
-
-.dashboard.is-editing {
+.tab-content > .dashboard.is-editing {
     /* faint hatching to signal edit mode */
     background-image:
         repeating-linear-gradient(45deg,
@@ -195,6 +187,7 @@ html[data-font-size="large"] .dashboard {
     border-radius: var(--radius);
 }
 
+.tab-content > .dashboard .dashboard-empty,
 .dashboard-empty {
     grid-column: 1 / -1;
     display: grid;
