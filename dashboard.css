@@ -141,6 +141,10 @@ html[data-font-size="large"] { font-size: 18px; }
     --dash-min: 18rem;
     --dash-gap: 0.75rem;
     --dash-max-span: 4;
+    /* Toolbar clearance — floating vertical toolbar lives at inset-inline-end: 0.6rem
+       and is ~32-40px wide. Reserve breathing room on the right so widgets never
+       slide under it. */
+    --dash-toolbar-gutter: 4rem;
 
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(var(--dash-min), 100%), 1fr));
@@ -151,7 +155,20 @@ html[data-font-size="large"] { font-size: 18px; }
        width as well (next iteration). */
     container-type: inline-size;
     container-name: dashboard;
-    padding: 1rem;
+
+    /* Constrain max-width to ~90% so there is always whitespace around the
+       grid (left for layout breathing, right for the floating toolbar). */
+    inline-size: 100%;
+    max-inline-size: min(100%, 1500px);
+    margin-inline: auto;
+    padding-block: 1rem;
+    padding-inline-start: 1rem;
+    padding-inline-end: var(--dash-toolbar-gutter);
+}
+
+/* On narrow screens the toolbar shifts to bottom — we reclaim the gutter. */
+@media (max-width: 640px) {
+    .dashboard { padding-inline-end: 1rem; --dash-toolbar-gutter: 1rem; }
 }
 
 html[data-font-size="small"] .dashboard {
@@ -310,16 +327,28 @@ html[data-font-size="large"] .dashboard {
 /* ============================================================================
    5. Widget body — content area
    ============================================================================
-   In fase 2 this will become an auto-fit inner grid keyed to widget width.
-   For now: plain block flow with safe overflow + the global widget font. */
+   Tokens are local to .widget so per-widget overrides are scoped — no leak
+   into the global stylesheet. Every widget body shares the same rhythm. */
+.widget {
+    --widget-pad-block: 0.55rem;
+    --widget-pad-inline: 0.75rem;
+    --widget-row-gap: 0.4rem;
+    --widget-label-size: 0.62rem;
+    --widget-value-size: 1.05rem;
+    --widget-body-size: 0.85rem;
+    --widget-line-height: 1.4;
+}
 .widget-body {
-    padding-block: 0.5rem;
-    padding-inline: 0.75rem;
+    padding-block: var(--widget-pad-block);
+    padding-inline: var(--widget-pad-inline);
     overflow: auto;
     min-block-size: 0;
-    font-size: 0.85rem;
-    line-height: 1.4;
+    font-size: var(--widget-body-size);
+    line-height: var(--widget-line-height);
     position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--widget-row-gap);
 }
 .widget-body, .widget-body * { font-size: inherit; }
 .widget-body button,
@@ -327,12 +356,66 @@ html[data-font-size="large"] .dashboard {
 .widget-body select,
 .widget-body textarea { font-size: inherit; }
 
+/* Reusable mini-label utility — used in many widget bodies for short ALL-CAPS captions */
+.widget-body .w-label {
+    font-size: var(--widget-label-size);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--font-display);
+}
+/* Reusable big-value utility — for prominent single numbers (HP, AC, sneak damage) */
+.widget-body .w-value {
+    font-family: var(--font-display);
+    font-size: var(--widget-value-size);
+    font-weight: 600;
+    color: var(--accent-warm);
+    line-height: 1;
+}
+
+/* Inline mini-button styling unified across widgets (was 6 variants) */
+.widget-body .btn,
+.widget-body .hp-btn,
+.widget-body .xp-controls > button {
+    padding: 0.28rem 0.55rem;
+    font-size: 0.72rem;
+    border: 1px solid var(--hairline-gold);
+    background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
+    color: var(--text-main);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.widget-body .btn:hover,
+.widget-body .hp-btn:hover,
+.widget-body .xp-controls > button:hover {
+    background: color-mix(in srgb, var(--accent-warm) 12%, var(--bg-elevated));
+    border-color: var(--accent-warm-soft);
+    color: var(--accent-warm);
+}
+.widget-body .btn-ghost { background: transparent; }
+/* Color-semantic variants for HP buttons keep their hue but adopt the rhythm */
+.widget-body .hp-btn-damage {
+    background: color-mix(in srgb, var(--danger) 22%, transparent);
+    border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+}
+.widget-body .hp-btn-heal {
+    background: color-mix(in srgb, var(--success) 22%, transparent);
+    border-color: color-mix(in srgb, var(--success) 35%, transparent);
+}
+.widget-body .hp-btn-temp {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
 .widget-empty {
     display: grid;
     place-items: center;
     gap: 0.4rem;
     color: var(--text-dim);
     block-size: 100%;
+    text-align: center;
 }
 .widget-empty-icon { font-size: 1.5rem; opacity: 0.4; }
 .widget-error { color: var(--danger); font-size: 0.8rem; }
@@ -612,74 +695,119 @@ html[data-font-size="large"] .dashboard {
     font-size: 1.1rem;
 }
 
-.widget-spells-list .spells-prepared-list { list-style: none; padding: 0; margin: 0; }
-.widget-spells-list .spell-prepared-item {
-    padding: 0.25rem 0;
-    border-block-end: 1px solid color-mix(in srgb, var(--hairline-gold) 50%, transparent);
-    font-size: 0.85rem;
+/* Generic list rows (spells, inventory, weapons) — uniform rhythm */
+.widget-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.05rem;
 }
+.widget-body ul > li,
+.widget-spells-list .spell-prepared-item,
+.widget-inventory .widget-inv-list li {
+    padding-block: 0.3rem;
+    padding-inline: 0.1rem;
+    border-block-end: 1px solid color-mix(in srgb, var(--hairline-gold) 35%, transparent);
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.widget-body ul > li:last-child,
+.widget-spells-list .spell-prepared-item:last-child,
+.widget-inventory .widget-inv-list li:last-child { border-block-end: none; }
 
 .widget-inventory .widget-inv-gold {
     color: var(--warning);
     font-weight: 600;
-    font-size: 0.85rem;
-    margin-block-end: 0.4rem;
-}
-.widget-inventory .widget-inv-list { list-style: none; padding: 0; margin: 0; }
-.widget-inventory .widget-inv-list li {
-    padding-block: 0.2rem;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    margin-block-end: 0.3rem;
+    padding-block-end: 0.3rem;
     border-block-end: 1px solid color-mix(in srgb, var(--hairline-gold) 50%, transparent);
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+}
+.widget-inventory .widget-inv-gold::before {
+    content: '◉';
+    color: var(--accent-warm);
+    font-size: 0.85em;
 }
 
 .widget-hp .hp-bar {
-    block-size: 8px;
+    block-size: 6px;
     background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
     border-radius: 4px;
     overflow: hidden;
-    margin-block: 0.4rem;
+    margin-block: 0.25rem 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--hairline-gold) 60%, transparent);
 }
 .widget-hp .hp-bar-fill { block-size: 100%; transition: inline-size 0.3s; }
-.widget-hp .hp-display { display: flex; align-items: baseline; gap: 0.25rem; font-size: 1.4rem; font-weight: 700; }
-.widget-hp .hp-current { font-size: 1.8rem; }
-.widget-hp .hp-separator { opacity: 0.5; }
-.widget-hp .hp-temp { font-size: 0.75rem; color: var(--info, var(--accent)); margin-inline-start: 0.5rem; }
-.widget-hp .hp-controls { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-block-start: 0.4rem; }
+.widget-hp .hp-display {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+}
+.widget-hp .hp-current { font-size: 1.85rem; line-height: 1; }
+.widget-hp .hp-max     { font-size: 1.1rem; color: var(--text-dim); }
+.widget-hp .hp-separator { opacity: 0.4; font-size: 1.1rem; }
+.widget-hp .hp-temp {
+    font-size: 0.65rem;
+    color: var(--accent);
+    margin-inline-start: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.widget-hp .hp-controls {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.3rem 0.4rem;
+    align-items: center;
+    margin-block-start: 0.25rem;
+}
 .widget-hp .hp-input {
-    inline-size: 50px;
-    padding: 0.25rem;
-    font-size: 0.75rem;
+    inline-size: 100%;
+    padding: 0.25rem 0.45rem;
+    font-size: 0.78rem;
     background: var(--bg-elevated);
     border: 1px solid var(--hairline-gold);
     border-radius: 4px;
     color: var(--text-main);
 }
-.widget-hp .hp-btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.7rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
-    color: var(--text-main);
-}
-.widget-hp .hp-btn-damage { background: color-mix(in srgb, var(--danger) 25%, transparent); }
-.widget-hp .hp-btn-heal { background: color-mix(in srgb, var(--success) 25%, transparent); }
-.widget-hp .hp-btn-temp { background: color-mix(in srgb, var(--accent) 25%, transparent); }
 
+/* Core stats — small intrinsic grid inside the widget body. The 60px minmax
+   means 1 / 2 / 3 / 4 / 5 columns appear automatically as widget widens. */
 .widget .combat-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-    gap: 0.4rem;
+    grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+    gap: 0.5rem;
     text-align: center;
+    align-items: end;
 }
-.widget .combat-stat { padding: 0.25rem; }
-.widget .combat-stat .stat-value { font-size: 1.3rem; font-weight: 700; display: block; }
+.widget .combat-stat {
+    padding: 0.25rem 0.15rem;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--bg-elevated) 35%, transparent);
+    border: 1px solid color-mix(in srgb, var(--hairline-gold) 50%, transparent);
+}
+.widget .combat-stat .stat-value {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent-warm);
+    display: block;
+    line-height: 1.05;
+}
 .widget .combat-stat .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: var(--text-dim);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    margin-block-start: 0.15rem;
+    font-family: var(--font-display);
 }
 
 .widget .ability-edit-header {
@@ -700,30 +828,73 @@ html[data-font-size="large"] .dashboard {
 }
 .widget:hover .ability-edit-header .edit-toggle-btn,
 .widget .ability-edit-header .edit-toggle-btn:focus { opacity: 1; }
+/* Abilities — intrinsic grid: 2 / 3 / 6 columns as widget widens.
+   minmax(54px, 1fr) means 3 cols fit at ~16rem widget, 6 cols at ~28rem. */
 .widget .ability-scores {
-    gap: 0.2rem;
-    grid-template-columns: repeat(6, 1fr);
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
+    gap: 0.35rem !important;
 }
-.widget .ability { padding: 0.1rem; border-radius: 5px; }
-.widget .ability-name { font-size: 0.6em; letter-spacing: 0.5px; margin-block-end: 0.05rem; }
-.widget .ability-score { font-size: 1.05em; line-height: 1.05; }
-.widget .ability-mod { font-size: 0.75em; line-height: 1.05; }
+.widget .ability {
+    padding: 0.3rem 0.2rem;
+    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--hairline-gold) 50%, transparent);
+    background: color-mix(in srgb, var(--bg-elevated) 35%, transparent);
+    text-align: center;
+    display: grid;
+    gap: 0.1rem;
+    align-content: center;
+}
+.widget .ability-name {
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-family: var(--font-display);
+}
+.widget .ability-score {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent-warm);
+    line-height: 1;
+}
+.widget .ability-mod {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
 
-.widget .slot-tracker { display: flex; flex-direction: column; gap: 0.4rem; }
-.widget .slot-level { display: flex; align-items: center; gap: 0.5rem; }
-.widget .slot-level-label { font-size: 0.75rem; min-inline-size: 70px; color: var(--text-dim); }
-.widget .slot-dots { display: flex; gap: 0.2rem; flex-wrap: wrap; }
+.widget .slot-tracker { display: grid; gap: 0.4rem; }
+.widget .slot-level {
+    display: grid;
+    grid-template-columns: minmax(60px, auto) 1fr;
+    align-items: center;
+    gap: 0.6rem;
+}
+.widget .slot-level-label {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--font-display);
+}
+.widget .slot-dots { display: flex; gap: 0.25rem; flex-wrap: wrap; }
 .widget .slot-dot {
-    inline-size: 14px; block-size: 14px;
+    inline-size: 13px; block-size: 13px;
     border-radius: 50%;
     background: var(--accent-warm);
     cursor: pointer;
-    opacity: 0.9;
+    box-shadow: 0 0 6px color-mix(in srgb, var(--accent-warm) 35%, transparent);
+    transition: transform 0.1s, box-shadow 0.15s;
 }
+.widget .slot-dot:hover { transform: scale(1.15); }
 .widget .slot-dot.used {
     background: transparent;
-    border: 2px solid var(--text-dim);
-    opacity: 0.5;
+    border: 1.5px solid var(--text-dim);
+    box-shadow: none;
+    opacity: 0.55;
 }
 
 .widget-death-saves { display: flex; flex-direction: column; gap: 0.4rem; }
@@ -743,24 +914,43 @@ html[data-font-size="large"] .dashboard {
 .widget-death-saves .death-save-dot.success.filled { background: var(--success); border-color: var(--success); }
 .widget-death-saves .death-save-dot.failure.filled { background: var(--danger); border-color: var(--danger); }
 
-.widget-inspiration { display: grid; place-items: center; }
+.widget-inspiration {
+    display: grid;
+    place-items: center;
+    block-size: 100%;
+}
 .widget-inspiration .inspiration-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    display: grid;
+    place-items: center;
+    gap: 0.25rem;
     cursor: pointer;
-    padding: 0.4rem 0.8rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+.widget-inspiration .inspiration-toggle:hover {
+    background: color-mix(in srgb, var(--warning) 8%, transparent);
 }
 .widget-inspiration .inspiration-star {
-    font-size: 1.5rem;
+    font-size: 2.2rem;
+    line-height: 1;
     color: var(--text-dim);
-    transition: color 0.15s, text-shadow 0.15s;
+    transition: color 0.15s, text-shadow 0.15s, transform 0.15s;
 }
 .widget-inspiration .inspiration-star.active {
     color: var(--warning);
-    text-shadow: 0 0 8px color-mix(in srgb, var(--warning) 40%, transparent);
+    text-shadow:
+        0 0 8px color-mix(in srgb, var(--warning) 40%, transparent),
+        0 0 18px color-mix(in srgb, var(--warning) 20%, transparent);
+    transform: scale(1.08);
 }
-.widget-inspiration .inspiration-label { font-size: 0.85rem; color: var(--text-dim); }
+.widget-inspiration .inspiration-label {
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: var(--font-display);
+}
 
 .widget-exhaustion .exhaustion-row {
     display: flex;
@@ -811,40 +1001,59 @@ html[data-font-size="large"] .dashboard {
 .widget-sneak-attack {
     display: grid;
     place-items: center;
+    gap: 0.15rem;
     padding: 0.5rem;
+    text-align: center;
 }
 .widget-sneak-attack .sneak-amount {
-    font-size: 1.6rem;
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 600;
     color: var(--accent-warm);
+    line-height: 1;
 }
 .widget-sneak-attack .sneak-label {
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     color: var(--text-dim);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
+    font-family: var(--font-display);
 }
 
 .widget .xp-tracker .xp-bar {
-    block-size: 8px;
+    block-size: 6px;
     background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
     border-radius: 4px;
     overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--hairline-gold) 60%, transparent);
 }
 .widget .xp-tracker .xp-bar-fill {
     block-size: 100%;
-    background: linear-gradient(90deg, var(--accent-warm), var(--warning));
+    background: linear-gradient(90deg in oklab, var(--accent-warm), var(--warning));
+    transition: inline-size 0.4s ease;
 }
 .widget .xp-tracker .xp-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-dim);
     display: block;
-    margin-block-start: 0.25rem;
+    margin-block-start: 0.35rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
 }
 .widget .xp-tracker .xp-controls {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.35rem;
     margin-block-start: 0.4rem;
+    align-items: center;
+}
+.widget .xp-tracker .xp-input {
+    inline-size: 70px;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.78rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline-gold);
+    border-radius: 4px;
+    color: var(--text-main);
 }
 
 /* ============================================================================
