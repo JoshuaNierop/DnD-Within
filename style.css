@@ -160,37 +160,44 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
     to { transform: rotate(360deg); }
 }
 
-/* ===== TOP NAVBAR ===== */
+/* ===== TOP NAVBAR =====
+   Warm-palette glass navbar. Padding uses max() to honor BOTH a minimum
+   breathing-room AND notch safe-area-inset on phones — neither wins alone. */
 .navbar {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    inset-block-start: 0;
+    inset-inline: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-inline: clamp(2rem, 6vi, 6.5rem);
+    /* Guaranteed minimum breathing room on every device; grows on wide viewports. */
+    padding-inline-start: max(env(safe-area-inset-left, 0px), clamp(1.25rem, 6vi, 6.5rem));
+    padding-inline-end: max(env(safe-area-inset-right, 0px), clamp(1.25rem, 6vi, 6.5rem));
     gap: 1rem;
-    height: 56px;
-    background: rgba(10, 10, 15, 0.88);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
+    block-size: 56px;
+    background: color-mix(in oklab, var(--bg-dark) 88%, transparent);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-block-end: 1px solid var(--hairline-gold);
     z-index: 100;
 }
 
 .nav-logo {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-bright);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-warm);
     text-decoration: none;
-    letter-spacing: 2px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: color 0.3s;
+    transition: color 0.3s, text-shadow 0.3s;
 }
 
-.nav-logo:hover { color: var(--accent); }
+.nav-logo:hover {
+    color: var(--text-bright);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--accent-warm) 50%, transparent);
+}
 
 .nav-logo .logo-accent { color: var(--accent); }
 
@@ -229,17 +236,20 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
 .nav-link:hover { color: var(--text-bright); }
 
 .nav-links a.active,
-.nav-link.active { color: var(--accent); }
+.nav-link.active { color: var(--accent-warm); }
 
 .nav-links a.active::after,
 .nav-link.active::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--accent);
+    inset-block-end: 0;
+    inset-inline: 0;
+    block-size: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--accent-warm) 25%,
+        var(--accent-warm) 75%,
+        transparent 100%);
     border-radius: 2px;
 }
 
@@ -427,57 +437,136 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
     z-index: 1;
 }
 
+/* ===== WELCOME BANNER =====
+   "Parchment lit by candlelight" — layered radial highlights over a warm
+   burgundy/bg-card base. Uses oklab interpolation for smooth gradients,
+   color-mix() for tonal relationships, and mask-image for soft edge fade.
+   Ornament strips top + bottom evoke book binding without being literal. */
 .welcome-banner {
     text-align: center;
-    padding: 3rem 2rem 2rem;
-    margin-bottom: 2.5rem;
+    padding-block: clamp(2.5rem, 6vi, 4rem) clamp(2rem, 4vi, 2.5rem);
+    padding-inline: clamp(1.5rem, 4vi, 3rem);
+    margin-block-end: 2.5rem;
     border-radius: var(--radius-lg);
-    /* Brick / sienna tones — neutraal-warm-donker, geen theme-blauw */
-    background: linear-gradient(135deg, #3d2820 0%, #5a3326 60%, #4a2a1f 100%);
-    background-size: cover;
-    background-position: center;
-    border: 1px solid #6b3d2c;
     position: relative;
     overflow: hidden;
-    animation: fadeUp 0.6s ease-out;
+    isolation: isolate;
+    container-type: inline-size;
+
+    /* Layered backgrounds (top to bottom in stacking):
+       1. Top-left warm-gold candle glow
+       2. Bottom-right cool teal counterpoint (deep, almost hidden)
+       3. Diagonal burgundy → card base
+       All interpolated in oklab for perceptually smooth blending. */
+    background:
+        radial-gradient(ellipse 60% 80% at 18% 22%,
+            color-mix(in oklab, var(--accent-warm) 22%, transparent) 0%,
+            transparent 65%),
+        radial-gradient(ellipse 50% 60% at 82% 85%,
+            color-mix(in oklab, var(--accent-tertiary) 28%, transparent) 0%,
+            transparent 65%),
+        linear-gradient(135deg in oklab,
+            color-mix(in oklab, var(--burgundy) 22%, var(--bg-card)) 0%,
+            var(--bg-card) 55%,
+            color-mix(in oklab, var(--bg-dark) 60%, var(--bg-card)) 100%);
+    border: 1px solid var(--hairline-gold);
+
+    /* Soft inner glow without an extra box-shadow ring */
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--accent-warm) 18%, transparent),
+        inset 0 -40px 60px -40px color-mix(in srgb, var(--bg-dark) 80%, transparent),
+        0 20px 50px -20px color-mix(in srgb, var(--bg-dark) 90%, transparent);
 }
 
+/* Top binding strip — three-part serif ornament that fades to edges */
 .welcome-banner::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #b85c3a, #d49a5a, #b85c3a);
+    inset-block-start: 14px;
+    inset-inline: 12%;
+    block-size: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        color-mix(in srgb, var(--accent-warm) 45%, transparent) 18%,
+        var(--accent-warm) 50%,
+        color-mix(in srgb, var(--accent-warm) 45%, transparent) 82%,
+        transparent 100%);
+    z-index: -1;
+}
+
+/* Bottom binding strip mirrored, plus subtle paper-grain texture */
+.welcome-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: -1;
+    background:
+        linear-gradient(90deg,
+            transparent 0%,
+            color-mix(in srgb, var(--accent-warm) 45%, transparent) 18%,
+            var(--accent-warm) 50%,
+            color-mix(in srgb, var(--accent-warm) 45%, transparent) 82%,
+            transparent 100%) no-repeat,
+        repeating-linear-gradient(115deg,
+            transparent 0 3px,
+            color-mix(in srgb, var(--accent-warm) 1.8%, transparent) 3px 5px);
+    background-size: 100% 1px, 100% 100%;
+    background-position: 0 calc(100% - 14px), 0 0;
+    mix-blend-mode: screen;
+    opacity: 0.6;
 }
 
 .welcome-banner h1 {
-    font-size: clamp(2rem, 5vi, 3.5rem);
-    font-weight: 700;
-    /* Display serif voor banner — anders dan rest van site */
-    font-family: 'Cormorant Garamond', 'Cormorant', 'Garamond', 'Georgia', serif;
-    font-style: italic;
-    letter-spacing: 0.02em;
-    color: #f0dcb4;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
-    background: none;
-    -webkit-background-clip: initial;
-    -webkit-text-fill-color: currentColor;
-    background-clip: initial;
-    margin-bottom: 0.3rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.75rem, 4.5vi, 2.75rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-warm);
+    /* Stacked shadows: deep contact + soft gold halo (a la letterpress + candlelight) */
+    text-shadow:
+        0 1px 0 color-mix(in srgb, var(--bg-dark) 80%, transparent),
+        0 2px 18px color-mix(in srgb, var(--accent-warm) 25%, transparent);
+    margin-block-end: 0.4rem;
+}
+/* Diamond ornament after the title, like wizard-title elsewhere — visual link */
+.welcome-banner h1::after {
+    content: ' ◆';
+    color: color-mix(in srgb, var(--accent-warm) 55%, transparent);
+    font-size: 0.55em;
+    letter-spacing: 0;
+    margin-inline-start: 0.4em;
+    vertical-align: 0.2em;
 }
 
 .welcome-banner .campaign-name {
-    font-size: 1.2rem;
-    color: #d4b48a;
-    font-style: italic;
-    margin-bottom: 0.25rem;
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.6vi, 1.2rem);
+    letter-spacing: 0.08em;
+    color: color-mix(in srgb, var(--accent-warm) 75%, var(--text-main));
+    margin-block-end: 0.25rem;
 }
 
-.welcome-banner .welcome-user {
+.welcome-banner .welcome-user,
+.welcome-banner .text-dim {
     font-size: 0.95rem;
-    color: #c8a880;
+    color: color-mix(in srgb, var(--accent-warm) 30%, var(--text-dim));
+    letter-spacing: 0.02em;
+}
+
+/* Subtle entrance: only when motion is allowed */
+@media (prefers-reduced-motion: no-preference) {
+    .welcome-banner { animation: fadeUp 0.6s ease-out; }
+}
+
+/* When the banner narrows below 480px (container width, not viewport),
+   collapse the binding strips and reduce ornament noise. */
+@container (inline-size < 480px) {
+    .welcome-banner::before { inset-inline: 18%; }
+    .welcome-banner::after { opacity: 0.4; }
+    .welcome-banner h1::after { display: none; }
 }
 
 .quick-links {
@@ -5454,19 +5543,20 @@ body.modal-open {
     height: 100%;
 }
 
-/* ===== SAFE AREA (notch phones) ===== */
+/* ===== SAFE AREA (notch phones) =====
+   The navbar's main padding already accounts for safe-area-inset via max() —
+   here we only add the TOP inset (status-bar overlap on iOS). Side insets are
+   handled inline at the .navbar rule with max(env(...), clamp(...)). */
 @supports (padding: env(safe-area-inset-top)) {
     .navbar {
-        padding-top: env(safe-area-inset-top);
-        padding-left: env(safe-area-inset-left);
-        padding-right: env(safe-area-inset-right);
+        padding-block-start: env(safe-area-inset-top);
     }
     .dashboard, .character-page, .notes-page, .lore-page, .maps-page, .timeline-page {
-        padding-left: env(safe-area-inset-left);
-        padding-right: env(safe-area-inset-right);
+        padding-inline-start: max(env(safe-area-inset-left, 0px), 0.75rem);
+        padding-inline-end: max(env(safe-area-inset-right, 0px), 0.75rem);
     }
     .tab-bar {
-        padding-bottom: env(safe-area-inset-bottom);
+        padding-block-end: env(safe-area-inset-bottom);
     }
 }
 
@@ -5745,12 +5835,21 @@ body.modal-open {
     border-radius: 12px;
 }
 .welcome-banner.has-banner::before {
+    /* Override the parchment-strip ornament when user supplies a real image */
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(10,10,15,0.85) 0%, rgba(10,10,15,0.3) 60%, transparent 100%);
-    border-radius: 12px;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: 100%;
+    background: linear-gradient(to top,
+        color-mix(in oklab, var(--bg-dark) 92%, transparent) 0%,
+        color-mix(in oklab, var(--bg-dark) 35%, transparent) 60%,
+        transparent 100%);
+    border-radius: inherit;
+    z-index: 0;
 }
+.welcome-banner.has-banner::after { display: none; }
 .welcome-banner.has-banner > * { position: relative; z-index: 1; }
 .banner-upload-btn {
     position: absolute;
