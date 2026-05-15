@@ -2492,6 +2492,19 @@ function bindPageEvents(route) {
                 return;
             }
 
+            // Set a currency denomination (PP/GP/EP/SP/CP). Triggered on `change` (not click),
+            // wired below in the change-delegate. Click delegate just guards the action name
+            // so it doesn't fall through to other handlers.
+            if (target.matches('[data-action="set-currency"]')) {
+                return; // no-op on click; change event below handles it
+            }
+            if (target.matches('[data-action="set-trait"]')) {
+                return; // contentEditable; bound via post-render hook
+            }
+            if (target.matches('[data-action="set-attuned"]')) {
+                return; // input field; change-delegate below handles it
+            }
+
             // Roll weapon attack
             if (target.matches('[data-action="roll-attack"]') || target.closest('[data-action="roll-attack"]')) {
                 var rollBtn = target.matches('[data-action="roll-attack"]') ? target : target.closest('[data-action="roll-attack"]');
@@ -3397,6 +3410,34 @@ function bindPageEvents(route) {
             concState.concentrating = target.value || null;
             saveCharState(charId, concState);
             renderApp();
+            return;
+        }
+
+        // Set a currency denomination
+        if (target.matches('[data-action="set-currency"]')) {
+            if (!charId || !canEdit(charId)) return;
+            var cState = loadCharState(charId);
+            if (!cState.currency) cState.currency = {};
+            var denom = target.dataset.denom;
+            var amt = parseInt(target.value, 10);
+            cState.currency[denom] = (isNaN(amt) || amt < 0) ? 0 : amt;
+            // Keep legacy gold field in sync so the inventory widget shows the same number
+            if (denom === 'gp') cState.gold = cState.currency.gp;
+            saveCharState(charId, cState);
+            // Refresh only this widget's row instead of full rerender to keep focus
+            return;
+        }
+
+        // Set an attuned item slot
+        if (target.matches('[data-action="set-attuned"]')) {
+            if (!charId || !canEdit(charId)) return;
+            var aState = loadCharState(charId);
+            if (!Array.isArray(aState.attuned)) aState.attuned = ['', '', ''];
+            var aIdx = parseInt(target.dataset.idx, 10);
+            if (aIdx >= 0 && aIdx < 3) {
+                aState.attuned[aIdx] = (target.value || '').trim();
+                saveCharState(charId, aState);
+            }
             return;
         }
 

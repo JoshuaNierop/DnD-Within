@@ -221,6 +221,23 @@ function dashboardBindWidgetContentEditors() {
         });
     }
 
+    // TIBF (Traits / Ideals / Bonds / Flaws) — contentEditable per field stored in state.traits.
+    var traitEls = dash.querySelectorAll('[contenteditable="true"][data-action="set-trait"]');
+    for (var ti = 0; ti < traitEls.length; ti++) {
+        var tEl = traitEls[ti];
+        if (tEl._dashBound) continue;
+        tEl._dashBound = true;
+        tEl.addEventListener('blur', function(e) {
+            var t = e.currentTarget;
+            var key = t.dataset.key;
+            var newValue = (t.textContent || '').trim();
+            var s = loadCharState(charId);
+            if (!s.traits) s.traits = {};
+            s.traits[key] = newValue;
+            saveCharState(charId, s);
+        });
+    }
+
     var fileInputs = dash.querySelectorAll('input[type="file"][data-action="widget-image-upload"]');
     for (var j = 0; j < fileInputs.length; j++) {
         var fi = fileInputs[j];

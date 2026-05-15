@@ -230,6 +230,7 @@ var DASHBOARD_DEFAULT_WIDGETS = {
     overview: [
         { type: 'hp-tracker',     w: 4, h: 3 },
         { type: 'core-stats',     w: 8, h: 2 },
+        { type: 'passive-scores', w: 4, h: 2 },
         { type: 'xp-tracker',     w: 8, h: 2 },
         { type: 'ability-scores', w: 12, h: 3 },
         { type: 'quote',          w: 12, h: 2 }
@@ -237,39 +238,49 @@ var DASHBOARD_DEFAULT_WIDGETS = {
     stats: [
         { type: 'ability-scores', w: 12, h: 3 },
         { type: 'saving-throws',  w: 4,  h: 4 },
-        { type: 'skills',         w: 4,  h: 5 },
-        { type: 'ability-radar',  w: 4,  h: 4 }
+        { type: 'skills',         w: 4,  h: 7 },
+        { type: 'ability-radar',  w: 4,  h: 4 },
+        { type: 'passive-scores', w: 8,  h: 2 },
+        { type: 'class-features', w: 8,  h: 5 }
     ],
     combat: [
         { type: 'hp-tracker',     w: 4, h: 3 },
         { type: 'core-stats',     w: 8, h: 2 },
         { type: 'death-saves',    w: 4, h: 2 },
         { type: 'inspiration',    w: 2, h: 2 },
+        { type: 'concentration',  w: 6, h: 2 },
+        { type: 'conditions',     w: 12, h: 3 },
         { type: 'weapons',        w: 6, h: 4 },
         { type: 'combat-log',     w: 6, h: 4 }
     ],
     spells: [
+        { type: 'concentration',   w: 6, h: 2 },
         { type: 'spell-slots',     w: 6, h: 4 },
         { type: 'spells-prepared', w: 6, h: 5 },
         { type: 'metamagic',       w: 6, h: 4 }
     ],
     story: [
         { type: 'quote', w: 12, h: 2 },
-        { type: 'text',  w: 8,  h: 5, config: { title: 'Background', body: '' } },
-        { type: 'image', w: 4,  h: 5 }
+        { type: 'tibf',  w: 8,  h: 5 },
+        { type: 'image', w: 4,  h: 5 },
+        { type: 'text',  w: 12, h: 5, config: { title: 'Background', body: '' } }
     ],
     inventory: [
-        { type: 'inventory', w: 8, h: 5 },
-        { type: 'text',      w: 4, h: 5, config: { title: 'Notes', body: '' } }
+        { type: 'currency',      w: 8, h: 2 },
+        { type: 'attuned-items', w: 4, h: 3 },
+        { type: 'inventory',     w: 8, h: 5 },
+        { type: 'text',          w: 4, h: 5, config: { title: 'Notes', body: '' } }
     ],
     social: [
-        { type: 'text',  w: 6,  h: 4, config: { title: 'Allies', body: '' } },
-        { type: 'text',  w: 6,  h: 4, config: { title: 'Enemies', body: '' } },
-        { type: 'image', w: 12, h: 5 }
+        { type: 'tibf',          w: 12, h: 5 },
+        { type: 'proficiencies', w: 6,  h: 4 },
+        { type: 'text',          w: 6,  h: 4, config: { title: 'Allies / Enemies', body: '' } }
     ],
     exploring: [
-        { type: 'image', w: 12, h: 5 },
-        { type: 'text',  w: 12, h: 4, config: { title: 'Locations', body: '' } }
+        { type: 'senses',        w: 8, h: 3 },
+        { type: 'proficiencies', w: 4, h: 4 },
+        { type: 'image',         w: 12, h: 5 },
+        { type: 'text',          w: 12, h: 4, config: { title: 'Locations', body: '' } }
     ],
     family: [
         { type: 'family-diagram', w: 12, h: 7 }

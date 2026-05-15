@@ -266,7 +266,6 @@ var WIDGET_REGISTRY = {
 
     // ---- Family ----
     'family-diagram': {
-        // Big SVG — needs real estate.
         label: 'Family Diagram',
         category: 'family',
         icon: '⚶',
@@ -275,6 +274,100 @@ var WIDGET_REGISTRY = {
         minSize:    [5, 4],
         maxSize:    [12, 10],
         render: function(ctx) { return renderWidgetFamilyDiagram(ctx); }
+    },
+
+    // =====================================================================
+    // Universal widgets — every class benefits from these
+    // =====================================================================
+    'passive-scores': {
+        label: 'Passive Scores',
+        category: 'core',
+        icon: '◍',
+        description: 'Passive Perception / Investigation / Insight.',
+        defaultSize: [4, 2],
+        minSize:    [2, 2],
+        maxSize:    [12, 3],
+        render: function(ctx) { return renderWidgetPassiveScores(ctx); }
+    },
+    'conditions': {
+        label: 'Conditions',
+        category: 'combat',
+        icon: '⊘',
+        description: 'Active conditions tracker (Poisoned, Frightened, etc.).',
+        defaultSize: [6, 3],
+        minSize:    [3, 2],
+        maxSize:    [12, 5],
+        render: function(ctx) { return renderWidgetConditions(ctx); }
+    },
+    'concentration': {
+        label: 'Concentration',
+        category: 'combat',
+        icon: '∾',
+        description: 'Active concentration spell + drop control.',
+        defaultSize: [4, 2],
+        minSize:    [3, 2],
+        maxSize:    [8, 3],
+        render: function(ctx) { return renderWidgetConcentration(ctx); }
+    },
+    'senses': {
+        label: 'Senses',
+        category: 'exploring',
+        icon: '◎',
+        description: 'Darkvision / Tremorsense / other senses + walking speed.',
+        defaultSize: [4, 3],
+        minSize:    [3, 2],
+        maxSize:    [8, 4],
+        render: function(ctx) { return renderWidgetSenses(ctx); }
+    },
+    'tibf': {
+        label: 'Personality',
+        category: 'social',
+        icon: '☷',
+        description: 'Traits / Ideals / Bonds / Flaws.',
+        defaultSize: [6, 5],
+        minSize:    [3, 4],
+        maxSize:    [12, 8],
+        render: function(ctx) { return renderWidgetTIBF(ctx); }
+    },
+    'currency': {
+        label: 'Currency',
+        category: 'core',
+        icon: '◉',
+        description: 'PP / GP / EP / SP / CP breakdown.',
+        defaultSize: [5, 2],
+        minSize:    [2, 2],
+        maxSize:    [10, 3],
+        render: function(ctx) { return renderWidgetCurrency(ctx); }
+    },
+    'attuned-items': {
+        label: 'Attuned Items',
+        category: 'core',
+        icon: '✧',
+        description: 'Up to 3 attuned magic items.',
+        defaultSize: [4, 3],
+        minSize:    [3, 3],
+        maxSize:    [12, 4],
+        render: function(ctx) { return renderWidgetAttuned(ctx); }
+    },
+    'proficiencies': {
+        label: 'Proficiencies',
+        category: 'social',
+        icon: '✓',
+        description: 'Armor / Weapons / Tools / Languages proficiencies.',
+        defaultSize: [5, 4],
+        minSize:    [3, 3],
+        maxSize:    [12, 6],
+        render: function(ctx) { return renderWidgetProficiencies(ctx); }
+    },
+    'class-features': {
+        label: 'Class Features',
+        category: 'core',
+        icon: '✦',
+        description: 'Class features unlocked at current level.',
+        defaultSize: [6, 6],
+        minSize:    [4, 3],
+        maxSize:    [12, 10],
+        render: function(ctx) { return renderWidgetClassFeatures(ctx); }
     }
 };
 
@@ -665,6 +758,254 @@ function renderWidgetFamilyDiagram(ctx) {
     if (!fam) return widgetEmpty('No family configured. Add via Family page.');
     var html = '<div class="widget-body widget-family">';
     try { html += renderFamilyDiagram(fam.id, ctx.editable); } catch (e) { html += widgetEmpty('Family render failed'); }
+    html += '</div>';
+    return html;
+}
+
+// =============================================================================
+// Universal widgets (added 2026-05-15)
+// =============================================================================
+
+// Passive scores — Perception / Investigation / Insight = 10 + mod + (prof if skilled)
+function renderWidgetPassiveScores(ctx) {
+    var config = ctx.config, state = ctx.state;
+    var wisMod = getMod(getAbilityScore(config, state, 'wis'));
+    var intMod = getMod(getAbilityScore(config, state, 'int'));
+    var prof = getProfBonus(state.level || 1);
+    var skills = (state.skills || []).map(function(s) { return String(s).toLowerCase(); });
+    function passive(mod, skillName) {
+        return 10 + mod + (skills.indexOf(skillName.toLowerCase()) !== -1 ? prof : 0);
+    }
+    var perception     = passive(wisMod, 'perception');
+    var investigation  = passive(intMod, 'investigation');
+    var insight        = passive(wisMod, 'insight');
+    var html = '<div class="widget-body widget-passives">';
+    html += '<div class="passives-grid">';
+    html += '<div class="passive-cell"><span class="w-value">' + perception + '</span><span class="w-label">Perception</span></div>';
+    html += '<div class="passive-cell"><span class="w-value">' + investigation + '</span><span class="w-label">Investigation</span></div>';
+    html += '<div class="passive-cell"><span class="w-value">' + insight + '</span><span class="w-label">Insight</span></div>';
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+// 14 D&D 5e conditions — toggleable. Reuses existing toggle-condition action.
+var DND_CONDITIONS = [
+    'Blinded', 'Charmed', 'Deafened', 'Frightened', 'Grappled', 'Incapacitated',
+    'Invisible', 'Paralyzed', 'Petrified', 'Poisoned', 'Prone', 'Restrained',
+    'Stunned', 'Unconscious'
+];
+function renderWidgetConditions(ctx) {
+    var state = ctx.state;
+    var active = state.conditions || [];
+    var html = '<div class="widget-body widget-conditions">';
+    html += '<div class="conditions-pills">';
+    for (var i = 0; i < DND_CONDITIONS.length; i++) {
+        var c = DND_CONDITIONS[i];
+        var isActive = active.indexOf(c) !== -1;
+        html += '<button class="condition-pill' + (isActive ? ' active' : '') + '" data-action="toggle-condition" data-condition="' + escapeAttr(c) + '" title="' + escapeAttr(c) + '">' + escapeHtml(c) + '</button>';
+    }
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+// Concentration — single active spell + drop. Reuses drop-concentration / set-concentration.
+function renderWidgetConcentration(ctx) {
+    var config = ctx.config, state = ctx.state, editable = ctx.editable;
+    if (!hasSpellcasting(config.className)) return widgetEmpty('No spellcasting');
+    var concentrating = state.concentrating || null;
+    var html = '<div class="widget-body widget-concentration">';
+    if (concentrating) {
+        html += '<div class="conc-active">';
+        html += '<span class="w-label">Concentrating on</span>';
+        html += '<span class="conc-spell">' + escapeHtml(concentrating) + '</span>';
+        if (editable) html += '<button class="widget-more" data-action="drop-concentration" title="Drop concentration" style="color:var(--danger);">Drop ✕</button>';
+        html += '</div>';
+    } else {
+        html += '<div class="conc-empty"><span class="w-label">Not concentrating</span>';
+        if (editable) {
+            var prep = state.prepared || [];
+            if (prep.length) {
+                html += '<select class="conc-select" data-action="set-concentration"><option value="">Set…</option>';
+                for (var i = 0; i < prep.length; i++) {
+                    html += '<option value="' + escapeAttr(prep[i]) + '">' + escapeHtml(prep[i]) + '</option>';
+                }
+                html += '</select>';
+            }
+        }
+        html += '</div>';
+    }
+    html += '</div>';
+    return html;
+}
+
+// Senses — walking speed + race-derived darkvision/etc.
+function renderWidgetSenses(ctx) {
+    var config = ctx.config;
+    var race = DATA[config.race] || {};
+    var speed = (race.speed || 30) + 'ft';
+    var senses = [];
+    if (race.darkvision)  senses.push({ label: 'Darkvision',  val: race.darkvision  + 'ft' });
+    if (race.tremorsense) senses.push({ label: 'Tremorsense', val: race.tremorsense + 'ft' });
+    if (race.blindsight)  senses.push({ label: 'Blindsight',  val: race.blindsight  + 'ft' });
+    if (race.truesight)   senses.push({ label: 'Truesight',   val: race.truesight   + 'ft' });
+    if (race.flying)      senses.push({ label: 'Flying',      val: race.flying + 'ft' });
+    if (race.swimming)    senses.push({ label: 'Swimming',    val: race.swimming + 'ft' });
+    if (race.climbing)    senses.push({ label: 'Climbing',    val: race.climbing + 'ft' });
+    var html = '<div class="widget-body widget-senses">';
+    html += '<div class="senses-grid">';
+    html += '<div class="sense-cell"><span class="w-value">' + speed + '</span><span class="w-label">Walking</span></div>';
+    for (var i = 0; i < senses.length; i++) {
+        html += '<div class="sense-cell"><span class="w-value">' + escapeHtml(senses[i].val) + '</span><span class="w-label">' + escapeHtml(senses[i].label) + '</span></div>';
+    }
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+// Traits / Ideals / Bonds / Flaws — 4 contentEditable fields.
+function renderWidgetTIBF(ctx) {
+    var state = ctx.state, editable = ctx.editable;
+    var traits = state.traits || {};
+    function field(key, label) {
+        var val = traits[key] || '';
+        var attrs = editable ? ' contenteditable="true" data-action="set-trait" data-key="' + key + '"' : '';
+        var placeholder = editable && !val ? ' data-empty="' + label + '…"' : '';
+        return '<section class="tibf-field">'
+             + '<h4 class="w-label">' + label + '</h4>'
+             + '<div class="tibf-body"' + attrs + placeholder + '>' + escapeHtml(val).replace(/\n/g, '<br>') + '</div>'
+             + '</section>';
+    }
+    var html = '<div class="widget-body widget-tibf">';
+    html += field('personality', 'Personality Traits');
+    html += field('ideals',      'Ideals');
+    html += field('bonds',       'Bonds');
+    html += field('flaws',       'Flaws');
+    html += '</div>';
+    return html;
+}
+
+// Currency — PP / GP / EP / SP / CP inputs. Falls back to legacy state.gold for GP.
+function renderWidgetCurrency(ctx) {
+    var state = ctx.state, editable = ctx.editable;
+    var currency = state.currency || {};
+    var legacyGold = parseInt(state.gold, 10);
+    if (!isNaN(legacyGold) && (currency.gp === undefined || currency.gp === null)) currency.gp = legacyGold;
+    var denoms = [
+        { key: 'pp', label: 'PP', tint: 'oklch(85% 0.05 250)'  },
+        { key: 'gp', label: 'GP', tint: 'var(--warning)' },
+        { key: 'ep', label: 'EP', tint: 'oklch(75% 0.10 100)'  },
+        { key: 'sp', label: 'SP', tint: 'oklch(80% 0.02 0)'   },
+        { key: 'cp', label: 'CP', tint: 'oklch(60% 0.15 40)'   }
+    ];
+    var html = '<div class="widget-body widget-currency">';
+    html += '<div class="currency-grid">';
+    for (var i = 0; i < denoms.length; i++) {
+        var d = denoms[i];
+        var v = currency[d.key];
+        if (v === undefined || v === null) v = 0;
+        html += '<div class="currency-cell">';
+        if (editable) {
+            html += '<input type="number" class="currency-input" min="0" data-action="set-currency" data-denom="' + d.key + '" value="' + v + '" style="color:' + d.tint + '">';
+        } else {
+            html += '<span class="w-value" style="color:' + d.tint + '">' + v + '</span>';
+        }
+        html += '<span class="w-label">' + d.label + '</span>';
+        html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+// Attuned items — exactly 3 slots, editable label per slot.
+function renderWidgetAttuned(ctx) {
+    var state = ctx.state, editable = ctx.editable;
+    var attuned = state.attuned || ['', '', ''];
+    while (attuned.length < 3) attuned.push('');
+    var html = '<div class="widget-body widget-attuned">';
+    for (var i = 0; i < 3; i++) {
+        var val = attuned[i] || '';
+        html += '<div class="attuned-slot' + (val ? ' filled' : ' empty') + '">';
+        html += '<span class="w-label">' + (i + 1) + '</span>';
+        if (editable) {
+            html += '<input class="attuned-input" data-action="set-attuned" data-idx="' + i + '" value="' + escapeAttr(val) + '" placeholder="Empty slot">';
+        } else {
+            html += '<span class="attuned-name">' + (val ? escapeHtml(val) : '—') + '</span>';
+        }
+        html += '</div>';
+    }
+    html += '</div>';
+    return html;
+}
+
+// Proficiencies — armor / weapons / tools / languages. Pulls from class + race + background.
+function renderWidgetProficiencies(ctx) {
+    var config = ctx.config;
+    var cls = DATA[config.className] || {};
+    var race = DATA[config.race] || {};
+    var bg = (DATA.backgrounds && DATA.backgrounds[config.background]) || {};
+
+    function gather(field) {
+        var out = [];
+        function push(arr) { if (Array.isArray(arr)) for (var i = 0; i < arr.length; i++) if (out.indexOf(arr[i]) === -1) out.push(arr[i]); }
+        push(cls[field]); push(race[field]); push(bg[field]);
+        return out;
+    }
+    var armor = gather('armorProfs');
+    var weapons = gather('weaponProfs');
+    var tools = gather('toolProfs');
+    if (bg.tool) tools.push(bg.tool);
+    var languages = gather('languages');
+
+    function row(label, arr) {
+        return '<div class="prof-row">'
+             + '<h4 class="w-label">' + label + '</h4>'
+             + '<p class="prof-list">' + (arr.length ? escapeHtml(arr.join(', ')) : '<em class="text-dim">None</em>') + '</p>'
+             + '</div>';
+    }
+    var html = '<div class="widget-body widget-proficiencies">';
+    html += row('Armor',     armor);
+    html += row('Weapons',   weapons);
+    html += row('Tools',     tools);
+    html += row('Languages', languages);
+    html += '</div>';
+    return html;
+}
+
+// Class features — from DATA[className].features filtered by current level.
+function renderWidgetClassFeatures(ctx) {
+    var config = ctx.config, state = ctx.state;
+    var cls = DATA[config.className];
+    if (!cls) return widgetEmpty('Unknown class');
+    var feats = [];
+    if (Array.isArray(cls.features)) {
+        feats = cls.features.filter(function(f) { return (f.level || 1) <= (state.level || 1); });
+    } else if (cls.features && typeof cls.features === 'object') {
+        for (var lvl in cls.features) {
+            if (!Object.prototype.hasOwnProperty.call(cls.features, lvl)) continue;
+            if (parseInt(lvl, 10) > (state.level || 1)) continue;
+            var list = cls.features[lvl];
+            if (Array.isArray(list)) {
+                for (var i = 0; i < list.length; i++) {
+                    feats.push({ level: parseInt(lvl, 10), name: list[i].name || list[i], desc: list[i].desc || '' });
+                }
+            }
+        }
+    }
+    if (!feats.length) return widgetEmpty('No features at this level');
+    feats.sort(function(a, b) { return (b.level || 0) - (a.level || 0); });
+    var html = '<div class="widget-body widget-classfeats">';
+    html += '<div class="widget-list-clip"><ul class="classfeats-list">';
+    for (var i = 0; i < feats.length; i++) {
+        var f = feats[i];
+        html += '<li class="classfeat-row">';
+        html += '<span class="classfeat-level">L' + (f.level || '?') + '</span>';
+        html += '<span class="classfeat-name">' + escapeHtml(f.name) + '</span>';
+        html += '</li>';
+    }
+    html += '</ul></div>';
     html += '</div>';
     return html;
 }
