@@ -14,264 +14,266 @@ var WIDGET_CATEGORIES = [
     { id: 'custom',    label: 'Custom',    icon: '○' }
 ];
 
-// Size = [w, h] in grid units. Aspect-friendly defaults; min/max define resize range.
+// Size = [w, h] in grid units (1 col ≈ 1/12 dashboard width, 1 row = 3.25rem).
+//
+// Sizing philosophy (#TC68b2):
+//   - min  = smallest readable. Below this content gets cramped.
+//   - max  = at this size adding more is wasted space.
+//   - default = sweet spot for typical layouts.
+// Widgets re-arrange their inner grid based on the W×H ratio via @container queries.
 var WIDGET_REGISTRY = {
 
     // ---- Core ----
-    // Sizing rule: minH = 1 header + ceil(content_lines/2). Met cellH=34px,
-    // body ≈ (34-22)/cell → 2 lines per +1H. minW = aantal kolommen voor het
-    // breedste sub-element (bv 5 stats × ~50px = ~5 cols op desktop).
     'hp-tracker': {
-        // 4 lines: HP-display(big) + HP-bar + controls-row1 + controls-row2.
+        // Layout: HP value (big) + bar + 3 control groups. Aspect-aware controls.
         label: 'HP Tracker',
         category: 'combat',
         icon: '♥',
         description: 'Current/max HP + damage/heal controls.',
-        defaultSize: [4, 4],
-        minSize: [3, 4],
-        maxSize: [12, 6],
+        defaultSize: [4, 3],
+        minSize:    [3, 3],
+        maxSize:    [12, 4],
         render: function(ctx) { return renderWidgetHP(ctx); }
     },
     'core-stats': {
-        // 5 stats horizontaal, val(big) + label = 2 lines.
+        // 5 items (AC/Speed/Init/Prof/Hit Dice). Each cell ~50px wide / 2.5rem tall.
         label: 'Core Stats',
         category: 'combat',
         icon: '◈',
         description: 'AC / Speed / Init / Prof / Hit Dice.',
-        defaultSize: [6, 2],
-        minSize: [5, 2],
-        maxSize: [12, 3],
+        defaultSize: [8, 2],
+        minSize:    [2, 2],
+        maxSize:    [12, 3],
         render: function(ctx) { return renderWidgetCoreStats(ctx); }
     },
     'ability-scores': {
-        // 6 abilities horizontaal, elk verticaal: name + score(big) + mod = 3 lines.
-        // Header is absolute (no row), cells dense — H=3 past nu de 3 lines.
+        // 6 items. Reflow 6×1 / 3×2 / 2×3 / 1×6 via aspect queries.
         label: 'Ability Scores',
         category: 'core',
         icon: '◇',
         description: 'STR / DEX / CON / INT / WIS / CHA.',
-        defaultSize: [9, 4],
-        minSize: [6, 3],
-        maxSize: [12, 6],
+        defaultSize: [12, 3],
+        minSize:    [2, 3],
+        maxSize:    [12, 4],
         render: function(ctx) { return renderWidgetAbilityScores(ctx); }
     },
     'saving-throws': {
-        // 6 saves vertical list = 6 lines; 2-col layout halveert.
+        // 6 saves; same reflow story as abilities.
         label: 'Saving Throws',
         category: 'combat',
         icon: '⛨',
         description: 'Saving throw proficiencies + modifiers.',
         defaultSize: [4, 4],
-        minSize: [2, 4],
-        maxSize: [12, 7],
+        minSize:    [2, 3],
+        maxSize:    [12, 4],
         render: function(ctx) { return renderWidgetSavingThrows(ctx); }
     },
     'skills': {
-        // 18 skills list. Default 5H = ~8 lines visible, scrollt voor rest.
+        // 18 items. Min needs to fit ~9 rows (2 cols × 9 = 18 visible at 4×6).
         label: 'Skills',
         category: 'core',
         icon: '✓',
         description: 'All skills + proficiency + modifiers.',
-        defaultSize: [4, 5],
-        minSize: [3, 4],
-        maxSize: [12, 10],
+        defaultSize: [4, 7],
+        minSize:    [3, 5],
+        maxSize:    [12, 8],
         render: function(ctx) { return renderWidgetSkills(ctx); }
     },
     'xp-tracker': {
-        // bar + label = 2 lines; controls +1.
+        // Bar + label + ± controls. Always 1 row of content.
         label: 'XP Tracker',
         category: 'core',
         icon: '⚡',
         description: 'Current XP, progress bar, level controls.',
         defaultSize: [6, 2],
-        minSize: [4, 2],
-        maxSize: [12, 3],
+        minSize:    [4, 2],
+        maxSize:    [12, 2],
         render: function(ctx) { return renderWidgetXP(ctx); }
     },
 
     // ---- Spells ----
     'spell-slots': {
-        // 1-9 levels, 1 row per level. Min H=2 (header+1 row); typical wizard 5-6 levels.
+        // 1 row per slot level (1-9). Typical lvl-1 caster: 1 level, lvl-20: 9.
         label: 'Spell Slots',
         category: 'spells',
         icon: '◉',
         description: 'Per-level spell slot tracker.',
-        defaultSize: [6, 4],
-        minSize: [4, 2],
-        maxSize: [12, 6],
+        defaultSize: [5, 4],
+        minSize:    [3, 3],
+        maxSize:    [12, 5],
         render: function(ctx) { return renderWidgetSpellSlots(ctx); }
     },
     'spells-prepared': {
-        // List, scrollable. Default 6 lines content visible.
+        // Variable list. Truncates with "more →" link instead of scroll.
         label: 'Prepared Spells',
         category: 'spells',
         icon: '✦',
         description: 'List of prepared spells.',
         defaultSize: [6, 5],
-        minSize: [4, 3],
-        maxSize: [12, 12],
+        minSize:    [3, 3],
+        maxSize:    [12, 8],
         render: function(ctx) { return renderWidgetSpellsPrepared(ctx); }
     },
 
     // ---- Combat ----
     'weapons': {
-        // ~2 lines per weapon. Default 3H ≈ 1-2 weapons visible.
+        // ~2 rows per weapon (name + attack/dmg line). Truncates with "more →".
         label: 'Weapons',
         category: 'combat',
         icon: '⚔',
         description: 'Equipped weapons + attack/damage rolls.',
         defaultSize: [6, 4],
-        minSize: [4, 3],
-        maxSize: [12, 8],
+        minSize:    [4, 3],
+        maxSize:    [12, 6],
         render: function(ctx) { return renderWidgetWeapons(ctx); }
     },
     'class-resources': {
-        // 1-3 trackers, ~1 line each.
+        // 1-3 small trackers depending on class.
         label: 'Class Resources',
         category: 'combat',
         icon: '◆',
         description: 'Rage, ki, sorcery points, etc.',
         defaultSize: [4, 3],
-        minSize: [3, 2],
-        maxSize: [12, 5],
+        minSize:    [3, 2],
+        maxSize:    [8, 4],
         render: function(ctx) { return renderWidgetClassResources(ctx); }
     },
     'death-saves': {
-        // 2 rows (success+failure), 1 line each.
+        // 2 short rows of 3 dots each.
         label: 'Death Saves',
         category: 'combat',
         icon: '☠',
         description: '3 successes / 3 failures tracker.',
-        defaultSize: [4, 3],
-        minSize: [3, 2],
-        maxSize: [8, 3],
+        defaultSize: [4, 2],
+        minSize:    [3, 2],
+        maxSize:    [8, 3],
         render: function(ctx) { return renderWidgetDeathSaves(ctx); }
     },
     'inspiration': {
-        // Single star + label, 1 line.
+        // Single big star toggle.
         label: 'Inspiration',
         category: 'combat',
         icon: '★',
         description: 'Heroic Inspiration toggle.',
-        defaultSize: [3, 2],
-        minSize: [2, 2],
-        maxSize: [6, 3],
+        defaultSize: [2, 2],
+        minSize:    [2, 2],
+        maxSize:    [4, 3],
         render: function(ctx) { return renderWidgetInspiration(ctx); }
     },
     'exhaustion': {
-        // Label + 6 dots + penalty, 1 line.
+        // 6-dot row + penalty caption.
         label: 'Exhaustion',
         category: 'combat',
         icon: '⚠',
         description: 'Exhaustion level (0–6).',
         defaultSize: [4, 2],
-        minSize: [4, 2],
-        maxSize: [8, 3],
+        minSize:    [3, 2],
+        maxSize:    [8, 3],
         render: function(ctx) { return renderWidgetExhaustion(ctx); }
     },
     'combat-log': {
-        // 1 line per entry, scrollable. Default 4H ≈ 4-5 entries.
+        // List of recent events (capped at ~30 in render, see-more link).
         label: 'Combat Log',
         category: 'combat',
         icon: '⌬',
         description: 'Recent damage/heal/rest events.',
         defaultSize: [5, 4],
-        minSize: [4, 3],
-        maxSize: [12, 10],
+        minSize:    [4, 3],
+        maxSize:    [12, 7],
         render: function(ctx) { return renderWidgetCombatLog(ctx); }
     },
     'ability-radar': {
-        // SVG aspect-vast (vierkant beste). Min 3x3 voor leesbaarheid.
+        // SVG hex chart — wants square aspect ratio.
         label: 'Ability Radar',
         category: 'core',
         icon: '⬡',
         description: '6-axis radar chart of abilities.',
         defaultSize: [4, 4],
-        minSize: [3, 3],
-        maxSize: [8, 8],
+        minSize:    [3, 3],
+        maxSize:    [6, 6],
         render: function(ctx) { return renderWidgetAbilityRadar(ctx); }
     },
     'sneak-attack': {
-        // Big damage value + label = 2 lines.
+        // Big number + tiny caption.
         label: 'Sneak Attack',
         category: 'combat',
         icon: '🗡',
         description: 'Sneak attack damage (rogue).',
         defaultSize: [2, 2],
-        minSize: [2, 2],
-        maxSize: [6, 3],
+        minSize:    [2, 2],
+        maxSize:    [4, 3],
         render: function(ctx) { return renderWidgetSneakAttack(ctx); }
     },
     'metamagic': {
-        // List of options.
+        // Sorcerer-only list.
         label: 'Metamagic',
         category: 'spells',
         icon: '◈',
         description: 'Sorcerer metamagic options.',
         defaultSize: [5, 4],
-        minSize: [4, 3],
-        maxSize: [12, 6],
+        minSize:    [3, 3],
+        maxSize:    [12, 6],
         render: function(ctx) { return renderWidgetMetamagic(ctx); }
     },
 
     // ---- Custom / generic ----
     'text': {
-        // Title (1) + body (variable). Min 2H = title + 1 regel body.
+        // Free contentEditable; user picks comfortable size.
         label: 'Text Block',
         category: 'custom',
         icon: '✎',
         description: 'Editable text with optional title.',
         defaultSize: [4, 4],
-        minSize: [3, 3],
-        maxSize: [12, 12],
+        minSize:    [2, 2],
+        maxSize:    [12, 10],
         render: function(ctx) { return renderWidgetText(ctx); }
     },
     'image': {
-        // Visueel; aspect bepaalt grootte. Min 3x3 zodat content niet té klein wordt.
+        // Aspect-cover fills any rectangle.
         label: 'Image',
         category: 'custom',
         icon: '▣',
         description: 'Custom image or character portrait.',
         defaultSize: [4, 4],
-        minSize: [3, 3],
-        maxSize: [12, 10],
+        minSize:    [2, 2],
+        maxSize:    [12, 8],
         render: function(ctx) { return renderWidgetImage(ctx); }
     },
     'quote': {
-        // 1-2 regels italic tekst.
+        // 1-2 line italic text.
         label: 'Quote',
         category: 'story',
         icon: '❝',
         description: 'Random character quote.',
         defaultSize: [8, 2],
-        minSize: [5, 2],
-        maxSize: [12, 3],
+        minSize:    [4, 2],
+        maxSize:    [12, 3],
         render: function(ctx) { return renderWidgetQuote(ctx); }
     },
 
     // ---- Inventory / story ----
     'inventory': {
-        // Gold (1 line) + list. Default 5H ≈ 5-6 items + gold.
+        // Gold + item list with "manage →" link.
         label: 'Inventory',
         category: 'core',
         icon: '⛂',
         description: 'Item list + gold.',
         defaultSize: [6, 5],
-        minSize: [4, 3],
-        maxSize: [12, 12],
+        minSize:    [4, 3],
+        maxSize:    [12, 8],
         render: function(ctx) { return renderWidgetInventory(ctx); }
     },
 
     // ---- Family ----
     'family-diagram': {
-        // Big SVG, needs space.
+        // Big SVG — needs real estate.
         label: 'Family Diagram',
         category: 'family',
         icon: '⚶',
         description: 'Family tree for this character.',
-        defaultSize: [10, 7],
-        minSize: [6, 5],
-        maxSize: [12, 12],
+        defaultSize: [10, 6],
+        minSize:    [5, 4],
+        maxSize:    [12, 10],
         render: function(ctx) { return renderWidgetFamilyDiagram(ctx); }
     }
 };
@@ -439,15 +441,18 @@ function renderWidgetSpellsPrepared(ctx) {
     if (!hasSpellcasting(config.className)) return widgetEmpty('No spellcasting');
     var prepared = state.prepared || [];
     var html = '<div class="widget-body widget-spells-list">';
-    if (!prepared.length) html += '<p class="block-note">No spells prepared.</p>';
-    else {
+    if (!prepared.length) {
+        html += '<p class="block-note">No spells prepared.</p>';
+    } else {
+        html += '<div class="widget-list-clip">';
         html += '<ul class="spells-prepared-list">';
         for (var i = 0; i < prepared.length; i++) {
             html += '<li class="spell-prepared-item"><span class="spell-name">' + escapeHtml(prepared[i]) + '</span></li>';
         }
         html += '</ul>';
+        html += '<button class="widget-more" data-action="goto-spells-tab" title="Open Spells tab">Manage →</button>';
+        html += '</div>';
     }
-    html += '<button class="btn btn-ghost btn-sm" data-action="goto-spells-tab">Manage spells →</button>';
     html += '</div>';
     return html;
 }
@@ -455,9 +460,17 @@ function renderWidgetSpellsPrepared(ctx) {
 function renderWidgetWeapons(ctx) {
     var config = ctx.config, state = ctx.state, editable = ctx.editable, charId = ctx.charId;
     if (typeof renderWeaponsHTML !== 'function') return widgetEmpty('Weapons unavailable');
-    var inner = (config.weapons && config.weapons.length > 0) ? renderWeaponsHTML(config, state, editable, charId) : '<p class="block-note">No weapons equipped.</p>';
-    var html = '<div class="widget-body">' + inner;
-    if (editable) html += '<button class="btn btn-ghost btn-sm" data-action="add-weapon" style="margin-top:0.5rem;">+ Add Weapon</button>';
+    var hasWeapons = !!(config.weapons && config.weapons.length > 0);
+    var html = '<div class="widget-body widget-weapons">';
+    if (!hasWeapons) {
+        html += '<p class="block-note">No weapons equipped.</p>';
+        if (editable) html += '<button class="widget-more" data-action="add-weapon">+ Add →</button>';
+    } else {
+        html += '<div class="widget-list-clip">';
+        html += renderWeaponsHTML(config, state, editable, charId);
+        if (editable) html += '<button class="widget-more" data-action="add-weapon">+ Add →</button>';
+        html += '</div>';
+    }
     html += '</div>';
     return html;
 }
@@ -520,8 +533,10 @@ function renderWidgetInventory(ctx) {
     var items = state.items || [];
     var html = '<div class="widget-body widget-inventory">';
     html += '<div class="widget-inv-gold">Gold: ' + (state.gold || 0) + '</div>';
-    if (!items.length) html += '<p class="block-note">No items.</p>';
-    else {
+    if (!items.length) {
+        html += '<p class="block-note">No items.</p>';
+    } else {
+        html += '<div class="widget-list-clip">';
         html += '<ul class="widget-inv-list">';
         for (var i = 0; i < items.length; i++) {
             var it = items[i];
@@ -530,8 +545,9 @@ function renderWidgetInventory(ctx) {
             html += '</li>';
         }
         html += '</ul>';
+        if (editable) html += '<button class="widget-more" data-action="goto-inventory-tab" title="Open Inventory tab">Manage →</button>';
+        html += '</div>';
     }
-    if (editable) html += '<button class="btn btn-ghost btn-sm" data-action="goto-inventory-tab">Manage →</button>';
     html += '</div>';
     return html;
 }
@@ -594,6 +610,7 @@ function renderWidgetCombatLog(ctx) {
     if (!log.length) {
         html += '<p class="block-note">No combat events yet.</p>';
     } else {
+        html += '<div class="widget-list-clip">';
         html += '<div class="combat-log">';
         for (var i = 0; i < Math.min(log.length, 30); i++) {
             var e = log[i];
@@ -606,7 +623,8 @@ function renderWidgetCombatLog(ctx) {
             html += '</div>';
         }
         html += '</div>';
-        if (editable) html += '<button class="btn btn-ghost btn-sm" data-action="clear-combat-log">Clear log</button>';
+        if (editable) html += '<button class="widget-more" data-action="clear-combat-log" title="Clear all entries">Clear →</button>';
+        html += '</div>';
     }
     html += '</div>';
     return html;
@@ -631,7 +649,11 @@ function renderWidgetMetamagic(ctx) {
     var config = ctx.config;
     if (config.className !== 'sorcerer') return widgetEmpty('Sorcerer only');
     if (typeof renderMetamagicHTML !== 'function') return widgetEmpty('Metamagic unavailable');
-    return '<div class="widget-body">' + renderMetamagicHTML(ctx.charId, ctx.config, ctx.state) + '</div>';
+    return '<div class="widget-body widget-metamagic">'
+         + '<div class="widget-list-clip">'
+         +   renderMetamagicHTML(ctx.charId, ctx.config, ctx.state)
+         + '</div>'
+         + '</div>';
 }
 
 function renderWidgetFamilyDiagram(ctx) {

@@ -346,13 +346,13 @@ html[data-font-size="large"] .dashboard {
 .widget-body {
     padding-block: var(--widget-pad-block);
     padding-inline: var(--widget-pad-inline);
-    overflow: auto;
+    /* No scroll: content clips below the body. Lists use .widget-list-clip to
+       fade the cut-off and surface a "more →" affordance. */
+    overflow: hidden;
     min-block-size: 0;
     font-size: var(--widget-body-size);
     line-height: var(--widget-line-height);
     position: relative;
-    /* Body is its own grid so children can self-fit. Default: single-column
-       flow; per-widget overrides set their own template-columns/rows. */
     display: grid;
     grid-auto-rows: min-content;
     align-content: start;
@@ -633,10 +633,17 @@ html[data-font-size="large"] .dashboard {
    9. Per-widget content styles (unchanged from old dashboard.css — these style
    the bodies of specific widget types, not the grid itself)
    ========================================================================== */
+.widget-text {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    block-size: 100%;
+}
 .widget-text-title {
     margin: 0 0 0.4rem 0;
-    font-size: 1rem;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
     color: var(--accent-warm);
+    letter-spacing: 0.05em;
     outline: none;
 }
 .widget-text-title[contenteditable]:empty::before {
@@ -647,7 +654,10 @@ html[data-font-size="large"] .dashboard {
     font-size: 0.85rem;
     line-height: 1.5;
     outline: none;
-    min-block-size: 2em;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 1.4rem), transparent 100%);
+            mask-image: linear-gradient(180deg, #000 calc(100% - 1.4rem), transparent 100%);
+    min-block-size: 0;
 }
 .widget-text-body[contenteditable]:empty::before {
     content: 'Write here…';
@@ -660,16 +670,17 @@ html[data-font-size="large"] .dashboard {
 
 .widget-image {
     display: grid;
-    place-items: center;
-    padding: 0;
+    place-items: stretch;
+    padding: 0 !important;
     position: relative;
+    overflow: hidden;
+    block-size: 100%;
 }
 .widget-image img {
     inline-size: 100%;
     block-size: 100%;
-    max-inline-size: 100%;
-    max-block-size: 100%;
     object-fit: cover;
+    object-position: center;
     display: block;
 }
 .widget-image-placeholder { color: var(--text-dim); font-size: 0.85rem; }
@@ -689,27 +700,87 @@ html[data-font-size="large"] .dashboard {
 .widget-image-upload:hover { background: rgba(0,0,0,0.8); }
 
 .widget-quote {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
+    gap: 0.6rem;
+    block-size: 100%;
 }
-.widget-quote .char-quote-dynamic { margin: 0; flex: 1; font-style: italic; }
+.widget-quote .char-quote-dynamic {
+    margin: 0;
+    font-style: italic;
+    text-align: center;
+    color: color-mix(in srgb, var(--accent-warm) 50%, var(--text-main));
+    line-height: 1.3;
+    text-wrap: balance;
+}
+@container widget (aspect-ratio > 4) {
+    .widget-quote .char-quote-dynamic { font-size: 1.05em; }
+}
 .widget-quote .quote-refresh-btn {
     background: transparent;
-    border: none;
-    color: var(--text-dim);
+    border: 1px solid var(--hairline-gold);
+    color: var(--accent-warm);
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+    inline-size: 28px;
+    block-size: 28px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    transition: background 0.15s, transform 0.15s;
+}
+.widget-quote .quote-refresh-btn:hover {
+    background: color-mix(in srgb, var(--accent-warm) 15%, transparent);
+    transform: rotate(45deg);
 }
 
-/* Generic list rows (spells, inventory, weapons) — uniform rhythm */
+/* List-clip wrapper: contains a UL plus a sticky "more →" affordance.
+   When content overflows the body, the bottom is masked with a fade and the
+   "more" link stays visible below it. Render functions wrap their <ul> in
+   <div class="widget-list-clip"> and append the link as last child. */
+.widget-list-clip {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    min-block-size: 0;
+    --fade-h: 1.6rem;
+}
+.widget-list-clip > ul,
+.widget-list-clip > .clip-scroll {
+    overflow: hidden;
+    min-block-size: 0;
+    -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - var(--fade-h)), transparent 100%);
+            mask-image: linear-gradient(180deg, #000 calc(100% - var(--fade-h)), transparent 100%);
+}
+.widget-list-clip > .widget-more {
+    align-self: end;
+    justify-self: end;
+    background: transparent;
+    border: none;
+    color: var(--accent-warm);
+    font-size: 0.72rem;
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.3rem;
+    cursor: pointer;
+    margin-block-start: 0.15rem;
+}
+.widget-list-clip > .widget-more:hover {
+    color: var(--text-bright);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--accent-warm) 40%, transparent);
+}
+
+/* Generic list rows (spells, inventory, weapons, combat-log) — uniform rhythm */
 .widget-body ul {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
     gap: 0.05rem;
+    align-content: start;
 }
 .widget-body ul > li,
 .widget-spells-list .spell-prepared-item,
@@ -901,6 +972,55 @@ html[data-font-size="large"] .dashboard {
         grid-auto-rows: 1fr;
     }
 }
+
+/* Saving-throws & skills — legacy markup renders a list. We re-shape it into
+   an intrinsic grid so it auto-reflows on widget width AND becomes the same
+   visual rhythm as ability-scores / core-stats. */
+.widget-saves,
+.widget-skills,
+.widget .saves-list,
+.widget .skills-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-auto-rows: minmax(1.5rem, auto);
+    gap: 0.25rem 0.5rem;
+    block-size: 100%;
+    align-content: start;
+}
+.widget .save-row,
+.widget .skill-row,
+.widget-saves > *,
+.widget-skills > * {
+    display: grid;
+    grid-template-columns: 1.1rem 1fr auto;
+    align-items: center;
+    gap: 0.35rem;
+    padding-block: 0.18rem;
+    padding-inline: 0.25rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    border-block-end: 1px solid color-mix(in srgb, var(--hairline-gold) 25%, transparent);
+}
+.widget .save-name,
+.widget .skill-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.widget .save-mod,
+.widget .skill-mod {
+    color: var(--accent-warm);
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-display);
+    font-weight: 600;
+}
+/* Portrait widget → single column */
+@container widget (aspect-ratio < 0.7) {
+    .widget-saves, .widget-skills,
+    .widget .saves-list, .widget .skills-list {
+        grid-template-columns: 1fr;
+    }
+}
 .widget .ability {
     padding: 0.3rem 0.2rem;
     border-radius: 6px;
@@ -932,12 +1052,25 @@ html[data-font-size="large"] .dashboard {
     font-variant-numeric: tabular-nums;
 }
 
-.widget .slot-tracker { display: grid; gap: 0.4rem; }
+.widget .slot-tracker {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: minmax(1.4rem, 1fr);
+    gap: 0.35rem;
+    block-size: 100%;
+}
+/* Wide+short spell-slots widget → 2 columns of slot rows */
+@container widget (aspect-ratio > 1.8) {
+    .widget .slot-tracker { grid-template-columns: 1fr 1fr; }
+}
+@container widget (aspect-ratio > 3.5) {
+    .widget .slot-tracker { grid-template-columns: 1fr 1fr 1fr; }
+}
 .widget .slot-level {
     display: grid;
-    grid-template-columns: minmax(60px, auto) 1fr;
+    grid-template-columns: minmax(50px, auto) 1fr;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
 }
 .widget .slot-level-label {
     font-size: 0.65rem;
@@ -963,12 +1096,31 @@ html[data-font-size="large"] .dashboard {
     opacity: 0.55;
 }
 
-.widget-death-saves { display: flex; flex-direction: column; gap: 0.4rem; }
-.widget-death-saves .death-save-group { display: flex; align-items: center; gap: 0.5rem; }
+.widget-death-saves {
+    display: grid;
+    gap: 0.35rem;
+    block-size: 100%;
+    align-content: center;
+}
+.widget-death-saves .death-save-group {
+    display: grid;
+    grid-template-columns: minmax(60px, auto) 1fr;
+    align-items: center;
+    gap: 0.5rem;
+}
+@container widget (aspect-ratio > 2.8) {
+    .widget-death-saves {
+        grid-template-columns: 1fr 1fr;
+        align-content: center;
+        gap: 0.3rem 1.2rem;
+    }
+}
 .widget-death-saves .death-save-group label {
-    font-size: 0.75rem;
+    font-size: 0.62rem;
     color: var(--text-dim);
-    min-inline-size: 70px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--font-display);
 }
 .widget-death-saves .death-save-dots { display: flex; gap: 0.3rem; }
 .widget-death-saves .death-save-dot {
@@ -1018,14 +1170,32 @@ html[data-font-size="large"] .dashboard {
     font-family: var(--font-display);
 }
 
-.widget-exhaustion .exhaustion-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+.widget-exhaustion {
+    display: grid;
+    block-size: 100%;
+    align-content: center;
 }
-.widget-exhaustion .exhaustion-current-label { font-size: 0.85rem; min-inline-size: 50px; }
-.widget-exhaustion .exhaustion-dots { display: flex; gap: 0.25rem; }
+.widget-exhaustion .exhaustion-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.6rem;
+}
+@container widget (aspect-ratio < 1.4) {
+    .widget-exhaustion .exhaustion-row {
+        grid-template-columns: 1fr;
+        gap: 0.3rem;
+        justify-items: center;
+        text-align: center;
+    }
+}
+.widget-exhaustion .exhaustion-current-label {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    color: var(--accent-warm);
+    letter-spacing: 0.06em;
+}
+.widget-exhaustion .exhaustion-dots { display: flex; gap: 0.3rem; }
 .widget-exhaustion .exhaustion-dot {
     inline-size: 18px; block-size: 18px;
     border: 2px solid var(--hairline-gold);
@@ -1061,8 +1231,31 @@ html[data-font-size="large"] .dashboard {
 }
 .widget-combat-log .btn-inline-delete:hover { color: var(--danger); }
 
-.widget-ability-radar { display: grid; place-items: center; padding: 0.4rem; }
-.widget-ability-radar svg { max-inline-size: 100%; max-block-size: 100%; block-size: auto; }
+.widget-ability-radar {
+    display: grid;
+    place-items: center;
+    padding: 0.4rem;
+    block-size: 100%;
+    aspect-ratio: 1;
+    justify-self: center;
+    align-self: center;
+}
+.widget-ability-radar svg {
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: 100%;
+    max-block-size: 100%;
+}
+.widget-family {
+    display: grid;
+    place-items: stretch;
+    block-size: 100%;
+    overflow: hidden;
+}
+.widget-family svg {
+    inline-size: 100%;
+    block-size: 100%;
+}
 
 .widget-sneak-attack {
     display: grid;
@@ -1086,6 +1279,14 @@ html[data-font-size="large"] .dashboard {
     font-family: var(--font-display);
 }
 
+.widget-xp,
+.widget .xp-tracker {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    gap: 0.35rem;
+    block-size: 100%;
+    align-content: center;
+}
 .widget .xp-tracker .xp-bar {
     block-size: 6px;
     background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
