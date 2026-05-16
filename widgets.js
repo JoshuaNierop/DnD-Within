@@ -799,12 +799,14 @@ function renderWidgetConditions(ctx) {
     var state = ctx.state;
     var active = state.conditions || [];
     var html = '<div class="widget-body widget-conditions">';
+    html += '<div class="widget-list-clip">';
     html += '<div class="conditions-pills">';
     for (var i = 0; i < DND_CONDITIONS.length; i++) {
         var c = DND_CONDITIONS[i];
         var isActive = active.indexOf(c) !== -1;
         html += '<button class="condition-pill' + (isActive ? ' active' : '') + '" data-action="toggle-condition" data-condition="' + escapeAttr(c) + '" title="' + escapeAttr(c) + '">' + escapeHtml(c) + '</button>';
     }
+    html += '</div>';
     html += '</div>';
     html += '</div>';
     return html;
@@ -878,10 +880,12 @@ function renderWidgetTIBF(ctx) {
              + '</section>';
     }
     var html = '<div class="widget-body widget-tibf">';
+    html += '<div class="widget-list-clip">';
     html += field('personality', 'Personality Traits');
     html += field('ideals',      'Ideals');
     html += field('bonds',       'Bonds');
     html += field('flaws',       'Flaws');
+    html += '</div>';
     html += '</div>';
     return html;
 }
@@ -966,10 +970,12 @@ function renderWidgetProficiencies(ctx) {
              + '</div>';
     }
     var html = '<div class="widget-body widget-proficiencies">';
+    html += '<div class="widget-list-clip">';
     html += row('Armor',     armor);
     html += row('Weapons',   weapons);
     html += row('Tools',     tools);
     html += row('Languages', languages);
+    html += '</div>';
     html += '</div>';
     return html;
 }
