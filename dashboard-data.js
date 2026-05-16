@@ -238,11 +238,12 @@ var DASHBOARD_DEFAULT_WIDGETS = {
     ],
     stats: [
         { type: 'ability-scores', w: 12, h: 3 },
-        { type: 'saving-throws',  w: 4,  h: 4 },
-        { type: 'skills',         w: 4,  h: 7 },
-        { type: 'ability-radar',  w: 4,  h: 4 },
-        { type: 'passive-scores', w: 8,  h: 2 },
-        { type: 'class-features', w: 8,  h: 5 }
+        { type: 'saving-throws',  w: 4,  h: 5 },
+        { type: 'skills',         w: 4,  h: 8 },
+        { type: 'ability-radar',  w: 4,  h: 5 },
+        { type: 'passive-scores', w: 6,  h: 2 },
+        { type: 'proficiencies',  w: 6,  h: 3 },
+        { type: 'class-features', w: 12, h: 4 }
     ],
     combat: [
         { type: 'hp-tracker',     w: 4, h: 3 },
