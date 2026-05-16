@@ -228,10 +228,11 @@ function dashboardDefaultWidgetsForTab(tabId) {
 // outer grid auto-flows dense so smaller widgets fill gaps after larger ones.
 var DASHBOARD_DEFAULT_WIDGETS = {
     overview: [
-        { type: 'hp-tracker',     w: 4, h: 3 },
-        { type: 'core-stats',     w: 8, h: 2 },
-        { type: 'passive-scores', w: 4, h: 2 },
-        { type: 'xp-tracker',     w: 8, h: 2 },
+        { type: 'hp-tracker',     w: 4,  h: 3 },
+        { type: 'core-stats',     w: 8,  h: 3 },
+        { type: 'inspiration',    w: 2,  h: 2 },
+        { type: 'passive-scores', w: 4,  h: 2 },
+        { type: 'xp-tracker',     w: 6,  h: 2 },
         { type: 'ability-scores', w: 12, h: 3 },
         { type: 'quote',          w: 12, h: 2 }
     ],
