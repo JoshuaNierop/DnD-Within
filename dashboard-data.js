@@ -246,14 +246,15 @@ var DASHBOARD_DEFAULT_WIDGETS = {
         { type: 'class-features', w: 12, h: 4 }
     ],
     combat: [
-        { type: 'hp-tracker',     w: 4, h: 3 },
-        { type: 'core-stats',     w: 8, h: 2 },
-        { type: 'death-saves',    w: 4, h: 2 },
-        { type: 'inspiration',    w: 2, h: 2 },
-        { type: 'concentration',  w: 6, h: 2 },
-        { type: 'conditions',     w: 12, h: 3 },
-        { type: 'weapons',        w: 6, h: 4 },
-        { type: 'combat-log',     w: 6, h: 4 }
+        { type: 'hp-tracker',     w: 4,  h: 3 },
+        { type: 'core-stats',     w: 8,  h: 3 },
+        { type: 'death-saves',    w: 4,  h: 2 },
+        { type: 'inspiration',    w: 2,  h: 2 },
+        { type: 'sneak-attack',   w: 3,  h: 2 },
+        { type: 'concentration',  w: 3,  h: 2 },
+        { type: 'conditions',     w: 12, h: 4 },
+        { type: 'weapons',        w: 6,  h: 5 },
+        { type: 'combat-log',     w: 6,  h: 5 }
     ],
     spells: [
         { type: 'concentration',   w: 6, h: 2 },
