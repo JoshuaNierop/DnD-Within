@@ -257,10 +257,10 @@ var DASHBOARD_DEFAULT_WIDGETS = {
         { type: 'combat-log',     w: 6,  h: 5 }
     ],
     spells: [
-        { type: 'concentration',   w: 6, h: 2 },
-        { type: 'spell-slots',     w: 6, h: 4 },
-        { type: 'spells-prepared', w: 6, h: 5 },
-        { type: 'metamagic',       w: 6, h: 4 }
+        { type: 'concentration',   w: 12, h: 2 },
+        { type: 'spell-slots',     w: 6,  h: 5 },
+        { type: 'spells-prepared', w: 6,  h: 7 },
+        { type: 'metamagic',       w: 6,  h: 4 }
     ],
     story: [
         { type: 'quote', w: 12, h: 2 },
