@@ -226,11 +226,45 @@ html[data-font-size="large"] .tab-content > .dashboard {
     min-inline-size: 0;
     overflow: hidden;
     isolation: isolate;
+    position: relative;
 
     background: var(--bg-card);
     border: 1px solid var(--hairline-gold);
     border-radius: var(--radius);
     transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* Drag-resize handles — only visible in edit mode. East = width, South = height.
+   Slim strips along the trailing edges; the cursor flips to ew-resize / ns-resize
+   so the affordance is immediately clear, like a window edge in Windows. */
+.widget-resize-handle {
+    position: absolute;
+    z-index: 6;
+    background: transparent;
+    transition: background 0.15s;
+    display: none;
+    touch-action: none;
+}
+.dashboard.is-editing .widget-resize-handle { display: block; }
+.widget-resize-e {
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: 8px;
+    cursor: ew-resize;
+}
+.widget-resize-s {
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: 8px;
+    cursor: ns-resize;
+}
+.widget-resize-handle:hover,
+.widget-resize-handle.is-dragging {
+    background: color-mix(in srgb, var(--accent-warm) 35%, transparent);
+}
+.widget.is-resizing {
+    outline: 2px solid var(--accent-warm);
+    outline-offset: -2px;
 }
 
 .widget:hover {

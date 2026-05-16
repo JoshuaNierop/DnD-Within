@@ -138,15 +138,6 @@ function dashboardHandleAction(action, target, event) {
         if (typeof renderApp === 'function') renderApp();
         return true;
     }
-    if (action === 'widget-cycle-w' || action === 'widget-cycle-h') {
-        var charPage1 = document.querySelector('.character-page');
-        var dash1 = target.closest('.dashboard');
-        if (!charPage1 || !dash1) return true;
-        var dim = (action === 'widget-cycle-w') ? 'w' : 'h';
-        cycleWidgetDim(charPage1.dataset.charId, dash1.dataset.tabId, target.dataset.wid, dim);
-        if (typeof renderApp === 'function') renderApp();
-        return true;
-    }
     if (action === 'widget-toggle-star') {
         var charPage2 = document.querySelector('.character-page');
         var dash2 = target.closest('.dashboard');
@@ -197,6 +188,93 @@ function dashboardHandleAction(action, target, event) {
 // ====================================================================
 function dashboardPostRender() {
     dashboardBindWidgetContentEditors();
+    dashboardBindWidgetResizeHandles();
+}
+
+// Drag-resize: pointer down on a .widget-resize-handle starts a session that
+// tracks pointer movement and rewrites --w or --h on the widget element. On
+// pointerup the new dim is persisted via saveTabWidgets. Only one axis moves
+// per drag — the off-axis is left untouched (the inner content reflows on its
+// own via container queries).
+function dashboardBindWidgetResizeHandles() {
+    var charPage = document.querySelector('.character-page');
+    if (!charPage) return;
+    var dash = charPage.querySelector('.dashboard');
+    if (!dash) return;
+    if (dash._dashResizeBound) return;
+    dash._dashResizeBound = true;
+
+    dash.addEventListener('pointerdown', function(ev) {
+        if (!dashboardEditMode) return;
+        var handle = ev.target.closest('.widget-resize-handle');
+        if (!handle) return;
+        var widgetEl = handle.closest('.widget');
+        if (!widgetEl) return;
+        ev.preventDefault();
+        handle.setPointerCapture(ev.pointerId);
+        handle.classList.add('is-dragging');
+        widgetEl.classList.add('is-resizing');
+
+        var rect = widgetEl.getBoundingClientRect();
+        var dim = handle.dataset.resizeDim;            // 'w' or 'h'
+        var startW = parseInt(widgetEl.style.getPropertyValue('--w'), 10) ||
+                     parseInt(getComputedStyle(widgetEl).getPropertyValue('--w'), 10) || 4;
+        var startH = parseInt(widgetEl.style.getPropertyValue('--h'), 10) ||
+                     parseInt(getComputedStyle(widgetEl).getPropertyValue('--h'), 10) || 3;
+        var colPx = rect.width / Math.max(1, startW);
+        var rowPx = rect.height / Math.max(1, startH);
+        var startX = ev.clientX;
+        var startY = ev.clientY;
+        var dashCols = parseInt(getComputedStyle(dash).getPropertyValue('--dash-cols'), 10) || 12;
+        var minW = 2, maxW = dashCols;
+        var minH = 1, maxH = 12;
+        var lastW = startW, lastH = startH;
+
+        function onMove(mv) {
+            if (dim === 'w') {
+                var dx = mv.clientX - startX;
+                var nw = Math.round(startW + dx / colPx);
+                if (nw < minW) nw = minW;
+                if (nw > maxW) nw = maxW;
+                if (nw !== lastW) {
+                    widgetEl.style.setProperty('--w', nw);
+                    lastW = nw;
+                }
+            } else {
+                var dy = mv.clientY - startY;
+                var nh = Math.round(startH + dy / rowPx);
+                if (nh < minH) nh = minH;
+                if (nh > maxH) nh = maxH;
+                if (nh !== lastH) {
+                    widgetEl.style.setProperty('--h', nh);
+                    lastH = nh;
+                }
+            }
+        }
+        function onUp() {
+            handle.removeEventListener('pointermove', onMove);
+            handle.removeEventListener('pointerup', onUp);
+            handle.removeEventListener('pointercancel', onUp);
+            handle.classList.remove('is-dragging');
+            widgetEl.classList.remove('is-resizing');
+
+            var wid = handle.dataset.wid;
+            var tabId = dash.dataset.tabId;
+            var charId = charPage.dataset.charId;
+            var widgets = loadTabWidgets(charId, tabId) ||
+                          (typeof dashboardDefaultWidgetsForTab === 'function' ? dashboardDefaultWidgetsForTab(tabId) : []);
+            for (var i = 0; i < widgets.length; i++) {
+                if (widgets[i].wid !== wid) continue;
+                if (dim === 'w') widgets[i].w = lastW;
+                else             widgets[i].h = lastH;
+                break;
+            }
+            saveTabWidgets(charId, tabId, widgets);
+        }
+        handle.addEventListener('pointermove', onMove);
+        handle.addEventListener('pointerup', onUp);
+        handle.addEventListener('pointercancel', onUp);
+    });
 }
 
 function dashboardBindWidgetContentEditors() {

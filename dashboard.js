@@ -116,15 +116,11 @@ function resolveWidgetDims(def, inst) {
 
 // Build inner HTML for one widget — header (icon, title, actions) + body.
 function buildWidgetContent(def, inst, ctx, editable) {
-    var dims = resolveWidgetDims(def, inst);
     var html = '<div class="widget-header">';
     html += '<span class="widget-icon">' + (def && def.icon || '◇') + '</span>';
     html += '<span class="widget-title">' + escapeHtml(def && def.label || inst.type) + '</span>';
 
-    // Resize controls only in edit mode — two cycle buttons for width and height.
     if (editable && dashboardEditMode) {
-        html += '<button class="widget-action widget-resize widget-resize-w" data-action="widget-cycle-w" data-wid="' + inst.wid + '" title="Width: click to increase (wraps at max)" aria-label="Cycle width">↔ ' + dims.w + '</button>';
-        html += '<button class="widget-action widget-resize widget-resize-h" data-action="widget-cycle-h" data-wid="' + inst.wid + '" title="Height: click to increase (wraps at max)" aria-label="Cycle height">↕ ' + dims.h + '</button>';
         html += '<button class="widget-action widget-star' + (inst.starred ? ' active' : '') + '" data-action="widget-toggle-star" data-wid="' + inst.wid + '" title="Pin to top">★</button>';
         html += '<button class="widget-action widget-remove" data-action="widget-remove" data-wid="' + inst.wid + '" title="Remove">×</button>';
     }
@@ -141,6 +137,13 @@ function buildWidgetContent(def, inst, ctx, editable) {
         html += '<div class="widget-error">Unknown widget type: ' + escapeHtml(inst.type) + '</div>';
     }
     html += '</div>';
+
+    // Drag-resize handles — only visible in edit mode (CSS-hidden otherwise).
+    // East handle = width, South handle = height. Each modifies one dim only.
+    if (editable && dashboardEditMode) {
+        html += '<div class="widget-resize-handle widget-resize-e" data-resize-dim="w" data-wid="' + inst.wid + '" title="Drag to resize width"></div>';
+        html += '<div class="widget-resize-handle widget-resize-s" data-resize-dim="h" data-wid="' + inst.wid + '" title="Drag to resize height"></div>';
+    }
 
     return html;
 }
