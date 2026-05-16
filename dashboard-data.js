@@ -264,9 +264,9 @@ var DASHBOARD_DEFAULT_WIDGETS = {
     ],
     story: [
         { type: 'quote', w: 12, h: 2 },
-        { type: 'tibf',  w: 8,  h: 5 },
-        { type: 'image', w: 4,  h: 5 },
-        { type: 'text',  w: 12, h: 5, config: { title: 'Background', body: '' } }
+        { type: 'tibf',  w: 8,  h: 6 },
+        { type: 'image', w: 4,  h: 6, config: { title: 'Portrait' } },
+        { type: 'text',  w: 12, h: 6, config: { title: 'Background', body: '' } }
     ],
     inventory: [
         { type: 'currency',      w: 8, h: 2 },
