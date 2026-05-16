@@ -92,11 +92,6 @@ function renderDashboardToolbar(charId, tabId, editable) {
     }
     html += '</div></div>';
 
-    // Quick-actions
-    html += '<button class="dash-tool-btn" data-action="toggle-notes-panel" title="Notities">📝</button>';
-    html += '<button class="dash-tool-btn" data-action="toggle-dice-panel" title="Dice roller">🎲</button>';
-    html += '<a class="dash-tool-btn" href="' + (typeof WIDGET_EDITOR_URL !== 'undefined' ? WIDGET_EDITOR_URL : 'http://localhost:8766/') + '?back=' + encodeURIComponent(window.location.href) + '" target="_blank" rel="noopener" title="Open Widget Editor">⚒</a>';
-
     if (editable) {
         html += '<button class="dash-tool-btn' + (dashboardEditMode ? ' active' : '') + '" data-action="dashboard-toggle-edit" title="Edit dashboard">' + (dashboardEditMode ? '✓' : '✎') + '</button>';
         if (dashboardEditMode) {

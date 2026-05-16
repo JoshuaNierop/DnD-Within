@@ -27,9 +27,6 @@ var DASHBOARD_DEFAULT_TABS = [
     { id: 'inventory', label: 'Inventory', icon: '⛂', system: true,  legacy: true  }
 ];
 
-// External Widget Editor URL — overrideable via window.WIDGET_EDITOR_URL.
-var WIDGET_EDITOR_URL = (typeof window !== 'undefined' && window.WIDGET_EDITOR_URL) || 'https://dnd-widget-editor.pages.dev/';
-
 // Font-size scaling. Tokens consumed in dashboard.css via html[data-font-size].
 function dashboardBodyFontPx() {
     var fs = (typeof getFontSize === 'function') ? getFontSize() : 'medium';
