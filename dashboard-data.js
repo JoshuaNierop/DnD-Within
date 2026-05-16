@@ -275,7 +275,7 @@ var DASHBOARD_DEFAULT_WIDGETS = {
         { type: 'text',          w: 4, h: 5, config: { title: 'Notes', body: '' } }
     ],
     social: [
-        { type: 'tibf',          w: 12, h: 5 },
+        { type: 'tibf',          w: 12, h: 6 },
         { type: 'proficiencies', w: 6,  h: 4 },
         { type: 'text',          w: 6,  h: 4, config: { title: 'Allies / Enemies', body: '' } }
     ],
