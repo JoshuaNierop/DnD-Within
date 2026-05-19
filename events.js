@@ -2832,11 +2832,29 @@ function bindPageEvents(route) {
             }
             return;
         }
+        var uncompleteBtn = target.matches('[data-action="uncomplete-quest"]') ? target : target.closest('[data-action="uncomplete-quest"]');
+        if (uncompleteBtn) {
+            var qIdx = parseInt(uncompleteBtn.dataset.questIdx);
+            var qData = getQuestData();
+            if (qData.completed[qIdx]) {
+                qData.active.push(qData.completed[qIdx]);
+                qData.completed.splice(qIdx, 1);
+                localStorage.setItem('dw_quests', JSON.stringify(qData));
+                if (typeof syncUpload === 'function') syncUpload('dw_quests');
+                renderApp();
+            }
+            return;
+        }
         var deleteBtn = target.matches('[data-action="delete-quest"]') ? target : target.closest('[data-action="delete-quest"]');
         if (deleteBtn) {
             var qIdx = parseInt(deleteBtn.dataset.questIdx);
+            var fromCompleted = deleteBtn.dataset.completed === '1';
             var qData = getQuestData();
-            qData.active.splice(qIdx, 1);
+            if (fromCompleted) {
+                qData.completed.splice(qIdx, 1);
+            } else {
+                qData.active.splice(qIdx, 1);
+            }
             localStorage.setItem('dw_quests', JSON.stringify(qData));
             if (typeof syncUpload === 'function') syncUpload('dw_quests');
             renderApp();

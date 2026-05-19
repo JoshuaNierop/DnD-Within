@@ -13,7 +13,7 @@ var TRANSLATIONS = {
         'login.error.password': 'Onjuist wachtwoord.',
 
         // Navbar
-        'nav.dashboard': 'Homepage',
+        'nav.dashboard': 'Home',
         'nav.characters': 'Characters',
         'nav.maps': 'Maps',
         'nav.timeline': 'Timeline',
@@ -602,7 +602,7 @@ var TRANSLATIONS = {
         'login.error.password': 'Incorrect password.',
 
         // Navbar
-        'nav.dashboard': 'Homepage',
+        'nav.dashboard': 'Home',
         'nav.characters': 'Characters',
         'nav.maps': 'Maps',
         'nav.timeline': 'Timeline',

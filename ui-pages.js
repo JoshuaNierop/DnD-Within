@@ -615,7 +615,14 @@ function renderDashboard() {
     if (questData.completed.length > 0) {
         html += '<details class="quest-completed-section"><summary class="text-dim" style="cursor:pointer;font-size:0.85rem;">' + t('quest.completed') + ' (' + questData.completed.length + ')</summary>';
         for (var qc = 0; qc < questData.completed.length; qc++) {
-            html += '<div class="quest-item quest-done"><span class="quest-icon">&#10003;</span><span style="text-decoration:line-through;color:var(--text-dim);">' + escapeHtml(questData.completed[qc].title) + '</span></div>';
+            html += '<div class="quest-item quest-done">';
+            html += '<span class="quest-icon">&#10003;</span>';
+            html += '<span style="text-decoration:line-through;color:var(--text-dim);flex:1;">' + escapeHtml(questData.completed[qc].title) + '</span>';
+            html += '<div class="quest-actions">';
+            html += '<button class="btn btn-ghost btn-sm" data-action="uncomplete-quest" data-quest-idx="' + qc + '" title="Terug naar actief">&#8634;</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="delete-quest" data-completed="1" data-quest-idx="' + qc + '" style="color:var(--danger);" title="Verwijder">&times;</button>';
+            html += '</div>';
+            html += '</div>';
         }
         html += '</details>';
     }

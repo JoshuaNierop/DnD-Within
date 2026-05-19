@@ -8369,8 +8369,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     position: fixed;
     bottom: var(--fab-slot-1);
     right: calc(1.5rem + 60px);
-    width: 280px;
-    max-height: calc(100vh - 12rem);
+    width: min(480px, 40vw);
+    height: min(720px, 75vh);
+    max-height: calc(100vh - 8rem);
     background: var(--bg-card);
     border: 1px solid #a78bfa;
     border-radius: var(--radius);
@@ -8977,12 +8978,23 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
     .bug-fab            { left: calc(87.5% - 26px) !important; }
 
     /* Panels open full-width above the bar */
-    .dice-panel,
-    .notes-panel {
+    .dice-panel {
         bottom: calc(0.6rem + 62px) !important;
         right: 0.5rem !important;
         left: 0.5rem !important;
         width: auto !important;
+        max-width: none !important;
+    }
+
+    /* Notes panel: full-screen op mobiel; 100dvh houdt rekening met software keyboard */
+    .notes-panel {
+        top: 0.5rem !important;
+        bottom: calc(0.6rem + 62px) !important;
+        left: 0.5rem !important;
+        right: 0.5rem !important;
+        width: auto !important;
+        height: auto !important;
+        max-height: none !important;
         max-width: none !important;
     }
 
