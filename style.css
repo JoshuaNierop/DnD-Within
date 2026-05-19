@@ -209,9 +209,6 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 18ch;
 }
 
 .nav-logo:hover {
