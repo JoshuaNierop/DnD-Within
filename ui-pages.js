@@ -215,10 +215,14 @@ function renderHome() {
         html += '</div>';
 
         // Session info — number + next-session date (DM-editable)
+        // Session count: prefer per-campaign value, fall back to global dw_session_number
+        // (same source the campaign-dashboard uses) so the two views stay consistent.
+        var globalSessionNum = parseInt(localStorage.getItem('dw_session_number') || '0', 10);
+        var displaySession = camp.sessionCount > 0 ? camp.sessionCount : globalSessionNum;
         html += '<dl class="campaign-session-info">';
         html += '<div class="campaign-session-row">';
         html += '<dt>' + t('home.session') + '</dt>';
-        html += '<dd>#' + (camp.sessionCount > 0 ? camp.sessionCount : '—') + '</dd>';
+        html += '<dd>#' + (displaySession > 0 ? displaySession : '—') + '</dd>';
         html += '</div>';
         html += '<div class="campaign-session-row">';
         html += '<dt>' + t('home.nextsession') + '</dt>';
