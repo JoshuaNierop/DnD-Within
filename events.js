@@ -3170,10 +3170,13 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Zoom controls
-        if (target.matches('[data-action="zoom-in"]')) { mapZoom = Math.min(mapZoom * 1.3, 5); renderApp(); return; }
-        if (target.matches('[data-action="zoom-out"]')) { mapZoom = Math.max(mapZoom / 1.3, 0.3); renderApp(); return; }
-        if (target.matches('[data-action="zoom-reset"]')) { mapZoom = 1; mapPanX = 0; mapPanY = 0; renderApp(); return; }
+        // Toggle pin-edit mode
+        if (target.matches('[data-action="toggle-edit-pins"]') || target.closest('[data-action="toggle-edit-pins"]')) {
+            editingPins = !editingPins;
+            addingPin = false;
+            renderApp();
+            return;
+        }
 
         // Rename map
         if (target.matches('[data-action="rename-map"]') || target.closest('[data-action="rename-map"]')) {
@@ -3255,12 +3258,6 @@ function bindPageEvents(route) {
                     }
                 }
                 modalHtml += '</select>';
-                modalHtml += '<div id="pin-portal-size" style="display:none;flex-direction:column;gap:0.4rem;padding:0.5rem;border:1px dashed var(--border);border-radius:6px;">';
-                modalHtml += '<label style="font-size:0.75rem;color:var(--text-dim);">Onzichtbare portal-ovaal (% van kaart)</label>';
-                modalHtml += '<div style="display:flex;gap:0.5rem;">';
-                modalHtml += '<input type="number" class="edit-input" id="pin-portal-w" placeholder="Breedte" min="1" max="100" step="0.5" value="8" style="flex:1;">';
-                modalHtml += '<input type="number" class="edit-input" id="pin-portal-h" placeholder="Hoogte" min="1" max="100" step="0.5" value="5" style="flex:1;">';
-                modalHtml += '</div></div>';
                 modalHtml += '</div>';
                 modalHtml += '<div class="modal-actions" style="margin-top:1rem;">';
                 modalHtml += '<button class="btn btn-primary" data-modal-action="save-pin">' + t('generic.save') + '</button>';
@@ -3272,13 +3269,6 @@ function bindPageEvents(route) {
                 if (typeof lockBodyScroll === 'function') lockBodyScroll();
                 var pinLabelInput = document.getElementById('pin-label-input');
                 if (pinLabelInput) pinLabelInput.focus();
-                var pinLinkSelectEl = document.getElementById('pin-link-select');
-                var pinPortalSizeEl = document.getElementById('pin-portal-size');
-                if (pinLinkSelectEl && pinPortalSizeEl) {
-                    pinLinkSelectEl.addEventListener('change', function() {
-                        pinPortalSizeEl.style.display = pinLinkSelectEl.value ? 'flex' : 'none';
-                    });
-                }
 
                 var pinModal = document.getElementById('pin-modal');
                 pinModal.addEventListener('click', function(me) {
@@ -3294,15 +3284,6 @@ function bindPageEvents(route) {
                         // Empty label allowed: dot-only pin for locations already named on the map
 
                         var targetMapId = linkEl ? linkEl.value : null;
-                        var portalW = null, portalH = null;
-                        if (targetMapId) {
-                            var pwEl = document.getElementById('pin-portal-w');
-                            var phEl = document.getElementById('pin-portal-h');
-                            var pwVal = pwEl ? parseFloat(pwEl.value) : NaN;
-                            var phVal = phEl ? parseFloat(phEl.value) : NaN;
-                            portalW = (isFinite(pwVal) && pwVal > 0) ? Math.min(pwVal, 100) : 8;
-                            portalH = (isFinite(phVal) && phVal > 0) ? Math.min(phVal, 100) : 5;
-                        }
                         var mData2 = getMapsData();
                         var mDim2 = mData2.dimensions[activeDimension];
                         for (var cmi2 = 0; cmi2 < mDim2.maps.length; cmi2++) {
@@ -3310,17 +3291,17 @@ function bindPageEvents(route) {
                                 if (!Array.isArray(mDim2.maps[cmi2].pins)) mDim2.maps[cmi2].pins = mDim2.maps[cmi2].pins ? Object.values(mDim2.maps[cmi2].pins) : [];
                                 var newPin = {
                                     id: 'pin' + Date.now(),
-                                    x: pinX,
-                                    y: pinY,
                                     label: label,
-                                    targetMap: targetMapId || null
+                                    targetMap: targetMapId || null,
+                                    shape: { kind: 'circle', cx: pinX, cy: pinY, r: 5, nodes: [] }
                                 };
-                                if (targetMapId) { newPin.w = portalW; newPin.h = portalH; }
                                 mDim2.maps[cmi2].pins.push(newPin);
                                 break;
                             }
                         }
                         saveMapsData(mData2);
+                        // Open edit-mode na plaatsen zodat user direct nodes kan toevoegen
+                        editingPins = true;
                     }
 
                     pinModal.remove();
@@ -3333,9 +3314,11 @@ function bindPageEvents(route) {
         }
 
         // Delete pin
-        if (target.matches('[data-action="delete-pin"]')) {
+        if (target.matches('[data-action="delete-pin"]') || target.closest('[data-action="delete-pin"]')) {
             e.stopPropagation();
-            var delPinIdx = parseInt(target.dataset.pinIdx);
+            var dpBtn = target.closest('[data-action="delete-pin"]') || target;
+            var delPinIdx = parseInt(dpBtn.dataset.pinIdx);
+            if (!confirm('Verwijder deze pin?')) return;
             var mData = getMapsData();
             var mDim = mData.dimensions[activeDimension];
             for (var dmi = 0; dmi < mDim.maps.length; dmi++) {
@@ -3346,6 +3329,67 @@ function bindPageEvents(route) {
                     break;
                 }
             }
+            return;
+        }
+
+        // Edit pin label/link
+        if (target.matches('[data-action="edit-pin-meta"]') || target.closest('[data-action="edit-pin-meta"]')) {
+            e.stopPropagation();
+            var epBtn = target.closest('[data-action="edit-pin-meta"]') || target;
+            var epIdx = parseInt(epBtn.dataset.pinIdx);
+            var epData = getMapsData();
+            var epDim = epData.dimensions[activeDimension];
+            var epMap = null;
+            for (var epmi = 0; epmi < epDim.maps.length; epmi++) {
+                if (epDim.maps[epmi].id === activeMapId) { epMap = epDim.maps[epmi]; break; }
+            }
+            if (!epMap || !epMap.pins[epIdx]) return;
+            var epPin = epMap.pins[epIdx];
+
+            var epModalHtml = '<div class="modal-overlay" id="pin-meta-modal">';
+            epModalHtml += '<div class="modal-box" style="max-width:400px;">';
+            epModalHtml += '<h3>Pin bewerken</h3>';
+            epModalHtml += '<div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">';
+            epModalHtml += '<input type="text" class="edit-input" id="pin-meta-label" placeholder="Label" value="' + escapeAttr(epPin.label || '') + '">';
+            epModalHtml += '<label style="font-size:0.8rem;color:var(--text-dim);">Link naar map</label>';
+            epModalHtml += '<select class="edit-input" id="pin-meta-link" style="padding:0.5rem;">';
+            epModalHtml += '<option value="">' + t('maps.addpin.nolink') + '</option>';
+            for (var epdi = 0; epdi < epData.dimensions.length; epdi++) {
+                var epdMaps = epData.dimensions[epdi].maps || [];
+                for (var epdmi = 0; epdmi < epdMaps.length; epdmi++) {
+                    if (epdMaps[epdmi].id === activeMapId) continue;
+                    var epDimLabel = epData.dimensions.length > 1 ? ' (' + epData.dimensions[epdi].name + ')' : '';
+                    var selAttr = epdMaps[epdmi].id === epPin.targetMap ? ' selected' : '';
+                    epModalHtml += '<option value="' + epdMaps[epdmi].id + '"' + selAttr + '>' + escapeHtml(epdMaps[epdmi].name) + epDimLabel + '</option>';
+                }
+            }
+            epModalHtml += '</select>';
+            epModalHtml += '</div>';
+            epModalHtml += '<div class="modal-actions" style="margin-top:1rem;">';
+            epModalHtml += '<button class="btn btn-primary" data-modal-action="save-pin-meta">' + t('generic.save') + '</button>';
+            epModalHtml += '<button class="btn btn-ghost" data-modal-action="cancel-pin-meta">' + t('generic.cancel') + '</button>';
+            epModalHtml += '</div>';
+            epModalHtml += '</div></div>';
+
+            document.body.insertAdjacentHTML('beforeend', epModalHtml);
+            if (typeof lockBodyScroll === 'function') lockBodyScroll();
+            var epModal = document.getElementById('pin-meta-modal');
+            epModal.addEventListener('click', function(me) {
+                var actionEl = me.target.closest('[data-modal-action]');
+                var action = actionEl ? actionEl.dataset.modalAction : null;
+                if (me.target === epModal) action = 'cancel-pin-meta';
+                if (!action) return;
+                if (action === 'save-pin-meta') {
+                    var lblEl = document.getElementById('pin-meta-label');
+                    var lnkEl = document.getElementById('pin-meta-link');
+                    epPin.label = lblEl ? lblEl.value.trim() : '';
+                    epPin.targetMap = lnkEl && lnkEl.value ? lnkEl.value : null;
+                    saveMapsData(epData);
+                }
+                epModal.remove();
+                if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+                renderApp();
+            });
             return;
         }
 

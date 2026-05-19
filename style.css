@@ -2962,29 +2962,85 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
 .map-upload-prompt { cursor: pointer; padding: 2rem; border: 2px dashed var(--border); border-radius: var(--radius); transition: border-color 0.2s; text-align: center; }
 .map-upload-prompt:hover { border-color: var(--accent); color: var(--accent); }
 
-/* Map Pins */
-.map-pin { position: absolute; transform: translate(-50%, -50%); z-index: 10; cursor: default; display: flex; flex-direction: column; align-items: center; }
-.map-pin.has-link { cursor: pointer; }
-.map-pin.has-link:hover .pin-dot { background: var(--accent); box-shadow: 0 0 16px var(--accent); transform: scale(1.4); }
-.map-pin.has-link .pin-label { background: rgba(34, 211, 238, 0.2); border: 1px solid rgba(34, 211, 238, 0.3); }
-
-.pin-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--gold); border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 0 8px rgba(240,192,64,0.5); transition: all 0.2s; }
-.pin-dot.pin-portal { width: 18px; height: 18px; border-radius: 4px; background: var(--accent); border-color: rgba(255,255,255,0.9); box-shadow: 0 0 12px var(--accent), 0 0 4px var(--accent); font-size: 0.6rem; display: flex; align-items: center; justify-content: center; color: white; }
-@media (prefers-reduced-motion: no-preference) {
-    .pin-dot.pin-portal { animation: pulse 2s infinite; }
+/* Map Pin Shapes — SVG overlay (viewBox 0..100, % coords). Default invisible; hover shows outline + shade. */
+.map-shapes { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+.map-shapes .map-pin-g { pointer-events: auto; }
+.map-shape {
+    fill: transparent;
+    stroke: transparent;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    transition: fill 0.18s ease, stroke 0.18s ease;
+    cursor: default;
 }
+.map-shape.has-link { cursor: pointer; }
+.map-shape:hover {
+    fill: color-mix(in oklab, var(--accent) 18%, transparent);
+    stroke: color-mix(in oklab, var(--accent) 75%, transparent);
+}
+/* In edit-mode: always show outline so DM can see + click shapes */
+.map-canvas.is-editing-pins .map-shape {
+    fill: color-mix(in oklab, var(--accent) 8%, transparent);
+    stroke: color-mix(in oklab, var(--accent) 60%, transparent);
+    stroke-dasharray: 3 2;
+}
+.map-canvas.is-editing-pins .map-shape:hover {
+    fill: color-mix(in oklab, var(--accent) 22%, transparent);
+    stroke: var(--accent);
+    stroke-dasharray: none;
+}
+/* Edit handles: draggable nodes + center handle */
+.shape-node, .shape-center {
+    fill: var(--accent);
+    stroke: white;
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+    cursor: grab;
+    transition: r 0.15s ease;
+}
+.shape-node:hover, .shape-center:hover { fill: var(--gold); }
+.shape-node:active, .shape-center:active { cursor: grabbing; }
 
-.pin-label { background: rgba(0,0,0,0.8); color: var(--text-bright); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 100px; white-space: nowrap; margin-top: 0.2rem; pointer-events: none; }
-.pin-link-icon { opacity: 0.6; font-size: 0.65rem; }
+/* Pin label — HTML overlay shown only in edit-mode (default-mode uses SVG <title> tooltip) */
+.pin-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.85);
+    color: var(--text-bright);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 100px;
+    white-space: nowrap;
+    z-index: 11;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    pointer-events: auto;
+}
+.pin-label.has-link { background: rgba(34, 211, 238, 0.3); border: 1px solid rgba(34, 211, 238, 0.5); }
 
-/* Portal area: invisible oval clickable region (replaces pin-dot for linked pins) */
-.map-pin.is-portal-area { transform: none; border-radius: 50%; background: transparent; }
-.map-pin.is-portal-area .pin-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin-top: 0; opacity: 0; transition: opacity 0.2s; }
-.map-pin.is-portal-area:hover .pin-label { opacity: 1; }
-.map-canvas.is-dm .map-pin.is-portal-area { outline: 1px dashed rgba(124, 92, 255, 0.55); background: rgba(124, 92, 255, 0.06); }
-.map-canvas.is-dm .map-pin.is-portal-area:hover { background: rgba(124, 92, 255, 0.2); outline-color: var(--accent); }
-.map-canvas.is-dm .map-pin.is-portal-area .pin-label { opacity: 0.9; }
-.map-pin.is-portal-area .pin-delete { top: 6px; right: 6px; }
+/* Edit/delete buttons on label (only visible in edit mode) */
+.pin-edit-btn {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--border);
+    color: var(--text-bright);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.7rem;
+    line-height: 1;
+    margin-left: 0.25rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.pin-edit-btn:hover { background: var(--accent); color: white; }
+.pin-edit-delete:hover { background: var(--danger); }
+
+/* Active state for the "Edit pin" toolbar toggle */
+.btn.is-active { background: var(--accent); color: white; border-color: var(--accent); }
 
 /* Family-diagram edit-member modal */
 .famdiag-edit-box { max-width: 460px; width: 100%; }
@@ -2998,20 +3054,10 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
 
 .map-breadcrumb-sep { color: var(--text-dim); font-size: 1.1rem; margin: 0 0.25rem; }
 
-.pin-delete { position: absolute; top: -10px; right: -22px; width: 26px; height: 26px; border-radius: 50%; background: var(--danger); border: 2px solid var(--bg-dark); color: white; font-size: 0.95rem; line-height: 1; cursor: pointer; display: none; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.4); z-index: 12; }
-.pin-delete:hover { transform: scale(1.1); }
-.map-canvas.is-dm .pin-delete { display: flex; opacity: 0.85; }
-.map-canvas.is-dm .map-pin:hover .pin-delete { opacity: 1; }
-.map-pin:hover .pin-delete { display: flex; }
-
-/* Zoom Controls */
-.map-zoom-controls { position: absolute; bottom: 1rem; right: 1rem; display: flex; flex-direction: column; gap: 0.25rem; z-index: 20; }
-.zoom-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-.zoom-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-/* Pin Adding Mode */
+/* Pin Adding / Editing Mode toolbar */
 .pin-add-overlay { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: var(--bg-card); border: 1px solid var(--accent); border-radius: var(--radius); padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 1rem; z-index: 30; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
 .pin-add-overlay p { margin: 0; font-size: 0.85rem; color: var(--text-main); }
+.pin-edit-overlay { border-color: var(--gold); }
 
 /* ===== TIMELINE PAGE ===== */
 .timeline-page {
@@ -5625,13 +5671,6 @@ body.modal-open {
         opacity: 0.8 !important;
     }
 
-    .pin-delete {
-        width: 28px;
-        height: 28px;
-        font-size: 0.8rem;
-        display: flex !important;
-    }
-
     .item-remove {
         opacity: 0.7 !important;
         min-width: 36px;
@@ -5698,10 +5737,6 @@ body.modal-open {
 
     .map-card .map-card-delete {
         opacity: 0.8 !important;
-    }
-
-    .map-pin .pin-delete {
-        display: flex !important;
     }
 
     .chapter-tab .chapter-edit {
@@ -5812,17 +5847,8 @@ body.modal-open {
         font-size: 0.9rem;
     }
 
-    /* -- Map: touch-friendly zoom & pins -- */
-    .map-zoom-controls button {
-        width: 44px;
-        height: 44px;
-        font-size: 1.2rem;
-    }
-
-    .map-pin {
-        min-width: 28px;
-        min-height: 28px;
-    }
+    /* -- Map: touch-friendly edit handles -- */
+    .shape-node, .shape-center { r: 1.6; }
 }
 
 /* ============================================================

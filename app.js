@@ -161,6 +161,8 @@ function postRenderEffects(route) {
     initInitiativeDragDrop();
     // Dashboard edit-mode pointer handlers (re-bound after every render)
     if (typeof dashboardPostRender === 'function') dashboardPostRender();
+    // Map pin-edit handlers (drag nodes, click shape to add node)
+    if (typeof mapEditPostRender === 'function') mapEditPostRender();
     // Family diagram SVG lines — find all rendered diagrams and draw lines
     var diags = document.querySelectorAll('.famdiag-wrap[data-family-id]');
     for (var di = 0; di < diags.length; di++) {
