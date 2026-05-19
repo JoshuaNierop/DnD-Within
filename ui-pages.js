@@ -69,12 +69,32 @@ function renderNavbar(route) {
     // Campaign navigation links
     var campLinks = [
         { path: '/dashboard', label: t('nav.dashboard'), icon: svgI('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>') },
-        { path: '/party', label: t('nav.party'), icon: svgI('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>') },
+        { path: '/party', label: t('nav.party'), icon: svgI('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>') }
+    ];
+    // Dynamic "Character" tab: appears when viewing a party-character, or when
+    // the current user has their own character in the active campaign. Target
+    // is the current character if we're already on one, else the user's own.
+    var _navUid = currentUserId();
+    var _myPartyChar = hasCampaign && campaigns[activeCamp].party && campaigns[activeCamp].party[_navUid];
+    var _charTabTarget = null;
+    if (routePart === 'characters' && route.parts[1] && hasCampaign) {
+        var _partyIdsNav = typeof getPartyCharIds === 'function' ? getPartyCharIds(activeCamp) : [];
+        if (_partyIdsNav.indexOf(route.parts[1]) !== -1) _charTabTarget = route.parts[1];
+    }
+    if (!_charTabTarget && _myPartyChar) _charTabTarget = _myPartyChar;
+    if (_charTabTarget) {
+        campLinks.push({
+            path: '/characters/' + _charTabTarget,
+            label: 'Character',
+            icon: svgI('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>')
+        });
+    }
+    campLinks = campLinks.concat([
         { path: '/maps', label: t('nav.maps'), icon: svgI('<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>') },
         { path: '/timeline', label: t('nav.timeline'), icon: svgI('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>') },
         { path: '/lore', label: t('nav.lore'), icon: svgI('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>') },
         { path: '/notes', label: t('nav.notes'), icon: svgI('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>') }
-    ];
+    ]);
     if (isDM()) {
         // Wrench/tang icoon voor DM Tools
         campLinks.push({ path: '/dm', label: t('dm.tools'), icon: svgI('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>') });
@@ -105,8 +125,8 @@ function renderNavbar(route) {
             var isActive = route.path === link.path;
             if (link.path === '/dashboard' && route.path === '/dashboard') isActive = true;
             if (link.path === '/party' && route.parts[0] === 'party') isActive = true;
-            // Party-character page (Ren etc.) lights up the Party tab
-            if (link.path === '/party' && route.parts[0] === 'characters') isActive = true;
+            // Character tab: active whenever we're on a character page
+            if (link.path.indexOf('/characters/') === 0 && route.parts[0] === 'characters') isActive = true;
             if (link.path === '/lore' && route.parts[0] === 'lore') isActive = true;
             if (link.path === '/notes' && route.parts[0] === 'notes') isActive = true;
             if (link.path === '/dm' && route.parts[0] === 'dm') isActive = true;
