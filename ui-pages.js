@@ -56,7 +56,15 @@ function renderNavbar(route) {
     var activeCamp = getActiveCampaign();
     var campaigns = getCampaigns();
     var hasCampaign = campaigns[activeCamp] != null;
-    var inCampaignView = hasCampaign && ['dashboard', 'party', 'maps', 'timeline', 'lore', 'notes', 'dm'].indexOf(route.parts[0] || 'dashboard') !== -1;
+    var routePart = route.parts[0] || 'dashboard';
+    var inCampaignView = hasCampaign && ['dashboard', 'party', 'maps', 'timeline', 'lore', 'notes', 'dm'].indexOf(routePart) !== -1;
+    // Character pages: show the campaign navbar if the character belongs to the
+    // active campaign's party (Ren in The Serpent of Valoria → campaign tab).
+    // Standalone characters keep the main-menu navbar.
+    if (!inCampaignView && hasCampaign && routePart === 'characters' && route.parts[1]) {
+        var _partyIds = typeof getPartyCharIds === 'function' ? getPartyCharIds(activeCamp) : [];
+        if (_partyIds.indexOf(route.parts[1]) !== -1) inCampaignView = true;
+    }
 
     // Campaign navigation links
     var campLinks = [
@@ -97,6 +105,8 @@ function renderNavbar(route) {
             var isActive = route.path === link.path;
             if (link.path === '/dashboard' && route.path === '/dashboard') isActive = true;
             if (link.path === '/party' && route.parts[0] === 'party') isActive = true;
+            // Party-character page (Ren etc.) lights up the Party tab
+            if (link.path === '/party' && route.parts[0] === 'characters') isActive = true;
             if (link.path === '/lore' && route.parts[0] === 'lore') isActive = true;
             if (link.path === '/notes' && route.parts[0] === 'notes') isActive = true;
             if (link.path === '/dm' && route.parts[0] === 'dm') isActive = true;
