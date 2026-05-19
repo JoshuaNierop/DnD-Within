@@ -80,7 +80,13 @@ function renderNavbar(route) {
     ];
 
     var html = '<nav class="navbar">';
+    html += '<div class="nav-brand">';
     html += '<a class="nav-logo" href="#/home">D&D <span class="logo-accent">Within</span></a>';
+    var brandCampaigns = getUserCampaigns();
+    if (inCampaignView && brandCampaigns.length === 1 && campaigns[brandCampaigns[0]]) {
+        html += '<span class="campaign-subtitle">' + escapeHtml(campaigns[brandCampaigns[0]].name) + '</span>';
+    }
+    html += '</div>';
     html += '<div class="nav-links">';
 
     if (inCampaignView) {
@@ -119,20 +125,17 @@ function renderNavbar(route) {
     } else if (syncStatus === 'offline') {
         html += '<span class="sync-indicator sync-offline" title="' + t('nav.sync.offline') + '">&#9729;</span>';
     }
-    // Campaign selector (only show when in campaign view)
+    // Campaign selector (only show when in campaign view, multi-campaign users only —
+    // single-campaign label is rendered as subtitle under the D&D Within logo above)
     var userCampaigns = getUserCampaigns();
-    if (inCampaignView) {
-        if (userCampaigns.length > 1) {
-            html += '<select class="campaign-selector" data-action="switch-campaign">';
-            for (var ci = 0; ci < userCampaigns.length; ci++) {
-                var cId = userCampaigns[ci];
-                var cName = campaigns[cId] ? campaigns[cId].name : cId;
-                html += '<option value="' + escapeAttr(cId) + '"' + (cId === activeCamp ? ' selected' : '') + '>' + escapeHtml(cName) + '</option>';
-            }
-            html += '</select>';
-        } else if (userCampaigns.length === 1 && campaigns[userCampaigns[0]]) {
-            html += '<span class="campaign-label">' + escapeHtml(campaigns[userCampaigns[0]].name) + '</span>';
+    if (inCampaignView && userCampaigns.length > 1) {
+        html += '<select class="campaign-selector" data-action="switch-campaign">';
+        for (var ci = 0; ci < userCampaigns.length; ci++) {
+            var cId = userCampaigns[ci];
+            var cName = campaigns[cId] ? campaigns[cId].name : cId;
+            html += '<option value="' + escapeAttr(cId) + '"' + (cId === activeCamp ? ' selected' : '') + '>' + escapeHtml(cName) + '</option>';
         }
+        html += '</select>';
     }
     html += '<span class="nav-avatar" data-action="open-profile" title="' + t('nav.profile') + '" style="cursor:pointer;">' + escapeHtml(user ? user.name.charAt(0) : '') + '</span>';
     html += '<button class="nav-logout" data-action="logout">' + t('nav.logout') + '</button>';
