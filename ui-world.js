@@ -963,6 +963,7 @@ var TAG_CATEGORIES = [
     { id: 'places', name: 'Plaatsen', icon: '\ud83d\udccd', color: '#4ade80' },
     { id: 'events', name: 'Events', icon: '\u26a1', color: '#fbbf24' },
     { id: 'lore', name: 'Lore', icon: '\ud83d\udcdc', color: '#a78bfa' },
+    { id: 'items', name: 'Items', icon: '\ud83c\udf92', color: '#fb923c' },
     { id: 'other', name: 'Overig', icon: '\ud83d\udccc', color: '#8a8a9a' }
 ];
 
@@ -1073,7 +1074,7 @@ function renderNotes() {
             for (var fi = 0; fi < TAG_CATEGORIES.length; fi++) {
                 if (TAG_CATEGORIES[fi].id === note.tagCategory) { cat = TAG_CATEGORIES[fi]; break; }
             }
-            if (!cat) cat = TAG_CATEGORIES[5];
+            if (!cat) cat = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
 
             html += '<div class="note-card' + (note.pinned ? ' note-card-pinned' : '') + '" data-action="view-note" data-note-id="' + note.id + '" style="--cat-color:' + cat.color + '">';
 
@@ -1251,7 +1252,7 @@ function renderNoteEditor(noteId) {
         for (var tci = 0; tci < TAG_CATEGORIES.length; tci++) {
             if (TAG_CATEGORIES[tci].id === tagObj.category) { tagCat = TAG_CATEGORIES[tci]; break; }
         }
-        if (!tagCat) tagCat = TAG_CATEGORIES[5];
+        if (!tagCat) tagCat = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
         html += '<span class="note-tag" style="border-color:' + tagCat.color + '">' + tagCat.icon + ' ' + escapeHtml(typeof tagObj === 'string' ? tagObj : tagObj.text) + '<button class="tag-remove" data-action="remove-tag" data-tag-idx="' + nti + '">&times;</button></span>';
     }
     html += '</div>';
@@ -1291,7 +1292,7 @@ function renderNoteView(noteId) {
     for (var ci = 0; ci < TAG_CATEGORIES.length; ci++) {
         if (TAG_CATEGORIES[ci].id === note.tagCategory) { cat = TAG_CATEGORIES[ci]; break; }
     }
-    if (!cat) cat = TAG_CATEGORIES[5];
+    if (!cat) cat = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
 
     var html = '<div class="notes-page">';
     html += '<div class="notes-header">';
@@ -1362,7 +1363,7 @@ function renderNoteView(noteId) {
             for (var tci = 0; tci < TAG_CATEGORIES.length; tci++) {
                 if (TAG_CATEGORIES[tci].id === tagCatId) { tagCatObj = TAG_CATEGORIES[tci]; break; }
             }
-            if (!tagCatObj) tagCatObj = TAG_CATEGORIES[5];
+            if (!tagCatObj) tagCatObj = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
             html += '<span class="note-tag" style="border-left:3px solid ' + tagCatObj.color + ';padding-left:0.4rem;">' + tagCatObj.icon + ' ' + escapeHtml(tagText) + '</span>';
         }
         html += '</div>';

@@ -8422,9 +8422,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     flex-direction: column;
     gap: 0.75rem;
     overflow-y: auto;
-    max-height: calc(100vh - 15rem);
+    flex: 1;
+    min-height: 0;
 }
-.qnotes-form { display: flex; flex-direction: column; gap: 0.4rem; position: relative; }
+.qnotes-form { display: flex; flex-direction: column; gap: 0.4rem; position: relative; flex: 1; min-height: 0; }
 .qnotes-input,
 .qnotes-textarea {
     width: 100%;
@@ -8439,7 +8440,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .qnotes-input:focus,
 .qnotes-textarea:focus { outline: none; border-color: #a78bfa; }
-.qnotes-textarea { resize: vertical; min-height: 70px; max-height: 200px; line-height: 1.4; }
+.qnotes-textarea { resize: vertical; min-height: 120px; flex: 1; line-height: 1.4; }
 .qnotes-cats {
     display: flex;
     flex-wrap: wrap;

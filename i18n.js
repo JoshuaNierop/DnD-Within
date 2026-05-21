@@ -323,6 +323,7 @@ var TRANSLATIONS = {
         'notecat.places': 'Plaatsen',
         'notecat.events': 'Events',
         'notecat.lore': 'Lore',
+        'notecat.items': 'Items',
         'notecat.other': 'Overig',
 
         // Note layouts
@@ -912,6 +913,7 @@ var TRANSLATIONS = {
         'notecat.places': 'Places',
         'notecat.events': 'Events',
         'notecat.lore': 'Lore',
+        'notecat.items': 'Items',
         'notecat.other': 'Other',
 
         // Note layouts
