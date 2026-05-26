@@ -18,11 +18,6 @@ var ASSETS = [
     './sync.js',
     './effects.js',
     './style.css',
-    './dashboard.css',
-    './dashboard-data.js',
-    './widgets.js',
-    './dashboard.js',
-    './dashboard-edit.js',
     './script.js'
 ];
 

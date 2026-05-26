@@ -1,26 +1,6 @@
 // D&D Within — Core (auth, router, state, utilities)
 // Requires: data.js, engine.js, i18n.js
 
-// Font-size preference (small/medium/large) — persisted via localStorage,
-// applied als data-font-size attribute op <html> voor CSS-scaling.
-function getFontSize() {
-    try {
-        var saved = localStorage.getItem('dw_font_size');
-        if (saved === 'small' || saved === 'medium' || saved === 'large') return saved;
-    } catch (e) {}
-    return 'medium';
-}
-function setFontSize(size) {
-    if (size !== 'small' && size !== 'medium' && size !== 'large') size = 'medium';
-    try { localStorage.setItem('dw_font_size', size); } catch (e) {}
-    applyFontSize(size);
-}
-function applyFontSize(size) {
-    var el = document.documentElement;
-    if (!size || size === 'medium') el.removeAttribute('data-font-size');
-    else el.setAttribute('data-font-size', size);
-}
-
 // Section 1: User / Auth System
 // ============================================================
 

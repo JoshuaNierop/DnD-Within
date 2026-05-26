@@ -267,41 +267,7 @@ function bindPageEvents(route) {
     app.onclick = function(e) {
         var target = e.target;
 
-        // --- Dashboard actions (intercept early; works on any page) ---
-        var actionEl = target.closest && target.closest('[data-action]');
-        if (actionEl) {
-            var action = actionEl.dataset.action;
-            // Dashboard-specific actions handled in dashboard-edit.js
-            if ((action && action.indexOf('dashboard-') === 0) || action === 'widget-toggle-star' || action === 'widget-remove' || action === 'dash-sidebar-cat' || action === 'dash-sidebar-close' || action === 'dash-add-widget') {
-                if (typeof dashboardHandleAction === 'function' && dashboardHandleAction(action, actionEl, e)) return;
-            }
-            if (action === 'open-tab-manage' && charId) {
-                if (typeof showTabManageModal === 'function') showTabManageModal(charId);
-                return;
-            }
-            if (action === 'convert-to-dashboard' && charId) {
-                var tid = actionEl.dataset.tabId;
-                if (tid && typeof saveTabWidgets === 'function') {
-                    var defaults = dashboardDefaultWidgetsForTab(tid);
-                    ensureWidgetIds(defaults);
-                    saveTabWidgets(charId, tid, defaults);
-                    if (typeof renderApp === 'function') renderApp();
-                }
-                return;
-            }
-            if (action === 'goto-spells-tab' && charId) {
-                activeTab = 'spells';
-                history.replaceState(null, '', '#/characters/' + charId + '/spells');
-                renderApp();
-                return;
-            }
-            if (action === 'goto-inventory-tab' && charId) {
-                activeTab = 'inventory';
-                history.replaceState(null, '', '#/characters/' + charId + '/inventory');
-                renderApp();
-                return;
-            }
-        }
+        // (Character dashboard system removed — new dashboard TBD on an empty canvas.)
 
         // --- Login page ---
         if (route.path === '/login' || !currentUser()) {
@@ -1622,20 +1588,7 @@ function bindPageEvents(route) {
 
         // --- Character Sheet Events ---
         if (charId && config && state) {
-            // Tab switching
-            if (target.matches('.tab-btn') || target.closest('.tab-btn')) {
-                var tabBtn = target.matches('.tab-btn') ? target : target.closest('.tab-btn');
-                // If user is in dashboard edit mode for the current tab, auto-save before switching.
-                if (typeof isDashboardEditMode === 'function' && isDashboardEditMode()) {
-                    dashboardExitEditMode(true);
-                }
-                activeTab = tabBtn.dataset.tab || 'overview';
-                // Update URL for deep linking without triggering hashchange
-                var newHash = '#/characters/' + charId + '/' + activeTab;
-                history.replaceState(null, '', newHash);
-                renderApp();
-                return;
-            }
+            // (Tab switching removed — character page has no tabs in the empty-canvas state.)
 
             // Options dropdown toggle
             if (target.matches('[data-action="toggle-options"]') || target.closest('[data-action="toggle-options"]')) {

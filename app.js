@@ -44,8 +44,6 @@ function renderApp() {
 
         if (route.path === '/' || route.path === '/home') {
             html += renderHome();
-        } else if (route.path === '/widget-demo') {
-            html += (typeof renderWidgetDemo === 'function') ? renderWidgetDemo() : '<p>Widget demo niet geladen.</p>';
         } else if (route.path === '/dashboard') {
             html += renderDashboard();
         } else if (route.path === '/party') {
@@ -55,19 +53,6 @@ function renderApp() {
         } else if (route.path === '/settings') {
             html += renderSettings();
         } else if (route.parts[0] === 'characters' && route.parts[1]) {
-            // Deep link: #/characters/ren/combat sets activeTab
-            if (route.parts[2]) {
-                // Built-in + new system tabs (custom tabs accepted via dashboard config check)
-                var systemTabs = ['overview', 'stats', 'combat', 'spells', 'story', 'inventory', 'social', 'exploring', 'family'];
-                var requested = route.parts[2];
-                if (systemTabs.indexOf(requested) >= 0) {
-                    activeTab = requested;
-                } else if (typeof loadDashboardConfig === 'function') {
-                    var dc = loadDashboardConfig(route.parts[1]);
-                    var tabIds = dc.tabs.map(function(t) { return t.id; });
-                    if (tabIds.indexOf(requested) >= 0) activeTab = requested;
-                }
-            }
             html += renderCharacterSheet(route.parts[1]);
         } else if (route.parts[0] === 'dm' && isDM()) {
             html += renderDMPage(route.parts[1]);
@@ -159,8 +144,6 @@ function postRenderEffects(route) {
     }
     // Initiative drag-and-drop
     initInitiativeDragDrop();
-    // Dashboard edit-mode pointer handlers (re-bound after every render)
-    if (typeof dashboardPostRender === 'function') dashboardPostRender();
     // Map pin-edit handlers (drag nodes, click shape to add node)
     if (typeof mapEditPostRender === 'function') mapEditPostRender();
     // Align SVG overlay to letterboxed image (runs regardless of edit mode)
@@ -193,10 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (e) { usersCache = null; }
 
     initMobileSupport();
-    if (typeof applyFontSize === 'function') applyFontSize(getFontSize());
     if (typeof initFirebaseSync === 'function') initFirebaseSync();
     initRouter();
     patchTooltipEvents();
-
-    // Dashboard packing is now handled by CSS auto-fit (no JS resize listener needed).
 });
