@@ -786,17 +786,32 @@ var TOOLTIPS = {
 };
 
 // ============================================================
-// Section 6: Active Tab State
+// Section 6: Active Page State
 // ============================================================
 
-var activeTab = 'overview';
-var spellFilter = 'all';
-var abilityEditMode = false;
 var notesFilter = 'all';
 var notesSearch = '';
 var editingNoteId = null;
-var editAbilities = null;
 var activeChapter = 0;
+
+// Lightweight inline warning banner (fades after 2.5s). Used by image-upload
+// + maps "too large" guards. Generic enough to keep here.
+function showWarning(message) {
+    var warning = document.getElementById('inline-warning');
+    if (!warning) {
+        warning = document.createElement('div');
+        warning.id = 'inline-warning';
+        warning.className = 'tooltip';
+        warning.style.cssText = 'position:fixed;top:5rem;left:50%;transform:translateX(-50%);z-index:1000;background:#2a1a1a;color:#f87171;border:1px solid #7f1d1d;padding:0.75rem 1.5rem;border-radius:8px;font-size:0.9rem;pointer-events:none;transition:opacity 0.3s;';
+        document.body.appendChild(warning);
+    }
+    warning.textContent = message;
+    warning.style.opacity = '1';
+    clearTimeout(warning._timeout);
+    warning._timeout = setTimeout(function() {
+        warning.style.opacity = '0';
+    }, 2500);
+}
 
 // ============================================================
 // Section 7: Utility Functions

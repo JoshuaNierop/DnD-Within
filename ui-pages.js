@@ -1,6 +1,17 @@
 // D&D Within — Page Renders (login, navbar, home, dashboard, DM, character list)
 // Requires: core.js
 
+// Character page — empty canvas. Old dashboard removed; new dashboard (Widget
+// Grid V8) will mount inside .character-page in a later phase.
+function renderCharacterSheet(charId) {
+    var config = loadCharConfig(charId);
+    if (!config) {
+        return '<div class="page-placeholder"><h2>' + t('char.notfound') + '</h2></div>';
+    }
+    var accent = config.accentColor || 'var(--accent)';
+    return '<div class="character-page" data-char-id="' + charId + '" style="--char-accent:' + accent + '"></div>';
+}
+
 // ============================================================
 // Helpers
 // ============================================================
