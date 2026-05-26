@@ -3252,9 +3252,9 @@ function bindPageEvents(route) {
             var viewer = document.getElementById('map-viewer');
             var canvas = document.getElementById('map-canvas');
             if (viewer && canvas) {
-                var rect = canvas.getBoundingClientRect();
-                var pinX = Math.round(((e.clientX - rect.left) / rect.width) * 1000) / 10;
-                var pinY = Math.round(((e.clientY - rect.top) / rect.height) * 1000) / 10;
+                var iRect = (typeof _imageRenderedRect === 'function') ? _imageRenderedRect(canvas) : canvas.getBoundingClientRect();
+                var pinX = Math.round(((e.clientX - iRect.left) / iRect.width) * 1000) / 10;
+                var pinY = Math.round(((e.clientY - iRect.top)  / iRect.height) * 1000) / 10;
 
                 // Show pin creation modal
                 var mData = getMapsData();

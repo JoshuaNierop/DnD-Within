@@ -12,6 +12,7 @@ var mapPanX = 0;
 var mapPanY = 0;
 var addingPin = false;
 var editingPins = false;
+var _mapResizeObserver = null;
 
 // Pin shape helpers: every pin has an area shape (circle default, polygon when 3+ nodes).
 // Coordinates are stored as % of map-canvas (0-100). Legacy pins {x,y,w,h} are migrated
@@ -67,12 +68,31 @@ function pinCentroid(pin) {
     return { x: sx / s.nodes.length, y: sy / s.nodes.length };
 }
 
-// Convert pointer event coords → % of the SVG element (which spans the map-canvas)
-function _svgEvToPct(svg, evt) {
-    var rect = svg.getBoundingClientRect();
+// Return the pixel rect of the letterboxed image inside its container.
+// object-fit:contain centres the image with bars on the short axis.
+function _imageRenderedRect(container) {
+    var img = container.querySelector('.map-image');
+    if (!img || !img.naturalWidth || !img.naturalHeight) return container.getBoundingClientRect();
+    var cRect = container.getBoundingClientRect();
+    var cW = cRect.width, cH = cRect.height;
+    var iW = img.naturalWidth, iH = img.naturalHeight;
+    var scale = Math.min(cW / iW, cH / iH);
+    var rW = iW * scale, rH = iH * scale;
     return {
-        x: Math.max(0, Math.min(100, ((evt.clientX - rect.left) / rect.width) * 100)),
-        y: Math.max(0, Math.min(100, ((evt.clientY - rect.top) / rect.height) * 100))
+        left:   cRect.left   + (cW - rW) / 2,
+        top:    cRect.top    + (cH - rH) / 2,
+        width:  rW,
+        height: rH
+    };
+}
+
+// Convert pointer event coords → 0-100 % relative to the letterboxed image area.
+function _svgEvToPct(svg, evt) {
+    var canvas = document.getElementById('map-canvas');
+    var iRect = canvas ? _imageRenderedRect(canvas) : svg.getBoundingClientRect();
+    return {
+        x: Math.max(0, Math.min(100, ((evt.clientX - iRect.left) / iRect.width) * 100)),
+        y: Math.max(0, Math.min(100, ((evt.clientY - iRect.top) / iRect.height) * 100))
     };
 }
 
@@ -106,10 +126,82 @@ function _closestEdgeIdx(nodes, p) {
     return best;
 }
 
+// Position the SVG overlay to exactly cover the letterboxed image area.
+// Called after every render + after image load (handles cold-cache first load).
+// Also installs a ResizeObserver so the overlay stays glued to the image
+// across window resizes / responsive layout shifts (canvas-width changes).
+function mapSvgAlignPostRender() {
+    var canvas = document.getElementById('map-canvas');
+    var svg    = canvas && canvas.querySelector('.map-shapes');
+    if (!canvas || !svg) {
+        if (_mapResizeObserver) { _mapResizeObserver.disconnect(); _mapResizeObserver = null; }
+        return;
+    }
+
+    function doAlign() {
+        var img = canvas.querySelector('.map-image');
+        if (!img || !img.naturalWidth || !img.naturalHeight) return;
+        var cW = canvas.offsetWidth, cH = canvas.offsetHeight;
+        var iW = img.naturalWidth,   iH = img.naturalHeight;
+        var scale = Math.min(cW / iW, cH / iH);
+        var rW = iW * scale, rH = iH * scale;
+        var left = (cW - rW) / 2, top = (cH - rH) / 2;
+        svg.style.left   = left + 'px';
+        svg.style.top    = top  + 'px';
+        svg.style.width  = rW   + 'px';
+        svg.style.height = rH   + 'px';
+        svg.style.right  = '';
+        svg.style.bottom = '';
+
+        // Pin labels (edit-mode HTML overlay) are stored in image-% but live
+        // inside the canvas — reposition them to canvas-% on every align.
+        _alignPinLabels(canvas, { left: left, top: top, width: rW, height: rH }, cW, cH);
+    }
+
+    var img = canvas.querySelector('.map-image');
+    if (img && !img.naturalWidth) {
+        img.addEventListener('load', doAlign, { once: true });
+    } else {
+        doAlign();
+    }
+
+    if (_mapResizeObserver) _mapResizeObserver.disconnect();
+    if (typeof ResizeObserver !== 'undefined') {
+        _mapResizeObserver = new ResizeObserver(doAlign);
+        _mapResizeObserver.observe(canvas);
+    }
+}
+
+// Reposition pin-label divs from their stored image-% to live canvas-%
+// so they sit on top of the letterboxed image, not the bare canvas.
+// Labels remember their image-% in data-img-x/y after the first conversion.
+function _alignPinLabels(canvas, iRectLocal, cW, cH) {
+    var labels = canvas.querySelectorAll('.pin-label');
+    if (!labels.length) return;
+    for (var i = 0; i < labels.length; i++) {
+        var lbl = labels[i];
+        var ix = lbl.dataset.imgX, iy = lbl.dataset.imgY;
+        if (ix == null || iy == null || ix === '') {
+            ix = parseFloat(lbl.style.left);  // first run: raw % from render
+            iy = parseFloat(lbl.style.top);
+            lbl.dataset.imgX = ix;
+            lbl.dataset.imgY = iy;
+        } else {
+            ix = parseFloat(ix); iy = parseFloat(iy);
+        }
+        var cLeft = ((iRectLocal.left + (ix / 100) * iRectLocal.width) / cW) * 100;
+        var cTop  = ((iRectLocal.top  + (iy / 100) * iRectLocal.height) / cH) * 100;
+        lbl.style.left = cLeft + '%';
+        lbl.style.top  = cTop  + '%';
+    }
+}
+
 function mapEditPostRender() {
     if (!editingPins) return;
     var svg = document.querySelector('.map-shapes');
     if (!svg) return;
+    // Pin-label repositioning is handled by mapSvgAlignPostRender → _alignPinLabels
+    // (idempotent + survives resize). Keep this function focused on edit handlers.
 
     // Drag a single node
     svg.querySelectorAll('.shape-node').forEach(function(el) {

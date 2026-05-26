@@ -163,6 +163,8 @@ function postRenderEffects(route) {
     if (typeof dashboardPostRender === 'function') dashboardPostRender();
     // Map pin-edit handlers (drag nodes, click shape to add node)
     if (typeof mapEditPostRender === 'function') mapEditPostRender();
+    // Align SVG overlay to letterboxed image (runs regardless of edit mode)
+    if (typeof mapSvgAlignPostRender === 'function') mapSvgAlignPostRender();
     // Family diagram SVG lines — find all rendered diagrams and draw lines
     var diags = document.querySelectorAll('.famdiag-wrap[data-family-id]');
     for (var di = 0; di < diags.length; di++) {
