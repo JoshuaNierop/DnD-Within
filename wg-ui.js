@@ -601,10 +601,32 @@ function bindSettingsToggles() {
 
 
 // ----- Settings dialog references + open/close, alignSidebarTop ----- (orig 4457-4523)
-const _settingsPanel = document.getElementById('settingsPanel');
-const _settingsOverlay = document.getElementById('settingsOverlay');
-const _settingsToggle = document.getElementById('settingsToggle');
-const _settingsClose = document.getElementById('settingsClose');
+// WGI-M4: `let` (niet `const`) zodat WidgetGrid.mount() de refs kan herinitialiseren
+// nadat de body-template is geïnjecteerd. Standalone V8 vult ze al op parse-time.
+let _settingsPanel = document.getElementById('settingsPanel');
+let _settingsOverlay = document.getElementById('settingsOverlay');
+let _settingsToggle = document.getElementById('settingsToggle');
+let _settingsClose = document.getElementById('settingsClose');
+
+// WGI-M4: aanroepbaar vanuit WidgetGrid.mount() nadat de template in een mount-root
+// is geïnjecteerd — herresolved refs binnen de gegeven scope.
+function WidgetGridInitSettingsRefs(root) {
+  const scope = root || document;
+  _settingsPanel = scope.querySelector('#settingsPanel') || scope.getElementById?.('settingsPanel');
+  _settingsOverlay = scope.querySelector('#settingsOverlay');
+  _settingsToggle = scope.querySelector('#settingsToggle');
+  _settingsClose = scope.querySelector('#settingsClose');
+  _settingsToggle?.addEventListener('click', () => {
+    if (state.activeWidgetIdx >= 0 && state.widget) openWidgetSettings();
+    else openSettings('dashboard');
+  });
+  _settingsClose?.addEventListener('click', closeSettings);
+  _settingsOverlay?.addEventListener('click', closeSettings);
+}
+if (typeof window !== 'undefined') {
+  window.WidgetGridInitSettingsRefs = WidgetGridInitSettingsRefs;
+}
+
 function syncSettingsHeader() {
   const h = document.getElementById('settingsTitle');
   if (!h) return;
@@ -632,15 +654,13 @@ function closeSettings() {
 // V9: de topbar-knop opent widget-settings als een widget geselecteerd is,
 // anders dashboard-settings. `updateSettingsToggleScope` (in render) kleurt
 // de knop mee.
-// WGI-M3: optional chaining (?.) — als D&D Within nog geen Widget Grid DOM
-// gemount heeft, zijn deze refs null op parse-time. M4's WidgetGrid.mount()
-// bouwt de DOM in en herbindt indien nodig.
-_settingsToggle?.addEventListener('click', () => {
-  if (state.activeWidgetIdx >= 0 && state.widget) openWidgetSettings();
-  else openSettings('dashboard');
-});
-_settingsClose?.addEventListener('click', closeSettings);
-_settingsOverlay?.addEventListener('click', closeSettings);
+// WGI-M3/M4: bindings staan in WidgetGridInitSettingsRefs() hierboven —
+// standalone V8 roept die aan met `null` scope (zoekt globaal); D&D Within roept
+// het aan met de mount-root nadat de template is geïnjecteerd.
+if (_settingsToggle) {
+  // Standalone V8: refs zijn al op parse-time gevuld; bind nu direct.
+  WidgetGridInitSettingsRefs();
+}
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSettings(); });
 
 // V9: Delete/Backspace verwijdert de geselecteerde widget (niet wanneer een

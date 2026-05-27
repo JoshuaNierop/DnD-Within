@@ -7,7 +7,7 @@ Plan via `vanilla-js-architect` agent. Joshua's keuzes: direct REST-PATCH + targ
 - [x] P0 — WGI-M1: V8 monoliet (5145 r) split → 8 `.js` + `wg-style.css` in `Tools/Widget Grid V8/dist/` (V8 commit `b6e3b68`).
 - [x] P0 — WGI-M2: WG_*-prefix + shim-merges (`FIREBASE_DB`/`showToast`/`WG_MAPS_CACHE`). Standalone V8 werkt nog identiek.
 - [x] P0 — WGI-M3: wg-* naar DnD-root + script/link tags + DEFER-flag-gate. Tag `pre-widget-grid` op `ce609f7`. Branch `josh/widget-grid-inline`. WidgetGrid namespace/IIFE doorgeschoven naar M4 (samen met mount-API).
-- [ ] P0 — WGI-M4: `WidgetGrid.mount/unmount` in `app.js`. Slop `.character-page` grid. Verberg DnD-navbar op character-route.
+- [x] P0 — WGI-M4: `WidgetGrid.mount/unmount` API in `wg-mount.js` (body-template injection + `_wgMounted`-flag idempotency); bedraad in `app.js postRenderEffects` + cleanup-call in `renderApp`. `.character-page` grid gesloopt naar volle flex-shell. `body[data-route^="characters/"] .navbar { display: none }` verbergt DnD-navbar.
 - [ ] P1 — WGI-M5: `@scope (.character-page)` + theme-bridge naar DnD-tokens incl. `--char-accent`
 - [ ] P1 — WGI-M6: V11 edit-flow via direct REST-PATCH + targeted localStorage update
 - [ ] P1 — WGI-M7: polish — verwijder V8 `#characterSelect`, opruimen `.is-edit-mode` dode code, smoke-test 5×3
