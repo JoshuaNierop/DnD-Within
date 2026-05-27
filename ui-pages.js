@@ -1,15 +1,21 @@
 // D&D Within — Page Renders (login, navbar, home, dashboard, DM, character list)
 // Requires: core.js
 
-// Character page — empty canvas. Old dashboard removed; new dashboard (Widget
-// Grid V8) will mount inside .character-page in a later phase.
+// Character page — empty canvas die Widget Grid V8/V11 inline mount via
+// app.js postRenderEffects. WGI-M4 verbergt de hoofdnavbar op deze route;
+// de `.char-back-btn` overlay biedt de enige nav terug naar campaign view.
 function renderCharacterSheet(charId) {
     var config = loadCharConfig(charId);
     if (!config) {
         return '<div class="page-placeholder"><h2>' + t('char.notfound') + '</h2></div>';
     }
     var accent = config.accentColor || 'var(--accent)';
-    return '<div class="character-page" data-char-id="' + charId + '" style="--char-accent:' + accent + '"></div>';
+    return '<a class="char-back-btn" href="#/dashboard" aria-label="Terug naar campaign" title="Terug naar campaign">'
+         +   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+         +     '<path d="M19 12H5M12 19l-7-7 7-7"/>'
+         +   '</svg>'
+         + '</a>'
+         + '<div class="character-page" data-char-id="' + charId + '" style="--char-accent:' + accent + '"></div>';
 }
 
 // ============================================================
