@@ -49,15 +49,18 @@
     --font-display: 'Cinzel', 'Trajan Pro', Georgia, serif;
     --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-    /* FAB stack — fixed slots, bottom-right corner.
-       Order: dice (gold) → notes (purple) → chat (cyan) → bug (red).
-       Renumber slot vars to reorder; nieuwe FAB = nieuwe slot. */
-    --fab-base: 1.5rem;
-    --fab-gap: 4.5rem;
-    --fab-slot-0: var(--fab-base);
-    --fab-slot-1: calc(var(--fab-base) + var(--fab-gap));
-    --fab-slot-2: calc(var(--fab-base) + var(--fab-gap) * 2);
-    --fab-slot-3: calc(var(--fab-base) + var(--fab-gap) * 3);
+    /* FAB row — altijd horizontaal in de rechter onderhoek.
+       Order links → rechts: bug (red) → chat (cyan) → notes (purple) → dice (gold).
+       Right-anchor staat 5rem in zodat de FABs niet overlappen met de
+       rechter sidebar (56px ≈ 3.5rem) op character-page dashboards.
+       --fab-slot-N geeft per FAB de horizontale offset vanaf de rechterrand. */
+    --fab-bottom: 1.5rem;
+    --fab-right-base: 5rem;
+    --fab-gap: 60px;
+    --fab-slot-0: var(--fab-right-base);                              /* dice  — meest rechts */
+    --fab-slot-1: calc(var(--fab-right-base) + var(--fab-gap));       /* notes */
+    --fab-slot-2: calc(var(--fab-right-base) + var(--fab-gap) * 2);   /* chat  */
+    --fab-slot-3: calc(var(--fab-right-base) + var(--fab-gap) * 3);   /* bug   — meest links */
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -848,34 +851,35 @@ body[data-route^="characters/"] .navbar {
     display: none;
 }
 
-/* WGI: kleine fixed back-link links-boven op character-pages — enige nav
-   terug naar campaign view nu de DnD-navbar verborgen is. Z-index hoger
-   dan WidgetGrid's chrome zodat hij over V8's topbar-spacer-left valt. */
+/* WGI: back-link links-boven op character-pages — enige nav terug naar
+   campaign view nu de DnD-navbar verborgen is. Geplaatst over V8's
+   topbar-spacer-left (56px breed) zodat hij naadloos in de topbar valt. */
 .char-back-btn {
     position: fixed;
-    top: 12px;
-    left: 12px;
+    top: 0;
+    left: 0;
     z-index: 100;
-    width: 32px;
-    height: 32px;
+    width: 56px;
+    height: 41px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-card);
+    background: transparent;
     color: var(--text-dim);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-sm);
+    border: none;
+    border-right: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
     text-decoration: none;
-    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    transition: color 0.15s ease, background 0.15s ease;
 }
 .char-back-btn:hover,
 .char-back-btn:focus-visible {
-    color: var(--text-main);
-    background: var(--bg-elevated);
-    border-color: var(--char-accent, var(--accent));
+    color: var(--char-accent, var(--accent));
+    background: rgba(255,255,255,0.05);
     outline: none;
 }
 .char-back-btn:active { transform: translateY(1px); }
+.char-back-btn svg { width: 18px; height: 18px; }
 
 /* Banner image */
 .char-banner {
@@ -6532,8 +6536,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    ============================================================ */
 .dice-fab {
     position: fixed;
-    bottom: var(--fab-slot-0);
-    right: 1.5rem;
+    bottom: var(--fab-bottom);
+    right: var(--fab-slot-0);
     width: 52px;
     height: 52px;
     border-radius: 50%;
@@ -6567,8 +6571,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .dice-fab:hover .dice-fab-icon { color: #fcd34d; }
 .dice-panel {
     position: fixed;
-    bottom: var(--fab-slot-0);
-    right: calc(1.5rem + 60px);
+    bottom: calc(var(--fab-bottom) + 60px);
+    right: var(--fab-slot-0);
     width: 260px;
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -8358,8 +8362,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ===== Notes quick FAB ===== */
 .notes-fab {
     position: fixed;
-    bottom: var(--fab-slot-1);
-    right: 1.5rem;
+    bottom: var(--fab-bottom);
+    right: var(--fab-slot-1);
     width: 52px;
     height: 52px;
     border-radius: 50%;
@@ -8395,8 +8399,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ===== Quick Notes panel (mirrors dice-panel) ===== */
 .notes-panel {
     position: fixed;
-    bottom: var(--fab-slot-1);
-    right: calc(1.5rem + 60px);
+    bottom: calc(var(--fab-bottom) + 60px);
+    right: var(--fab-slot-1);
     width: min(480px, 40vw);
     height: min(720px, 75vh);
     max-height: calc(100vh - 8rem);
@@ -8573,8 +8577,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ===== Bug Reporter ===== */
 .bug-fab {
     position: fixed;
-    bottom: var(--fab-slot-3);
-    right: 1.5rem;
+    bottom: var(--fab-bottom);
+    right: var(--fab-slot-3);
     width: 52px;
     height: 52px;
     border-radius: 50%;
@@ -8988,37 +8992,23 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
 }
 
 /* ============================================================
-   Mobile bottom-bar layout — sidebar FABs (dice, notes, chat, bug)
-   span the bottom edge instead of stacking right.
-   Order links → rechts: dice → notes → chat → bug.
+   FAB-rij staat altijd horizontaal in de rechter onderhoek (zie
+   :root --fab-* vars). Geen mobiele override meer; alleen panels
+   schakelen op smalle schermen naar full-width zodat content nog
+   leesbaar is. FAB-posities blijven gelijk op alle viewports.
    ============================================================ */
 @media (max-width: 700px) {
-    .dice-fab,
-    .notes-fab,
-    .bug-fab,
-    #social-chat-widget {
-        bottom: 0.6rem !important;
-        right: auto !important;
-        top: auto !important;
-    }
-    .dice-fab           { left: calc(12.5% - 26px) !important; }
-    .notes-fab          { left: calc(37.5% - 26px) !important; }
-    #social-chat-widget { left: calc(62.5% - 26px) !important; }
-    .bug-fab            { left: calc(87.5% - 26px) !important; }
-
-    /* Panels open full-width above the bar */
     .dice-panel {
-        bottom: calc(0.6rem + 62px) !important;
+        bottom: calc(var(--fab-bottom) + 62px) !important;
         right: 0.5rem !important;
         left: 0.5rem !important;
         width: auto !important;
         max-width: none !important;
     }
 
-    /* Notes panel: full-screen op mobiel; 100dvh houdt rekening met software keyboard */
     .notes-panel {
         top: 0.5rem !important;
-        bottom: calc(0.6rem + 62px) !important;
+        bottom: calc(var(--fab-bottom) + 62px) !important;
         left: 0.5rem !important;
         right: 0.5rem !important;
         width: auto !important;
@@ -9027,10 +9017,9 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
         max-width: none !important;
     }
 
-    /* Social chat widget panel: same treatment if visible */
     #social-chat-widget .scw-panel {
         position: fixed !important;
-        bottom: calc(0.6rem + 62px) !important;
+        bottom: calc(var(--fab-bottom) + 62px) !important;
         left: 0.5rem !important;
         right: 0.5rem !important;
         width: auto !important;

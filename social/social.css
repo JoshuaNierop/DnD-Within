@@ -170,8 +170,8 @@
    Unieke kleur: cyan (#22d3ee), onderscheidend van gold dice / purple notes / red bug. */
 #social-chat-widget {
     position: fixed;
-    bottom: var(--fab-slot-2, 10.5rem);
-    right: 1.5rem;
+    bottom: var(--fab-bottom, 1.5rem);
+    right: var(--fab-slot-2, calc(5rem + 120px));
     z-index: 9999;
     color: var(--text, #e8e9ee);
     font-family: inherit;
