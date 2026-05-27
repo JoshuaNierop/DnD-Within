@@ -3836,10 +3836,8 @@ footer {
     .header-info h1 { font-size: 1.3rem; }
     .tab-bar { padding: 0 0.5rem; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .tab-btn { padding: 0.5rem 0.8rem; font-size: 0.8rem; }
-    /* Mobile: smallere right-rail (FABs blijven 52px maar minder gap), left-rail volledig overlay. */
-    .character-page { grid-template-columns: 0 1fr 64px; }
-    .character-page.is-edit-mode { grid-template-columns: 56px 1fr 64px; }
-    .char-main-col { padding: 0 0.25rem; }
+    /* WGI-M7: oude .character-page mobile grid-overrides verwijderd. .character-page
+       is nu een flex-container (M4 slop). .char-main-col bestaat niet meer. */
     .tab-content { padding: 0.25rem 0 0 0; }
     .sheet-grid { grid-template-columns: 1fr; gap: 1rem; }
 

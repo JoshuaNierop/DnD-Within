@@ -34,6 +34,14 @@
   --alert: #ff8c33;
 }
 
+/* WGI-M7: verberg V8's eigen char-switcher UI wanneer V8 inline draait in
+   D&D Within (DnD's navbar is daar de char-switcher). Standalone V8 zet geen
+   body[data-route] dus de dropdown blijft daar zichtbaar. */
+body[data-route^="characters/"] .character-page .rs-char-section,
+body[data-route^="characters/"] .character-page #rs-char-toggle {
+  display: none;
+}
+
 @scope (.character-page) {
 
 
