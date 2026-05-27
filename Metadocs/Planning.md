@@ -57,9 +57,9 @@ Status: 🚧 gestart 2026-05-27. Plan via `vanilla-js-architect` agent.
 3. `.character-page` grid slopen — V8 krijgt volle flex-shell
 
 **Fases:**
-- [~] P0 — WGI-M1: V8 monoliet (5145 r) split naar 8 `.js` + `wg-style.css` in `Tools/Widget Grid V8/dist/`. Standalone test. Géén DnD-impact.
-- [ ] P0 — WGI-M2: symbool-merges (`showToast` → DnD, `FIREBASE_DB` → `FIREBASE_CONFIG.databaseURL`, `MAPS_CACHE` → localStorage, `WG_CHAR_CACHE` leest via `loadCharConfig/State/Image`)
-- [ ] P0 — WGI-M3: kopiëer `wg-*` naar DnD-root + `<script>`/`<link>` tags. Tag `pre-widget-grid` vóór commit.
+- [x] P0 — WGI-M1: V8 monoliet (5145 r) split naar 8 `.js` + `wg-style.css` in `Tools/Widget Grid V8/dist/` (V8 commit `b6e3b68`).
+- [x] P0 — WGI-M2: WG_*-prefix op alle collision-risk constants + shim-merges (`FIREBASE_DB` via `window.FIREBASE_CONFIG`, `showToast` via `window.showToast`, `WG_MAPS_CACHE` via `localStorage('dw_maps')`). Standalone V8 werkt nog identiek. Namespace/IIFE doorgeschoven naar M3.
+- [ ] P0 — WGI-M3: kopiëer `wg-*` naar DnD-root + `<script>`/`<link>` tags + `WidgetGrid` namespace/IIFE wrapping. Tag `pre-widget-grid` vóór commit.
 - [ ] P0 — WGI-M4: `WidgetGrid.mount/unmount` bedraden in `app.js`. Slop `.character-page` grid (`style.css:830-872`). Verberg DnD-navbar op character-route.
 - [ ] P1 — WGI-M5: `@scope (.character-page)` om `wg-style.css` + theme-bridge naar DnD-tokens incl. `--char-accent`
 - [ ] P1 — WGI-M6: V11 edit-flow via direct REST-PATCH + targeted localStorage update (geen full `syncUpload`)

@@ -4,9 +4,9 @@
 
 Plan via `vanilla-js-architect` agent. Joshua's keuzes: direct REST-PATCH + targeted localStorage update; DnD-navbar verbergen op character-route; `.character-page` grid slopen voor volle flex-shell. Zie Planning.md Milestone 5b.
 
-- [~] P0 — WGI-M1: V8 monoliet (5145 r) split → 8 `.js` + `wg-style.css` in `Tools/Widget Grid V8/dist/`. Standalone test. Géén DnD-impact.
-- [ ] P0 — WGI-M2: symbool-merges (`showToast`, `FIREBASE_DB`, `MAPS_CACHE`, `WG_CHAR_CACHE`)
-- [ ] P0 — WGI-M3: kopiëer `wg-*` naar DnD-root + script/link tags. Tag `pre-widget-grid` vóór commit.
+- [x] P0 — WGI-M1: V8 monoliet (5145 r) split → 8 `.js` + `wg-style.css` in `Tools/Widget Grid V8/dist/` (V8 commit `b6e3b68`).
+- [x] P0 — WGI-M2: WG_*-prefix + shim-merges (`FIREBASE_DB`/`showToast`/`WG_MAPS_CACHE`). Standalone V8 werkt nog identiek.
+- [ ] P0 — WGI-M3: kopiëer `wg-*` naar DnD-root + script/link tags + `WidgetGrid` namespace/IIFE. Tag `pre-widget-grid` vóór commit.
 - [ ] P0 — WGI-M4: `WidgetGrid.mount/unmount` in `app.js`. Slop `.character-page` grid. Verberg DnD-navbar op character-route.
 - [ ] P1 — WGI-M5: `@scope (.character-page)` + theme-bridge naar DnD-tokens incl. `--char-accent`
 - [ ] P1 — WGI-M6: V11 edit-flow via direct REST-PATCH + targeted localStorage update
