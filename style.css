@@ -848,6 +848,35 @@ body[data-route^="characters/"] .navbar {
     display: none;
 }
 
+/* WGI: kleine fixed back-link links-boven op character-pages — enige nav
+   terug naar campaign view nu de DnD-navbar verborgen is. Z-index hoger
+   dan WidgetGrid's chrome zodat hij over V8's topbar-spacer-left valt. */
+.char-back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 100;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    color: var(--text-dim);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.char-back-btn:hover,
+.char-back-btn:focus-visible {
+    color: var(--text-main);
+    background: var(--bg-elevated);
+    border-color: var(--char-accent, var(--accent));
+    outline: none;
+}
+.char-back-btn:active { transform: translateY(1px); }
+
 /* Banner image */
 .char-banner {
     width: 100%;
