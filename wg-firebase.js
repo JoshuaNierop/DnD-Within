@@ -6,6 +6,42 @@ let WG_CHAR_STATUS = {};     // { id: 'loading'|'ready'|'error' }
 let WG_CHAR_ERROR  = {};     // { id: message | null }
 let WG_CHAR_LIST   = [];     // [{ id, name }] — voor de dropdown
 
+// ===== WGI-M6: targeted localStorage sync na V11 REST writes =====
+// Wanneer V8 inside D&D Within draait, schrijven de V11 edit-flows direct
+// PATCH/PUT naar Firebase. Daarna refresh'en ze WG_CHAR_CACHE[id] of
+// WG_MAPS_CACHE via fetch. Maar DnD heeft een eigen localStorage-cache
+// (dw_charconfig_*, dw_img_*_*, dw_maps) die door sync.js wordt gevuld;
+// zonder targeted sync zou een pagina-reload de oude waardes tonen totdat
+// Firebase's realtime listener weer triggert. Joshua's keuze (M2): direct
+// REST-PATCH + targeted localStorage update (geen full syncUpload-roundtrip).
+//
+// Standalone V8 heeft geen dw_* keys — helpers no-op zonder verstoring.
+function wgSyncCharToLocal(charId) {
+  if (typeof localStorage === 'undefined' || !charId) return;
+  const data = WG_CHAR_CACHE[charId];
+  if (!data) return;
+  try {
+    if (data.config) localStorage.setItem('dw_charconfig_' + charId, JSON.stringify(data.config));
+    if (data.state)  localStorage.setItem('dw_charstate_'  + charId, JSON.stringify(data.state));
+    if (data.images && data.images.portrait) {
+      localStorage.setItem('dw_img_' + charId + '_portrait', data.images.portrait);
+    }
+    if (data.images && data.images.banner) {
+      localStorage.setItem('dw_img_' + charId + '_banner', data.images.banner);
+    }
+    if (data.images && data.images.appearance) {
+      localStorage.setItem('dw_img_' + charId + '_appearance', data.images.appearance);
+    }
+  } catch (e) { console.warn('[wgi-m6] wgSyncCharToLocal failed', e); }
+}
+function wgSyncMapsToLocal() {
+  if (typeof localStorage === 'undefined') return;
+  if (!WG_MAPS_CACHE) return;
+  try {
+    localStorage.setItem('dw_maps', JSON.stringify(WG_MAPS_CACHE));
+  } catch (e) { console.warn('[wgi-m6] wgSyncMapsToLocal failed', e); }
+}
+
 async function fetchCharacterData(id) {
   if (!id) return;
   if (WG_CHAR_STATUS[id] === 'loading' || WG_CHAR_STATUS[id] === 'ready') return;

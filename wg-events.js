@@ -337,6 +337,8 @@ async function writeAbilityScore(abilityKey, value) {
       }
     }, 100);
   });
+  // WGI-M6: sync naar D&D Within localStorage cache.
+  wgSyncCharToLocal(charId);
 }
 
 // Write skill prof/expert arrays to Firebase and refresh.
@@ -367,6 +369,8 @@ async function writeSkillProficiency(skillKey, nextMark) {
       }
     }, 100);
   });
+  // WGI-M6: sync naar D&D Within localStorage cache.
+  wgSyncCharToLocal(charId);
 }
 
 // ===== V11 Phase 3.3 -- Map widget edit-mode helpers =====
@@ -536,6 +540,7 @@ async function savePinsToFirebase(widgetIdx, newPins) {
     WG_MAPS_CACHE = null;
     _mapsFetchState = "idle";
     await fetchMapsData();
+    wgSyncMapsToLocal(); // WGI-M6
     // V11 phase 3.4: na succesvolle pin-save direct uit pin-add-modus
     if (state.config.pinAddMode === widgetIdx) {
       state.config.pinAddMode = null;
@@ -572,6 +577,7 @@ async function uploadMapImage(widgetIdx, file) {
       WG_MAPS_CACHE = null;
       _mapsFetchState = "idle";
       await fetchMapsData();
+      wgSyncMapsToLocal(); // WGI-M6
     } catch (err) {
       showToast("Fout: " + err.message, "error");
     }
@@ -598,6 +604,7 @@ async function deleteMapFromFirebase(widgetIdx) {
     WG_MAPS_CACHE = null;
     _mapsFetchState = "idle";
     await fetchMapsData();
+    wgSyncMapsToLocal(); // WGI-M6
   } catch (err) {
     showToast("Fout: " + err.message, "error");
   }
@@ -667,6 +674,7 @@ async function uploadPortrait(widgetIdx, file) {
       // Refresh WG_CHAR_CACHE and rerender
       WG_CHAR_CACHE[charId] = null;
       await fetchCharacterData(charId);
+      wgSyncCharToLocal(charId); // WGI-M6
       render();
       showToast("Portret opgeslagen", "success");
     } catch (err) {
