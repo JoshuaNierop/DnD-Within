@@ -824,51 +824,28 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
 }
 
 /* ===== CHARACTER SHEET ===== */
-/* 3-kolom grid: [left-rail (sidebar palette in edit mode)] [main] [right-rail (FAB column)].
-   Left-rail = 0 in view-mode, 320px in edit-mode (transitie). Right-rail = vaste 80px voor
-   FAB-stack zodat dice/notes/bug nooit over dashboard vallen. */
+/* WGI-M4 (2026-05-27): voormalige `.character-page` grid (0/1fr/80px met
+   left-rail/main-col/right-rail) gesloopt. Widget Grid V8 mount inline en
+   krijgt een volle flex-shell. De `.char-left-rail/main-col/right-rail`
+   selectors zijn dode code sinds de nuke (commit 41e4257) en blijven hier
+   alleen als CSS-stubs voor referentie. FABs (body-level fixed) en
+   dashboard-toolbar (fixed) overlappen WidgetGrid nu rechtstreeks. */
 .character-page {
-    padding: 56px 0 0 0;
     margin: 0;
+    padding: 0;
     max-width: none;
     block-size: 100dvh;
+    inline-size: 100%;
     box-sizing: border-box;
-    display: grid;
-    grid-template-rows: 1fr;
-    grid-template-columns: 0 1fr 80px;
-    transition: grid-template-columns 0.2s ease;
+    display: flex;
+    flex-direction: column;
     position: relative;
     z-index: 1;
 }
-.character-page.is-edit-mode {
-    /* 56px = cats-strip; widget-content panel overlapt rechts (absoluut gepositioneerd) zonder dashboard te verschuiven. */
-    grid-template-columns: 56px 1fr 80px;
-}
-.char-left-rail {
-    grid-column: 1;
-    grid-row: 1;
-    overflow: visible; /* sta toe dat hover-content panel uitsteekt over middle-col */
-    background: var(--bg-elevated, rgba(255,255,255,0.03));
-    min-height: 0;
-    min-width: 0;
-    position: relative;
-    z-index: 40;
-}
-.char-main-col {
-    grid-column: 2;
-    grid-row: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-    padding: 0 0.5rem;
-    box-sizing: border-box;
-    position: relative;
-}
-.char-right-rail {
-    grid-column: 3;
-    grid-row: 1;
-    /* Empty: FABs (body-level fixed) en dashboard-toolbar (fixed) vallen visueel hier. */
+/* Verberg DnD navbar op character-pages — WidgetGrid's situation-tabs zijn
+   de enige topbar. `body[data-route^="characters/"]` wordt gezet in renderApp. */
+body[data-route^="characters/"] .navbar {
+    display: none;
 }
 
 /* Banner image */
@@ -3859,10 +3836,8 @@ footer {
     .header-info h1 { font-size: 1.3rem; }
     .tab-bar { padding: 0 0.5rem; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .tab-btn { padding: 0.5rem 0.8rem; font-size: 0.8rem; }
-    /* Mobile: smallere right-rail (FABs blijven 52px maar minder gap), left-rail volledig overlay. */
-    .character-page { grid-template-columns: 0 1fr 64px; }
-    .character-page.is-edit-mode { grid-template-columns: 56px 1fr 64px; }
-    .char-main-col { padding: 0 0.25rem; }
+    /* WGI-M7: oude .character-page mobile grid-overrides verwijderd. .character-page
+       is nu een flex-container (M4 slop). .char-main-col bestaat niet meer. */
     .tab-content { padding: 0.25rem 0 0 0; }
     .sheet-grid { grid-template-columns: 1fr; gap: 1rem; }
 

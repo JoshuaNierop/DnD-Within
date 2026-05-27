@@ -14,6 +14,14 @@ function renderApp() {
         return;
     }
 
+    // WGI-M4: signaleer huidige route aan CSS (verbergt navbar op character-pages).
+    document.body.dataset.route = route.parts.join('/') || (route.path === '/login' ? 'login' : 'home');
+
+    // WGI-M4: cleanup vorige Widget Grid mount voor de DOM hergebruikt wordt.
+    if (window.WidgetGrid && typeof window.WidgetGrid.unmount === 'function') {
+        window.WidgetGrid.unmount();
+    }
+
     // Set accent color for current context
     if (route.parts[0] === 'characters' && route.parts[1]) {
         var cfg = loadCharConfig(route.parts[1]);
@@ -140,6 +148,18 @@ function postRenderEffects(route) {
         var portraitWrap = document.querySelector('.char-portrait-wrap');
         if (typeof GlowRing !== 'undefined') {
             GlowRing.apply(portraitWrap, effectColor);
+        }
+        // WGI-M4: mount Widget Grid V8/V11 dashboard binnen de lege .character-page div.
+        var charPageEl = document.querySelector('.character-page');
+        if (charPageEl && window.WidgetGrid && typeof window.WidgetGrid.mount === 'function') {
+            try {
+                window.WidgetGrid.mount(charPageEl, {
+                    characterId: route.parts[1],
+                    canEdit: typeof canEditCharacter === 'function' ? canEditCharacter(route.parts[1]) : true
+                });
+            } catch (e) {
+                console.error('[WGI-M4] WidgetGrid.mount failed', e);
+            }
         }
     }
     // Initiative drag-and-drop
