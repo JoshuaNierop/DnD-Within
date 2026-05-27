@@ -192,14 +192,16 @@ function initFirebaseSync() {
         // Download users first, then all data
         syncDownloadUsers(function() {
             seedUsers();
-            syncDownloadAll(function() {
-                console.log('[Sync] Download voltooid.');
+            syncDownloadAll(function(changed) {
+                console.log('[Sync] Download voltooid. Wijzigingen: ' + changed);
                 syncStartListeners();
                 syncListenUsers();
                 syncDownloadBugs();
                 syncListenBugs();
                 initPresence();
-                if (typeof renderApp === 'function') renderApp();
+                // Re-render alleen als Firebase nieuwe/andere data leverde dan de localStorage cache.
+                // Voorkomt dubbele intro-animatie op return-visits met up-to-date cache.
+                if (changed > 0 && typeof renderApp === 'function') renderApp();
             });
         });
 
@@ -226,37 +228,50 @@ function extractLeaves(obj, prefix, result) {
 }
 
 function applyLeaves(leaves) {
+    var changed = 0;
     for (var i = 0; i < leaves.length; i++) {
+        var key = leaves[i].key;
         var val = leaves[i].value;
+        var existing = localStorage.getItem(key);
+        var next;
         if (val === null || val === undefined) {
-            localStorage.removeItem(leaves[i].key);
+            if (existing !== null) {
+                localStorage.removeItem(key);
+                changed++;
+            }
+            continue;
         } else if (typeof val === 'object') {
-            localStorage.setItem(leaves[i].key, JSON.stringify(val));
+            next = JSON.stringify(val);
         } else {
-            localStorage.setItem(leaves[i].key, String(val));
+            next = String(val);
+        }
+        if (existing !== next) {
+            localStorage.setItem(key, next);
+            changed++;
         }
     }
+    return changed;
 }
 
 // ===== Download all data from Firebase =====
 
 function syncDownloadAll(callback) {
-    if (!syncDb) { if (callback) callback(); return; }
+    if (!syncDb) { if (callback) callback(0); return; }
 
     syncDb.ref('dw').once('value', function(snapshot) {
         var data = snapshot.val();
-        if (!data) { if (callback) callback(); return; }
+        if (!data) { if (callback) callback(0); return; }
 
         syncPaused = true;
         var leaves = [];
         extractLeaves(data, '', leaves);
-        applyLeaves(leaves);
+        var changed = applyLeaves(leaves);
         syncPaused = false;
-        if (callback) callback();
+        if (callback) callback(changed);
     }, function(err) {
         console.error('[Sync] Download mislukt:', err);
         syncPaused = false;
-        if (callback) callback();
+        if (callback) callback(0);
     });
 }
 
@@ -317,9 +332,9 @@ function syncStartListeners() {
 
                 if (leaves.length > 0) {
                     syncPaused = true;
-                    applyLeaves(leaves);
+                    var changed = applyLeaves(leaves);
                     syncPaused = false;
-                    if (typeof renderApp === 'function') renderApp();
+                    if (changed > 0 && typeof renderApp === 'function') renderApp();
                 }
             });
 
@@ -365,9 +380,9 @@ function syncStartListeners() {
 
                 if (leaves.length > 0) {
                     syncPaused = true;
-                    applyLeaves(leaves);
+                    var changed = applyLeaves(leaves);
                     syncPaused = false;
-                    if (typeof renderApp === 'function') renderApp();
+                    if (changed > 0 && typeof renderApp === 'function') renderApp();
                 }
             });
         })(folders[f]);
