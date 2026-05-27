@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="style.css?v=22">
     <link rel="stylesheet" href="social/social.css?v=22">
+    <!-- WGI-M3: Widget Grid V8/V11 inline-integration styles (scoped to .character-page in M5) -->
+    <link rel="stylesheet" href="wg-style.css?v=23">
 </head>
 <body>
     <div id="app"></div>
@@ -51,5 +53,19 @@
     <script src="events.js?v=22"></script>
     <script src="app.js?v=22"></script>
     <script type="module" src="social/dnd-init.js"></script>
+
+    <!-- WGI-M3: Widget Grid scripts. Loaded after DnD's core/sync/etc. so the
+         shims in wg-data.js (FIREBASE_DB) and wg-firebase.js (showToast) pick up
+         the D&D Within globals. DEFER flag prevents auto-bootstrap — M4 calls
+         WidgetGridInit() via WidgetGrid.mount() from app.js. -->
+    <script>window.WIDGET_GRID_DEFER_INIT = true;</script>
+    <script src="wg-data.js?v=23"></script>
+    <script src="wg-firebase.js?v=23"></script>
+    <script src="wg-state.js?v=23"></script>
+    <script src="wg-engine.js?v=23"></script>
+    <script src="wg-render.js?v=23"></script>
+    <script src="wg-events.js?v=23"></script>
+    <script src="wg-ui.js?v=23"></script>
+    <script src="wg-mount.js?v=23"></script>
 </body>
 </html>

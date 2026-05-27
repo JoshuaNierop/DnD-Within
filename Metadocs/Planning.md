@@ -59,7 +59,7 @@ Status: 🚧 gestart 2026-05-27. Plan via `vanilla-js-architect` agent.
 **Fases:**
 - [x] P0 — WGI-M1: V8 monoliet (5145 r) split naar 8 `.js` + `wg-style.css` in `Tools/Widget Grid V8/dist/` (V8 commit `b6e3b68`).
 - [x] P0 — WGI-M2: WG_*-prefix op alle collision-risk constants + shim-merges (`FIREBASE_DB` via `window.FIREBASE_CONFIG`, `showToast` via `window.showToast`, `WG_MAPS_CACHE` via `localStorage('dw_maps')`). Standalone V8 werkt nog identiek. Namespace/IIFE doorgeschoven naar M3.
-- [ ] P0 — WGI-M3: kopiëer `wg-*` naar DnD-root + `<script>`/`<link>` tags + `WidgetGrid` namespace/IIFE wrapping. Tag `pre-widget-grid` vóór commit.
+- [x] P0 — WGI-M3: wg-* gekopieerd naar DnD-root, `<link>` + `<script>` tags in `index.html` (na DnD's eigen scripts zodat shims werken), `window.WIDGET_GRID_DEFER_INIT = true` vóór de wg-* loads, `wg-mount.js` bootstrap gewrapped in `WidgetGridInit()`. Tag `pre-widget-grid` op `ce609f7`. Branch `josh/widget-grid-inline`. Inline-fixes: `const showToast` → `var` (DnD declareerde 'm al), `_settings*` listeners optional-chained voor wanneer DOM nog niet bestaat. Namespace/IIFE doorgeschoven naar M4.
 - [ ] P0 — WGI-M4: `WidgetGrid.mount/unmount` bedraden in `app.js`. Slop `.character-page` grid (`style.css:830-872`). Verberg DnD-navbar op character-route.
 - [ ] P1 — WGI-M5: `@scope (.character-page)` om `wg-style.css` + theme-bridge naar DnD-tokens incl. `--char-accent`
 - [ ] P1 — WGI-M6: V11 edit-flow via direct REST-PATCH + targeted localStorage update (geen full `syncUpload`)
