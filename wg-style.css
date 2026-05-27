@@ -160,7 +160,7 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     border-left: 2px solid transparent;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
-  .cat-item:hover { background: rgba(255,255,255,0.04); color: var(--user-text-highlight, var(--text)); }
+  .cat-item:hover { background: rgba(255,255,255,0.10); color: var(--user-text-highlight, var(--accent)); }
   .cat-item.active {
     color: var(--user-text-highlight, var(--accent));
     border-left-color: var(--user-text-highlight, var(--accent));
@@ -180,7 +180,8 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
       background: transparent;
     }
   }
-  .cat-icon { display: inline-block; }
+  .cat-icon { display: inline-flex; align-items: center; justify-content: center; }
+  .cat-icon svg { width: 20px; height: 20px; flex-shrink: 0; }
   /* ----- Right sidebar ----- */
   aside.sidebar.right-sidebar {
     border-right: none;
@@ -197,19 +198,13 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     box-shadow: -4px 0 24px rgba(0, 0, 0, 0.35);
     transform: translateX(8px);
   }
-  aside.sidebar.right-sidebar:hover .sidebar-panel,
+  /* Rechter sidebar klapt NIET uit op hover — alleen via .pinned (klik op
+     character-toggle). Hover op de buttons zelf blijft beschikbaar voor
+     visuele feedback. */
   aside.sidebar.right-sidebar.pinned .sidebar-panel {
     opacity: 1;
     pointer-events: auto;
     transform: translateX(0);
-  }
-  @media (hover: none) {
-    aside.sidebar.right-sidebar:hover .sidebar-panel {
-      opacity: 0; pointer-events: none; transform: translateX(8px);
-    }
-    aside.sidebar.right-sidebar.pinned .sidebar-panel {
-      opacity: 1; pointer-events: auto; transform: translateX(0);
-    }
   }
   /* Right-sidebar action buttons */
   .rs-btn {
@@ -226,9 +221,23 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     border-left: 2px solid transparent;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
-  .rs-btn:hover:not(:disabled) { background: rgba(255,255,255,0.04); color: var(--user-text-highlight, var(--text)); }
+  .rs-btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.10);
+    color: var(--user-text-highlight, var(--accent));
+    border-left-color: var(--user-text-highlight, var(--accent));
+  }
   .rs-btn:disabled { opacity: 0.35; cursor: not-allowed; }
   .rs-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+  /* Edit-values toggle — glow als de modus actief is */
+  #rs-edit-values.active {
+    color: var(--user-text-highlight, var(--accent));
+    border-left-color: var(--user-text-highlight, var(--accent));
+    background: rgba(255,255,255,0.06);
+  }
+  #rs-edit-values.active svg {
+    filter: drop-shadow(0 0 6px var(--user-text-highlight, var(--accent)))
+            drop-shadow(0 0 2px var(--user-text-highlight, var(--accent)));
+  }
   /* Character-select inside right sidebar panel */
   .rs-char-section { padding: 8px 12px; }
   .rs-char-section .sidebar-section-label { padding: 4px 0 8px; }

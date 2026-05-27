@@ -61,7 +61,10 @@ function buildRowsFromSource(widget) {
     L.columnMaxChars  = [null, 8, null];
     L.columnAllCaps   = [false, false, false];
     L.columnExtraClass = ['is-prof-col', null, null];
-    L.columnMinWidthPx = [null, null, null];
+    // Prof-kolom (bolletje) krijgt extra ademruimte — anders zit het
+    // bolletje strak tegen de kolom-rand. Center-aligned, dus de extra
+    // ruimte verdeelt zich symmetrisch links/rechts.
+    L.columnMinWidthPx = [32, null, null];
     L.columnFontScale  = [1.25, 1, 1];   // matcht CSS .is-prof-col { font-size: 1.25em }
     L.stacking = 'horizontal';
   }

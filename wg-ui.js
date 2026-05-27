@@ -354,15 +354,28 @@ function buildWidgetJson(widget = state.widget) {
 }
 
 // ----- Widget library (sidebar) -----
+// Monochrome line-icons (currentColor) — geen emoji, consistent met de rechter sidebar.
+const _SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
+const _SVG_CLOSE = '</svg>';
+const WG_CAT_ICONS = {
+  all:       _SVG_OPEN + '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>' + _SVG_CLOSE,
+  character: _SVG_OPEN + '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>' + _SVG_CLOSE,
+  stats:     _SVG_OPEN + '<line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="11" y="8" width="3" height="12"/><rect x="16" y="4" width="3" height="16"/>' + _SVG_CLOSE,
+  exploring: _SVG_OPEN + '<circle cx="12" cy="12" r="9"/><polygon points="15.5,8.5 11,11 8.5,15.5 13,13"/>' + _SVG_CLOSE,
+  combat:    _SVG_OPEN + '<path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/>' + _SVG_CLOSE,
+  spells:    _SVG_OPEN + '<polygon points="12,3 14,10 21,12 14,14 12,21 10,14 3,12 10,10"/>' + _SVG_CLOSE,
+  inventory: _SVG_OPEN + '<path d="M3 7h18l-2 13H5L3 7z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/>' + _SVG_CLOSE,
+  social:    _SVG_OPEN + '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>' + _SVG_CLOSE,
+};
 const WG_CATEGORIES = [
-  { id: 'all',       name: 'All',       icon: '☰' },
-  { id: 'character', name: 'Character', icon: '🧙' },
-  { id: 'stats',     name: 'Stats',     icon: '📊' },
-  { id: 'exploring', name: 'Exploring', icon: '🧭' },
-  { id: 'combat',    name: 'Combat',    icon: '⚔' },
-  { id: 'spells',    name: 'Spells',    icon: '✨' },
-  { id: 'inventory', name: 'Inventory', icon: '🎒' },
-  { id: 'social',    name: 'Social',    icon: '💬' },
+  { id: 'all',       name: 'All',       icon: WG_CAT_ICONS.all },
+  { id: 'character', name: 'Character', icon: WG_CAT_ICONS.character },
+  { id: 'stats',     name: 'Stats',     icon: WG_CAT_ICONS.stats },
+  { id: 'exploring', name: 'Exploring', icon: WG_CAT_ICONS.exploring },
+  { id: 'combat',    name: 'Combat',    icon: WG_CAT_ICONS.combat },
+  { id: 'spells',    name: 'Spells',    icon: WG_CAT_ICONS.spells },
+  { id: 'inventory', name: 'Inventory', icon: WG_CAT_ICONS.inventory },
+  { id: 'social',    name: 'Social',    icon: WG_CAT_ICONS.social },
 ];
 
 const library = {
