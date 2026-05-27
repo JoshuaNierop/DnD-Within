@@ -7,31 +7,18 @@
 /* Theme-bridge: V8 → D&D Within tokens. Stays outside @scope so the custom
    props are inherited by everything inside .character-page. */
 .character-page {
-  /* Bridge to D&D Within's design tokens */
+  /* Bridge to D&D Within's design tokens — alleen tokens zonder palette-equivalent.
+     --user-*, --tile-*, --info-font-*, --tick/--handle/--guide/--alert worden
+     door applyPalette() op <html> gezet en erven naar binnen .character-page in.
+     Hier defaulten breekt dat over (CSS specificity: .character-page wint van
+     inline <html> style voor descendants). */
   --bg: var(--bg-dark, #161618);
   --panel: var(--bg-card, #1f1f23);
   --text: var(--text-main, #e8e8ec);
   --muted: var(--text-dim, #8a8a96);
   --border: var(--border-light, #2a2a30);
   --accent: var(--char-accent, var(--accent, #6cf));
-  /* V8-eigen tokens (geen DnD-equivalent) — behoud V8's defaults */
   --tile-dash: var(--char-accent, #6cf);
-  --tile-widget: #fc6;
-  --tile-info: #c8f;
-  --tile-info-2: #8cf;
-  --tile-info-3: #9e6;
-  --user-bg-page: #f5ecd6;
-  --user-bg-1:    #ede0c2;
-  --user-bg-2:    #e8d9b7;
-  --user-text-regular:    #2d2415;
-  --user-text-highlight:  #6b4a16;
-  --user-border:          #b8a06f;
-  --info-font-body:    'Inter', 'Segoe UI', system-ui, sans-serif;
-  --info-font-display: 'Cinzel', Georgia, serif;
-  --tick: #b8b8c0;
-  --handle: #ffffff;
-  --guide: #3a3a44;
-  --alert: #ff8c33;
 }
 
 /* WGI-M7: verberg V8's eigen char-switcher UI wanneer V8 inline draait in
