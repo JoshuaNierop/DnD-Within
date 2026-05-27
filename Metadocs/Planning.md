@@ -44,18 +44,35 @@ Status: open — ~12 trackers
 - [ ] P2 — DM Whispers handler binding
 
 ## Milestone 5 — Dashboard/Widget polish
-Status: in progress sinds 2026-05-07
+Status: ⛔ vervangen door Milestone 5b (WGI). Oude widget-grid is genukket in `41e4257` + `bf35f2a` (2026-05-26/27). Oude items verplaatst naar Changelog/archief.
 
-- [x] P1 — Widget grid + 22 widgets in registry
-- [x] P1 — Drag/resize edit mode + per-breakpoint layouts
-- [x] P1 — Widget Editor externe app (Cloudflare Pages)
-- [ ] P2 — Touch drag verfijnen op mobiel (echt device testen)
-- [ ] P2 — Templates kopiëren tussen characters via Tab manage modal
-- [ ] P2 — Family-diagram widget hooken aan family system
-- [ ] P2 — Save widget defs vanuit Widget Editor naar Firebase
-- [ ] P3 — Undo/redo in edit mode
-- [ ] P3 — "Unsaved changes" indicator
-- [ ] P3 — Default layouts Overview/Combat dichter plaatsen
+## Milestone 5b — WGI (Widget Grid V8/V11 Inline Integration)
+Status: 🚧 gestart 2026-05-27. Plan via `vanilla-js-architect` agent.
+
+**Doel:** Widget Grid V8 (intussen V11-compleet) inline mounten in `<div class="character-page">` als character-dashboard, met merges/splits van overlappende identifiers.
+
+**Joshua's keuzes (2026-05-27 02:00):**
+1. Edit-mode writes: direct REST-PATCH + targeted localStorage update (geen full `syncUpload`)
+2. DnD-navbar verbergen op `#characters/<id>` route — V8 situation-tabs zijn de enige topbar
+3. `.character-page` grid slopen — V8 krijgt volle flex-shell
+
+**Fases:**
+- [~] P0 — WGI-M1: V8 monoliet (5145 r) split naar 8 `.js` + `wg-style.css` in `Tools/Widget Grid V8/dist/`. Standalone test. Géén DnD-impact.
+- [ ] P0 — WGI-M2: symbool-merges (`showToast` → DnD, `FIREBASE_DB` → `FIREBASE_CONFIG.databaseURL`, `MAPS_CACHE` → localStorage, `WG_CHAR_CACHE` leest via `loadCharConfig/State/Image`)
+- [ ] P0 — WGI-M3: kopiëer `wg-*` naar DnD-root + `<script>`/`<link>` tags. Tag `pre-widget-grid` vóór commit.
+- [ ] P0 — WGI-M4: `WidgetGrid.mount/unmount` bedraden in `app.js`. Slop `.character-page` grid (`style.css:830-872`). Verberg DnD-navbar op character-route.
+- [ ] P1 — WGI-M5: `@scope (.character-page)` om `wg-style.css` + theme-bridge naar DnD-tokens incl. `--char-accent`
+- [ ] P1 — WGI-M6: V11 edit-flow via direct REST-PATCH + targeted localStorage update (geen full `syncUpload`)
+- [ ] P1 — WGI-M7: polish — verwijder V8 `#characterSelect`, opruimen dode `.is-edit-mode` rules, smoke-test alle 5 situations × 3 devices
+
+**Branch:** `josh/widget-grid-inline`, 7 commits (één per M-fase).
+**Architect-rapport:** zie sessie-notes 2026-05-27 (vanilla-js-architect opus max).
+**Originele V8 Metadocs:** `Projects/Tools/Widget Grid V8/Metadocs/` — Architecture.md (V9-paginering), V11-Handoff.md (afgesloten V11-features), V11-Dashboards-Spec.md.
+
+## Milestone 5-legacy — Dashboard (archief)
+- [x] P1 — Widget grid + 22 widgets in registry (verwijderd in nuke)
+- [x] P1 — Drag/resize edit mode + per-breakpoint layouts (verwijderd in nuke)
+- [x] P1 — Widget Editor externe app (Cloudflare Pages) (verwijderd in nuke)
 
 ## Milestone 6 — Modern CSS / responsive / a11y polish
 Status: gepland — onderzoek loopt 2026-05-15 (modern-css skill)

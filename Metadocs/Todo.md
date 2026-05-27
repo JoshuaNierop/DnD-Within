@@ -1,26 +1,20 @@
 # D&D Within — To Do
 
-## Dashboard / Widget System (2026-05-07 — fase 1 gestart)
+## WGI — Widget Grid V8/V11 Inline Integration (2026-05-27 gestart)
 
-- [x] P1 — Data layer: `dashboard-data.js` (per-character tabs config + per-bp layouts + reflow + templates)
-- [x] P1 — Widget registry: `widgets.js` (12 starter widgets — hp/core-stats/abilities/saves/skills/slots/prepared/weapons/quote/text/image/inventory + family-diagram + xp + class-resources)
-- [x] P1 — Dashboard renderer + grid CSS: `dashboard.js` + `dashboard.css` (12/8/4 cols, breakpoint toolbar, grid toggle)
-- [x] P1 — Edit-mode: `dashboard-edit.js` (sidebar palette met categorieën, drag-from-palette, in-grid drag, corner resize, save per breakpoint, clear bp, save-as-template)
-- [x] P1 — Tab-management modal (add/hide/rename/reorder/delete custom tabs) + nieuwe defaults: Overview, Stats, Social, Exploring, Combat, Spells, Story, Family, Inventory
-- [x] P1 — Convert-to-dashboard knop voor legacy tabs (Overview/Stats/Combat/Spells/Story/Inventory)
-- [x] P1 — Auto-reflow algoritme (starred-first + bottom-left-fill, geen lege vlakken)
-- [x] P2 — Size picker in palette (3-5 size opties per widget, klik = active, daarna drag)
-- [x] P2 — Widget configuratie-UI (text widget title/body editen via contentEditable, image upload binnen widget)
-- [x] P3 — Compact-knop (pull widgets up, geen gaps)
-- [x] P3 — Meer widgets: combat-log, death-saves, exhaustion, inspiration, metamagic, sneak-attack, ability-radar
-- [x] P2 — Edit-mode UX: drag werkt vanaf hele widget (interactive children opt-out via tag check), niet meer overlay
-- [x] P2 — Tab-switch tijdens edit mode: auto-save current bp
-- [ ] P2 — Touch drag verfijnen voor mobiel (pointer events werken al; testen op echt device)
-- [ ] P2 — Templates: gebruiker kan opgeslagen template kopiëren naar andere character via Tab manage modal
-- [ ] P2 — Family-diagram widget hooken aan de bestaande family system zodra een character een family heeft
-- [ ] P3 — Undo/redo binnen edit mode
-- [ ] P3 — Default layouts voor Overview/Combat opnieuw bekijken (nu nog naïef — willen meer dichtgeplaatste defaults)
-- [ ] P3 — Visual feedback voor "unsaved changes" indicator in edit mode
+Plan via `vanilla-js-architect` agent. Joshua's keuzes: direct REST-PATCH + targeted localStorage update; DnD-navbar verbergen op character-route; `.character-page` grid slopen voor volle flex-shell. Zie Planning.md Milestone 5b.
+
+- [~] P0 — WGI-M1: V8 monoliet (5145 r) split → 8 `.js` + `wg-style.css` in `Tools/Widget Grid V8/dist/`. Standalone test. Géén DnD-impact.
+- [ ] P0 — WGI-M2: symbool-merges (`showToast`, `FIREBASE_DB`, `MAPS_CACHE`, `WG_CHAR_CACHE`)
+- [ ] P0 — WGI-M3: kopiëer `wg-*` naar DnD-root + script/link tags. Tag `pre-widget-grid` vóór commit.
+- [ ] P0 — WGI-M4: `WidgetGrid.mount/unmount` in `app.js`. Slop `.character-page` grid. Verberg DnD-navbar op character-route.
+- [ ] P1 — WGI-M5: `@scope (.character-page)` + theme-bridge naar DnD-tokens incl. `--char-accent`
+- [ ] P1 — WGI-M6: V11 edit-flow via direct REST-PATCH + targeted localStorage update
+- [ ] P1 — WGI-M7: polish — verwijder V8 `#characterSelect`, opruimen `.is-edit-mode` dode code, smoke-test 5×3
+
+## Legacy Dashboard (archief — verwijderd 2026-05-26/27 in nuke)
+
+Oude `dashboard.js` / `widgets.js` / etc. systeem gestript in commits `41e4257` + `bf35f2a`. Open items uit oude systeem (touch drag, templates, family-hook, undo/redo, unsaved-indicator) overgedragen naar WGI-M7 polish-fase, of opnieuw geëvalueerd in V8-context.
 
 ## Bug Tracker — Migrated to Central Hub (2026-04-22)
 
