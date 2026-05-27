@@ -1,29 +1,41 @@
-  :root {
-    --bg: #161618;
-    --panel: #1f1f23;
-    --border: #2a2a30;
-    --muted: #8a8a96;
-    --text: #e8e8ec;
-    --accent: #6cf;
-    --tile-dash: #6cf;
-    --tile-widget: #fc6;
-    --tile-info: #c8f;
-    --tile-info-2: #8cf;
-    --tile-info-3: #9e6;
-    /* User-mode palette (set door applyPalette via CSS-vars) */
-    --user-bg-page: #f5ecd6;
-    --user-bg-1:    #ede0c2;  /* topbar + info-box cellen */
-    --user-bg-2:    #e8d9b7;  /* widget main container */
-    --user-text-regular:    #2d2415;
-    --user-text-highlight:  #6b4a16;
-    --user-border:          #b8a06f;
-    --info-font-body:    'Inter', 'Segoe UI', system-ui, sans-serif;
-    --info-font-display: 'Cinzel', Georgia, serif;
-    --tick: #b8b8c0;
-    --handle: #ffffff;
-    --guide: #3a3a44;
-    --alert: #ff8c33;
-  }
+/* ===== Widget Grid V8/V11 styles =====
+   WGI-M5 (2026-05-27): wrapped in @scope (.character-page) so V8 rules only
+   match inside the mount-root. Original V8's :root block replaced by a
+   theme-bridge that maps V8 tokens onto D&D Within's design system —
+   including --char-accent (per-character) flowing into V8's accent + tile-dash. */
+
+/* Theme-bridge: V8 → D&D Within tokens. Stays outside @scope so the custom
+   props are inherited by everything inside .character-page. */
+.character-page {
+  /* Bridge to D&D Within's design tokens */
+  --bg: var(--bg-dark, #161618);
+  --panel: var(--bg-card, #1f1f23);
+  --text: var(--text-main, #e8e8ec);
+  --muted: var(--text-dim, #8a8a96);
+  --border: var(--border-light, #2a2a30);
+  --accent: var(--char-accent, var(--accent, #6cf));
+  /* V8-eigen tokens (geen DnD-equivalent) — behoud V8's defaults */
+  --tile-dash: var(--char-accent, #6cf);
+  --tile-widget: #fc6;
+  --tile-info: #c8f;
+  --tile-info-2: #8cf;
+  --tile-info-3: #9e6;
+  --user-bg-page: #f5ecd6;
+  --user-bg-1:    #ede0c2;
+  --user-bg-2:    #e8d9b7;
+  --user-text-regular:    #2d2415;
+  --user-text-highlight:  #6b4a16;
+  --user-border:          #b8a06f;
+  --info-font-body:    'Inter', 'Segoe UI', system-ui, sans-serif;
+  --info-font-display: 'Cinzel', Georgia, serif;
+  --tick: #b8b8c0;
+  --handle: #ffffff;
+  --guide: #3a3a44;
+  --alert: #ff8c33;
+}
+
+@scope (.character-page) {
+
 
   * {
     box-sizing: border-box;
@@ -1061,3 +1073,5 @@
   .map-edit-popover .btn-cancel { background: transparent; color: var(--user-text-regular, var(--text)); border: 1px solid var(--user-border, var(--border)) !important; }
   .map-edit-popover .btn-delete { background: #7a2020; color: #f8d0d0; margin-right: auto; }
   .map-edit-popover .btn-delete:hover { background: #a03030; }
+
+} /* end @scope (.character-page) */
