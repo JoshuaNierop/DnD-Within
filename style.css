@@ -4410,6 +4410,32 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
     border-left: 3px solid var(--gold);
     border-radius: var(--radius-sm);
     padding: 0.75rem 1rem;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: border-color 0.2s ease, transform 0.15s ease, background 0.2s ease;
+    cursor: pointer;
+}
+.dash-recent-event:hover {
+    background: var(--bg-block, var(--bg-card));
+    transform: translateY(-1px);
+}
+.dash-recent-event .dash-recent-title {
+    display: block;
+    margin: 0.15rem 0 0.25rem 0;
+}
+.dash-recent-event .dash-recent-desc {
+    margin: 0;
+    font-size: 0.8rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 9;
+    line-clamp: 9;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Hard line-height cap so 9 lines is the actual visual ceiling */
+    max-height: calc(1.45em * 9);
+    line-height: 1.45;
 }
 
 .dash-recent-event.timeline-danger { border-left-color: var(--danger); }
@@ -4421,7 +4447,21 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .session-card, .level-card { position: relative; }
 .dash-stat-value-row { display: inline-flex; align-items: center; gap: 0.6rem; justify-content: center; }
 .dash-stat-value-row .dash-stat-value { min-width: 1.5em; text-align: center; }
-.session-btn { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-dark); border: 1px solid var(--accent); color: var(--accent); cursor: pointer; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; padding: 0; line-height: 1; flex: 0 0 auto; }
+.session-btn {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--bg-dark); border: 1px solid var(--accent);
+    color: var(--accent); cursor: pointer; font-size: 0.8rem;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: opacity 0.18s ease, transform 0.18s ease, background 0.2s, color 0.2s;
+    padding: 0; line-height: 1; flex: 0 0 auto;
+    opacity: 0; pointer-events: none; transform: scale(0.85);
+}
+.session-card:hover .session-btn,
+.session-card:focus-within .session-btn,
+.level-card:hover .session-btn,
+.level-card:focus-within .session-btn {
+    opacity: 1; pointer-events: auto; transform: scale(1);
+}
 .session-btn:hover { border-color: var(--accent); color: var(--bg-dark); background: var(--accent); }
 /* Legacy fallback if old layout reappears */
 .session-controls { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.3rem; }
@@ -5941,6 +5981,14 @@ body.modal-open {
     flex-wrap: wrap;
     justify-content: flex-end;
     max-width: calc(100% - 1.5rem);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+.welcome-banner:hover .banner-upload-slots,
+.welcome-banner:focus-within .banner-upload-slots {
+    opacity: 1;
+    pointer-events: auto;
 }
 .banner-upload-slot {
     position: relative;
@@ -5954,13 +6002,13 @@ body.modal-open {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    opacity: 0.65;
+    opacity: 0.85;
     transition: opacity 0.2s, border-color 0.2s, background 0.2s;
     white-space: nowrap;
 }
 .banner-upload-slot:hover { opacity: 1; border-color: var(--accent); }
-.banner-upload-slot.filled { background: rgba(0,0,0,0.7); border-color: rgba(255,255,255,0.25); opacity: 0.85; }
-.banner-upload-slot.current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); opacity: 1; }
+.banner-upload-slot.filled { background: rgba(0,0,0,0.7); border-color: rgba(255,255,255,0.25); }
+.banner-upload-slot.current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .banner-slot-clear {
     background: none;
     border: none;

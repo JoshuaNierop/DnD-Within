@@ -77,15 +77,23 @@ Status: 🚧 gestart 2026-05-27. Plan via `vanilla-js-architect` agent.
 - [x] P1 — Widget Editor externe app (Cloudflare Pages) (verwijderd in nuke)
 
 ## Milestone 5c — Homepage & UI tweaks (2026-05-29)
-Status: ✅ code-niveau **DONE**, wacht op live browser-verificatie.
+Status: ✅ code-niveau **DONE** (twee rondes), wacht op live browser-verificatie.
 
-Joshua's 7-puntenlijst in één sessie doorgevoerd. Zie `Todo.md` sectie "Homepage & UI tweaks" voor de verificatiepunten.
+Joshua's 7-puntenlijst + 5 follow-up correcties in twee rondes doorgevoerd. Zie `Todo.md` secties "Homepage & UI tweaks ronde 1/2" voor de verificatiepunten.
 
+**Ronde 1:**
 - [x] P1 — Route-rename: huidige Dashboard → `/home`, oude `/home` → `/welcome`. Logo + login + back-button + campaign-enter doorbedraad. `nav.welcome` toegevoegd.
 - [x] P1 — Time-based banner met 4 slots (night/morning/afternoon/evening). `dw_dashboard.bannerImages.{slot}`; current-slot highlighted; legacy `bannerImage` blijft als fallback.
 - [x] P1 — Grote nav-cards op homepage verwijderd (Party/Timeline/Maps/Lore/Notes — duplicaat met navbar).
 - [x] P1 — Sessie-indicator: `-/+` direct naast cijfer (nieuwe `.dash-stat-value-row` layout).
 - [x] P1 — Level-indicator: `-/+` naast cijfer (DM/Admin only). Storage `dw_party_level` (1–20), fallback naar berekende groupLevel.
+
+**Ronde 2 (follow-up):**
+- [x] P0 — Navbar-context fix: route `/home` was niet opgenomen in `inCampaignView`-array → na campagne-klik bleef de Welcome-navbar zichtbaar. `'home'` toegevoegd; fallback routePart `'dashboard'` → `'home'`.
+- [x] P1 — Banner-knoppen Engels (één-woord) + hover-only zichtbaar (`:hover`/`:focus-within` op `.welcome-banner`).
+- [x] P1 — Session/Level `-/+` alleen visible bij hover over eigen card.
+- [x] P1 — Recent-events op homepage: 9-regel ellipsis (`-webkit-line-clamp`), card is nu `<a href="#/timeline">`.
+- [x] P1 — Timeline events gesorteerd op session-nummer descending (recent bovenaan); events zonder session-# zakken naar beneden.
 
 ## Milestone 6 — Modern CSS / responsive / a11y polish
 Status: gepland — onderzoek loopt 2026-05-15 (modern-css skill)

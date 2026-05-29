@@ -1,6 +1,16 @@
 # D&D Within — To Do
 
-## Homepage & UI tweaks (2026-05-29)
+## Homepage & UI tweaks — ronde 2 (2026-05-29 21:30)
+
+Vervolg-correcties na eerste pas. Wacht op live browser-verificatie.
+
+- [x] P1 — Banner-upload-knoppen: Engels (Night/Morning/Afternoon/Evening, één woord) + hover-only (zichtbaar bij `:hover` / `:focus-within` op `.welcome-banner`).
+- [x] P1 — Session/Level `-/+` knoppen alleen zichtbaar bij hover over hun eigen `.session-card` / `.level-card`. Standaard opacity 0 + pointer-events none + lichte scale-in op hover.
+- [x] P1 — Recent events op homepage: max 9 regels desc met ellipsis (`-webkit-line-clamp: 9`), elk event is nu een `<a href="#/timeline">` → klik navigeert naar Timeline.
+- [x] P1 — Timeline events gesorteerd op sessie-nummer descending (recent bovenaan). Events zonder session-nummer zakken naar beneden. Originele indices behouden voor edit/delete handlers.
+- [x] P0 — Navbar-context fix: route `/home` ontbrak in de `inCampaignView` array, waardoor na klik op campagne de Welcome-navbar zichtbaar bleef i.p.v. de campaign-navbar. `'home'` toegevoegd aan de lijst (`['home', 'dashboard', 'party', 'maps', 'timeline', 'lore', 'notes', 'dm']`), fallback `routePart` van `'dashboard'` → `'home'`.
+
+## Homepage & UI tweaks — ronde 1 (2026-05-29)
 
 Joshua's 7-puntenlijst doorgevoerd in één sessie. Wacht op live browser-verificatie.
 

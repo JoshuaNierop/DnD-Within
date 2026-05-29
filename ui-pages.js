@@ -73,8 +73,8 @@ function renderNavbar(route) {
     var activeCamp = getActiveCampaign();
     var campaigns = getCampaigns();
     var hasCampaign = campaigns[activeCamp] != null;
-    var routePart = route.parts[0] || 'dashboard';
-    var inCampaignView = hasCampaign && ['dashboard', 'party', 'maps', 'timeline', 'lore', 'notes', 'dm'].indexOf(routePart) !== -1;
+    var routePart = route.parts[0] || 'home';
+    var inCampaignView = hasCampaign && ['home', 'dashboard', 'party', 'maps', 'timeline', 'lore', 'notes', 'dm'].indexOf(routePart) !== -1;
     // Character pages: show the campaign navbar if the character belongs to the
     // active campaign's party (Ren in The Serpent of Valoria → campaign tab).
     // Standalone characters keep the main-menu navbar.
@@ -527,10 +527,16 @@ function renderDashboard() {
     if (!activeBanner && dashData.bannerImage) activeBanner = dashData.bannerImage;
 
     var slotLabels = {
-        night: 'Nacht (00–06)',
-        morning: 'Ochtend (06–12)',
-        afternoon: 'Middag (12–18)',
-        evening: 'Avond (18–24)'
+        night: 'Night',
+        morning: 'Morning',
+        afternoon: 'Afternoon',
+        evening: 'Evening'
+    };
+    var slotTitles = {
+        night: 'Night (00–06)',
+        morning: 'Morning (06–12)',
+        afternoon: 'Afternoon (12–18)',
+        evening: 'Evening (18–24)'
     };
 
     // Welcome banner with optional background image
@@ -545,11 +551,11 @@ function renderDashboard() {
             var slotKey = slotOrder[bsj];
             var hasImg = !!bannerSlots[slotKey];
             var isCur = slotKey === currentSlot;
-            html += '<label class="banner-upload-slot' + (hasImg ? ' filled' : '') + (isCur ? ' current' : '') + '" title="' + slotLabels[slotKey] + (hasImg ? ' — klik om te vervangen' : '') + '">';
+            html += '<label class="banner-upload-slot' + (hasImg ? ' filled' : '') + (isCur ? ' current' : '') + '" title="' + slotTitles[slotKey] + (hasImg ? ' — click to replace' : '') + '">';
             html += '<span class="banner-slot-label">' + slotLabels[slotKey] + '</span>';
             html += '<input type="file" accept="image/*" data-action="upload-dash-banner" data-banner-slot="' + slotKey + '" style="display:none">';
             if (hasImg) {
-                html += '<button type="button" class="banner-slot-clear" data-action="clear-dash-banner" data-banner-slot="' + slotKey + '" title="Verwijder">&times;</button>';
+                html += '<button type="button" class="banner-slot-clear" data-action="clear-dash-banner" data-banner-slot="' + slotKey + '" title="Remove">&times;</button>';
             }
             html += '</label>';
         }
@@ -634,11 +640,11 @@ function renderDashboard() {
         html += '<div class="dash-recent-events">';
         for (var ri = 0; ri < recentEvents.length; ri++) {
             var rev = recentEvents[ri];
-            html += '<div class="dash-recent-event timeline-' + (rev.type || 'quest') + '">';
+            html += '<a class="dash-recent-event timeline-' + (rev.type || 'quest') + '" href="#/timeline" title="' + escapeAttr(t('dash.recent.open') || 'Open timeline') + '">';
             if (rev.session) html += '<span class="timeline-date">' + t('dash.session') + ' ' + escapeHtml(rev.session) + '</span>';
-            html += '<strong>' + escapeHtml(rev.title) + '</strong>';
-            html += '<p class="text-dim" style="margin:0;font-size:0.8rem;">' + escapeHtml(rev.desc) + '</p>';
-            html += '</div>';
+            html += '<strong class="dash-recent-title">' + escapeHtml(rev.title) + '</strong>';
+            html += '<p class="text-dim dash-recent-desc">' + escapeHtml(rev.desc) + '</p>';
+            html += '</a>';
         }
         html += '</div>';
         html += '</div>';

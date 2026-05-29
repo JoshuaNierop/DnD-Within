@@ -766,16 +766,30 @@ function renderTimeline() {
             html += '</div>';
         }
 
-        // Events
+        // Events — sorteer op sessie nummer (hoog → laag, recent bovenaan).
+        // Events zonder session-nummer (NaN) zakken naar beneden. Originele
+        // index wordt bewaard voor edit/delete handlers.
         var events = ch.events || [];
-        if (events.length === 0) {
+        var sortedEvents = events.map(function(ev, idx) { return { ev: ev, idx: idx }; });
+        sortedEvents.sort(function(a, b) {
+            var na = parseInt(a.ev.session, 10);
+            var nb = parseInt(b.ev.session, 10);
+            var aValid = !isNaN(na);
+            var bValid = !isNaN(nb);
+            if (aValid && bValid) return nb - na;
+            if (aValid) return -1;
+            if (bValid) return 1;
+            return 0;
+        });
+        if (sortedEvents.length === 0) {
             html += '<p class="text-dim" style="padding:2rem 0;">' + t('timeline.noevents') + '</p>';
         } else {
             html += '<div class="timeline">';
-            for (var j = 0; j < events.length; j++) {
-                var ev = events[j];
+            for (var j = 0; j < sortedEvents.length; j++) {
+                var ev = sortedEvents[j].ev;
+                var evOrigIdx = sortedEvents[j].idx;
                 var evLayout = ev.layout || 'text';
-                html += '<div class="timeline-event timeline-' + (ev.type || 'quest') + ' event-layout-' + evLayout + '" data-event-idx="' + j + '">';
+                html += '<div class="timeline-event timeline-' + (ev.type || 'quest') + ' event-layout-' + evLayout + '" data-event-idx="' + evOrigIdx + '">';
                 html += '<div class="timeline-marker"></div>';
                 html += '<div class="timeline-content">';
 
@@ -814,8 +828,8 @@ function renderTimeline() {
 
                 if (isDM()) {
                     html += '<div class="event-actions">';
-                    html += '<button class="btn btn-ghost btn-sm" data-action="edit-event" data-event="' + j + '">' + t('generic.edit') + '</button>';
-                    html += '<button class="btn btn-ghost btn-sm" data-action="delete-event" data-event="' + j + '" style="color:var(--danger);">' + t('generic.delete') + '</button>';
+                    html += '<button class="btn btn-ghost btn-sm" data-action="edit-event" data-event="' + evOrigIdx + '">' + t('generic.edit') + '</button>';
+                    html += '<button class="btn btn-ghost btn-sm" data-action="delete-event" data-event="' + evOrigIdx + '" style="color:var(--danger);">' + t('generic.delete') + '</button>';
                     html += '</div>';
                 }
                 html += '</div>';
