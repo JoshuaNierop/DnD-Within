@@ -88,6 +88,9 @@ Joshua's 7-puntenlijst + 5 follow-up correcties in twee rondes doorgevoerd. Zie 
 - [x] P1 — Sessie-indicator: `-/+` direct naast cijfer (nieuwe `.dash-stat-value-row` layout).
 - [x] P1 — Level-indicator: `-/+` naast cijfer (DM/Admin only). Storage `dw_party_level` (1–20), fallback naar berekende groupLevel.
 
+**Ronde 4 (follow-up):**
+- [x] P0 — Profile Picture upload-knop écht gefixt. Ronde-1 canvas-listener fix was correct maar onvoldoende. Echte cause: pointerup → `render()` vervangt SVG vóór click; async handler verliest transient user-activation → file picker opent nooit. Fix: map-action sync in `onPointerDown` (preventDefault + sync handleMapAction + return zonder pendingGesture).
+
 **Ronde 3 (follow-up):**
 - [x] P2 — Homepage Recent events ook op session-# desc (was storage-order).
 - [x] P1 — Mobile/coarse-pointer: tap op `.welcome-banner` toggle `show-upload-slots` class (revealen upload-knoppen). Tap buiten sluit hem; tap op slot/clear wordt genegeerd zodat de eigen actie doorgaat.

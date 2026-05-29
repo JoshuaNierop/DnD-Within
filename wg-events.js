@@ -22,6 +22,25 @@ function getSVGPoint(svg, evt) {
 }
 
 function onPointerDown(evt) {
+  // Map-action buttons (upload-portrait, etc.) moeten SYNCHROON afgehandeld
+  // worden in pointerdown. Anders triggert pointerup een setActiveWidget+
+  // render() die de SVG-target vervangt vóór de click event fires, en gaat
+  // de transient user-activation verloren in de async click-handler →
+  // file picker opent niet. Sync afhandelen omzeilt beide problemen.
+  if (typeof state !== 'undefined' && state.config && state.config.editValuesMode) {
+    const mapActionEl = evt.target.closest && evt.target.closest('[data-map-action]');
+    if (mapActionEl) {
+      const action = mapActionEl.dataset.mapAction;
+      const widgetG = mapActionEl.closest('[data-widget-idx]');
+      const wIdx = widgetG ? parseInt(widgetG.dataset.widgetIdx, 10) : state.activeWidgetIdx;
+      evt.preventDefault();
+      try { handleMapAction(action, wIdx); } catch (e) { console.error('[wg] handleMapAction failed', e); }
+      pendingGesture = null;
+      gestureCommitted = false;
+      return;
+    }
+  }
+
   let t = evt.target;
   while (t && (!t.dataset || !t.dataset.handle) && t !== document.body) {
     t = t.parentNode;
