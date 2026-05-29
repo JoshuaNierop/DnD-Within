@@ -4500,15 +4500,55 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .scene-image-preview img { max-width: 50%; max-height: 160px; object-fit: cover; border-radius: var(--radius-sm); }
 .scene-text-input { min-height: 70px; width: 100%; }
 
+/* Collapsed scene preview (per-scene edit toggle, 2026-05-30) */
+.scene-block-collapsed { padding: 0.5rem 0.75rem; }
+.scene-block-collapsed .scene-block-header { gap: 0.5rem; }
+.scene-block-collapsed .scene-edit { font-size: 0.7rem; padding: 0.25rem 0.6rem; }
+.scene-block-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+}
+.scene-preview-layout {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+.scene-preview-thumb img { width: 32px; height: 32px; object-fit: cover; border-radius: 4px; }
+.scene-preview-text {
+    flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
 /* Rendered scenes within a session block on the timeline page */
 .timeline-session-block .scene { margin-top: 0.6rem; }
-.timeline-session-block .scene p { margin: 0.25rem 0; line-height: 1.55; }
-.timeline-session-block .scene-split { display: grid; gap: 0.75rem; align-items: start; }
-.timeline-session-block .scene-split-image-left { grid-template-columns: minmax(120px, 35%) 1fr; }
-.timeline-session-block .scene-split-image-right { grid-template-columns: 1fr minmax(120px, 35%); }
-.timeline-session-block .scene-split-image-right .scene-split-img { order: 2; }
-.timeline-session-block .scene-split-image-right .scene-split-text { order: 1; }
-.timeline-session-block .scene-split img { width: 100%; height: auto; border-radius: var(--radius-sm); }
+.timeline-session-block .scene p { margin: 0.25rem 0; line-height: 1.55; text-align: justify; hyphens: auto; }
+/* Image-left / image-right: float the image so that when the text runs longer
+   than the image, it wraps under the image at full width. Tekst wordt justified. */
+.timeline-session-block .scene-split { overflow: hidden; }
+.timeline-session-block .scene-split::after { content: ''; display: table; clear: both; }
+.timeline-session-block .scene-split-img {
+    inline-size: clamp(140px, 35%, 320px);
+    margin-block-end: 0.6rem;
+}
+.timeline-session-block .scene-split-image-left .scene-split-img {
+    float: inline-start;
+    margin-inline-end: 1rem;
+}
+.timeline-session-block .scene-split-image-right .scene-split-img {
+    float: inline-end;
+    margin-inline-start: 1rem;
+}
+.timeline-session-block .scene-split img { width: 100%; height: auto; border-radius: var(--radius-sm); display: block; }
+.timeline-session-block .scene-split-text { text-align: justify; hyphens: auto; }
 .timeline-session-block .scene-image-only img { max-width: 100%; border-radius: var(--radius-sm); }
 
 /* Focus-flash when navigating from a Recent card */
@@ -6005,12 +6045,22 @@ body.modal-open {
    Dashboard Banner (extends .welcome-banner from line ~327)
    ============================================================ */
 .welcome-banner.has-banner {
-    min-height: 220px;
+    /* Slim banner: korter qua hoogte, breder gevoel. De geuploade afbeelding
+       fit op hoogte (auto width) en herhaalt niet — zo blijven proporties
+       behouden ongeacht de original aspect ratio. */
+    min-height: 140px;
+    max-height: 200px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 2rem;
+    padding: 1.25rem 1.5rem;
     border-radius: 12px;
+    background-size: auto 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+@media (min-width: 700px) {
+    .welcome-banner.has-banner { min-height: 160px; max-height: 220px; }
 }
 .welcome-banner.has-banner::before {
     /* Override the parchment-strip ornament when user supplies a real image */

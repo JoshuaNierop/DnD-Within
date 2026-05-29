@@ -1,5 +1,18 @@
 # D&D Within — To Do
 
+## Homepage & UI tweaks — ronde 6 (2026-05-30 01:00)
+
+- [x] P1 — Welcome banner dunner (`min-height: 140px`, `max-height: 200px` → 160/220 vanaf 700px), `padding: 1.25rem 1.5rem`. Image fit op hoogte via `background-size: auto 100%` + `background-position: center` + `background-repeat: no-repeat` zodat de afbeelding niet wordt gestrekt of gecropt.
+- [x] P1 — Scene split image-left/right: tekst loopt nu **onder** de afbeelding door over de volle breedte. Implementatie via `float: inline-start/end` op `.scene-split-img` met `inline-size: clamp(140px, 35%, 320px)` + `text-align: justify; hyphens: auto;` op zowel `.scene-split-text` als `.scene p`.
+- [x] P0 — **Timeline storage gesplitst per scene** om localStorage-quota en grote Firebase-write payloads te omzeilen. Nieuwe layout:
+  - `dw_chapters` (klein, alleen index) ↔ Firebase `world/timeline/chapters`
+  - `dw_scene_<id>` (één blob per scene incl. image) ↔ Firebase `world/timeline/scenes/<id>`
+  - Migratie van oude monolithische `dw_timeline` gebeurt one-shot in `_migrateMonolithicTimeline()`; legacy blob bewaard onder `dw_timeline_legacy_backup` als safety net.
+  - `sync.js` learns about `dw_chapters` + `dw_scene_*` prefix en mapping van/naar de Firebase paths.
+  - `dw_party_level` ook toegevoegd aan sync (was P1 ronde 5 maar nog niet sync-known).
+- [x] P0 — **Per-scene edit/save UI**. Scene-blokken hebben twee modes: expanded editor (layout-picker + image + textarea) en collapsed preview (layout-badge + thumbnail + first-line text + "Edit" knop). Eén scene tegelijk in edit-mode. Switch via "Edit Scene" op een ander blok of "+ Add Scene" → `_commitActiveScene()` schrijft de huidige scene naar zijn eigen blob (`saveScene(sceneId, …)`) voordat de DOM wordt herschikt. Image-upload + image-remove triggeren ook een direct per-scene save. Save-Session knop commit nog één keer de actieve scene en schrijft daarna alleen de chapters/sessions-index (tiny payload).
+- [x] P1 — Image compression voor scene uploads: `maxW 1200 → 1000` + `quality 0.8 → 0.72` om per-scene payload kleiner te houden.
+
 ## Homepage & UI tweaks — ronde 5 (2026-05-29 22:30)
 
 - [x] P1 — Right sidebar (`#rightSidebar`): uitklappend `.sidebar-panel` weggehaald (CSS-only, `display:none`); de `#rs-char-toggle` knop die het opende ook verborgen. `characterSelect` element blijft in DOM voor binding-compat.

@@ -52,10 +52,12 @@ var syncPaused = false;
 // Keys that should be synced
 var SYNC_PREFIXES = [
     'dw_char_', 'dw_charconfig_', 'dw_img_',
-    'dw_notes_', 'dw_whisper_'
+    'dw_notes_', 'dw_whisper_',
+    'dw_scene_'  // timeline scene blobs (one per scene, image incl.)
 ];
 var SYNC_EXACT = [
     'dw_maps', 'dw_timeline', 'dw_lore',
+    'dw_chapters', 'dw_party_level',
     'dw_initiative', 'dw_session_number', 'dw_dashboard', 'dw_party_gold', 'dw_quests', 'dw_npcs', 'dw_campaigns', 'dw_families'
 ];
 
@@ -106,6 +108,9 @@ function keyToPath(key) {
     if (key === 'dw_maps') return 'world/maps';
     if (key === 'dw_timeline') return 'world/timeline';
     if (key === 'dw_lore') return 'world/lore';
+    if (key === 'dw_chapters') return 'world/timeline/chapters';
+    if (key.indexOf('dw_scene_') === 0) return 'world/timeline/scenes/' + key.substring(9);
+    if (key === 'dw_party_level') return 'campaign/party_level';
 
     // DM tools
     if (key === 'dw_initiative') return 'dm/initiative';
@@ -151,6 +156,8 @@ function firebasePathToLocalKey(path) {
     if (p[0] === 'world' && p[1] === 'quests') return 'dw_quests';
     if (p[0] === 'world' && p[1] === 'npcs') return 'dw_npcs';
     if (p[0] === 'world' && p[1] === 'families') return 'dw_families';
+    if (p[0] === 'world' && p[1] === 'timeline' && p[2] === 'chapters') return 'dw_chapters';
+    if (p[0] === 'world' && p[1] === 'timeline' && p[2] === 'scenes' && p[3]) return 'dw_scene_' + p[3];
     if (p[0] === 'world' && p[1]) return 'dw_' + p[1];
 
     // dm/notes → dw_notes_dm
@@ -163,6 +170,7 @@ function firebasePathToLocalKey(path) {
     if (p[0] === 'campaign' && p[1] === 'session_number') return 'dw_session_number';
     if (p[0] === 'campaign' && p[1] === 'dashboard') return 'dw_dashboard';
     if (p[0] === 'campaign' && p[1] === 'party_gold') return 'dw_party_gold';
+    if (p[0] === 'campaign' && p[1] === 'party_level') return 'dw_party_level';
     if (p[0] === 'campaign' && p[1] === 'campaigns') return 'dw_campaigns';
 
     return null;

@@ -1655,28 +1655,116 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Add a scene block to the current session-form (new or edit).
+        // Read a scene-block element back into a plain scene object. Used for
+        // per-scene commit when the user switches scenes / adds / removes.
+        function _readSceneBlock(block) {
+            if (!block) return null;
+            var layoutEl = block.querySelector('.scene-layout-option.active');
+            var layout = layoutEl ? layoutEl.dataset.layout : (block.dataset.layout || 'text');
+            var ta = block.querySelector('.scene-text-input');
+            var textVal = ta ? ta.value : (block.querySelector('.scene-preview-text') ? block.querySelector('.scene-preview-text').textContent.replace(/…$/, '') : '');
+            var preview = block.querySelector('.scene-image-preview img') || block.querySelector('.scene-preview-thumb img');
+            var imgVal = preview ? preview.getAttribute('src') : null;
+            return { layout: layout, text: textVal, image: imgVal };
+        }
+
+        // Commit the currently-active scene to its own storage blob.
+        // Called whenever the user switches scenes / adds a new one — keeps
+        // per-write payload small. Returns the sceneId that was written.
+        function _commitActiveScene(sceneList) {
+            if (!sceneList) return null;
+            var activeIdx = parseInt(sceneList.dataset.activeSceneIdx, 10);
+            if (isNaN(activeIdx)) return null;
+            var block = sceneList.querySelector('.scene-block[data-scene-idx="' + activeIdx + '"]');
+            if (!block) return null;
+            var sceneId = block.dataset.sceneId || ('sc' + Date.now() + Math.random().toString(36).slice(2,7));
+            block.dataset.sceneId = sceneId;
+            var data = _readSceneBlock(block);
+            if (data) {
+                try {
+                    saveScene(sceneId, data);
+                } catch (e) {
+                    console.error('[scene] commit failed', e);
+                    if (typeof showToast === 'function') showToast('Scene niet opgeslagen — ' + (e.message || 'error'), 'error');
+                }
+            }
+            return sceneId;
+        }
+
+        // Switch which scene is in edit-mode within a form (commits current first).
+        function _switchActiveScene(sceneList, newIdx) {
+            if (!sceneList) return;
+            var prevIdx = parseInt(sceneList.dataset.activeSceneIdx, 10);
+            if (!isNaN(prevIdx) && prevIdx !== newIdx) _commitActiveScene(sceneList);
+            // Re-render every block in new state (only collapsed/expanded changes).
+            var blocks = sceneList.querySelectorAll('.scene-block');
+            for (var bi = 0; bi < blocks.length; bi++) {
+                var blk = blocks[bi];
+                var idx = parseInt(blk.dataset.sceneIdx, 10);
+                var sceneId = blk.dataset.sceneId;
+                var data = _readSceneBlock(blk) || { layout: 'text', text: '', image: null };
+                data.id = sceneId;
+                var fresh = document.createElement('div');
+                fresh.innerHTML = renderSceneBlock(idx, data, -1, idx === newIdx);
+                blk.replaceWith(fresh.firstChild);
+            }
+            sceneList.dataset.activeSceneIdx = String(newIdx);
+        }
+
+        // Click "Edit" on a collapsed scene → save current scene, expand the
+        // clicked one.
+        if (target.matches('[data-action="edit-scene"]') || target.closest('[data-action="edit-scene"]')) {
+            var editBtn = target.matches('[data-action="edit-scene"]') ? target : target.closest('[data-action="edit-scene"]');
+            var listEl = editBtn.closest('[data-scene-list]');
+            if (!listEl) return;
+            var newIdx = parseInt(editBtn.dataset.sceneIdx, 10);
+            if (isNaN(newIdx)) return;
+            _switchActiveScene(listEl, newIdx);
+            return;
+        }
+
+        // Add a scene block — commits current scene first, then appends new in edit-mode.
         if (target.matches('[data-action="add-scene"]') || target.closest('[data-action="add-scene"]')) {
             var addBtn = target.matches('[data-action="add-scene"]') ? target : target.closest('[data-action="add-scene"]');
             var form = addBtn.closest('.session-form');
             if (!form) return;
             var list = form.querySelector('[data-scene-list]');
             if (!list) return;
+            // Commit whichever scene is currently active so its work isn't lost.
+            _commitActiveScene(list);
+            // Collapse all currently-expanded blocks so the new one is the only editor.
+            var existing = list.querySelectorAll('.scene-block');
+            for (var ei = 0; ei < existing.length; ei++) {
+                var blkE = existing[ei];
+                var idxE = parseInt(blkE.dataset.sceneIdx, 10);
+                var idE = blkE.dataset.sceneId;
+                var dE = _readSceneBlock(blkE) || { layout: 'text', text: '', image: null };
+                dE.id = idE;
+                var freshE = document.createElement('div');
+                freshE.innerHTML = renderSceneBlock(idxE, dE, -1, false);
+                blkE.replaceWith(freshE.firstChild);
+            }
             var nextIdx = list.querySelectorAll('.scene-block').length;
+            var newSceneId = 'sc' + Date.now() + Math.random().toString(36).slice(2,7);
             var tmp = document.createElement('div');
-            tmp.innerHTML = renderSceneBlock(nextIdx, { layout: 'text', text: '', image: null });
+            tmp.innerHTML = renderSceneBlock(nextIdx, { id: newSceneId, layout: 'text', text: '', image: null }, -1, true);
             list.appendChild(tmp.firstChild);
+            list.dataset.activeSceneIdx = String(nextIdx);
             return;
         }
 
-        // Remove a scene block (form-side only — geen persist tot Save).
+        // Remove a scene block. Per-scene blob in storage is dropped too so
+        // we don't leave orphan Firebase entries.
         if (target.matches('[data-action="remove-scene"]') || target.closest('[data-action="remove-scene"]')) {
             var rmBtn = target.matches('[data-action="remove-scene"]') ? target : target.closest('[data-action="remove-scene"]');
             var block = rmBtn.closest('.scene-block');
             if (!block) return;
             var parent = block.parentNode;
+            var removedId = block.dataset.sceneId;
             block.remove();
-            // Re-index remaining scene blocks
+            if (removedId && typeof deleteScene === 'function') {
+                try { deleteScene(removedId); } catch (e) {}
+            }
             if (parent) {
                 var blocks = parent.querySelectorAll('.scene-block');
                 for (var bi = 0; bi < blocks.length; bi++) {
@@ -1684,11 +1772,19 @@ function bindPageEvents(route) {
                     var t1 = blocks[bi].querySelector('.scene-block-title');
                     if (t1) t1.textContent = 'Scene ' + (bi + 1);
                 }
+                // Make sure an active scene still exists.
+                if (parent.dataset && parent.dataset.activeSceneIdx) {
+                    var prevAct = parseInt(parent.dataset.activeSceneIdx, 10);
+                    if (isNaN(prevAct) || prevAct >= blocks.length) {
+                        parent.dataset.activeSceneIdx = String(Math.max(0, blocks.length - 1));
+                    }
+                }
             }
             return;
         }
 
-        // Remove scene image (form-side: clears the preview, restores upload UI).
+        // Remove scene image — also persists the cleared scene immediately
+        // so we never have a stale image hanging around in Firebase.
         if (target.matches('[data-action="remove-scene-image"]') || target.closest('[data-action="remove-scene-image"]')) {
             var rmImg = target.matches('[data-action="remove-scene-image"]') ? target : target.closest('[data-action="remove-scene-image"]');
             var block2 = rmImg.closest('.scene-block');
@@ -1698,11 +1794,22 @@ function bindPageEvents(route) {
             if (imgSec2) {
                 imgSec2.innerHTML = '<label class="note-image-upload"><span>' + (t('notes.addimage') || 'Voeg afbeelding toe') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + idx2 + '" style="display:none"></label>';
             }
+            var sId2 = block2.dataset.sceneId;
+            if (sId2 && typeof saveScene === 'function') {
+                var layoutEl2 = block2.querySelector('.scene-layout-option.active');
+                var layout2 = layoutEl2 ? layoutEl2.dataset.layout : (block2.dataset.layout || 'text');
+                var ta2 = block2.querySelector('.scene-text-input');
+                try {
+                    saveScene(sId2, { layout: layout2, text: ta2 ? ta2.value : '', image: null });
+                } catch (e) {}
+            }
             return;
         }
 
-        // Upload scene image (form-side: stash dataURL inside the scene block
-        // as a hidden data-* attribute; save-session reads it on commit).
+        // Upload scene image (form-side: compress to a reasonable size, stash
+        // dataURL inside the scene block, and immediately commit the scene
+        // to its own Firebase blob so we never have to ship a giant payload
+        // through the chapters-index save later).
         if (target.matches('[data-action="upload-scene-image"]')) {
             var inpFile = target.files && target.files[0];
             var blockUp = target.closest('.scene-block');
@@ -1712,16 +1819,36 @@ function bindPageEvents(route) {
                     var img = new Image();
                     img.onload = function() {
                         var cvs = document.createElement('canvas');
-                        var maxW = 1200;
+                        // More aggressive resize+compression than before — image
+                        // payloads are now the dominant cost per scene write.
+                        var maxW = 1000;
                         var scale = Math.min(1, maxW / img.width);
                         cvs.width = img.width * scale;
                         cvs.height = img.height * scale;
                         cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
-                        var dataUrl = cvs.toDataURL('image/jpeg', 0.8);
+                        var dataUrl = cvs.toDataURL('image/jpeg', 0.72);
                         var imgSec3 = blockUp.querySelector('.scene-image-section');
                         var idx3 = blockUp.dataset.sceneIdx;
                         if (imgSec3) {
                             imgSec3.innerHTML = '<div class="scene-image-preview"><img src="' + dataUrl + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + idx3 + '">' + (t('generic.delete') || 'Delete') + '</button></div>';
+                        }
+                        // Per-scene save: only this scene's blob goes over the
+                        // wire, not the whole timeline.
+                        try {
+                            var sceneId = blockUp.dataset.sceneId || ('sc' + Date.now() + Math.random().toString(36).slice(2,7));
+                            blockUp.dataset.sceneId = sceneId;
+                            var layoutEl = blockUp.querySelector('.scene-layout-option.active');
+                            var layout = layoutEl ? layoutEl.dataset.layout : (blockUp.dataset.layout || 'text');
+                            var ta2 = blockUp.querySelector('.scene-text-input');
+                            saveScene(sceneId, {
+                                layout: layout,
+                                text: ta2 ? ta2.value : '',
+                                image: dataUrl
+                            });
+                            if (typeof showToast === 'function') showToast('Scene opgeslagen', 'success');
+                        } catch (e) {
+                            console.error('[scene] image-save failed', e);
+                            if (typeof showToast === 'function') showToast('Image save faalde: ' + e.message, 'error');
                         }
                     };
                     img.src = ev.target.result;
@@ -1758,20 +1885,32 @@ function bindPageEvents(route) {
 
             if (!titleEl || !titleEl.value.trim()) return;
 
-            // Collect scenes from the form
+            // Commit the currently-active scene first — its DOM is the only
+            // source of truth for unsaved text edits.
+            var sceneListCommit = container.querySelector('[data-scene-list]');
+            if (sceneListCommit) _commitActiveScene(sceneListCommit);
+
+            // Collect scenes from the form. Per-scene blobs are already
+            // persisted; we only need the ids + ordering for the chapters
+            // index. For scenes that were collapsed (not in DOM-editable
+            // state) we trust the existing per-scene blob.
             var sceneBlocks = container.querySelectorAll('.scene-block');
             var scenes = [];
             for (var sbi = 0; sbi < sceneBlocks.length; sbi++) {
                 var sb = sceneBlocks[sbi];
-                var layoutEl = sb.querySelector('.scene-layout-option.active');
-                var layout = (layoutEl ? layoutEl.dataset.layout : (sb.dataset.layout || 'text'));
-                var ta = sb.querySelector('.scene-text-input');
-                var textVal = ta ? ta.value : '';
-                var preview = sb.querySelector('.scene-image-preview img');
-                var imgVal = preview ? preview.getAttribute('src') : null;
-                scenes.push({ layout: layout, text: textVal, image: imgVal });
+                var sceneId = sb.dataset.sceneId;
+                if (!sceneId) {
+                    // Should not happen, but generate one defensively and persist.
+                    var fresh = _readSceneBlock(sb) || { layout: 'text', text: '', image: null };
+                    sceneId = saveScene(null, fresh);
+                    sb.dataset.sceneId = sceneId;
+                }
+                scenes.push({ id: sceneId });
             }
-            if (scenes.length === 0) scenes.push({ layout: 'text', text: '', image: null });
+            if (scenes.length === 0) {
+                var emptyId = saveScene(null, { layout: 'text', text: '', image: null });
+                scenes.push({ id: emptyId });
+            }
 
             var tlData = getTimelineData();
             var targetChapterIdx = chapterEl ? parseInt(chapterEl.value, 10) : activeChapter;
@@ -1789,7 +1928,6 @@ function bindPageEvents(route) {
                         scenes: scenes
                     };
                     if (targetChapterIdx !== activeChapter) {
-                        // Move session to another chapter
                         ch.events.splice(idx, 1);
                         tlData.chapters[targetChapterIdx].events.push(updated);
                     } else {
@@ -1806,6 +1944,9 @@ function bindPageEvents(route) {
                     });
                 }
             }
+            // Only the chapters/sessions index is written here (tiny payload);
+            // scene blobs were already persisted individually as the user
+            // worked.
             saveTimelineData(tlData);
             renderApp();
             return;

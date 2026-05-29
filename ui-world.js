@@ -635,12 +635,108 @@ function renderMaps() {
 // Section 21: Timeline Page
 // ============================================================
 
-// Migrate legacy event-format ({ title, desc, image, layout, type, session })
-// to new session-format ({ title, session, scenes:[{layout, text, image}] }).
-function migrateTimelineEvent(ev) {
-    if (ev && Array.isArray(ev.scenes)) return ev; // already migrated
+// ===== Timeline storage (split per scene, 2026-05-30) =====
+// To avoid hitting localStorage size limits and Firebase write-size issues
+// when many scenes have base64 images, the timeline is split:
+//   dw_chapters       : [{id, name, sessions:[{id, title, session, sceneIds:[]}]}]
+//   dw_scene_<id>     : {layout, text, image}
+// Old monolithic dw_timeline (with embedded scenes+images) is migrated on
+// first read.
+
+function _genId(prefix) {
+    return prefix + Date.now() + Math.random().toString(36).slice(2, 7);
+}
+
+function _saveSceneBlob(sceneId, scene) {
+    if (!sceneId) return;
+    try {
+        localStorage.setItem('dw_scene_' + sceneId, JSON.stringify(scene || {}));
+        if (typeof syncUpload === 'function') syncUpload('dw_scene_' + sceneId);
+    } catch (e) {
+        console.error('[timeline] scene save failed (storage full?)', e);
+        if (typeof showToast === 'function') showToast('Scene niet opgeslagen \u2014 storage vol of upload faalt: ' + e.message, 'error');
+    }
+}
+
+function _removeSceneBlob(sceneId) {
+    if (!sceneId) return;
+    try {
+        localStorage.removeItem('dw_scene_' + sceneId);
+        if (typeof syncRemove === 'function') syncRemove('dw_scene_' + sceneId);
+    } catch (e) {}
+}
+
+function _loadSceneBlob(sceneId) {
+    if (!sceneId) return null;
+    try {
+        var raw = localStorage.getItem('dw_scene_' + sceneId);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch (e) { return null; }
+}
+
+function _saveChaptersIndex(chapters) {
+    try {
+        localStorage.setItem('dw_chapters', JSON.stringify(chapters));
+        if (typeof syncUpload === 'function') syncUpload('dw_chapters');
+    } catch (e) {
+        console.error('[timeline] chapters index save failed', e);
+    }
+}
+
+// Migrate from old monolithic dw_timeline to new split layout. Idempotent.
+function _migrateMonolithicTimeline() {
+    var legacy = localStorage.getItem('dw_timeline');
+    if (!legacy) return;
+    try {
+        var parsed = JSON.parse(legacy);
+        if (!parsed || !Array.isArray(parsed.chapters)) return;
+        var newChapters = [];
+        for (var ci = 0; ci < parsed.chapters.length; ci++) {
+            var ch = parsed.chapters[ci];
+            var sessions = [];
+            var evs = ch.events || [];
+            for (var ei = 0; ei < evs.length; ei++) {
+                var ev = evs[ei];
+                var migrated = (Array.isArray(ev.scenes))
+                    ? ev
+                    : _legacyEventToSession(ev);
+                var sceneIds = [];
+                for (var sci = 0; sci < migrated.scenes.length; sci++) {
+                    var scene = migrated.scenes[sci];
+                    var sId = scene.id || _genId('sc');
+                    sceneIds.push(sId);
+                    _saveSceneBlob(sId, {
+                        layout: scene.layout || 'text',
+                        text: scene.text || '',
+                        image: scene.image || null
+                    });
+                }
+                sessions.push({
+                    id: migrated.id || _genId('sess'),
+                    title: migrated.title || '',
+                    session: migrated.session || '',
+                    sceneIds: sceneIds
+                });
+            }
+            newChapters.push({
+                id: ch.id || _genId('ch'),
+                name: ch.name || ('Chapter ' + (ci + 1)),
+                sessions: sessions
+            });
+        }
+        _saveChaptersIndex(newChapters);
+        // Keep the legacy blob around as a one-off backup (do not delete yet).
+        localStorage.setItem('dw_timeline_legacy_backup', legacy);
+        localStorage.removeItem('dw_timeline');
+    } catch (e) {
+        console.warn('[timeline] migration failed; keeping legacy blob intact', e);
+    }
+}
+
+// Older { title, desc, image, layout, type, session } \u2192 session shape.
+function _legacyEventToSession(ev) {
     var legacyLayout = ev.layout || 'text';
-    // Map old layouts to new scene layouts.
     var sceneLayout = 'text';
     if (legacyLayout === 'image-left') sceneLayout = 'image-left';
     else if (legacyLayout === 'image-right') sceneLayout = 'image-right';
@@ -649,7 +745,7 @@ function migrateTimelineEvent(ev) {
     if (sceneLayout === 'text' && hasImage) sceneLayout = 'image-left';
     if (sceneLayout === 'image-only' && !hasImage) sceneLayout = 'text';
     return {
-        id: ev.id || ('sess' + Date.now() + Math.random().toString(36).slice(2,5)),
+        id: ev.id || _genId('sess'),
         title: ev.title || '',
         session: ev.session || '',
         scenes: [{
@@ -660,47 +756,122 @@ function migrateTimelineEvent(ev) {
     };
 }
 
-function getTimelineData() {
-    var saved = localStorage.getItem('dw_timeline');
-    if (saved) {
-        try {
-            var parsed = JSON.parse(saved);
-            if (parsed && Array.isArray(parsed.chapters)) {
-                for (var ci = 0; ci < parsed.chapters.length; ci++) {
-                    var evs = parsed.chapters[ci].events || [];
-                    for (var ei = 0; ei < evs.length; ei++) {
-                        evs[ei] = migrateTimelineEvent(evs[ei]);
-                    }
-                }
-            }
-            return parsed;
-        } catch(e) {}
-    }
-    return {
-        chapters: [
-            {
-                id: 'ch1',
-                name: 'New Beginnings',
-                events: [
-                    {
-                        id: 'ev1',
-                        title: 'Sign At The Crossroads',
-                        session: '1',
-                        scenes: [{
-                            layout: 'text',
-                            text: 'De avonturiers ontmoeten elkaar bij een kruispunt. Een verweerd bord wijst in vier richtingen \u2014 maar iets trekt hen allemaal dezelfde kant op.',
-                            image: null
-                        }]
-                    }
-                ]
-            }
-        ]
-    };
+// Backwards-compat shim \u2014 kept so any leftover call site still resolves.
+function migrateTimelineEvent(ev) {
+    if (ev && Array.isArray(ev.scenes)) return ev;
+    return _legacyEventToSession(ev || {});
 }
 
+function _loadChaptersIndex() {
+    var raw = localStorage.getItem('dw_chapters');
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+}
+
+// Hydrate full timeline (chapters \u2192 sessions \u2192 scenes) for render-paths that
+// still expect the old monolithic shape. Scenes are loaded from per-scene
+// blobs lazily \u2014 image data is fetched only here, so the chapter index stays
+// small and fast.
+function getTimelineData() {
+    _migrateMonolithicTimeline();
+    var chapters = _loadChaptersIndex();
+    if (!chapters) {
+        // Seed default chapter on first run.
+        var seedSceneId = _genId('sc');
+        _saveSceneBlob(seedSceneId, {
+            layout: 'text',
+            text: 'De avonturiers ontmoeten elkaar bij een kruispunt. Een verweerd bord wijst in vier richtingen \u2014 maar iets trekt hen allemaal dezelfde kant op.',
+            image: null
+        });
+        chapters = [{
+            id: 'ch1',
+            name: 'New Beginnings',
+            sessions: [{
+                id: 'sess1',
+                title: 'Sign At The Crossroads',
+                session: '1',
+                sceneIds: [seedSceneId]
+            }]
+        }];
+        _saveChaptersIndex(chapters);
+    }
+    // Build the hydrated shape that the rest of the renderer expects:
+    // { chapters: [{id, name, events: [{id, title, session, scenes: [...]}]}] }
+    var hydratedChapters = [];
+    for (var ci = 0; ci < chapters.length; ci++) {
+        var ch = chapters[ci];
+        var events = [];
+        var sessions = ch.sessions || [];
+        for (var si = 0; si < sessions.length; si++) {
+            var sess = sessions[si];
+            var sceneIds = sess.sceneIds || [];
+            var scenes = [];
+            for (var sci2 = 0; sci2 < sceneIds.length; sci2++) {
+                var scd = _loadSceneBlob(sceneIds[sci2]) || { layout: 'text', text: '', image: null };
+                scd.id = sceneIds[sci2];
+                scenes.push(scd);
+            }
+            events.push({
+                id: sess.id,
+                title: sess.title || '',
+                session: sess.session || '',
+                scenes: scenes
+            });
+        }
+        hydratedChapters.push({
+            id: ch.id,
+            name: ch.name || ('Chapter ' + (ci + 1)),
+            events: events
+        });
+    }
+    return { chapters: hydratedChapters };
+}
+
+// Save **only the chapters/sessions index** (no scene data). Scenes are
+// persisted individually via saveScene().
 function saveTimelineData(data) {
-    localStorage.setItem('dw_timeline', JSON.stringify(data));
-    if (typeof syncUpload === 'function') syncUpload('dw_timeline');
+    if (!data || !Array.isArray(data.chapters)) return;
+    var chapters = [];
+    for (var ci = 0; ci < data.chapters.length; ci++) {
+        var ch = data.chapters[ci];
+        var sessions = [];
+        var evs = ch.events || [];
+        for (var ei = 0; ei < evs.length; ei++) {
+            var ev = evs[ei];
+            var sceneIds = [];
+            var scs = ev.scenes || [];
+            for (var sci = 0; sci < scs.length; sci++) {
+                if (scs[sci] && scs[sci].id) sceneIds.push(scs[sci].id);
+            }
+            sessions.push({
+                id: ev.id || _genId('sess'),
+                title: ev.title || '',
+                session: ev.session || '',
+                sceneIds: sceneIds
+            });
+        }
+        chapters.push({
+            id: ch.id || _genId('ch'),
+            name: ch.name || '',
+            sessions: sessions
+        });
+    }
+    _saveChaptersIndex(chapters);
+}
+
+// Persist a single scene independently. Call this from the UI whenever the
+// user switches scenes, adds a new one, or finalizes an edit \u2014 so each scene
+// becomes its own Firebase write (small payload, no full-timeline upload).
+function saveScene(sceneId, sceneData) {
+    if (!sceneId) sceneId = _genId('sc');
+    _saveSceneBlob(sceneId, sceneData || { layout: 'text', text: '', image: null });
+    return sceneId;
+}
+
+// Remove a scene's blob (and its Firebase entry). The chapters index needs
+// to be updated separately by the caller (splice sceneIds + saveTimelineData).
+function deleteScene(sceneId) {
+    _removeSceneBlob(sceneId);
 }
 
 // Scene layouts \u2014 4 opties per scene block.
@@ -722,35 +893,58 @@ function sessionPreviewText(sess) {
     return '';
 }
 
-function renderSceneBlock(sceneIdx, scene, sessIdx) {
+// Render a scene-block in either expanded (editor) or collapsed (preview)
+// mode. Only one scene per session-form is expanded at a time so that
+// switching automatically commits the previous scene's content to its own
+// localStorage/Firebase blob — keeps individual writes small.
+function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
     var s = scene || {};
+    var sceneId = s.id || '';
     var layout = s.layout || 'text';
     var needsImage = layout !== 'text';
     var needsText = layout !== 'image-only';
-    var html = '<div class="scene-block" data-scene-idx="' + sceneIdx + '">';
+    var html = '<div class="scene-block' + (expanded ? ' scene-block-expanded' : ' scene-block-collapsed') + '" data-scene-idx="' + sceneIdx + '" data-scene-id="' + escapeAttr(sceneId) + '" data-layout="' + layout + '">';
     html += '<div class="scene-block-header">';
     html += '<span class="scene-block-title">Scene ' + (sceneIdx + 1) + '</span>';
+    if (!expanded) {
+        html += '<button type="button" class="btn btn-ghost btn-sm scene-edit" data-action="edit-scene" data-scene-idx="' + sceneIdx + '">' + t('generic.edit') + '</button>';
+    }
     html += '<button type="button" class="scene-remove" data-action="remove-scene" data-scene-idx="' + sceneIdx + '" title="Remove scene">&times;</button>';
     html += '</div>';
-    html += '<div class="scene-layout-picker">';
-    for (var li = 0; li < SCENE_LAYOUTS.length; li++) {
-        var lo = SCENE_LAYOUTS[li];
-        html += '<button type="button" class="scene-layout-option' + (layout === lo.id ? ' active' : '') + '" data-action="pick-scene-layout" data-layout="' + lo.id + '" data-scene-idx="' + sceneIdx + '">';
-        html += '<span class="scene-layout-icon">' + lo.icon + '</span>';
-        html += '<span class="scene-layout-label">' + lo.label + '</span>';
-        html += '</button>';
-    }
-    html += '</div>';
-    html += '<div class="scene-image-section" style="display:' + (needsImage ? 'block' : 'none') + '">';
-    if (s.image) {
-        html += '<div class="scene-image-preview"><img src="' + s.image + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + sceneIdx + '">' + t('generic.delete') + '</button></div>';
+
+    if (expanded) {
+        html += '<div class="scene-layout-picker">';
+        for (var li = 0; li < SCENE_LAYOUTS.length; li++) {
+            var lo = SCENE_LAYOUTS[li];
+            html += '<button type="button" class="scene-layout-option' + (layout === lo.id ? ' active' : '') + '" data-action="pick-scene-layout" data-layout="' + lo.id + '" data-scene-idx="' + sceneIdx + '">';
+            html += '<span class="scene-layout-icon">' + lo.icon + '</span>';
+            html += '<span class="scene-layout-label">' + lo.label + '</span>';
+            html += '</button>';
+        }
+        html += '</div>';
+        html += '<div class="scene-image-section" style="display:' + (needsImage ? 'block' : 'none') + '">';
+        if (s.image) {
+            html += '<div class="scene-image-preview"><img src="' + s.image + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + sceneIdx + '">' + t('generic.delete') + '</button></div>';
+        } else {
+            html += '<label class="note-image-upload"><span>' + t('notes.addimage') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + sceneIdx + '" style="display:none"></label>';
+        }
+        html += '</div>';
+        html += '<div class="scene-text-section" style="display:' + (needsText ? 'block' : 'none') + '">';
+        html += '<textarea class="edit-textarea auto-grow scene-text-input" data-scene-idx="' + sceneIdx + '" placeholder="Scene text…" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)">' + escapeHtml(s.text || '') + '</textarea>';
+        html += '</div>';
     } else {
-        html += '<label class="note-image-upload"><span>' + t('notes.addimage') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + sceneIdx + '" style="display:none"></label>';
+        // Collapsed preview: small layout chip + first line of text + tiny image thumb.
+        html += '<div class="scene-block-preview">';
+        var layoutLabel = (function() {
+            for (var lj = 0; lj < SCENE_LAYOUTS.length; lj++) if (SCENE_LAYOUTS[lj].id === layout) return SCENE_LAYOUTS[lj].label;
+            return layout;
+        })();
+        html += '<span class="scene-preview-layout">' + escapeHtml(layoutLabel) + '</span>';
+        if (s.image) html += '<span class="scene-preview-thumb"><img src="' + s.image + '" alt=""></span>';
+        var previewText = (s.text || '').slice(0, 120);
+        if (previewText) html += '<span class="scene-preview-text">' + escapeHtml(previewText) + (s.text.length > 120 ? '…' : '') + '</span>';
+        html += '</div>';
     }
-    html += '</div>';
-    html += '<div class="scene-text-section" style="display:' + (needsText ? 'block' : 'none') + '">';
-    html += '<textarea class="edit-textarea auto-grow scene-text-input" data-scene-idx="' + sceneIdx + '" placeholder="Scene text…" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)">' + escapeHtml(s.text || '') + '</textarea>';
-    html += '</div>';
     html += '</div>';
     return html;
 }
@@ -779,10 +973,13 @@ function renderSessionForm(sessIdx, sess) {
     html += '<label class="login-label" style="display:block;margin-block:0.75rem 0.25rem;">Title</label>';
     html += '<input type="text" class="edit-input" id="' + prefix + 'sess-title" placeholder="Session title" value="' + escapeAttr(sess.title || '') + '">';
 
-    html += '<div class="scene-list" data-scene-list>';
-    var scenes = (sess && Array.isArray(sess.scenes) && sess.scenes.length) ? sess.scenes : [{ layout: 'text', text: '', image: null }];
+    var scenes = (sess && Array.isArray(sess.scenes) && sess.scenes.length) ? sess.scenes : [{ id: _genId('sc'), layout: 'text', text: '', image: null }];
+    // Default open scene: last one (gives user a fresh editor at the bottom).
+    var openIdx = scenes.length - 1;
+    html += '<div class="scene-list" data-scene-list data-active-scene-idx="' + openIdx + '">';
     for (var sci = 0; sci < scenes.length; sci++) {
-        html += renderSceneBlock(sci, scenes[sci], sessIdx);
+        if (!scenes[sci].id) scenes[sci].id = _genId('sc');
+        html += renderSceneBlock(sci, scenes[sci], sessIdx, sci === openIdx);
     }
     html += '</div>';
 

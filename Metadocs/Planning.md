@@ -88,6 +88,13 @@ Joshua's 7-puntenlijst + 5 follow-up correcties in twee rondes doorgevoerd. Zie 
 - [x] P1 — Sessie-indicator: `-/+` direct naast cijfer (nieuwe `.dash-stat-value-row` layout).
 - [x] P1 — Level-indicator: `-/+` naast cijfer (DM/Admin only). Storage `dw_party_level` (1–20), fallback naar berekende groupLevel.
 
+**Ronde 6 (follow-up):**
+- [x] P1 — Welcome banner: dunner (`min-height: 140-160px`, `max 200-220px`), `background-size: auto 100%` zodat image op hoogte fit.
+- [x] P1 — Scene split image-left/right: `float: inline-start/end` zodat tekst onder image doorloopt; `text-align: justify` + `hyphens: auto`.
+- [x] P0 — **Timeline storage split** per scene. `dw_chapters` (index) + `dw_scene_<id>` (per scene blob). Firebase paths: `world/timeline/chapters` + `world/timeline/scenes/<id>`. Migratie van oude `dw_timeline` via `_migrateMonolithicTimeline()`.
+- [x] P0 — **Per-scene edit UI**: scenes hebben expanded/collapsed mode, edit-knop per scene, switch tussen scenes commit huidige scene direct (image-upload + image-remove ook). Save-Session commit alleen de index.
+- [x] P1 — Image compression scene uploads: `maxW 1200→1000`, `quality 0.8→0.72`.
+
 **Ronde 5 (follow-up):**
 - [x] P1 — Right sidebar `.sidebar-panel` weg (CSS-only, `display:none`); `#rs-char-toggle` ook verborgen.
 - [x] P1 — Character page L/R padding sweep (`body[data-route^="characters/"] .main-content/.character-page { padding-inline: 0 !important }`).
