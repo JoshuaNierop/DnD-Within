@@ -1,5 +1,10 @@
 # D&D Within — To Do
 
+## Homepage & UI tweaks — ronde 3 (2026-05-29 21:50)
+
+- [x] P2 — Homepage Recent events: ook gesorteerd op sessie-nummer descending (was: laatste-3-in-storage-order). Events zonder session-# zakken naar onder. Consistent met Timeline.
+- [x] P1 — Mobile: tap op `.welcome-banner` toggle `show-upload-slots` class (revealen/sluiten van banner upload-knoppen). Alleen geactiveerd op `(pointer: coarse)` devices via `matchMedia`. Tap buiten de banner sluit hem weer; tap op een upload-slot zelf of op de clear-knop wordt genegeerd zodat de file-picker / verwijder-actie doorgaat.
+
 ## Homepage & UI tweaks — ronde 2 (2026-05-29 21:30)
 
 Vervolg-correcties na eerste pas. Wacht op live browser-verificatie.

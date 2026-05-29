@@ -88,6 +88,10 @@ Joshua's 7-puntenlijst + 5 follow-up correcties in twee rondes doorgevoerd. Zie 
 - [x] P1 — Sessie-indicator: `-/+` direct naast cijfer (nieuwe `.dash-stat-value-row` layout).
 - [x] P1 — Level-indicator: `-/+` naast cijfer (DM/Admin only). Storage `dw_party_level` (1–20), fallback naar berekende groupLevel.
 
+**Ronde 3 (follow-up):**
+- [x] P2 — Homepage Recent events ook op session-# desc (was storage-order).
+- [x] P1 — Mobile/coarse-pointer: tap op `.welcome-banner` toggle `show-upload-slots` class (revealen upload-knoppen). Tap buiten sluit hem; tap op slot/clear wordt genegeerd zodat de eigen actie doorgaat.
+
 **Ronde 2 (follow-up):**
 - [x] P0 — Navbar-context fix: route `/home` was niet opgenomen in `inCampaignView`-array → na campagne-klik bleef de Welcome-navbar zichtbaar. `'home'` toegevoegd; fallback routePart `'dashboard'` → `'home'`.
 - [x] P1 — Banner-knoppen Engels (één-woord) + hover-only zichtbaar (`:hover`/`:focus-within` op `.welcome-banner`).

@@ -30,6 +30,30 @@ function bindPageEvents(route) {
     app.onclick = function(e) {
         var target = e.target;
 
+        // --- Mobile/touch: tap on welcome-banner toggles upload-slot visibility.
+        // CSS hover-only works on desktop; on coarse-pointer devices we need an
+        // explicit tap to reveal/hide the slots. Tap on a slot itself is ignored
+        // (file picker / clear button handle their own actions).
+        if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+            var bannerEl = target.closest('.welcome-banner');
+            if (bannerEl
+                && !target.closest('.banner-upload-slot')
+                && !target.closest('.banner-slot-clear')
+                && !target.closest('.edit-trigger')) {
+                bannerEl.classList.toggle('show-upload-slots');
+                // Close other open banners (defensive — only one banner on page)
+                document.querySelectorAll('.welcome-banner.show-upload-slots').forEach(function(b) {
+                    if (b !== bannerEl) b.classList.remove('show-upload-slots');
+                });
+                // Fall through so other handlers still see the click.
+            } else if (!bannerEl) {
+                // Tap outside any banner → close any open banner.
+                document.querySelectorAll('.welcome-banner.show-upload-slots').forEach(function(b) {
+                    b.classList.remove('show-upload-slots');
+                });
+            }
+        }
+
         // (Character dashboard system removed — new dashboard TBD on an empty canvas.)
 
         // --- Login page ---

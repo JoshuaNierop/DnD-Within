@@ -5986,7 +5986,8 @@ body.modal-open {
     transition: opacity 0.2s ease;
 }
 .welcome-banner:hover .banner-upload-slots,
-.welcome-banner:focus-within .banner-upload-slots {
+.welcome-banner:focus-within .banner-upload-slots,
+.welcome-banner.show-upload-slots .banner-upload-slots {
     opacity: 1;
     pointer-events: auto;
 }

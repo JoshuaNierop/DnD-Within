@@ -624,7 +624,8 @@ function renderDashboard() {
     html += '</div>';
     html += '</div>';
 
-    // Recent timeline events (pull from ALL chapters)
+    // Recent timeline events (pull from ALL chapters, sort by session # desc,
+    // top 3). Events zonder session-nummer zakken naar onder.
     var tlData = getTimelineData();
     var allEvents = [];
     for (var ci = 0; ci < (tlData.chapters || []).length; ci++) {
@@ -633,7 +634,17 @@ function renderDashboard() {
             allEvents.push(chEvents[ei]);
         }
     }
-    var recentEvents = allEvents.slice(-3).reverse();
+    allEvents.sort(function(a, b) {
+        var na = parseInt(a.session, 10);
+        var nb = parseInt(b.session, 10);
+        var aValid = !isNaN(na);
+        var bValid = !isNaN(nb);
+        if (aValid && bValid) return nb - na;
+        if (aValid) return -1;
+        if (bValid) return 1;
+        return 0;
+    });
+    var recentEvents = allEvents.slice(0, 3);
     if (recentEvents.length > 0) {
         html += '<div class="dash-recent-section">';
         html += '<h2 class="section-title">' + t('dash.recent') + '</h2>';
