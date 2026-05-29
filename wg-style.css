@@ -198,14 +198,16 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     box-shadow: -4px 0 24px rgba(0, 0, 0, 0.35);
     transform: translateX(8px);
   }
-  /* Rechter sidebar klapt NIET uit op hover — alleen via .pinned (klik op
-     character-toggle). Hover op de buttons zelf blijft beschikbaar voor
-     visuele feedback. */
+  /* Rechter sidebar heeft GEEN uitklappend panel (per Joshua, 2026-05-29).
+     De .sidebar-panel binnen rightSidebar wordt volledig verborgen; het
+     `rs-char-toggle` knopje dat het panel zou openen ook. characterSelect
+     blijft in DOM voor binding-compat. */
+  aside.sidebar.right-sidebar .sidebar-panel,
+  aside.sidebar.right-sidebar:hover .sidebar-panel,
   aside.sidebar.right-sidebar.pinned .sidebar-panel {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(0);
+    display: none !important;
   }
+  aside.sidebar.right-sidebar #rs-char-toggle { display: none; }
   /* Right-sidebar action buttons */
   .rs-btn {
     width: 100%;

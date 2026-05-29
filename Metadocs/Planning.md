@@ -88,6 +88,14 @@ Joshua's 7-puntenlijst + 5 follow-up correcties in twee rondes doorgevoerd. Zie 
 - [x] P1 — Sessie-indicator: `-/+` direct naast cijfer (nieuwe `.dash-stat-value-row` layout).
 - [x] P1 — Level-indicator: `-/+` naast cijfer (DM/Admin only). Storage `dw_party_level` (1–20), fallback naar berekende groupLevel.
 
+**Ronde 5 (follow-up):**
+- [x] P1 — Right sidebar `.sidebar-panel` weg (CSS-only, `display:none`); `#rs-char-toggle` ook verborgen.
+- [x] P1 — Character page L/R padding sweep (`body[data-route^="characters/"] .main-content/.character-page { padding-inline: 0 !important }`).
+- [x] P1 — Banner upload-knoppen vertical stack (kolom rechtsboven, 130px breed).
+- [x] P1 — Character page `block-size: calc(100dvh - 5rem)` voor FAB-clearance. Skills default size `5×15` (was `3×10`).
+- [x] P1 — Campaign cards `minmax(340px,1fr)`. Edit modal uitgebreid naar 4 velden (Title, Next Session, World name, DM-select).
+- [x] P0 — Timeline events → **Sessions + Scenes**. Nieuwe data model `{title, session, scenes:[{layout, text, image}]}`; legacy migratie via `migrateTimelineEvent()`. 4 scene-layouts (Just Text / Image Left / Image Right / Just Image). Form: Chapter dropdown + Session# + Title + dynamische scene-blokken + Save/Cancel/Delete. Home Recent links scrollen naar specifieke session via `dw_timeline_focus_session` flag.
+
 **Ronde 4 (follow-up):**
 - [x] P0 — Profile Picture upload-knop écht gefixt. Ronde-1 canvas-listener fix was correct maar onvoldoende. Echte cause: pointerup → `render()` vervangt SVG vóór click; async handler verliest transient user-activation → file picker opent nooit. Fix: map-action sync in `onPointerDown` (preventDefault + sync handleMapAction + return zonder pendingGesture).
 

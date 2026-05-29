@@ -635,10 +635,46 @@ function renderMaps() {
 // Section 21: Timeline Page
 // ============================================================
 
+// Migrate legacy event-format ({ title, desc, image, layout, type, session })
+// to new session-format ({ title, session, scenes:[{layout, text, image}] }).
+function migrateTimelineEvent(ev) {
+    if (ev && Array.isArray(ev.scenes)) return ev; // already migrated
+    var legacyLayout = ev.layout || 'text';
+    // Map old layouts to new scene layouts.
+    var sceneLayout = 'text';
+    if (legacyLayout === 'image-left') sceneLayout = 'image-left';
+    else if (legacyLayout === 'image-right') sceneLayout = 'image-right';
+    else if (legacyLayout === 'full-image' || legacyLayout === 'image-top' || legacyLayout === 'banner') sceneLayout = 'image-only';
+    var hasImage = !!ev.image;
+    if (sceneLayout === 'text' && hasImage) sceneLayout = 'image-left';
+    if (sceneLayout === 'image-only' && !hasImage) sceneLayout = 'text';
+    return {
+        id: ev.id || ('sess' + Date.now() + Math.random().toString(36).slice(2,5)),
+        title: ev.title || '',
+        session: ev.session || '',
+        scenes: [{
+            layout: sceneLayout,
+            text: ev.desc || '',
+            image: ev.image || null
+        }]
+    };
+}
+
 function getTimelineData() {
     var saved = localStorage.getItem('dw_timeline');
     if (saved) {
-        try { return JSON.parse(saved); } catch(e) {}
+        try {
+            var parsed = JSON.parse(saved);
+            if (parsed && Array.isArray(parsed.chapters)) {
+                for (var ci = 0; ci < parsed.chapters.length; ci++) {
+                    var evs = parsed.chapters[ci].events || [];
+                    for (var ei = 0; ei < evs.length; ei++) {
+                        evs[ei] = migrateTimelineEvent(evs[ei]);
+                    }
+                }
+            }
+            return parsed;
+        } catch(e) {}
     }
     return {
         chapters: [
@@ -646,7 +682,16 @@ function getTimelineData() {
                 id: 'ch1',
                 name: 'New Beginnings',
                 events: [
-                    { id: 'ev1', title: 'Sign At The Crossroads', desc: 'De avonturiers ontmoeten elkaar bij een kruispunt. Een verweerd bord wijst in vier richtingen \u2014 maar iets trekt hen allemaal dezelfde kant op.', type: 'quest', session: '1' }
+                    {
+                        id: 'ev1',
+                        title: 'Sign At The Crossroads',
+                        session: '1',
+                        scenes: [{
+                            layout: 'text',
+                            text: 'De avonturiers ontmoeten elkaar bij een kruispunt. Een verweerd bord wijst in vier richtingen \u2014 maar iets trekt hen allemaal dezelfde kant op.',
+                            image: null
+                        }]
+                    }
                 ]
             }
         ]
@@ -658,57 +703,105 @@ function saveTimelineData(data) {
     if (typeof syncUpload === 'function') syncUpload('dw_timeline');
 }
 
-var EVENT_LAYOUTS = [
-    { id: 'text', icon: '\ud83d\udcdd', label: 'Text' },
-    { id: 'image-top', icon: '\ud83d\uddbc\ufe0f\u2b07', label: 'Image Top' },
-    { id: 'image-left', icon: '\ud83d\uddbc\ufe0f\ud83d\udcdd', label: 'Image Left' },
+// Scene layouts \u2014 4 opties per scene block.
+var SCENE_LAYOUTS = [
+    { id: 'text',        icon: '\ud83d\udcdd',                 label: 'Just Text' },
+    { id: 'image-left',  icon: '\ud83d\uddbc\ufe0f\ud83d\udcdd', label: 'Image Left' },
     { id: 'image-right', icon: '\ud83d\udcdd\ud83d\uddbc\ufe0f', label: 'Image Right' },
-    { id: 'full-image', icon: '\ud83c\udf05', label: 'Full Image' },
-    { id: 'banner', icon: '\ud83c\udff4', label: 'Banner' }
+    { id: 'image-only',  icon: '\ud83c\udf05',                 label: 'Just Image' }
 ];
 
-function renderEventForm(evIdx, ev) {
-    var isNew = evIdx < 0;
-    var prefix = isNew ? '' : 'edit-';
-    var html = '';
-    html += '<input type="text" class="edit-input" id="' + prefix + 'ev-title" placeholder="' + t('timeline.eventtitle') + '" value="' + escapeAttr(ev.title || '') + '">';
-    html += '<textarea class="edit-textarea auto-grow" id="' + prefix + 'ev-desc" placeholder="' + t('timeline.eventdesc') + '" style="min-height:60px;" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)">' + escapeHtml(ev.desc || '') + '</textarea>';
-    html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
-    html += '<input type="text" class="edit-input" id="' + prefix + 'ev-session" placeholder="' + t('timeline.eventsession') + '" style="width:80px;" value="' + escapeAttr(ev.session || '') + '">';
-    html += '<select class="edit-input" id="' + prefix + 'ev-type" style="flex:1;">';
-    var types = ['quest', 'danger', 'magic', 'discovery', 'social', 'combat'];
-    for (var ti = 0; ti < types.length; ti++) {
-        html += '<option value="' + types[ti] + '"' + (ev.type === types[ti] ? ' selected' : '') + '>' + t('timeline.eventtype.' + types[ti]) + '</option>';
+// Plain-text preview from the first scene with text content (for the homepage
+// Recent block + smart wraps). Returns '' when no scenes have text.
+function sessionPreviewText(sess) {
+    if (!sess || !Array.isArray(sess.scenes)) return '';
+    for (var i = 0; i < sess.scenes.length; i++) {
+        var s = sess.scenes[i];
+        if (s && s.text) return s.text;
     }
-    html += '</select>';
-    html += '</div>';
+    return '';
+}
 
-    // Layout picker
-    html += '<div class="event-layout-picker">';
-    html += '<label class="text-dim" style="font-size:0.8rem;">Layout</label>';
-    html += '<div class="event-layout-options">';
-    for (var li = 0; li < EVENT_LAYOUTS.length; li++) {
-        var lo = EVENT_LAYOUTS[li];
-        html += '<button type="button" class="event-layout-option' + ((ev.layout || 'text') === lo.id ? ' active' : '') + '" data-action="pick-event-layout" data-layout="' + lo.id + '" data-event-idx="' + evIdx + '">' + lo.icon + '<br><span>' + lo.label + '</span></button>';
+function renderSceneBlock(sceneIdx, scene, sessIdx) {
+    var s = scene || {};
+    var layout = s.layout || 'text';
+    var needsImage = layout !== 'text';
+    var needsText = layout !== 'image-only';
+    var html = '<div class="scene-block" data-scene-idx="' + sceneIdx + '">';
+    html += '<div class="scene-block-header">';
+    html += '<span class="scene-block-title">Scene ' + (sceneIdx + 1) + '</span>';
+    html += '<button type="button" class="scene-remove" data-action="remove-scene" data-scene-idx="' + sceneIdx + '" title="Remove scene">&times;</button>';
+    html += '</div>';
+    html += '<div class="scene-layout-picker">';
+    for (var li = 0; li < SCENE_LAYOUTS.length; li++) {
+        var lo = SCENE_LAYOUTS[li];
+        html += '<button type="button" class="scene-layout-option' + (layout === lo.id ? ' active' : '') + '" data-action="pick-scene-layout" data-layout="' + lo.id + '" data-scene-idx="' + sceneIdx + '">';
+        html += '<span class="scene-layout-icon">' + lo.icon + '</span>';
+        html += '<span class="scene-layout-label">' + lo.label + '</span>';
+        html += '</button>';
     }
     html += '</div>';
-    html += '</div>';
-
-    // Image upload (for image layouts)
-    var needsImage = (ev.layout || 'text') !== 'text';
-    html += '<div class="event-image-section" style="display:' + (needsImage ? 'block' : 'none') + '">';
-    if (ev.image) {
-        html += '<div class="event-image-preview"><img src="' + ev.image + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-event-image" data-event-idx="' + evIdx + '">' + t('generic.delete') + '</button></div>';
+    html += '<div class="scene-image-section" style="display:' + (needsImage ? 'block' : 'none') + '">';
+    if (s.image) {
+        html += '<div class="scene-image-preview"><img src="' + s.image + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + sceneIdx + '">' + t('generic.delete') + '</button></div>';
     } else {
-        html += '<label class="note-image-upload"><span>' + t('notes.addimage') + '</span><input type="file" accept="image/*" data-action="upload-event-image" data-event-idx="' + evIdx + '" style="display:none"></label>';
+        html += '<label class="note-image-upload"><span>' + t('notes.addimage') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + sceneIdx + '" style="display:none"></label>';
     }
     html += '</div>';
-
-    html += '<div class="edit-actions">';
-    html += '<button class="edit-save" data-action="save-event"' + (isNew ? '' : ' data-edit-idx="' + evIdx + '"') + '>' + t('generic.save') + '</button>';
-    html += '<button class="edit-cancel" data-action="cancel-event">' + t('generic.cancel') + '</button>';
+    html += '<div class="scene-text-section" style="display:' + (needsText ? 'block' : 'none') + '">';
+    html += '<textarea class="edit-textarea auto-grow scene-text-input" data-scene-idx="' + sceneIdx + '" placeholder="Scene text…" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)">' + escapeHtml(s.text || '') + '</textarea>';
+    html += '</div>';
     html += '</div>';
     return html;
+}
+
+function renderSessionForm(sessIdx, sess) {
+    var isNew = sessIdx < 0;
+    var prefix = isNew ? '' : 'edit-';
+    var data = getTimelineData();
+    var chapters = data.chapters || [];
+
+    var html = '<div class="session-form" data-sess-idx="' + sessIdx + '">';
+
+    html += '<div class="session-form-row">';
+    html += '<div class="session-form-field"><label class="login-label">Chapter</label>';
+    html += '<select class="edit-input" id="' + prefix + 'sess-chapter">';
+    for (var chi = 0; chi < chapters.length; chi++) {
+        var selChap = chi === activeChapter ? ' selected' : '';
+        html += '<option value="' + chi + '"' + selChap + '>Ch. ' + (chi + 1) + ' — ' + escapeHtml(chapters[chi].name || '') + '</option>';
+    }
+    html += '</select></div>';
+    html += '<div class="session-form-field"><label class="login-label">Session #</label>';
+    html += '<input type="number" min="0" step="1" class="edit-input" id="' + prefix + 'sess-number" value="' + escapeAttr(sess.session || '') + '">';
+    html += '</div>';
+    html += '</div>';
+
+    html += '<label class="login-label" style="display:block;margin-block:0.75rem 0.25rem;">Title</label>';
+    html += '<input type="text" class="edit-input" id="' + prefix + 'sess-title" placeholder="Session title" value="' + escapeAttr(sess.title || '') + '">';
+
+    html += '<div class="scene-list" data-scene-list>';
+    var scenes = (sess && Array.isArray(sess.scenes) && sess.scenes.length) ? sess.scenes : [{ layout: 'text', text: '', image: null }];
+    for (var sci = 0; sci < scenes.length; sci++) {
+        html += renderSceneBlock(sci, scenes[sci], sessIdx);
+    }
+    html += '</div>';
+
+    html += '<button type="button" class="btn btn-ghost btn-sm scene-add" data-action="add-scene">+ Add Scene</button>';
+
+    html += '<div class="edit-actions session-form-actions">';
+    html += '<button type="button" class="edit-save" data-action="save-session"' + (isNew ? '' : ' data-edit-idx="' + sessIdx + '"') + '>' + t('generic.save') + '</button>';
+    html += '<button type="button" class="edit-cancel" data-action="cancel-session">' + t('generic.cancel') + '</button>';
+    if (!isNew) {
+        html += '<button type="button" class="btn btn-ghost btn-sm" data-action="delete-session" data-edit-idx="' + sessIdx + '" style="color:var(--danger);margin-left:auto;">' + t('generic.delete') + '</button>';
+    }
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+// Legacy alias for any leftover call sites — delegates to session-form.
+function renderEventForm(evIdx, ev) {
+    return renderSessionForm(evIdx, migrateTimelineEvent(ev || {}));
 }
 
 function renderTimeline() {
@@ -743,7 +836,7 @@ function renderTimeline() {
     }
     html += '</div>';
 
-    // Right: events for active chapter
+    // Right: sessions for active chapter
     html += '<div class="timeline-main">';
 
     if (chapters.length === 0) {
@@ -755,25 +848,23 @@ function renderTimeline() {
         html += '<div class="timeline-chapter-header">';
         html += '<h2>' + t('timeline.chapter') + ' ' + (activeChapter + 1) + ': ' + escapeHtml(ch.name) + '</h2>';
         if (isDM()) {
-            html += '<button class="btn btn-primary btn-sm" data-action="add-event">' + t('timeline.addevent') + '</button>';
+            html += '<button class="btn btn-primary btn-sm" data-action="add-session">Add Session</button>';
         }
         html += '</div>';
 
-        // Add event form (hidden by default)
         if (isDM()) {
-            html += '<div class="timeline-add-form" id="event-add-form" style="display:none;">';
-            html += renderEventForm(-1, { title: '', desc: '', session: '', type: 'quest', layout: 'text', image: null });
+            html += '<div class="timeline-add-form" id="session-add-form" style="display:none;">';
+            html += renderSessionForm(-1, { title: '', session: '', scenes: [{ layout: 'text', text: '', image: null }] });
             html += '</div>';
         }
 
-        // Events — sorteer op sessie nummer (hoog → laag, recent bovenaan).
-        // Events zonder session-nummer (NaN) zakken naar beneden. Originele
-        // index wordt bewaard voor edit/delete handlers.
-        var events = ch.events || [];
-        var sortedEvents = events.map(function(ev, idx) { return { ev: ev, idx: idx }; });
-        sortedEvents.sort(function(a, b) {
-            var na = parseInt(a.ev.session, 10);
-            var nb = parseInt(b.ev.session, 10);
+        // Sessions — sorteer op sessie-nummer descending; sessies zonder
+        // session-# zakken naar onder. Originele index bewaard.
+        var sessions = ch.events || [];
+        var sortedSess = sessions.map(function(s, idx) { return { s: migrateTimelineEvent(s), idx: idx }; });
+        sortedSess.sort(function(a, b) {
+            var na = parseInt(a.s.session, 10);
+            var nb = parseInt(b.s.session, 10);
             var aValid = !isNaN(na);
             var bValid = !isNaN(nb);
             if (aValid && bValid) return nb - na;
@@ -781,55 +872,41 @@ function renderTimeline() {
             if (bValid) return 1;
             return 0;
         });
-        if (sortedEvents.length === 0) {
+        if (sortedSess.length === 0) {
             html += '<p class="text-dim" style="padding:2rem 0;">' + t('timeline.noevents') + '</p>';
         } else {
             html += '<div class="timeline">';
-            for (var j = 0; j < sortedEvents.length; j++) {
-                var ev = sortedEvents[j].ev;
-                var evOrigIdx = sortedEvents[j].idx;
-                var evLayout = ev.layout || 'text';
-                html += '<div class="timeline-event timeline-' + (ev.type || 'quest') + ' event-layout-' + evLayout + '" data-event-idx="' + evOrigIdx + '">';
+            for (var j = 0; j < sortedSess.length; j++) {
+                var sess = sortedSess[j].s;
+                var sessOrigIdx = sortedSess[j].idx;
+                html += '<div class="timeline-event timeline-session-block" data-event-idx="' + sessOrigIdx + '" data-session-id="' + escapeAttr(sess.id || '') + '" id="session-' + escapeAttr(sess.id || ('idx-' + sessOrigIdx)) + '">';
                 html += '<div class="timeline-marker"></div>';
                 html += '<div class="timeline-content">';
-
-                // Layout-based rendering
-                if (evLayout === 'full-image' && ev.image) {
-                    html += '<div class="event-full-image" style="background-image:url(' + ev.image + ')">';
-                    html += '<div class="event-full-image-overlay">';
-                    if (ev.session) html += '<span class="timeline-session">' + t('dash.session') + ' ' + escapeHtml(ev.session) + '</span>';
-                    html += '<h3>' + escapeHtml(ev.title) + '</h3>';
-                    if (ev.desc) html += '<p>' + escapeHtml(ev.desc) + '</p>';
-                    html += '</div></div>';
-                } else if (evLayout === 'image-top' && ev.image) {
-                    html += '<div class="event-image-top"><img src="' + ev.image + '" alt=""></div>';
-                    if (ev.session) html += '<span class="timeline-session">' + t('dash.session') + ' ' + escapeHtml(ev.session) + '</span>';
-                    html += '<h3>' + escapeHtml(ev.title) + '</h3>';
-                    if (ev.desc) html += '<p>' + escapeHtml(ev.desc) + '</p>';
-                } else if ((evLayout === 'image-left' || evLayout === 'image-right') && ev.image) {
-                    html += '<div class="event-split event-split-' + evLayout + '">';
-                    html += '<div class="event-split-img"><img src="' + ev.image + '" alt=""></div>';
-                    html += '<div class="event-split-text">';
-                    if (ev.session) html += '<span class="timeline-session">' + t('dash.session') + ' ' + escapeHtml(ev.session) + '</span>';
-                    html += '<h3>' + escapeHtml(ev.title) + '</h3>';
-                    if (ev.desc) html += '<p>' + escapeHtml(ev.desc) + '</p>';
-                    html += '</div></div>';
-                } else if (evLayout === 'banner' && ev.image) {
-                    html += '<div class="event-banner" style="background-image:url(' + ev.image + ')"></div>';
-                    if (ev.session) html += '<span class="timeline-session">' + t('dash.session') + ' ' + escapeHtml(ev.session) + '</span>';
-                    html += '<h3>' + escapeHtml(ev.title) + '</h3>';
-                    if (ev.desc) html += '<p>' + escapeHtml(ev.desc) + '</p>';
-                } else {
-                    // Default text layout
-                    if (ev.session) html += '<span class="timeline-session">' + t('dash.session') + ' ' + escapeHtml(ev.session) + '</span>';
-                    html += '<h3>' + escapeHtml(ev.title) + '</h3>';
-                    if (ev.desc) html += '<p>' + escapeHtml(ev.desc) + '</p>';
+                if (sess.session) html += '<span class="timeline-session">' + t('dash.session') + ' ' + escapeHtml(sess.session) + '</span>';
+                html += '<h3>' + escapeHtml(sess.title || '') + '</h3>';
+                var scenes = Array.isArray(sess.scenes) ? sess.scenes : [];
+                for (var sci = 0; sci < scenes.length; sci++) {
+                    var sc = scenes[sci];
+                    var scLayout = sc.layout || 'text';
+                    html += '<div class="scene scene-layout-' + scLayout + '">';
+                    if (scLayout === 'image-only' && sc.image) {
+                        html += '<div class="scene-image-only"><img src="' + sc.image + '" alt=""></div>';
+                    } else if ((scLayout === 'image-left' || scLayout === 'image-right') && sc.image) {
+                        html += '<div class="scene-split scene-split-' + scLayout + '">';
+                        html += '<div class="scene-split-img"><img src="' + sc.image + '" alt=""></div>';
+                        html += '<div class="scene-split-text">';
+                        if (sc.text) html += '<p>' + escapeHtml(sc.text) + '</p>';
+                        html += '</div></div>';
+                    } else {
+                        if (sc.text) html += '<p>' + escapeHtml(sc.text) + '</p>';
+                    }
+                    html += '</div>';
                 }
 
                 if (isDM()) {
                     html += '<div class="event-actions">';
-                    html += '<button class="btn btn-ghost btn-sm" data-action="edit-event" data-event="' + evOrigIdx + '">' + t('generic.edit') + '</button>';
-                    html += '<button class="btn btn-ghost btn-sm" data-action="delete-event" data-event="' + evOrigIdx + '" style="color:var(--danger);">' + t('generic.delete') + '</button>';
+                    html += '<button class="btn btn-ghost btn-sm" data-action="edit-session" data-event="' + sessOrigIdx + '">' + t('generic.edit') + '</button>';
+                    html += '<button class="btn btn-ghost btn-sm" data-action="delete-session" data-event="' + sessOrigIdx + '" style="color:var(--danger);">' + t('generic.delete') + '</button>';
                     html += '</div>';
                 }
                 html += '</div>';

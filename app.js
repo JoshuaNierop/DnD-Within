@@ -162,6 +162,23 @@ function postRenderEffects(route) {
             }
         }
     }
+    // Timeline session-focus: if a recent-event card stashed a session id,
+    // scroll the matching session into view (and clear the flag).
+    if (route.parts[0] === 'timeline') {
+        try {
+            var focusSessId = localStorage.getItem('dw_timeline_focus_session');
+            if (focusSessId) {
+                localStorage.removeItem('dw_timeline_focus_session');
+                var focusEl = document.getElementById('session-' + focusSessId);
+                if (focusEl) {
+                    focusEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    focusEl.classList.add('session-focus-flash');
+                    setTimeout(function() { focusEl.classList.remove('session-focus-flash'); }, 2000);
+                }
+            }
+        } catch (e) {}
+    }
+
     // Initiative drag-and-drop
     initInitiativeDragDrop();
     // Map pin-edit handlers (drag nodes, click shape to add node)

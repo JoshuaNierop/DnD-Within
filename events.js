@@ -593,18 +593,38 @@ function bindPageEvents(route) {
             var camps = getCampaigns();
             var camp = camps[cId];
             if (!camp) return;
-            var currentCount = camp.sessionCount || 0;
+            var currentTitle = camp.name || '';
             var currentDate = camp.nextSession || '';
+            var currentWorld = camp.world || '';
+            var currentDmId = camp.dm || '';
+
+            // Build DM options from users cache (fallback to free-text only).
+            var dmOptions = '';
+            if (typeof usersCache !== 'undefined' && usersCache) {
+                for (var dmKey in usersCache) {
+                    var u = usersCache[dmKey];
+                    if (!u || !u.name) continue;
+                    var sel = (dmKey === currentDmId) ? ' selected' : '';
+                    dmOptions += '<option value="' + escapeAttr(dmKey) + '"' + sel + '>' + escapeHtml(u.name) + '</option>';
+                }
+            }
+            if (!dmOptions) {
+                dmOptions = '<option value="' + escapeAttr(currentDmId) + '">' + escapeHtml(currentDmId || '—') + '</option>';
+            }
 
             var overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
             overlay.innerHTML =
-                '<div class="modal-card" onclick="event.stopPropagation();" style="max-width:420px;padding:1.5rem;">' +
-                    '<div class="modal-header"><h2>' + t('home.editsession') + '</h2><button class="modal-close" data-action="close-session-modal">&times;</button></div>' +
-                    '<label class="login-label" style="display:block;margin-block:0.75rem 0.25rem;">' + t('home.sessionnumber') + '</label>' +
-                    '<input type="number" min="0" step="1" class="edit-input" id="edit-session-count" value="' + (currentCount || '') + '" style="width:100%;">' +
-                    '<label class="login-label" style="display:block;margin-block:1rem 0.25rem;">' + t('home.sessiondate') + '</label>' +
+                '<div class="modal-card" onclick="event.stopPropagation();" style="max-width:480px;padding:1.5rem;">' +
+                    '<div class="modal-header"><h2>Edit campaign</h2><button class="modal-close" data-action="close-session-modal">&times;</button></div>' +
+                    '<label class="login-label" style="display:block;margin-block:0.75rem 0.25rem;">Title</label>' +
+                    '<input type="text" class="edit-input" id="edit-camp-title" value="' + escapeAttr(currentTitle) + '" style="width:100%;">' +
+                    '<label class="login-label" style="display:block;margin-block:1rem 0.25rem;">Next Session</label>' +
                     '<input type="datetime-local" class="edit-input" id="edit-session-date" value="' + escapeAttr(currentDate) + '" style="width:100%;">' +
+                    '<label class="login-label" style="display:block;margin-block:1rem 0.25rem;">World name</label>' +
+                    '<input type="text" class="edit-input" id="edit-camp-world" value="' + escapeAttr(currentWorld) + '" style="width:100%;">' +
+                    '<label class="login-label" style="display:block;margin-block:1rem 0.25rem;">DM</label>' +
+                    '<select class="edit-input" id="edit-camp-dm" style="width:100%;">' + dmOptions + '</select>' +
                     '<div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.25rem;">' +
                         '<button class="btn btn-ghost btn-sm" data-action="close-session-modal">' + t('generic.cancel') + '</button>' +
                         '<button class="btn btn-primary btn-sm" data-action="confirm-edit-session" data-campaign-id="' + escapeAttr(cId) + '">' + t('quest.save') + '</button>' +
@@ -616,13 +636,16 @@ function bindPageEvents(route) {
                     return;
                 }
                 if (evt.target.matches('[data-action="confirm-edit-session"]') || evt.target.closest('[data-action="confirm-edit-session"]')) {
-                    var countEl = document.getElementById('edit-session-count');
+                    var titleEl = document.getElementById('edit-camp-title');
                     var dateEl = document.getElementById('edit-session-date');
+                    var worldEl = document.getElementById('edit-camp-world');
+                    var dmEl = document.getElementById('edit-camp-dm');
                     var c = getCampaigns();
                     if (c[cId]) {
-                        var countVal = countEl ? parseInt(countEl.value, 10) : 0;
-                        c[cId].sessionCount = (isNaN(countVal) || countVal < 0) ? 0 : countVal;
+                        if (titleEl && titleEl.value.trim()) c[cId].name = titleEl.value.trim();
                         c[cId].nextSession = dateEl && dateEl.value ? dateEl.value : '';
+                        c[cId].world = worldEl ? worldEl.value.trim() : '';
+                        if (dmEl && dmEl.value) c[cId].dm = dmEl.value;
                         saveCampaigns(c);
                     }
                     overlay.remove();
@@ -630,7 +653,7 @@ function bindPageEvents(route) {
                 }
             });
             document.body.appendChild(overlay);
-            var inp = document.getElementById('edit-session-count');
+            var inp = document.getElementById('edit-camp-title');
             if (inp) { inp.focus(); inp.select(); }
             return;
         }
@@ -1580,69 +1603,130 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Add event (show form)
-        if (target.matches('[data-action="add-event"]')) {
-            var form = document.getElementById('event-add-form');
+        // Recent-event card → focus the matching session in Timeline after navigation.
+        if (target.matches('[data-action="view-session"]') || target.closest('[data-action="view-session"]')) {
+            var vsBtn = target.matches('[data-action="view-session"]') ? target : target.closest('[data-action="view-session"]');
+            var vsId = vsBtn.dataset.sessionId;
+            if (vsId) localStorage.setItem('dw_timeline_focus_session', vsId);
+            // The <a href="#/timeline"> default handles navigation; do not return.
+        }
+
+        // Add session (show form). Accepts legacy [data-action="add-event"] too.
+        if (target.matches('[data-action="add-session"]') || target.matches('[data-action="add-event"]')) {
+            var form = document.getElementById('session-add-form') || document.getElementById('event-add-form');
             if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
             return;
         }
 
-        // Edit event (inline in the event box)
-        if (target.matches('[data-action="edit-event"]')) {
+        // Edit session (inline). Accepts legacy edit-event as alias.
+        if (target.matches('[data-action="edit-session"]') || target.matches('[data-action="edit-event"]')) {
             var evIdx = parseInt(target.dataset.event);
             var tlData = getTimelineData();
             var ch = tlData.chapters[activeChapter];
             if (ch && ch.events[evIdx]) {
-                var ev = ch.events[evIdx];
+                var sess = migrateTimelineEvent(ch.events[evIdx]);
+                ch.events[evIdx] = sess; // upgrade in place
                 var eventEl = target.closest('.timeline-event');
                 if (eventEl) {
                     var contentEl = eventEl.querySelector('.timeline-content');
                     if (contentEl) {
-                        contentEl.innerHTML = renderEventForm(evIdx, ev);
+                        contentEl.innerHTML = renderSessionForm(evIdx, sess);
                     }
                 }
             }
             return;
         }
 
-        // Pick event layout (in form)
-        if (target.matches('[data-action="pick-event-layout"]') || target.closest('[data-action="pick-event-layout"]')) {
-            var btn = target.matches('[data-action="pick-event-layout"]') ? target : target.closest('[data-action="pick-event-layout"]');
-            var layout = btn.dataset.layout;
-            var eIdx = parseInt(btn.dataset.eventIdx);
-            // Update active state
-            var allOpts = btn.parentElement.querySelectorAll('.event-layout-option');
+        // Pick scene layout (in form). Updates icon-active state + image/text
+        // visibility, but does NOT persist until Save is clicked.
+        if (target.matches('[data-action="pick-scene-layout"]') || target.closest('[data-action="pick-scene-layout"]')) {
+            var btn = target.matches('[data-action="pick-scene-layout"]') ? target : target.closest('[data-action="pick-scene-layout"]');
+            var newLayout = btn.dataset.layout;
+            var sceneBlock = btn.closest('.scene-block');
+            if (!sceneBlock) return;
+            var allOpts = sceneBlock.querySelectorAll('.scene-layout-option');
             for (var oi = 0; oi < allOpts.length; oi++) allOpts[oi].classList.remove('active');
             btn.classList.add('active');
-            // Show/hide image section
-            var imgSection = btn.closest('.timeline-content, .timeline-add-form');
-            if (imgSection) {
-                var evImgSec = imgSection.querySelector('.event-image-section');
-                if (evImgSec) evImgSec.style.display = layout === 'text' ? 'none' : 'block';
-            }
-            // If editing existing event, save layout immediately
-            if (eIdx >= 0) {
-                var tlData = getTimelineData();
-                var ch = tlData.chapters[activeChapter];
-                if (ch && ch.events[eIdx]) {
-                    ch.events[eIdx].layout = layout;
-                    saveTimelineData(tlData);
+            sceneBlock.dataset.layout = newLayout;
+            var imgSec = sceneBlock.querySelector('.scene-image-section');
+            var txtSec = sceneBlock.querySelector('.scene-text-section');
+            if (imgSec) imgSec.style.display = (newLayout === 'text') ? 'none' : 'block';
+            if (txtSec) txtSec.style.display = (newLayout === 'image-only') ? 'none' : 'block';
+            return;
+        }
+
+        // Add a scene block to the current session-form (new or edit).
+        if (target.matches('[data-action="add-scene"]') || target.closest('[data-action="add-scene"]')) {
+            var addBtn = target.matches('[data-action="add-scene"]') ? target : target.closest('[data-action="add-scene"]');
+            var form = addBtn.closest('.session-form');
+            if (!form) return;
+            var list = form.querySelector('[data-scene-list]');
+            if (!list) return;
+            var nextIdx = list.querySelectorAll('.scene-block').length;
+            var tmp = document.createElement('div');
+            tmp.innerHTML = renderSceneBlock(nextIdx, { layout: 'text', text: '', image: null });
+            list.appendChild(tmp.firstChild);
+            return;
+        }
+
+        // Remove a scene block (form-side only — geen persist tot Save).
+        if (target.matches('[data-action="remove-scene"]') || target.closest('[data-action="remove-scene"]')) {
+            var rmBtn = target.matches('[data-action="remove-scene"]') ? target : target.closest('[data-action="remove-scene"]');
+            var block = rmBtn.closest('.scene-block');
+            if (!block) return;
+            var parent = block.parentNode;
+            block.remove();
+            // Re-index remaining scene blocks
+            if (parent) {
+                var blocks = parent.querySelectorAll('.scene-block');
+                for (var bi = 0; bi < blocks.length; bi++) {
+                    blocks[bi].dataset.sceneIdx = bi;
+                    var t1 = blocks[bi].querySelector('.scene-block-title');
+                    if (t1) t1.textContent = 'Scene ' + (bi + 1);
                 }
             }
             return;
         }
 
-        // Remove event image
-        if (target.matches('[data-action="remove-event-image"]')) {
-            var eIdx = parseInt(target.dataset.eventIdx);
-            if (eIdx >= 0) {
-                var tlData = getTimelineData();
-                var ch = tlData.chapters[activeChapter];
-                if (ch && ch.events[eIdx]) {
-                    ch.events[eIdx].image = null;
-                    saveTimelineData(tlData);
-                    renderApp();
-                }
+        // Remove scene image (form-side: clears the preview, restores upload UI).
+        if (target.matches('[data-action="remove-scene-image"]') || target.closest('[data-action="remove-scene-image"]')) {
+            var rmImg = target.matches('[data-action="remove-scene-image"]') ? target : target.closest('[data-action="remove-scene-image"]');
+            var block2 = rmImg.closest('.scene-block');
+            if (!block2) return;
+            var imgSec2 = block2.querySelector('.scene-image-section');
+            var idx2 = block2.dataset.sceneIdx;
+            if (imgSec2) {
+                imgSec2.innerHTML = '<label class="note-image-upload"><span>' + (t('notes.addimage') || 'Voeg afbeelding toe') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + idx2 + '" style="display:none"></label>';
+            }
+            return;
+        }
+
+        // Upload scene image (form-side: stash dataURL inside the scene block
+        // as a hidden data-* attribute; save-session reads it on commit).
+        if (target.matches('[data-action="upload-scene-image"]')) {
+            var inpFile = target.files && target.files[0];
+            var blockUp = target.closest('.scene-block');
+            if (inpFile && blockUp) {
+                var rdr = new FileReader();
+                rdr.onload = function(ev) {
+                    var img = new Image();
+                    img.onload = function() {
+                        var cvs = document.createElement('canvas');
+                        var maxW = 1200;
+                        var scale = Math.min(1, maxW / img.width);
+                        cvs.width = img.width * scale;
+                        cvs.height = img.height * scale;
+                        cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
+                        var dataUrl = cvs.toDataURL('image/jpeg', 0.8);
+                        var imgSec3 = blockUp.querySelector('.scene-image-section');
+                        var idx3 = blockUp.dataset.sceneIdx;
+                        if (imgSec3) {
+                            imgSec3.innerHTML = '<div class="scene-image-preview"><img src="' + dataUrl + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + idx3 + '">' + (t('generic.delete') || 'Delete') + '</button></div>';
+                        }
+                    };
+                    img.src = ev.target.result;
+                };
+                rdr.readAsDataURL(inpFile);
             }
             return;
         }
@@ -1662,66 +1746,91 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Save event (supports inline edit + new event form)
-        if (target.matches('[data-action="save-event"]')) {
+        // Save session (new + edit). Accept legacy save-event as alias.
+        if (target.matches('[data-action="save-session"]') || target.matches('[data-action="save-event"]')) {
             var editIdx = target.dataset.editIdx;
             var isEdit = editIdx !== undefined && editIdx !== '';
             var prefix = isEdit ? 'edit-' : '';
+            var container = target.closest('.session-form') || target.closest('.timeline-content') || target.closest('.timeline-add-form') || document;
+            var titleEl = container.querySelector('#' + prefix + 'sess-title') || document.getElementById(prefix + 'sess-title');
+            var sessionEl = container.querySelector('#' + prefix + 'sess-number') || document.getElementById(prefix + 'sess-number');
+            var chapterEl = container.querySelector('#' + prefix + 'sess-chapter') || document.getElementById(prefix + 'sess-chapter');
 
-            // Find form fields — search in closest container first, then document
-            var container = target.closest('.timeline-content') || target.closest('.timeline-add-form') || document;
-            var titleEl = container.querySelector('#' + prefix + 'ev-title') || document.getElementById(prefix + 'ev-title');
-            var descEl = container.querySelector('#' + prefix + 'ev-desc') || document.getElementById(prefix + 'ev-desc');
-            var sessionEl = container.querySelector('#' + prefix + 'ev-session') || document.getElementById(prefix + 'ev-session');
-            var typeEl = container.querySelector('#' + prefix + 'ev-type') || document.getElementById(prefix + 'ev-type');
-            var layoutBtn = container.querySelector('.event-layout-option.active');
+            if (!titleEl || !titleEl.value.trim()) return;
 
-            if (titleEl && titleEl.value.trim()) {
-                var tlData = getTimelineData();
-                var layout = layoutBtn ? layoutBtn.dataset.layout : 'text';
+            // Collect scenes from the form
+            var sceneBlocks = container.querySelectorAll('.scene-block');
+            var scenes = [];
+            for (var sbi = 0; sbi < sceneBlocks.length; sbi++) {
+                var sb = sceneBlocks[sbi];
+                var layoutEl = sb.querySelector('.scene-layout-option.active');
+                var layout = (layoutEl ? layoutEl.dataset.layout : (sb.dataset.layout || 'text'));
+                var ta = sb.querySelector('.scene-text-input');
+                var textVal = ta ? ta.value : '';
+                var preview = sb.querySelector('.scene-image-preview img');
+                var imgVal = preview ? preview.getAttribute('src') : null;
+                scenes.push({ layout: layout, text: textVal, image: imgVal });
+            }
+            if (scenes.length === 0) scenes.push({ layout: 'text', text: '', image: null });
 
-                if (isEdit) {
-                    var idx = parseInt(editIdx);
-                    var ch = tlData.chapters[activeChapter];
-                    if (ch && ch.events[idx]) {
-                        ch.events[idx].title = titleEl.value.trim();
-                        ch.events[idx].desc = descEl ? descEl.value.trim() : '';
-                        ch.events[idx].session = sessionEl ? sessionEl.value.trim() : '';
-                        ch.events[idx].type = typeEl ? typeEl.value : 'quest';
-                        ch.events[idx].layout = layout;
-                    }
-                } else {
-                    if (tlData.chapters[activeChapter]) {
-                        tlData.chapters[activeChapter].events.push({
-                            id: 'ev' + Date.now(),
-                            title: titleEl.value.trim(),
-                            desc: descEl ? descEl.value.trim() : '',
-                            session: sessionEl ? sessionEl.value.trim() : '',
-                            type: typeEl ? typeEl.value : 'quest',
-                            layout: layout,
-                            image: null
-                        });
+            var tlData = getTimelineData();
+            var targetChapterIdx = chapterEl ? parseInt(chapterEl.value, 10) : activeChapter;
+            if (isNaN(targetChapterIdx) || !tlData.chapters[targetChapterIdx]) targetChapterIdx = activeChapter;
+
+            if (isEdit) {
+                var idx = parseInt(editIdx);
+                var ch = tlData.chapters[activeChapter];
+                if (ch && ch.events[idx]) {
+                    var prevId = ch.events[idx].id;
+                    var updated = {
+                        id: prevId || ('sess' + Date.now()),
+                        title: titleEl.value.trim(),
+                        session: sessionEl ? sessionEl.value.trim() : '',
+                        scenes: scenes
+                    };
+                    if (targetChapterIdx !== activeChapter) {
+                        // Move session to another chapter
+                        ch.events.splice(idx, 1);
+                        tlData.chapters[targetChapterIdx].events.push(updated);
+                    } else {
+                        ch.events[idx] = updated;
                     }
                 }
-                saveTimelineData(tlData);
+            } else {
+                if (tlData.chapters[targetChapterIdx]) {
+                    tlData.chapters[targetChapterIdx].events.push({
+                        id: 'sess' + Date.now(),
+                        title: titleEl.value.trim(),
+                        session: sessionEl ? sessionEl.value.trim() : '',
+                        scenes: scenes
+                    });
+                }
+            }
+            saveTimelineData(tlData);
+            renderApp();
+            return;
+        }
+
+        // Cancel session-form
+        if (target.matches('[data-action="cancel-session"]') || target.matches('[data-action="cancel-event"]')) {
+            var form2 = document.getElementById('session-add-form') || document.getElementById('event-add-form');
+            if (form2) form2.style.display = 'none';
+            // If we're inside an inline edit, just re-render.
+            if (target.closest('.timeline-event')) {
                 renderApp();
             }
             return;
         }
 
-        // Cancel event
-        if (target.matches('[data-action="cancel-event"]')) {
-            var form = document.getElementById('event-add-form');
-            if (form) form.style.display = 'none';
-            return;
-        }
-
-        // Delete event
-        if (target.matches('[data-action="delete-event"]')) {
-            var evIdx = parseInt(target.dataset.event);
+        // Delete session
+        if (target.matches('[data-action="delete-session"]') || target.matches('[data-action="delete-event"]')) {
+            var dIdx = parseInt(target.dataset.editIdx);
+            if (isNaN(dIdx)) dIdx = parseInt(target.dataset.event);
+            if (isNaN(dIdx)) return;
+            if (typeof confirm === 'function' && !confirm('Delete this session?')) return;
             var tlData = getTimelineData();
-            if (tlData.chapters[activeChapter] && !isNaN(evIdx)) {
-                tlData.chapters[activeChapter].events.splice(evIdx, 1);
+            if (tlData.chapters[activeChapter]) {
+                tlData.chapters[activeChapter].events.splice(dIdx, 1);
                 saveTimelineData(tlData);
                 renderApp();
             }

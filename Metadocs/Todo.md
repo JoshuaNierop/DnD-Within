@@ -1,5 +1,14 @@
 # D&D Within — To Do
 
+## Homepage & UI tweaks — ronde 5 (2026-05-29 22:30)
+
+- [x] P1 — Right sidebar (`#rightSidebar`): uitklappend `.sidebar-panel` weggehaald (CSS-only, `display:none`); de `#rs-char-toggle` knop die het opende ook verborgen. `characterSelect` element blijft in DOM voor binding-compat.
+- [x] P1 — Dashboard L/R padding op character-pages: defensive sweep (`body[data-route^="characters/"] .main-content/.character-page { padding-inline: 0 !important }`) zodat sidebars aansluiten op viewport-randen ondanks cascade-conflicten of `:has()`-onverbreekbaarheid.
+- [x] P1 — Banner upload-knoppen vertical stack (kolom rechtsbovenin, 130px breed, `flex-direction: column`).
+- [x] P1 — Character page block-size `100dvh` → `calc(100dvh - 5rem)` om FAB-clearance (dice/notes/bug-report) te garanderen. Skills widget default size `spanUnits: 3, spanUnitsY: 10` → `5, 15`.
+- [x] P1 — Campaign cards breder (`minmax(250px, 1fr)` → `340px`). Edit-pencil modal uitgebreid van 2 velden (count+date) naar 4 (Title, Next Session, World name, DM-select). DM-dropdown leest uit `usersCache`; fallback naar text-only als cache leeg is.
+- [x] P0 — Timeline events → **Sessions** met **Scene blocks**. Nieuwe data-model `{title, session, scenes:[{layout, text, image}]}`; legacy events worden via `migrateTimelineEvent()` on-read gemigreerd. Vier scene-layouts: Just Text / Image Left / Image Right / Just Image. Form: Chapter dropdown + Session# + Title + N scene-blokken (add/remove) + Save/Cancel/Delete. "Add Session" knop. Edit-flow gebruikt zelfde form inline. Home Recent links: nieuw `data-action="view-session"` zet `dw_timeline_focus_session` in localStorage; `postRenderEffects` op `/timeline` route scrollt naar `#session-<id>` met flash-animatie.
+
 ## Homepage & UI tweaks — ronde 4 (2026-05-29 22:00)
 
 - [x] P0 — Profile Picture upload-knop: hover werkte, click niet. Root cause was **niet** de canvas-listener (ronde 1-fix was correct maar onvoldoende): `onPointerDown` zet voor de upload-knop `pendingGesture: 'select'` (geen `data-handle`), `onPointerUp` roept dan `render()` aan dat de SVG-target vervangt vóór de click-event fires. Combinatie van re-render race + verloren transient user-activation in de `async` click-handler → file picker opent nooit. Fix: map-action knoppen synchroon afhandelen in `onPointerDown` (preventDefault + `handleMapAction()` sync + return zonder pendingGesture). De delegated document-click listener blijft als fallback.

@@ -240,7 +240,7 @@ const WG_SOURCE_LABELS = { abilities: 'Ability Scores', skills: 'Skills' };
 const WG_WIDGET_TYPES = {
   abilityScores: { label: 'Ability Scores', kind: 'infobox', source: 'abilities', spanUnits: 4, spanUnitsY: 6,
                    cfg: { cellPadding: 0, widgetPadding: 4, infoBoxSpacing: 2, infoBoxPadding: 2 } },
-  skills:        { label: 'Skills',         kind: 'infobox', source: 'skills',    spanUnits: 3, spanUnitsY: 10,
+  skills:        { label: 'Skills',         kind: 'infobox', source: 'skills',    spanUnits: 5, spanUnitsY: 15,
                    cfg: { cellPadding: 0, widgetPadding: 4, infoBoxSpacing: 2, infoBoxPadding: 2 } },
   map:           { label: 'Campagne-kaart',  kind: 'map',   spanUnits: 13, spanUnitsY: 11 },
   profilePicture:{ label: 'Profile picture', kind: 'image', spanUnits: 5,  spanUnitsY: 7  },
