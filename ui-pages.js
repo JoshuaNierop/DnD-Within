@@ -10,7 +10,7 @@ function renderCharacterSheet(charId) {
         return '<div class="page-placeholder"><h2>' + t('char.notfound') + '</h2></div>';
     }
     var accent = config.accentColor || 'var(--accent)';
-    return '<a class="char-back-btn" href="#/dashboard" aria-label="Terug naar campaign" title="Terug naar campaign">'
+    return '<a class="char-back-btn" href="#/home" aria-label="Terug naar campaign" title="Terug naar campaign">'
          +   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
          +     '<path d="M19 12H5M12 19l-7-7 7-7"/>'
          +   '</svg>'
@@ -85,7 +85,7 @@ function renderNavbar(route) {
 
     // Campaign navigation links
     var campLinks = [
-        { path: '/dashboard', label: t('nav.dashboard'), icon: svgI('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>') },
+        { path: '/home', label: t('nav.home') || 'Home', icon: svgI('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>') },
         { path: '/party', label: t('nav.party'), icon: svgI('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>') }
     ];
     // Dynamic "Character" tab: appears when viewing a party-character, or when
@@ -119,14 +119,14 @@ function renderNavbar(route) {
 
     // Personal links (main menu)
     var personalLinks = [
-        { path: '/home', label: 'Campaigns', icon: svgI('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>') },
+        { path: '/welcome', label: t('nav.welcome') || 'Welcome', icon: svgI('<path d="M12 2l2 4h4l-3 3 1 5-4-2-4 2 1-5-3-3h4z"/>') },
         { path: '/characters', label: t('nav.characters'), icon: svgI('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>') },
         { path: '/settings', label: t('nav.settings') || 'Settings', icon: svgI('<path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>') }
     ];
 
     var html = '<nav class="navbar">';
     html += '<div class="nav-brand">';
-    html += '<a class="nav-logo" href="#/home">D&D <span class="logo-accent">Within</span></a>';
+    html += '<a class="nav-logo" href="#/welcome">D&D <span class="logo-accent">Within</span></a>';
     var brandCampaigns = getUserCampaigns();
     if (inCampaignView && brandCampaigns.length === 1 && campaigns[brandCampaigns[0]]) {
         html += '<span class="campaign-subtitle">' + escapeHtml(campaigns[brandCampaigns[0]].name) + '</span>';
@@ -135,12 +135,12 @@ function renderNavbar(route) {
     html += '<div class="nav-links">';
 
     if (inCampaignView) {
-        // (Back-to-menu link weggehaald — D&D Within logo links nu naar #/home)
+        // (Back-to-menu link weggehaald — D&D Within logo links nu naar #/welcome)
         // Campaign links
         for (var i = 0; i < campLinks.length; i++) {
             var link = campLinks[i];
             var isActive = route.path === link.path;
-            if (link.path === '/dashboard' && route.path === '/dashboard') isActive = true;
+            if (link.path === '/home' && (route.path === '/home' || route.path === '/' || route.path === '/dashboard')) isActive = true;
             if (link.path === '/party' && route.parts[0] === 'party') isActive = true;
             // Character tab: active whenever we're on a character page
             if (link.path.indexOf('/characters/') === 0 && route.parts[0] === 'characters') isActive = true;
@@ -153,7 +153,7 @@ function renderNavbar(route) {
         // Main menu links
         for (var pi = 0; pi < personalLinks.length; pi++) {
             var plink = personalLinks[pi];
-            var pActive = route.path === plink.path || (plink.path === '/home' && route.path === '/');
+            var pActive = route.path === plink.path || (plink.path === '/welcome' && (route.path === '/' || route.path === '/home'));
             if (plink.path === '/characters' && route.parts[0] === 'characters') pActive = true;
             if (plink.path === '/settings' && route.path === '/settings') pActive = true;
             html += '<a class="nav-link' + (pActive ? ' active' : '') + '" href="#' + plink.path + '"><span class="nav-icon">' + plink.icon + '</span><span class="nav-text">' + plink.label + '</span></a>';
@@ -199,9 +199,13 @@ function renderNavbar(route) {
 function getDashboardData() {
     var saved = localStorage.getItem('dw_dashboard');
     if (saved) {
-        try { return JSON.parse(saved); } catch(e) {}
+        try {
+            var parsed = JSON.parse(saved);
+            if (!parsed.bannerImages) parsed.bannerImages = {};
+            return parsed;
+        } catch(e) {}
     }
-    return { campaignName: 'The Serpent March', bannerImage: null };
+    return { campaignName: 'The Serpent March', bannerImage: null, bannerImages: {} };
 }
 
 function saveDashboardData(data) {
@@ -354,7 +358,7 @@ function handleJoinCampaign(inviteCode) {
         }
     }
     if (!found) {
-        return '<div class="page-placeholder"><h2>' + t('join.invalid') + '</h2><p>' + t('join.invalid.hint') + '</p><a class="btn btn-primary" href="#/home">' + t('join.backhome') + '</a></div>';
+        return '<div class="page-placeholder"><h2>' + t('join.invalid') + '</h2><p>' + t('join.invalid.hint') + '</p><a class="btn btn-primary" href="#/welcome">' + t('join.backhome') + '</a></div>';
     }
     var camp = campaigns[found];
     if (!camp.members) camp.members = [];
@@ -504,14 +508,52 @@ function renderDashboard() {
     var sessionNum = localStorage.getItem('dw_session_number') || '0';
     var dashData = getDashboardData();
 
+    // Banner: 4 time-of-day slots — pick current slot, fall back to other slots
+    // or legacy single-banner if slot is empty.
+    var bannerSlots = dashData.bannerImages || {};
+    var hour = new Date().getHours();
+    var currentSlot;
+    if (hour < 6) currentSlot = 'night';
+    else if (hour < 12) currentSlot = 'morning';
+    else if (hour < 18) currentSlot = 'afternoon';
+    else currentSlot = 'evening';
+    var slotOrder = ['night', 'morning', 'afternoon', 'evening'];
+    var activeBanner = bannerSlots[currentSlot] || null;
+    if (!activeBanner) {
+        for (var bsi = 0; bsi < slotOrder.length && !activeBanner; bsi++) {
+            if (bannerSlots[slotOrder[bsi]]) activeBanner = bannerSlots[slotOrder[bsi]];
+        }
+    }
+    if (!activeBanner && dashData.bannerImage) activeBanner = dashData.bannerImage;
+
+    var slotLabels = {
+        night: 'Nacht (00–06)',
+        morning: 'Ochtend (06–12)',
+        afternoon: 'Middag (12–18)',
+        evening: 'Avond (18–24)'
+    };
+
     // Welcome banner with optional background image
-    html += '<div class="welcome-banner' + (dashData.bannerImage ? ' has-banner' : '') + '"';
-    if (dashData.bannerImage) {
-        html += ' style="background-image:url(' + dashData.bannerImage + ')"';
+    html += '<div class="welcome-banner' + (activeBanner ? ' has-banner' : '') + '"';
+    if (activeBanner) {
+        html += ' style="background-image:url(' + activeBanner + ')"';
     }
     html += '>';
     if (isDM()) {
-        html += '<label class="banner-upload-btn" title="Upload banner"><span>&#128247;</span><input type="file" accept="image/*" data-action="upload-dash-banner" style="display:none"></label>';
+        html += '<div class="banner-upload-slots" title="Upload banner per dagdeel">';
+        for (var bsj = 0; bsj < slotOrder.length; bsj++) {
+            var slotKey = slotOrder[bsj];
+            var hasImg = !!bannerSlots[slotKey];
+            var isCur = slotKey === currentSlot;
+            html += '<label class="banner-upload-slot' + (hasImg ? ' filled' : '') + (isCur ? ' current' : '') + '" title="' + slotLabels[slotKey] + (hasImg ? ' — klik om te vervangen' : '') + '">';
+            html += '<span class="banner-slot-label">' + slotLabels[slotKey] + '</span>';
+            html += '<input type="file" accept="image/*" data-action="upload-dash-banner" data-banner-slot="' + slotKey + '" style="display:none">';
+            if (hasImg) {
+                html += '<button type="button" class="banner-slot-clear" data-action="clear-dash-banner" data-banner-slot="' + slotKey + '" title="Verwijder">&times;</button>';
+            }
+            html += '</label>';
+        }
+        html += '</div>';
     }
     html += '<h1>' + t('dash.welcome') + '</h1>';
     html += '<p class="campaign-name">';
@@ -538,16 +580,22 @@ function renderDashboard() {
         partyGold += (sstate.gold || 0);
     }
 
+    // Party level override (DM-controlled, like session number)
+    var levelOverride = parseInt(localStorage.getItem('dw_party_level') || '0', 10);
+    var displayLevel = levelOverride > 0 ? levelOverride : groupLevel;
+
     html += '<div class="dash-stats">';
     html += '<div class="dash-stat-card session-card">';
-    html += '<span class="dash-stat-value">' + escapeHtml(sessionNum) + '</span>';
-    html += '<span class="dash-stat-label">' + t('dash.session') + '</span>';
     if (isDM()) {
-        html += '<div class="session-controls">';
-        html += '<button class="session-btn" data-action="session-minus">&minus;</button>';
-        html += '<button class="session-btn" data-action="session-plus">+</button>';
+        html += '<div class="dash-stat-value-row">';
+        html += '<button class="session-btn" data-action="session-minus" aria-label="-">&minus;</button>';
+        html += '<span class="dash-stat-value">' + escapeHtml(sessionNum) + '</span>';
+        html += '<button class="session-btn" data-action="session-plus" aria-label="+">+</button>';
         html += '</div>';
+    } else {
+        html += '<span class="dash-stat-value">' + escapeHtml(sessionNum) + '</span>';
     }
+    html += '<span class="dash-stat-label">' + t('dash.session') + '</span>';
     html += '</div>';
     html += '<div class="dash-stat-card"><span class="dash-stat-value">' + partySize + '</span><span class="dash-stat-label">' + t('dash.party') + '</span></div>';
 
@@ -556,16 +604,18 @@ function renderDashboard() {
     html += '<span class="dash-stat-value" style="color:var(--gold);">' + partyGold + '</span>';
     html += '<span class="dash-stat-label">' + t('dash.partygold') + '</span>';
     html += '</div>';
-    html += '<div class="dash-stat-card"><span class="dash-stat-value">' + groupLevel + '</span><span class="dash-stat-label">' + t('dash.level') + '</span></div>';
+    html += '<div class="dash-stat-card level-card">';
+    if (isDM()) {
+        html += '<div class="dash-stat-value-row">';
+        html += '<button class="session-btn" data-action="level-minus" aria-label="-">&minus;</button>';
+        html += '<span class="dash-stat-value">' + displayLevel + '</span>';
+        html += '<button class="session-btn" data-action="level-plus" aria-label="+">+</button>';
+        html += '</div>';
+    } else {
+        html += '<span class="dash-stat-value">' + displayLevel + '</span>';
+    }
+    html += '<span class="dash-stat-label">' + t('dash.level') + '</span>';
     html += '</div>';
-
-    // Quick navigation cards
-    html += '<div class="dash-nav-cards">';
-    html += '<a class="dash-nav-card" href="#/party"><span class="dash-nav-icon">&#9876;</span><span class="dash-nav-title">Party</span><span class="dash-nav-desc">' + t('dash.characters.desc') + '</span></a>';
-    html += '<a class="dash-nav-card" href="#/timeline"><span class="dash-nav-icon">&#128337;</span><span class="dash-nav-title">' + t('nav.timeline') + '</span><span class="dash-nav-desc">' + t('dash.timeline.desc') + '</span></a>';
-    html += '<a class="dash-nav-card" href="#/maps"><span class="dash-nav-icon">&#128506;</span><span class="dash-nav-title">' + t('nav.maps') + '</span><span class="dash-nav-desc">' + t('dash.maps.desc') + '</span></a>';
-    html += '<a class="dash-nav-card" href="#/lore"><span class="dash-nav-icon">&#128214;</span><span class="dash-nav-title">' + t('nav.lore') + '</span><span class="dash-nav-desc">' + t('dash.lore.desc') + '</span></a>';
-    html += '<a class="dash-nav-card" href="#/notes"><span class="dash-nav-icon">&#128221;</span><span class="dash-nav-title">' + t('nav.notes') + '</span><span class="dash-nav-desc">' + t('dash.notes.desc') + '</span></a>';
     html += '</div>';
 
     // Recent timeline events (pull from ALL chapters)

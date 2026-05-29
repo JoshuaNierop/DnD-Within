@@ -414,43 +414,8 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true) {
   // van scope wisselt bij selectie), verwijderen via de Delete-toets. De
   // topbalk-titel heeft daardoor de volle breedte.
 
-  // V11 Phase 3.3: map action buttons in topbar (upload, add-pin, delete)
-  if (kind === 'map' && state.config.editValuesMode) {
-    const BTN_W = 20, BTN_H = 16, GAP = 4;
-    const btnY = y + (barH - BTN_H) / 2;
-    const mapActions = [
-      { action: 'delete-map',   title: 'Map verwijderen' },
-      { action: 'upload-image', title: 'Kaartafbeelding uploaden' },
-      { action: 'add-pin',      title: 'Pin toevoegen', active: state.config.pinAddMode === widgetIdx },
-    ];
-    let bx = x + w - 6;
-    for (const def of mapActions) {
-      bx -= BTN_W;
-      const btnG = el('g', {
-        class: 'map-action-btn' + (def.active ? ' active' : ''),
-        'data-map-action': def.action,
-      });
-      const btnTitle = el('title', {});
-      btnTitle.textContent = def.title;
-      btnG.appendChild(btnTitle);
-      btnG.appendChild(el('rect', { x: bx, y: btnY, width: BTN_W, height: BTN_H, rx: 3 }));
-      const cx = bx + BTN_W / 2, cy = btnY + BTN_H / 2;
-      if (def.action === 'add-pin') {
-        btnG.appendChild(el('circle', { cx, cy: cy - 2, r: 3 }));
-        btnG.appendChild(el('line',   { x1: cx, y1: cy + 1, x2: cx, y2: cy + 5 }));
-      } else if (def.action === 'upload-image') {
-        btnG.appendChild(el('polyline', { points: `${cx - 4},${cy + 1} ${cx},${cy - 4} ${cx + 4},${cy + 1}` }));
-        btnG.appendChild(el('line',     { x1: cx, y1: cy - 4, x2: cx, y2: cy + 5 }));
-        btnG.appendChild(el('line',     { x1: cx - 5, y1: cy + 5, x2: cx + 5, y2: cy + 5 }));
-      } else if (def.action === 'delete-map') {
-        btnG.appendChild(el('rect',    { x: cx - 4, y: cy - 2, width: 8, height: 6, rx: 1 }));
-        btnG.appendChild(el('line',    { x1: cx - 5, y1: cy - 2, x2: cx + 5, y2: cy - 2 }));
-        btnG.appendChild(el('line',    { x1: cx - 2, y1: cy - 4, x2: cx + 2, y2: cy - 4 }));
-      }
-      widgetG.appendChild(btnG);
-      bx -= GAP;
-    }
-  }
+  // Map widget action buttons (add-pin / upload-image / delete-map) zijn
+  // verwijderd: deze edits horen alleen op de Maps-page (DM/Admin only).
 
   // V11 Phase 3.4: profile-picture widget upload-button
   if (kind === 'image' && state.config.editValuesMode) {

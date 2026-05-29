@@ -50,9 +50,9 @@ function renderApp() {
     } else {
         html = renderNavbar(route) + '<main class="main-content">';
 
-        if (route.path === '/' || route.path === '/home') {
+        if (route.path === '/welcome') {
             html += renderHome();
-        } else if (route.path === '/dashboard') {
+        } else if (route.path === '/' || route.path === '/home' || route.path === '/dashboard') {
             html += renderDashboard();
         } else if (route.path === '/party') {
             html += renderParty();

@@ -64,6 +64,8 @@ Status: 🚧 gestart 2026-05-27. Plan via `vanilla-js-architect` agent.
 - [x] P1 — WGI-M5: `wg-style.css` wrapped in `@scope (.character-page) { … }`. Original `:root { --bg/--panel/--accent/etc. }` block vervangen door theme-bridge `.character-page { --bg: var(--bg-dark); --panel: var(--bg-card); --text: var(--text-main); --muted: var(--text-dim); --border: var(--border-light); --accent: var(--char-accent, var(--accent, #6cf)); --tile-dash: var(--char-accent, #6cf); …V8-eigen tokens behouden… }`. Per-character accent flows door: Saya zilver (#b8c5d1) en Ren goud (#d4a017) verifieerd in `--accent` + `--tile-dash`. Body bg blijft DnD's --bg-dark; geen regressie op home/campaigns/characters pagina's.
 - [x] P1 — WGI-M6: V11 edit-flow via direct REST-PATCH + targeted localStorage update (geen full `syncUpload`). Twee helpers in `wg-firebase.js`: `wgSyncCharToLocal(charId)` splitst `WG_CHAR_CACHE[id]` naar DnD's split-storage (`dw_charconfig_{id}`/`dw_charstate_{id}`/`dw_img_{id}_portrait`/`_banner`/`_appearance`); `wgSyncMapsToLocal()` schrijft `WG_MAPS_CACHE` naar `dw_maps`. Aanroep na elke succesvolle REST-write in 6 V11 functies (writeAbilityScore, writeSkillProficiency, savePinsToFirebase, uploadMapImage, deleteMapFromFirebase, uploadPortrait). Bij standalone V8 no-op (geen localStorage `dw_*` keys aanwezig). Code-niveau verifieerbaar; live browser-test in interactieve sessie volgt.
 - [ ] P1 — WGI-M7: polish — verwijder V8 `#characterSelect`, opruimen dode `.is-edit-mode` rules, smoke-test alle 5 situations × 3 devices
+- [x] P0 — WGI-M4 bugfix (2026-05-29): canvas-click listener werd top-level gebound vóór mount-tijd (`document.getElementById("canvas")?.addEventListener` met `?.` op `null`). Vervangen door `document`-delegated listener met `closest('#canvas')`-filter in `wg-events.js:690`. Profile Picture upload-knop werkt nu; vermoedelijk ook latent stille bugs in skill-cycle, ability-edit en pin-edit clicks opgelost.
+- [x] P1 — WGI: Map Widget action-buttons (add-pin / upload-image / delete-map) uit topbar verwijderd (`wg-render.js`). Deze acties horen alleen op de Maps-page (DM/Admin only).
 
 **Branch:** `josh/widget-grid-inline`, 7 commits (één per M-fase).
 **Architect-rapport:** zie sessie-notes 2026-05-27 (vanilla-js-architect opus max).
@@ -73,6 +75,17 @@ Status: 🚧 gestart 2026-05-27. Plan via `vanilla-js-architect` agent.
 - [x] P1 — Widget grid + 22 widgets in registry (verwijderd in nuke)
 - [x] P1 — Drag/resize edit mode + per-breakpoint layouts (verwijderd in nuke)
 - [x] P1 — Widget Editor externe app (Cloudflare Pages) (verwijderd in nuke)
+
+## Milestone 5c — Homepage & UI tweaks (2026-05-29)
+Status: ✅ code-niveau **DONE**, wacht op live browser-verificatie.
+
+Joshua's 7-puntenlijst in één sessie doorgevoerd. Zie `Todo.md` sectie "Homepage & UI tweaks" voor de verificatiepunten.
+
+- [x] P1 — Route-rename: huidige Dashboard → `/home`, oude `/home` → `/welcome`. Logo + login + back-button + campaign-enter doorbedraad. `nav.welcome` toegevoegd.
+- [x] P1 — Time-based banner met 4 slots (night/morning/afternoon/evening). `dw_dashboard.bannerImages.{slot}`; current-slot highlighted; legacy `bannerImage` blijft als fallback.
+- [x] P1 — Grote nav-cards op homepage verwijderd (Party/Timeline/Maps/Lore/Notes — duplicaat met navbar).
+- [x] P1 — Sessie-indicator: `-/+` direct naast cijfer (nieuwe `.dash-stat-value-row` layout).
+- [x] P1 — Level-indicator: `-/+` naast cijfer (DM/Admin only). Storage `dw_party_level` (1–20), fallback naar berekende groupLevel.
 
 ## Milestone 6 — Modern CSS / responsive / a11y polish
 Status: gepland — onderzoek loopt 2026-05-15 (modern-css skill)

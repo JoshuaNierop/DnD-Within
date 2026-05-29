@@ -72,7 +72,7 @@ function bindPageEvents(route) {
 
                 setSession(matchedId);
                 applyUserTheme();
-                navigate('/home');
+                navigate('/welcome');
                 return;
             }
             return;
@@ -413,7 +413,7 @@ function bindPageEvents(route) {
             } else {
                 var card = target.matches('[data-action="enter-campaign"]') ? target : target.closest('[data-action="enter-campaign"]');
                 setActiveCampaign(card.dataset.campaignId);
-                navigate('/dashboard');
+                navigate('/home');
                 return;
             }
         }
@@ -1368,6 +1368,26 @@ function bindPageEvents(route) {
             return;
         }
 
+        // --- Party level +/- (DM/Admin only) ---
+        if (target.matches('[data-action="level-plus"]')) {
+            if (!isDM()) return;
+            var lvl = parseInt(localStorage.getItem('dw_party_level') || '0', 10);
+            if (lvl < 1) lvl = 1; // start vanaf 1 als override nog niet gezet
+            localStorage.setItem('dw_party_level', String(Math.min(20, lvl + 1)));
+            if (typeof syncUpload === 'function') syncUpload('dw_party_level');
+            renderApp();
+            return;
+        }
+        if (target.matches('[data-action="level-minus"]')) {
+            if (!isDM()) return;
+            var lvl = parseInt(localStorage.getItem('dw_party_level') || '0', 10);
+            if (lvl < 1) lvl = 1;
+            localStorage.setItem('dw_party_level', String(Math.max(1, lvl - 1)));
+            if (typeof syncUpload === 'function') syncUpload('dw_party_level');
+            renderApp();
+            return;
+        }
+
         // --- Dashboard: whispers ---
         if (target.matches('[data-action="send-whisper"]')) {
             var wTarget = document.getElementById('whisper-target');
@@ -2132,9 +2152,12 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Dashboard banner upload
+        // Dashboard banner upload — per dagdeel-slot
         if (target.matches('[data-action="upload-dash-banner"]')) {
             if (isDM() && target.files && target.files[0]) {
+                var slot = target.dataset.bannerSlot || 'night';
+                var validSlots = ['night', 'morning', 'afternoon', 'evening'];
+                if (validSlots.indexOf(slot) === -1) slot = 'night';
                 var dbReader = new FileReader();
                 dbReader.onload = function(ev) {
                     var img = new Image();
@@ -2146,13 +2169,27 @@ function bindPageEvents(route) {
                         cvs.height = img.height * scale;
                         cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
                         var dd = getDashboardData();
-                        dd.bannerImage = cvs.toDataURL('image/jpeg', 0.8);
+                        if (!dd.bannerImages) dd.bannerImages = {};
+                        dd.bannerImages[slot] = cvs.toDataURL('image/jpeg', 0.8);
                         saveDashboardData(dd);
                         renderApp();
                     };
                     img.src = ev.target.result;
                 };
                 dbReader.readAsDataURL(target.files[0]);
+            }
+            return;
+        }
+        if (target.matches('[data-action="clear-dash-banner"]') || target.closest('[data-action="clear-dash-banner"]')) {
+            var clearBtn = target.matches('[data-action="clear-dash-banner"]') ? target : target.closest('[data-action="clear-dash-banner"]');
+            if (isDM() && clearBtn) {
+                var clearSlot = clearBtn.dataset.bannerSlot;
+                var ddc = getDashboardData();
+                if (ddc.bannerImages && ddc.bannerImages[clearSlot]) {
+                    delete ddc.bannerImages[clearSlot];
+                    saveDashboardData(ddc);
+                    renderApp();
+                }
             }
             return;
         }

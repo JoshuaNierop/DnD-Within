@@ -549,6 +549,7 @@ var TRANSLATIONS = {
         // Navbar extras
         'nav.party': 'Party',
         'nav.home': 'Home',
+        'nav.welcome': 'Welcome',
         'nav.menu': 'Menu',
         'nav.profile': 'Profiel instellingen',
         'nav.dm': 'DM',
@@ -1139,6 +1140,7 @@ var TRANSLATIONS = {
         // Navbar extras
         'nav.party': 'Party',
         'nav.home': 'Home',
+        'nav.welcome': 'Welcome',
         'nav.menu': 'Menu',
         'nav.profile': 'Profile settings',
         'nav.dm': 'DM',

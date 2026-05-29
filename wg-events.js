@@ -687,8 +687,11 @@ async function uploadPortrait(widgetIdx, file) {
 // ===== End Phase 3.3 helpers =====
 
 // Delegated click on the SVG canvas for editable cells + map actions (V11 Phase 3.3).
-document.getElementById("canvas")?.addEventListener("click", async (e) => {
-  if (!state.config.editValuesMode) return;
+// WGI fix: bind aan document zodat de listener ook werkt na latere mount
+// (in standalone V8 bestaat #canvas bij script-load, in D&D Within inline-mount niet).
+document.addEventListener("click", async (e) => {
+  if (typeof state === "undefined" || !state.config || !state.config.editValuesMode) return;
+  if (!e.target.closest || !e.target.closest("#canvas")) return;
 
   // Map action buttons (topbar icons in edit-values mode for map widgets)
   const mapActionEl = e.target.closest("[data-map-action]");

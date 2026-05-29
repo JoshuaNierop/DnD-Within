@@ -1,5 +1,23 @@
 # D&D Within — To Do
 
+## Homepage & UI tweaks (2026-05-29)
+
+Joshua's 7-puntenlijst doorgevoerd in één sessie. Wacht op live browser-verificatie.
+
+- [x] P1 — Route-rename: huidige Dashboard → `/home`, oude `/home` (campaigns-keuze) → `/welcome`. Navbar logo + back-button + login-redirect + enter-campaign aangepast; `nav.welcome` toegevoegd in `i18n.js`.
+- [x] P1 — Time-based banner: 4 upload-slots op homepage (night 00–06, morning 06–12, afternoon 12–18, evening 18–24). DM ziet 4 labels met `current`-highlight; data in `dw_dashboard.bannerImages.{slot}`. Legacy `bannerImage` blijft als fallback voor bestaande data.
+- [x] P1 — Grote nav-cards (Party/Timeline/Maps/Lore/Notes) van homepage verwijderd — staan al in navbar.
+- [x] P1 — Sessie-indicator: `-/+` naast cijfer i.p.v. onder label. Nieuwe `.dash-stat-value-row` flex-layout in `style.css`.
+- [x] P1 — Level-indicator op homepage: `-/+` knoppen (DM/Admin only). Storage `dw_party_level` (1–20). Fallback naar berekende `groupLevel` als geen override. `isDM()` includeert al `role === 'admin'`.
+- [x] P0 — Profile Picture "Upload Image" knop fix: canvas-click listener werd top-level gebound vóór WGI mount-tijd → `?.` op `null` → listener nooit gekoppeld. Vervangen door delegated listener op `document` met `closest('#canvas')`-filter. Lost waarschijnlijk ook latent stille bugs op in skill-cycle, ability-edit en pin-edit clicks.
+- [x] P1 — Map Widget: Add Pin / Upload Map / Delete Map knoppen weggehaald uit topbar (`wg-render.js`). Edit-acties horen alleen op de Maps-page.
+
+### Verificatie (open)
+- [ ] P1 — Live browser-test alle 7 punten (banner upload per slot, sessie+/-, level+/- als DM, profile picture upload knop, map widget zonder action-buttons).
+- [ ] P2 — Maps-page DM/Admin gate verifiëren — Add Pin / Upload / Delete moeten daar wél werken, maar alleen voor DM/Admin.
+- [ ] P3 — Level-override init-flow: eerste klik op `+` start vanaf 1 (bij geen override). Overwegen: start vanaf huidige `groupLevel` zodat je geen "reset" krijgt.
+- [ ] P3 — Banner-data grootte: 4× base64 JPEG kan `dw_dashboard` flink laten groeien (~0.5–2 MB). Firebase REST sync moet dit aankunnen; monitor in praktijk.
+
 ## WGI — Widget Grid V8/V11 Inline Integration (2026-05-27 gestart)
 
 Plan via `vanilla-js-architect` agent. Joshua's keuzes: direct REST-PATCH + targeted localStorage update; DnD-navbar verbergen op character-route; `.character-page` grid slopen voor volle flex-shell. Zie Planning.md Milestone 5b.

@@ -4417,12 +4417,14 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .dash-recent-event.timeline-quest { border-left-color: var(--accent); }
 .dash-recent-event.timeline-history { border-left-color: var(--gold); }
 
-/* ===== SESSION CARD CONTROLS ===== */
-.session-card { position: relative; }
-.session-controls { position: absolute; bottom: 0.4rem; left: 50%; transform: translateX(-50%); display: flex; gap: 3rem; opacity: 0; transition: opacity 0.2s; }
-.session-card:hover .session-controls { opacity: 1; }
-.session-btn { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-dark); border: 1px solid var(--accent); color: var(--accent); cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+/* ===== SESSION / LEVEL CARD CONTROLS ===== */
+.session-card, .level-card { position: relative; }
+.dash-stat-value-row { display: inline-flex; align-items: center; gap: 0.6rem; justify-content: center; }
+.dash-stat-value-row .dash-stat-value { min-width: 1.5em; text-align: center; }
+.session-btn { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-dark); border: 1px solid var(--accent); color: var(--accent); cursor: pointer; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; padding: 0; line-height: 1; flex: 0 0 auto; }
 .session-btn:hover { border-color: var(--accent); color: var(--bg-dark); background: var(--accent); }
+/* Legacy fallback if old layout reappears */
+.session-controls { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.3rem; }
 
 /* ===== TEXT HELPERS ===== */
 .text-dim { color: var(--text-dim); }
@@ -5929,6 +5931,47 @@ body.modal-open {
     transition: opacity 0.2s;
 }
 .banner-upload-btn:hover { opacity: 1; }
+.banner-upload-slots {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: calc(100% - 1.5rem);
+}
+.banner-upload-slot {
+    position: relative;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text);
+    font-size: 0.7rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    opacity: 0.65;
+    transition: opacity 0.2s, border-color 0.2s, background 0.2s;
+    white-space: nowrap;
+}
+.banner-upload-slot:hover { opacity: 1; border-color: var(--accent); }
+.banner-upload-slot.filled { background: rgba(0,0,0,0.7); border-color: rgba(255,255,255,0.25); opacity: 0.85; }
+.banner-upload-slot.current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); opacity: 1; }
+.banner-slot-clear {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 0.9rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0 0 0.2rem;
+    opacity: 0.7;
+}
+.banner-slot-clear:hover { opacity: 1; color: var(--danger, #ef4444); }
 .campaign-name .edit-trigger {
     font-size: 0.8em;
     opacity: 0.5;
