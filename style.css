@@ -837,9 +837,10 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
     margin: 0;
     padding: 0;
     max-width: none;
-    /* FAB-clearance: dashboard reserves ~5rem aan de onderkant voor de
-       bug-report / chat / notes / dice FABs zodat ze niet overlappen. */
-    block-size: calc(100dvh - 5rem);
+    /* Full viewport hoogte zodat de sidebars tot de bodem doorlopen.
+       FAB-clearance wordt in main.app-main toegepast (zie wg-style.css),
+       niet hier — anders worden ook de sidebars ingekort. */
+    block-size: 100dvh;
     inline-size: 100%;
     box-sizing: border-box;
     display: flex;

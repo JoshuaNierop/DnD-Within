@@ -88,6 +88,10 @@ Joshua's 7-puntenlijst + 5 follow-up correcties in twee rondes doorgevoerd. Zie 
 - [x] P1 — Sessie-indicator: `-/+` direct naast cijfer (nieuwe `.dash-stat-value-row` layout).
 - [x] P1 — Level-indicator: `-/+` naast cijfer (DM/Admin only). Storage `dw_party_level` (1–20), fallback naar berekende groupLevel.
 
+**Ronde 7 (follow-up):**
+- [x] P1 — Character page sidebars tot bodem; dashboard onder net boven FABs. `.character-page` `block-size: 100dvh`; `main.app-main` krijgt `padding-block-end: 5rem` + `overflow-y: auto`.
+- [x] P0 — Scene save QuotaExceededError fix. Migratie schrijft geen `dw_timeline_legacy_backup` meer en verwijdert hem als hij bestaat. `_saveSceneBlob` heeft 3-traps fallback: normale save → free legacy backup + retry → shrink image (700px/0.6) + retry.
+
 **Ronde 6 (follow-up):**
 - [x] P1 — Welcome banner: dunner (`min-height: 140-160px`, `max 200-220px`), `background-size: auto 100%` zodat image op hoogte fit.
 - [x] P1 — Scene split image-left/right: `float: inline-start/end` zodat tekst onder image doorloopt; `text-align: justify` + `hyphens: auto`.

@@ -647,14 +647,83 @@ function _genId(prefix) {
     return prefix + Date.now() + Math.random().toString(36).slice(2, 7);
 }
 
+// Attempt to free localStorage room before a retry. Drops the legacy timeline
+// backup first (it's a 1:1 duplicate of the migrated data) and any other
+// known-stale blobs we can spare. Returns true if anything was freed.
+function _freeUpStorage() {
+    var freed = false;
+    try {
+        if (localStorage.getItem('dw_timeline_legacy_backup')) {
+            localStorage.removeItem('dw_timeline_legacy_backup');
+            freed = true;
+        }
+    } catch (e) {}
+    try {
+        if (localStorage.getItem('dw_timeline')) {
+            localStorage.removeItem('dw_timeline');
+            freed = true;
+        }
+    } catch (e) {}
+    return freed;
+}
+
+// Aggressively re-compress a base64 dataURL in-place. Used as a last-resort
+// when the original scene image still won't fit after we've freed space.
+function _shrinkDataUrl(dataUrl, maxW, quality) {
+    return new Promise(function(resolve) {
+        if (!dataUrl || dataUrl.indexOf('data:image') !== 0) { resolve(dataUrl); return; }
+        var img = new Image();
+        img.onload = function() {
+            var cvs = document.createElement('canvas');
+            var scale = Math.min(1, maxW / img.width);
+            cvs.width = img.width * scale;
+            cvs.height = img.height * scale;
+            cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
+            resolve(cvs.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = function() { resolve(dataUrl); };
+        img.src = dataUrl;
+    });
+}
+
 function _saveSceneBlob(sceneId, scene) {
     if (!sceneId) return;
+    var payload = JSON.stringify(scene || {});
+    var key = 'dw_scene_' + sceneId;
     try {
-        localStorage.setItem('dw_scene_' + sceneId, JSON.stringify(scene || {}));
-        if (typeof syncUpload === 'function') syncUpload('dw_scene_' + sceneId);
+        localStorage.setItem(key, payload);
+        if (typeof syncUpload === 'function') syncUpload(key);
+        return;
     } catch (e) {
+        // QuotaExceededError \u2014 try freeing space and retry once.
+        var freed = _freeUpStorage();
+        if (freed) {
+            try {
+                localStorage.setItem(key, payload);
+                if (typeof syncUpload === 'function') syncUpload(key);
+                if (typeof showToast === 'function') showToast('Scene opgeslagen (oude backup verwijderd)', 'success');
+                return;
+            } catch (e2) {
+                // Fall through to image-shrink retry below.
+            }
+        }
+        // Last-ditch: if the payload has an image, shrink it hard and retry.
+        if (scene && scene.image) {
+            _shrinkDataUrl(scene.image, 700, 0.6).then(function(smaller) {
+                var smallScene = { layout: scene.layout, text: scene.text, image: smaller };
+                try {
+                    localStorage.setItem(key, JSON.stringify(smallScene));
+                    if (typeof syncUpload === 'function') syncUpload(key);
+                    if (typeof showToast === 'function') showToast('Scene opgeslagen met sterkere image-compressie', 'success');
+                } catch (e3) {
+                    console.error('[timeline] scene save still failing after shrink', e3);
+                    if (typeof showToast === 'function') showToast('Scene niet opgeslagen \u2014 storage vol. Verwijder oude scenes/sessies of upload een kleinere afbeelding.', 'error');
+                }
+            });
+            return;
+        }
         console.error('[timeline] scene save failed (storage full?)', e);
-        if (typeof showToast === 'function') showToast('Scene niet opgeslagen \u2014 storage vol of upload faalt: ' + e.message, 'error');
+        if (typeof showToast === 'function') showToast('Scene niet opgeslagen \u2014 storage vol: ' + (e.message || ''), 'error');
     }
 }
 
@@ -686,6 +755,15 @@ function _saveChaptersIndex(chapters) {
 
 // Migrate from old monolithic dw_timeline to new split layout. Idempotent.
 function _migrateMonolithicTimeline() {
+    // Drop a leftover legacy backup eagerly — it's a 1:1 duplicate of the
+    // migrated scenes and was the direct cause of QuotaExceededError once
+    // the per-scene blobs were also written.
+    try {
+        if (localStorage.getItem('dw_chapters') && localStorage.getItem('dw_timeline_legacy_backup')) {
+            localStorage.removeItem('dw_timeline_legacy_backup');
+        }
+    } catch (e) {}
+
     var legacy = localStorage.getItem('dw_timeline');
     if (!legacy) return;
     try {
@@ -726,8 +804,9 @@ function _migrateMonolithicTimeline() {
             });
         }
         _saveChaptersIndex(newChapters);
-        // Keep the legacy blob around as a one-off backup (do not delete yet).
-        localStorage.setItem('dw_timeline_legacy_backup', legacy);
+        // Drop legacy directly — keeping a backup of identical data is what
+        // caused the quota to blow up. The new split storage is the source
+        // of truth from this point.
         localStorage.removeItem('dw_timeline');
     } catch (e) {
         console.warn('[timeline] migration failed; keeping legacy blob intact', e);

@@ -80,9 +80,13 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     flex: 1;
     min-width: 0;
     padding: 24px;
+    /* FAB clearance: hou onderkant van het canvas vrij voor de dice/notes/
+       bug-report FABs zonder de sidebars in te korten. */
+    padding-block-end: 5rem;
+    overflow-y: auto;
   }
   @media (max-width: 600px) {
-    main.app-main { padding: 12px; }
+    main.app-main { padding: 12px; padding-block-end: 5rem; }
   }
 
   /* ----- Left sidebar ----- */

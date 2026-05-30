@@ -1,5 +1,12 @@
 # D&D Within — To Do
 
+## Homepage & UI tweaks — ronde 7 (2026-05-30 12:00)
+
+- [x] P1 — Character page: sidebars lopen tot bottom screen, dashboard grid loopt iets lager door (net boven FAB-buttons). Fix: `.character-page` weer op `block-size: 100dvh`; FAB-clearance verplaatst van `.character-page` naar `main.app-main` als `padding-block-end: 5rem` + `overflow-y: auto`. Sidebars (links + rechts) krijgen de volle 100dvh via flex-stretch.
+- [x] P0 — Timeline scene save faalde met `QuotaExceededError` (`setItem 'dw_scene_<id>' exceeded the quota`). Root cause: migratie schreef de scenes naar nieuwe `dw_scene_*` blobs **én** bewaarde de oude monolithische timeline onder `dw_timeline_legacy_backup` — dat verdubbelde de localStorage-footprint en blies de 5 MB quota op. Fix:
+  - `_migrateMonolithicTimeline()` schrijft geen backup meer en verwijdert eagerly elke gevonden `dw_timeline_legacy_backup` als de chapters-index al bestaat.
+  - `_saveSceneBlob()` heeft een drietraps fallback: (1) probeer normale save → (2) bij quota error: `_freeUpStorage()` (drop legacy backup + leftover `dw_timeline`) en retry → (3) bij image-payload: `_shrinkDataUrl()` naar 700px / quality 0.6 en retry. Toast-feedback per pad.
+
 ## Homepage & UI tweaks — ronde 6 (2026-05-30 01:00)
 
 - [x] P1 — Welcome banner dunner (`min-height: 140px`, `max-height: 200px` → 160/220 vanaf 700px), `padding: 1.25rem 1.5rem`. Image fit op hoogte via `background-size: auto 100%` + `background-position: center` + `background-repeat: no-repeat` zodat de afbeelding niet wordt gestrekt of gecropt.
