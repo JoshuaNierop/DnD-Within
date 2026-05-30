@@ -1012,16 +1012,23 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
         html += '<textarea class="edit-textarea auto-grow scene-text-input" data-scene-idx="' + sceneIdx + '" placeholder="Scene text…" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)">' + escapeHtml(s.text || '') + '</textarea>';
         html += '</div>';
     } else {
-        // Collapsed preview: small layout chip + first line of text + tiny image thumb.
-        html += '<div class="scene-block-preview">';
-        var layoutLabel = (function() {
-            for (var lj = 0; lj < SCENE_LAYOUTS.length; lj++) if (SCENE_LAYOUTS[lj].id === layout) return SCENE_LAYOUTS[lj].label;
-            return layout;
-        })();
-        html += '<span class="scene-preview-layout">' + escapeHtml(layoutLabel) + '</span>';
-        if (s.image) html += '<span class="scene-preview-thumb"><img src="' + s.image + '" alt=""></span>';
-        var previewText = (s.text || '').slice(0, 120);
-        if (previewText) html += '<span class="scene-preview-text">' + escapeHtml(previewText) + (s.text.length > 120 ? '…' : '') + '</span>';
+        // Collapsed preview: render the scene the same way the timeline does
+        // (full image, full text, real layout) so the DM can see all content
+        // at a glance without expanding every block. Only the editor chrome
+        // (layout-picker, file-input, textarea) is hidden.
+        html += '<div class="scene scene-layout-' + layout + ' scene-block-readonly">';
+        if (layout === 'image-only' && s.image) {
+            html += '<div class="scene-image-only"><img src="' + s.image + '" alt=""></div>';
+        } else if ((layout === 'image-left' || layout === 'image-right') && s.image) {
+            html += '<div class="scene-split scene-split-' + layout + '">';
+            html += '<div class="scene-split-img"><img src="' + s.image + '" alt=""></div>';
+            html += '<div class="scene-split-text">';
+            if (s.text) html += '<p>' + escapeHtml(s.text) + '</p>';
+            html += '</div></div>';
+        } else {
+            if (s.text) html += '<p>' + escapeHtml(s.text) + '</p>';
+            else html += '<p class="text-dim" style="font-style:italic;">(leeg)</p>';
+        }
         html += '</div>';
     }
     html += '</div>';

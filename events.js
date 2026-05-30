@@ -1657,13 +1657,32 @@ function bindPageEvents(route) {
 
         // Read a scene-block element back into a plain scene object. Used for
         // per-scene commit when the user switches scenes / adds / removes.
+        // - Expanded blocks: live DOM values are the source of truth.
+        // - Collapsed blocks: the preview is truncated (120 chars + …) and
+        //   the thumbnail is a tiny variant, so we never trust it. We
+        //   reload the full scene blob from storage instead — that way
+        //   switching scenes can never lose text or downgrade images.
         function _readSceneBlock(block) {
             if (!block) return null;
+            var isExpanded = block.classList.contains('scene-block-expanded');
+            if (!isExpanded) {
+                var sceneId = block.dataset.sceneId;
+                if (sceneId && typeof _loadSceneBlob === 'function') {
+                    var blob = _loadSceneBlob(sceneId);
+                    if (blob) {
+                        return {
+                            layout: blob.layout || (block.dataset.layout || 'text'),
+                            text: blob.text || '',
+                            image: blob.image || null
+                        };
+                    }
+                }
+            }
             var layoutEl = block.querySelector('.scene-layout-option.active');
             var layout = layoutEl ? layoutEl.dataset.layout : (block.dataset.layout || 'text');
             var ta = block.querySelector('.scene-text-input');
-            var textVal = ta ? ta.value : (block.querySelector('.scene-preview-text') ? block.querySelector('.scene-preview-text').textContent.replace(/…$/, '') : '');
-            var preview = block.querySelector('.scene-image-preview img') || block.querySelector('.scene-preview-thumb img');
+            var textVal = ta ? ta.value : '';
+            var preview = block.querySelector('.scene-image-preview img');
             var imgVal = preview ? preview.getAttribute('src') : null;
             return { layout: layout, text: textVal, image: imgVal };
         }
@@ -1806,57 +1825,10 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Upload scene image (form-side: compress to a reasonable size, stash
-        // dataURL inside the scene block, and immediately commit the scene
-        // to its own Firebase blob so we never have to ship a giant payload
-        // through the chapters-index save later).
-        if (target.matches('[data-action="upload-scene-image"]')) {
-            var inpFile = target.files && target.files[0];
-            var blockUp = target.closest('.scene-block');
-            if (inpFile && blockUp) {
-                var rdr = new FileReader();
-                rdr.onload = function(ev) {
-                    var img = new Image();
-                    img.onload = function() {
-                        var cvs = document.createElement('canvas');
-                        // More aggressive resize+compression than before — image
-                        // payloads are now the dominant cost per scene write.
-                        var maxW = 1000;
-                        var scale = Math.min(1, maxW / img.width);
-                        cvs.width = img.width * scale;
-                        cvs.height = img.height * scale;
-                        cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
-                        var dataUrl = cvs.toDataURL('image/jpeg', 0.72);
-                        var imgSec3 = blockUp.querySelector('.scene-image-section');
-                        var idx3 = blockUp.dataset.sceneIdx;
-                        if (imgSec3) {
-                            imgSec3.innerHTML = '<div class="scene-image-preview"><img src="' + dataUrl + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + idx3 + '">' + (t('generic.delete') || 'Delete') + '</button></div>';
-                        }
-                        // Per-scene save: only this scene's blob goes over the
-                        // wire, not the whole timeline.
-                        try {
-                            var sceneId = blockUp.dataset.sceneId || ('sc' + Date.now() + Math.random().toString(36).slice(2,7));
-                            blockUp.dataset.sceneId = sceneId;
-                            var layoutEl = blockUp.querySelector('.scene-layout-option.active');
-                            var layout = layoutEl ? layoutEl.dataset.layout : (blockUp.dataset.layout || 'text');
-                            var ta2 = blockUp.querySelector('.scene-text-input');
-                            saveScene(sceneId, {
-                                layout: layout,
-                                text: ta2 ? ta2.value : '',
-                                image: dataUrl
-                            });
-                            if (typeof showToast === 'function') showToast('Scene opgeslagen', 'success');
-                        } catch (e) {
-                            console.error('[scene] image-save failed', e);
-                            if (typeof showToast === 'function') showToast('Image save faalde: ' + e.message, 'error');
-                        }
-                    };
-                    img.src = ev.target.result;
-                };
-                rdr.readAsDataURL(inpFile);
-            }
-            return;
-        }
+        // (Scene image upload is a `change` event on the file input — handled
+        // in app.onchange below, not here. File inputs do not fire `click`
+        // with `files` set, so a click-delegated handler would only ever
+        // catch a stale previous selection.)
 
         // Edit chapter name
         if (target.matches('[data-action="edit-chapter"]')) {
@@ -2464,6 +2436,59 @@ function bindPageEvents(route) {
                     saveDashboardData(ddc);
                     renderApp();
                 }
+            }
+            return;
+        }
+
+        // Scene image upload (per-scene save). File inputs deliver their
+        // selected file through the `change` event — that is why this lives
+        // here and not in app.onclick.
+        if (target.matches('[data-action="upload-scene-image"]')) {
+            var sceneFile = target.files && target.files[0];
+            var blockUp = target.closest('.scene-block');
+            if (sceneFile && blockUp) {
+                var rdr = new FileReader();
+                rdr.onload = function(ev) {
+                    var img = new Image();
+                    img.onload = function() {
+                        var cvs = document.createElement('canvas');
+                        var maxW = 1000;
+                        var scale = Math.min(1, maxW / img.width);
+                        cvs.width = img.width * scale;
+                        cvs.height = img.height * scale;
+                        cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
+                        var dataUrl = cvs.toDataURL('image/jpeg', 0.72);
+                        var imgSec3 = blockUp.querySelector('.scene-image-section');
+                        var idx3 = blockUp.dataset.sceneIdx;
+                        if (imgSec3) {
+                            imgSec3.innerHTML = '<div class="scene-image-preview"><img src="' + dataUrl + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + idx3 + '">' + (t('generic.delete') || 'Delete') + '</button></div>';
+                        }
+                        // Per-scene save: only this scene's blob goes over the wire.
+                        try {
+                            var sceneId = blockUp.dataset.sceneId || ('sc' + Date.now() + Math.random().toString(36).slice(2, 7));
+                            blockUp.dataset.sceneId = sceneId;
+                            var layoutEl = blockUp.querySelector('.scene-layout-option.active');
+                            var layout = layoutEl ? layoutEl.dataset.layout : (blockUp.dataset.layout || 'text');
+                            var ta2 = blockUp.querySelector('.scene-text-input');
+                            // Stash the full text on the scene-block so that
+                            // collapsing it later doesn't lose data.
+                            blockUp.dataset.fullText = ta2 ? ta2.value : '';
+                            saveScene(sceneId, {
+                                layout: layout,
+                                text: ta2 ? ta2.value : '',
+                                image: dataUrl
+                            });
+                            if (typeof showToast === 'function') showToast('Scene opgeslagen', 'success');
+                        } catch (e) {
+                            console.error('[scene] image-save failed', e);
+                            if (typeof showToast === 'function') showToast('Image save faalde: ' + e.message, 'error');
+                        }
+                        // Reset the file input so picking the same file again still fires `change`.
+                        try { target.value = ''; } catch (_) {}
+                    };
+                    img.src = ev.target.result;
+                };
+                rdr.readAsDataURL(sceneFile);
             }
             return;
         }

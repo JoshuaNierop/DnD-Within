@@ -88,6 +88,11 @@ Joshua's 7-puntenlijst + 5 follow-up correcties in twee rondes doorgevoerd. Zie 
 - [x] P1 — Sessie-indicator: `-/+` direct naast cijfer (nieuwe `.dash-stat-value-row` layout).
 - [x] P1 — Level-indicator: `-/+` naast cijfer (DM/Admin only). Storage `dw_party_level` (1–20), fallback naar berekende groupLevel.
 
+**Ronde 8 (follow-up):**
+- [x] P0 — Scene image upload werkte pas bij 2e klik. Handler stond in `app.onclick`; file inputs leveren via `change`. Verplaatst naar `app.onchange`; input wordt na save gereset.
+- [x] P0 — Edit Session toonde getruncate scene-tekst en raakte hem kwijt bij Edit Scene. (1) Collapsed scene-block toont nu volledige inhoud (rendered zoals timeline) via `.scene-block-readonly`. (2) `_readSceneBlock()` voor collapsed blocks leest uit de scene-blob, niet uit DOM-preview.
+- [x] P1 — Recent events op homepage niet meer all-caps (section-title + dash-recent-title).
+
 **Ronde 7 (follow-up):**
 - [x] P1 — Character page sidebars tot bodem; dashboard onder net boven FABs. `.character-page` `block-size: 100dvh`; `main.app-main` krijgt `padding-block-end: 5rem` + `overflow-y: auto`.
 - [x] P0 — Scene save QuotaExceededError fix. Migratie schrijft geen `dw_timeline_legacy_backup` meer en verwijdert hem als hij bestaat. `_saveSceneBlob` heeft 3-traps fallback: normale save → free legacy backup + retry → shrink image (700px/0.6) + retry.

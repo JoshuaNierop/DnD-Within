@@ -1,5 +1,13 @@
 # D&D Within — To Do
 
+## Homepage & UI tweaks — ronde 8 (2026-05-30 12:15)
+
+- [x] P0 — **Scene image upload werkte niet bij eerste klik** (image was wel opgeslagen, maar pas zichtbaar na 2× klikken). Root cause: handler stond in `app.onclick`, terwijl `<input type="file">` zijn selectie via `change` aflevert. Eerste klik → `target.files` leeg → handler returnt zonder iets te doen. Tweede klik → files heeft nog de vorige selectie → handler werkt alsnog. Fix: handler verplaatst naar `app.onchange`; input wordt na succes gereset zodat dezelfde file kan worden gekozen.
+- [x] P0 — **Edit Session: scene-tekst werd truncated weergegeven en bij klik op Edit Scene daadwerkelijk verloren**. Twee fixes:
+  1. Collapsed scene-block toont nu de **volledige** scene-inhoud (full image, full text, met de echte layout — `.scene-block-readonly` deelt de timeline-rendering CSS). Geen `slice(0, 120)` meer.
+  2. `_readSceneBlock()` voor een **collapsed** block leest niet meer uit de DOM-preview maar uit de per-scene blob (`_loadSceneBlob(sceneId)`). Switchen tussen scenes kan dus nooit tekst of een image downgraden.
+- [x] P1 — Recent events op homepage: section title (`.dash-recent-section > .section-title`) niet meer uppercase; `.dash-recent-title` ook `text-transform: none` + `letter-spacing: normal` als safety override.
+
 ## Homepage & UI tweaks — ronde 7 (2026-05-30 12:00)
 
 - [x] P1 — Character page: sidebars lopen tot bottom screen, dashboard grid loopt iets lager door (net boven FAB-buttons). Fix: `.character-page` weer op `block-size: 100dvh`; FAB-clearance verplaatst van `.character-page` naar `main.app-main` als `padding-block-end: 5rem` + `overflow-y: auto`. Sidebars (links + rechts) krijgen de volle 100dvh via flex-stretch.
