@@ -652,7 +652,7 @@ function renderDashboard() {
         for (var ri = 0; ri < recentEvents.length; ri++) {
             var rev = recentEvents[ri];
             var revPreview = (typeof sessionPreviewText === 'function') ? sessionPreviewText(rev) : (rev.desc || '');
-            html += '<a class="dash-recent-event timeline-session" href="#/timeline" data-action="view-session" data-session-id="' + escapeAttr(rev.id || '') + '" title="' + escapeAttr(t('dash.recent.open') || 'Open session') + '">';
+            html += '<a class="dash-recent-event" href="#/timeline" data-action="view-session" data-session-id="' + escapeAttr(rev.id || '') + '" title="' + escapeAttr(t('dash.recent.open') || 'Open session') + '">';
             if (rev.session) html += '<span class="timeline-date">' + t('dash.session') + ' ' + escapeHtml(rev.session) + '</span>';
             html += '<strong class="dash-recent-title">' + escapeHtml(rev.title || '') + '</strong>';
             html += '<p class="text-dim dash-recent-desc">' + escapeHtml(revPreview) + '</p>';

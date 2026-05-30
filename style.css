@@ -4437,8 +4437,16 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
     text-transform: none;
     letter-spacing: normal;
 }
-/* Recent events section header should stay in sentence case (was inheriting
-   the global .section-title uppercase). */
+/* Defensive override — if any external/legacy rule (e.g. .timeline-session)
+   re-applies uppercase on the card, we force the body text back to its
+   original casing. The session-# pill keeps its own uppercase via
+   .timeline-date below. */
+.dash-recent-event,
+.dash-recent-event .dash-recent-desc,
+.dash-recent-event p {
+    text-transform: none;
+    letter-spacing: normal;
+}
 .dash-recent-section > .section-title {
     text-transform: none;
     letter-spacing: 0.04em;

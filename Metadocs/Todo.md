@@ -1,5 +1,38 @@
 # D&D Within — To Do
 
+## Homepage & UI tweaks — ronde 9 (2026-05-30 12:30)
+
+- [x] P1 — Recent-event description was all-caps. Root cause: `<a class="dash-recent-event timeline-session">` erfde de bestaande `.timeline-session { text-transform: uppercase }` regel (regel 5279 — bedoeld voor de session-badge in de timeline). De `timeline-session` modifier-class is uit het anchor weggehaald (border-left was al gold via base rule), en een defensieve override op `.dash-recent-event` + `.dash-recent-desc` + `p` zet text-transform/letter-spacing terug naar normaal.
+- [ ] P0 — Brainstorm met Joshua: image storage backend (zie sectie hieronder). Geen code-changes yet.
+
+## Image storage — brainstorm (2026-05-30)
+
+Joshua hit `QuotaExceededError` opnieuw na de migration-backup-cleanup. Per-scene blobs + base64 images blijven sneller groeien dan de 5 MB localStorage quota toelaat. Tijd om images naar een echte backend te verplaatsen — Realtime DB en localStorage zijn niet de juiste plek voor blob storage.
+
+### Free-tier opties (ranked)
+
+1. **Firebase Storage** (huidige stack) — 5 GB storage + 1 GB/dag download op Spark plan. Zelfde Firebase project; REST API werkt zonder SDK. Drop-in replacement: image upload → Firebase Storage URL → URL in scene-blob. Realtime DB sync stuurt alleen URLs rond.
+2. **Cloudinary** — 25 GB storage + 25 GB bandwidth/maand. Anonymous upload via unsigned upload preset; automatic format conversion (webp/avif) + resize. Krachtigste optie maar extra service.
+3. **Cloudflare R2** — 10 GB storage + zero egress. S3-compat; goedkoopste op lange termijn maar meeste setup (API keys, signed uploads).
+4. **IndexedDB lokaal** — 50% van vrije disk per origin (honderden MB+). Geen sync tussen devices/spelers. Alleen geschikt als lokale cache, niet als source of truth.
+5. **Imgur anonymous upload** — werkt direct, gratis API. Risico: ToS rond hot-linking, geen "private" content.
+
+### Aanbevolen aanpak: Firebase Storage (optie 1) + lazy-load
+
+- **Schrijf-pad**: scene-image upload → `PUT` naar `https://firebasestorage.googleapis.com/v0/b/<bucket>/o/scenes%2F<sceneId>.jpg?uploadType=media` met content-type `image/jpeg`. Response geeft `downloadTokens`; bouw publieke URL `https://firebasestorage.googleapis.com/v0/b/<bucket>/o/scenes%2F<sceneId>.jpg?alt=media&token=<t>`.
+- **Lees-pad**: scene-blob bevat `imageUrl: "<firebase storage url>"` ipv data-URL. `<img src="...">` werkt direct (CDN cached).
+- **localStorage**: alleen meta + URL — meestal <1 KB per scene. Quota probleem opgelost.
+- **Realtime DB sync**: stuurt alleen scene-meta + URL. Geen 200 KB payloads meer.
+- **Security rules**: Spark plan staat default open; voor publieke campagnes is dat OK. Voor private: rules op `scenes/*.jpg` zetten (alleen ingelogde users). Reads kunnen authenticated zijn — nu sync.js gebruikt geen Firebase Auth maar databaseURL met security rules die `auth != null` checken. Storage rules werken hetzelfde.
+- **Migration**: bestaande base64 data-URLs in `dw_scene_*` automatisch uploaden naar Storage bij volgende load — `_migrateSceneImagesToStorage()`. Per scene: extract image, upload, vervang met URL.
+- **Cleanup**: bij `deleteScene()` ook `DELETE` naar Storage URL.
+
+### Risico's / open vragen
+
+- Firebase Spark bandwidth: 1 GB/dag download. Bij 5 spelers + 30 scenes met afgemeten 200 KB images: ~30 MB per gebruiker per dag → 150 MB totaal → ruim binnen limit, behalve bij heel image-zware sessies.
+- Cache headers: Firebase Storage stuurt by default 60s cache. Wil je langer (1 dag, 1 week) → metadata setten bij upload (`cacheControl: 'public, max-age=86400'`).
+- Storage Security rules: standaard open op Spark — bij private campaigns moeten regels worden gezet. Niet kritiek voor MVP, wel pre-deploy.
+
 ## Homepage & UI tweaks — ronde 8 (2026-05-30 12:15)
 
 - [x] P0 — **Scene image upload werkte niet bij eerste klik** (image was wel opgeslagen, maar pas zichtbaar na 2× klikken). Root cause: handler stond in `app.onclick`, terwijl `<input type="file">` zijn selectie via `change` aflevert. Eerste klik → `target.files` leeg → handler returnt zonder iets te doen. Tweede klik → files heeft nog de vorige selectie → handler werkt alsnog. Fix: handler verplaatst naar `app.onchange`; input wordt na succes gereset zodat dezelfde file kan worden gekozen.
