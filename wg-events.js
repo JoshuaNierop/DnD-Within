@@ -571,6 +571,34 @@ async function savePinsToFirebase(widgetIdx, newPins) {
   }
 }
 
+// Convert any image File to a downscaled JPEG dataURL before upload, so the
+// stored payload stays small. Mirrors the canvas-resize the events.js upload
+// handlers already do. Falls back to the raw dataURL if anything goes wrong.
+function wgFileToJpeg(file, maxSize, quality) {
+  return new Promise(function (resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      var img = new Image();
+      img.onload = function () {
+        var w = img.width, h = img.height, m = maxSize || 1200;
+        if (w > m || h > m) {
+          if (w > h) { h = h * (m / w); w = m; }
+          else { w = w * (m / h); h = m; }
+        }
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        try { resolve(c.toDataURL('image/jpeg', quality || 0.8)); }
+        catch (e) { resolve(ev.target.result); }
+      };
+      img.onerror = function () { resolve(ev.target.result); };
+      img.src = ev.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function uploadMapImage(widgetIdx, file) {
   const w = state.widgets[widgetIdx];
   if (!w || !w.map) return;
