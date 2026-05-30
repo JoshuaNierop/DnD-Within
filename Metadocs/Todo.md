@@ -4,6 +4,10 @@
 
 - [x] P1 — Recent-event description was all-caps. Root cause: `<a class="dash-recent-event timeline-session">` erfde de bestaande `.timeline-session { text-transform: uppercase }` regel (regel 5279 — bedoeld voor de session-badge in de timeline). De `timeline-session` modifier-class is uit het anchor weggehaald (border-left was al gold via base rule), en een defensieve override op `.dash-recent-event` + `.dash-recent-desc` + `p` zet text-transform/letter-spacing terug naar normaal.
 - [x] P0 — Image storage backend: `storage.js` (DWImages) LIVE met base64-fallback. Volledig plan + taxonomie → `Metadocs/Backend-Restructure.md`.
+- [x] P1 — Bug: profielfoto zichtbaar in widget maar niet op home char-card (`lira`/Lyra). Root cause: RTDB ~6MB > localStorage ~5MB → `applyLeaves` setItem crashte op quota zonder catch → latere images landden niet lokaal. Fix: try-catch in `sync.js applyLeaves` + `hydrateCharCardPortraits()` haalt ontbrekende portretten direct uit Firebase (zonder lokaal te cachen). Commit `7a3f8c2`. ⚠️ pas volledig bevestigd na browser-check.
+- [x] P1 — Bug: banner-upload-slots te breed, overlappen "Welcome to Valoria". Fix: slots smaller (104px/0.62rem/krappere padding). Commit `7a3f8c2`.
+- [x] P2 — Image-upload: jpg-conversie nu op álle paden. `events.js` had het al (canvas→jpeg); `wg-events.js` (widget portrait + map) nu ook via nieuwe `wgFileToJpeg()` helper (max 1200px, q0.8).
+- [x] P2 — Timeline scene-afbeeldingen 75% kleiner weergegeven in sessies (CSS `.timeline-session-block`/`.scene-block-readonly`: split-img clamp 26%, image-only max-width 75%). Editor-preview ongewijzigd.
 
 ## Backend 4-categorie restructure (2026-05-30)
 Beslissingen bevestigd: E5.0=2014 PHB / E5.5=2024 PHB · gamedata blijft in code · **multi-campaign vanaf start**.
