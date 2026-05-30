@@ -3,7 +3,14 @@
 ## Homepage & UI tweaks — ronde 9 (2026-05-30 12:30)
 
 - [x] P1 — Recent-event description was all-caps. Root cause: `<a class="dash-recent-event timeline-session">` erfde de bestaande `.timeline-session { text-transform: uppercase }` regel (regel 5279 — bedoeld voor de session-badge in de timeline). De `timeline-session` modifier-class is uit het anchor weggehaald (border-left was al gold via base rule), en een defensieve override op `.dash-recent-event` + `.dash-recent-desc` + `p` zet text-transform/letter-spacing terug naar normaal.
-- [ ] P0 — Brainstorm met Joshua: image storage backend (zie sectie hieronder). Geen code-changes yet.
+- [x] P0 — Image storage backend: `storage.js` (DWImages) LIVE met base64-fallback. Volledig plan + taxonomie → `Metadocs/Backend-Restructure.md`.
+
+## Backend 4-categorie restructure (2026-05-30)
+Beslissingen bevestigd: E5.0=2014 PHB / E5.5=2024 PHB · gamedata blijft in code · **multi-campaign vanaf start**.
+- [!] P0 — Firebase Storage activeren (console → Get Started) — BLOKKEERT image-migratie; alleen Joshua. https://console.firebase.google.com/project/dnd-within-firebase/storage
+- [ ] P1 — Na activatie: `firebase deploy --only storage` + `DWImages.migrateAll()` (base64 → Storage)
+- [ ] P1 — Fase 2: multi-campaign tekst-tree via sync.js keyToPath/pathToKey met dual-read fallback + Node round-trip test tegen `_backups/rtdb-full-*.json` (NIET blind live duwen — eerst offline bewezen)
+- [ ] P3 — Fase 3: Obsidian-linking (stabiele entity-IDs + tag-index + [[npc:id]] in notes)
 
 ## Image storage — brainstorm (2026-05-30)
 

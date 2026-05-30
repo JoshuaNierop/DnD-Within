@@ -105,13 +105,17 @@ Migratie is idempotent en non-destructief — veilig te herhalen.
 3. **Campaign** — DM-content (maps, monsters, NPCs, naam, timeline, lore, quests, families).
 4. **Player** — speler-content (naam, avatar, race-keuze, prepared spells, level, notes, dashboards).
 
-### Aanname (BEVESTIGEN door Joshua)
+### Bevestigde beslissingen (Joshua, 2026-05-30)
 
-> **E5.0 = 2014 PHB (origineel 5e), E5.5 = 2024 PHB (5.5e / "5.24").**
-
-Onderbouwing: `data.js` bevat al impliciete versie-markers — commentaar als
-*"Half-Elf is VERWIJDERD in 5.5e (2024 PHB)"*, *"Ki hernoemd naar Focus Points"*, en
-`legacy: true`-vlaggen op half-elf, scout-subclass, urchin-background.
+1. ✅ **E5.0 = 2014 PHB (origineel 5e), E5.5 = 2024 PHB (5.5e / "5.24").**
+   Onderbouwing: `data.js` bevat al impliciete versie-markers — *"Half-Elf is VERWIJDERD
+   in 5.5e (2024 PHB)"*, *"Ki hernoemd naar Focus Points"*, en `legacy: true`-vlaggen.
+2. ✅ **Statische gamedata blijft in code** (`data.js`). De 4-categorie-tree gaat (voorlopig)
+   alleen over Firebase-data (campaign/player). `general/` + `version/` worden gereserveerde,
+   lege top-level nodes — klaar voor latere SRD-migratie, maar nu niet gevuld.
+3. ✅ **Multi-campaign vanaf de start.** Alle campagne- én speler-data wordt fysiek genest
+   onder een `campaignId`. Dit is invasiever dan single-campaign en vereist een grondige
+   offline round-trip-test vóór het live gaat.
 
 ### Statische gamedata: General vs Version
 
@@ -153,20 +157,39 @@ De speler kiest; de definitie leeft in General/Version. Engine zoekt op via ID (
 
 Berekende scores (HP/AC/ability totals) **nooit** opslaan — engine herberekent uit inputs.
 
-### Voorgestelde RTDB-boom (campaign-scoped, single-campaign default)
+### Voorgestelde RTDB-boom (MULTI-campaign)
+
+Multi-campaign vereist dat álle campagne- én speler-data onder een `campaignId` hangt.
+Een speler kan in meerdere campagnes een character hebben; daarom hangt het character
+onder de campagne (niet andersom), met een `userId`-veld voor eigenaarschap.
 
 ```
 dw/
-  general/            # gereserveerd (SRD-content als ooit naar FB)
-  version/ e50/ e55/  # gereserveerd
-  campaign/<campId>/
-    meta/             # naam, dm, inviteCode, session_number, party_gold/level
-    maps/  timeline/  npcs/  quests/  families/  lore/  monsters/
-    dm/               # initiative, dm-notes
-  player/<userId>/
-    characters/<charId>/  config  state  dashboard  notes  whispers  images(refs)
-  tags/               # Obsidian-index (zie fase 3)
+  general/                       # gereserveerd, leeg (SRD blijft in data.js)
+  version/ e50/ e55/             # gereserveerd, leeg
+  campaigns/<campId>/
+    meta/                        # naam, dm, inviteCode, session_number, party_gold/level
+    world/  maps/ timeline/ npcs/ quests/ families/ lore/ monsters/
+    dm/                          # initiative, dm-notes
+    characters/<charId>/         # config state dashboard notes whispers images(refs)
+                                 #   + owner: <userId>
+  users/<userId>/                # account-data (naam, rol) — campagne-onafhankelijk
+    memberships/<campId>: true   # in welke campagnes zit deze user
+  tags/<campId>/                 # Obsidian-index per campagne (fase 3)
+  presence/                      # ongewijzigd (top-level)
 ```
+
+**Migratiekeuze:** bestaande flat data (`dw/characters`, `dw/world`, `dw/campaign`,
+`dw/dm`) wordt onder `dw/campaigns/valoria/` genest. De huidige `dw_campaigns`-lijst
+(met `party`/`members`) levert de campagne-IDs; alles wat nu niet expliciet aan een
+campagne hangt valt default naar `valoria`. De historische `dw/dw`-rommel + stray waarde
+worden tijdens de migratie opgeruimd.
+
+> **Risico (geflagd):** dit is de meest invasieve wijziging. `sync.js` listent op vaste
+> top-level folders (`['characters','world','dm','campaign']`, regel ~322) — die moeten
+> mee veranderen naar campaign-scoped refs, anders stopt realtime-sync. Daarom: eerst
+> volledig offline bewijzen via Node round-trip tegen de backup, dual-read fallback live,
+> en pas oude paden opruimen als de nieuwe geverifieerd zijn. **Niet blind live duwen.**
 
 ### Backward-compat strategie (breekt niets)
 
@@ -210,8 +233,9 @@ zodra elke NPC een stabiele ID heeft.
 
 ---
 
-## Te bevestigen door Joshua
-1. **E5.0 = 2014 PHB, E5.5 = 2024 PHB?** (bepaalt de hele General/Version-split)
-2. **Firebase Storage activeren** (console "Get Started") — incl. ok met evt. Blaze + creditcard?
-3. **Statische gamedata in code laten** of naar Firebase migreren? (advies: in code laten voorlopig)
-4. **Single-campaign** tree (advies, laagste risico) of nu al multi-campaign nesten?
+## Beslissingen — afgehandeld (2026-05-30)
+1. ✅ E5.0 = 2014 PHB, E5.5 = 2024 PHB.
+2. ✅ Gamedata blijft in code (`general/`+`version/` gereserveerd leeg).
+3. ✅ Multi-campaign vanaf de start.
+4. ⏳ **Open / actie Joshua:** Firebase Storage activeren in de console (zie boven). Dit is
+   de enige resterende handmatige stap; tot dan draait de site veilig op base64.
