@@ -4563,7 +4563,9 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .scene-block-readonly .scene-split::after { content: ''; display: table; clear: both; }
 .timeline-session-block .scene-split-img,
 .scene-block-readonly .scene-split-img {
-    inline-size: clamp(140px, 35%, 320px);
+    /* 75% van de vorige weergavegrootte voor scene-afbeeldingen in de
+       timeline-sessies (clamp-waardes × 0.75). */
+    inline-size: clamp(105px, 26%, 240px);
     margin-block-end: 0.6rem;
 }
 .timeline-session-block .scene-split-image-left .scene-split-img,
@@ -4581,7 +4583,7 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .timeline-session-block .scene-split-text,
 .scene-block-readonly .scene-split-text { text-align: justify; hyphens: auto; }
 .timeline-session-block .scene-image-only img,
-.scene-block-readonly .scene-image-only img { max-width: 100%; border-radius: var(--radius-sm); }
+.scene-block-readonly .scene-image-only img { max-width: 75%; border-radius: var(--radius-sm); }
 
 /* Focus-flash when navigating from a Recent card */
 .session-focus-flash {
@@ -6133,12 +6135,12 @@ body.modal-open {
 .banner-upload-btn:hover { opacity: 1; }
 .banner-upload-slots {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 0.6rem;
+    right: 0.6rem;
     z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.25rem;
     align-items: stretch;
     opacity: 0;
     pointer-events: none;
@@ -6155,18 +6157,18 @@ body.modal-open {
     background: rgba(0,0,0,0.55);
     border: 1px solid rgba(255,255,255,0.15);
     color: var(--text);
-    font-size: 0.72rem;
-    padding: 0.4rem 0.75rem;
+    font-size: 0.62rem;
+    padding: 0.22rem 0.45rem;
     border-radius: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.35rem;
+    gap: 0.25rem;
     opacity: 0.92;
     transition: opacity 0.2s, border-color 0.2s, background 0.2s;
     white-space: nowrap;
-    width: 130px;
+    width: 104px;
     box-sizing: border-box;
 }
 .banner-upload-slot .banner-slot-label { flex: 1; text-align: left; }
@@ -6177,10 +6179,10 @@ body.modal-open {
     background: none;
     border: none;
     color: inherit;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     line-height: 1;
     cursor: pointer;
-    padding: 0 0 0 0.2rem;
+    padding: 0 0 0 0.15rem;
     opacity: 0.7;
 }
 .banner-slot-clear:hover { opacity: 1; color: var(--danger, #ef4444); }

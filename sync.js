@@ -258,8 +258,17 @@ function applyLeaves(leaves) {
             next = String(val);
         }
         if (existing !== next) {
-            localStorage.setItem(key, next);
-            changed++;
+            try {
+                localStorage.setItem(key, next);
+                changed++;
+            } catch (e) {
+                // localStorage quota exceeded (typically a large base64 image
+                // blob). Skip this single key instead of aborting the whole
+                // sync loop — otherwise every key after it silently fails to
+                // land locally. The UI hydrates missing images on demand
+                // straight from Firebase (see hydrateCharCardPortraits).
+                console.warn('[Sync] localStorage skip (quota?):', key, e && e.message);
+            }
         }
     }
     return changed;

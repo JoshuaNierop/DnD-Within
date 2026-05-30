@@ -581,30 +581,27 @@ async function uploadMapImage(widgetIdx, file) {
   const mapArrIdx = maps.findIndex(m => m.id === w.map.mapId || (!w.map.mapId && m.isRoot));
   if (mapArrIdx < 0) { showToast("Map niet gevonden", "error"); return; }
   showToast("Afbeelding laden...");
-  const reader = new FileReader();
-  reader.onload = async (ev) => {
-    const dataUrl = ev.target.result;
-    // Upload binary to Firebase Storage; store only the URL (base64 fallback).
-    let toStore = dataUrl;
-    try { if (window.DWImages) toStore = await DWImages.save('campaign', 'maps/dim' + dimIdx + '_map' + mapArrIdx, dataUrl); } catch (_) { toStore = dataUrl; }
-    const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + "/image.json";
-    try {
-      const res = await fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toStore),
-      });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      showToast("Afbeelding opgeslagen", "success");
-      WG_MAPS_CACHE = null;
-      _mapsFetchState = "idle";
-      await fetchMapsData();
-      wgSyncMapsToLocal(); // WGI-M6
-    } catch (err) {
-      showToast("Fout: " + err.message, "error");
-    }
-  };
-  reader.readAsDataURL(file);
+  // Downscale + JPEG-encode before upload (smaller payload).
+  const dataUrl = await wgFileToJpeg(file, 1200, 0.8);
+  // Upload binary to Firebase Storage; store only the URL (base64 fallback).
+  let toStore = dataUrl;
+  try { if (window.DWImages) toStore = await DWImages.save('campaign', 'maps/dim' + dimIdx + '_map' + mapArrIdx, dataUrl); } catch (_) { toStore = dataUrl; }
+  const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + "/image.json";
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toStore),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    showToast("Afbeelding opgeslagen", "success");
+    WG_MAPS_CACHE = null;
+    _mapsFetchState = "idle";
+    await fetchMapsData();
+    wgSyncMapsToLocal(); // WGI-M6
+  } catch (err) {
+    showToast("Fout: " + err.message, "error");
+  }
 }
 
 async function deleteMapFromFirebase(widgetIdx) {
@@ -680,34 +677,31 @@ async function uploadPortrait(widgetIdx, file) {
   const charId = state.characterId;
   if (!charId) { showToast("Geen actieve character", "error"); return; }
   showToast("Afbeelding laden...");
-  const reader = new FileReader();
-  reader.onload = async (ev) => {
-    const dataUrl = ev.target.result;
-    // Upload binary to Firebase Storage (off the text DB); store only the
-    // resulting URL. Falls back to the base64 dataURL if Storage is off.
-    let toStore = dataUrl;
-    try { if (window.DWImages) toStore = await DWImages.save('player', charId + '/portrait', dataUrl); } catch (_) { toStore = dataUrl; }
-    const url = FIREBASE_DB + "/dw/characters/" + encodeURIComponent(charId) + "/images/portrait.json";
-    try {
-      const res = await fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toStore),
-      });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      // Race-guard: character may have switched during async write
-      if (state.characterId !== charId) { showToast("Character gewijzigd tijdens upload", "error"); return; }
-      // Refresh WG_CHAR_CACHE and rerender
-      WG_CHAR_CACHE[charId] = null;
-      await fetchCharacterData(charId);
-      wgSyncCharToLocal(charId); // WGI-M6
-      render();
-      showToast("Portret opgeslagen", "success");
-    } catch (err) {
-      showToast("Fout: " + err.message, "error");
-    }
-  };
-  reader.readAsDataURL(file);
+  // Downscale + JPEG-encode before upload (smaller payload).
+  const dataUrl = await wgFileToJpeg(file, 1200, 0.8);
+  // Upload binary to Firebase Storage (off the text DB); store only the
+  // resulting URL. Falls back to the base64 dataURL if Storage is off.
+  let toStore = dataUrl;
+  try { if (window.DWImages) toStore = await DWImages.save('player', charId + '/portrait', dataUrl); } catch (_) { toStore = dataUrl; }
+  const url = FIREBASE_DB + "/dw/characters/" + encodeURIComponent(charId) + "/images/portrait.json";
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toStore),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    // Race-guard: character may have switched during async write
+    if (state.characterId !== charId) { showToast("Character gewijzigd tijdens upload", "error"); return; }
+    // Refresh WG_CHAR_CACHE and rerender
+    WG_CHAR_CACHE[charId] = null;
+    await fetchCharacterData(charId);
+    wgSyncCharToLocal(charId); // WGI-M6
+    render();
+    showToast("Portret opgeslagen", "success");
+  } catch (err) {
+    showToast("Fout: " + err.message, "error");
+  }
 }
 
 // ===== End Phase 3.3 helpers =====

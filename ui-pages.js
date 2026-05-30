@@ -1387,7 +1387,11 @@ function renderCharCard(cid, cfg, state, isOwn) {
     if (imgSrc) {
         html += '<img src="' + imgSrc + '" alt="">';
     } else {
-        html += '<div class="char-card-placeholder">&#128100;</div>';
+        // No local image — e.g. localStorage quota skipped the base64 blob, or
+        // the portrait was uploaded from another device/widget. Mark it for
+        // async hydration straight from Firebase after render (see
+        // hydrateCharCardPortraits) instead of showing a permanent placeholder.
+        html += '<div class="char-card-placeholder" data-hydrate-portrait="' + cid + '">&#128100;</div>';
     }
     html += '</div>';
     var firstName = String(cfg.name || '').split(' ')[0];
@@ -1396,6 +1400,43 @@ function renderCharCard(cid, cfg, state, isOwn) {
     html += '</div>';
     html += '</a>';
     return html;
+}
+
+// Async-hydrate char-card portraits that weren't available in localStorage
+// (quota skip, or uploaded elsewhere). Fetches the image directly from Firebase
+// and swaps the placeholder for an <img>, WITHOUT writing the big blob back to
+// localStorage (which is what overflowed the quota in the first place).
+// Works for both base64 dataURLs and https Storage URLs.
+function hydrateCharCardPortraits() {
+    if (typeof document === 'undefined') return;
+    var nodes = document.querySelectorAll('[data-hydrate-portrait]');
+    if (!nodes.length) return;
+    var base = (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.databaseURL)
+        ? FIREBASE_CONFIG.databaseURL
+        : 'https://dnd-within-firebase-default-rtdb.firebaseio.com';
+    Array.prototype.forEach.call(nodes, function (node) {
+        var cid = node.getAttribute('data-hydrate-portrait');
+        if (!cid || node.dataset.hydrating) return;
+        node.dataset.hydrating = '1';
+        var charBase = base + '/dw/characters/' + encodeURIComponent(cid) + '/images/';
+        fetch(charBase + 'portrait.json')
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (val) {
+                if (val) return val;
+                return fetch(charBase + 'banner.json')
+                    .then(function (r) { return r.ok ? r.json() : null; });
+            })
+            .then(function (val) {
+                if (!val || typeof val !== 'string') { delete node.dataset.hydrating; return; }
+                var wrap = node.parentNode;
+                if (!wrap) return;
+                var img = document.createElement('img');
+                img.alt = '';
+                img.src = val;
+                wrap.replaceChild(img, node);
+            })
+            .catch(function () { delete node.dataset.hydrating; });
+    });
 }
 
 function renderCharacterList() {

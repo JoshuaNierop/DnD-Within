@@ -142,6 +142,10 @@ function renderApp() {
 }
 
 function postRenderEffects(route) {
+    // Hydrate char-card portraits that localStorage couldn't hold (quota) or
+    // that were uploaded from another device. No-op when no such cards exist.
+    if (typeof hydrateCharCardPortraits === 'function') hydrateCharCardPortraits();
+
     if (route.parts[0] === 'characters' && route.parts[1]) {
         var effectCfg = loadCharConfig(route.parts[1]);
         var effectColor = effectCfg ? effectCfg.accentColor : '#22d3ee';
