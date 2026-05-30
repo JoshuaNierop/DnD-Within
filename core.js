@@ -392,8 +392,17 @@ function loadImage(charId, type) {
 
 function saveImage(charId, type, base64) {
     var key = 'dw_img_' + charId + '_' + type;
-    localStorage.setItem(key, base64);
-    if (typeof syncUpload === 'function') syncUpload(key);
+    // Route image binary through Firebase Storage when available; persist only
+    // the resulting URL (base64 fallback keeps legacy behaviour if Storage off).
+    if (typeof DWImages !== 'undefined' && DWImages.save) {
+        DWImages.save('player', charId + '/' + type, base64).then(function (val) {
+            localStorage.setItem(key, val);
+            if (typeof syncUpload === 'function') syncUpload(key);
+        });
+    } else {
+        localStorage.setItem(key, base64);
+        if (typeof syncUpload === 'function') syncUpload(key);
+    }
 }
 
 // ============================================================

@@ -584,12 +584,15 @@ async function uploadMapImage(widgetIdx, file) {
   const reader = new FileReader();
   reader.onload = async (ev) => {
     const dataUrl = ev.target.result;
+    // Upload binary to Firebase Storage; store only the URL (base64 fallback).
+    let toStore = dataUrl;
+    try { if (window.DWImages) toStore = await DWImages.save('campaign', 'maps/dim' + dimIdx + '_map' + mapArrIdx, dataUrl); } catch (_) { toStore = dataUrl; }
     const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + "/image.json";
     try {
       const res = await fetch(url, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataUrl),
+        body: JSON.stringify(toStore),
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
       showToast("Afbeelding opgeslagen", "success");
@@ -680,12 +683,16 @@ async function uploadPortrait(widgetIdx, file) {
   const reader = new FileReader();
   reader.onload = async (ev) => {
     const dataUrl = ev.target.result;
+    // Upload binary to Firebase Storage (off the text DB); store only the
+    // resulting URL. Falls back to the base64 dataURL if Storage is off.
+    let toStore = dataUrl;
+    try { if (window.DWImages) toStore = await DWImages.save('player', charId + '/portrait', dataUrl); } catch (_) { toStore = dataUrl; }
     const url = FIREBASE_DB + "/dw/characters/" + encodeURIComponent(charId) + "/images/portrait.json";
     try {
       const res = await fetch(url, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataUrl),
+        body: JSON.stringify(toStore),
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
       // Race-guard: character may have switched during async write

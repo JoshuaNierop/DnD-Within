@@ -197,6 +197,10 @@ function initFirebaseSync() {
         syncReady = true;
         console.log('[Sync] Firebase verbonden!');
 
+        // Initialize the image-storage layer (Firebase Storage with base64
+        // fallback). Safe no-op if Storage isn't activated yet.
+        if (typeof DWImages !== 'undefined' && DWImages.init) DWImages.init();
+
         // Download users first, then all data
         syncDownloadUsers(function() {
             seedUsers();

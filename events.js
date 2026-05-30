@@ -2414,11 +2414,14 @@ function bindPageEvents(route) {
                         cvs.width = img.width * scale;
                         cvs.height = img.height * scale;
                         cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
-                        var dd = getDashboardData();
-                        if (!dd.bannerImages) dd.bannerImages = {};
-                        dd.bannerImages[slot] = cvs.toDataURL('image/jpeg', 0.8);
-                        saveDashboardData(dd);
-                        renderApp();
+                        var bannerData = cvs.toDataURL('image/jpeg', 0.8);
+                        DWImages.save('campaign', 'dashboard/' + slot, bannerData).then(function (imgVal) {
+                            var dd = getDashboardData();
+                            if (!dd.bannerImages) dd.bannerImages = {};
+                            dd.bannerImages[slot] = imgVal;
+                            saveDashboardData(dd);
+                            renderApp();
+                        });
                     };
                     img.src = ev.target.result;
                 };
@@ -2473,12 +2476,16 @@ function bindPageEvents(route) {
                             // Stash the full text on the scene-block so that
                             // collapsing it later doesn't lose data.
                             blockUp.dataset.fullText = ta2 ? ta2.value : '';
-                            saveScene(sceneId, {
-                                layout: layout,
-                                text: ta2 ? ta2.value : '',
-                                image: dataUrl
+                            var sceneText = ta2 ? ta2.value : '';
+                            // Image binary → Firebase Storage; only the URL is
+                            // saved per scene (base64 fallback if Storage is off).
+                            DWImages.save('campaign', 'timeline/' + sceneId, dataUrl).then(function (imgVal) {
+                                saveScene(sceneId, { layout: layout, text: sceneText, image: imgVal });
+                                if (typeof showToast === 'function') showToast('Scene opgeslagen', 'success');
+                            }).catch(function (e) {
+                                console.error('[scene] image-save failed', e);
+                                if (typeof showToast === 'function') showToast('Image save faalde: ' + e.message, 'error');
                             });
-                            if (typeof showToast === 'function') showToast('Scene opgeslagen', 'success');
                         } catch (e) {
                             console.error('[scene] image-save failed', e);
                             if (typeof showToast === 'function') showToast('Image save faalde: ' + e.message, 'error');
@@ -2507,13 +2514,16 @@ function bindPageEvents(route) {
                         cvs.width = img.width * scale;
                         cvs.height = img.height * scale;
                         cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
-                        var tlData = getTimelineData();
-                        var ch = tlData.chapters[activeChapter];
-                        if (ch && ch.events[evIdx]) {
-                            ch.events[evIdx].image = cvs.toDataURL('image/jpeg', 0.8);
-                            saveTimelineData(tlData);
-                            renderApp();
-                        }
+                        var evtImg = cvs.toDataURL('image/jpeg', 0.8);
+                        DWImages.save('campaign', 'timeline/evt_' + activeChapter + '_' + evIdx, evtImg).then(function (imgVal) {
+                            var tlData = getTimelineData();
+                            var ch = tlData.chapters[activeChapter];
+                            if (ch && ch.events[evIdx]) {
+                                ch.events[evIdx].image = imgVal;
+                                saveTimelineData(tlData);
+                                renderApp();
+                            }
+                        });
                     };
                     img.src = ev.target.result;
                 };
@@ -2542,21 +2552,24 @@ function bindPageEvents(route) {
                         cvs.height = h;
                         cvs.getContext('2d').drawImage(img, 0, 0, w, h);
                         var base64 = cvs.toDataURL('image/jpeg', 0.7);
-
-                        var mData = getMapsData();
-                        var mDim = mData.dimensions[activeDimension];
-                        for (var mi = 0; mi < mDim.maps.length; mi++) {
-                            if (mDim.maps[mi].id === mapId) {
-                                mDim.maps[mi].image = base64;
-                                break;
+                        // Store image binary in Firebase Storage; keep only the
+                        // URL in the text DB (base64 fallback if Storage is off).
+                        DWImages.save('campaign', 'maps/' + mapId, base64).then(function (imgVal) {
+                            var mData = getMapsData();
+                            var mDim = mData.dimensions[activeDimension];
+                            for (var mi = 0; mi < mDim.maps.length; mi++) {
+                                if (mDim.maps[mi].id === mapId) {
+                                    mDim.maps[mi].image = imgVal;
+                                    break;
+                                }
                             }
-                        }
-                        try {
-                            saveMapsData(mData);
-                        } catch (err) {
-                            showWarning(t('maps.imagetoolarge'));
-                        }
-                        renderApp();
+                            try {
+                                saveMapsData(mData);
+                            } catch (err) {
+                                showWarning(t('maps.imagetoolarge'));
+                            }
+                            renderApp();
+                        });
                     };
                     img.src = ev.target.result;
                 };
