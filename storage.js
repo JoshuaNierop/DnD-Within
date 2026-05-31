@@ -35,9 +35,9 @@
 //        - (optional) Incoming transformation: f_auto,q_auto  → smaller
 //          files, auto webp/avif
 //      Leave the rest default. Save and note the preset name.
-//      We do NOT rely on the preset's overwrite setting: each live upload
-//      gets a unique public_id (see uniqueSuffix) so changed images never
-//      collide. Unsigned uploads can't overwrite anyway.
+//      Uploads pass a `folder` (honoured by unsigned uploads); Cloudinary
+//      auto-names each asset uniquely, so a changed image never collides
+//      with the old one (no overwrite needed; unsigned can't overwrite).
 //   3. Paste the preset name into UPLOAD_PRESET below and commit.
 //
 // Image taxonomy (Cloudinary public_id = nested folders via "/"):
@@ -91,22 +91,23 @@
         return 'valoria';
     }
 
-    // Sanitise a path segment for Cloudinary public_id (keep "/" as folder
-    // separator; strip characters Cloudinary rejects in public_ids).
-    function sanitizePublicId(id) {
-        return String(id).replace(/[^a-zA-Z0-9/_-]+/g, '_').replace(/_{2,}/g, '_');
+    // Sanitise a Cloudinary folder path (keep "/" as separator; strip
+    // characters Cloudinary rejects; collapse repeats; trim leading/trailing).
+    function sanitizeFolder(p) {
+        return String(p)
+            .replace(/[^a-zA-Z0-9/_-]+/g, '_')
+            .replace(/_{2,}/g, '_')
+            .replace(/\/{2,}/g, '/')
+            .replace(/^\/+|\/+$/g, '');
     }
 
-    // Short collision-resistant suffix. Unsigned uploads can't reliably
-    // overwrite an existing public_id, so we make every live upload unique
-    // and let the text-DB hold the freshest returned URL. The old asset
-    // orphans in Cloudinary (del() is a no-op) — harmless on the free tier.
-    function uniqueSuffix() {
-        return Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
-    }
-
-    // Low-level: upload a base64 dataURL under a public_id → Promise<secure_url>.
-    function uploadDataUrl(publicId, dataUrl) {
+    // Low-level: upload a base64 dataURL into a Cloudinary folder → Promise<secure_url>.
+    // We pass `folder` (honoured by unsigned uploads) rather than `public_id`
+    // (which this preset ignores in favour of an auto-generated unguessable
+    // name). Cloudinary names each asset uniquely, so a changed portrait/map
+    // never collides with an old one — no overwrite needed. The old asset
+    // orphans (del() is a no-op) — harmless on the free tier.
+    function uploadDataUrl(folder, dataUrl) {
         if (!STORAGE_READY) return Promise.reject(new Error('storage-not-ready'));
         if (!isDataUrl(dataUrl)) return Promise.reject(new Error('not-a-dataurl'));
 
@@ -114,7 +115,7 @@
         var form = new FormData();
         form.append('file', dataUrl);                  // Cloudinary accepts a data URI directly
         form.append('upload_preset', UPLOAD_PRESET);
-        form.append('public_id', sanitizePublicId(publicId));
+        form.append('folder', sanitizeFolder(folder));
 
         return fetch(endpoint, { method: 'POST', body: form }).then(function (res) {
             return res.json().then(function (json) {
@@ -139,18 +140,15 @@
             // Already a URL or empty — nothing to upload.
             return Promise.resolve(dataUrl);
         }
-        var base;
+        var folder;
         if (category === 'campaign') {
-            base = 'dnd-within/campaign/' + activeCampaignId() + '/' + subpath;
+            folder = 'dnd-within/campaign/' + activeCampaignId() + '/' + subpath;
         } else if (category === 'player') {
-            base = 'dnd-within/player/' + subpath;
+            folder = 'dnd-within/player/' + subpath;
         } else {
-            base = 'dnd-within/' + category + '/' + subpath;
+            folder = 'dnd-within/' + category + '/' + subpath;
         }
-        // Unique per upload so a changed portrait/map never collides with an
-        // old one (unsigned uploads can't overwrite). Folder structure stays.
-        var publicId = base + '_' + uniqueSuffix();
-        return uploadDataUrl(publicId, dataUrl).then(function (url) {
+        return uploadDataUrl(folder, dataUrl).then(function (url) {
             return url;
         }).catch(function (err) {
             // Fallback: keep base64 exactly as before. Site never breaks.
@@ -226,8 +224,8 @@
             var chain = Promise.resolve();
             jobs.forEach(function (job) {
                 chain = chain.then(function () {
-                    var publicId = 'dnd-within/' + topLevelCategory(job.path) + '/_migrated/' + job.path;
-                    return uploadDataUrl(publicId, job.dataUrl).then(function (url) {
+                    var folder = 'dnd-within/' + topLevelCategory(job.path) + '/_migrated/' + job.path;
+                    return uploadDataUrl(folder, job.dataUrl).then(function (url) {
                         return db.ref('dw/' + job.path).set(url).then(function () {
                             summary.migrated++;
                             summary.bytesSaved += job.dataUrl.length;
