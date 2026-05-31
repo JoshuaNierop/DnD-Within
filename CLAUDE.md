@@ -38,5 +38,7 @@ Interactive D&D 5.5e character sheet en campaign management SPA voor 8 spelers.
 - Multi-language (NL/EN), Admin mode (admin/admin)
 
 ## Deploy
-GitHub Pages: `JoshuaNierop/DnD-Within`
-- `git push origin main` → auto-deploy
+GitHub Pages: `JoshuaNierop/DnD-Within` — source branch `master`, path `/`
+- `git push origin master` → auto-deploy
+- Live: https://joshuanierop.github.io/DnD-Within/
+- ⚠️ Cloudflare Pages migratie staat open (Todo "Hosting" P1) — nog niet geconfigureerd; geen `wrangler.toml` in repo, alleen stray `.wrangler/` cache (gitignored)
