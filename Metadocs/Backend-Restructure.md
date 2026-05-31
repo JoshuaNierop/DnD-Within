@@ -11,9 +11,9 @@ Obsidian-stijl linking (tag-searchbar, naam-in-notes → NPC-page).
 
 | Onderdeel | Status |
 |---|---|
-| Image-storage laag (`storage.js` + handlers) | ✅ **Live** — veilig met base64-fallback. Backend: **Cloudinary** (niet Firebase Storage, zie hieronder) |
-| Cloudinary account + unsigned preset | ❌ **Wacht op handmatige stap Joshua** (zie hieronder) |
-| Migratie bestaande base64 → Cloudinary | ⏸ Klaar (`DWImages.migrateAll()`), draaien ná config |
+| Image-storage laag (`storage.js` + handlers) | ✅ **Live** op **Cloudinary** (cloud `dqmdh3b4d`, preset `dnd_within`), base64-fallback intact |
+| Cloudinary account + unsigned preset | ✅ **Klaar** — config ingevuld in `storage.js` |
+| Migratie bestaande base64 → Cloudinary | ✅ **Gedaan** (2026-06-01): 26/26 gemigreerd, 0 failed, ~5,6 MB bespaard, localStorage ~6 MB → 46 KB, alle images geverifieerd |
 | 4-categorie tekst-DB re-tree | 📋 Ontworpen (hieronder), nog niet uitgevoerd — fase 2 |
 | Obsidian-linking groundwork | 📋 Ontworpen, fase 3 |
 
