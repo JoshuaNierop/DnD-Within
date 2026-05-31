@@ -1,5 +1,14 @@
 # D&D Within — Testresults
 
+## 2026-06-01 — Timeline save data-loss (FIXED) + home banner-slots
+- **Bug:** nieuwe timeline-sessions werden niet opgeslagen; formulier sloot, niets bewaard. Root cause: `_migrateMonolithicTimeline()` regenereerde `dw_chapters` uit een stale lege `dw_timeline` (terug-gesynct via Firebase) bij élke `getTimelineData()` → overschreef net-opgeslagen sessions (9× per save-flow). Gereproduceerd + gefixt + live geverifieerd via Playwright op de GitHub Pages-build (sessie blijft nu over 6 re-renders).
+- **Fix:** ui-world.js — guard: als `dw_chapters` bestaat is legacy obsoleet → purge `dw_timeline` lokaal + `syncRemove` + return.
+- **Home banner upload-slots:** specificiteits-bug — `.welcome-banner.has-banner > *` forceerde `position:relative` op de slots-container → viel uit flow boven de banner. Fix: `> :not(.banner-upload-slots)`. Slots nu absolute, enkele kolom rechtsboven. Banner-afbeelding `background-size: cover` (vult altijd de banner).
+- **Cache-laag:** `?v=N` cache-busters stonden uit sync; auto-bump PostToolUse-hook toegevoegd (Skills/bump-asset-version.sh).
+
+---
+
+
 **Datum:** 2026-04-13 (audit), **bijgewerkt 2026-05-15** (P0-status herzien)
 **Scope:** Volledige 5.5e regelaudit + UI-gaten audit + Playwright smoke test
 **Campaign version:** Valoria
