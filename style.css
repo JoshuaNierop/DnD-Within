@@ -6135,13 +6135,13 @@ body.modal-open {
 .banner-upload-btn:hover { opacity: 1; }
 .banner-upload-slots {
     position: absolute;
-    top: 0.6rem;
+    bottom: 0.6rem;
     right: 0.6rem;
     z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    align-items: stretch;
+    gap: 0.22rem;
+    align-items: flex-end;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
@@ -6157,8 +6157,8 @@ body.modal-open {
     background: rgba(0,0,0,0.55);
     border: 1px solid rgba(255,255,255,0.15);
     color: var(--text);
-    font-size: 0.62rem;
-    padding: 0.22rem 0.45rem;
+    font-size: 0.6rem;
+    padding: 0.18rem 0.4rem;
     border-radius: 6px;
     cursor: pointer;
     display: flex;
@@ -6168,7 +6168,7 @@ body.modal-open {
     opacity: 0.92;
     transition: opacity 0.2s, border-color 0.2s, background 0.2s;
     white-space: nowrap;
-    width: 104px;
+    width: 96px;
     box-sizing: border-box;
 }
 .banner-upload-slot .banner-slot-label { flex: 1; text-align: left; }
