@@ -31,14 +31,14 @@
 //   1. Create a free account at https://cloudinary.com  → note your
 //      "Cloud name" (Dashboard top, e.g. "dxxxxxx").
 //   2. Settings → Upload → Upload presets → "Add upload preset":
-//        - Signing mode: **Unsigned**
-//        - Overwrite: **true**, Unique filename: **false**
-//          (so re-uploading the same portrait replaces instead of
-//           piling up duplicates)
+//        - Signing mode: **Unsigned**  (the only required setting)
 //        - (optional) Incoming transformation: f_auto,q_auto  → smaller
 //          files, auto webp/avif
-//      Save and note the preset name (e.g. "dnd_within").
-//   3. Paste both values into the CONFIG block below and commit.
+//      Leave the rest default. Save and note the preset name.
+//      We do NOT rely on the preset's overwrite setting: each live upload
+//      gets a unique public_id (see uniqueSuffix) so changed images never
+//      collide. Unsigned uploads can't overwrite anyway.
+//   3. Paste the preset name into UPLOAD_PRESET below and commit.
 //
 // Image taxonomy (Cloudinary public_id = nested folders via "/"):
 //   dnd-within/player/<charId>/<type>
@@ -52,8 +52,8 @@
     // ---- CONFIG ------------------------------------------------
     // Both values are PUBLIC by design (cloud name is in every URL; an
     // unsigned preset is meant to be exposed). Safe to commit.
-    var CLOUD_NAME = 'YOUR_CLOUD_NAME';      // ← step 1
-    var UPLOAD_PRESET = 'YOUR_UNSIGNED_PRESET'; // ← step 2
+    var CLOUD_NAME = 'dqmdh3b4d';            // ← step 1 (public by design)
+    var UPLOAD_PRESET = 'dnd_within';        // ← step 2 (unsigned preset)
     // ------------------------------------------------------------
 
     var STORAGE_READY = false;
@@ -97,6 +97,14 @@
         return String(id).replace(/[^a-zA-Z0-9/_-]+/g, '_').replace(/_{2,}/g, '_');
     }
 
+    // Short collision-resistant suffix. Unsigned uploads can't reliably
+    // overwrite an existing public_id, so we make every live upload unique
+    // and let the text-DB hold the freshest returned URL. The old asset
+    // orphans in Cloudinary (del() is a no-op) — harmless on the free tier.
+    function uniqueSuffix() {
+        return Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
+    }
+
     // Low-level: upload a base64 dataURL under a public_id → Promise<secure_url>.
     function uploadDataUrl(publicId, dataUrl) {
         if (!STORAGE_READY) return Promise.reject(new Error('storage-not-ready'));
@@ -131,14 +139,17 @@
             // Already a URL or empty — nothing to upload.
             return Promise.resolve(dataUrl);
         }
-        var publicId;
+        var base;
         if (category === 'campaign') {
-            publicId = 'dnd-within/campaign/' + activeCampaignId() + '/' + subpath;
+            base = 'dnd-within/campaign/' + activeCampaignId() + '/' + subpath;
         } else if (category === 'player') {
-            publicId = 'dnd-within/player/' + subpath;
+            base = 'dnd-within/player/' + subpath;
         } else {
-            publicId = 'dnd-within/' + category + '/' + subpath;
+            base = 'dnd-within/' + category + '/' + subpath;
         }
+        // Unique per upload so a changed portrait/map never collides with an
+        // old one (unsigned uploads can't overwrite). Folder structure stays.
+        var publicId = base + '_' + uniqueSuffix();
         return uploadDataUrl(publicId, dataUrl).then(function (url) {
             return url;
         }).catch(function (err) {
