@@ -11,8 +11,10 @@
 
 ## Backend 4-categorie restructure (2026-05-30)
 Beslissingen bevestigd: E5.0=2014 PHB / E5.5=2024 PHB · gamedata blijft in code · **multi-campaign vanaf start**.
-- [!] P0 — Firebase Storage activeren (console → Get Started) — BLOKKEERT image-migratie; alleen Joshua. https://console.firebase.google.com/project/dnd-within-firebase/storage
-- [ ] P1 — Na activatie: `firebase deploy --only storage` + `DWImages.migrateAll()` (base64 → Storage)
+- [x] P0 — ~~Firebase Storage activeren~~ → **vervangen door Cloudinary**. Firebase Storage vereist sinds eind 2024 het Blaze-plan (creditcard); Joshua wil geen card. `storage.js` (DWImages) herschreven naar Cloudinary unsigned upload (REST, geen SDK). Publieke API + base64-fallback ongewijzigd → callers (core/events/sync/wg-events) intact. `firebase-storage-compat.js` SDK + `storage.rules` verwijderd.
+- [!] P0 — **Cloudinary account-setup (alleen Joshua, geen card)**: 1) free account → cloud name. 2) Settings → Upload → unsigned upload preset (Overwrite=true, Unique filename=false, optioneel `f_auto,q_auto`). 3) `CLOUD_NAME` + `UPLOAD_PRESET` invullen in `storage.js` CONFIG-blok + committen. BLOKKEERT migratie.
+- [ ] P1 — Na config: `DWImages.migrateAll()` in browser-console (admin) — base64 in RTDB → Cloudinary URLs. Idempotent + non-destructief.
+- [ ] P3 — Cloudinary delete: unsigned client kan niet deleten (needs API-secret). `del()` is no-op; orphans blijven staan. Bij grote groei evt. handmatig purgen via dashboard, of een signed delete-endpoint (server) overwegen.
 - [x] P2 — Repo-cleanup: 17 ongebruikte campagne-images (Ren/Saya/Banners/Valoria Map/etc., 0 refs in actieve code) verwijderd; `.wrangler/` (build-cache) + `_backups/` (lokale DB-backups, 6MB) gegitignored. Commit `3929f3e`.
 - [ ] P1 — Fase 2: multi-campaign tekst-tree via sync.js keyToPath/pathToKey met dual-read fallback + Node round-trip test tegen `_backups/rtdb-full-*.json` (NIET blind live duwen — eerst offline bewezen)
 - [ ] P3 — Fase 3: Obsidian-linking (stabiele entity-IDs + tag-index + [[npc:id]] in notes)

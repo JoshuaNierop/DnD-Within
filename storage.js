@@ -1,47 +1,75 @@
 // ============================================================
-// D&D Within — Image Storage Abstraction
+// D&D Within — Image Storage Abstraction (Cloudinary)
 // ============================================================
 //
 // Separates IMAGES from the text Realtime Database. Images go to
-// Firebase Storage (binary, cheap, off the text DB); the text DB only
-// keeps a small https download-URL string instead of a fat base64 blob.
+// Cloudinary (binary CDN, 25 GB free, no credit card); the text DB only
+// keeps a small https URL string instead of a fat base64 blob.
+//
+// Why Cloudinary and not Firebase Storage: since late 2024 new Firebase
+// Cloud Storage buckets require the Blaze (pay-as-you-go) plan, which
+// needs a credit card. Cloudinary's free tier needs neither.
 //
 // SAFE BY DESIGN — automatic base64 fallback:
-//   * If Firebase Storage is not yet activated / SDK missing / upload
-//     fails, DWImages.save() resolves with the ORIGINAL base64 dataURL.
-//     The caller stores that exactly like before → behaviour is identical
-//     to the pre-Storage app. Nothing breaks while Storage is off.
-//   * Once Storage is activated (Firebase console → Storage → Get Started)
-//     and storage.rules are deployed, save() returns an https URL and new
-//     uploads stop bloating the text DB.
+//   * If Cloudinary is not configured (CLOUD_NAME / UPLOAD_PRESET still
+//     placeholders) or an upload fails, DWImages.save() resolves with the
+//     ORIGINAL base64 dataURL. The caller stores that exactly like before
+//     → behaviour is identical to the pre-Storage app. Nothing breaks.
+//   * Once configured, save() returns an https URL and new uploads stop
+//     bloating the text DB.
 //
 // Display code is unaffected: every render uses <img src="${value}">,
 // which works for both a base64 dataURL and an https URL.
 //
-// Image taxonomy (4 categories, mirrors the text-DB restructure):
-//   images/player/<charId>/<type>.<ext>          ← player uploads
-//   images/campaign/<campId>/maps/<id>.<ext>     ← DM: world maps
-//   images/campaign/<campId>/timeline/<id>.<ext> ← DM: scenes / events
-//   images/campaign/<campId>/npcs/<id>.<ext>     ← DM: NPC portraits
-//   images/campaign/<campId>/dashboard/<id>.<ext>← DM: banner slots
-//   images/campaign/<campId>/notes/<id>.<ext>    ← world / shared notes
-//   images/general/...   images/version/<e50|e55>/...  ← reserved (future)
+// DELETE limitation: unsigned (browser-side) Cloudinary uploads cannot be
+// deleted without the API secret (which must never ship to the client).
+// del() is therefore a no-op — replaced/removed images orphan in
+// Cloudinary. Harmless on the 25 GB free tier; purge via the Cloudinary
+// dashboard if ever needed.
+//
+// SETUP (Joshua, one-time — no credit card):
+//   1. Create a free account at https://cloudinary.com  → note your
+//      "Cloud name" (Dashboard top, e.g. "dxxxxxx").
+//   2. Settings → Upload → Upload presets → "Add upload preset":
+//        - Signing mode: **Unsigned**
+//        - Overwrite: **true**, Unique filename: **false**
+//          (so re-uploading the same portrait replaces instead of
+//           piling up duplicates)
+//        - (optional) Incoming transformation: f_auto,q_auto  → smaller
+//          files, auto webp/avif
+//      Save and note the preset name (e.g. "dnd_within").
+//   3. Paste both values into the CONFIG block below and commit.
+//
+// Image taxonomy (Cloudinary public_id = nested folders via "/"):
+//   dnd-within/player/<charId>/<type>
+//   dnd-within/campaign/<campId>/maps/<id>
+//   dnd-within/campaign/<campId>/timeline/<id>
+//   dnd-within/campaign/<campId>/dashboard/<slot>
+//   dnd-within/campaign/<campId>/notes/<id>
 // ============================================================
 
 (function () {
+    // ---- CONFIG ------------------------------------------------
+    // Both values are PUBLIC by design (cloud name is in every URL; an
+    // unsigned preset is meant to be exposed). Safe to commit.
+    var CLOUD_NAME = 'YOUR_CLOUD_NAME';      // ← step 1
+    var UPLOAD_PRESET = 'YOUR_UNSIGNED_PRESET'; // ← step 2
+    // ------------------------------------------------------------
+
     var STORAGE_READY = false;
-    var rootRef = null;
+
+    function isConfigured() {
+        return CLOUD_NAME && UPLOAD_PRESET &&
+            CLOUD_NAME !== 'YOUR_CLOUD_NAME' &&
+            UPLOAD_PRESET !== 'YOUR_UNSIGNED_PRESET';
+    }
 
     function initStorage() {
-        try {
-            if (typeof firebase === 'undefined' || typeof firebase.storage !== 'function') return;
-            if (!firebase.apps || !firebase.apps.length) return;
-            rootRef = firebase.storage().ref();
-            STORAGE_READY = true;
-            console.log('[Storage] Firebase Storage ready.');
-        } catch (e) {
-            STORAGE_READY = false;
-            console.warn('[Storage] Not available, using base64 fallback:', e && e.message);
+        STORAGE_READY = isConfigured();
+        if (STORAGE_READY) {
+            console.log('[Storage] Cloudinary ready (cloud: ' + CLOUD_NAME + ').');
+        } else {
+            console.warn('[Storage] Cloudinary not configured, using base64 fallback.');
         }
     }
 
@@ -63,27 +91,36 @@
         return 'valoria';
     }
 
-    function extFromDataUrl(dataUrl) {
-        var m = /^data:image\/([a-zA-Z0-9.+-]+)/.exec(dataUrl || '');
-        if (!m) return 'jpg';
-        var t = m[1].toLowerCase();
-        if (t === 'jpeg') return 'jpg';
-        if (t === 'svg+xml') return 'svg';
-        return t;
+    // Sanitise a path segment for Cloudinary public_id (keep "/" as folder
+    // separator; strip characters Cloudinary rejects in public_ids).
+    function sanitizePublicId(id) {
+        return String(id).replace(/[^a-zA-Z0-9/_-]+/g, '_').replace(/_{2,}/g, '_');
     }
 
-    // Low-level: upload a dataURL to a Storage path → Promise<downloadURL>.
-    function uploadDataUrl(path, dataUrl) {
-        if (!STORAGE_READY || !rootRef) return Promise.reject(new Error('storage-not-ready'));
+    // Low-level: upload a base64 dataURL under a public_id → Promise<secure_url>.
+    function uploadDataUrl(publicId, dataUrl) {
+        if (!STORAGE_READY) return Promise.reject(new Error('storage-not-ready'));
         if (!isDataUrl(dataUrl)) return Promise.reject(new Error('not-a-dataurl'));
-        var ref = rootRef.child(path);
-        return ref.putString(dataUrl, 'data_url').then(function (snap) {
-            return snap.ref.getDownloadURL();
+
+        var endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload';
+        var form = new FormData();
+        form.append('file', dataUrl);                  // Cloudinary accepts a data URI directly
+        form.append('upload_preset', UPLOAD_PRESET);
+        form.append('public_id', sanitizePublicId(publicId));
+
+        return fetch(endpoint, { method: 'POST', body: form }).then(function (res) {
+            return res.json().then(function (json) {
+                if (!res.ok || !json.secure_url) {
+                    var msg = (json && json.error && json.error.message) || ('http-' + res.status);
+                    throw new Error(msg);
+                }
+                return json.secure_url;
+            });
         });
     }
 
     // High-level: store an image and get back the value to persist in the
-    // text DB. Returns an https URL when Storage is live, otherwise the
+    // text DB. Returns an https URL when Cloudinary is live, otherwise the
     // original base64 dataURL (identical to legacy behaviour).
     //
     // category: 'player' | 'campaign' | 'general' | 'version'
@@ -94,16 +131,15 @@
             // Already a URL or empty — nothing to upload.
             return Promise.resolve(dataUrl);
         }
-        var ext = extFromDataUrl(dataUrl);
-        var path;
+        var publicId;
         if (category === 'campaign') {
-            path = 'images/campaign/' + activeCampaignId() + '/' + subpath + '.' + ext;
+            publicId = 'dnd-within/campaign/' + activeCampaignId() + '/' + subpath;
         } else if (category === 'player') {
-            path = 'images/player/' + subpath + '.' + ext;
+            publicId = 'dnd-within/player/' + subpath;
         } else {
-            path = 'images/' + category + '/' + subpath + '.' + ext;
+            publicId = 'dnd-within/' + category + '/' + subpath;
         }
-        return uploadDataUrl(path, dataUrl).then(function (url) {
+        return uploadDataUrl(publicId, dataUrl).then(function (url) {
             return url;
         }).catch(function (err) {
             // Fallback: keep base64 exactly as before. Site never breaks.
@@ -114,24 +150,22 @@
         });
     }
 
-    // Delete an image previously stored in Storage (no-op for base64 values).
+    // Delete: not possible for unsigned client uploads (needs API secret).
+    // No-op; replaced images orphan in Cloudinary. See header note.
     function deleteImage(value) {
-        if (!STORAGE_READY || !rootRef || !isHttpUrl(value)) return Promise.resolve();
-        try {
-            return firebase.storage().refFromURL(value).delete().catch(function () { /* ignore */ });
-        } catch (e) {
-            return Promise.resolve();
-        }
+        return Promise.resolve();
     }
 
     // ========================================================
-    // One-time migration: existing base64 images in the RTDB → Storage.
-    // Runs in the browser (admin), AFTER Storage is activated + rules
-    // deployed. Walks the whole dw/ tree, uploads every base64 image,
-    // and rewrites the field to the resulting https URL. Idempotent:
-    // values that are already URLs are skipped, so it is safe to re-run.
-    // Non-destructive ordering: the base64 is only overwritten once the
-    // upload + URL fetch succeed, so an interrupted run loses nothing.
+    // One-time migration: existing base64 images in the RTDB → Cloudinary.
+    // Runs in the browser (admin), AFTER CONFIG is filled in. Walks the
+    // whole dw/ tree, uploads every base64 image, and rewrites the field to
+    // the resulting https URL. Idempotent: values that are already URLs are
+    // skipped, so it is safe to re-run. Non-destructive ordering: the base64
+    // is only overwritten once the upload + URL fetch succeed, so an
+    // interrupted run loses nothing.
+    //
+    // Requires the Firebase Database SDK (already loaded for the text DB).
     // ========================================================
     function topLevelCategory(rtdbPath) {
         var first = rtdbPath.split('/')[0];
@@ -147,7 +181,7 @@
             return Promise.reject(new Error('firebase-not-ready'));
         }
         if (!STORAGE_READY && !dryRun) {
-            return Promise.reject(new Error('storage-not-ready — activate Firebase Storage + deploy storage.rules first'));
+            return Promise.reject(new Error('storage-not-ready — fill in CLOUD_NAME + UPLOAD_PRESET in storage.js first'));
         }
         var db = firebase.database();
         var summary = { found: 0, migrated: 0, skipped: 0, failed: 0, bytesSaved: 0, errors: [] };
@@ -181,9 +215,8 @@
             var chain = Promise.resolve();
             jobs.forEach(function (job) {
                 chain = chain.then(function () {
-                    var ext = extFromDataUrl(job.dataUrl);
-                    var storagePath = 'images/' + topLevelCategory(job.path) + '/_migrated/' + job.path.replace(/[^a-zA-Z0-9_-]+/g, '_') + '.' + ext;
-                    return uploadDataUrl(storagePath, job.dataUrl).then(function (url) {
+                    var publicId = 'dnd-within/' + topLevelCategory(job.path) + '/_migrated/' + job.path;
+                    return uploadDataUrl(publicId, job.dataUrl).then(function (url) {
                         return db.ref('dw/' + job.path).set(url).then(function () {
                             summary.migrated++;
                             summary.bytesSaved += job.dataUrl.length;

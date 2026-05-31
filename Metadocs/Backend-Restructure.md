@@ -11,9 +11,9 @@ Obsidian-stijl linking (tag-searchbar, naam-in-notes → NPC-page).
 
 | Onderdeel | Status |
 |---|---|
-| Image-storage laag (`storage.js` + handlers) | ✅ **Live** (commit `67b75ca`) — veilig met base64-fallback |
-| Firebase Storage geactiveerd | ❌ **Wacht op handmatige stap Joshua** (zie hieronder) |
-| Migratie bestaande base64 → Storage | ⏸ Klaar (`DWImages.migrateAll()`), draaien ná activatie |
+| Image-storage laag (`storage.js` + handlers) | ✅ **Live** — veilig met base64-fallback. Backend: **Cloudinary** (niet Firebase Storage, zie hieronder) |
+| Cloudinary account + unsigned preset | ❌ **Wacht op handmatige stap Joshua** (zie hieronder) |
+| Migratie bestaande base64 → Cloudinary | ⏸ Klaar (`DWImages.migrateAll()`), draaien ná config |
 | 4-categorie tekst-DB re-tree | 📋 Ontworpen (hieronder), nog niet uitgevoerd — fase 2 |
 | Obsidian-linking groundwork | 📋 Ontworpen, fase 3 |
 
@@ -40,59 +40,65 @@ Obsidian-stijl linking (tag-searchbar, naam-in-notes → NPC-page).
 Nieuwe module **`storage.js`** met globale `window.DWImages`:
 
 - `DWImages.save(category, subpath, dataUrl)` → `Promise<value>`.
-  Uploadt binair naar Firebase Storage en geeft een **https download-URL** terug; de
-  tekst-DB bewaart alleen die korte URL i.p.v. een dikke base64-blob.
-- **Veilig bij ontwerp:** als Storage uit staat / SDK ontbreekt / upload faalt, geeft
-  `save()` de **originele base64 dataURL** terug. De caller slaat die op precies zoals
-  vroeger → gedrag identiek, niets breekt. (Bewezen: 11/11 unit-tests PASS.)
+  Uploadt binair naar **Cloudinary** (unsigned REST upload, geen SDK) en geeft een
+  **https secure_url** terug; de tekst-DB bewaart alleen die korte URL i.p.v. een dikke
+  base64-blob.
+- **Veilig bij ontwerp:** als Cloudinary niet geconfigureerd is (CONFIG nog placeholders)
+  of de upload faalt, geeft `save()` de **originele base64 dataURL** terug. De caller slaat
+  die op precies zoals vroeger → gedrag identiek, niets breekt.
+- `DWImages.del()` = **no-op**: unsigned client-uploads kunnen niet veilig gedeletet worden
+  (vereist API-secret, mag niet in browser). Vervangen/verwijderde images orphanen in
+  Cloudinary — onschadelijk op de 25 GB free tier.
 - `DWImages.migrateAll({dryRun})` → eenmalige, **idempotente**, non-destructieve migratie
-  van bestaande base64 in de RTDB naar Storage (base64 blijft staan tot upload slaagt).
+  van bestaande base64 in de RTDB naar Cloudinary (base64 blijft staan tot upload slaagt).
 
 Aangepaste upload-handlers (allemaal met fallback):
 `wg-events.js` (portrait, widget-map), `events.js` (world map, scene, timeline-event,
 dashboard-banner), `core.js saveImage` (player portrait/banner).
 
-Image-taxonomie in Storage (spiegelt de 4 categorieën):
+Image-taxonomie als Cloudinary `public_id` (slashes = geneste folders, spiegelt de 4 categorieën):
 ```
-images/player/<charId>/<type>.<ext>
-images/campaign/<campId>/maps/<id>.<ext>
-images/campaign/<campId>/timeline/<id>.<ext>
-images/campaign/<campId>/dashboard/<slot>.<ext>
-images/campaign/<campId>/notes/<id>.<ext>
-images/general/...           (gereserveerd)
-images/version/<e50|e55>/... (gereserveerd)
+dnd-within/player/<charId>/<type>
+dnd-within/campaign/<campId>/maps/<id>
+dnd-within/campaign/<campId>/timeline/<id>
+dnd-within/campaign/<campId>/dashboard/<slot>
+dnd-within/campaign/<campId>/notes/<id>
+dnd-within/general/...           (gereserveerd)
+dnd-within/version/<e50|e55>/... (gereserveerd)
 ```
 
-Rules: `storage.rules` — publieke read, schrijven onder `images/**` (max 8 MB, alleen
-`image/*`, time-gate 2027-04-28; spiegelt `database.rules.json`).
+Geen security-rules nodig: een unsigned upload preset is precies bedoeld om publiek te
+zijn. `storage.rules` + de `firebase-storage-compat` SDK zijn verwijderd.
 
 ---
 
 ## ⚠️ Eenmalige handmatige stap (alleen Joshua kan dit)
 
-Firebase Storage is nog niet geactiveerd op het project. De Storage-API kan **niet** via
-CLI/REST aangezet worden — het vereist één klik in de console:
+**Waarom niet Firebase Storage:** sinds ~okt 2024 vereisen nieuwe Cloud Storage-buckets
+het **Blaze-plan** (creditcard). Joshua wil geen card koppelen → gekozen voor **Cloudinary**
+(25 GB gratis, geen card).
 
-1. Ga naar **https://console.firebase.google.com/project/dnd-within-firebase/storage**
-2. Klik **"Get Started"** → kies locatie (bv. `europe-west` of `us-central1`) → bevestig.
-3. **Caveat (flag):** sinds ~okt 2024 vereisen *nieuwe* Storage-buckets vaak het
-   **Blaze-plan** (pay-as-you-go). Er is een ruime gratis tier (≈5 GB opslag / 1 GB
-   download per dag), dus voor 8 spelers blijft het in de praktijk gratis — maar je
-   moet wél een creditcard koppelen. *Niet 100% zeker of Spark hier nog volstaat; de
-   console wijst het uit bij "Get Started".*
+Setup (geen creditcard):
 
-Daarna draait Claude (of jij):
-```bash
-firebase deploy --only storage     # publiceert storage.rules
-```
-en in de browser-console van de live site (als admin ingelogd):
+1. Maak een gratis account op **https://cloudinary.com** → noteer je **Cloud name**
+   (Dashboard bovenaan, bv. `dxxxxxx`).
+2. **Settings → Upload → Upload presets → "Add upload preset":**
+   - Signing mode: **Unsigned**
+   - Overwrite: **true**, Unique filename: **false**
+     (zodat hetzelfde portret bij her-upload vervangt i.p.v. dupliceert)
+   - (optioneel) Incoming transformation: `f_auto,q_auto` → kleinere bestanden, auto webp/avif
+   - Sla op, noteer de preset-naam (bv. `dnd_within`).
+3. Vul **`CLOUD_NAME`** + **`UPLOAD_PRESET`** in het CONFIG-blok bovenaan `storage.js` in
+   en commit. (Beide zijn publiek by design — veilig in git.)
+
+Daarna in de browser-console van de live site (als admin ingelogd):
 ```js
 await DWImages.migrateAll({ dryRun: true });  // telt base64-images, schrijft niets
-await DWImages.migrateAll();                    // migreert echt naar Storage
+await DWImages.migrateAll();                    // migreert echt naar Cloudinary
 ```
 Migratie is idempotent en non-destructief — veilig te herhalen.
 
-**Tot deze stap gedaan is, draait de site gewoon door op base64 (huidige gedrag).**
+**Tot CONFIG ingevuld is, draait de site gewoon door op base64 (huidige gedrag).**
 
 ---
 
@@ -237,5 +243,8 @@ zodra elke NPC een stabiele ID heeft.
 1. ✅ E5.0 = 2014 PHB, E5.5 = 2024 PHB.
 2. ✅ Gamedata blijft in code (`general/`+`version/` gereserveerd leeg).
 3. ✅ Multi-campaign vanaf de start.
-4. ⏳ **Open / actie Joshua:** Firebase Storage activeren in de console (zie boven). Dit is
-   de enige resterende handmatige stap; tot dan draait de site veilig op base64.
+4. ✅ Image-backend = **Cloudinary** i.p.v. Firebase Storage (Firebase eist creditcard via
+   Blaze; Joshua wil geen card).
+5. ⏳ **Open / actie Joshua:** Cloudinary account + unsigned preset aanmaken en `CLOUD_NAME`
+   + `UPLOAD_PRESET` invullen in `storage.js` (zie boven). Enige resterende handmatige stap;
+   tot dan draait de site veilig op base64.
