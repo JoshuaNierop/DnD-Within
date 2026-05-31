@@ -776,6 +776,16 @@ function _migrateMonolithicTimeline() {
 
     var legacy = localStorage.getItem('dw_timeline');
     if (!legacy) return;
+    // If a split index already exists, the legacy monolithic blob is obsolete.
+    // Never regenerate over it: a stale dw_timeline (e.g. re-synced from Firebase)
+    // would otherwise wipe freshly-saved sessions on every getTimelineData() call,
+    // because migration rebuilds dw_chapters from the (empty) legacy events.
+    // Purge it locally and from sync so it can't keep coming back.
+    if (localStorage.getItem('dw_chapters')) {
+        try { localStorage.removeItem('dw_timeline'); } catch (e) {}
+        if (typeof syncRemove === 'function') syncRemove('dw_timeline');
+        return;
+    }
     try {
         var parsed = JSON.parse(legacy);
         if (!parsed || !Array.isArray(parsed.chapters)) return;
