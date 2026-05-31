@@ -730,6 +730,16 @@ function _saveSceneBlob(sceneId, scene) {
 function _removeSceneBlob(sceneId) {
     if (!sceneId) return;
     try {
+        // Clean up the scene's Cloudinary image(s) before dropping the blob.
+        if (window.DWImages) {
+            var blob = _loadSceneBlob(sceneId);
+            if (blob) {
+                if (blob.image) DWImages.del(blob.image);
+                if (Array.isArray(blob.scenes)) {
+                    blob.scenes.forEach(function (sc) { if (sc && sc.image) DWImages.del(sc.image); });
+                }
+            }
+        }
         localStorage.removeItem('dw_scene_' + sceneId);
         if (typeof syncRemove === 'function') syncRemove('dw_scene_' + sceneId);
     } catch (e) {}

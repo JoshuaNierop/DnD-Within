@@ -1,0 +1,17 @@
+name = "dnd-within-cloudinary"
+main = "worker.js"
+compatibility_date = "2026-05-01"
+
+# Non-secret config. The API_KEY is semi-public; the SHARED_TOKEN also lives
+# in the site's storage.js (a static site can't keep it truly secret — it is
+# one of several defense-in-depth layers, see worker.js header).
+[vars]
+CLOUD_NAME = "dqmdh3b4d"
+API_KEY = "789377485573726"
+ALLOWED_ORIGIN = "https://joshuanierop.github.io"
+SHARED_TOKEN = "dcd3b636b8e3d33fc302a3a0ef83c20f23b4b2d8041c8722"
+PREFIX = "dnd-within/"
+
+# The API SECRET is NOT here. Set it once as a Worker secret:
+#   wrangler secret put CLOUDINARY_API_SECRET
+# (paste the secret when prompted — it never touches git or the browser)

@@ -642,10 +642,12 @@ async function deleteMapFromFirebase(widgetIdx) {
   const mapArrIdx = maps.findIndex(m => m.id === w.map.mapId || (!w.map.mapId && m.isRoot));
   if (mapArrIdx < 0) { showToast("Map niet gevonden", "error"); return; }
   if (!confirm("Map verwijderen? Dit kan niet ongedaan worden gemaakt.")) return;
+  const oldImg = maps[mapArrIdx] && maps[mapArrIdx].image;
   const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + ".json";
   try {
     const res = await fetch(url, { method: "DELETE" });
     if (!res.ok) throw new Error("HTTP " + res.status);
+    if (oldImg && window.DWImages) DWImages.del(oldImg);
     showToast("Map verwijderd", "success");
     w.map = null;
     WG_MAPS_CACHE = null;

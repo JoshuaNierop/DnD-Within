@@ -2071,6 +2071,8 @@ function bindPageEvents(route) {
                 var mData = getMapsData();
                 var mDim = mData.dimensions[activeDimension];
                 if (mDim) {
+                    var delMap = mDim.maps.filter(function(m) { return m.id === delMapId; })[0];
+                    if (delMap && delMap.image && typeof DWImages !== 'undefined') DWImages.del(delMap.image);
                     mDim.maps = mDim.maps.filter(function(m) { return m.id !== delMapId; });
                     saveMapsData(mData);
                     renderApp();

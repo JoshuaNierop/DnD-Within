@@ -21,11 +21,12 @@
 // Display code is unaffected: every render uses <img src="${value}">,
 // which works for both a base64 dataURL and an https URL.
 //
-// DELETE limitation: unsigned (browser-side) Cloudinary uploads cannot be
-// deleted without the API secret (which must never ship to the client).
-// del() is therefore a no-op — replaced/removed images orphan in
-// Cloudinary. Harmless on the 25 GB free tier; purge via the Cloudinary
-// dashboard if ever needed.
+// DELETE: unsigned (browser-side) uploads can't be deleted directly (needs
+// the API secret, which must never ship to the client). del() therefore
+// routes through a small Cloudflare Worker (cloudinary-worker/) that holds
+// the secret server-side and is prefix-locked to dnd-within/. Until
+// DELETE_WORKER_URL is configured, del() is a safe no-op and removed images
+// simply orphan in Cloudinary (harmless on the 25 GB free tier).
 //
 // SETUP (Joshua, one-time — no credit card):
 //   1. Create a free account at https://cloudinary.com  → note your
@@ -54,6 +55,13 @@
     // unsigned preset is meant to be exposed). Safe to commit.
     var CLOUD_NAME = 'dqmdh3b4d';            // ← step 1 (public by design)
     var UPLOAD_PRESET = 'dnd_within';        // ← step 2 (unsigned preset)
+
+    // Optional delete-proxy (Cloudflare Worker in cloudinary-worker/). Until
+    // DELETE_WORKER_URL is filled in, del() is a safe no-op. The token is the
+    // same one in the Worker's wrangler.toml — not truly secret on a static
+    // site, just one defense-in-depth layer (see cloudinary-worker/README.md).
+    var DELETE_WORKER_URL = 'YOUR_WORKER_URL'; // e.g. https://dnd-within-cloudinary.<sub>.workers.dev
+    var DELETE_TOKEN = 'dcd3b636b8e3d33fc302a3a0ef83c20f23b4b2d8041c8722';
     // ------------------------------------------------------------
 
     var STORAGE_READY = false;
@@ -159,10 +167,51 @@
         });
     }
 
-    // Delete: not possible for unsigned client uploads (needs API secret).
-    // No-op; replaced images orphan in Cloudinary. See header note.
+    function deleteConfigured() {
+        return DELETE_WORKER_URL && DELETE_WORKER_URL !== 'YOUR_WORKER_URL';
+    }
+
+    // Extract the Cloudinary public_id from a secure_url.
+    //   https://res.cloudinary.com/<cloud>/image/upload/v123/dnd-within/a/b.jpg
+    //   → dnd-within/a/b
+    // Returns null if the URL isn't a recognisable Cloudinary upload URL.
+    function publicIdFromUrl(url) {
+        if (!isHttpUrl(url) || url.indexOf('res.cloudinary.com') < 0) return null;
+        var m = /\/upload\/(.+)$/.exec(url);
+        if (!m) return null;
+        var rest = m[1].split('?')[0];
+        // Drop a leading version segment (v1234567890/) if present.
+        rest = rest.replace(/^v\d+\//, '');
+        // Drop the file extension.
+        rest = rest.replace(/\.[a-zA-Z0-9]+$/, '');
+        return rest || null;
+    }
+
+    // Delete an image from Cloudinary via the delete-proxy Worker. Safe no-op
+    // for base64 values, non-Cloudinary URLs, or when the Worker isn't
+    // configured. Never rejects — failures are logged, the app continues.
     function deleteImage(value) {
-        return Promise.resolve();
+        if (!deleteConfigured()) return Promise.resolve();
+        var publicId = publicIdFromUrl(value);
+        if (!publicId) return Promise.resolve();
+        return fetch(DELETE_WORKER_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + DELETE_TOKEN
+            },
+            body: JSON.stringify({ public_id: publicId })
+        }).then(function (res) {
+            return res.json().catch(function () { return {}; });
+        }).then(function (data) {
+            var r = data && data.results && data.results[0];
+            if (!r || (r.result !== 'ok' && r.result !== 'not found')) {
+                console.warn('[Storage] delete returned:', r ? r.result : data);
+            }
+            return data;
+        }).catch(function (err) {
+            console.warn('[Storage] delete failed (ignored):', err && err.message);
+        });
     }
 
     // ========================================================
@@ -253,6 +302,7 @@
         ready: function () { return STORAGE_READY; },
         isDataUrl: isDataUrl,
         isHttpUrl: isHttpUrl,
+        publicIdFromUrl: publicIdFromUrl,
         activeCampaignId: activeCampaignId,
         migrateAll: migrateAll
     };
