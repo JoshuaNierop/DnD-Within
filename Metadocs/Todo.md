@@ -13,6 +13,7 @@
 Beslissingen bevestigd: E5.0=2014 PHB / E5.5=2024 PHB · gamedata blijft in code · **multi-campaign vanaf start**.
 - [!] P0 — Firebase Storage activeren (console → Get Started) — BLOKKEERT image-migratie; alleen Joshua. https://console.firebase.google.com/project/dnd-within-firebase/storage
 - [ ] P1 — Na activatie: `firebase deploy --only storage` + `DWImages.migrateAll()` (base64 → Storage)
+- [x] P2 — Repo-cleanup: 17 ongebruikte campagne-images (Ren/Saya/Banners/Valoria Map/etc., 0 refs in actieve code) verwijderd; `.wrangler/` (build-cache) + `_backups/` (lokale DB-backups, 6MB) gegitignored. Commit `3929f3e`.
 - [ ] P1 — Fase 2: multi-campaign tekst-tree via sync.js keyToPath/pathToKey met dual-read fallback + Node round-trip test tegen `_backups/rtdb-full-*.json` (NIET blind live duwen — eerst offline bewezen)
 - [ ] P3 — Fase 3: Obsidian-linking (stabiele entity-IDs + tag-index + [[npc:id]] in notes)
 
