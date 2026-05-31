@@ -6112,7 +6112,7 @@ body.modal-open {
     z-index: 0;
 }
 .welcome-banner.has-banner::after { display: none; }
-.welcome-banner.has-banner > * { position: relative; z-index: 1; }
+.welcome-banner.has-banner > :not(.banner-upload-slots) { position: relative; z-index: 1; }
 .banner-upload-btn {
     position: absolute;
     top: 0.75rem;
@@ -6135,13 +6135,13 @@ body.modal-open {
 .banner-upload-btn:hover { opacity: 1; }
 .banner-upload-slots {
     position: absolute;
-    bottom: 0.6rem;
+    top: 0.6rem;
     right: 0.6rem;
     z-index: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 0.22rem;
-    align-items: flex-end;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.3rem;
+    justify-content: end;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
