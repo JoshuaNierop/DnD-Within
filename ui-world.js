@@ -1968,6 +1968,7 @@ function saveNPCModal() {
 
     var data = getNPCData();
     var npc = isNew ? { id: 'npc' + Date.now() } : (data.npcs[idx] || { id: 'npc' + Date.now() });
+    var oldImage = npc.image || '';                 // for cleanup-on-replace
     npc.name = name;
     npc.image = v('npc-f-image') || null;
     npc.birthYear = v('npc-f-birthYear');
@@ -1992,6 +1993,11 @@ function saveNPCModal() {
         data.npcs[idx] = npc;
     }
     saveNPCData(data);
+    // Clean up the replaced original (safe: refs resolve to the entity). Skip
+    // refs/base64; no-op until the delete-worker is configured.
+    if (window.DWImages && oldImage && oldImage !== npc.image && DWImages.isHttpUrl(oldImage)) {
+        try { DWImages.del(oldImage); } catch (e) {}
+    }
     closeNPCModal();
     renderApp();
 }
@@ -2064,6 +2070,7 @@ function saveLoreEntryModal() {
     var data = getLoreCatsData();
     if (!Array.isArray(data[cat])) data[cat] = [];
     var entry = isNew ? { id: 'le' + Date.now() } : (data[cat][idx] || { id: 'le' + Date.now() });
+    var oldImage = entry.image || '';               // for cleanup-on-replace
     entry.name = name;
     entry.image = v('lore-entry-f-image') || null;
     entry.description = v('lore-entry-f-description');
@@ -2071,6 +2078,9 @@ function saveLoreEntryModal() {
     if (isNew) data[cat].push(entry);
     else data[cat][idx] = entry;
     saveLoreCatsData(data);
+    if (window.DWImages && oldImage && oldImage !== entry.image && DWImages.isHttpUrl(oldImage)) {
+        try { DWImages.del(oldImage); } catch (e) {}
+    }
     closeLoreEntryModal();
     renderApp();
 }

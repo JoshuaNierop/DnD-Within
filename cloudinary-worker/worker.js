@@ -101,10 +101,12 @@ export default {
     else if (Array.isArray(body.public_ids)) ids = body.public_ids.filter(x => typeof x === 'string');
     if (!ids.length) return json({ error: 'no-public-id' }, 400, cors);
 
-    // 3. Prefix lock — only our own folder, nothing else in the account.
-    const prefix = env.PREFIX || 'dnd-within/';
-    const bad = ids.filter(id => id.indexOf(prefix) !== 0);
-    if (bad.length) return json({ error: 'prefix-locked', prefix, rejected: bad }, 403, cors);
+    // 3. Prefix lock — only our own folders, nothing else in the account.
+    // PREFIX may be a comma-separated list (e.g. "DnD Within/,dnd-within/") so
+    // both the current spaced tree and legacy roots can be cleaned up.
+    const prefixes = (env.PREFIX || 'dnd-within/').split(',').map(p => p.trim()).filter(Boolean);
+    const bad = ids.filter(id => !prefixes.some(p => id.indexOf(p) === 0));
+    if (bad.length) return json({ error: 'prefix-locked', prefixes, rejected: bad }, 403, cors);
 
     const results = [];
     for (const id of ids) {

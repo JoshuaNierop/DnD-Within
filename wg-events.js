@@ -707,6 +707,9 @@ async function uploadPortrait(widgetIdx, file) {
   const charId = state.characterId;
   if (!charId) { showToast("Geen actieve character", "error"); return; }
   showToast("Afbeelding laden...");
+  // Capture the existing portrait URL so we can clean up the old Cloudinary
+  // asset after the replacement lands (no-op until the delete-worker is live).
+  const oldPortrait = (function () { try { return localStorage.getItem('dw_img_' + charId + '_portrait') || ''; } catch (_) { return ''; } })();
   // Downscale + JPEG-encode before upload (smaller payload).
   const dataUrl = await wgFileToJpeg(file, 1200, 0.8);
   // Upload binary to Firebase Storage (off the text DB); store only the
@@ -728,6 +731,11 @@ async function uploadPortrait(widgetIdx, file) {
     await fetchCharacterData(charId);
     wgSyncCharToLocal(charId); // WGI-M6
     render();
+    // Clean up the replaced asset (safe: live refs resolve to the entity, not
+    // this URL). No-op for base64, non-Cloudinary, or when the worker is off.
+    if (window.DWImages && oldPortrait && oldPortrait !== toStore && DWImages.isHttpUrl(oldPortrait)) {
+      try { DWImages.del(oldPortrait); } catch (_) {}
+    }
     showToast("Portret opgeslagen", "success");
   } catch (err) {
     showToast("Fout: " + err.message, "error");

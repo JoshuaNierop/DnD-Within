@@ -159,14 +159,27 @@
     // single source of truth for the library hierarchy:
     //   DnD Within/Characters/<Name>/<type>
     //   DnD Within/Campains/<Campaign>/<Category>/<entity>
+    // The uploading user scopes the whole tree ("DnD Within/<User>/…") so two
+    // users can never collide on the same entity name. Falls back to 'shared'.
+    function uploaderId() {
+        try {
+            if (typeof currentUserId === 'function') {
+                var u = currentUserId();
+                if (u) return String(u);
+            }
+        } catch (e) { /* ignore */ }
+        return 'shared';
+    }
+
     function buildFolder(category, subpath) {
         subpath = String(subpath || '');
+        var base = ROOT + '/' + uploaderId();
         if (category === 'player' || category === 'character') {
             // subpath: "<charId>/<type>"
             var cp = subpath.split('/');
             var charId = cp[0] || 'unknown';
             var type = cp.slice(1).join('/');
-            var f = ROOT + '/Characters/' + charNameFromId(charId);
+            var f = base + '/Characters/' + charNameFromId(charId);
             if (type) f += '/' + type;
             return f;
         }
@@ -176,23 +189,23 @@
             var seg = cs[0] || 'Other';
             var mapped = CAMPAIGN_SEG_MAP[seg] || cap(seg);
             var rest = cs.slice(1).join('/');
-            var cf = ROOT + '/Campains/' + activeCampaignName() + '/' + mapped;
+            var cf = base + '/Campains/' + activeCampaignName() + '/' + mapped;
             if (rest) cf += '/' + rest;
             return cf;
         }
         if (category === 'npc') {
             // subpath: "<npcName>"
-            return ROOT + '/Campains/' + activeCampaignName() + '/NPCs/' + (subpath || 'unnamed');
+            return base + '/Campains/' + activeCampaignName() + '/NPCs/' + (subpath || 'unnamed');
         }
         if (category === 'lore') {
             // subpath: "<loreCat>/<entityName>"
             var lp = subpath.split('/');
             var lcat = LORE_CAT_MAP[lp[0]] || cap(lp[0] || 'Other');
             var entity = lp.slice(1).join('/') || 'unnamed';
-            return ROOT + '/Campains/' + activeCampaignName() + '/' + lcat + '/' + entity;
+            return base + '/Campains/' + activeCampaignName() + '/' + lcat + '/' + entity;
         }
         // Fallback for any other category.
-        return ROOT + '/' + category + '/' + subpath;
+        return base + '/' + category + '/' + subpath;
     }
 
     // Sanitise a Cloudinary folder path. Keep "/" as the separator and KEEP
@@ -269,20 +282,20 @@
         if (!STORAGE_READY) return Promise.reject(new Error('storage-not-ready'));
         if (typeof collectEntities !== 'function') return Promise.reject(new Error('collectEntities-missing'));
 
-        var GOOD = 'DnD Within/';
         var ents = collectEntities().filter(function (e) { return e.image && isHttpUrl(e.image); });
         var jobs = [];
         ents.forEach(function (e) {
-            var pid = publicIdFromUrl(e.image) || '';
-            // public_id from the URL is %20-encoded; decode before the check so
-            // already-migrated "DnD Within/…" assets are skipped (idempotent).
-            var decoded; try { decoded = decodeURIComponent(pid); } catch (x) { decoded = pid; }
-            if (decoded.indexOf(GOOD) === 0) return; // already in the right place
             var folder = null;
             if (e.type === 'character') folder = buildFolder('player', e.id + '/portrait');
             else if (e.type === 'npc') folder = buildFolder('npc', e.name);
             else if (e.type === 'lore') folder = buildFolder('lore', e.loreCat + '/' + e.name);
-            if (folder) jobs.push({ ent: e, folder: folder, oldUrl: e.image });
+            if (!folder) return;
+            var pid = publicIdFromUrl(e.image) || '';
+            // public_id from the URL is %20-encoded; decode before the check so an
+            // asset already in its exact target folder is skipped (idempotent).
+            var decoded; try { decoded = decodeURIComponent(pid); } catch (x) { decoded = pid; }
+            if (decoded.indexOf(folder + '/') === 0) return; // already in the right place
+            jobs.push({ ent: e, folder: folder, oldUrl: e.image });
         });
 
         var summary = {
@@ -371,6 +384,9 @@
         rest = rest.replace(/^v\d+\//, '');
         // Drop the file extension.
         rest = rest.replace(/\.[a-zA-Z0-9]+$/, '');
+        // URLs encode spaces as %20; the real Cloudinary public_id has spaces,
+        // so decode for an accurate match (delete, skip-checks).
+        try { rest = decodeURIComponent(rest); } catch (e) { /* keep raw */ }
         return rest || null;
     }
 
