@@ -195,14 +195,18 @@
         return ROOT + '/' + category + '/' + subpath;
     }
 
-    // Sanitise a Cloudinary folder path (keep "/" as separator; strip
-    // characters Cloudinary rejects; collapse repeats; trim leading/trailing).
+    // Sanitise a Cloudinary folder path. Keep "/" as the separator and KEEP
+    // SPACES (Joshua wants readable folder names without underscores, e.g.
+    // "DnD Within/Campains/The Serpent of Valoria/NPCs/Mara Veldin"). Only
+    // truly-unsafe characters are stripped (→ space); repeats collapsed; ends
+    // trimmed.
     function sanitizeFolder(p) {
         return String(p)
-            .replace(/[^a-zA-Z0-9/_-]+/g, '_')
-            .replace(/_{2,}/g, '_')
+            .replace(/[^a-zA-Z0-9 /_-]+/g, ' ')
+            .replace(/ {2,}/g, ' ')
             .replace(/\/{2,}/g, '/')
-            .replace(/^\/+|\/+$/g, '');
+            .replace(/ *\/ */g, '/')
+            .replace(/^[\s/]+|[\s/]+$/g, '');
     }
 
     // Low-level: upload a base64 dataURL into a Cloudinary folder → Promise<secure_url>.
@@ -365,7 +369,7 @@
             var chain = Promise.resolve();
             jobs.forEach(function (job) {
                 chain = chain.then(function () {
-                    var folder = 'dnd-within/' + topLevelCategory(job.path) + '/_migrated/' + job.path;
+                    var folder = ROOT + '/_migrated/' + topLevelCategory(job.path) + '/' + job.path;
                     return uploadDataUrl(folder, job.dataUrl).then(function (url) {
                         return db.ref('dw/' + job.path).set(url).then(function () {
                             summary.migrated++;
