@@ -1,5 +1,21 @@
 # D&D Within — To Do
 
+## Cloudinary hiërarchie + @-links + afbeelding-hergebruik (2026-06-01)
+Volledig ontwerp: `Metadocs/Design-Links-en-Image-Reuse.md`. Keuzes Joshua: vaste id's eerst · MVP-link-types = Characters + NPCs + Lore-kaarten · link toont actuele naam · image-picker bij NPC/Lore/Character-profiel (banners niet).
+
+- [x] P1 — **Cloudinary-hiërarchie** mirror't lokale `DnD Within`-tree. `storage.js buildFolder()` = single source: `Characters/<Naam>/<type>` + `Campains/<Campagne>/{NPCs,Monsters,Items,Places,Religions,Factions,Events,Session,Backgrounds}/<entiteit>`. Cities+Locations+maps → Places. NPC/lore-uploads geven entiteitsnaam mee. Geverifieerd in browser. ⚠️ unsigned-upload kan bestandsnaam niet zetten → mapnaam = entiteit, file = auto-naam. ⚠️ 26 oude migratie-images staan nog onder oude root `dnd-within/`.
+- [x] P1 — **Stabiele entity-id's** (fundering): `ensureEntityIds()` backfillt NPC's + lore-entries idempotent na Firebase-download (+ offline fallback). Alle bestaande NPC's hadden al id.
+- [x] P1 — **Feature B — afbeelding hergebruiken**: gedeelde `collectEntities()` + image-picker modal ("Kies bestaande" bij NPC + lore-entry editor). Geen re-upload (hergebruikt bestaande URL). Geverifieerd.
+- [x] P1 — **Feature A — @-mention links**: `mentions.js` autocomplete in `.edit-textarea` → token `[[type:id|Naam]]`; `renderRichText()` rendert veilige links met live naam (toegepast op scene-tekst, NPC-notes, lore-desc/notes, lore-articles, Notes). Klik → `applyEntityFocus()` opent/markeert de kaart. Types: Characters, NPCs, Lore-kaarten. Geverifieerd (incl. XSS-escaping).
+
+#### Open / follow-ups
+- [ ] P2 — Image-picker ook bij **character-profielfoto** (zit in widget-grid `wg-*`, ander subsysteem — nog niet gedaan; Joshua wilde dit wel).
+- [ ] P3 — @-links **Timeline-sessions** als type toevoegen (fase 2; focus-flow bestaat al via `dw_timeline_focus_session`).
+- [ ] P3 — Familie-koppeling van NPC's loopt nog via array-index (`findPrimaryFamilyByLink(null, String(idx))`); migreren naar stabiele id (nu hebben NPC's wél id's).
+- [ ] P3 — Bij live-delete van gedeelde afbeelding: alleen ontkoppelen (asset laten staan) — nu nog n.v.t. (`del()` is no-op).
+- [ ] P3 — Oude 26 Cloudinary-images onder `dnd-within/` herinpassen in nieuwe `DnD Within/`-tree.
+- [ ] P2 — Autocomplete-popup mooier positioneren (nu onder het veld; "bij cursor" = mirror-div, fase 2).
+
 ## Timeline & Lore overhaul (2026-06-01)
 Volledige prompt: `Metadocs/Prompt-Timeline-Lore-2026-06-01.md`. Keuzes Joshua: bug#3 = 50% grotere gap afbeelding↔tekst · NPC-expand = inline isotope-stijl · extra lore-tabs = Locations/Places, Events/History, Articles (vrije tekst).
 
