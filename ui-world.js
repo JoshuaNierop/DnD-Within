@@ -1969,7 +1969,7 @@ function closeNPCModal() {
     if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
 }
 
-function saveNPCModal() {
+async function saveNPCModal() {
     var form = document.querySelector('.npc-modal-active .npc-form');
     if (!form) return;
     var idx = parseInt(form.dataset.npcIdx, 10);
@@ -1977,6 +1977,9 @@ function saveNPCModal() {
     function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
     var name = v('npc-f-name');
     if (!name) { var ne = document.getElementById('npc-f-name'); if (ne) ne.focus(); return; }
+    // Wait for any in-flight Cloudinary upload so we store the URL, not base64.
+    var imgEl = document.getElementById('npc-f-image');
+    if (imgEl && imgEl._uploadPromise) { try { await imgEl._uploadPromise; } catch (e) {} }
 
     var data = getNPCData();
     var npc = isNew ? { id: 'npc' + Date.now() } : (data.npcs[idx] || { id: 'npc' + Date.now() });
@@ -2069,7 +2072,7 @@ function closeLoreEntryModal() {
     if (el) el.remove();
     if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
 }
-function saveLoreEntryModal() {
+async function saveLoreEntryModal() {
     var form = document.querySelector('.lore-entry-modal-active .lore-entry-form');
     if (!form) return;
     var cat = form.dataset.cat;
@@ -2078,6 +2081,8 @@ function saveLoreEntryModal() {
     function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
     var name = v('lore-entry-f-name');
     if (!name) { var ne = document.getElementById('lore-entry-f-name'); if (ne) ne.focus(); return; }
+    var imgEl2 = document.getElementById('lore-entry-f-image');
+    if (imgEl2 && imgEl2._uploadPromise) { try { await imgEl2._uploadPromise; } catch (e) {} }
 
     var data = getLoreCatsData();
     if (!Array.isArray(data[cat])) data[cat] = [];

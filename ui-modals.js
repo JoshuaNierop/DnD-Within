@@ -1126,11 +1126,16 @@ document.addEventListener('change', function(e) {
                 var prev = document.getElementById('npc-image-preview');
                 if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
                 var hid = document.getElementById('npc-f-image');
+                if (!hid) return;
+                // Set the base64 immediately so an early Save never loses the
+                // image (race-proof); the Cloudinary URL replaces it when ready.
+                hid.value = dataUrl;
                 if (window.DWImages && DWImages.save) {
-                    DWImages.save('npc', npcName, dataUrl).then(function(imgVal) {
-                        if (hid) hid.value = imgVal;
-                    }).catch(function() { if (hid) hid.value = dataUrl; });
-                } else if (hid) { hid.value = dataUrl; }
+                    hid._uploadPromise = DWImages.save('npc', npcName, dataUrl).then(function(imgVal) {
+                        if (imgVal) hid.value = imgVal;
+                        hid._uploadPromise = null;
+                    }).catch(function() { hid._uploadPromise = null; });
+                }
             });
             try { target.value = ''; } catch (_) {}
         }
@@ -1149,11 +1154,14 @@ document.addEventListener('change', function(e) {
                 var prev = document.getElementById('lore-entry-image-preview');
                 if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
                 var hid = document.getElementById('lore-entry-f-image');
+                if (!hid) return;
+                hid.value = dataUrl;   // race-proof fallback
                 if (window.DWImages && DWImages.save) {
-                    DWImages.save('lore', leCat + '/' + leName, dataUrl).then(function(imgVal) {
-                        if (hid) hid.value = imgVal;
-                    }).catch(function() { if (hid) hid.value = dataUrl; });
-                } else if (hid) { hid.value = dataUrl; }
+                    hid._uploadPromise = DWImages.save('lore', leCat + '/' + leName, dataUrl).then(function(imgVal) {
+                        if (imgVal) hid.value = imgVal;
+                        hid._uploadPromise = null;
+                    }).catch(function() { hid._uploadPromise = null; });
+                }
             });
             try { target.value = ''; } catch (_) {}
         }
