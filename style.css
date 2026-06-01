@@ -7364,6 +7364,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     .npc-expanded-portrait { max-width: 180px; }
 }
 
+/* ----- Afbeelding-picker (kies bestaande) ----- */
+.img-picker-overlay { z-index: 400; }   /* boven de onderliggende editor-modal */
+.modal-img-picker { max-width: 720px; width: 100%; }
+.img-picker-group { margin-top: 1rem; }
+.img-picker-group h3 { font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.5rem; }
+.img-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 0.6rem;
+}
+.img-picker-thumb {
+    display: flex; flex-direction: column; gap: 0.25rem;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 0; overflow: hidden;
+    cursor: pointer; text-align: center;
+}
+.img-picker-thumb:hover { border-color: var(--accent); }
+.img-picker-thumb img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+.img-picker-thumb span {
+    font-size: 0.7rem; padding: 0.25rem 0.3rem 0.4rem; color: var(--text-main);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
 /* ----- NPC / lore-entry editor modal ----- */
 .modal-npc { max-width: 640px; width: 100%; }
 .npc-form-image {

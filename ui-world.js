@@ -1612,6 +1612,113 @@ function renderNPCTracker() {
     return html;
 }
 
+// ===== Gedeelde entiteit-registry (voedt @-mention links + afbeelding-picker) =====
+// Geeft een platte lijst {type, cat, id, name, image, route} over alle stores
+// met een stabiele id. `image` is null als de entiteit geen afbeelding heeft.
+function collectEntities() {
+    var list = [];
+    // Characters — eigen route.
+    try {
+        var ids = (typeof getCharacterIds === 'function') ? getCharacterIds() : [];
+        for (var i = 0; i < ids.length; i++) {
+            var cfg = (typeof loadCharConfig === 'function') ? loadCharConfig(ids[i]) : null;
+            if (!cfg) continue;
+            var cimg = (typeof loadImage === 'function') ? (loadImage(ids[i], 'portrait') || '') : '';
+            list.push({ type: 'character', cat: 'Characters', id: ids[i], name: cfg.name || ids[i], image: cimg || null, route: '#/characters/' + ids[i] });
+        }
+    } catch (e) { /* ignore */ }
+    // NPCs — Lore-tab, inline-focus.
+    try {
+        var npcs = (getNPCData().npcs) || [];
+        for (var ni = 0; ni < npcs.length; ni++) {
+            var n = npcs[ni];
+            if (!n || !n.id) continue;
+            list.push({ type: 'npc', cat: 'NPCs', id: n.id, name: n.name || '(naamloos)', image: n.image || null, route: '#/lore/npcs' });
+        }
+    } catch (e) { /* ignore */ }
+    // Lore-cat entries.
+    try {
+        var ld = getLoreCatsData();
+        Object.keys(ld).forEach(function (c) {
+            if (!Array.isArray(ld[c])) return;
+            var label = c;
+            for (var li = 0; li < LORE_TABS.length; li++) if (LORE_TABS[li].id === c) label = LORE_TABS[li].label;
+            ld[c].forEach(function (e2) {
+                if (!e2 || !e2.id) return;
+                list.push({ type: 'lore', cat: label, loreCat: c, id: e2.id, name: e2.name || '(naamloos)', image: e2.image || null, route: '#/lore/' + c });
+            });
+        });
+    } catch (e) { /* ignore */ }
+    return list;
+}
+
+// ===== Afbeelding-picker — kies een bestaande afbeelding i.p.v. te uploaden =====
+var _imgPickerTarget = null;   // { hiddenId, previewId }
+var imgPickerSearch = '';
+
+function openImagePicker(hiddenId, previewId) {
+    _imgPickerTarget = { hiddenId: hiddenId, previewId: previewId };
+    imgPickerSearch = '';
+    closeImagePicker();
+    var div = document.createElement('div');
+    div.className = 'img-picker-active';
+    div.innerHTML = renderImagePicker();
+    document.body.appendChild(div);
+    if (typeof lockBodyScroll === 'function') lockBodyScroll();
+}
+function closeImagePicker() {
+    var el = document.querySelector('.img-picker-active');
+    if (el) el.remove();
+    // Laat de onderliggende modal de body-scroll-lock houden; alleen unlocken
+    // als er geen andere modal meer open is.
+    if (typeof unlockBodyScroll === 'function' && !document.querySelector('.npc-modal-active, .lore-entry-modal-active, .profile-modal-active')) {
+        unlockBodyScroll();
+    }
+}
+function rerenderImagePicker() {
+    var el = document.querySelector('.img-picker-active');
+    if (el) el.innerHTML = renderImagePicker();
+}
+function renderImagePicker() {
+    var ents = collectEntities().filter(function (e) { return e.image; });
+    var q = imgPickerSearch.toLowerCase();
+    if (q) ents = ents.filter(function (e) { return (e.name + ' ' + e.cat).toLowerCase().indexOf(q) >= 0; });
+
+    var html = '<div class="modal-overlay img-picker-overlay">';
+    html += '<div class="modal-card modal-img-picker">';
+    html += '<div class="modal-header"><h2>Kies bestaande afbeelding</h2>';
+    html += '<button class="modal-close" data-action="close-img-picker">&times;</button></div>';
+    html += '<div class="modal-body">';
+    html += '<input type="text" class="edit-input" id="img-picker-search" placeholder="Zoek op naam…" value="' + escapeAttr(imgPickerSearch) + '">';
+
+    if (!ents.length) {
+        html += '<p class="text-dim" style="margin-top:1rem;">' + (q ? 'Geen resultaten.' : 'Nog geen afbeeldingen beschikbaar.') + '</p>';
+    } else {
+        // Groepeer per categorie.
+        var groups = {};
+        ents.forEach(function (e) { (groups[e.cat] = groups[e.cat] || []).push(e); });
+        Object.keys(groups).forEach(function (cat) {
+            html += '<div class="img-picker-group"><h3>' + escapeHtml(cat) + '</h3><div class="img-picker-grid">';
+            groups[cat].forEach(function (e) {
+                html += '<button type="button" class="img-picker-thumb" data-action="select-picker-image" data-url="' + escapeAttr(e.image) + '" title="' + escapeAttr(e.name) + '">';
+                html += '<img src="' + escapeAttr(e.image) + '" alt=""><span>' + escapeHtml(e.name) + '</span>';
+                html += '</button>';
+            });
+            html += '</div></div>';
+        });
+    }
+    html += '</div></div></div>';
+    return html;
+}
+function pickExistingImage(url) {
+    if (!_imgPickerTarget) { closeImagePicker(); return; }
+    var hid = document.getElementById(_imgPickerTarget.hiddenId);
+    if (hid) hid.value = url;
+    var prev = document.getElementById(_imgPickerTarget.previewId);
+    if (prev) prev.innerHTML = '<img src="' + escapeAttr(url) + '" alt="">';
+    closeImagePicker();
+}
+
 // ===== NPC editor-modal (vervangt de oude prompt()-keten) =====
 function npcModalField(id, label, value, type) {
     var html = '<div class="npc-form-field">';
@@ -1642,6 +1749,7 @@ function renderNPCModal(idx) {
     html += '</div>';
     html += '<input type="hidden" id="npc-f-image" value="' + escapeAttr(n.image || '') + '">';
     html += '<label class="note-image-upload"><span>' + (n.image ? 'Afbeelding wijzigen' : 'Afbeelding toevoegen') + '</span><input type="file" accept="image/*" data-action="upload-npc-image" style="display:none"></label>';
+    html += '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-existing-image" data-target-hidden="npc-f-image" data-target-preview="npc-image-preview">Kies bestaande</button>';
     if (n.image) html += '<button type="button" class="btn btn-ghost btn-sm" data-action="remove-npc-image">' + t('generic.delete') + '</button>';
     html += '</div>';
 
@@ -1759,6 +1867,7 @@ function renderLoreEntryModal(cat, idx) {
     html += '</div>';
     html += '<input type="hidden" id="lore-entry-f-image" value="' + escapeAttr(e.image || '') + '">';
     html += '<label class="note-image-upload"><span>' + (e.image ? 'Afbeelding wijzigen' : 'Afbeelding toevoegen') + '</span><input type="file" accept="image/*" data-action="upload-lore-entry-image" style="display:none"></label>';
+    html += '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-existing-image" data-target-hidden="lore-entry-f-image" data-target-preview="lore-entry-image-preview">Kies bestaande</button>';
     if (e.image) html += '<button type="button" class="btn btn-ghost btn-sm" data-action="remove-lore-entry-image">' + t('generic.delete') + '</button>';
     html += '</div>';
 

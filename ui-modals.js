@@ -1036,6 +1036,38 @@ document.addEventListener('click', function(e) {
         if (lePrev) lePrev.innerHTML = '<span class="npc-portrait-empty">?</span>';
         return;
     }
+
+    // ----- Afbeelding-picker (kies bestaande, geen re-upload) -----
+    var pickBtn = target.closest('[data-action="pick-existing-image"]');
+    if (pickBtn) {
+        if (typeof openImagePicker === 'function') {
+            openImagePicker(pickBtn.dataset.targetHidden, pickBtn.dataset.targetPreview);
+        }
+        return;
+    }
+    if (target.matches('.img-picker-overlay') || target.closest('[data-action="close-img-picker"]')) {
+        if (typeof closeImagePicker === 'function') closeImagePicker();
+        return;
+    }
+    var thumb = target.closest('[data-action="select-picker-image"]');
+    if (thumb) {
+        if (typeof pickExistingImage === 'function') pickExistingImage(thumb.dataset.url);
+        return;
+    }
+});
+
+// Document-level input listener voor de afbeelding-picker zoekbalk (de picker
+// hangt aan body, dus app.oninput vangt 'm niet).
+document.addEventListener('input', function(e) {
+    if (e.target && e.target.id === 'img-picker-search') {
+        imgPickerSearch = e.target.value;
+        clearTimeout(e.target._t);
+        e.target._t = setTimeout(function() {
+            if (typeof rerenderImagePicker === 'function') rerenderImagePicker();
+            var el = document.getElementById('img-picker-search');
+            if (el) { el.focus(); var v = el.value.length; el.setSelectionRange(v, v); }
+        }, 200);
+    }
 });
 
 // Document-level change listener voor modal file-inputs (modals hangen aan
