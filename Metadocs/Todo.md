@@ -23,6 +23,14 @@ Keuze: **alleen junk weg, `DnD_Within` (underscore) laten staan**. Verwijder in 
 - `DnD_Within` (underscore) **laten staan** — die URL's staan nog in de DB en werken; later evt. consolideren naar spaties (vereist DB-URL-herschrijving).
 Niets in de code herstelt deze mappen (audit ok). Mist er daarna een afbeelding → opnieuw uploaden in de juiste (spatie-)map.
 
+#### User-scoping + cleanup-on-replace (2026-06-02)
+- [x] P1 — `buildFolder` scoped per uploadende user: `DnD Within/<User>/Characters/…` + `DnD Within/<User>/Campains/<campagne>/…`. (Let op: scope = uploader; als admin alles uploadt → alles onder `admin/`.)
+- [x] P1 — cleanup-on-replace gewired: oude image-URL gevangen + `DWImages.del()` na succesvolle vervanging (character-portret in wg-events, NPC + lore-save). Veilig dankzij live refs. **No-op tot `DELETE_WORKER_URL` gezet is.**
+- [x] P2 — `publicIdFromUrl` decodeert `%20` (delete matcht spatie-public_ids). `migrateImagesToTree` skip-check vergelijkt nu met exacte doelmap (kan re-homen naar user-scoped tree).
+- [x] P2 — `cloudinary-worker`: `PREFIX` is nu comma-separated allow-list (`DnD Within/,dnd-within/,DnD_Within/`).
+- [!] P1 — **TODO Joshua: delete-worker deployen** (in `cloudinary-worker/`): `wrangler login` → `wrangler secret put CLOUDINARY_API_SECRET` (secret van console.cloudinary.com) → `wrangler deploy` → geef mij de Worker-URL → ik zet 'm in `storage.js DELETE_WORKER_URL`. Daarna activeert cleanup-on-replace.
+- [ ] P3 — Bestaande 8 character-portretten staan op `DnD Within/Characters/…` (handmatig door Joshua geplaatst, geen user-laag). Niet auto-verplaatst om dat werk niet ongedaan te maken. Optioneel later `migrateImagesToTree({dryRun:false})` om ze onder `<user>/` te brengen.
+
 #### Cloudinary tree-migratie (2026-06-01, ronde 3)
 - [x] P1 — `DWImages.migrateImagesToTree({dryRun})` (storage.js): re-homed alle entity-afbeeldingen naar de spatie-tree via unsigned upload-by-URL + DB-URL-herschrijving (browser-only, geen secret). **Live uitgevoerd**: 8 character-portretten → `DnD Within/Characters/<Naam>/portrait`. Idempotent (decodeert %20).
 - [!] P1 — **Mara Veldin + Borin Stonehand NPC-afbeeldingen zijn weg** (stonden onder `dnd-within/world/npcs/`, server-side 404 → al verwijderd bij junk-cleanup; leken te laden door browser-cache). DB wijst nog naar de dode URL → **Joshua moet die 2 opnieuw uploaden** in de NPC-editor (landen dan in `DnD Within/.../NPCs/<naam>`).
