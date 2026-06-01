@@ -1,5 +1,19 @@
 # D&D Within — To Do
 
+## Timeline & Lore overhaul (2026-06-01)
+Volledige prompt: `Metadocs/Prompt-Timeline-Lore-2026-06-01.md`. Keuzes Joshua: bug#3 = 50% grotere gap afbeelding↔tekst · NPC-expand = inline isotope-stijl · extra lore-tabs = Locations/Places, Events/History, Articles (vrije tekst).
+
+### Timeline
+- [x] P0 — Bug: editor sluit bij scene-commit. Root cause: `sync.js` `firebasePathToLocalKey` regel 161 catch-all `world/timeline` → `dw_timeline` (legacy key). Eigen scene-write echoot via `child_changed` op `world`, mapt fout naar `dw_timeline` (niet in localStorage) → `changed>0` → `renderApp()` → editor dicht. Fix: container `world/timeline` (+ `world/timeline/scenes`) → `return null` zodat `extractLeaves` naar `dw_chapters`/`dw_scene_<id>` recurst (die matchen → changed 0). ⚠️ Live browser-verificatie open.
+- [x] P1 — CSS: scene-afbeelding top-align met `.scene-split-text` (eerste `<p>` `margin-top:0`). `style.css` ~4585.
+- [x] P2 — CSS: gap afbeelding↔tekst 50% groter (1rem → 1.5rem) op `.scene-split-img` margin.
+- [x] P1 — Sessie-volgorde op timeline van laag→hoog (chronologisch top→beneden). `ui-world.js` `renderTimeline` sort `nb-na` → `na-nb`. Content ongemoeid.
+
+### Lore
+- [ ] P1 — Lore-pagina met tabbladen: Items, NPCs, Religions, Factions, Cities, Monsters, Locations, Events, Articles. NPCs verplaatst van DM tools → Lore-tab.
+- [ ] P1 — NPC-tab: searchbar + filters, vaste-grootte portret-cards (naam + afbeelding), inline expand (isotope-stijl, 2× hoog volle breedte, rest herschikt). Image-veld toevoegen. Expanded velden: name, year of birth (age), race, class, relation, family, faction, religion, preferences, dislikes, pets, notes.
+- [ ] P2 — NPC edit-form: van `prompt()`-keten → echte modal met alle velden + image-upload (DWImages).
+
 ## Homepage & UI tweaks — ronde 9 (2026-05-30 12:30)
 
 - [x] P1 — Recent-event description was all-caps. Root cause: `<a class="dash-recent-event timeline-session">` erfde de bestaande `.timeline-session { text-transform: uppercase }` regel (regel 5279 — bedoeld voor de session-badge in de timeline). De `timeline-session` modifier-class is uit het anchor weggehaald (border-left was al gold via base rule), en een defensieve override op `.dash-recent-event` + `.dash-recent-desc` + `p` zet text-transform/letter-spacing terug naar normaal.

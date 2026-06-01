@@ -1161,8 +1161,10 @@ function renderTimeline() {
             html += '</div>';
         }
 
-        // Sessions — sorteer op sessie-nummer descending; sessies zonder
-        // session-# zakken naar onder. Originele index bewaard.
+        // Sessions — sorteer op sessie-nummer ascending: laag bovenaan → hoog
+        // onderaan, zodat de timeline van boven naar beneden chronologisch
+        // leest. Sessies zonder session-# zakken naar onder. Originele index
+        // bewaard voor edit/delete handlers.
         var sessions = ch.events || [];
         var sortedSess = sessions.map(function(s, idx) { return { s: migrateTimelineEvent(s), idx: idx }; });
         sortedSess.sort(function(a, b) {
@@ -1170,7 +1172,7 @@ function renderTimeline() {
             var nb = parseInt(b.s.session, 10);
             var aValid = !isNaN(na);
             var bValid = !isNaN(nb);
-            if (aValid && bValid) return nb - na;
+            if (aValid && bValid) return na - nb;
             if (aValid) return -1;
             if (bValid) return 1;
             return 0;

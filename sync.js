@@ -158,6 +158,13 @@ function firebasePathToLocalKey(path) {
     if (p[0] === 'world' && p[1] === 'families') return 'dw_families';
     if (p[0] === 'world' && p[1] === 'timeline' && p[2] === 'chapters') return 'dw_chapters';
     if (p[0] === 'world' && p[1] === 'timeline' && p[2] === 'scenes' && p[3]) return 'dw_scene_' + p[3];
+    // `world/timeline` and `world/timeline/scenes` are containers, NOT leaves.
+    // Returning a key here (the old catch-all mapped them to the legacy
+    // `dw_timeline`) made every self-echoed scene write re-create dw_timeline,
+    // bump `changed`, and fire renderApp() — closing the open session editor.
+    // Return null so extractLeaves recurses down to dw_chapters / dw_scene_<id>,
+    // which match localStorage and produce changed=0 (no spurious re-render).
+    if (p[0] === 'world' && p[1] === 'timeline') return null;
     if (p[0] === 'world' && p[1]) return 'dw_' + p[1];
 
     // dm/notes → dw_notes_dm

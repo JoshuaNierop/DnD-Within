@@ -4571,17 +4571,23 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .timeline-session-block .scene-split-image-left .scene-split-img,
 .scene-block-readonly.scene-split-image-left .scene-split-img {
     float: inline-start;
-    margin-inline-end: 1rem;
+    /* gap afbeelding↔tekst: 50% groter (1rem → 1.5rem) */
+    margin-inline-end: 1.5rem;
 }
 .timeline-session-block .scene-split-image-right .scene-split-img,
 .scene-block-readonly.scene-split-image-right .scene-split-img {
     float: inline-end;
-    margin-inline-start: 1rem;
+    margin-inline-start: 1.5rem;
 }
 .timeline-session-block .scene-split img,
 .scene-block-readonly .scene-split img { width: 100%; height: auto; border-radius: var(--radius-sm); display: block; }
 .timeline-session-block .scene-split-text,
 .scene-block-readonly .scene-split-text { text-align: justify; hyphens: auto; }
+/* Top-align de afbeelding met de tekst: de eerste <p> heeft anders een
+   margin-top (0.25rem) die de tekst lager zet dan de floatende afbeelding,
+   waardoor de afbeelding boven de tekst uitsteekt. */
+.timeline-session-block .scene-split-text > p:first-child,
+.scene-block-readonly .scene-split-text > p:first-child { margin-top: 0; }
 .timeline-session-block .scene-image-only img,
 .scene-block-readonly .scene-image-only img { max-width: 75%; border-radius: var(--radius-sm); }
 
