@@ -219,6 +219,8 @@ function initFirebaseSync() {
                 syncDownloadBugs();
                 syncListenBugs();
                 initPresence();
+                // Backfill stable entity ids now that real data is present.
+                if (typeof ensureEntityIds === 'function') ensureEntityIds();
                 // Re-render alleen als Firebase nieuwe/andere data leverde dan de localStorage cache.
                 // Voorkomt dubbele intro-animatie op return-visits met up-to-date cache.
                 if (changed > 0 && typeof renderApp === 'function') renderApp();

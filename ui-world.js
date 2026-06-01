@@ -1418,6 +1418,38 @@ function getNPCData() {
     if (saved) { try { return JSON.parse(saved); } catch(e) {} }
     return { npcs: [] };
 }
+
+// Backfill stable ids on NPCs + lore-cat entries. Foundation for @-mention
+// links and image-reuse (entities must be addressable by a rename-proof id,
+// not their array position). Idempotent: only assigns ids where missing and
+// only persists when something actually changed. Triggered AFTER the first
+// Firebase download (see sync.js) so it never runs against pre-download data.
+var _entityIdsEnsured = false;
+function ensureEntityIds(force) {
+    if (_entityIdsEnsured && !force) return;
+    _entityIdsEnsured = true;
+    // NPCs
+    try {
+        var nd = getNPCData();
+        var nChanged = false;
+        (nd.npcs || []).forEach(function (n, i) {
+            if (n && !n.id) { n.id = 'npc_' + i + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); nChanged = true; }
+        });
+        if (nChanged) saveNPCData(nd);
+    } catch (e) { /* ignore */ }
+    // Lore-cat entries
+    try {
+        var ld = getLoreCatsData();
+        var lChanged = false;
+        Object.keys(ld).forEach(function (cat) {
+            if (!Array.isArray(ld[cat])) return;
+            ld[cat].forEach(function (e2, j) {
+                if (e2 && !e2.id) { e2.id = 'le_' + cat + '_' + j + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); lChanged = true; }
+            });
+        });
+        if (lChanged) saveLoreCatsData(ld);
+    } catch (e) { /* ignore */ }
+}
 function saveNPCData(data) {
     localStorage.setItem('dw_npcs', JSON.stringify(data));
     if (typeof syncUpload === 'function') syncUpload('dw_npcs');
@@ -1471,6 +1503,9 @@ function renderNPCDetailRows(npc, currentYear) {
 }
 
 function renderNPCTracker() {
+    // Offline fallback: when Firebase isn't active the post-download id-backfill
+    // never fires, so ensure ids here (guarded → runs at most once).
+    if (typeof syncReady === 'undefined' || !syncReady) ensureEntityIds();
     var data = getNPCData();
     var npcs = data.npcs || [];
     var currentYear = data.currentYear || '';
@@ -1828,6 +1863,7 @@ function getLoreCatEntries(cat) {
 var loreCatSearch = '';
 
 function renderLoreCategory(cat) {
+    if (typeof syncReady === 'undefined' || !syncReady) ensureEntityIds();
     var entries = getLoreCatEntries(cat);
     var label = cat;
     for (var t2 = 0; t2 < LORE_TABS.length; t2++) if (LORE_TABS[t2].id === cat) label = LORE_TABS[t2].label;
