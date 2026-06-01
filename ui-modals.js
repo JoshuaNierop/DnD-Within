@@ -1046,12 +1046,16 @@ document.addEventListener('change', function(e) {
     if (target.matches('[data-action="upload-npc-image"]')) {
         var npcFile = target.files && target.files[0];
         if (npcFile && typeof _compressImageFile === 'function') {
+            // Folder = NPC name (Campains/<camp>/NPCs/<name>). Falls back to a
+            // timestamp if the name field is still empty at upload time.
+            var npcNameEl = document.getElementById('npc-f-name');
+            var npcName = (npcNameEl && npcNameEl.value.trim()) || ('npc' + Date.now());
             _compressImageFile(npcFile, 800, 0.8, function(dataUrl) {
                 var prev = document.getElementById('npc-image-preview');
                 if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
                 var hid = document.getElementById('npc-f-image');
                 if (window.DWImages && DWImages.save) {
-                    DWImages.save('world', 'npcs/npc' + Date.now(), dataUrl).then(function(imgVal) {
+                    DWImages.save('npc', npcName, dataUrl).then(function(imgVal) {
                         if (hid) hid.value = imgVal;
                     }).catch(function() { if (hid) hid.value = dataUrl; });
                 } else if (hid) { hid.value = dataUrl; }
@@ -1064,14 +1068,17 @@ document.addEventListener('change', function(e) {
     if (target.matches('[data-action="upload-lore-entry-image"]')) {
         var leFile = target.files && target.files[0];
         var leForm = target.closest('.lore-entry-form');
-        var leCat = leForm ? (leForm.dataset.cat || 'misc') : 'misc';
+        var leCat = leForm ? (leForm.dataset.cat || 'other') : 'other';
         if (leFile && typeof _compressImageFile === 'function') {
+            // Folder = Campains/<camp>/<MappedCat>/<entryName>.
+            var leNameEl = document.getElementById('lore-entry-f-name');
+            var leName = (leNameEl && leNameEl.value.trim()) || ('le' + Date.now());
             _compressImageFile(leFile, 800, 0.8, function(dataUrl) {
                 var prev = document.getElementById('lore-entry-image-preview');
                 if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
                 var hid = document.getElementById('lore-entry-f-image');
                 if (window.DWImages && DWImages.save) {
-                    DWImages.save('world', 'lore/' + leCat + '/le' + Date.now(), dataUrl).then(function(imgVal) {
+                    DWImages.save('lore', leCat + '/' + leName, dataUrl).then(function(imgVal) {
                         if (hid) hid.value = imgVal;
                     }).catch(function() { if (hid) hid.value = dataUrl; });
                 } else if (hid) { hid.value = dataUrl; }

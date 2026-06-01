@@ -41,12 +41,19 @@
 //      with the old one (no overwrite needed; unsigned can't overwrite).
 //   3. Paste the preset name into UPLOAD_PRESET below and commit.
 //
-// Image taxonomy (Cloudinary public_id = nested folders via "/"):
-//   dnd-within/player/<charId>/<type>
-//   dnd-within/campaign/<campId>/maps/<id>
-//   dnd-within/campaign/<campId>/timeline/<id>
-//   dnd-within/campaign/<campId>/dashboard/<slot>
-//   dnd-within/campaign/<campId>/notes/<id>
+// Image taxonomy (Cloudinary folder = nested path via "/") — mirrors Joshua's
+// local "DnD Within" tree so the media library is human-browsable:
+//   DnD Within/Characters/<CharName>/<type>            (portraits, notes, …)
+//   DnD Within/Campains/<Campaign>/NPCs/<NpcName>
+//   DnD Within/Campains/<Campaign>/Monsters/<Name>
+//   DnD Within/Campains/<Campaign>/Items/<Name>
+//   DnD Within/Campains/<Campaign>/Places/<Name>       (Cities + Locations + maps)
+//   DnD Within/Campains/<Campaign>/Religions|Factions|Events/<Name>
+//   DnD Within/Campains/<Campaign>/Session/<sceneId>   (timeline scenes)
+//   DnD Within/Campains/<Campaign>/Backgrounds/<slot>  (time-of-day banners)
+// Note: unsigned uploads cannot set a custom filename, so each asset gets an
+// auto-generated name INSIDE its named folder (the folder leaf is the entity
+// name). The single source of truth for this mapping is buildFolder() below.
 // ============================================================
 
 (function () {
@@ -88,6 +95,30 @@
         return typeof s === 'string' && (s.indexOf('https://') === 0 || s.indexOf('http://') === 0);
     }
 
+    // Root folder for the whole library — mirrors Joshua's local "DnD Within"
+    // tree so Cloudinary stays human-browsable. sanitizeFolder turns the space
+    // into "_" (→ "DnD_Within"). Legacy assets migrated earlier live under the
+    // old "dnd-within" root; those can be re-pathed later if desired.
+    var ROOT = 'DnD Within';
+
+    // Map a 'campaign' subpath's first segment to its human folder name.
+    var CAMPAIGN_SEG_MAP = {
+        dashboard: 'Backgrounds',
+        timeline:  'Session',
+        maps:      'Places',
+        notes:     'Notes'
+    };
+    // Map a lore-category id to its folder name (Cities/Locations share Places).
+    var LORE_CAT_MAP = {
+        items: 'Items', monsters: 'Monsters', locations: 'Places', cities: 'Places',
+        religions: 'Religions', factions: 'Factions', events: 'Events', npcs: 'NPCs'
+    };
+
+    function cap(s) {
+        s = String(s || '');
+        return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+    }
+
     // Best-effort active campaign id for path scoping (single-campaign default).
     function activeCampaignId() {
         try {
@@ -97,6 +128,71 @@
             }
         } catch (e) { /* ignore */ }
         return 'valoria';
+    }
+
+    // Human campaign name (e.g. "The Serpent of Valoria") for the folder tree;
+    // falls back to the id.
+    function activeCampaignName() {
+        try {
+            var id = activeCampaignId();
+            if (typeof getCampaigns === 'function') {
+                var camps = getCampaigns();
+                if (camps && camps[id] && camps[id].name) return camps[id].name;
+            }
+            return id;
+        } catch (e) { return 'valoria'; }
+    }
+
+    // Character display name (e.g. "Ren Ashvane") for the folder tree; falls
+    // back to the id.
+    function charNameFromId(charId) {
+        try {
+            if (typeof loadCharConfig === 'function') {
+                var cfg = loadCharConfig(charId);
+                if (cfg && cfg.name) return cfg.name;
+            }
+        } catch (e) { /* ignore */ }
+        return charId || 'unknown';
+    }
+
+    // Build the Cloudinary folder for a (category, subpath) pair. This is the
+    // single source of truth for the library hierarchy:
+    //   DnD Within/Characters/<Name>/<type>
+    //   DnD Within/Campains/<Campaign>/<Category>/<entity>
+    function buildFolder(category, subpath) {
+        subpath = String(subpath || '');
+        if (category === 'player' || category === 'character') {
+            // subpath: "<charId>/<type>"
+            var cp = subpath.split('/');
+            var charId = cp[0] || 'unknown';
+            var type = cp.slice(1).join('/');
+            var f = ROOT + '/Characters/' + charNameFromId(charId);
+            if (type) f += '/' + type;
+            return f;
+        }
+        if (category === 'campaign') {
+            // subpath: "<seg>/<rest>" e.g. "timeline/<id>", "dashboard/<slot>"
+            var cs = subpath.split('/');
+            var seg = cs[0] || 'Other';
+            var mapped = CAMPAIGN_SEG_MAP[seg] || cap(seg);
+            var rest = cs.slice(1).join('/');
+            var cf = ROOT + '/Campains/' + activeCampaignName() + '/' + mapped;
+            if (rest) cf += '/' + rest;
+            return cf;
+        }
+        if (category === 'npc') {
+            // subpath: "<npcName>"
+            return ROOT + '/Campains/' + activeCampaignName() + '/NPCs/' + (subpath || 'unnamed');
+        }
+        if (category === 'lore') {
+            // subpath: "<loreCat>/<entityName>"
+            var lp = subpath.split('/');
+            var lcat = LORE_CAT_MAP[lp[0]] || cap(lp[0] || 'Other');
+            var entity = lp.slice(1).join('/') || 'unnamed';
+            return ROOT + '/Campains/' + activeCampaignName() + '/' + lcat + '/' + entity;
+        }
+        // Fallback for any other category.
+        return ROOT + '/' + category + '/' + subpath;
     }
 
     // Sanitise a Cloudinary folder path (keep "/" as separator; strip
@@ -140,22 +236,18 @@
     // text DB. Returns an https URL when Cloudinary is live, otherwise the
     // original base64 dataURL (identical to legacy behaviour).
     //
-    // category: 'player' | 'campaign' | 'general' | 'version'
-    // subpath:  e.g. 'maps/<id>', 'timeline/<id>', or '<charId>/portrait'
+    // category: 'player'|'character' | 'campaign' | 'npc' | 'lore' | other
+    // subpath:  'player'  → '<charId>/<type>'
+    //           'campaign'→ '<seg>/<rest>' (timeline/dashboard/maps/notes/…)
+    //           'npc'     → '<npcName>'
+    //           'lore'    → '<loreCat>/<entityName>'
     // dataUrl:  the base64 image to store
     function saveImage(category, subpath, dataUrl) {
         if (!isDataUrl(dataUrl)) {
             // Already a URL or empty — nothing to upload.
             return Promise.resolve(dataUrl);
         }
-        var folder;
-        if (category === 'campaign') {
-            folder = 'dnd-within/campaign/' + activeCampaignId() + '/' + subpath;
-        } else if (category === 'player') {
-            folder = 'dnd-within/player/' + subpath;
-        } else {
-            folder = 'dnd-within/' + category + '/' + subpath;
-        }
+        var folder = buildFolder(category, subpath);
         return uploadDataUrl(folder, dataUrl).then(function (url) {
             return url;
         }).catch(function (err) {
@@ -304,6 +396,9 @@
         isHttpUrl: isHttpUrl,
         publicIdFromUrl: publicIdFromUrl,
         activeCampaignId: activeCampaignId,
+        activeCampaignName: activeCampaignName,
+        buildFolder: buildFolder,
+        sanitizeFolder: sanitizeFolder,
         migrateAll: migrateAll
     };
 })();
