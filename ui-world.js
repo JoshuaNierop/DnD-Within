@@ -1048,10 +1048,10 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
             html += '<div class="scene-split scene-split-' + layout + '">';
             html += '<div class="scene-split-img"><img src="' + s.image + '" alt=""></div>';
             html += '<div class="scene-split-text">';
-            if (s.text) html += '<p>' + escapeHtml(s.text) + '</p>';
+            if (s.text) html += '<p>' + renderRichText(s.text) + '</p>';
             html += '</div></div>';
         } else {
-            if (s.text) html += '<p>' + escapeHtml(s.text) + '</p>';
+            if (s.text) html += '<p>' + renderRichText(s.text) + '</p>';
             else html += '<p class="text-dim" style="font-style:italic;">(leeg)</p>';
         }
         html += '</div>';
@@ -1205,10 +1205,10 @@ function renderTimeline() {
                         html += '<div class="scene-split scene-split-' + scLayout + '">';
                         html += '<div class="scene-split-img"><img src="' + sc.image + '" alt=""></div>';
                         html += '<div class="scene-split-text">';
-                        if (sc.text) html += '<p>' + escapeHtml(sc.text) + '</p>';
+                        if (sc.text) html += '<p>' + renderRichText(sc.text) + '</p>';
                         html += '</div></div>';
                     } else {
-                        if (sc.text) html += '<p>' + escapeHtml(sc.text) + '</p>';
+                        if (sc.text) html += '<p>' + renderRichText(sc.text) + '</p>';
                     }
                     html += '</div>';
                 }
@@ -1366,7 +1366,7 @@ function renderLoreArticle(articleId) {
         } else if (text.indexOf('# ') === 0) {
             html += '<h2>' + escapeHtml(text.substring(2)) + '</h2>';
         } else {
-            html += '<p>' + escapeHtml(text) + '</p>';
+            html += '<p>' + renderRichText(text) + '</p>';
         }
     }
 
@@ -1498,7 +1498,7 @@ function renderNPCDetailRows(npc, currentYear) {
         }
         html += '</dl>';
     }
-    if (npc.notes) html += '<div class="npc-detail-notes"><strong>Notes</strong><p>' + escapeHtml(npc.notes) + '</p></div>';
+    if (npc.notes) html += '<div class="npc-detail-notes"><strong>Notes</strong><p>' + renderRichText(npc.notes) + '</p></div>';
     return html;
 }
 
@@ -1568,7 +1568,7 @@ function renderNPCTracker() {
         var n = list[li].npc;
         var realIdx = list[li].idx;
         var dispColor = npcDispColor(n.disposition);
-        html += '<div class="npc-card" data-npc-idx="' + realIdx + '" style="--npc-disp:' + dispColor + '">';
+        html += '<div class="npc-card" data-npc-idx="' + realIdx + '" data-npc-id="' + escapeAttr(n.id || '') + '" style="--npc-disp:' + dispColor + '">';
 
         // Compacte kaart-face: portret + naam.
         html += '<div class="npc-card-face" data-action="toggle-npc-card">';
@@ -1650,6 +1650,37 @@ function collectEntities() {
         });
     } catch (e) { /* ignore */ }
     return list;
+}
+
+// Look up a single entity by type+id (used by renderRichText to resolve the
+// LIVE name of a mention link, so renaming an entity updates every reference).
+function entityById(type, id) {
+    var ents = collectEntities();
+    for (var i = 0; i < ents.length; i++) {
+        if (ents[i].type === type && ents[i].id === id) return ents[i];
+    }
+    return null;
+}
+
+// Render plain user text to safe HTML, turning @-mention tokens
+// `[[type:id|naam]]` into clickable entity-links. ORDER MATTERS: escape the
+// whole string first (keeps it XSS-safe like before), THEN swap the tokens —
+// the id is validated to [a-z0-9_], the href is built by us, and the shown
+// name is the entity's CURRENT name (falls back to the snapshot, or plain text
+// if the entity no longer exists).
+function renderRichText(str) {
+    var escaped = escapeHtml(str == null ? '' : String(str));
+    return escaped.replace(/\[\[(character|npc|lore):([a-z0-9_]+)(?:\|([^\]]*))?\]\]/gi, function (m, type, id, fallback) {
+        type = type.toLowerCase();
+        var ent = entityById(type, id);
+        if (!ent) {
+            // Entity gone — show the snapshot name as plain text (already escaped).
+            return '@' + (fallback || escapeHtml(id));
+        }
+        var safeName = escapeHtml(ent.name);
+        return '<a href="' + escapeAttr(ent.route) + '" class="entity-link entity-link-' + type + '" ' +
+               'data-action="goto-entity" data-etype="' + type + '" data-eid="' + escapeAttr(id) + '">@' + safeName + '</a>';
+    });
 }
 
 // ===== Afbeelding-picker — kies een bestaande afbeelding i.p.v. te uploaden =====
@@ -2001,14 +2032,14 @@ function renderLoreCategory(cat) {
     for (var i = 0; i < filtered.length; i++) {
         var e = filtered[i];
         var realIdx = entries.indexOf(e);
-        html += '<div class="lore-entry-card" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-action="toggle-lore-entry">';
+        html += '<div class="lore-entry-card" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
         if (e.image) {
             html += '<div class="lore-entry-img"><img src="' + escapeAttr(e.image) + '" alt=""></div>';
         }
         html += '<div class="lore-entry-body">';
         html += '<h3>' + escapeHtml(e.name || '(naamloos)') + '</h3>';
-        if (e.description) html += '<p class="lore-entry-desc">' + escapeHtml(e.description) + '</p>';
-        if (e.notes) html += '<p class="lore-entry-notes text-dim">' + escapeHtml(e.notes) + '</p>';
+        if (e.description) html += '<p class="lore-entry-desc">' + renderRichText(e.description) + '</p>';
+        if (e.notes) html += '<p class="lore-entry-notes text-dim">' + renderRichText(e.notes) + '</p>';
         if (isDM()) {
             html += '<div class="lore-entry-actions">';
             html += '<button class="btn btn-ghost btn-sm" data-action="edit-lore-entry" data-cat="' + cat + '" data-entry-idx="' + realIdx + '">' + t('generic.edit') + '</button>';
@@ -2416,7 +2447,7 @@ function renderNoteView(noteId) {
         var paragraphs = (note.content || '').split('\n\n');
         for (var p = 0; p < paragraphs.length; p++) {
             if (paragraphs[p].trim()) {
-                var lines = escapeHtml(paragraphs[p].trim()).replace(/\n/g, '<br>');
+                var lines = renderRichText(paragraphs[p].trim()).replace(/\n/g, '<br>');
                 html += '<p>' + lines + '</p>';
             }
         }

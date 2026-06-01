@@ -141,6 +141,32 @@ function renderApp() {
     if (!routeChanged) requestAnimationFrame(function() { app.classList.remove('no-animate'); });
 }
 
+// Open + highlight the NPC / lore-entry card that a clicked @-mention link
+// targeted (window._dwEntityFocus = {type, id}). Mirrors the timeline
+// session-focus flow. Safe no-op when nothing is pending or the card is absent.
+function applyEntityFocus() {
+    var ef = window._dwEntityFocus;
+    if (!ef) return;
+    window._dwEntityFocus = null;
+    try {
+        var sel = null;
+        if (ef.type === 'npc') sel = '.npc-card[data-npc-id="' + ef.id + '"]';
+        else if (ef.type === 'lore') sel = '.lore-entry-card[data-entry-id="' + ef.id + '"]';
+        if (!sel) return;
+        var card = document.querySelector(sel);
+        if (!card) return;
+        // Collapse siblings (accordion) then open the target.
+        if (card.classList.contains('npc-card')) {
+            var grid = card.closest('.npc-grid');
+            if (grid) grid.querySelectorAll('.npc-card.expanded').forEach(function (c) { c.classList.remove('expanded'); });
+        }
+        card.classList.add('expanded');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('session-focus-flash');
+        setTimeout(function () { card.classList.remove('session-focus-flash'); }, 2000);
+    } catch (e) { /* ignore */ }
+}
+
 function postRenderEffects(route) {
     // Hydrate char-card portraits that localStorage couldn't hold (quota) or
     // that were uploaded from another device. No-op when no such cards exist.
@@ -182,6 +208,9 @@ function postRenderEffects(route) {
             }
         } catch (e) {}
     }
+
+    // @-mention landing: open + flash the NPC/lore card a link pointed to.
+    if (route.parts[0] === 'lore') applyEntityFocus();
 
     // Initiative drag-and-drop
     initInitiativeDragDrop();

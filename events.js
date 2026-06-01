@@ -1059,6 +1059,25 @@ function bindPageEvents(route) {
         }
 
         // --- NPC card expand/collapse ---
+        // @-mention link → open the target entity (set focus + navigate). For
+        // characters the href route is enough; for npc/lore we also flag the
+        // card to open via applyEntityFocus() after render.
+        if (target.closest('[data-action="goto-entity"]')) {
+            var entLink = target.closest('[data-action="goto-entity"]');
+            var etype = entLink.dataset.etype, eid = entLink.dataset.eid;
+            if (etype === 'npc' || etype === 'lore') {
+                window._dwEntityFocus = { type: etype, id: eid };
+                var dest = entLink.getAttribute('href') || '';
+                if (dest && ('#' + (location.hash || '').replace(/^#/, '')) === dest) {
+                    // Already on the target tab → no hashchange fires; focus now.
+                    if (typeof applyEntityFocus === 'function') applyEntityFocus();
+                    e.preventDefault();
+                }
+                // else: let the default <a> navigation run → postRenderEffects focuses.
+            }
+            return;
+        }
+
         if (target.matches('[data-action="toggle-npc-card"]') || target.closest('[data-action="toggle-npc-card"]')) {
             var card = target.closest('.npc-card');
             if (!card) return;
