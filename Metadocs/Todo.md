@@ -23,8 +23,11 @@ Keuze: **alleen junk weg, `DnD_Within` (underscore) laten staan**. Verwijder in 
 - `DnD_Within` (underscore) **laten staan** — die URL's staan nog in de DB en werken; later evt. consolideren naar spaties (vereist DB-URL-herschrijving).
 Niets in de code herstelt deze mappen (audit ok). Mist er daarna een afbeelding → opnieuw uploaden in de juiste (spatie-)map.
 
-#### Open / follow-ups
-- [ ] P3 — Later: `DnD_Within` (underscore) consolideren naar spatie-mappen (rename + Firebase-URL-herschrijving; script met dry-run nodig).
+#### Cloudinary tree-migratie (2026-06-01, ronde 3)
+- [x] P1 — `DWImages.migrateImagesToTree({dryRun})` (storage.js): re-homed alle entity-afbeeldingen naar de spatie-tree via unsigned upload-by-URL + DB-URL-herschrijving (browser-only, geen secret). **Live uitgevoerd**: 8 character-portretten → `DnD Within/Characters/<Naam>/portrait`. Idempotent (decodeert %20).
+- [!] P1 — **Mara Veldin + Borin Stonehand NPC-afbeeldingen zijn weg** (stonden onder `dnd-within/world/npcs/`, server-side 404 → al verwijderd bij junk-cleanup; leken te laden door browser-cache). DB wijst nog naar de dode URL → **Joshua moet die 2 opnieuw uploaden** in de NPC-editor (landen dan in `DnD Within/.../NPCs/<naam>`).
+- [ ] P3 — Bevinding: de `DnD_Within` (underscore) mappen die in Cloudinary zichtbaar waren, waren **leeg/orphan** (geen DB-refs). Character-portretten stonden los in de root, NPC's onder `dnd-within`. Na de tree-migratie kan Joshua de losse root-assets + lege `DnD_Within`/`dnd-within` resten in de UI opruimen.
+- [ ] P3 — Tree-URL's bevatten `%20` (spatie-encoding); `del()` (no-op nu) moet bij live-gaan de public_id decoderen voor een match.
 - [~] P2 — Character-profielfoto = **originele bron** (alleen uploaden, geen pick-knop) → conform model, niets te doen. (Eerder dacht ik picker hier toe te voegen; vervalt.)
 - [ ] P3 — @-links **Timeline-sessions** als type toevoegen (fase 2; focus-flow bestaat al via `dw_timeline_focus_session`).
 - [ ] P3 — Familie-koppeling van NPC's loopt nog via array-index (`findPrimaryFamilyByLink(null, String(idx))`); migreren naar stabiele id (nu hebben NPC's wél id's).
