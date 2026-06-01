@@ -113,14 +113,19 @@
         var pos = ta.selectionStart;
         var before = ta.value.slice(0, queryAt);
         var after = ta.value.slice(pos);
-        var safeName = String(e.name || '').replace(/[\]|]/g, '');
-        var token = '[[' + e.type + ':' + e.id + '|' + safeName + ']]';
-        ta.value = before + token + ' ' + after;
-        var caret = (before + token + ' ').length;
+        var safeName = String(e.name || '').replace(/[\]|@]/g, '').trim();
+        // Insert the clean "@Name" the user sees; remember the id→name mapping on
+        // the field so save can expand it back to the [[type:id|Name]] token.
+        ta.value = before + '@' + safeName + ' ' + after;
+        var caret = (before + '@' + safeName + ' ').length;
+        try {
+            var list = JSON.parse(ta.dataset.mentions || '[]');
+            list.push({ name: safeName, type: e.type, id: e.id });
+            ta.dataset.mentions = JSON.stringify(list);
+        } catch (_) { ta.dataset.mentions = JSON.stringify([{ name: safeName, type: e.type, id: e.id }]); }
         closePopup();
         ta.focus();
         try { ta.setSelectionRange(caret, caret); } catch (_) {}
-        // Let any oninput logic (auto-grow, etc.) run.
         ta.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
@@ -155,66 +160,54 @@
     window.addEventListener('resize', function () { if (popup) positionPopup(); });
 
     // ========================================================
-    // Mention HIGHLIGHT overlay — show inserted [[type:id|Name]] tokens as
-    // styled links INSIDE the edit field. A backdrop div renders the text with
-    // the name in link-colour and the [[type:id|…]] syntax transparent (still
-    // occupies width → caret stays aligned); the textarea text is made
-    // transparent so only the backdrop shows. The textarea keeps editing.
+    // Display ↔ storage conversion. The DB always stores the canonical token
+    // [[type:id|Name]] (rename-proof, renders as a real link everywhere). The
+    // EDIT field shows a clean "@Name" instead. These helpers convert between
+    // the two; the field carries a data-mentions JSON map (name→type:id) so the
+    // save path can expand "@Name" back to the token.
     // ========================================================
-    var MH_SELECTOR = '.scene-text-input, #note-content, #npc-f-notes, #lore-entry-f-description, #lore-entry-f-notes';
+    var TOKEN_RE = /\[\[(character|npc|lore):([a-z0-9_]+)(?:\|([^\]]*))?\]\]/gi;
 
-    function mhEscape(s) {
-        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-    function mhHighlight(text) {
-        var esc = mhEscape(text);
-        esc = esc.replace(/\[\[(character|npc|lore):([a-z0-9_]+)(?:\|([^\]]*))?\]\]/gi, function (m, type, id, name) {
-            return '<span class="mh-syn">[[' + type + ':' + id + '|</span>' +
-                   '<span class="mh-name">' + (name || '') + '</span>' +
-                   '<span class="mh-syn">]]</span>';
+    // Tokens → "@Name" for display in a textarea.
+    window.mentionsToDisplay = function (text) {
+        if (text == null) return '';
+        return String(text).replace(TOKEN_RE, function (m, type, id, name) {
+            return '@' + (name || id);
         });
-        // Trailing newline keeps the backdrop's last line height in step with
-        // the textarea (which reserves space after a final newline).
-        return esc + '\n';
-    }
-    function mhSync(ta) {
-        var bd = ta._mhBackdrop;
-        if (!bd) return;
-        bd.innerHTML = mhHighlight(ta.value);
-        bd.scrollTop = ta.scrollTop;
-    }
-    function mhAttachOne(ta) {
-        if (!ta || ta._mhAttached) return;
-        ta._mhAttached = true;
-        var field = document.createElement('div');
-        field.className = 'mention-field';
-        var bd = document.createElement('div');
-        bd.className = 'mention-backdrop';
-        // Copy the metrics that drive text layout so backdrop + textarea align.
-        var cs = window.getComputedStyle(ta);
-        ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight', 'letterSpacing',
-         'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
-         'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
-         'textAlign', 'textIndent', 'tabSize'].forEach(function (p) { bd.style[p] = cs[p]; });
-        bd.style.borderStyle = 'solid';
-        bd.style.borderColor = 'transparent';
-        ta.parentNode.insertBefore(field, ta);
-        field.appendChild(bd);
-        field.appendChild(ta);
-        ta.classList.add('mention-textarea-transparent');
-        ta._mhBackdrop = bd;
-        ta.addEventListener('input', function () { mhSync(ta); });
-        ta.addEventListener('scroll', function () { bd.scrollTop = ta.scrollTop; });
-        mhSync(ta);
-    }
-    // Public: wrap any mention fields under `root` (idempotent).
-    window.attachMentionOverlays = function (root) {
-        var scope = root || document;
-        if (!scope.querySelectorAll) return;
-        var tas = scope.querySelectorAll(MH_SELECTOR);
-        for (var i = 0; i < tas.length; i++) mhAttachOne(tas[i]);
     };
-    // Keep backdrops in step when other code changes a textarea programmatically
-    // (e.g. the autocomplete inserting a token, or auto-grow resizing).
-    window.refreshMentionOverlay = function (ta) { if (ta && ta._mhBackdrop) mhSync(ta); };
+    // Extract the mention map [{name,type,id}] from token-text (for data-mentions).
+    window.mentionsExtract = function (text) {
+        var list = [];
+        if (text == null) return list;
+        String(text).replace(TOKEN_RE, function (m, type, id, name) {
+            list.push({ name: name || id, type: type, id: id });
+            return m;
+        });
+        return list;
+    };
+    // "@Name" → tokens, using a [{name,type,id}] map (longest names first so a
+    // multi-word name wins over a shorter prefix). Names not in the map stay as
+    // literal "@text".
+    window.mentionsToTokens = function (displayText, map) {
+        if (displayText == null) return '';
+        var text = String(displayText);
+        if (!Array.isArray(map) || !map.length) return text;
+        var sorted = map.slice().sort(function (a, b) { return (b.name || '').length - (a.name || '').length; });
+        sorted.forEach(function (e) {
+            if (!e || !e.name || !e.id) return;
+            var safe = e.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var re = new RegExp('@' + safe + '(?![\\p{L}\\p{N}_])', 'gu');
+            var token = '[[' + e.type + ':' + e.id + '|' + e.name + ']]';
+            text = text.replace(re, token);
+        });
+        return text;
+    };
+    // Convenience: read a field's display value back into token-text using the
+    // data-mentions map stashed on the element.
+    window.mentionsFieldToTokens = function (el) {
+        if (!el) return '';
+        var map = [];
+        try { map = JSON.parse(el.dataset.mentions || '[]'); } catch (_) { map = []; }
+        return window.mentionsToTokens(el.value, map);
+    };
 })();

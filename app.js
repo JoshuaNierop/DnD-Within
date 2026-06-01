@@ -219,7 +219,6 @@ function postRenderEffects(route) {
     // open pre-filled when editing a session).
     if (typeof autoGrowAll === 'function') autoGrowAll();
     // Style @-mention tokens as links inside the edit fields.
-    if (typeof attachMentionOverlays === 'function') attachMentionOverlays();
 
     // Initiative drag-and-drop
     initInitiativeDragDrop();

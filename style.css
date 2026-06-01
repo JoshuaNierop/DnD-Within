@@ -7429,32 +7429,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     color: var(--accent);
 }
 
-/* Mention highlight overlay — styled link names inside the edit field. */
-.mention-field { position: relative; width: 100%; }
-.mention-backdrop {
-    position: absolute;
-    inset: 0;
-    margin: 0;
-    box-sizing: border-box;
-    overflow: hidden;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    pointer-events: none;
-    color: var(--text-main);
-    z-index: 0;
-}
-.mention-textarea-transparent {
-    position: relative;
-    z-index: 1;
-    background: transparent !important;
-    color: transparent !important;
-    caret-color: var(--text-main);
-}
-.mention-textarea-transparent::placeholder { color: var(--text-dim); }
-.mh-syn { color: transparent; }
-.mh-name { color: var(--accent); }
-
 .mention-popup {
     position: absolute;
     z-index: 500;

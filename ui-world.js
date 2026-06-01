@@ -1036,7 +1036,10 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
         html += '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + sceneIdx + '">Kies bestaande</button>';
         html += '</div>';
         html += '<div class="scene-text-section" style="display:' + (needsText ? 'block' : 'none') + '">';
-        html += '<textarea class="edit-textarea auto-grow scene-text-input" data-scene-idx="' + sceneIdx + '" placeholder="Scene text…" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)">' + escapeHtml(s.text || '') + '</textarea>';
+        var sText = s.text || '';
+        var sDisplay = (typeof mentionsToDisplay === 'function') ? mentionsToDisplay(sText) : sText;
+        var sMap = (typeof mentionsExtract === 'function') ? JSON.stringify(mentionsExtract(sText)) : '[]';
+        html += '<textarea class="edit-textarea auto-grow scene-text-input" data-scene-idx="' + sceneIdx + '" data-mentions="' + escapeAttr(sMap) + '" placeholder="Scene text…" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)">' + escapeHtml(sDisplay) + '</textarea>';
         html += '</div>';
     } else {
         // Collapsed preview: render the scene the same way the timeline does
@@ -1734,6 +1737,16 @@ function isImageRef(value) {
     return typeof value === 'string' && value.indexOf('@ref:') === 0;
 }
 
+// Helpers to render a mention-enabled textarea: the value shows "@Name" while
+// a data-mentions attribute carries the name→id map so save can expand it back.
+function mentionFieldAttr(text) {
+    var map = (typeof mentionsExtract === 'function') ? JSON.stringify(mentionsExtract(text || '')) : '[]';
+    return ' data-mentions="' + escapeAttr(map) + '"';
+}
+function mentionFieldVal(text) {
+    return escapeHtml((typeof mentionsToDisplay === 'function') ? mentionsToDisplay(text || '') : (text || ''));
+}
+
 // ===== Afbeelding-picker — kies een bestaande afbeelding (slaat een LIVE ref op) =====
 // target: { hiddenId, previewId }  of  { onPick: function(refValue, resolvedUrl) }
 var _imgPickerTarget = null;
@@ -1942,7 +1955,7 @@ function renderNPCModal(idx) {
     html += '</div>';
 
     html += '<div class="npc-form-field npc-form-notes"><label class="login-label" for="npc-f-notes">Notes</label>';
-    html += '<textarea class="edit-textarea" id="npc-f-notes" rows="4">' + escapeHtml(n.notes || '') + '</textarea></div>';
+    html += '<textarea class="edit-textarea" id="npc-f-notes" rows="4"' + mentionFieldAttr(n.notes) + '>' + mentionFieldVal(n.notes) + '</textarea></div>';
 
     html += '<div class="edit-actions">';
     html += '<button class="edit-save" data-action="save-npc-modal">' + t('generic.save') + '</button>';
@@ -1962,7 +1975,6 @@ function openNPCModal(idx) {
     div.innerHTML = renderNPCModal(idx == null ? -1 : idx);
     document.body.appendChild(div);
     if (typeof lockBodyScroll === 'function') lockBodyScroll();
-    if (typeof attachMentionOverlays === 'function') attachMentionOverlays(div);
     if (typeof autoGrowAll === 'function') autoGrowAll(div);
 }
 function closeNPCModal() {
@@ -2001,7 +2013,7 @@ async function saveNPCModal() {
     npc.preferences = v('npc-f-preferences');
     npc.dislikes = v('npc-f-dislikes');
     npc.pets = v('npc-f-pets');
-    npc.notes = v('npc-f-notes');
+    npc.notes = (typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(document.getElementById('npc-f-notes')) : v('npc-f-notes');
 
     if (isNew) {
         if (!Array.isArray(data.npcs)) data.npcs = [];
@@ -2048,9 +2060,9 @@ function renderLoreEntryModal(cat, idx) {
     html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-name">Naam</label>';
     html += '<input type="text" class="edit-input" id="lore-entry-f-name" value="' + escapeAttr(e.name || '') + '"></div>';
     html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-description">Omschrijving</label>';
-    html += '<textarea class="edit-textarea" id="lore-entry-f-description" rows="4">' + escapeHtml(e.description || '') + '</textarea></div>';
+    html += '<textarea class="edit-textarea" id="lore-entry-f-description" rows="4"' + mentionFieldAttr(e.description) + '>' + mentionFieldVal(e.description) + '</textarea></div>';
     html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-notes">Notities</label>';
-    html += '<textarea class="edit-textarea" id="lore-entry-f-notes" rows="3">' + escapeHtml(e.notes || '') + '</textarea></div>';
+    html += '<textarea class="edit-textarea" id="lore-entry-f-notes" rows="3"' + mentionFieldAttr(e.notes) + '>' + mentionFieldVal(e.notes) + '</textarea></div>';
 
     html += '<div class="edit-actions">';
     html += '<button class="edit-save" data-action="save-lore-entry-modal">' + t('generic.save') + '</button>';
@@ -2068,7 +2080,6 @@ function openLoreEntryModal(cat, idx) {
     div.innerHTML = renderLoreEntryModal(cat, idx == null ? -1 : idx);
     document.body.appendChild(div);
     if (typeof lockBodyScroll === 'function') lockBodyScroll();
-    if (typeof attachMentionOverlays === 'function') attachMentionOverlays(div);
     if (typeof autoGrowAll === 'function') autoGrowAll(div);
 }
 function closeLoreEntryModal() {
@@ -2094,8 +2105,8 @@ async function saveLoreEntryModal() {
     var oldImage = entry.image || '';               // for cleanup-on-replace
     entry.name = name;
     entry.image = v('lore-entry-f-image') || null;
-    entry.description = v('lore-entry-f-description');
-    entry.notes = v('lore-entry-f-notes');
+    entry.description = (typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(document.getElementById('lore-entry-f-description')) : v('lore-entry-f-description');
+    entry.notes = (typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(document.getElementById('lore-entry-f-notes')) : v('lore-entry-f-notes');
     if (isNew) data[cat].push(entry);
     else data[cat][idx] = entry;
     saveLoreCatsData(data);
@@ -2492,7 +2503,7 @@ function renderNoteEditor(noteId) {
     html += '</div>';
 
     // Content (hidden for checklist layout)
-    html += '<textarea class="edit-textarea note-content-input" id="note-content" placeholder="' + t('notes.notecontent') + '" style="display:' + (layout === 'checklist' ? 'none' : 'block') + '">' + escapeHtml(content) + '</textarea>';
+    html += '<textarea class="edit-textarea note-content-input" id="note-content" placeholder="' + t('notes.notecontent') + '"' + mentionFieldAttr(content) + ' style="display:' + (layout === 'checklist' ? 'none' : 'block') + '">' + mentionFieldVal(content) + '</textarea>';
 
     // Tags with category
     html += '<div class="note-tags-section">';

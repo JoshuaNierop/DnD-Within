@@ -298,7 +298,7 @@ function bindPageEvents(route) {
 
             var noteObj = {
                 title: noteTitleEl.value.trim(),
-                content: noteContentEl ? noteContentEl.value : '',
+                content: noteContentEl ? ((typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(noteContentEl) : noteContentEl.value) : '',
                 tags: noteTags,
                 tagCategory: noteCategory,
                 layout: noteLayout,
@@ -1715,7 +1715,6 @@ function bindPageEvents(route) {
                     if (contentEl) {
                         contentEl.innerHTML = renderSessionForm(evIdx, sess);
                         if (typeof autoGrowAll === 'function') autoGrowAll(contentEl);
-                        if (typeof attachMentionOverlays === 'function') attachMentionOverlays(contentEl);
                     }
                 }
             }
@@ -1759,7 +1758,8 @@ function bindPageEvents(route) {
                 var lEl = psBlock.querySelector('.scene-layout-option.active');
                 var lay = lEl ? lEl.dataset.layout : (psBlock.dataset.layout || 'image-left');
                 var taEl = psBlock.querySelector('.scene-text-input');
-                if (typeof saveScene === 'function') saveScene(scId, { layout: lay, text: taEl ? taEl.value : '', image: refValue });
+                var taTok = taEl ? ((typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(taEl) : taEl.value) : '';
+                if (typeof saveScene === 'function') saveScene(scId, { layout: lay, text: taTok, image: refValue });
             } });
             return;
         }
@@ -1790,7 +1790,8 @@ function bindPageEvents(route) {
             var layoutEl = block.querySelector('.scene-layout-option.active');
             var layout = layoutEl ? layoutEl.dataset.layout : (block.dataset.layout || 'text');
             var ta = block.querySelector('.scene-text-input');
-            var textVal = ta ? ta.value : '';
+            // Convert the displayed "@Name" back to canonical [[type:id|Name]] tokens.
+            var textVal = ta ? ((typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(ta) : ta.value) : '';
             // A live reference (data-image-ref="@ref:type:id") is the source of
             // truth for the image when set — the preview shows the resolved URL
             // but we must persist the ref, not the resolved snapshot.
@@ -1846,7 +1847,6 @@ function bindPageEvents(route) {
             }
             sceneList.dataset.activeSceneIdx = String(newIdx);
             if (typeof autoGrowAll === 'function') autoGrowAll(sceneList);
-            if (typeof attachMentionOverlays === 'function') attachMentionOverlays(sceneList);
         }
 
         // Click "Edit" on a collapsed scene → save current scene, expand the
@@ -1889,7 +1889,6 @@ function bindPageEvents(route) {
             list.appendChild(tmp.firstChild);
             list.dataset.activeSceneIdx = String(nextIdx);
             if (typeof autoGrowAll === 'function') autoGrowAll(list);
-            if (typeof attachMentionOverlays === 'function') attachMentionOverlays(list);
             return;
         }
 
@@ -1942,7 +1941,8 @@ function bindPageEvents(route) {
                 var layout2 = layoutEl2 ? layoutEl2.dataset.layout : (block2.dataset.layout || 'text');
                 var ta2 = block2.querySelector('.scene-text-input');
                 try {
-                    saveScene(sId2, { layout: layout2, text: ta2 ? ta2.value : '', image: null });
+                    var rmText = ta2 ? ((typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(ta2) : ta2.value) : '';
+                    saveScene(sId2, { layout: layout2, text: rmText, image: null });
                 } catch (e) {}
             }
             return;
@@ -2621,8 +2621,8 @@ function bindPageEvents(route) {
                             var ta2 = blockUp.querySelector('.scene-text-input');
                             // Stash the full text on the scene-block so that
                             // collapsing it later doesn't lose data.
-                            blockUp.dataset.fullText = ta2 ? ta2.value : '';
-                            var sceneText = ta2 ? ta2.value : '';
+                            var sceneText = ta2 ? ((typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(ta2) : ta2.value) : '';
+                            blockUp.dataset.fullText = sceneText;
                             // Image binary → Firebase Storage; only the URL is
                             // saved per scene (base64 fallback if Storage is off).
                             DWImages.save('campaign', 'timeline/' + sceneId, dataUrl).then(function (imgVal) {
