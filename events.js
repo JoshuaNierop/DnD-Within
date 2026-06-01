@@ -274,6 +274,10 @@ function bindPageEvents(route) {
             }
             var noteCategory = noteActiveCat ? noteActiveCat.dataset.cat : 'other';
             var noteLayout = noteActiveLayout ? noteActiveLayout.dataset.layout : 'text-only';
+            // A live reference on the section wins over the preview src (which
+            // shows the resolved URL, not the value we want to persist).
+            var noteSectionEl = document.querySelector('.note-image-section');
+            var noteImageRef = noteSectionEl ? (noteSectionEl.dataset.imageRef || '') : '';
             var noteImage = noteImg ? noteImg.src : null;
 
             // Collect gallery images
@@ -298,7 +302,7 @@ function bindPageEvents(route) {
                 tags: noteTags,
                 tagCategory: noteCategory,
                 layout: noteLayout,
-                image: noteImage && noteImage.indexOf('data:') === 0 ? noteImage : null,
+                image: noteImageRef ? noteImageRef : (noteImage && noteImage.indexOf('data:') === 0 ? noteImage : null),
                 images: galleryImages,
                 checklist: checklistItems,
                 updated: Date.now()
@@ -1150,10 +1154,30 @@ function bindPageEvents(route) {
 
         // Remove note image
         if (target.matches('[data-action="remove-note-image"]')) {
+            var noteImgSec = document.querySelector('.note-image-section');
+            if (noteImgSec) delete noteImgSec.dataset.imageRef;   // drop any live ref
             var noteImgPreview = document.querySelector('.note-image-preview');
             if (noteImgPreview) {
                 noteImgPreview.outerHTML = '<label class="note-image-upload"><span>+ Afbeelding toevoegen</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
             }
+            return;
+        }
+
+        // Note: "Kies bestaande" → open picker; store live ref on the section.
+        if (target.matches('[data-action="pick-note-image"]') || target.closest('[data-action="pick-note-image"]')) {
+            if (typeof openImagePicker !== 'function') return;
+            openImagePicker({ onPick: function (refValue, url) {
+                var sec = document.querySelector('.note-image-section');
+                if (!sec) return;
+                sec.dataset.imageRef = refValue;
+                // Replace upload-label or old preview with a preview of the resolved url.
+                var existingPrev = sec.querySelector('.note-image-preview');
+                var label = sec.querySelector('.note-image-upload');
+                var previewHtml = '<div class="note-image-preview"><img src="' + escapeAttr(url) + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">' + (t('generic.delete') || 'Delete') + '</button></div>';
+                if (existingPrev) existingPrev.outerHTML = previewHtml;
+                else if (label) label.outerHTML = previewHtml;
+                else sec.insertAdjacentHTML('afterbegin', previewHtml);
+            } });
             return;
         }
 
@@ -1714,6 +1738,30 @@ function bindPageEvents(route) {
             return;
         }
 
+        // Scene: "Kies bestaande" → open picker; store a LIVE ref on the block
+        // and commit the scene immediately.
+        if (target.matches('[data-action="pick-scene-image"]') || target.closest('[data-action="pick-scene-image"]')) {
+            var psBtn = target.matches('[data-action="pick-scene-image"]') ? target : target.closest('[data-action="pick-scene-image"]');
+            var psBlock = psBtn.closest('.scene-block');
+            if (!psBlock || typeof openImagePicker !== 'function') return;
+            openImagePicker({ onPick: function (refValue, url) {
+                psBlock.dataset.imageRef = refValue;
+                var sIdx = psBlock.dataset.sceneIdx;
+                var sec = psBlock.querySelector('.scene-image-section');
+                if (sec) {
+                    sec.innerHTML = '<div class="scene-image-preview"><img src="' + escapeAttr(url) + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + sIdx + '">' + (t('generic.delete') || 'Delete') + '</button></div>' +
+                        '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + sIdx + '">Kies bestaande</button>';
+                }
+                var scId = psBlock.dataset.sceneId || ('sc' + Date.now() + Math.random().toString(36).slice(2, 7));
+                psBlock.dataset.sceneId = scId;
+                var lEl = psBlock.querySelector('.scene-layout-option.active');
+                var lay = lEl ? lEl.dataset.layout : (psBlock.dataset.layout || 'image-left');
+                var taEl = psBlock.querySelector('.scene-text-input');
+                if (typeof saveScene === 'function') saveScene(scId, { layout: lay, text: taEl ? taEl.value : '', image: refValue });
+            } });
+            return;
+        }
+
         // Read a scene-block element back into a plain scene object. Used for
         // per-scene commit when the user switches scenes / adds / removes.
         // - Expanded blocks: live DOM values are the source of truth.
@@ -1741,8 +1789,16 @@ function bindPageEvents(route) {
             var layout = layoutEl ? layoutEl.dataset.layout : (block.dataset.layout || 'text');
             var ta = block.querySelector('.scene-text-input');
             var textVal = ta ? ta.value : '';
-            var preview = block.querySelector('.scene-image-preview img');
-            var imgVal = preview ? preview.getAttribute('src') : null;
+            // A live reference (data-image-ref="@ref:type:id") is the source of
+            // truth for the image when set — the preview shows the resolved URL
+            // but we must persist the ref, not the resolved snapshot.
+            var imgVal;
+            if (block.dataset.imageRef) {
+                imgVal = block.dataset.imageRef;
+            } else {
+                var preview = block.querySelector('.scene-image-preview img');
+                imgVal = preview ? preview.getAttribute('src') : null;
+            }
             return { layout: layout, text: textVal, image: imgVal };
         }
 
@@ -1869,8 +1925,10 @@ function bindPageEvents(route) {
             if (!block2) return;
             var imgSec2 = block2.querySelector('.scene-image-section');
             var idx2 = block2.dataset.sceneIdx;
+            delete block2.dataset.imageRef;   // dropping the image also drops any live ref
             if (imgSec2) {
-                imgSec2.innerHTML = '<label class="note-image-upload"><span>' + (t('notes.addimage') || 'Voeg afbeelding toe') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + idx2 + '" style="display:none"></label>';
+                imgSec2.innerHTML = '<label class="note-image-upload"><span>' + (t('notes.addimage') || 'Voeg afbeelding toe') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + idx2 + '" style="display:none"></label>' +
+                    '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + idx2 + '">Kies bestaande</button>';
             }
             var sId2 = block2.dataset.sceneId;
             if (sId2 && typeof saveScene === 'function') {
@@ -2543,8 +2601,10 @@ function bindPageEvents(route) {
                         var dataUrl = cvs.toDataURL('image/jpeg', 0.72);
                         var imgSec3 = blockUp.querySelector('.scene-image-section');
                         var idx3 = blockUp.dataset.sceneIdx;
+                        delete blockUp.dataset.imageRef;   // uploading a new image overrides any live ref
                         if (imgSec3) {
-                            imgSec3.innerHTML = '<div class="scene-image-preview"><img src="' + dataUrl + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + idx3 + '">' + (t('generic.delete') || 'Delete') + '</button></div>';
+                            imgSec3.innerHTML = '<div class="scene-image-preview"><img src="' + dataUrl + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + idx3 + '">' + (t('generic.delete') || 'Delete') + '</button></div>' +
+                                '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + idx3 + '">Kies bestaande</button>';
                         }
                         // Per-scene save: only this scene's blob goes over the wire.
                         try {
@@ -2676,7 +2736,9 @@ function bindPageEvents(route) {
                         var noteBase64 = canvas.toDataURL('image/jpeg', 0.7);
                         var noteSection = document.querySelector('.note-image-section');
                         if (noteSection) {
-                            noteSection.innerHTML = '<div class="note-image-preview"><img src="' + noteBase64 + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">' + t('generic.delete') + '</button></div>';
+                            delete noteSection.dataset.imageRef;   // uploading overrides any live ref
+                            noteSection.innerHTML = '<div class="note-image-preview"><img src="' + noteBase64 + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">' + t('generic.delete') + '</button></div>' +
+                                '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-note-image">Kies bestaande</button>';
                         }
                     };
                     nimg.src = ev.target.result;

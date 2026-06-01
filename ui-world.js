@@ -1007,7 +1007,8 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
     var layout = s.layout || 'text';
     var needsImage = layout !== 'text';
     var needsText = layout !== 'image-only';
-    var html = '<div class="scene-block' + (expanded ? ' scene-block-expanded' : ' scene-block-collapsed') + '" data-scene-idx="' + sceneIdx + '" data-scene-id="' + escapeAttr(sceneId) + '" data-layout="' + layout + '">';
+    var imgRefAttr = isImageRef(s.image) ? (' data-image-ref="' + escapeAttr(s.image) + '"') : '';
+    var html = '<div class="scene-block' + (expanded ? ' scene-block-expanded' : ' scene-block-collapsed') + '" data-scene-idx="' + sceneIdx + '" data-scene-id="' + escapeAttr(sceneId) + '" data-layout="' + layout + '"' + imgRefAttr + '>';
     html += '<div class="scene-block-header">';
     html += '<span class="scene-block-title">Scene ' + (sceneIdx + 1) + '</span>';
     if (!expanded) {
@@ -1028,10 +1029,11 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
         html += '</div>';
         html += '<div class="scene-image-section" style="display:' + (needsImage ? 'block' : 'none') + '">';
         if (s.image) {
-            html += '<div class="scene-image-preview"><img src="' + s.image + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + sceneIdx + '">' + t('generic.delete') + '</button></div>';
+            html += '<div class="scene-image-preview"><img src="' + escapeAttr(resolveImageSrc(s.image)) + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + sceneIdx + '">' + t('generic.delete') + '</button></div>';
         } else {
             html += '<label class="note-image-upload"><span>' + t('notes.addimage') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + sceneIdx + '" style="display:none"></label>';
         }
+        html += '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + sceneIdx + '">Kies bestaande</button>';
         html += '</div>';
         html += '<div class="scene-text-section" style="display:' + (needsText ? 'block' : 'none') + '">';
         html += '<textarea class="edit-textarea auto-grow scene-text-input" data-scene-idx="' + sceneIdx + '" placeholder="Scene text…" oninput="if(typeof autoGrowTextarea===\'function\')autoGrowTextarea(this)">' + escapeHtml(s.text || '') + '</textarea>';
@@ -1043,10 +1045,10 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
         // (layout-picker, file-input, textarea) is hidden.
         html += '<div class="scene scene-layout-' + layout + ' scene-block-readonly">';
         if (layout === 'image-only' && s.image) {
-            html += '<div class="scene-image-only"><img src="' + s.image + '" alt=""></div>';
+            html += '<div class="scene-image-only"><img src="' + escapeAttr(resolveImageSrc(s.image)) + '" alt=""></div>';
         } else if ((layout === 'image-left' || layout === 'image-right') && s.image) {
             html += '<div class="scene-split scene-split-' + layout + '">';
-            html += '<div class="scene-split-img"><img src="' + s.image + '" alt=""></div>';
+            html += '<div class="scene-split-img"><img src="' + escapeAttr(resolveImageSrc(s.image)) + '" alt=""></div>';
             html += '<div class="scene-split-text">';
             if (s.text) html += '<p>' + renderRichText(s.text) + '</p>';
             html += '</div></div>';
@@ -1200,10 +1202,10 @@ function renderTimeline() {
                     var scLayout = sc.layout || 'text';
                     html += '<div class="scene scene-layout-' + scLayout + '">';
                     if (scLayout === 'image-only' && sc.image) {
-                        html += '<div class="scene-image-only"><img src="' + sc.image + '" alt=""></div>';
+                        html += '<div class="scene-image-only"><img src="' + escapeAttr(resolveImageSrc(sc.image)) + '" alt=""></div>';
                     } else if ((scLayout === 'image-left' || scLayout === 'image-right') && sc.image) {
                         html += '<div class="scene-split scene-split-' + scLayout + '">';
-                        html += '<div class="scene-split-img"><img src="' + sc.image + '" alt=""></div>';
+                        html += '<div class="scene-split-img"><img src="' + escapeAttr(resolveImageSrc(sc.image)) + '" alt=""></div>';
                         html += '<div class="scene-split-text">';
                         if (sc.text) html += '<p>' + renderRichText(sc.text) + '</p>';
                         html += '</div></div>';
@@ -1683,12 +1685,33 @@ function renderRichText(str) {
     });
 }
 
-// ===== Afbeelding-picker — kies een bestaande afbeelding i.p.v. te uploaden =====
-var _imgPickerTarget = null;   // { hiddenId, previewId }
+// Resolve an image value to a real <img src>. A LIVE reference is stored as
+// "@ref:<type>:<id>" (set by the image-picker on Timeline/Notes) — it points
+// at an entity's ORIGINAL image and is resolved to that entity's CURRENT image
+// at display time, so updating the source updates every reference. Plain URLs
+// and base64 pass through unchanged. Returns '' when a ref can't be resolved.
+function resolveImageSrc(value) {
+    if (typeof value !== 'string' || !value) return value || '';
+    if (value.indexOf('@ref:') === 0) {
+        var rest = value.slice(5);
+        var ci = rest.indexOf(':');
+        if (ci < 0) return '';
+        var ent = entityById(rest.slice(0, ci), rest.slice(ci + 1));
+        return (ent && ent.image) ? ent.image : '';
+    }
+    return value;
+}
+function isImageRef(value) {
+    return typeof value === 'string' && value.indexOf('@ref:') === 0;
+}
+
+// ===== Afbeelding-picker — kies een bestaande afbeelding (slaat een LIVE ref op) =====
+// target: { hiddenId, previewId }  of  { onPick: function(refValue, resolvedUrl) }
+var _imgPickerTarget = null;
 var imgPickerSearch = '';
 
-function openImagePicker(hiddenId, previewId) {
-    _imgPickerTarget = { hiddenId: hiddenId, previewId: previewId };
+function openImagePicker(target) {
+    _imgPickerTarget = target || null;
     imgPickerSearch = '';
     closeImagePicker();
     var div = document.createElement('div');
@@ -1731,8 +1754,8 @@ function renderImagePicker() {
         Object.keys(groups).forEach(function (cat) {
             html += '<div class="img-picker-group"><h3>' + escapeHtml(cat) + '</h3><div class="img-picker-grid">';
             groups[cat].forEach(function (e) {
-                html += '<button type="button" class="img-picker-thumb" data-action="select-picker-image" data-url="' + escapeAttr(e.image) + '" title="' + escapeAttr(e.name) + '">';
-                html += '<img src="' + escapeAttr(e.image) + '" alt=""><span>' + escapeHtml(e.name) + '</span>';
+                html += '<button type="button" class="img-picker-thumb" data-action="select-picker-image" data-ref="' + escapeAttr(e.type + ':' + e.id) + '" data-url="' + escapeAttr(resolveImageSrc(e.image)) + '" title="' + escapeAttr(e.name) + '">';
+                html += '<img src="' + escapeAttr(resolveImageSrc(e.image)) + '" alt=""><span>' + escapeHtml(e.name) + '</span>';
                 html += '</button>';
             });
             html += '</div></div>';
@@ -1741,12 +1764,19 @@ function renderImagePicker() {
     html += '</div></div></div>';
     return html;
 }
-function pickExistingImage(url) {
+// ref = "type:id" (from the thumb); we store it as a LIVE reference value
+// "@ref:type:id". url = the resolved preview src.
+function pickExistingImage(ref, url) {
     if (!_imgPickerTarget) { closeImagePicker(); return; }
-    var hid = document.getElementById(_imgPickerTarget.hiddenId);
-    if (hid) hid.value = url;
-    var prev = document.getElementById(_imgPickerTarget.previewId);
-    if (prev) prev.innerHTML = '<img src="' + escapeAttr(url) + '" alt="">';
+    var refValue = '@ref:' + ref;
+    if (typeof _imgPickerTarget.onPick === 'function') {
+        _imgPickerTarget.onPick(refValue, url);
+    } else {
+        var hid = document.getElementById(_imgPickerTarget.hiddenId);
+        if (hid) hid.value = refValue;
+        var prev = document.getElementById(_imgPickerTarget.previewId);
+        if (prev) prev.innerHTML = '<img src="' + escapeAttr(url) + '" alt="">';
+    }
     closeImagePicker();
 }
 
@@ -1780,7 +1810,6 @@ function renderNPCModal(idx) {
     html += '</div>';
     html += '<input type="hidden" id="npc-f-image" value="' + escapeAttr(n.image || '') + '">';
     html += '<label class="note-image-upload"><span>' + (n.image ? 'Afbeelding wijzigen' : 'Afbeelding toevoegen') + '</span><input type="file" accept="image/*" data-action="upload-npc-image" style="display:none"></label>';
-    html += '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-existing-image" data-target-hidden="npc-f-image" data-target-preview="npc-image-preview">Kies bestaande</button>';
     if (n.image) html += '<button type="button" class="btn btn-ghost btn-sm" data-action="remove-npc-image">' + t('generic.delete') + '</button>';
     html += '</div>';
 
@@ -1898,7 +1927,6 @@ function renderLoreEntryModal(cat, idx) {
     html += '</div>';
     html += '<input type="hidden" id="lore-entry-f-image" value="' + escapeAttr(e.image || '') + '">';
     html += '<label class="note-image-upload"><span>' + (e.image ? 'Afbeelding wijzigen' : 'Afbeelding toevoegen') + '</span><input type="file" accept="image/*" data-action="upload-lore-entry-image" style="display:none"></label>';
-    html += '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-existing-image" data-target-hidden="lore-entry-f-image" data-target-preview="lore-entry-image-preview">Kies bestaande</button>';
     if (e.image) html += '<button type="button" class="btn btn-ghost btn-sm" data-action="remove-lore-entry-image">' + t('generic.delete') + '</button>';
     html += '</div>';
 
@@ -2195,7 +2223,7 @@ function renderNotes() {
                 }
                 html += '</div>';
             } else if (note.image && note.layout !== 'text-only' && note.layout !== 'checklist') {
-                html += '<div class="note-card-img"><img src="' + note.image + '" alt=""></div>';
+                html += '<div class="note-card-img"><img src="' + escapeAttr(resolveImageSrc(note.image)) + '" alt=""></div>';
             }
 
             html += '<div class="note-card-body">';
@@ -2306,12 +2334,14 @@ function renderNoteEditor(noteId) {
 
     // Image upload (single image layouts)
     var singleImageLayouts = ['image-top', 'image-right', 'image-left'];
-    html += '<div class="note-image-section" style="display:' + (singleImageLayouts.indexOf(layout) >= 0 ? 'block' : 'none') + '">';
+    var noteImgRefAttr = isImageRef(image) ? (' data-image-ref="' + escapeAttr(image) + '"') : '';
+    html += '<div class="note-image-section" style="display:' + (singleImageLayouts.indexOf(layout) >= 0 ? 'block' : 'none') + '"' + noteImgRefAttr + '>';
     if (image) {
-        html += '<div class="note-image-preview"><img src="' + image + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">' + t('generic.delete') + '</button></div>';
+        html += '<div class="note-image-preview"><img src="' + escapeAttr(resolveImageSrc(image)) + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">' + t('generic.delete') + '</button></div>';
     } else {
         html += '<label class="note-image-upload"><span>' + t('notes.addimage') + '</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
     }
+    html += '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-note-image">Kies bestaande</button>';
     html += '</div>';
 
     // Gallery upload (multi-image)
@@ -2416,12 +2446,12 @@ function renderNoteView(noteId) {
     }
 
     if (note.image && note.layout === 'image-top') {
-        html += '<div class="note-view-img"><img src="' + note.image + '" alt=""></div>';
+        html += '<div class="note-view-img"><img src="' + escapeAttr(resolveImageSrc(note.image)) + '" alt=""></div>';
     }
 
     html += '<div class="note-view-content">';
     if (note.image && note.layout === 'image-left') {
-        html += '<div class="note-view-img-side"><img src="' + note.image + '" alt=""></div>';
+        html += '<div class="note-view-img-side"><img src="' + escapeAttr(resolveImageSrc(note.image)) + '" alt=""></div>';
     }
 
     html += '<div class="note-view-text">';
@@ -2471,7 +2501,7 @@ function renderNoteView(noteId) {
     html += '</div>';
 
     if (note.image && note.layout === 'image-right') {
-        html += '<div class="note-view-img-side"><img src="' + note.image + '" alt=""></div>';
+        html += '<div class="note-view-img-side"><img src="' + escapeAttr(resolveImageSrc(note.image)) + '" alt=""></div>';
     }
     html += '</div>';
     html += '</div>';

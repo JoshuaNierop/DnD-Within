@@ -1037,11 +1037,11 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    // ----- Afbeelding-picker (kies bestaande, geen re-upload) -----
+    // ----- Afbeelding-picker (kies bestaande = live referentie) -----
     var pickBtn = target.closest('[data-action="pick-existing-image"]');
     if (pickBtn) {
         if (typeof openImagePicker === 'function') {
-            openImagePicker(pickBtn.dataset.targetHidden, pickBtn.dataset.targetPreview);
+            openImagePicker({ hiddenId: pickBtn.dataset.targetHidden, previewId: pickBtn.dataset.targetPreview });
         }
         return;
     }
@@ -1051,7 +1051,7 @@ document.addEventListener('click', function(e) {
     }
     var thumb = target.closest('[data-action="select-picker-image"]');
     if (thumb) {
-        if (typeof pickExistingImage === 'function') pickExistingImage(thumb.dataset.url);
+        if (typeof pickExistingImage === 'function') pickExistingImage(thumb.dataset.ref, thumb.dataset.url);
         return;
     }
 });
