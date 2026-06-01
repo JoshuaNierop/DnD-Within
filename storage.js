@@ -236,6 +236,97 @@
         });
     }
 
+    // Like uploadDataUrl but accepts a remote https URL as the source. Cloudinary
+    // fetches it server-side (no CORS, no secret) and stores a COPY in `folder`.
+    // Used by the underscore→space folder migration to re-home existing assets.
+    function uploadByUrl(folder, url) {
+        if (!STORAGE_READY) return Promise.reject(new Error('storage-not-ready'));
+        if (!isHttpUrl(url)) return Promise.reject(new Error('not-an-url'));
+        var endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload';
+        var form = new FormData();
+        form.append('file', url);
+        form.append('upload_preset', UPLOAD_PRESET);
+        form.append('folder', sanitizeFolder(folder));
+        return fetch(endpoint, { method: 'POST', body: form }).then(function (res) {
+            return res.json().then(function (json) {
+                if (!res.ok || !json.secure_url) {
+                    throw new Error((json && json.error && json.error.message) || ('http-' + res.status));
+                }
+                return json.secure_url;
+            });
+        });
+    }
+
+    // One-shot: re-home every ENTITY image (character portrait / NPC / lore) that
+    // isn't already under the correct space-named tree "DnD Within/…" — copy it
+    // there (unsigned upload-by-URL, no secret) and rewrite the entity's stored
+    // URL. Browser-only (admin session). OLD assets are left in place (orphaned)
+    // so the run is reversible — delete the old/loose assets in the Cloudinary UI
+    // afterwards. dryRun (default true) only reports the plan; {dryRun:false} applies.
+    function migrateImagesToTree(opts) {
+        opts = opts || {};
+        var dryRun = opts.dryRun !== false;
+        if (!STORAGE_READY) return Promise.reject(new Error('storage-not-ready'));
+        if (typeof collectEntities !== 'function') return Promise.reject(new Error('collectEntities-missing'));
+
+        var GOOD = 'DnD Within/';
+        var ents = collectEntities().filter(function (e) { return e.image && isHttpUrl(e.image); });
+        var jobs = [];
+        ents.forEach(function (e) {
+            var pid = publicIdFromUrl(e.image) || '';
+            // public_id from the URL is %20-encoded; decode before the check so
+            // already-migrated "DnD Within/…" assets are skipped (idempotent).
+            var decoded; try { decoded = decodeURIComponent(pid); } catch (x) { decoded = pid; }
+            if (decoded.indexOf(GOOD) === 0) return; // already in the right place
+            var folder = null;
+            if (e.type === 'character') folder = buildFolder('player', e.id + '/portrait');
+            else if (e.type === 'npc') folder = buildFolder('npc', e.name);
+            else if (e.type === 'lore') folder = buildFolder('lore', e.loreCat + '/' + e.name);
+            if (folder) jobs.push({ ent: e, folder: folder, oldUrl: e.image });
+        });
+
+        var summary = {
+            found: jobs.length, migrated: 0, failed: 0, errors: [],
+            plan: jobs.map(function (j) { return { name: j.ent.name, type: j.ent.type, from: publicIdFromUrl(j.oldUrl), toFolder: j.folder }; })
+        };
+        console.log('[images→tree] ' + jobs.length + ' image(s) to re-home.');
+        if (dryRun) { console.log('[images→tree] DRY RUN — no changes. Plan:', summary.plan); return Promise.resolve(summary); }
+
+        // Apply sequentially; batch the npc/lore store writes at the end.
+        var npcData = (typeof getNPCData === 'function') ? getNPCData() : null;
+        var loreData = (typeof getLoreCatsData === 'function') ? getLoreCatsData() : null;
+        var npcDirty = false, loreDirty = false;
+        var chain = Promise.resolve();
+        jobs.forEach(function (job) {
+            chain = chain.then(function () {
+                return uploadByUrl(job.folder, job.oldUrl).then(function (newUrl) {
+                    var e = job.ent;
+                    if (e.type === 'character') {
+                        var key = 'dw_img_' + e.id + '_portrait';
+                        localStorage.setItem(key, newUrl);
+                        if (typeof syncUpload === 'function') syncUpload(key);
+                    } else if (e.type === 'npc' && npcData) {
+                        for (var i = 0; i < (npcData.npcs || []).length; i++) if (npcData.npcs[i].id === e.id) { npcData.npcs[i].image = newUrl; npcDirty = true; break; }
+                    } else if (e.type === 'lore' && loreData && Array.isArray(loreData[e.loreCat])) {
+                        for (var j = 0; j < loreData[e.loreCat].length; j++) if (loreData[e.loreCat][j].id === e.id) { loreData[e.loreCat][j].image = newUrl; loreDirty = true; break; }
+                    }
+                    summary.migrated++;
+                    console.log('[images→tree] ' + summary.migrated + '/' + summary.found + '  ' + e.type + ':' + e.name);
+                }).catch(function (err) {
+                    summary.failed++;
+                    summary.errors.push({ name: job.ent.name, error: err && err.message });
+                    console.warn('[images→tree] FAILED ' + job.ent.name + ': ' + (err && err.message));
+                });
+            });
+        });
+        return chain.then(function () {
+            if (npcDirty && typeof saveNPCData === 'function') saveNPCData(npcData);
+            if (loreDirty && typeof saveLoreCatsData === 'function') saveLoreCatsData(loreData);
+            console.log('[images→tree] done.', summary);
+            return summary;
+        });
+    }
+
     // High-level: store an image and get back the value to persist in the
     // text DB. Returns an https URL when Cloudinary is live, otherwise the
     // original base64 dataURL (identical to legacy behaviour).
@@ -403,6 +494,8 @@
         activeCampaignName: activeCampaignName,
         buildFolder: buildFolder,
         sanitizeFolder: sanitizeFolder,
-        migrateAll: migrateAll
+        migrateAll: migrateAll,
+        uploadByUrl: uploadByUrl,
+        migrateImagesToTree: migrateImagesToTree
     };
 })();
