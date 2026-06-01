@@ -1244,51 +1244,96 @@ function saveLoreData(data) {
     if (typeof syncUpload === 'function') syncUpload('dw_lore');
 }
 
-function renderLore(subpage) {
-    if (subpage === 'party') return renderLoreParty();
-    if (subpage === 'npcs') return renderNPCTracker();
+// Lore-tabbladen. `articles` = de bestaande vrije DM-teksten; `npcs` heeft een
+// eigen rijke implementatie; de overige zijn generieke entry-collecties
+// (naam + afbeelding + omschrijving + notities) via renderLoreCategory().
+var LORE_TABS = [
+    { id: 'party',     label: 'The Party' },
+    { id: 'npcs',      label: 'NPCs' },
+    { id: 'items',     label: 'Items' },
+    { id: 'religions', label: 'Religions' },
+    { id: 'factions',  label: 'Factions' },
+    { id: 'cities',    label: 'Cities' },
+    { id: 'locations', label: 'Locations' },
+    { id: 'monsters',  label: 'Monsters' },
+    { id: 'events',    label: 'Events' },
+    { id: 'articles',  label: 'Articles' }
+];
+// De generieke categorie-tabs (alles behalve party/npcs/articles).
+var LORE_CATEGORY_TABS = ['items', 'religions', 'factions', 'cities', 'locations', 'monsters', 'events'];
 
-    // Check if viewing a specific article
-    if (subpage && subpage !== 'new') {
-        return renderLoreArticle(subpage);
+function isLoreTab(id) {
+    for (var i = 0; i < LORE_TABS.length; i++) if (LORE_TABS[i].id === id) return true;
+    return false;
+}
+
+function renderLoreTabBar(activeTab) {
+    var html = '<div class="lore-tabs" role="tablist">';
+    for (var i = 0; i < LORE_TABS.length; i++) {
+        var tab = LORE_TABS[i];
+        var active = tab.id === activeTab ? ' active' : '';
+        html += '<a class="lore-tab' + active + '" href="#/lore/' + tab.id + '" role="tab">' + escapeHtml(tab.label) + '</a>';
     }
+    html += '</div>';
+    return html;
+}
 
+function renderLore(subpage) {
     // New article form (DM only)
     if (subpage === 'new' && isDM()) {
         return renderLoreEditor();
     }
 
-    // Index page
-    var data = getLoreData();
-    var html = '<div class="lore-page">';
+    // A non-tab subpage that isn't 'new' is treated as an article id.
+    if (subpage && subpage !== 'new' && !isLoreTab(subpage)) {
+        return renderLoreArticle(subpage);
+    }
+
+    var activeTab = isLoreTab(subpage) ? subpage : 'party';
+
+    var html = '<div class="lore-page lore-tabbed">';
     html += '<div class="lore-header">';
     html += '<h1>' + t('lore.title') + '</h1>';
-    if (isDM()) {
-        html += '<a class="btn btn-primary" href="#/lore/new">' + t('lore.addarticle') + '</a>';
+    html += '</div>';
+    html += renderLoreTabBar(activeTab);
+
+    html += '<div class="lore-tab-content">';
+    if (activeTab === 'party') {
+        html += renderLorePartyInner();
+    } else if (activeTab === 'npcs') {
+        html += renderNPCTracker();
+    } else if (activeTab === 'articles') {
+        html += renderLoreArticlesInner();
+    } else {
+        html += renderLoreCategory(activeTab);
     }
     html += '</div>';
 
-    // Always show party + NPC links
-    html += '<div class="lore-grid">';
-    html += '<a class="lore-card" href="#/lore/party">';
-    html += '<h3>' + t('lore.theparty') + '</h3>';
-    html += '<p>' + t('lore.theparty.desc') + '</p>';
-    html += '</a>';
-    html += '<a class="lore-card" href="#/dm/npcs">';
-    html += '<h3>NPCs</h3>';
-    html += '<p>Known characters and contacts</p>';
-    html += '</a>';
+    html += '</div>';
+    return html;
+}
 
-    // DM-created articles
+// Articles-tab: de bestaande vrije DM-teksten als kaartgrid.
+function renderLoreArticlesInner() {
+    var data = getLoreData();
+    var html = '<div class="lore-cat-toolbar">';
+    if (isDM()) {
+        html += '<a class="btn btn-primary btn-sm" href="#/lore/new">' + t('lore.addarticle') + '</a>';
+    }
+    html += '</div>';
+
+    if (!data.articles.length) {
+        html += '<p class="text-dim">' + (isDM() ? 'Nog geen artikelen. Klik "' + t('lore.addarticle') + '".' : 'Nog geen artikelen.') + '</p>';
+        return html;
+    }
+    html += '<div class="lore-grid">';
     for (var i = 0; i < data.articles.length; i++) {
         var art = data.articles[i];
         html += '<a class="lore-card" href="#/lore/' + art.id + '">';
         html += '<h3>' + escapeHtml(art.title) + '</h3>';
-        html += '<p>' + escapeHtml((art.content || '').substring(0, 100)) + '...</p>';
+        html += '<p>' + escapeHtml((art.content || '').substring(0, 120)) + '…</p>';
         html += '</a>';
     }
-
-    html += '</div>';
     html += '</div>';
     return html;
 }
@@ -1373,58 +1418,363 @@ function saveNPCData(data) {
     if (typeof syncUpload === 'function') syncUpload('dw_npcs');
 }
 
+// NPC-tab filter-state (module-level, zoals npcSearchQuery in ui-pages.js).
+var npcFilterDisp = 'all';
+var npcFilterFaction = 'all';
+
+function npcDispColor(disp) {
+    return disp === 'friendly' ? 'var(--success)' :
+           disp === 'hostile'  ? 'var(--danger)'  :
+           disp === 'neutral'  ? 'var(--warning)' : 'var(--text-dim)';
+}
+
+// Age uit geboortejaar + campagne-jaar (data.currentYear). Geeft '' als
+// een van beide ontbreekt.
+function npcAge(npc, currentYear) {
+    var by = parseInt(npc.birthYear, 10);
+    var cy = parseInt(currentYear, 10);
+    if (isNaN(by) || isNaN(cy)) return '';
+    var age = cy - by;
+    return (age >= 0 && age < 100000) ? String(age) : '';
+}
+
+function renderNPCDetailRows(npc, currentYear) {
+    var rows = [];
+    var age = npcAge(npc, currentYear);
+    if (npc.birthYear) rows.push(['Born', escapeHtml(String(npc.birthYear)) + (age ? ' (age ' + age + ')' : '')]);
+    if (npc.race) rows.push(['Race', escapeHtml(npc.race)]);
+    if (npc.npcClass) rows.push(['Class', escapeHtml(npc.npcClass)]);
+    if (npc.relation) rows.push(['Relation', escapeHtml(npc.relation)]);
+    if (npc.family) rows.push(['Family', escapeHtml(npc.family)]);
+    if (npc.faction) rows.push(['Faction', escapeHtml(npc.faction)]);
+    if (npc.religion) rows.push(['Religion', escapeHtml(npc.religion)]);
+    if (npc.location) rows.push(['Location', escapeHtml(npc.location)]);
+    if (npc.preferences) rows.push(['Likes', escapeHtml(npc.preferences)]);
+    if (npc.dislikes) rows.push(['Dislikes', escapeHtml(npc.dislikes)]);
+    if (npc.pets) rows.push(['Pets', escapeHtml(npc.pets)]);
+    var html = '';
+    if (rows.length) {
+        html += '<dl class="npc-detail-grid">';
+        for (var i = 0; i < rows.length; i++) {
+            html += '<dt>' + rows[i][0] + '</dt><dd>' + rows[i][1] + '</dd>';
+        }
+        html += '</dl>';
+    }
+    if (npc.notes) html += '<div class="npc-detail-notes"><strong>Notes</strong><p>' + escapeHtml(npc.notes) + '</p></div>';
+    return html;
+}
+
 function renderNPCTracker() {
     var data = getNPCData();
     var npcs = data.npcs || [];
-    var html = '<div class="lore-page">';
-    html += '<a class="btn btn-ghost btn-sm" href="#/lore">&larr; Back to Lore</a>';
-    html += '<div class="lore-header" style="margin-top:0.5rem;">';
-    html += '<h1>NPCs</h1>';
+    var currentYear = data.currentYear || '';
+
+    // Verzamel beschikbare facties voor de filter-dropdown.
+    var factions = [];
+    for (var fi = 0; fi < npcs.length; fi++) {
+        var fac = npcs[fi].faction;
+        if (fac && factions.indexOf(fac) === -1) factions.push(fac);
+    }
+    factions.sort();
+
+    var html = '<div class="npc-toolbar">';
+    html += '<input type="text" class="edit-input npc-search" id="npc-search" placeholder="Zoek NPCs…" value="' + escapeAttr(npcSearchQuery) + '">';
+    // Disposition-filter chips.
+    html += '<div class="npc-filter-chips">';
+    var disps = [['all', 'Alle'], ['friendly', 'Friendly'], ['neutral', 'Neutral'], ['hostile', 'Hostile'], ['unknown', 'Unknown']];
+    for (var di = 0; di < disps.length; di++) {
+        var act = npcFilterDisp === disps[di][0] ? ' active' : '';
+        html += '<button class="npc-chip' + act + '" data-action="npc-filter-disp" data-disp="' + disps[di][0] + '">' + disps[di][1] + '</button>';
+    }
+    html += '</div>';
+    if (factions.length) {
+        html += '<select class="edit-input npc-faction-filter" data-action="npc-filter-faction">';
+        html += '<option value="all"' + (npcFilterFaction === 'all' ? ' selected' : '') + '>Alle facties</option>';
+        for (var fj = 0; fj < factions.length; fj++) {
+            html += '<option value="' + escapeAttr(factions[fj]) + '"' + (npcFilterFaction === factions[fj] ? ' selected' : '') + '>' + escapeHtml(factions[fj]) + '</option>';
+        }
+        html += '</select>';
+    }
     if (isDM()) {
-        html += '<button class="btn btn-primary" data-action="add-npc">+ Add NPC</button>';
+        html += '<div class="npc-toolbar-dm">';
+        html += '<label class="npc-year-label">Huidig jaar <input type="number" class="edit-input npc-year-input" id="npc-current-year" value="' + escapeAttr(String(currentYear)) + '" placeholder="—"></label>';
+        html += '<button class="btn btn-primary btn-sm" data-action="add-npc">+ Add NPC</button>';
+        html += '</div>';
     }
     html += '</div>';
 
-    if (npcs.length === 0) {
-        html += '<p class="text-dim">No NPCs yet.</p>';
-    } else {
-        html += '<div class="npc-grid">';
-        for (var ni = 0; ni < npcs.length; ni++) {
-            var npc = npcs[ni];
-            var dispColor = npc.disposition === 'friendly' ? 'var(--success)' : npc.disposition === 'hostile' ? 'var(--danger)' : npc.disposition === 'neutral' ? 'var(--warning)' : 'var(--text-dim)';
-            html += '<div class="npc-card" style="border-left-color:' + dispColor + '" data-npc-idx="' + ni + '">';
-            html += '<div class="npc-header" data-action="toggle-npc-card">';
-            html += '<div class="npc-header-info">';
-            html += '<strong>' + escapeHtml(npc.name) + '</strong>';
-            if (npc.disposition) html += '<span class="npc-disposition" style="color:' + dispColor + '">' + escapeHtml(npc.disposition) + '</span>';
-            if (npc.location) html += '<span class="npc-location-inline">&#128205; ' + escapeHtml(npc.location) + '</span>';
-            html += '</div>';
-            html += '<span class="npc-expand-icon">&#9660;</span>';
-            html += '</div>';
-            html += '<div class="npc-details">';
-            if (npc.notes) html += '<p class="npc-notes">' + escapeHtml(npc.notes) + '</p>';
-            if (isDM()) {
-                html += '<div class="npc-actions">';
-                html += '<button class="btn btn-ghost btn-sm" data-action="edit-npc" data-npc-idx="' + ni + '">Edit</button>';
-                html += '<button class="btn btn-ghost btn-sm" data-action="delete-npc" data-npc-idx="' + ni + '" style="color:var(--danger);">Delete</button>';
-                html += '</div>';
-            }
-            html += '</div>';
-            html += '</div>';
+    // Filteren: zoekterm + disposition + faction.
+    var q = npcSearchQuery.toLowerCase();
+    var list = [];
+    for (var ni = 0; ni < npcs.length; ni++) {
+        var npc = npcs[ni];
+        if (npcFilterDisp !== 'all' && (npc.disposition || 'unknown') !== npcFilterDisp) continue;
+        if (npcFilterFaction !== 'all' && (npc.faction || '') !== npcFilterFaction) continue;
+        if (q) {
+            var hay = [npc.name, npc.race, npc.npcClass, npc.faction, npc.religion, npc.location, npc.notes].join(' ').toLowerCase();
+            if (hay.indexOf(q) < 0) continue;
         }
-        html += '</div>';
+        list.push({ npc: npc, idx: ni });
     }
 
+    if (list.length === 0) {
+        html += '<p class="text-dim">' + (npcs.length ? 'Geen NPCs matchen de filters.' : 'Nog geen NPCs.') + '</p>';
+        return html;
+    }
+
+    html += '<div class="npc-grid">';
+    for (var li = 0; li < list.length; li++) {
+        var n = list[li].npc;
+        var realIdx = list[li].idx;
+        var dispColor = npcDispColor(n.disposition);
+        html += '<div class="npc-card" data-npc-idx="' + realIdx + '" style="--npc-disp:' + dispColor + '">';
+
+        // Compacte kaart-face: portret + naam.
+        html += '<div class="npc-card-face" data-action="toggle-npc-card">';
+        html += '<div class="npc-portrait">';
+        if (n.image) html += '<img src="' + escapeAttr(n.image) + '" alt="">';
+        else html += '<div class="npc-portrait-empty">' + escapeHtml((n.name || '?').charAt(0).toUpperCase()) + '</div>';
+        if (n.disposition) html += '<span class="npc-disp-dot" title="' + escapeAttr(n.disposition) + '"></span>';
+        html += '</div>';
+        html += '<div class="npc-card-name">' + escapeHtml(n.name || '(naamloos)') + '</div>';
+        html += '</div>';
+
+        // Inline-expanded detail (zichtbaar via .expanded; spant volle breedte).
+        html += '<div class="npc-expanded">';
+        html += '<button class="npc-expanded-close" data-action="toggle-npc-card" title="Sluiten">&times;</button>';
+        html += '<div class="npc-expanded-grid">';
+        html += '<div class="npc-expanded-portrait">';
+        if (n.image) html += '<img src="' + escapeAttr(n.image) + '" alt="">';
+        else html += '<div class="npc-portrait-empty">' + escapeHtml((n.name || '?').charAt(0).toUpperCase()) + '</div>';
+        html += '</div>';
+        html += '<div class="npc-expanded-info">';
+        html += '<h3>' + escapeHtml(n.name || '(naamloos)');
+        if (n.disposition) html += ' <span class="npc-disposition" style="color:' + dispColor + '">' + escapeHtml(n.disposition) + '</span>';
+        html += '</h3>';
+        html += renderNPCDetailRows(n, currentYear);
+        var npcPrimaryFam = (typeof findPrimaryFamilyByLink === 'function') ? findPrimaryFamilyByLink(null, String(realIdx)) : null;
+        if (npcPrimaryFam && npcPrimaryFam.family && typeof renderFamilyDiagram === 'function') {
+            html += '<div class="npc-family-section">' + renderFamilyDiagram(npcPrimaryFam.family.id, false) + '</div>';
+        }
+        if (isDM()) {
+            html += '<div class="npc-actions">';
+            html += '<button class="btn btn-ghost btn-sm" data-action="edit-npc" data-npc-idx="' + realIdx + '">' + t('generic.edit') + '</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="delete-npc" data-npc-idx="' + realIdx + '" style="color:var(--danger);">' + t('generic.delete') + '</button>';
+            html += '</div>';
+        }
+        html += '</div>'; // npc-expanded-info
+        html += '</div>'; // npc-expanded-grid
+        html += '</div>'; // npc-expanded
+        html += '</div>'; // npc-card
+    }
     html += '</div>';
     return html;
 }
 
-function renderLoreParty() {
-    var html = '<div class="lore-page lore-article">';
-    html += '<a class="btn btn-ghost btn-sm" href="#/lore">&larr; ' + t('lore.backtolore') + '</a>';
-    html += '<h1>' + t('lore.theparty') + '</h1>';
-    html += '<p class="section-intro">' + t('lore.theparty.intro') + '</p>';
+// ===== NPC editor-modal (vervangt de oude prompt()-keten) =====
+function npcModalField(id, label, value, type) {
+    var html = '<div class="npc-form-field">';
+    html += '<label class="login-label" for="' + id + '">' + label + '</label>';
+    html += '<input type="' + (type || 'text') + '" class="edit-input" id="' + id + '" value="' + escapeAttr(value == null ? '' : String(value)) + '">';
+    html += '</div>';
+    return html;
+}
 
+function renderNPCModal(idx) {
+    var data = getNPCData();
+    var isNew = (idx === -1 || idx == null);
+    var n = isNew ? {} : (data.npcs[idx] || {});
+
+    var html = '<div class="modal-overlay npc-modal-overlay">';
+    html += '<div class="modal-card modal-npc">';
+    html += '<div class="modal-header">';
+    html += '<h2>' + (isNew ? 'Nieuwe NPC' : 'NPC bewerken') + '</h2>';
+    html += '<button class="modal-close" data-action="close-npc-modal">&times;</button>';
+    html += '</div>';
+    html += '<div class="modal-body npc-form" data-npc-idx="' + (isNew ? -1 : idx) + '">';
+
+    // Image upload + preview.
+    html += '<div class="npc-form-image">';
+    html += '<div class="npc-form-image-preview" id="npc-image-preview">';
+    if (n.image) html += '<img src="' + escapeAttr(n.image) + '" alt="">';
+    else html += '<span class="npc-portrait-empty">' + escapeHtml((n.name || '?').charAt(0).toUpperCase()) + '</span>';
+    html += '</div>';
+    html += '<input type="hidden" id="npc-f-image" value="' + escapeAttr(n.image || '') + '">';
+    html += '<label class="note-image-upload"><span>' + (n.image ? 'Afbeelding wijzigen' : 'Afbeelding toevoegen') + '</span><input type="file" accept="image/*" data-action="upload-npc-image" style="display:none"></label>';
+    if (n.image) html += '<button type="button" class="btn btn-ghost btn-sm" data-action="remove-npc-image">' + t('generic.delete') + '</button>';
+    html += '</div>';
+
+    html += '<div class="npc-form-grid">';
+    html += npcModalField('npc-f-name', 'Naam', n.name);
+    html += npcModalField('npc-f-birthYear', 'Geboortejaar', n.birthYear, 'number');
+    html += npcModalField('npc-f-race', 'Race', n.race);
+    html += npcModalField('npc-f-class', 'Class', n.npcClass);
+    html += npcModalField('npc-f-relation', 'Relation', n.relation);
+    html += npcModalField('npc-f-family', 'Family', n.family);
+    html += npcModalField('npc-f-faction', 'Faction', n.faction);
+    html += npcModalField('npc-f-religion', 'Religion', n.religion);
+    html += npcModalField('npc-f-location', 'Location', n.location);
+    // Disposition select.
+    html += '<div class="npc-form-field"><label class="login-label" for="npc-f-disposition">Disposition</label>';
+    html += '<select class="edit-input" id="npc-f-disposition">';
+    var dops = ['unknown', 'friendly', 'neutral', 'hostile'];
+    for (var i = 0; i < dops.length; i++) {
+        html += '<option value="' + dops[i] + '"' + ((n.disposition || 'unknown') === dops[i] ? ' selected' : '') + '>' + dops[i] + '</option>';
+    }
+    html += '</select></div>';
+    html += npcModalField('npc-f-preferences', 'Likes / Preferences', n.preferences);
+    html += npcModalField('npc-f-dislikes', 'Dislikes', n.dislikes);
+    html += npcModalField('npc-f-pets', 'Pets', n.pets);
+    html += '</div>';
+
+    html += '<div class="npc-form-field npc-form-notes"><label class="login-label" for="npc-f-notes">Notes</label>';
+    html += '<textarea class="edit-textarea" id="npc-f-notes" rows="4">' + escapeHtml(n.notes || '') + '</textarea></div>';
+
+    html += '<div class="edit-actions">';
+    html += '<button class="edit-save" data-action="save-npc-modal">' + t('generic.save') + '</button>';
+    html += '<button class="edit-cancel" data-action="close-npc-modal">' + t('generic.cancel') + '</button>';
+    html += '</div>';
+
+    html += '</div>'; // modal-body
+    html += '</div>'; // modal-card
+    html += '</div>'; // modal-overlay
+    return html;
+}
+
+function openNPCModal(idx) {
+    closeNPCModal();
+    var div = document.createElement('div');
+    div.className = 'npc-modal-active';
+    div.innerHTML = renderNPCModal(idx == null ? -1 : idx);
+    document.body.appendChild(div);
+    if (typeof lockBodyScroll === 'function') lockBodyScroll();
+}
+function closeNPCModal() {
+    var el = document.querySelector('.npc-modal-active');
+    if (el) el.remove();
+    if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+}
+
+function saveNPCModal() {
+    var form = document.querySelector('.npc-modal-active .npc-form');
+    if (!form) return;
+    var idx = parseInt(form.dataset.npcIdx, 10);
+    var isNew = isNaN(idx) || idx === -1;
+    function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    var name = v('npc-f-name');
+    if (!name) { var ne = document.getElementById('npc-f-name'); if (ne) ne.focus(); return; }
+
+    var data = getNPCData();
+    var npc = isNew ? { id: 'npc' + Date.now() } : (data.npcs[idx] || { id: 'npc' + Date.now() });
+    npc.name = name;
+    npc.image = v('npc-f-image') || null;
+    npc.birthYear = v('npc-f-birthYear');
+    npc.race = v('npc-f-race');
+    npc.npcClass = v('npc-f-class');
+    npc.relation = v('npc-f-relation');
+    npc.family = v('npc-f-family');
+    npc.faction = v('npc-f-faction');
+    npc.religion = v('npc-f-religion');
+    npc.location = v('npc-f-location');
+    npc.disposition = v('npc-f-disposition') || 'unknown';
+    npc.preferences = v('npc-f-preferences');
+    npc.dislikes = v('npc-f-dislikes');
+    npc.pets = v('npc-f-pets');
+    npc.notes = v('npc-f-notes');
+
+    if (isNew) {
+        if (!Array.isArray(data.npcs)) data.npcs = [];
+        data.npcs.push(npc);
+    } else {
+        data.npcs[idx] = npc;
+    }
+    saveNPCData(data);
+    closeNPCModal();
+    renderApp();
+}
+
+// ===== Lore-entry editor-modal (generieke categorieën) =====
+function renderLoreEntryModal(cat, idx) {
+    var entries = getLoreCatEntries(cat);
+    var isNew = (idx === -1 || idx == null);
+    var e = isNew ? {} : (entries[idx] || {});
+    var label = cat;
+    for (var t2 = 0; t2 < LORE_TABS.length; t2++) if (LORE_TABS[t2].id === cat) label = LORE_TABS[t2].label.replace(/s$/, '');
+
+    var html = '<div class="modal-overlay lore-entry-modal-overlay">';
+    html += '<div class="modal-card modal-npc">';
+    html += '<div class="modal-header">';
+    html += '<h2>' + (isNew ? 'Nieuw: ' + escapeHtml(label) : escapeHtml(label) + ' bewerken') + '</h2>';
+    html += '<button class="modal-close" data-action="close-lore-entry-modal">&times;</button>';
+    html += '</div>';
+    html += '<div class="modal-body npc-form lore-entry-form" data-cat="' + cat + '" data-entry-idx="' + (isNew ? -1 : idx) + '">';
+
+    html += '<div class="npc-form-image">';
+    html += '<div class="npc-form-image-preview" id="lore-entry-image-preview">';
+    if (e.image) html += '<img src="' + escapeAttr(e.image) + '" alt="">';
+    else html += '<span class="npc-portrait-empty">' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span>';
+    html += '</div>';
+    html += '<input type="hidden" id="lore-entry-f-image" value="' + escapeAttr(e.image || '') + '">';
+    html += '<label class="note-image-upload"><span>' + (e.image ? 'Afbeelding wijzigen' : 'Afbeelding toevoegen') + '</span><input type="file" accept="image/*" data-action="upload-lore-entry-image" style="display:none"></label>';
+    if (e.image) html += '<button type="button" class="btn btn-ghost btn-sm" data-action="remove-lore-entry-image">' + t('generic.delete') + '</button>';
+    html += '</div>';
+
+    html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-name">Naam</label>';
+    html += '<input type="text" class="edit-input" id="lore-entry-f-name" value="' + escapeAttr(e.name || '') + '"></div>';
+    html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-description">Omschrijving</label>';
+    html += '<textarea class="edit-textarea" id="lore-entry-f-description" rows="4">' + escapeHtml(e.description || '') + '</textarea></div>';
+    html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-notes">Notities</label>';
+    html += '<textarea class="edit-textarea" id="lore-entry-f-notes" rows="3">' + escapeHtml(e.notes || '') + '</textarea></div>';
+
+    html += '<div class="edit-actions">';
+    html += '<button class="edit-save" data-action="save-lore-entry-modal">' + t('generic.save') + '</button>';
+    html += '<button class="edit-cancel" data-action="close-lore-entry-modal">' + t('generic.cancel') + '</button>';
+    html += '</div>';
+
+    html += '</div></div></div>';
+    return html;
+}
+
+function openLoreEntryModal(cat, idx) {
+    closeLoreEntryModal();
+    var div = document.createElement('div');
+    div.className = 'lore-entry-modal-active';
+    div.innerHTML = renderLoreEntryModal(cat, idx == null ? -1 : idx);
+    document.body.appendChild(div);
+    if (typeof lockBodyScroll === 'function') lockBodyScroll();
+}
+function closeLoreEntryModal() {
+    var el = document.querySelector('.lore-entry-modal-active');
+    if (el) el.remove();
+    if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+}
+function saveLoreEntryModal() {
+    var form = document.querySelector('.lore-entry-modal-active .lore-entry-form');
+    if (!form) return;
+    var cat = form.dataset.cat;
+    var idx = parseInt(form.dataset.entryIdx, 10);
+    var isNew = isNaN(idx) || idx === -1;
+    function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    var name = v('lore-entry-f-name');
+    if (!name) { var ne = document.getElementById('lore-entry-f-name'); if (ne) ne.focus(); return; }
+
+    var data = getLoreCatsData();
+    if (!Array.isArray(data[cat])) data[cat] = [];
+    var entry = isNew ? { id: 'le' + Date.now() } : (data[cat][idx] || { id: 'le' + Date.now() });
+    entry.name = name;
+    entry.image = v('lore-entry-f-image') || null;
+    entry.description = v('lore-entry-f-description');
+    entry.notes = v('lore-entry-f-notes');
+    if (isNew) data[cat].push(entry);
+    else data[cat][idx] = entry;
+    saveLoreCatsData(data);
+    closeLoreEntryModal();
+    renderApp();
+}
+
+// Party-tab inner content (geen page-wrapper; zit in de lore-tab-shell).
+function renderLorePartyInner() {
+    var html = '<p class="section-intro">' + t('lore.theparty.intro') + '</p>';
     var ids = getCharacterIds();
     for (var i = 0; i < ids.length; i++) {
         var cfg = loadCharConfig(ids[i]);
@@ -1436,7 +1786,85 @@ function renderLoreParty() {
         if (cfg.backstory) html += '<p>' + escapeHtml(cfg.backstory) + '</p>';
         html += '</div>';
     }
+    return html;
+}
 
+// Legacy standalone route (#/lore/party rendert nu via de tab-shell, maar
+// houd deze voor eventuele directe call-sites).
+function renderLoreParty() {
+    var html = '<div class="lore-page lore-article">';
+    html += '<a class="btn btn-ghost btn-sm" href="#/lore/party">&larr; ' + t('lore.backtolore') + '</a>';
+    html += '<h1>' + t('lore.theparty') + '</h1>';
+    html += renderLorePartyInner();
+    html += '</div>';
+    return html;
+}
+
+// ===== Generieke lore-categorie entries (items/religions/factions/cities/
+// locations/monsters/events). E\u00e9n store, gefilterd per categorie. =====
+function getLoreCatsData() {
+    var saved = localStorage.getItem('dw_lore_cats');
+    if (saved) { try { var p = JSON.parse(saved); if (p && typeof p === 'object') return p; } catch (e) {} }
+    return {};
+}
+function saveLoreCatsData(data) {
+    localStorage.setItem('dw_lore_cats', JSON.stringify(data));
+    if (typeof syncUpload === 'function') syncUpload('dw_lore_cats');
+}
+function getLoreCatEntries(cat) {
+    var data = getLoreCatsData();
+    return Array.isArray(data[cat]) ? data[cat] : [];
+}
+
+// Per-categorie zoekterm (module-level, zoals notesSearch).
+var loreCatSearch = '';
+
+function renderLoreCategory(cat) {
+    var entries = getLoreCatEntries(cat);
+    var label = cat;
+    for (var t2 = 0; t2 < LORE_TABS.length; t2++) if (LORE_TABS[t2].id === cat) label = LORE_TABS[t2].label;
+
+    var html = '<div class="lore-cat-toolbar">';
+    html += '<input type="text" class="edit-input lore-cat-search" id="lore-cat-search" placeholder="Zoek in ' + escapeAttr(label) + '\u2026" value="' + escapeAttr(loreCatSearch) + '">';
+    if (isDM()) {
+        html += '<button class="btn btn-primary btn-sm" data-action="add-lore-entry" data-cat="' + cat + '">+ ' + escapeHtml(label.replace(/s$/, '')) + '</button>';
+    }
+    html += '</div>';
+
+    var q = loreCatSearch.toLowerCase();
+    var filtered = entries.filter(function (e) {
+        if (!q) return true;
+        return (e.name && e.name.toLowerCase().indexOf(q) >= 0) ||
+               (e.description && e.description.toLowerCase().indexOf(q) >= 0) ||
+               (e.notes && e.notes.toLowerCase().indexOf(q) >= 0);
+    });
+
+    if (!filtered.length) {
+        html += '<p class="text-dim">' + (q ? 'Geen resultaten voor "' + escapeHtml(loreCatSearch) + '".' : 'Nog niets in ' + escapeHtml(label) + '.') + '</p>';
+        return html;
+    }
+
+    html += '<div class="lore-entry-grid">';
+    for (var i = 0; i < filtered.length; i++) {
+        var e = filtered[i];
+        var realIdx = entries.indexOf(e);
+        html += '<div class="lore-entry-card" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-action="toggle-lore-entry">';
+        if (e.image) {
+            html += '<div class="lore-entry-img"><img src="' + escapeAttr(e.image) + '" alt=""></div>';
+        }
+        html += '<div class="lore-entry-body">';
+        html += '<h3>' + escapeHtml(e.name || '(naamloos)') + '</h3>';
+        if (e.description) html += '<p class="lore-entry-desc">' + escapeHtml(e.description) + '</p>';
+        if (e.notes) html += '<p class="lore-entry-notes text-dim">' + escapeHtml(e.notes) + '</p>';
+        if (isDM()) {
+            html += '<div class="lore-entry-actions">';
+            html += '<button class="btn btn-ghost btn-sm" data-action="edit-lore-entry" data-cat="' + cat + '" data-entry-idx="' + realIdx + '">' + t('generic.edit') + '</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="delete-lore-entry" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" style="color:var(--danger);">' + t('generic.delete') + '</button>';
+            html += '</div>';
+        }
+        html += '</div>';
+        html += '</div>';
+    }
     html += '</div>';
     return html;
 }

@@ -5,6 +5,25 @@
 // Section 30: Event Handling
 // ============================================================
 
+// Lees een image-File, schaal naar maxSize en lever een JPEG dataURL via cb.
+function _compressImageFile(file, maxSize, quality, cb) {
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        var img = new Image();
+        img.onload = function() {
+            var cvs = document.createElement('canvas');
+            var scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+            cvs.width = Math.round(img.width * scale);
+            cvs.height = Math.round(img.height * scale);
+            cvs.getContext('2d').drawImage(img, 0, 0, cvs.width, cvs.height);
+            cb(cvs.toDataURL('image/jpeg', quality || 0.8));
+        };
+        img.onerror = function() { cb(ev.target.result); };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
 function bindPageEvents(route) {
     var app = document.getElementById('app');
     if (!app) return;
@@ -1042,50 +1061,71 @@ function bindPageEvents(route) {
         // --- NPC card expand/collapse ---
         if (target.matches('[data-action="toggle-npc-card"]') || target.closest('[data-action="toggle-npc-card"]')) {
             var card = target.closest('.npc-card');
-            if (card) card.classList.toggle('expanded');
+            if (!card) return;
+            var wasExpanded = card.classList.contains('expanded');
+            // Accordion: sluit andere open kaarten zodat het grid netjes herschikt.
+            var grid = card.closest('.npc-grid');
+            if (grid) {
+                var open = grid.querySelectorAll('.npc-card.expanded');
+                for (var oi = 0; oi < open.length; oi++) open[oi].classList.remove('expanded');
+            }
+            if (!wasExpanded) card.classList.add('expanded');
             return;
         }
 
-        // --- NPC handlers ---
+        // NPC filter: disposition chips
+        if (target.matches('[data-action="npc-filter-disp"]')) {
+            npcFilterDisp = target.dataset.disp || 'all';
+            renderApp();
+            return;
+        }
+
+        // --- NPC handlers (modal-based) ---
         if (target.matches('[data-action="add-npc"]')) {
-            var npcName = prompt('NPC name:');
-            if (npcName && npcName.trim()) {
-                var npcLoc = prompt('Location (optional):') || '';
-                var npcDisp = prompt('Disposition (friendly/neutral/hostile/unknown):') || 'unknown';
-                var npcNotes = prompt('Notes (optional):') || '';
-                var npcData = getNPCData();
-                npcData.npcs.push({ name: npcName.trim(), location: npcLoc.trim(), disposition: npcDisp.trim().toLowerCase(), notes: npcNotes.trim(), id: 'npc' + Date.now() });
-                saveNPCData(npcData);
-                renderApp();
-            }
+            if (typeof openNPCModal === 'function') openNPCModal(-1);
             return;
         }
         if (target.matches('[data-action="edit-npc"]')) {
-            var npcIdx = parseInt(target.dataset.npcIdx);
-            var npcData = getNPCData();
-            if (npcData.npcs[npcIdx]) {
-                var npc = npcData.npcs[npcIdx];
-                var nName = prompt('Name:', npc.name); if (nName === null) return;
-                var nLoc = prompt('Location:', npc.location); if (nLoc === null) return;
-                var nDisp = prompt('Disposition (friendly/neutral/hostile/unknown):', npc.disposition); if (nDisp === null) return;
-                var nNotes = prompt('Notes:', npc.notes); if (nNotes === null) return;
-                npc.name = nName.trim() || npc.name;
-                npc.location = nLoc.trim();
-                npc.disposition = nDisp.trim().toLowerCase();
-                npc.notes = nNotes.trim();
-                saveNPCData(npcData);
-                renderApp();
-            }
+            var npcIdx = parseInt(target.dataset.npcIdx, 10);
+            if (typeof openNPCModal === 'function') openNPCModal(npcIdx);
             return;
         }
         if (target.matches('[data-action="delete-npc"]')) {
             if (confirm('Delete this NPC?')) {
-                var npcIdx = parseInt(target.dataset.npcIdx);
+                var delIdx = parseInt(target.dataset.npcIdx, 10);
                 var npcData = getNPCData();
-                npcData.npcs.splice(npcIdx, 1);
+                npcData.npcs.splice(delIdx, 1);
                 saveNPCData(npcData);
                 renderApp();
             }
+            return;
+        }
+
+        // --- Lore-entry handlers (generieke categorieën) ---
+        if (target.matches('[data-action="add-lore-entry"]')) {
+            if (typeof openLoreEntryModal === 'function') openLoreEntryModal(target.dataset.cat, -1);
+            return;
+        }
+        if (target.matches('[data-action="edit-lore-entry"]') || target.closest('[data-action="edit-lore-entry"]')) {
+            var leBtn = target.matches('[data-action="edit-lore-entry"]') ? target : target.closest('[data-action="edit-lore-entry"]');
+            if (typeof openLoreEntryModal === 'function') openLoreEntryModal(leBtn.dataset.cat, parseInt(leBtn.dataset.entryIdx, 10));
+            return;
+        }
+        if (target.matches('[data-action="delete-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]')) {
+            var ldBtn = target.matches('[data-action="delete-lore-entry"]') ? target : target.closest('[data-action="delete-lore-entry"]');
+            if (confirm('Verwijderen?')) {
+                var leCat = ldBtn.dataset.cat;
+                var leIdx = parseInt(ldBtn.dataset.entryIdx, 10);
+                var lcData = getLoreCatsData();
+                if (Array.isArray(lcData[leCat])) { lcData[leCat].splice(leIdx, 1); saveLoreCatsData(lcData); renderApp(); }
+            }
+            return;
+        }
+        if (target.matches('[data-action="toggle-lore-entry"]') || target.closest('[data-action="toggle-lore-entry"]')) {
+            // Niet togglen als er op een actie-knop in de kaart geklikt is.
+            if (target.closest('[data-action="edit-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]')) return;
+            var leCard = target.matches('[data-action="toggle-lore-entry"]') ? target : target.closest('[data-action="toggle-lore-entry"]');
+            if (leCard) leCard.classList.toggle('expanded');
             return;
         }
 
@@ -2374,6 +2414,25 @@ function bindPageEvents(route) {
             return;
         }
 
+        // NPC faction filter
+        if (target.matches('[data-action="npc-filter-faction"]')) {
+            npcFilterFaction = target.value;
+            renderApp();
+            return;
+        }
+
+        // NPC campaign current-year (DM) — used to compute ages
+        if (target.matches('#npc-current-year')) {
+            if (isDM()) {
+                var npcYData = getNPCData();
+                npcYData.currentYear = target.value.trim();
+                saveNPCData(npcYData);
+                renderApp();
+            }
+            return;
+        }
+
+
         // Family source picker — auto-fill name from selected character/NPC
         if (target.matches('#fam-source')) {
             var nameEl = document.getElementById('fam-name');
@@ -2671,6 +2730,19 @@ function bindPageEvents(route) {
                 var cursorPos = target.selectionStart;
                 renderApp();
                 var el = document.getElementById('npc-search');
+                if (el) { el.focus(); el.setSelectionRange(cursorPos, cursorPos); }
+            }, 200);
+            return;
+        }
+
+        // Lore-categorie search
+        if (target.matches('#lore-cat-search')) {
+            loreCatSearch = target.value;
+            clearTimeout(target._searchTimer);
+            target._searchTimer = setTimeout(function() {
+                var cursorPos = target.selectionStart;
+                renderApp();
+                var el = document.getElementById('lore-cat-search');
                 if (el) { el.focus(); el.setSelectionRange(cursorPos, cursorPos); }
             }, 200);
             return;

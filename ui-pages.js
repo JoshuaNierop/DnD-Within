@@ -800,9 +800,9 @@ function renderDMPage(subpage) {
     html += '</div>';
 
     // Tab bar
+    // NPCs verplaatst naar de Lore-pagina (#/lore/npcs).
     var tabs = [
         { id: 'initiative', label: t('dm.initiative'), icon: '&#9876;' },
-        { id: 'npcs', label: t('dm.npcs'), icon: '&#127917;' },
         { id: 'families', label: t('dm.families'), icon: '&#128106;' },
         { id: 'campaigns', label: t('dm.campaigns'), icon: '&#127760;' }
     ];
@@ -819,7 +819,9 @@ function renderDMPage(subpage) {
     if (activeSection === 'initiative') {
         html += renderDMInitiative();
     } else if (activeSection === 'npcs') {
-        html += renderDMNPCs();
+        // Legacy redirect: NPCs leven nu op de Lore-pagina.
+        window.location.hash = '#/lore/npcs';
+        return '';
     } else if (activeSection === 'families') {
         html += renderDMFamilies();
     } else if (activeSection === 'campaigns') {

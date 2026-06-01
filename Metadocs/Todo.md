@@ -10,9 +10,17 @@ Volledige prompt: `Metadocs/Prompt-Timeline-Lore-2026-06-01.md`. Keuzes Joshua: 
 - [x] P1 — Sessie-volgorde op timeline van laag→hoog (chronologisch top→beneden). `ui-world.js` `renderTimeline` sort `nb-na` → `na-nb`. Content ongemoeid.
 
 ### Lore
-- [ ] P1 — Lore-pagina met tabbladen: Items, NPCs, Religions, Factions, Cities, Monsters, Locations, Events, Articles. NPCs verplaatst van DM tools → Lore-tab.
-- [ ] P1 — NPC-tab: searchbar + filters, vaste-grootte portret-cards (naam + afbeelding), inline expand (isotope-stijl, 2× hoog volle breedte, rest herschikt). Image-veld toevoegen. Expanded velden: name, year of birth (age), race, class, relation, family, faction, religion, preferences, dislikes, pets, notes.
-- [ ] P2 — NPC edit-form: van `prompt()`-keten → echte modal met alle velden + image-upload (DWImages).
+- [x] P1 — Lore-pagina met tabbladen (`ui-world.js` `LORE_TABS` + `renderLoreTabBar`): Party, NPCs, Items, Religions, Factions, Cities, Locations, Monsters, Events, Articles. NPCs verplaatst van DM tools → Lore-tab (`renderDMPage` npcs-sectie redirect naar `#/lore/npcs`). Getest in browser: 10 tabs renderen, geen console-errors.
+- [x] P1 — NPC-tab (`renderNPCTracker`): searchbar (`#npc-search`) + disposition-chips + faction-dropdown + DM "huidig jaar"-veld voor age-berekening. Vaste 2:3 portret-cards (naam + afbeelding/initiaal). Inline expand (isotope-benadering: `grid-column:1/-1` + `grid-auto-flow:row dense`, accordion-gedrag). Velden: born+age, race, class, relation, family, faction, religion, location, likes, dislikes, pets, notes + familie-diagram als gelinkt. Getest: add→render→expand werkt.
+- [x] P2 — NPC edit-form: `prompt()`-keten → echte modal (`renderNPCModal`/`openNPCModal`/`saveNPCModal`) met alle velden + image-upload (DWImages → `world/npcs/...`). Modal-handlers op document-niveau (modal hangt aan body).
+- [x] P1 — Generieke categorie-tabs (items/religions/factions/cities/locations/monsters/events): gedeeld entry-model (naam+afbeelding+omschrijving+notities) via `renderLoreCategory` + `dw_lore_cats` store, search + CRUD-modal. Getest: add→persist→expand werkt. `dw_lore_cats` toegevoegd aan `sync.js` (→ `world/lore_cats`).
+
+#### Open voor review (Joshua)
+- [ ] P1 — **Bug #1 live-verificatie**: editor-close fix is de self-echo van de eigen client (`world/timeline` mapte fout naar `dw_timeline`). Statisch + single-client gefixt; het multi-client scenario (2 windows tegelijk) kon ik niet reproduceren — graag in de praktijk testen.
+- [ ] P3 — Cities vs Locations overlappen (beide tabs op jouw verzoek). Eventueel later Cities als subset van Locations.
+- [ ] P3 — Generieke categorieën delen één simpel entry-model. Categorie-specifieke velden (bv. Monsters: CR/HP/type, Religions: pantheon) zijn later toe te voegen.
+- [ ] P3 — NPC-age leunt op een handmatig "huidig jaar"-veld in de NPC-toolbar (opgeslagen in `dw_npcs.currentYear`). Overweeg dit campagne-breed te koppelen aan een wereld-kalender.
+- [ ] P3 — Na artikel-save landt de redirect op de Party-tab i.p.v. Articles-tab (bestaande `save-lore` navigeert naar `#/lore`). Kosmetisch.
 
 ## Homepage & UI tweaks — ronde 9 (2026-05-30 12:30)
 

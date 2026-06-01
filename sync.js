@@ -56,7 +56,7 @@ var SYNC_PREFIXES = [
     'dw_scene_'  // timeline scene blobs (one per scene, image incl.)
 ];
 var SYNC_EXACT = [
-    'dw_maps', 'dw_timeline', 'dw_lore',
+    'dw_maps', 'dw_timeline', 'dw_lore', 'dw_lore_cats',
     'dw_chapters', 'dw_party_level',
     'dw_initiative', 'dw_session_number', 'dw_dashboard', 'dw_party_gold', 'dw_quests', 'dw_npcs', 'dw_campaigns', 'dw_families'
 ];
@@ -108,6 +108,7 @@ function keyToPath(key) {
     if (key === 'dw_maps') return 'world/maps';
     if (key === 'dw_timeline') return 'world/timeline';
     if (key === 'dw_lore') return 'world/lore';
+    if (key === 'dw_lore_cats') return 'world/lore_cats';
     if (key === 'dw_chapters') return 'world/timeline/chapters';
     if (key.indexOf('dw_scene_') === 0) return 'world/timeline/scenes/' + key.substring(9);
     if (key === 'dw_party_level') return 'campaign/party_level';

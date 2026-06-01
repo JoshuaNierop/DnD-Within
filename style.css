@@ -7179,56 +7179,212 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ============================================================
    NPC Tracker
    ============================================================ */
+/* ----- Lore tab bar ----- */
+.lore-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    border-bottom: 1px solid var(--border);
+    margin: 0.5rem 0 1.25rem;
+    padding-bottom: 0.5rem;
+}
+.lore-tab {
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.lore-tab:hover { background: var(--bg-hover); color: var(--text-main); }
+.lore-tab.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.lore-tab-content { min-height: 40vh; }
+.lore-cat-toolbar {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.lore-cat-search { flex: 1; min-width: 160px; max-width: 360px; }
+
+/* ----- Generic lore-entry cards ----- */
+.lore-entry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    grid-auto-flow: row dense;
+}
+.lore-entry-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+.lore-entry-card:hover { border-color: var(--accent); }
+.lore-entry-img { aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-hover); }
+.lore-entry-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lore-entry-body { padding: 0.75rem 0.9rem; }
+.lore-entry-body h3 { font-size: 1rem; margin: 0 0 0.35rem; }
+.lore-entry-desc {
+    font-size: 0.85rem; color: var(--text-main); line-height: 1.45; margin: 0;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.lore-entry-card.expanded .lore-entry-desc { -webkit-line-clamp: unset; overflow: visible; }
+.lore-entry-notes { font-size: 0.8rem; margin: 0.5rem 0 0; display: none; }
+.lore-entry-card.expanded { grid-column: 1 / -1; cursor: default; }
+.lore-entry-card.expanded .lore-entry-notes { display: block; }
+.lore-entry-card.expanded .lore-entry-img { aspect-ratio: auto; max-height: 320px; }
+.lore-entry-actions { display: none; gap: 0.4rem; margin-top: 0.6rem; }
+.lore-entry-card.expanded .lore-entry-actions { display: flex; }
+
+/* ============================================================
+   NPC Tracker (Lore-tab) — portret-cards + inline expand
+   ============================================================ */
+.npc-toolbar {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.npc-search { flex: 1; min-width: 150px; max-width: 280px; }
+.npc-filter-chips { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.npc-chip {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.npc-chip:hover { color: var(--text-main); border-color: var(--accent); }
+.npc-chip.active { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.npc-faction-filter { width: auto; min-width: 130px; font-size: 0.8rem; }
+.npc-toolbar-dm { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
+.npc-year-label { font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.4rem; }
+.npc-year-input { width: 80px; font-size: 0.8rem; }
+
 .npc-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
+    grid-auto-flow: row dense;
+    align-items: start;
 }
 .npc-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-left: 3px solid var(--text-dim);
     border-radius: var(--radius);
-    padding: 0;
+    overflow: hidden;
+    border-top: 3px solid var(--npc-disp, var(--text-dim));
 }
-.npc-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    user-select: none;
+/* Compacte 2:3 portret-card */
+.npc-card-face { cursor: pointer; user-select: none; }
+.npc-card-face:hover { background: var(--bg-hover); }
+.npc-portrait {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    background: var(--bg-hover);
+    overflow: hidden;
 }
-.npc-header:hover { background: var(--bg-hover); }
-.npc-header-info {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-    min-width: 0;
+.npc-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.npc-portrait-empty {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%;
+    font-size: 2.5rem; font-weight: 700; color: var(--text-dim);
 }
-.npc-header strong { font-size: 1rem; }
-.npc-disposition {
-    font-size: 0.75rem;
-    text-transform: capitalize;
-    font-weight: 600;
+.npc-disp-dot {
+    position: absolute; top: 0.5rem; right: 0.5rem;
+    width: 0.7rem; height: 0.7rem; border-radius: 50%;
+    background: var(--npc-disp, var(--text-dim));
+    border: 2px solid var(--bg-card);
 }
-.npc-location-inline { font-size: 0.75rem; color: var(--text-dim); }
-.npc-expand-icon {
-    font-size: 0.6rem;
-    color: var(--text-dim);
-    transition: transform 0.2s;
+.npc-card-name {
+    padding: 0.55rem 0.6rem;
+    font-size: 0.9rem; font-weight: 600;
+    text-align: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.npc-card.expanded .npc-expand-icon { transform: rotate(180deg); }
-.npc-details {
-    display: none;
-    padding: 0 1rem 0.75rem;
-    border-top: 1px solid var(--border);
+.npc-disposition { font-size: 0.8rem; text-transform: capitalize; font-weight: 600; }
+
+/* Inline-expanded detail — spant volle breedte, rest van het grid schuift door */
+.npc-expanded { display: none; }
+.npc-card.expanded { grid-column: 1 / -1; }
+.npc-card.expanded .npc-card-face { display: none; }
+.npc-card.expanded .npc-expanded { display: block; position: relative; padding: 1.25rem; }
+.npc-expanded-close {
+    position: absolute; top: 0.6rem; right: 0.8rem;
+    background: none; border: none; color: var(--text-dim);
+    font-size: 1.5rem; line-height: 1; cursor: pointer;
 }
-.npc-card.expanded .npc-details { display: block; }
-.npc-location { font-size: 0.8rem; color: var(--text-dim); margin: 0.2rem 0; }
+.npc-expanded-close:hover { color: var(--text-main); }
+.npc-expanded-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+.npc-expanded-portrait {
+    aspect-ratio: 2 / 3;
+    background: var(--bg-hover);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+.npc-expanded-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.npc-expanded-info h3 { font-size: 1.4rem; margin: 0 0 0.75rem; }
+.npc-detail-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.3rem 1rem;
+    margin: 0;
+    font-size: 0.9rem;
+}
+.npc-detail-grid dt { color: var(--text-dim); font-weight: 600; }
+.npc-detail-grid dd { margin: 0; color: var(--text-main); }
+.npc-detail-notes { margin-top: 1rem; }
+.npc-detail-notes strong { display: block; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.25rem; }
+.npc-detail-notes p { margin: 0; line-height: 1.55; }
+.npc-family-section { margin-top: 1rem; }
 .npc-notes { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin: 0.5rem 0; }
-.npc-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+.npc-actions { display: flex; gap: 0.4rem; margin-top: 1rem; }
+
+@media (max-width: 560px) {
+    .npc-expanded-grid { grid-template-columns: 1fr; }
+    .npc-expanded-portrait { max-width: 180px; }
+}
+
+/* ----- NPC / lore-entry editor modal ----- */
+.modal-npc { max-width: 640px; width: 100%; }
+.npc-form-image {
+    display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.npc-form-image-preview {
+    width: 96px; height: 144px; flex-shrink: 0;
+    background: var(--bg-hover); border-radius: var(--radius-sm); overflow: hidden;
+}
+.npc-form-image-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.npc-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+.npc-form-field { display: flex; flex-direction: column; gap: 0.25rem; }
+.npc-form-notes { margin-top: 0.75rem; }
+@media (max-width: 520px) {
+    .npc-form-grid { grid-template-columns: 1fr; }
+}
 
 /* ============================================================
    Toast Notifications

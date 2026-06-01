@@ -1001,5 +1001,84 @@ document.addEventListener('click', function(e) {
         submitBugReport();
         return;
     }
+
+    // ----- NPC editor-modal (op document-niveau; modal hangt aan body) -----
+    // Sluiten: klik op de overlay-achtergrond, of op een close/cancel-knop.
+    if (target.matches('.npc-modal-overlay') || target.closest('[data-action="close-npc-modal"]')) {
+        if (typeof closeNPCModal === 'function') closeNPCModal();
+        return;
+    }
+    if (target.closest('[data-action="save-npc-modal"]')) {
+        if (typeof saveNPCModal === 'function') saveNPCModal();
+        return;
+    }
+    if (target.closest('[data-action="remove-npc-image"]')) {
+        var npcHid = document.getElementById('npc-f-image');
+        if (npcHid) npcHid.value = '';
+        var npcPrev = document.getElementById('npc-image-preview');
+        if (npcPrev) npcPrev.innerHTML = '<span class="npc-portrait-empty">?</span>';
+        return;
+    }
+
+    // ----- Lore-entry editor-modal -----
+    if (target.matches('.lore-entry-modal-overlay') || target.closest('[data-action="close-lore-entry-modal"]')) {
+        if (typeof closeLoreEntryModal === 'function') closeLoreEntryModal();
+        return;
+    }
+    if (target.closest('[data-action="save-lore-entry-modal"]')) {
+        if (typeof saveLoreEntryModal === 'function') saveLoreEntryModal();
+        return;
+    }
+    if (target.closest('[data-action="remove-lore-entry-image"]')) {
+        var leHid = document.getElementById('lore-entry-f-image');
+        if (leHid) leHid.value = '';
+        var lePrev = document.getElementById('lore-entry-image-preview');
+        if (lePrev) lePrev.innerHTML = '<span class="npc-portrait-empty">?</span>';
+        return;
+    }
+});
+
+// Document-level change listener voor modal file-inputs (modals hangen aan
+// body, dus app.onchange vangt ze niet).
+document.addEventListener('change', function(e) {
+    var target = e.target;
+
+    if (target.matches('[data-action="upload-npc-image"]')) {
+        var npcFile = target.files && target.files[0];
+        if (npcFile && typeof _compressImageFile === 'function') {
+            _compressImageFile(npcFile, 800, 0.8, function(dataUrl) {
+                var prev = document.getElementById('npc-image-preview');
+                if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
+                var hid = document.getElementById('npc-f-image');
+                if (window.DWImages && DWImages.save) {
+                    DWImages.save('world', 'npcs/npc' + Date.now(), dataUrl).then(function(imgVal) {
+                        if (hid) hid.value = imgVal;
+                    }).catch(function() { if (hid) hid.value = dataUrl; });
+                } else if (hid) { hid.value = dataUrl; }
+            });
+            try { target.value = ''; } catch (_) {}
+        }
+        return;
+    }
+
+    if (target.matches('[data-action="upload-lore-entry-image"]')) {
+        var leFile = target.files && target.files[0];
+        var leForm = target.closest('.lore-entry-form');
+        var leCat = leForm ? (leForm.dataset.cat || 'misc') : 'misc';
+        if (leFile && typeof _compressImageFile === 'function') {
+            _compressImageFile(leFile, 800, 0.8, function(dataUrl) {
+                var prev = document.getElementById('lore-entry-image-preview');
+                if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
+                var hid = document.getElementById('lore-entry-f-image');
+                if (window.DWImages && DWImages.save) {
+                    DWImages.save('world', 'lore/' + leCat + '/le' + Date.now(), dataUrl).then(function(imgVal) {
+                        if (hid) hid.value = imgVal;
+                    }).catch(function() { if (hid) hid.value = dataUrl; });
+                } else if (hid) { hid.value = dataUrl; }
+            });
+            try { target.value = ''; } catch (_) {}
+        }
+        return;
+    }
 });
 
