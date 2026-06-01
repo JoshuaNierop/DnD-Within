@@ -1449,6 +1449,7 @@ function renderNPCDetailRows(npc, currentYear) {
     if (npc.birthYear) rows.push(['Born', escapeHtml(String(npc.birthYear)) + (age ? ' (age ' + age + ')' : '')]);
     if (npc.race) rows.push(['Race', escapeHtml(npc.race)]);
     if (npc.npcClass) rows.push(['Class', escapeHtml(npc.npcClass)]);
+    if (npc.profession) rows.push(['Profession', escapeHtml(npc.profession)]);
     if (npc.relation) rows.push(['Relation', escapeHtml(npc.relation)]);
     if (npc.family) rows.push(['Family', escapeHtml(npc.family)]);
     if (npc.faction) rows.push(['Faction', escapeHtml(npc.faction)]);
@@ -1516,7 +1517,7 @@ function renderNPCTracker() {
         if (npcFilterDisp !== 'all' && (npc.disposition || 'unknown') !== npcFilterDisp) continue;
         if (npcFilterFaction !== 'all' && (npc.faction || '') !== npcFilterFaction) continue;
         if (q) {
-            var hay = [npc.name, npc.race, npc.npcClass, npc.faction, npc.religion, npc.location, npc.notes].join(' ').toLowerCase();
+            var hay = [npc.name, npc.race, npc.npcClass, npc.profession, npc.faction, npc.religion, npc.location, npc.notes].join(' ').toLowerCase();
             if (hay.indexOf(q) < 0) continue;
         }
         list.push({ npc: npc, idx: ni });
@@ -1614,6 +1615,7 @@ function renderNPCModal(idx) {
     html += npcModalField('npc-f-birthYear', 'Geboortejaar', n.birthYear, 'number');
     html += npcModalField('npc-f-race', 'Race', n.race);
     html += npcModalField('npc-f-class', 'Class', n.npcClass);
+    html += npcModalField('npc-f-profession', 'Profession', n.profession);
     html += npcModalField('npc-f-relation', 'Relation', n.relation);
     html += npcModalField('npc-f-family', 'Family', n.family);
     html += npcModalField('npc-f-faction', 'Faction', n.faction);
@@ -1676,6 +1678,7 @@ function saveNPCModal() {
     npc.birthYear = v('npc-f-birthYear');
     npc.race = v('npc-f-race');
     npc.npcClass = v('npc-f-class');
+    npc.profession = v('npc-f-profession');
     npc.relation = v('npc-f-relation');
     npc.family = v('npc-f-family');
     npc.faction = v('npc-f-faction');
