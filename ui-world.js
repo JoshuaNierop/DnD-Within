@@ -1461,6 +1461,18 @@ function saveNPCData(data) {
 var npcFilterDisp = 'all';
 var npcFilterFaction = 'all';
 
+// onerror fallback: replace a broken portrait <img> with its initial so a dead
+// URL degrades gracefully instead of showing the browser's broken-image icon.
+function dwImgFallback(img) {
+    try {
+        var letter = (img.getAttribute('data-fb') || '?');
+        var span = document.createElement('span');
+        span.className = 'npc-portrait-empty';
+        span.textContent = letter;
+        if (img.parentNode) img.parentNode.replaceChild(span, img);
+    } catch (e) { if (img) img.style.visibility = 'hidden'; }
+}
+
 function npcDispColor(disp) {
     return disp === 'friendly' ? 'var(--success)' :
            disp === 'hostile'  ? 'var(--danger)'  :
@@ -1575,7 +1587,7 @@ function renderNPCTracker() {
         // Compacte kaart-face: portret + naam.
         html += '<div class="npc-card-face" data-action="toggle-npc-card">';
         html += '<div class="npc-portrait">';
-        if (n.image) html += '<img src="' + escapeAttr(n.image) + '" alt="">';
+        if (n.image) html += '<img src="' + escapeAttr(resolveImageSrc(n.image)) + '" alt="" data-fb="' + escapeAttr((n.name || '?').charAt(0).toUpperCase()) + '" onerror="dwImgFallback(this)">';
         else html += '<div class="npc-portrait-empty">' + escapeHtml((n.name || '?').charAt(0).toUpperCase()) + '</div>';
         if (n.disposition) html += '<span class="npc-disp-dot" title="' + escapeAttr(n.disposition) + '"></span>';
         html += '</div>';
@@ -1587,7 +1599,7 @@ function renderNPCTracker() {
         html += '<button class="npc-expanded-close" data-action="toggle-npc-card" title="Sluiten">&times;</button>';
         html += '<div class="npc-expanded-grid">';
         html += '<div class="npc-expanded-portrait">';
-        if (n.image) html += '<img src="' + escapeAttr(n.image) + '" alt="">';
+        if (n.image) html += '<img src="' + escapeAttr(resolveImageSrc(n.image)) + '" alt="" data-fb="' + escapeAttr((n.name || '?').charAt(0).toUpperCase()) + '" onerror="dwImgFallback(this)">';
         else html += '<div class="npc-portrait-empty">' + escapeHtml((n.name || '?').charAt(0).toUpperCase()) + '</div>';
         html += '</div>';
         html += '<div class="npc-expanded-info">';
