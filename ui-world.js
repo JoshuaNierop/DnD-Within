@@ -875,24 +875,29 @@ function getTimelineData() {
     _migrateMonolithicTimeline();
     var chapters = _loadChaptersIndex();
     if (!chapters) {
-        // Seed default chapter on first run.
-        var seedSceneId = _genId('sc');
-        _saveSceneBlob(seedSceneId, {
-            layout: 'text',
-            text: 'De avonturiers ontmoeten elkaar bij een kruispunt. Een verweerd bord wijst in vier richtingen \u2014 maar iets trekt hen allemaal dezelfde kant op.',
-            image: null
-        });
-        chapters = [{
-            id: 'ch1',
-            name: 'New Beginnings',
-            sessions: [{
-                id: 'sess1',
-                title: 'Sign At The Crossroads',
-                session: '1',
-                sceneIds: [seedSceneId]
+        // No persisted timeline yet. Return a TRANSIENT default for display
+        // only \u2014 do NOT write or upload it. Persisting/uploading a seed here
+        // races with the async Firebase download: an early render (e.g. the
+        // homepage "Recent" block) would seed an empty timeline and clobber
+        // the real cloud data before it finishes downloading. The real save
+        // paths (add/edit session/chapter) persist properly when the user acts.
+        return {
+            chapters: [{
+                id: 'ch1',
+                name: 'New Beginnings',
+                events: [{
+                    id: 'sess1',
+                    title: 'Sign At The Crossroads',
+                    session: '1',
+                    scenes: [{
+                        id: 'seed',
+                        layout: 'text',
+                        text: 'De avonturiers ontmoeten elkaar bij een kruispunt. Een verweerd bord wijst in vier richtingen \u2014 maar iets trekt hen allemaal dezelfde kant op.',
+                        image: null
+                    }]
+                }]
             }]
-        }];
-        _saveChaptersIndex(chapters);
+        };
     }
     // Build the hydrated shape that the rest of the renderer expects:
     // { chapters: [{id, name, events: [{id, title, session, scenes: [...]}]}] }
