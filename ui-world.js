@@ -1962,6 +1962,8 @@ function openNPCModal(idx) {
     div.innerHTML = renderNPCModal(idx == null ? -1 : idx);
     document.body.appendChild(div);
     if (typeof lockBodyScroll === 'function') lockBodyScroll();
+    if (typeof attachMentionOverlays === 'function') attachMentionOverlays(div);
+    if (typeof autoGrowAll === 'function') autoGrowAll(div);
 }
 function closeNPCModal() {
     var el = document.querySelector('.npc-modal-active');
@@ -2066,6 +2068,8 @@ function openLoreEntryModal(cat, idx) {
     div.innerHTML = renderLoreEntryModal(cat, idx == null ? -1 : idx);
     document.body.appendChild(div);
     if (typeof lockBodyScroll === 'function') lockBodyScroll();
+    if (typeof attachMentionOverlays === 'function') attachMentionOverlays(div);
+    if (typeof autoGrowAll === 'function') autoGrowAll(div);
 }
 function closeLoreEntryModal() {
     var el = document.querySelector('.lore-entry-modal-active');

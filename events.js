@@ -1714,6 +1714,8 @@ function bindPageEvents(route) {
                     var contentEl = eventEl.querySelector('.timeline-content');
                     if (contentEl) {
                         contentEl.innerHTML = renderSessionForm(evIdx, sess);
+                        if (typeof autoGrowAll === 'function') autoGrowAll(contentEl);
+                        if (typeof attachMentionOverlays === 'function') attachMentionOverlays(contentEl);
                     }
                 }
             }
@@ -1843,6 +1845,8 @@ function bindPageEvents(route) {
                 blk.replaceWith(fresh.firstChild);
             }
             sceneList.dataset.activeSceneIdx = String(newIdx);
+            if (typeof autoGrowAll === 'function') autoGrowAll(sceneList);
+            if (typeof attachMentionOverlays === 'function') attachMentionOverlays(sceneList);
         }
 
         // Click "Edit" on a collapsed scene → save current scene, expand the
@@ -1884,6 +1888,8 @@ function bindPageEvents(route) {
             tmp.innerHTML = renderSceneBlock(nextIdx, { id: newSceneId, layout: 'text', text: '', image: null }, -1, true);
             list.appendChild(tmp.firstChild);
             list.dataset.activeSceneIdx = String(nextIdx);
+            if (typeof autoGrowAll === 'function') autoGrowAll(list);
+            if (typeof attachMentionOverlays === 'function') attachMentionOverlays(list);
             return;
         }
 

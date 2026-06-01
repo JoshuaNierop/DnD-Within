@@ -215,6 +215,12 @@ function postRenderEffects(route) {
     // @-mention landing: open + flash the NPC/lore card a link pointed to.
     if (route.parts[0] === 'lore') applyEntityFocus();
 
+    // Size any auto-grow textareas to their content (e.g. scene editors that
+    // open pre-filled when editing a session).
+    if (typeof autoGrowAll === 'function') autoGrowAll();
+    // Style @-mention tokens as links inside the edit fields.
+    if (typeof attachMentionOverlays === 'function') attachMentionOverlays();
+
     // Initiative drag-and-drop
     initInitiativeDragDrop();
     // Map pin-edit handlers (drag nodes, click shape to add node)

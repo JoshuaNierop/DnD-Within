@@ -153,4 +153,68 @@
 
     document.addEventListener('scroll', function () { if (popup) positionPopup(); }, true);
     window.addEventListener('resize', function () { if (popup) positionPopup(); });
+
+    // ========================================================
+    // Mention HIGHLIGHT overlay — show inserted [[type:id|Name]] tokens as
+    // styled links INSIDE the edit field. A backdrop div renders the text with
+    // the name in link-colour and the [[type:id|…]] syntax transparent (still
+    // occupies width → caret stays aligned); the textarea text is made
+    // transparent so only the backdrop shows. The textarea keeps editing.
+    // ========================================================
+    var MH_SELECTOR = '.scene-text-input, #note-content, #npc-f-notes, #lore-entry-f-description, #lore-entry-f-notes';
+
+    function mhEscape(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function mhHighlight(text) {
+        var esc = mhEscape(text);
+        esc = esc.replace(/\[\[(character|npc|lore):([a-z0-9_]+)(?:\|([^\]]*))?\]\]/gi, function (m, type, id, name) {
+            return '<span class="mh-syn">[[' + type + ':' + id + '|</span>' +
+                   '<span class="mh-name">' + (name || '') + '</span>' +
+                   '<span class="mh-syn">]]</span>';
+        });
+        // Trailing newline keeps the backdrop's last line height in step with
+        // the textarea (which reserves space after a final newline).
+        return esc + '\n';
+    }
+    function mhSync(ta) {
+        var bd = ta._mhBackdrop;
+        if (!bd) return;
+        bd.innerHTML = mhHighlight(ta.value);
+        bd.scrollTop = ta.scrollTop;
+    }
+    function mhAttachOne(ta) {
+        if (!ta || ta._mhAttached) return;
+        ta._mhAttached = true;
+        var field = document.createElement('div');
+        field.className = 'mention-field';
+        var bd = document.createElement('div');
+        bd.className = 'mention-backdrop';
+        // Copy the metrics that drive text layout so backdrop + textarea align.
+        var cs = window.getComputedStyle(ta);
+        ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight', 'letterSpacing',
+         'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+         'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
+         'textAlign', 'textIndent', 'tabSize'].forEach(function (p) { bd.style[p] = cs[p]; });
+        bd.style.borderStyle = 'solid';
+        bd.style.borderColor = 'transparent';
+        ta.parentNode.insertBefore(field, ta);
+        field.appendChild(bd);
+        field.appendChild(ta);
+        ta.classList.add('mention-textarea-transparent');
+        ta._mhBackdrop = bd;
+        ta.addEventListener('input', function () { mhSync(ta); });
+        ta.addEventListener('scroll', function () { bd.scrollTop = ta.scrollTop; });
+        mhSync(ta);
+    }
+    // Public: wrap any mention fields under `root` (idempotent).
+    window.attachMentionOverlays = function (root) {
+        var scope = root || document;
+        if (!scope.querySelectorAll) return;
+        var tas = scope.querySelectorAll(MH_SELECTOR);
+        for (var i = 0; i < tas.length; i++) mhAttachOne(tas[i]);
+    };
+    // Keep backdrops in step when other code changes a textarea programmatically
+    // (e.g. the autocomplete inserting a token, or auto-grow resizing).
+    window.refreshMentionOverlay = function (ta) { if (ta && ta._mhBackdrop) mhSync(ta); };
 })();

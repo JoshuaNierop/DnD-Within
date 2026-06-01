@@ -23,6 +23,14 @@ function autoGrowTextarea(textarea) {
     textarea.style.height = textarea.scrollHeight + 'px';
 }
 
+// Grow every .auto-grow textarea inside `root` (default document) so existing
+// content fits without a scrollbar — call after rendering/opening an editor.
+function autoGrowAll(root) {
+    var scope = root || document;
+    var tas = scope.querySelectorAll ? scope.querySelectorAll('textarea.auto-grow') : [];
+    for (var i = 0; i < tas.length; i++) autoGrowTextarea(tas[i]);
+}
+
 // === Quick Notes Panel ===
 // Small floating panel (mirror of DiceHand) — lets user drop a quick note from any page
 var QuickNotes = {
