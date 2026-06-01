@@ -8,7 +8,23 @@ Volledig ontwerp: `Metadocs/Design-Links-en-Image-Reuse.md`. Keuzes Joshua: vast
 - [x] P1 — **Feature B — afbeelding hergebruiken (live referenties)**: gedeelde `collectEntities()` + image-picker. Model: originelen (Character-profiel + Lore-entiteiten) = alleen uploaden; verwijzende plekken (Timeline-scenes + Notes) krijgen "Kies bestaande" (naast eigen upload). Verwijzing = `@ref:type:id`, opgelost via `resolveImageSrc()` naar de actuele bron-afbeelding (live: bron wijzigen → overal bij). Geverifieerd in browser.
 - [x] P1 — **Feature A — @-mention links**: `mentions.js` autocomplete in `.edit-textarea` → token `[[type:id|Naam]]`; `renderRichText()` rendert veilige links met live naam (toegepast op scene-tekst, NPC-notes, lore-desc/notes, lore-articles, Notes). Klik → `applyEntityFocus()` opent/markeert de kaart. Types: Characters, NPCs, Lore-kaarten. Geverifieerd (incl. XSS-escaping).
 
+### Lore-tabs + links + Search + Cloudinary spaties (2026-06-01, ronde 2)
+- [x] P1 — Lore: **Families**-tab toegevoegd (rendert family-diagrams via `renderDMFamilies`); **The Party**-tab verwijderd; default-tab = NPCs.
+- [x] P2 — @-mention links: `@`-teken weg + subtielere styling (zachte tint + fijne onderlijn, feller bij hover; geen felle per-type kleuren).
+- [x] P2 — Suggestie/zoek type-badge nu **enkelvoud + hoofdletters** (CHARACTER/NPC/LOCATION/ITEM/…) via gedeelde `entityTypeLabel()`.
+- [x] P1 — **Globale Search**: groene FAB (slot-4) opent command-palette overlay. Compacte klikbare referentielijst (top 8) + "Toon alle resultaten" (vol overzicht met omschrijving). Klik → navigeren + kaart oplichten. `collectEntities` verrijkt met `desc`.
+- [x] P1 — Cloudinary: folder-namen **met spaties** (geen underscores) via `sanitizeFolder`; `migrateAll` naar nieuwe root; audit → niets schrijft nog naar oude mappen.
+
+#### Cloudinary opschoning — TODO Joshua (handmatig, ik heb geen API-secret)
+Keuze: **alleen junk weg, `DnD_Within` (underscore) laten staan**. Verwijder in de Cloudinary Media Library deze mappen:
+- `dnd-within` (hyphen, oude migratie-root) — ⚠️ character-portretten/banner die hier nog uit geladen worden breken → opnieuw uploaden (zijn originelen).
+- de oude `DnD Within`-junk subfolders: `campaign`, `test`, `world` (NIET de hele `DnD Within`-root: daar landen nieuwe spatie-uploads in `Campains`/`Characters`).
+- losse `test`-root + map-afbeeldingen (komen voortaan onder Locations/Places).
+- `DnD_Within` (underscore) **laten staan** — die URL's staan nog in de DB en werken; later evt. consolideren naar spaties (vereist DB-URL-herschrijving).
+Niets in de code herstelt deze mappen (audit ok). Mist er daarna een afbeelding → opnieuw uploaden in de juiste (spatie-)map.
+
 #### Open / follow-ups
+- [ ] P3 — Later: `DnD_Within` (underscore) consolideren naar spatie-mappen (rename + Firebase-URL-herschrijving; script met dry-run nodig).
 - [~] P2 — Character-profielfoto = **originele bron** (alleen uploaden, geen pick-knop) → conform model, niets te doen. (Eerder dacht ik picker hier toe te voegen; vervalt.)
 - [ ] P3 — @-links **Timeline-sessions** als type toevoegen (fase 2; focus-flow bestaat al via `dw_timeline_focus_session`).
 - [ ] P3 — Familie-koppeling van NPC's loopt nog via array-index (`findPrimaryFamilyByLink(null, String(idx))`); migreren naar stabiele id (nu hebben NPC's wél id's).
