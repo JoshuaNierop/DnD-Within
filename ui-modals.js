@@ -1054,6 +1054,35 @@ document.addEventListener('click', function(e) {
         if (typeof pickExistingImage === 'function') pickExistingImage(thumb.dataset.ref, thumb.dataset.url);
         return;
     }
+
+    // ----- Globale Search -----
+    if (target.closest('[data-action="open-search"]')) {
+        if (typeof openSearch === 'function') openSearch();
+        return;
+    }
+    if (target.matches('.search-overlay') || target.closest('[data-action="close-search"]')) {
+        if (typeof closeSearch === 'function') closeSearch();
+        return;
+    }
+    if (target.closest('[data-action="search-show-all"]')) {
+        searchShowAll = true;
+        if (typeof rerenderSearch === 'function') rerenderSearch();
+        return;
+    }
+    // Klik op een zoekresultaat (goto-entity binnen de search-overlay): sluit
+    // de overlay, navigeer en laat de doel-kaart oplichten.
+    var searchLink = target.closest('.search-active [data-action="goto-entity"]');
+    if (searchLink) {
+        var et = searchLink.dataset.etype, ei = searchLink.dataset.eid;
+        if (et === 'npc' || et === 'lore') window._dwEntityFocus = { type: et, id: ei };
+        if (typeof closeSearch === 'function') closeSearch();
+        var dest = searchLink.getAttribute('href') || '';
+        if (dest && ('#' + (location.hash || '').replace(/^#/, '')) === dest) {
+            if (typeof applyEntityFocus === 'function') applyEntityFocus();
+            e.preventDefault();
+        }
+        return;
+    }
 });
 
 // Document-level input listener voor de afbeelding-picker zoekbalk (de picker
@@ -1067,6 +1096,17 @@ document.addEventListener('input', function(e) {
             var el = document.getElementById('img-picker-search');
             if (el) { el.focus(); var v = el.value.length; el.setSelectionRange(v, v); }
         }, 200);
+        return;
+    }
+    if (e.target && e.target.id === 'global-search-input') {
+        searchQuery = e.target.value;
+        searchShowAll = false;
+        clearTimeout(e.target._t);
+        e.target._t = setTimeout(function() {
+            if (typeof rerenderSearch === 'function') rerenderSearch();
+            var el = document.getElementById('global-search-input');
+            if (el) { el.focus(); var v = el.value.length; el.setSelectionRange(v, v); }
+        }, 180);
     }
 });
 

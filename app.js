@@ -104,6 +104,9 @@ function renderApp() {
         html += '<div id="notes-panel-content"></div>';
         html += '</div>';
 
+        // Global search FAB — find any entity reference (like @-mentions).
+        html += '<div class="search-fab" data-action="open-search" title="Zoeken"><svg class="search-fab-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"><circle cx="44" cy="44" r="30"/><line x1="66" y1="66" x2="88" y2="88"/></svg></div>';
+
         // Bug reporter FAB (only in debug mode)
         html += renderBugFab();
     }

@@ -1255,8 +1255,8 @@ function saveLoreData(data) {
 // eigen rijke implementatie; de overige zijn generieke entry-collecties
 // (naam + afbeelding + omschrijving + notities) via renderLoreCategory().
 var LORE_TABS = [
-    { id: 'party',     label: 'The Party' },
     { id: 'npcs',      label: 'NPCs' },
+    { id: 'families',  label: 'Families' },
     { id: 'items',     label: 'Items' },
     { id: 'religions', label: 'Religions' },
     { id: 'factions',  label: 'Factions' },
@@ -1296,7 +1296,7 @@ function renderLore(subpage) {
         return renderLoreArticle(subpage);
     }
 
-    var activeTab = isLoreTab(subpage) ? subpage : 'party';
+    var activeTab = isLoreTab(subpage) ? subpage : 'npcs';
 
     var html = '<div class="lore-page lore-tabbed">';
     html += '<div class="lore-header">';
@@ -1305,10 +1305,10 @@ function renderLore(subpage) {
     html += renderLoreTabBar(activeTab);
 
     html += '<div class="lore-tab-content">';
-    if (activeTab === 'party') {
-        html += renderLorePartyInner();
-    } else if (activeTab === 'npcs') {
+    if (activeTab === 'npcs') {
         html += renderNPCTracker();
+    } else if (activeTab === 'families') {
+        html += (typeof renderDMFamilies === 'function') ? renderDMFamilies() : '<p class="text-dim">Families niet beschikbaar.</p>';
     } else if (activeTab === 'articles') {
         html += renderLoreArticlesInner();
     } else {
@@ -1626,7 +1626,9 @@ function collectEntities() {
             var cfg = (typeof loadCharConfig === 'function') ? loadCharConfig(ids[i]) : null;
             if (!cfg) continue;
             var cimg = (typeof loadImage === 'function') ? (loadImage(ids[i], 'portrait') || '') : '';
-            list.push({ type: 'character', cat: 'Characters', id: ids[i], name: cfg.name || ids[i], image: cimg || null, route: '#/characters/' + ids[i] });
+            var cdesc = '';
+            try { cdesc = (typeof raceDisplayName === 'function' ? raceDisplayName(cfg.race) : (cfg.race || '')) + (cfg.className ? ' ' + (typeof classDisplayName === 'function' ? classDisplayName(cfg.className) : cfg.className) : ''); } catch (e3) {}
+            list.push({ type: 'character', cat: 'Characters', id: ids[i], name: cfg.name || ids[i], image: cimg || null, desc: cdesc.trim(), route: '#/characters/' + ids[i] });
         }
     } catch (e) { /* ignore */ }
     // NPCs — Lore-tab, inline-focus.
@@ -1635,7 +1637,8 @@ function collectEntities() {
         for (var ni = 0; ni < npcs.length; ni++) {
             var n = npcs[ni];
             if (!n || !n.id) continue;
-            list.push({ type: 'npc', cat: 'NPCs', id: n.id, name: n.name || '(naamloos)', image: n.image || null, route: '#/lore/npcs' });
+            var ndesc = [n.race, n.npcClass, n.faction].filter(Boolean).join(' · ') || (n.notes || '');
+            list.push({ type: 'npc', cat: 'NPCs', id: n.id, name: n.name || '(naamloos)', image: n.image || null, desc: ndesc, route: '#/lore/npcs' });
         }
     } catch (e) { /* ignore */ }
     // Lore-cat entries.
@@ -1647,11 +1650,25 @@ function collectEntities() {
             for (var li = 0; li < LORE_TABS.length; li++) if (LORE_TABS[li].id === c) label = LORE_TABS[li].label;
             ld[c].forEach(function (e2) {
                 if (!e2 || !e2.id) return;
-                list.push({ type: 'lore', cat: label, loreCat: c, id: e2.id, name: e2.name || '(naamloos)', image: e2.image || null, route: '#/lore/' + c });
+                list.push({ type: 'lore', cat: label, loreCat: c, id: e2.id, name: e2.name || '(naamloos)', image: e2.image || null, desc: e2.description || '', route: '#/lore/' + c });
             });
         });
     } catch (e) { /* ignore */ }
     return list;
+}
+
+// Singular, uppercase type-label for an entity (used in @-mention suggestions
+// and the global Search): CHARACTER / NPC / LOCATION / ITEM / MONSTER / …
+var LORE_SINGULAR = {
+    items: 'ITEM', locations: 'LOCATION', cities: 'CITY', monsters: 'MONSTER',
+    factions: 'FACTION', religions: 'RELIGION', events: 'EVENT'
+};
+function entityTypeLabel(e) {
+    if (!e) return '';
+    if (e.type === 'character') return 'CHARACTER';
+    if (e.type === 'npc') return 'NPC';
+    if (e.type === 'lore') return LORE_SINGULAR[e.loreCat] || String(e.cat || 'LORE').toUpperCase();
+    return String(e.type || '').toUpperCase();
 }
 
 // Look up a single entity by type+id (used by renderRichText to resolve the
@@ -1677,11 +1694,11 @@ function renderRichText(str) {
         var ent = entityById(type, id);
         if (!ent) {
             // Entity gone — show the snapshot name as plain text (already escaped).
-            return '@' + (fallback || escapeHtml(id));
+            return (fallback || escapeHtml(id));
         }
         var safeName = escapeHtml(ent.name);
         return '<a href="' + escapeAttr(ent.route) + '" class="entity-link entity-link-' + type + '" ' +
-               'data-action="goto-entity" data-etype="' + type + '" data-eid="' + escapeAttr(id) + '">@' + safeName + '</a>';
+               'data-action="goto-entity" data-etype="' + type + '" data-eid="' + escapeAttr(id) + '">' + safeName + '</a>';
     });
 }
 
@@ -1778,6 +1795,81 @@ function pickExistingImage(ref, url) {
         if (prev) prev.innerHTML = '<img src="' + escapeAttr(url) + '" alt="">';
     }
     closeImagePicker();
+}
+
+// ===== Globale Search — zoek referenties (zoals @-mentions) overal =====
+var searchQuery = '';
+var searchShowAll = false;
+
+function openSearch() {
+    searchQuery = '';
+    searchShowAll = false;
+    closeSearch();
+    var div = document.createElement('div');
+    div.className = 'search-active';
+    div.innerHTML = renderSearchOverlay();
+    document.body.appendChild(div);
+    if (typeof lockBodyScroll === 'function') lockBodyScroll();
+    setTimeout(function () { var i = document.getElementById('global-search-input'); if (i) i.focus(); }, 30);
+}
+function closeSearch() {
+    var el = document.querySelector('.search-active');
+    if (el) el.remove();
+    if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+}
+function rerenderSearch() {
+    var el = document.querySelector('.search-active');
+    if (el) el.innerHTML = renderSearchOverlay();
+}
+function searchResults() {
+    var q = searchQuery.trim().toLowerCase();
+    var all = collectEntities();
+    if (!q) return [];
+    return all.filter(function (e) {
+        return (e.name || '').toLowerCase().indexOf(q) >= 0 ||
+               (entityTypeLabel(e).toLowerCase().indexOf(q) >= 0) ||
+               ((e.desc || '').toLowerCase().indexOf(q) >= 0);
+    });
+}
+function renderSearchOverlay() {
+    var html = '<div class="modal-overlay search-overlay">';
+    html += '<div class="search-panel">';
+    html += '<div class="search-bar"><input type="text" id="global-search-input" class="edit-input" placeholder="Zoek characters, NPCs, locations, items…" value="' + escapeAttr(searchQuery) + '">';
+    html += '<button class="modal-close" data-action="close-search">&times;</button></div>';
+
+    var res = searchResults();
+    if (!searchQuery.trim()) {
+        html += '<div class="search-hint text-dim">Typ om te zoeken. Klik een resultaat om er naartoe te gaan.</div>';
+    } else if (!res.length) {
+        html += '<div class="search-hint text-dim">Geen resultaten voor "' + escapeHtml(searchQuery.trim()) + '".</div>';
+    } else if (!searchShowAll) {
+        // Compacte referentielijst (zoals de @-popup): top 8, klikbaar.
+        var top = res.slice(0, 8);
+        html += '<div class="search-list">';
+        top.forEach(function (e) { html += searchRow(e, false); });
+        html += '</div>';
+        if (res.length > 8) {
+            html += '<button class="btn btn-ghost btn-sm search-showall" data-action="search-show-all">Toon alle ' + res.length + ' resultaten</button>';
+        }
+    } else {
+        // Volledig overzicht: alle resultaten met meer info.
+        html += '<div class="search-grid">';
+        res.forEach(function (e) { html += searchRow(e, true); });
+        html += '</div>';
+    }
+    html += '</div></div>';
+    return html;
+}
+function searchRow(e, full) {
+    var img = resolveImageSrc(e.image);
+    var html = '<a class="search-row' + (full ? ' search-row-full' : '') + '" href="' + escapeAttr(e.route) + '" data-action="goto-entity" data-etype="' + e.type + '" data-eid="' + escapeAttr(e.id) + '">';
+    html += '<span class="search-thumb">' + (img ? '<img src="' + escapeAttr(img) + '" alt="">' : '<span class="search-thumb-empty">' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span>') + '</span>';
+    html += '<span class="search-row-main"><span class="search-row-name">' + escapeHtml(e.name || '') + '</span>';
+    if (full && e.desc) html += '<span class="search-row-desc">' + escapeHtml(e.desc) + '</span>';
+    html += '</span>';
+    html += '<span class="search-badge">' + escapeHtml(entityTypeLabel(e)) + '</span>';
+    html += '</a>';
+    return html;
 }
 
 // ===== NPC editor-modal (vervangt de oude prompt()-keten) =====

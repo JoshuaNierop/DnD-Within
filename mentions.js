@@ -63,10 +63,8 @@
         return res.slice(0, 8);
     }
 
-    function typeBadge(type) {
-        if (type === 'character') return 'Character';
-        if (type === 'npc') return 'NPC';
-        return 'Lore';
+    function badgeFor(e) {
+        return (typeof entityTypeLabel === 'function') ? entityTypeLabel(e) : String(e.type || '').toUpperCase();
     }
 
     function renderPopup() {
@@ -81,7 +79,7 @@
             html += '<div class="mention-item' + (i === selIdx ? ' active' : '') + '" data-midx="' + i + '">';
             html += '<span class="mention-thumb">' + (e.image ? '<img src="' + escapeAttr(e.image) + '" alt="">' : '<span class="mention-thumb-empty">' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span>') + '</span>';
             html += '<span class="mention-name">' + escapeHtml(e.name || '') + '</span>';
-            html += '<span class="mention-badge">' + escapeHtml((e.cat || typeBadge(e.type))) + '</span>';
+            html += '<span class="mention-badge">' + escapeHtml(badgeFor(e)) + '</span>';
             html += '</div>';
         }
         popup.innerHTML = html;
