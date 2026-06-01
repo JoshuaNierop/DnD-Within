@@ -603,3 +603,14 @@ Nieuwe `#/widget-demo` route toont elke widget in min/default/max naast elkaar m
 - Save widget definitions vanuit Widget Editor naar Firebase
 - Cloudflare Pages deploy + custom domain voor editor
 ---
+
+### Recap — 2026-06-01 (Timeline & Lore overhaul)
+**What was done:**
+- Timeline bug #1 (editor sluit bij scene-commit): root cause = self-echo van eigen scene-write, `sync.js` mapte `world/timeline` fout naar legacy `dw_timeline` → renderApp. Fix: container → return null, recurst naar dw_chapters/dw_scene_<id> (changed=0).
+- Timeline #2/#3 (CSS): scene-afbeelding top-align met tekst (eerste <p> margin-top:0); gap afbeelding↔tekst +50% (1→1.5rem).
+- Timeline #4: sessies ascending (laag boven → hoog beneden) ipv descending.
+- Lore #5/#6: tab-systeem (10 tabs), NPCs verplaatst van DM tools → Lore. Rijke NPC portret-cards + inline isotope-expand + modal-editor met alle velden + image. Generieke categorie-tabs (dw_lore_cats).
+**Files modified:** sync.js, ui-world.js, events.js, ui-modals.js, ui-pages.js, style.css, index.html (+ Metadocs).
+**Current state:** Twee commits gepusht naar master. In-browser getest (admin): tabs/NPC/lore-entry add+expand werken, geen console-errors, testdata uit live Firebase opgeruimd.
+**Next steps:** Bug #1 multi-client live-verificatie (open). Zie Todo.md "Open voor review" voor 5 review-punten.
+---
