@@ -1189,7 +1189,7 @@ var TRANSLATIONS = {
 
 // Current language (stored in localStorage)
 function getLang() {
-    return localStorage.getItem('dw_lang') || 'nl';
+    return localStorage.getItem('dw_lang') || 'en';
 }
 
 function setLang(lang) {

@@ -174,7 +174,8 @@ var bugSelectedElement = null;
 var bugHighlightOverlay = null;
 
 function isDebugMode() {
-    return localStorage.getItem('dw_debug') === 'true';
+    // Default on: only disabled when explicitly set to 'false'.
+    return localStorage.getItem('dw_debug') !== 'false';
 }
 
 function setDebugMode(enabled) {
