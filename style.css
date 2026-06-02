@@ -9353,22 +9353,30 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
 .famdiag-pill {
     background: var(--bg-block);
     border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
     border-radius: var(--radius);
-    padding: 0.5rem 0.75rem;
+    padding: 0.35rem 0.55rem;
     cursor: pointer;
     color: var(--text);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.15rem;
-    min-width: 110px;
-    transition: transform 0.15s, background 0.15s;
+    gap: 0.1rem;
+    min-width: 84px;
+    transition: transform 0.15s, background 0.15s, box-shadow 0.15s, border-color 0.15s;
 }
-.famdiag-pill:hover { background: var(--bg-card); transform: translateY(-1px); }
-.famdiag-pill.active { background: color-mix(in srgb, var(--accent) 15%, var(--bg-block)); border-color: var(--accent); }
-.famdiag-pill-name { font-weight: 600; font-size: 0.9rem; color: var(--text-bright); }
-.famdiag-pill-count { font-size: 0.7rem; color: var(--text-dim); }
+.famdiag-pill:hover {
+    background: var(--bg-card);
+    transform: translateY(-1px);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.famdiag-pill.active {
+    background: color-mix(in srgb, var(--accent) 15%, var(--bg-block));
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 0 14px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.famdiag-pill-name { font-weight: 600; font-size: 0.82rem; color: var(--text-bright); }
+.famdiag-pill-count { font-size: 0.65rem; color: var(--text-dim); }
 
 .famdiag-panel {
     border-left: 3px solid var(--accent);
@@ -9520,9 +9528,9 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
 .famdiag-empty-add { padding: 1rem; text-align: center; }
 
 @media (max-width: 700px) {
-    .famdiag-pill { min-width: 90px; padding: 0.4rem 0.55rem; }
-    .famdiag-pill-name { font-size: 0.8rem; }
-    .famdiag-pill-count { font-size: 0.65rem; }
+    .famdiag-pill { min-width: 76px; padding: 0.3rem 0.5rem; }
+    .famdiag-pill-name { font-size: 0.78rem; }
+    .famdiag-pill-count { font-size: 0.62rem; }
 }
 
 /* ============================================================
