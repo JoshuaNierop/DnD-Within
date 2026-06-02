@@ -15,10 +15,10 @@
 // ============================================================
 
 var FAMILY_LAYOUT_DEFAULTS = {
-    cardW: 180,
-    cardH: 110,
+    cardW: 150,
+    cardH: 80,
     hgap: 40,
-    vgap: 90,
+    vgap: 84,
     pad: 30
 };
 

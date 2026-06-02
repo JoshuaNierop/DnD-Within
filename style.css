@@ -9452,6 +9452,11 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
     transform: scale(var(--famdiag-scale, 1));
     transform-origin: top left;
 }
+/* Centre the diagram in the parchment frame on BOTH axes. flex + margin:auto
+   centres when the diagram is smaller than the box, yet still scrolls (margin
+   collapses to 0) when it's larger — avoids the flex-overflow top-clip bug. */
+.famdiag-panel .famdiag-canvas-scroll { display: flex; }
+.famdiag-panel .famdiag-canvas { margin: auto; }
 .famdiag-zoom {
     display: flex;
     align-items: center;
@@ -9522,6 +9527,35 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
     border-style: dashed;
 }
 .famdiag-card-guest .famdiag-card-name { color: var(--text); }
+
+/* Parchment-frame cards (Families panel only): light, warm tone that sits on
+   the parchment; snug padding; fancy Cinzel name. Embedded diagrams in NPC/
+   character cards keep the dark app theme. */
+.famdiag-panel .famdiag-card {
+    background: rgba(247, 239, 221, 0.92);
+    border: 1px solid rgba(120, 92, 56, 0.55);
+    box-shadow: 0 1px 5px rgba(60, 40, 20, 0.28);
+    padding: 0.3rem 0.45rem;
+    gap: 0.05rem;
+}
+.famdiag-panel .famdiag-card:hover {
+    box-shadow: 0 4px 12px rgba(60, 40, 20, 0.4);
+    border-color: rgba(120, 92, 56, 0.85);
+}
+.famdiag-panel .famdiag-card-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.74rem;
+    letter-spacing: 0.01em;
+    color: #2e2114;
+}
+.famdiag-panel .famdiag-card-years,
+.famdiag-panel .famdiag-card-meta { color: #6b563c; font-size: 0.62rem; }
+.famdiag-panel .famdiag-card-guest {
+    background: rgba(236, 226, 204, 0.88);
+    border-style: dashed;
+}
+.famdiag-panel .famdiag-card-guest .famdiag-card-name { color: #4a3a26; }
 
 /* Edit/remove buttons */
 .famdiag-card-edit, .famdiag-card-remove {
