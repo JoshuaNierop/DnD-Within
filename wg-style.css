@@ -723,6 +723,16 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     user-select: none;
   }
 
+  /* Touch: the dashboard canvas owns its own gestures (widget move/resize +
+     page-swipe). Without touch-action:none on the ROOT svg, mobile browsers
+     read a drag as a scroll/pan and fire pointercancel mid-drag → the widget
+     drops. touch-action on inline SVG *children* (topbar/resize-hit) is ignored
+     by Chrome/Safari, so it must sit on the root svg here. */
+  svg.dashboard,
+  #canvas {
+    touch-action: none;
+  }
+
   /* V9: pill-resize-handle (rand-pill + drie grip-bollen, palette-warm) */
   svg .resize-handle-hit {
     fill: transparent;
@@ -902,6 +912,18 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   svg g.resize-handle { display: none; }
   svg g.resize-handle.proximity-near,
   svg g.resize-handle.dragging { display: revert; }
+
+  /* Mobile "hover": touch devices have no hovering pointer, so the proximity
+     mechanism that reveals resize-handles never fires — they'd be invisible and
+     unresizable. Instead, when a widget is SELECTED (tap → .is-active) show ITS
+     handles at full strength (44×44 hit area already), and make the move-topbar
+     clearer. Hover/mouse devices keep the proximity behaviour untouched. */
+  @media (hover: none) and (pointer: coarse) {
+    svg g.widget.is-active g.resize-handle { display: revert; }
+    svg g.widget.is-active .resize-handle-pill { fill-opacity: 0.9; stroke-opacity: 1; }
+    svg g.widget.is-active .resize-handle-grip { fill-opacity: 1; }
+    svg g.widget.is-active .widget-topbar { fill: rgba(255, 204, 102, 0.34); }
+  }
 
   /* Page styling = palette-driven (default) */
   body {
