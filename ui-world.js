@@ -1424,6 +1424,24 @@ function getNPCData() {
     return { npcs: [] };
 }
 
+// Splits een volledige naam: laatste woord = achternaam (familienaam),
+// de rest = voornaam. Eén woord → alleen voornaam.
+function splitNpcName(full) {
+    var parts = (full || '').trim().split(/\s+/).filter(Boolean);
+    if (parts.length <= 1) return { firstName: parts[0] || '', lastName: '' };
+    return { firstName: parts.slice(0, -1).join(' '), lastName: parts[parts.length - 1] };
+}
+
+// Voornaam/achternaam van een NPC, met fallback-split voor ongemigreerde data.
+function npcFirstLast(n) {
+    if (n && (n.firstName != null || n.lastName != null)) {
+        return { firstName: n.firstName || '', lastName: n.lastName || '' };
+    }
+    var fl = splitNpcName(n && n.name);
+    if (n && typeof n.family === 'string' && n.family.trim()) fl.lastName = n.family.trim();
+    return fl;
+}
+
 // Backfill stable ids on NPCs + lore-cat entries. Foundation for @-mention
 // links and image-reuse (entities must be addressable by a rename-proof id,
 // not their array position). Idempotent: only assigns ids where missing and
@@ -1438,7 +1456,20 @@ function ensureEntityIds(force) {
         var nd = getNPCData();
         var nChanged = false;
         (nd.npcs || []).forEach(function (n, i) {
-            if (n && !n.id) { n.id = 'npc_' + i + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); nChanged = true; }
+            if (!n) return;
+            if (!n.id) { n.id = 'npc_' + i + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); nChanged = true; }
+            // Name-split migratie: één 'name'-veld → firstName + lastName.
+            // Laatste woord = achternaam (familienaam), rest = voornaam. Een
+            // bestaand vrij-tekst 'family'-veld overschrijft de achternaam.
+            if (n.firstName == null && n.lastName == null) {
+                var fl = splitNpcName(n.name);
+                if (typeof n.family === 'string' && n.family.trim()) fl.lastName = n.family.trim();
+                n.firstName = fl.firstName;
+                n.lastName = fl.lastName;
+                n.name = (fl.firstName + ' ' + fl.lastName).trim();
+                if (typeof n.family === 'string') delete n.family; // gevouwen in lastName
+                nChanged = true;
+            }
         });
         if (nChanged) saveNPCData(nd);
     } catch (e) { /* ignore */ }
@@ -1500,7 +1531,8 @@ function renderNPCDetailRows(npc, currentYear) {
     if (npc.npcClass) rows.push(['Class', escapeHtml(npc.npcClass)]);
     if (npc.profession) rows.push(['Profession', escapeHtml(npc.profession)]);
     if (npc.relation) rows.push(['Relation', escapeHtml(npc.relation)]);
-    if (npc.family) rows.push(['Family', escapeHtml(npc.family)]);
+    var npcFam = npcFirstLast(npc).lastName;
+    if (npcFam) rows.push(['Family', escapeHtml(npcFam)]);
     if (npc.faction) rows.push(['Faction', escapeHtml(npc.faction)]);
     if (npc.religion) rows.push(['Religion', escapeHtml(npc.religion)]);
     if (npc.location) rows.push(['Location', escapeHtml(npc.location)]);
@@ -1930,14 +1962,15 @@ function renderNPCModal(idx) {
     if (n.image) html += '<button type="button" class="btn btn-ghost btn-sm" data-action="remove-npc-image">' + t('generic.delete') + '</button>';
     html += '</div>';
 
+    var nfl = npcFirstLast(n);
     html += '<div class="npc-form-grid">';
-    html += npcModalField('npc-f-name', 'Naam', n.name);
+    html += npcModalField('npc-f-firstName', 'Voornaam', nfl.firstName);
+    html += npcModalField('npc-f-lastName', 'Achternaam (familienaam)', nfl.lastName);
     html += npcModalField('npc-f-birthYear', 'Geboortejaar', n.birthYear, 'number');
     html += npcModalField('npc-f-race', 'Race', n.race);
     html += npcModalField('npc-f-class', 'Class', n.npcClass);
     html += npcModalField('npc-f-profession', 'Profession', n.profession);
     html += npcModalField('npc-f-relation', 'Relation', n.relation);
-    html += npcModalField('npc-f-family', 'Family', n.family);
     html += npcModalField('npc-f-faction', 'Faction', n.faction);
     html += npcModalField('npc-f-religion', 'Religion', n.religion);
     html += npcModalField('npc-f-location', 'Location', n.location);
@@ -1989,8 +2022,10 @@ async function saveNPCModal() {
     var idx = parseInt(form.dataset.npcIdx, 10);
     var isNew = isNaN(idx) || idx === -1;
     function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-    var name = v('npc-f-name');
-    if (!name) { var ne = document.getElementById('npc-f-name'); if (ne) ne.focus(); return; }
+    var firstName = v('npc-f-firstName');
+    var lastName = v('npc-f-lastName');
+    var name = (firstName + ' ' + lastName).trim();
+    if (!name) { var ne = document.getElementById('npc-f-firstName'); if (ne) ne.focus(); return; }
     // Wait for any in-flight Cloudinary upload so we store the URL, not base64.
     var imgEl = document.getElementById('npc-f-image');
     if (imgEl && imgEl._uploadPromise) { try { await imgEl._uploadPromise; } catch (e) {} }
@@ -1998,14 +2033,16 @@ async function saveNPCModal() {
     var data = getNPCData();
     var npc = isNew ? { id: 'npc' + Date.now() } : (data.npcs[idx] || { id: 'npc' + Date.now() });
     var oldImage = npc.image || '';                 // for cleanup-on-replace
-    npc.name = name;
+    npc.firstName = firstName;
+    npc.lastName = lastName;                         // achternaam = familienaam
+    npc.name = name;                                 // afgeleide weergavenaam
     npc.image = v('npc-f-image') || null;
     npc.birthYear = v('npc-f-birthYear');
     npc.race = v('npc-f-race');
     npc.npcClass = v('npc-f-class');
     npc.profession = v('npc-f-profession');
     npc.relation = v('npc-f-relation');
-    npc.family = v('npc-f-family');
+    if (typeof npc.family === 'string') delete npc.family; // achternaam vervangt het oude family-veld
     npc.faction = v('npc-f-faction');
     npc.religion = v('npc-f-religion');
     npc.location = v('npc-f-location');

@@ -1120,8 +1120,9 @@ document.addEventListener('change', function(e) {
         if (npcFile && typeof _compressImageFile === 'function') {
             // Folder = NPC name (Campains/<camp>/NPCs/<name>). Falls back to a
             // timestamp if the name field is still empty at upload time.
-            var npcNameEl = document.getElementById('npc-f-name');
-            var npcName = (npcNameEl && npcNameEl.value.trim()) || ('npc' + Date.now());
+            var npcFirstEl = document.getElementById('npc-f-firstName');
+            var npcLastEl = document.getElementById('npc-f-lastName');
+            var npcName = (((npcFirstEl && npcFirstEl.value.trim()) || '') + ' ' + ((npcLastEl && npcLastEl.value.trim()) || '')).trim() || ('npc' + Date.now());
             _compressImageFile(npcFile, 800, 0.8, function(dataUrl) {
                 var prev = document.getElementById('npc-image-preview');
                 if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
