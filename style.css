@@ -9404,13 +9404,17 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
 .famdiag-panel .famdiag-canvas-scroll {
     min-height: min(64vh, 560px);
     background-color: #cbb789;            /* parchment-tint fallback */
+    /* Hosted on Cloudinary under "DnD Within/General/Family Tree" with
+       f_auto,q_auto (auto webp/avif + compression). Local copies live in
+       Images/Frame/ as a backup/source. Unsigned uploads get random ids, so
+       if these art files are re-uploaded these URLs must be refreshed. */
     background-image:
-        url('Images/Frame/corner-tl.png'),
-        url('Images/Frame/corner-tr.png'),
-        url('Images/Frame/corner-bl.png'),
-        url('Images/Frame/corner-br.png'),
-        url('Images/Frame/tree.png'),
-        url('Images/Frame/parchment.jpg');
+        url('https://res.cloudinary.com/dqmdh3b4d/image/upload/f_auto,q_auto/v1780427081/DnD%20Within/General/Family%20Tree/sfgreihdekt2nyyire7m.png'),
+        url('https://res.cloudinary.com/dqmdh3b4d/image/upload/f_auto,q_auto/v1780427083/DnD%20Within/General/Family%20Tree/lms1wc1hyemtxuqu0c3a.png'),
+        url('https://res.cloudinary.com/dqmdh3b4d/image/upload/f_auto,q_auto/v1780427086/DnD%20Within/General/Family%20Tree/lwnmwczsbwx0c0vuys15.png'),
+        url('https://res.cloudinary.com/dqmdh3b4d/image/upload/f_auto,q_auto/v1780427087/DnD%20Within/General/Family%20Tree/wpl6n9ykhz0cg1pq7rkh.png'),
+        url('https://res.cloudinary.com/dqmdh3b4d/image/upload/f_auto,q_auto/v1780427079/DnD%20Within/General/Family%20Tree/qvqpgmb9euw6htrfka5g.png'),
+        url('https://res.cloudinary.com/dqmdh3b4d/image/upload/f_auto,q_auto/v1780427075/DnD%20Within/General/Family%20Tree/yqq3kjxm4genybhvxkfh.jpg');
     background-repeat: no-repeat;
     background-origin: border-box;
     background-position:
