@@ -42,15 +42,18 @@
 //   3. Paste the preset name into UPLOAD_PRESET below and commit.
 //
 // Image taxonomy (Cloudinary folder = nested path via "/") — mirrors Joshua's
-// local "DnD Within" tree so the media library is human-browsable:
-//   DnD Within/Characters/<CharName>/<type>            (portraits, notes, …)
-//   DnD Within/Campains/<Campaign>/NPCs/<NpcName>
-//   DnD Within/Campains/<Campaign>/Monsters/<Name>
-//   DnD Within/Campains/<Campaign>/Items/<Name>
-//   DnD Within/Campains/<Campaign>/Places/<Name>       (Cities + Locations + maps)
-//   DnD Within/Campains/<Campaign>/Religions|Factions|Events/<Name>
-//   DnD Within/Campains/<Campaign>/Session/<sceneId>   (timeline scenes)
-//   DnD Within/Campains/<Campaign>/Backgrounds/<slot>  (time-of-day banners)
+// local "DnD Within" tree so the media library is human-browsable. The first
+// segment is the human LOGIN NAME: a character files under its OWNER (e.g. Ren
+// → Joshua), every campaign asset files under the DM (e.g. Maxime) — NOT under
+// whoever uploaded it. App-created item folders are Capitalised ("Portrait").
+//   DnD Within/<Owner>/Characters/<CharName>/<Type>    (Portrait, notes, …)
+//   DnD Within/<DM>/Campains/<Campaign>/NPCs/<NpcName>
+//   DnD Within/<DM>/Campains/<Campaign>/Monsters/<Name>
+//   DnD Within/<DM>/Campains/<Campaign>/Items/<Name>
+//   DnD Within/<DM>/Campains/<Campaign>/Places/<Name>  (Cities + Locations + maps)
+//   DnD Within/<DM>/Campains/<Campaign>/Religions|Factions|Events/<Name>
+//   DnD Within/<DM>/Campains/<Campaign>/Session/<sceneId>   (timeline scenes)
+//   DnD Within/<DM>/Campains/<Campaign>/Backgrounds/<slot>  (time-of-day banners)
 // Note: unsigned uploads cannot set a custom filename, so each asset gets an
 // auto-generated name INSIDE its named folder (the folder leaf is the entity
 // name). The single source of truth for this mapping is buildFolder() below.
@@ -171,41 +174,88 @@
         return 'shared';
     }
 
+    // Login/display name for a user id (the human folder segment shown in
+    // Cloudinary), e.g. 'ren' → 'Joshua', 'dm' → 'Maxime'. Falls back to the id.
+    function userDisplayName(userId) {
+        try {
+            if (typeof getUserData === 'function') {
+                var u = getUserData(userId);
+                if (u && u.name) return u.name;
+            }
+        } catch (e) { /* ignore */ }
+        return userId || 'shared';
+    }
+
+    // Owner of a character → owner's display name. A character stores `player`
+    // = the owning user's id, so a portrait uploaded BY the admin still files
+    // under the OWNER (e.g. Ren → Joshua), not the uploader. Falls back to the
+    // uploader's display name if the owner can't be resolved.
+    function charOwnerName(charId) {
+        try {
+            if (typeof loadCharConfig === 'function') {
+                var cfg = loadCharConfig(charId);
+                if (cfg && cfg.player) return userDisplayName(cfg.player);
+            }
+        } catch (e) { /* ignore */ }
+        return userDisplayName(uploaderId());
+    }
+
+    // DM display name of the active campaign — campaign assets (NPCs, maps,
+    // scenes, lore, banners) all file under the DM (e.g. Maxime), regardless of
+    // who uploads them. Falls back to the uploader's display name.
+    function campaignDMName() {
+        try {
+            var id = activeCampaignId();
+            if (typeof getCampaigns === 'function') {
+                var camps = getCampaigns();
+                if (camps && camps[id] && camps[id].dm) return userDisplayName(camps[id].dm);
+            }
+        } catch (e) { /* ignore */ }
+        return userDisplayName(uploaderId());
+    }
+
+    // Capitalise each "/"-segment of a fixed item-type path so app-created
+    // folders read as "Portrait", "Notes", etc. (per Joshua's convention).
+    function capPath(p) {
+        return String(p || '').split('/').map(function (s) { return cap(s); }).join('/');
+    }
+
     function buildFolder(category, subpath) {
         subpath = String(subpath || '');
-        var base = ROOT + '/' + uploaderId();
         if (category === 'player' || category === 'character') {
-            // subpath: "<charId>/<type>"
+            // subpath: "<charId>/<type>" → <Owner>/Characters/<CharName>/<Type>
             var cp = subpath.split('/');
             var charId = cp[0] || 'unknown';
             var type = cp.slice(1).join('/');
-            var f = base + '/Characters/' + charNameFromId(charId);
-            if (type) f += '/' + type;
+            var f = ROOT + '/' + charOwnerName(charId) + '/Characters/' + charNameFromId(charId);
+            if (type) f += '/' + capPath(type);
             return f;
         }
+        // Campaign-scoped assets all live under the DM's folder.
+        var dmBase = ROOT + '/' + campaignDMName() + '/Campains/' + activeCampaignName();
         if (category === 'campaign') {
             // subpath: "<seg>/<rest>" e.g. "timeline/<id>", "dashboard/<slot>"
             var cs = subpath.split('/');
             var seg = cs[0] || 'Other';
             var mapped = CAMPAIGN_SEG_MAP[seg] || cap(seg);
             var rest = cs.slice(1).join('/');
-            var cf = base + '/Campains/' + activeCampaignName() + '/' + mapped;
+            var cf = dmBase + '/' + mapped;
             if (rest) cf += '/' + rest;
             return cf;
         }
         if (category === 'npc') {
             // subpath: "<npcName>"
-            return base + '/Campains/' + activeCampaignName() + '/NPCs/' + (subpath || 'unnamed');
+            return dmBase + '/NPCs/' + (subpath || 'unnamed');
         }
         if (category === 'lore') {
             // subpath: "<loreCat>/<entityName>"
             var lp = subpath.split('/');
             var lcat = LORE_CAT_MAP[lp[0]] || cap(lp[0] || 'Other');
             var entity = lp.slice(1).join('/') || 'unnamed';
-            return base + '/Campains/' + activeCampaignName() + '/' + lcat + '/' + entity;
+            return dmBase + '/' + lcat + '/' + entity;
         }
         // Fallback for any other category.
-        return base + '/' + category + '/' + subpath;
+        return ROOT + '/' + userDisplayName(uploaderId()) + '/' + category + '/' + subpath;
     }
 
     // Sanitise a Cloudinary folder path. Keep "/" as the separator and KEEP
