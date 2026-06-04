@@ -376,6 +376,169 @@ function saveMapsData(data) {
     if (typeof syncUpload === 'function') syncUpload('dw_maps');
 }
 
+// ============================================================
+// Maps: Dimensions manager + Add-map windows (vervangen prompt/confirm)
+// ============================================================
+function closeMapsModal() {
+    var el = document.querySelector('.maps-modal-active');
+    if (el) el.remove();
+    if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+}
+function _openMapsModal(innerHtml) {
+    closeMapsModal();
+    var div = document.createElement('div');
+    div.className = 'maps-modal-active';
+    div.innerHTML = innerHtml;
+    document.body.appendChild(div);
+    if (typeof lockBodyScroll === 'function') lockBodyScroll();
+    var first = div.querySelector('input,select,textarea');
+    if (first) first.focus();
+}
+
+// ----- Dimensions manager (add + remove in één window) -----
+function renderDimensionsModal() {
+    var data = getMapsData();
+    var dims = data.dimensions || [];
+    var html = '<div class="modal-overlay maps-modal-overlay">';
+    html += '<div class="modal-card modal-sm">';
+    html += '<div class="modal-header">';
+    html += '<h2>' + escapeHtml(t('maps.dimensions')) + '</h2>';
+    html += '<button class="modal-close" data-action="close-maps-modal">&times;</button>';
+    html += '</div>';
+    html += '<div class="modal-body">';
+    html += '<ul class="dim-manage-list">';
+    for (var i = 0; i < dims.length; i++) {
+        html += '<li class="dim-manage-item">';
+        html += '<span class="dim-manage-name">' + escapeHtml(dims[i].name) + '</span>';
+        if (dims.length > 1) {
+            html += '<button class="btn btn-ghost btn-sm" data-action="delete-dimension" data-dim="' + i + '" style="color:var(--danger);" title="' + escapeAttr(t('generic.delete')) + '">&times;</button>';
+        }
+        html += '</li>';
+    }
+    html += '</ul>';
+    html += '<div class="dim-manage-add">';
+    html += '<input type="text" class="edit-input" id="dim-new-name" placeholder="' + escapeAttr(t('maps.dimension.namenew')) + '">';
+    html += '<button class="btn btn-primary btn-sm" data-action="submit-add-dimension">+ ' + escapeHtml(t('maps.dimension.add')) + '</button>';
+    html += '</div>';
+    html += '</div></div></div>';
+    return html;
+}
+function openDimensionsModal() { _openMapsModal(renderDimensionsModal()); }
+function refreshDimensionsModal() {
+    var el = document.querySelector('.maps-modal-active');
+    if (el) el.innerHTML = renderDimensionsModal();
+}
+
+// ----- Add-map window (naam + plaatsing + afbeelding uit Places of upload) -----
+function renderAddMapModal() {
+    var data = getMapsData();
+    var dim = (data.dimensions || [])[activeDimension] || { maps: [] };
+    var mainMaps = (dim.maps || []).filter(function (m) { return !m.parentMapId; });
+    var places = (typeof getLoreCatEntries === 'function' ? getLoreCatEntries('places') : [])
+        .filter(function (p) { return p && p.image; });
+
+    var html = '<div class="modal-overlay maps-modal-overlay">';
+    html += '<div class="modal-card modal-sm">';
+    html += '<div class="modal-header">';
+    html += '<h2>' + escapeHtml(t('maps.addmap.title')) + '</h2>';
+    html += '<button class="modal-close" data-action="close-maps-modal">&times;</button>';
+    html += '</div>';
+    html += '<div class="modal-body npc-form add-map-form">';
+
+    html += '<div class="npc-form-field"><label class="login-label" for="map-f-name">' + escapeHtml(t('maps.map.name')) + '</label>';
+    html += '<input type="text" class="edit-input" id="map-f-name"></div>';
+
+    // Placement: main of subkaart van bestaande main
+    html += '<div class="npc-form-field"><label class="login-label" for="map-f-parent">' + escapeHtml(t('maps.map.placement')) + '</label>';
+    html += '<select class="edit-input" id="map-f-parent">';
+    html += '<option value="">' + escapeHtml(t('maps.map.asmain')) + '</option>';
+    for (var i = 0; i < mainMaps.length; i++) {
+        html += '<option value="' + escapeAttr(mainMaps[i].id) + '">' + escapeHtml(t('maps.map.subof')) + ' ' + escapeHtml(mainMaps[i].name) + '</option>';
+    }
+    html += '</select></div>';
+
+    // Afbeelding: kies uit Places óf upload nieuw
+    html += '<div class="npc-form-field"><label class="login-label">' + escapeHtml(t('maps.map.image')) + '</label>';
+    html += '<div class="npc-form-image-preview add-map-preview" id="map-f-image-preview"><span class="npc-portrait-empty">&#128506;</span></div>';
+    html += '<input type="hidden" id="map-f-image" value="">';
+    html += '<input type="hidden" id="map-f-image-source" value="">';
+
+    html += '<select class="edit-input" id="map-f-place" style="margin-top:.5rem;">';
+    html += '<option value="">' + escapeHtml(t('maps.map.fromplaces')) + '…</option>';
+    if (!places.length) {
+        html += '<option value="" disabled>' + escapeHtml(t('maps.map.fromplaces.none')) + '</option>';
+    }
+    for (var p = 0; p < places.length; p++) {
+        html += '<option value="' + escapeAttr(places[p].id) + '">' + escapeHtml(places[p].name || '(naamloos)') + '</option>';
+    }
+    html += '</select>';
+
+    html += '<label class="note-image-upload" style="margin-top:.5rem;"><span>' + escapeHtml(t('maps.map.uploadnew')) + '</span><input type="file" accept="image/*" data-action="upload-add-map-image" style="display:none"></label>';
+    html += '<p class="text-dim" style="font-size:.78rem;margin-top:.35rem;">' + escapeHtml(t('maps.map.uploadhint')) + '</p>';
+    html += '</div>';
+
+    html += '<div class="edit-actions">';
+    html += '<button class="edit-save" data-action="submit-add-map">' + escapeHtml(t('generic.save')) + '</button>';
+    html += '<button class="edit-cancel" data-action="close-maps-modal">' + escapeHtml(t('generic.cancel')) + '</button>';
+    html += '</div>';
+
+    html += '</div></div></div>';
+    return html;
+}
+function openAddMapModal() { _openMapsModal(renderAddMapModal()); }
+
+// Place-image gekozen in de add-map window → preview + hidden velden vullen.
+function addMapPickPlace(placeId) {
+    var places = (typeof getLoreCatEntries === 'function' ? getLoreCatEntries('places') : []);
+    var place = null;
+    for (var i = 0; i < places.length; i++) if (places[i].id === placeId) { place = places[i]; break; }
+    var imgEl = document.getElementById('map-f-image');
+    var srcEl = document.getElementById('map-f-image-source');
+    var prev = document.getElementById('map-f-image-preview');
+    if (!place || !place.image) {
+        if (imgEl) imgEl.value = '';
+        if (srcEl) srcEl.value = '';
+        if (prev) prev.innerHTML = '<span class="npc-portrait-empty">&#128506;</span>';
+        return;
+    }
+    if (imgEl) imgEl.value = place.image;
+    if (srcEl) srcEl.value = 'place';
+    if (prev) prev.innerHTML = '<img src="' + escapeAttr(place.image) + '" alt="">';
+}
+
+// Opslaan vanuit de add-map window.
+async function submitAddMap() {
+    var nameEl = document.getElementById('map-f-name');
+    var name = nameEl ? nameEl.value.trim() : '';
+    if (!name) { if (nameEl) nameEl.focus(); if (typeof showToast === 'function') showToast(t('maps.map.namerequired'), 'error'); return; }
+    var parentEl = document.getElementById('map-f-parent');
+    var parentMapId = (parentEl && parentEl.value) ? parentEl.value : null;
+    var imgEl = document.getElementById('map-f-image');
+    var srcEl = document.getElementById('map-f-image-source');
+    if (imgEl && imgEl._uploadPromise) { try { await imgEl._uploadPromise; } catch (e) {} }
+    var image = (imgEl && imgEl.value) ? imgEl.value : null;
+    var source = srcEl ? srcEl.value : '';
+
+    var data = getMapsData();
+    var dim = data.dimensions[activeDimension];
+    if (!dim) { closeMapsModal(); return; }
+    if (!Array.isArray(dim.maps)) dim.maps = [];
+    var mapId = 'map' + Date.now();
+    dim.maps.push({ id: mapId, name: name, image: image, isRoot: false, parentMapId: parentMapId, pins: [] });
+    saveMapsData(data);
+
+    // Een NIEUW geüploade kaartafbeelding wordt ook als Place opgeslagen.
+    if (source === 'upload' && image) {
+        var lore = getLoreCatsData();
+        if (!Array.isArray(lore.places)) lore.places = [];
+        lore.places.push({ id: 'le' + Date.now(), name: name, image: image, description: '', notes: '' });
+        saveLoreCatsData(lore);
+    }
+
+    closeMapsModal();
+    renderApp();
+}
+
 function renderMaps() {
     var data = getMapsData();
     var dims = data.dimensions || [];
@@ -388,14 +551,14 @@ function renderMaps() {
     html += '<div class="maps-header">';
     html += '<h1>' + t('maps.title') + '</h1>';
     html += '<div class="dimension-section">';
-    html += '<span class="dimension-label">' + (t('maps.dimension') === 'maps.dimension' ? 'Dimensie' : t('maps.dimension')) + '</span>';
+    html += '<span class="dimension-label">' + t('maps.dimension') + '</span>';
     html += '<div class="dimension-tabs">';
     for (var d = 0; d < dims.length; d++) {
         var activeClass = d === activeDimension ? ' active' : '';
         html += '<button class="dimension-tab' + activeClass + '" data-action="select-dimension" data-dim="' + d + '">' + escapeHtml(dims[d].name) + '</button>';
     }
     if (isDM()) {
-        html += '<button class="dimension-tab dimension-add" data-action="add-dimension">+</button>';
+        html += '<button class="dimension-tab dimension-add" data-action="manage-dimensions" title="' + escapeAttr(t('maps.dimensions')) + '">+</button>';
     }
     html += '</div>';
     html += '</div>'; // end dimension-section

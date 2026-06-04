@@ -2083,16 +2083,11 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Add dimension
-        if (target.matches('[data-action="add-dimension"]')) {
-            var dimName = prompt(t('maps.dimname'));
-            if (dimName && dimName.trim()) {
-                var mData = getMapsData();
-                mData.dimensions.push({ id: 'dim' + Date.now(), name: dimName.trim(), maps: [{ id: 'map' + Date.now(), name: t('maps.mainmap'), image: null, isRoot: true, pins: [] }] });
-                saveMapsData(mData);
-                activeDimension = mData.dimensions.length - 1;
-                renderApp();
-            }
+        // Dimensions manager window (add + remove). De window zelf hangt aan
+        // <body>; de modal-interne acties worden document-level afgehandeld in
+        // ui-modals.js (close/submit/delete). Hier alleen de open-knop in #app.
+        if (target.matches('[data-action="manage-dimensions"]') || target.closest('[data-action="manage-dimensions"]')) {
+            if (typeof openDimensionsModal === 'function') openDimensionsModal();
             return;
         }
 
@@ -2126,40 +2121,9 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Add map — vraag main/sub + (bij sub) parent
+        // Add map — opent een window (naam + plaatsing + afbeelding uit Places of upload)
         if (target.matches('[data-action="add-map"]') || target.closest('[data-action="add-map"]')) {
-            var mapName = prompt(t('maps.mapname'));
-            if (!mapName || !mapName.trim()) return;
-            var mData = getMapsData();
-            var mDim = mData.dimensions[activeDimension];
-            if (!mDim) return;
-            // Main of sub?
-            var mainList = (mDim.maps || []).filter(function(m) { return !m.parentMapId; });
-            var asMain = true;
-            var parentMapId = null;
-            if (mainList.length > 0) {
-                asMain = confirm('Main map (OK) of sub map (Cancel)?\n\n"OK" = main map, eigen rij in overzicht.\n"Cancel" = sub map, kies daarna welke main.');
-                if (!asMain) {
-                    var listTxt = mainList.map(function(m, idx) { return (idx + 1) + '. ' + m.name; }).join('\n');
-                    var pick = prompt('Bij welke main map hoort "' + mapName.trim() + '"?\n\n' + listTxt + '\n\nVoer nummer in:');
-                    var idx = parseInt(pick, 10);
-                    if (isNaN(idx) || idx < 1 || idx > mainList.length) {
-                        alert('Ongeldige keuze, kaart niet toegevoegd.');
-                        return;
-                    }
-                    parentMapId = mainList[idx - 1].id;
-                }
-            }
-            mDim.maps.push({
-                id: 'map' + Date.now(),
-                name: mapName.trim(),
-                image: null,
-                isRoot: false,
-                parentMapId: parentMapId,
-                pins: []
-            });
-            saveMapsData(mData);
-            renderApp();
+            if (typeof openAddMapModal === 'function') openAddMapModal();
             return;
         }
 

@@ -1025,6 +1025,49 @@ document.addEventListener('click', function(e) {
         if (typeof closeLoreEntryModal === 'function') closeLoreEntryModal();
         return;
     }
+
+    // ----- Maps: dimensions-manager + add-map window (hangen aan <body>) -----
+    if (target.matches('.maps-modal-overlay') || target.closest('[data-action="close-maps-modal"]')) {
+        if (typeof closeMapsModal === 'function') closeMapsModal();
+        return;
+    }
+    if (target.closest('[data-action="submit-add-dimension"]')) {
+        var dnEl = document.getElementById('dim-new-name');
+        var dimName = dnEl ? dnEl.value.trim() : '';
+        if (!dimName) { if (dnEl) dnEl.focus(); return; }
+        var mData = getMapsData();
+        mData.dimensions.push({ id: 'dim' + Date.now(), name: dimName, maps: [{ id: 'map' + Date.now(), name: t('maps.mainmap'), image: null, isRoot: true, pins: [] }] });
+        saveMapsData(mData);
+        activeDimension = mData.dimensions.length - 1;
+        if (typeof refreshDimensionsModal === 'function') refreshDimensionsModal();
+        renderApp();
+        return;
+    }
+    if (target.closest('[data-action="delete-dimension"]')) {
+        var ddBtn = target.closest('[data-action="delete-dimension"]');
+        var ddIdx = parseInt(ddBtn.dataset.dim, 10);
+        var mDataDd = getMapsData();
+        if (!mDataDd.dimensions || mDataDd.dimensions.length <= 1) {
+            if (typeof showToast === 'function') showToast(t('maps.dimension.cantdeletelast'), 'error');
+            return;
+        }
+        if (!confirm(t('maps.dimension.deleteconfirm'))) return;
+        var rmDim = mDataDd.dimensions[ddIdx];
+        if (rmDim && Array.isArray(rmDim.maps) && typeof DWImages !== 'undefined') {
+            rmDim.maps.forEach(function (m) { if (m.image && DWImages.isHttpUrl && DWImages.isHttpUrl(m.image)) { try { DWImages.del(m.image); } catch (e) {} } });
+        }
+        mDataDd.dimensions.splice(ddIdx, 1);
+        saveMapsData(mDataDd);
+        if (activeDimension >= mDataDd.dimensions.length) activeDimension = mDataDd.dimensions.length - 1;
+        activeMapId = null;
+        if (typeof refreshDimensionsModal === 'function') refreshDimensionsModal();
+        renderApp();
+        return;
+    }
+    if (target.closest('[data-action="submit-add-map"]')) {
+        if (typeof submitAddMap === 'function') submitAddMap();
+        return;
+    }
     if (target.closest('[data-action="save-lore-entry-modal"]')) {
         if (typeof saveLoreEntryModal === 'function') saveLoreEntryModal();
         return;
@@ -1136,6 +1179,40 @@ document.addEventListener('change', function(e) {
                         if (imgVal) hid.value = imgVal;
                         hid._uploadPromise = null;
                     }).catch(function() { hid._uploadPromise = null; });
+                }
+            });
+            try { target.value = ''; } catch (_) {}
+        }
+        return;
+    }
+
+    // Add-map window: kies een Place als afbeeldingsbron.
+    if (target.id === 'map-f-place') {
+        if (typeof addMapPickPlace === 'function') addMapPickPlace(target.value);
+        return;
+    }
+
+    // Add-map window: nieuwe afbeelding uploaden (wordt ook als Place opgeslagen).
+    if (target.matches('[data-action="upload-add-map-image"]')) {
+        var amFile = target.files && target.files[0];
+        if (amFile && typeof _compressImageFile === 'function') {
+            var amNameEl = document.getElementById('map-f-name');
+            var amName = (amNameEl && amNameEl.value.trim()) || ('map' + Date.now());
+            _compressImageFile(amFile, 1600, 0.8, function (dataUrl) {
+                var prev = document.getElementById('map-f-image-preview');
+                if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
+                var hid = document.getElementById('map-f-image');
+                var src = document.getElementById('map-f-image-source');
+                if (!hid) return;
+                hid.value = dataUrl;                 // race-proof fallback
+                if (src) src.value = 'upload';
+                var placeSel = document.getElementById('map-f-place');
+                if (placeSel) placeSel.value = '';   // upload wint van Place-keuze
+                if (window.DWImages && DWImages.save) {
+                    hid._uploadPromise = DWImages.save('campaign', 'maps/' + amName, dataUrl).then(function (imgVal) {
+                        if (imgVal) hid.value = imgVal;
+                        hid._uploadPromise = null;
+                    }).catch(function () { hid._uploadPromise = null; });
                 }
             });
             try { target.value = ''; } catch (_) {}
