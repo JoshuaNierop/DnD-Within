@@ -296,10 +296,9 @@ const WG_EDIT_CONFIG = {
     type: 'cycle',
     cycle: ['○', '●', '★'],
   },
-  basicInfo: {
-    editColumnIdx: 1,  // waarde-kolom (data: [field, value])
-    type: 'text',
-  },
+  // Bug #G0tAIk (2026-06-04): Character Info (basicInfo) is op verzoek NIET meer
+  // bewerkbaar vanuit het dashboard — race/class/etc. bewerk je op de sheet, niet
+  // hier (voorkomt ook de display-naam ↔ interne-key desync). Widget toont alleen.
 };
 
 function nextSkillMark(current) {

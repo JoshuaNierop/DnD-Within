@@ -2942,12 +2942,15 @@ body[data-route^="characters/"] .navbar {
 /* Maps grid mode: main map vult de verticale ruimte (gecentreerd), overige
    maps als responsive cards eronder. */
 .maps-grid-mode { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
-.map-main-stage { flex: 1 1 auto; min-height: 55vh; display: flex; align-items: stretch; justify-content: center; }
-.map-card-main { display: flex; flex-direction: column; align-items: center; max-width: 1000px; width: 100%; background: transparent; border: none; }
+/* Main map: links uitgelijnd (zelfde linkerrand als de "Maps" h1, net als de
+   Party-titel boven de character cards) en gecapt zodat hij volledig in beeld
+   past (geen overlap met pageNav/FABs). */
+.map-main-stage { flex: 0 0 auto; display: flex; align-items: flex-start; justify-content: flex-start; margin-bottom: 0.5rem; }
+.map-card-main { display: flex; flex-direction: column; align-items: flex-start; max-width: 720px; width: 100%; background: transparent; border: none; }
 .map-card-main:hover { transform: none; box-shadow: none; border: none; }
-.map-card-main .map-card-img { flex: 1 1 auto; min-height: 0; width: 100%; height: 100%; object-fit: contain; border-radius: var(--radius); }
-.map-card-main .map-card-placeholder { width: 100%; height: 55vh; border-radius: var(--radius); }
-.map-card-main .map-card-info { flex: 0 0 auto; text-align: center; padding-top: 0.6rem; }
+.map-card-main .map-card-img { width: 100%; height: auto; max-height: calc(100vh - 300px); object-fit: contain; object-position: left top; border-radius: var(--radius); }
+.map-card-main .map-card-placeholder { width: 100%; height: 40vh; border-radius: var(--radius); }
+.map-card-main .map-card-info { flex: 0 0 auto; text-align: left; padding-top: 0.6rem; }
 .map-card-main .map-card-name { font-size: 1.2rem; }
 .map-main-empty { color: var(--text-dim); font-style: italic; }
 .maps-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(120px, 16vw, 200px), 1fr)); gap: 1rem; margin-top: 1.5rem; }
