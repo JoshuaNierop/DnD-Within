@@ -4625,7 +4625,7 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .timeline-session-block .scene-split-text > p:first-child,
 .scene-block-readonly .scene-split-text > p:first-child { margin-top: 0; }
 .timeline-session-block .scene-image-only img,
-.scene-block-readonly .scene-image-only img { max-width: 75%; border-radius: var(--radius-sm); }
+.scene-block-readonly .scene-image-only img { max-width: 50%; display: block; margin-inline: auto; border-radius: var(--radius-sm); }
 
 /* Focus-flash when navigating from a Recent card */
 .session-focus-flash {

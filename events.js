@@ -2212,19 +2212,7 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="rename-map"]') || target.closest('[data-action="rename-map"]')) {
             var renBtn = target.closest('[data-action="rename-map"]') || target;
             var renMapId = renBtn.dataset.mapId;
-            if (renMapId) {
-                var mDataRen = getMapsData();
-                var mDimRen = mDataRen.dimensions[activeDimension];
-                if (mDimRen && mDimRen.maps) {
-                    var curMap = mDimRen.maps.find(function(m){ return m.id === renMapId; });
-                    var newName = prompt('New map name:', curMap ? curMap.name : '');
-                    if (newName && newName.trim() && curMap) {
-                        curMap.name = newName.trim();
-                        saveMapsData(mDataRen);
-                        renderApp();
-                    }
-                }
-            }
+            if (renMapId && typeof openRenameMapModal === 'function') openRenameMapModal(renMapId);
             return;
         }
 

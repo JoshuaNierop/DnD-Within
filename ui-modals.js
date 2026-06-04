@@ -1111,6 +1111,23 @@ document.addEventListener('click', function(e) {
         if (typeof submitAddMap === 'function') submitAddMap();
         return;
     }
+    if (target.closest('[data-action="submit-rename-map"]')) {
+        var rmCard = document.querySelector('.maps-modal-active [data-rename-map-id]');
+        var rmInput = document.getElementById('rename-map-input');
+        var rmId = rmCard ? rmCard.dataset.renameMapId : null;
+        var rmName = rmInput ? rmInput.value.trim() : '';
+        if (rmId && rmName) {
+            var rmData = getMapsData();
+            var rmDim = rmData.dimensions[activeDimension];
+            if (rmDim && rmDim.maps) {
+                var rmMap = rmDim.maps.filter(function (m) { return m.id === rmId; })[0];
+                if (rmMap) { rmMap.name = rmName; saveMapsData(rmData); }
+            }
+        }
+        if (typeof closeMapsModal === 'function') closeMapsModal();
+        renderApp();
+        return;
+    }
     if (target.closest('[data-action="save-lore-entry-modal"]')) {
         if (typeof saveLoreEntryModal === 'function') saveLoreEntryModal();
         return;

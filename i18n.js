@@ -275,6 +275,7 @@ var TRANSLATIONS = {
         'maps.map.uploadhint': 'Een nieuwe upload wordt ook als Place opgeslagen.',
         'maps.map.none': '— Geen —',
         'maps.map.namerequired': 'Geef de kaart een naam.',
+        'maps.rename': 'Kaart hernoemen',
 
         // Timeline
         'timeline.title': 'Tijdlijn',
@@ -884,6 +885,7 @@ var TRANSLATIONS = {
         'maps.map.uploadhint': 'A new upload is also saved as a Place.',
         'maps.map.none': '— None —',
         'maps.map.namerequired': 'Please give the map a name.',
+        'maps.rename': 'Rename map',
 
         // Timeline
         'timeline.title': 'Timeline',

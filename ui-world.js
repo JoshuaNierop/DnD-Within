@@ -487,6 +487,27 @@ function renderAddMapModal() {
 }
 function openAddMapModal() { _openMapsModal(renderAddMapModal()); }
 
+// ----- Rename-map window (vervangt de prompt()) -----
+function renderRenameMapModal(mapId) {
+    var data = getMapsData();
+    var dim = (data.dimensions || [])[activeDimension] || { maps: [] };
+    var map = (dim.maps || []).filter(function (m) { return m.id === mapId; })[0];
+    var cur = map ? (map.name || '') : '';
+    var html = '<div class="modal-overlay maps-modal-overlay">';
+    html += '<div class="modal-card modal-sm" data-rename-map-id="' + escapeAttr(mapId) + '">';
+    html += '<div class="modal-header"><h2>' + escapeHtml(t('maps.rename')) + '</h2>';
+    html += '<button class="modal-close" data-action="close-maps-modal">&times;</button></div>';
+    html += '<div class="modal-body">';
+    html += '<div class="npc-form-field"><label class="login-label" for="rename-map-input">' + escapeHtml(t('maps.map.name')) + '</label>';
+    html += '<input type="text" class="edit-input" id="rename-map-input" value="' + escapeAttr(cur) + '"></div>';
+    html += '<div class="edit-actions">';
+    html += '<button class="edit-save" data-action="submit-rename-map">' + escapeHtml(t('generic.save')) + '</button>';
+    html += '<button class="edit-cancel" data-action="close-maps-modal">' + escapeHtml(t('generic.cancel')) + '</button>';
+    html += '</div></div></div></div>';
+    return html;
+}
+function openRenameMapModal(mapId) { _openMapsModal(renderRenameMapModal(mapId)); }
+
 // Place-image gekozen in de add-map window → preview + hidden velden vullen.
 function addMapPickPlace(placeId) {
     var places = (typeof getLoreCatEntries === 'function' ? getLoreCatEntries('places') : []);
