@@ -1,5 +1,10 @@
 # D&D Within — To Do
 
+## Sessie 2026-06-04 (deel 6) — 2 hub-bugs + image-rename
+- [x] P2 — #SmcU — **rename-map via window** (`openRenameMapModal`) i.p.v. `prompt()`.
+- [x] P2 — #ACyi — **timeline image-only scene**: afbeelding 75%→50% + horizontaal gecentreerd.
+- [x] P3 — Place "Willowdale Woods" (`places[2]`, id `le1780423661415`): image verhuisd van Cloudinary-folder `le1780423611175` → `…/Places/Willowdale Woods/` (via unsigned upload-by-URL) + DB-URL geüpdatet. Oude folder/asset orphaned.
+
 ## Sessie 2026-06-04 (deel 5) — Dashboard value-edit + maps polish + 3 hub-bugs
 - [x] P1 — **Value-edit zonder page-reload:** write-functies (`writeSkillProficiency`/`writeAbilityScore`/`writeCharConfigField` in wg-events.js) updaten nu optimistisch de cache + `dw_charconfig_<id>` vóór de PATCH → Firebase-echo ziet `changed=0` (via `_stableStringify`) → geen `renderApp()`/remount meer. Edit-values toggle-knop synct bij elke (re)mount met de echte state.
 - [x] P1 — **Widgets dichter naar canvas-rand:** `defaultDashboardGeom` leftX/topY 22→6, `maxDashWidth` PAD 22→6 + padding-aftrek 16→8.
