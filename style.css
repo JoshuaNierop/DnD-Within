@@ -7217,35 +7217,116 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ----- Generic lore-entry cards ----- */
 .lore-entry-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
     gap: 1rem;
     grid-auto-flow: row dense;
+    align-items: start;
 }
+/* Collapsed = 2:3 portrait card. Name overlaid on the bottom (always visible);
+   info revealed on hover (mainly for items). Click expands the card to a
+   horizontal layout: image left (vertical fit), name + info on the right. */
 .lore-entry-card {
+    position: relative;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
     cursor: pointer;
+    aspect-ratio: 2 / 3;
     display: flex;
-    flex-direction: column;
 }
 .lore-entry-card:hover { border-color: var(--accent); }
-.lore-entry-img { aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-hover); }
+.lore-entry-img { width: 100%; height: 100%; overflow: hidden; background: var(--bg-hover); }
 .lore-entry-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.lore-entry-body { padding: 0.75rem 0.9rem; }
-.lore-entry-body h3 { font-size: 1rem; margin: 0 0 0.35rem; }
-.lore-entry-desc {
-    font-size: 0.85rem; color: var(--text-main); line-height: 1.45; margin: 0;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+.lore-entry-img-empty { display: flex; align-items: center; justify-content: center; }
+.lore-entry-img-empty span { font-size: 2.4rem; font-weight: 700; color: var(--text-dim); }
+
+/* Body holds name + info. Collapsed: overlay anchored to the card bottom. */
+.lore-entry-body {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 0.55rem 0.7rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 35%, rgba(0,0,0,0.5) 75%, transparent);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    max-height: 100%;
+    overflow: hidden;
+    transition: background 0.2s ease;
 }
-.lore-entry-card.expanded .lore-entry-desc { -webkit-line-clamp: unset; overflow: visible; }
-.lore-entry-notes { font-size: 0.8rem; margin: 0.5rem 0 0; display: none; }
-.lore-entry-card.expanded { grid-column: 1 / -1; cursor: default; }
-.lore-entry-card.expanded .lore-entry-notes { display: block; }
-.lore-entry-card.expanded .lore-entry-img { aspect-ratio: auto; max-height: 320px; }
+.lore-entry-name { font-size: 0.92rem; margin: 0; color: #fff; line-height: 1.2; }
+.lore-entry-info { display: none; font-size: 0.78rem; overflow-y: auto; }
+/* Hover (collapsed): reveal the info panel growing up from the bottom. */
+.lore-entry-card:not(.expanded):hover .lore-entry-body {
+    background: linear-gradient(to top, rgba(0,0,0,0.94) 70%, rgba(0,0,0,0.78));
+}
+.lore-entry-card:not(.expanded):hover .lore-entry-info { display: block; }
+.lore-entry-info::-webkit-scrollbar { width: 5px; }
+.lore-entry-info::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 3px; }
+
+/* Expanded: full-row horizontal layout. */
+.lore-entry-card.expanded {
+    grid-column: 1 / -1;
+    aspect-ratio: auto;
+    cursor: default;
+    flex-direction: row;
+    align-items: stretch;
+}
+.lore-entry-card.expanded .lore-entry-img {
+    flex: 0 0 auto;
+    width: 220px;
+    aspect-ratio: 2 / 3;
+    height: auto;
+    align-self: flex-start;
+}
+.lore-entry-card.expanded .lore-entry-body {
+    position: static;
+    flex: 1;
+    min-width: 0;
+    background: none;
+    color: var(--text-main);
+    padding: 0.9rem 1.1rem;
+    max-height: 330px;
+    overflow-y: auto;
+}
+.lore-entry-card.expanded .lore-entry-name { font-size: 1.2rem; color: var(--text-main); }
+.lore-entry-card.expanded .lore-entry-info { display: block; }
+
+/* Info-field rendering (shared by hover + expanded) */
+.lore-info-row { display: flex; gap: 0.5rem; padding: 0.1rem 0; line-height: 1.35; }
+.lore-info-label { color: var(--text-dim); font-weight: 600; flex: 0 0 auto; min-width: 8.5em; }
+.lore-entry-card:not(.expanded) .lore-info-label { color: rgba(255,255,255,0.65); }
+.lore-info-val { min-width: 0; word-break: break-word; }
+.lore-info-block { margin: 0.4rem 0 0; }
+.lore-info-block .lore-info-label { display: block; margin-bottom: 0.12rem; }
+.lore-info-text { line-height: 1.45; white-space: pre-wrap; }
+
+/* Ability-score compact grid (display) */
+.lore-ab-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.3rem; margin: 0.5rem 0; }
+.lore-ab-cell { display: flex; flex-direction: column; align-items: center; padding: 0.28rem 0.1rem; background: var(--bg-hover, rgba(255,255,255,0.06)); border-radius: 6px; }
+.lore-entry-card:not(.expanded) .lore-ab-cell { background: rgba(255,255,255,0.12); }
+.lore-ab-name { font-size: 0.6rem; letter-spacing: 0.04em; color: var(--text-dim); font-weight: 700; }
+.lore-entry-card:not(.expanded) .lore-ab-name { color: rgba(255,255,255,0.7); }
+.lore-ab-score { font-size: 0.92rem; font-weight: 700; }
+.lore-ab-mod { font-size: 0.7rem; color: var(--text-dim); }
+.lore-entry-card:not(.expanded) .lore-ab-mod { color: rgba(255,255,255,0.6); }
+
+/* Ability-score editor (modal) */
+.lore-ab-edit { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem; }
+.lore-ab-edit-cell { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.lore-ab-edit-label { font-size: 0.65rem; font-weight: 700; color: var(--text-dim); }
+.lore-ab-edit-cell .edit-input { width: 100%; text-align: center; padding: 0.3rem 0.2rem; }
+
 .lore-entry-actions { display: none; gap: 0.4rem; margin-top: 0.6rem; }
 .lore-entry-card.expanded .lore-entry-actions { display: flex; }
+
+@media (max-width: 600px) {
+    .lore-entry-card.expanded { flex-direction: column; align-items: stretch; }
+    .lore-entry-card.expanded .lore-entry-img { width: 55%; max-width: 200px; }
+    .lore-entry-card.expanded .lore-entry-body { max-height: none; }
+    .lore-info-label { min-width: 7em; }
+}
 
 /* ============================================================
    NPC Tracker (Lore-tab) — portret-cards + inline expand

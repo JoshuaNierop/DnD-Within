@@ -2233,6 +2233,56 @@ async function saveNPCModal() {
 }
 
 // ===== Lore-entry editor-modal (generieke categorieën) =====
+// ===== Per-categorie veld-schema's =====
+// Monsters krijgen een 5.5e (2024) stat-block-achtige set velden (NPC-stijl,
+// zonder family tree); Items krijgen Beschrijving + Effect. De overige
+// categorieën (religions/factions/places/events) houden Omschrijving + Notities.
+// type: 'text' | 'number' | 'textarea' (mentions) | 'abilities' (6-cel STR..CHA grid)
+var LORE_ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+var LORE_CAT_FIELDS = {
+    items: [
+        { key: 'description', label: 'Beschrijving', type: 'textarea' },
+        { key: 'effect',      label: 'Effect',       type: 'textarea' }
+    ],
+    monsters: [
+        { key: 'size',          label: 'Size',                type: 'text' },
+        { key: 'mtype',         label: 'Type',                type: 'text' },
+        { key: 'alignment',     label: 'Alignment',           type: 'text' },
+        { key: 'cr',            label: 'CR',                  type: 'text' },
+        { key: 'profBonus',     label: 'Prof. Bonus',         type: 'number' },
+        { key: 'initiative',    label: 'Initiative',          type: 'number' },
+        { key: 'ac',            label: 'AC',                  type: 'text' },
+        { key: 'hp',            label: 'HP',                  type: 'text' },
+        { key: 'speed',         label: 'Speed',               type: 'text' },
+        { key: 'abilities',     label: 'Ability Scores',      type: 'abilities' },
+        { key: 'saves',         label: 'Saving Throws',       type: 'text' },
+        { key: 'skills',        label: 'Skills',              type: 'text' },
+        { key: 'resistances',   label: 'Damage Resistances',  type: 'text' },
+        { key: 'immunities',    label: 'Damage Immunities',   type: 'text' },
+        { key: 'condImmunities',label: 'Condition Immunities',type: 'text' },
+        { key: 'vulnerabilities',label:'Vulnerabilities',     type: 'text' },
+        { key: 'senses',        label: 'Senses',              type: 'text' },
+        { key: 'languages',     label: 'Languages',           type: 'text' },
+        { key: 'traits',        label: 'Traits',              type: 'textarea' },
+        { key: 'actions',       label: 'Actions',             type: 'textarea' },
+        { key: 'legendary',     label: 'Legendary Actions',   type: 'textarea' },
+        { key: 'spellcasting',  label: 'Spellcasting',        type: 'textarea' },
+        { key: 'description',   label: 'Beschrijving',        type: 'textarea' }
+    ]
+};
+var LORE_CAT_FIELDS_DEFAULT = [
+    { key: 'description', label: 'Omschrijving', type: 'textarea' },
+    { key: 'notes',       label: 'Notities',     type: 'textarea' }
+];
+function loreFieldsFor(cat) { return LORE_CAT_FIELDS[cat] || LORE_CAT_FIELDS_DEFAULT; }
+
+function abilityMod(score) {
+    var n = parseInt(score, 10);
+    if (isNaN(n)) return '';
+    var m = Math.floor((n - 10) / 2);
+    return (m >= 0 ? '+' : '') + m;
+}
+
 function renderLoreEntryModal(cat, idx) {
     var entries = getLoreCatEntries(cat);
     var isNew = (idx === -1 || idx == null);
@@ -2260,10 +2310,28 @@ function renderLoreEntryModal(cat, idx) {
 
     html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-name">Naam</label>';
     html += '<input type="text" class="edit-input" id="lore-entry-f-name" value="' + escapeAttr(e.name || '') + '"></div>';
-    html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-description">Omschrijving</label>';
-    html += '<textarea class="edit-textarea" id="lore-entry-f-description" rows="4"' + mentionFieldAttr(e.description) + '>' + mentionFieldVal(e.description) + '</textarea></div>';
-    html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-notes">Notities</label>';
-    html += '<textarea class="edit-textarea" id="lore-entry-f-notes" rows="3"' + mentionFieldAttr(e.notes) + '>' + mentionFieldVal(e.notes) + '</textarea></div>';
+
+    var fields = loreFieldsFor(cat);
+    for (var fi = 0; fi < fields.length; fi++) {
+        var f = fields[fi];
+        if (f.type === 'abilities') {
+            var ab = e.abilities || {};
+            html += '<div class="npc-form-field"><label class="login-label">' + escapeHtml(f.label) + '</label>';
+            html += '<div class="lore-ab-edit">';
+            for (var ai = 0; ai < LORE_ABILITY_KEYS.length; ai++) {
+                var ak = LORE_ABILITY_KEYS[ai];
+                html += '<div class="lore-ab-edit-cell"><span class="lore-ab-edit-label">' + ak.toUpperCase() + '</span>';
+                html += '<input type="number" class="edit-input" id="lore-entry-f-ab-' + ak + '" value="' + escapeAttr(ab[ak] != null ? ab[ak] : '') + '"></div>';
+            }
+            html += '</div></div>';
+        } else if (f.type === 'textarea') {
+            html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
+            html += '<textarea class="edit-textarea" id="lore-entry-f-' + f.key + '" rows="3"' + mentionFieldAttr(e[f.key]) + '>' + mentionFieldVal(e[f.key]) + '</textarea></div>';
+        } else {
+            html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
+            html += '<input type="' + (f.type === 'number' ? 'number' : 'text') + '" class="edit-input" id="lore-entry-f-' + f.key + '" value="' + escapeAttr(e[f.key] != null ? e[f.key] : '') + '"></div>';
+        }
+    }
 
     html += '<div class="edit-actions">';
     html += '<button class="edit-save" data-action="save-lore-entry-modal">' + t('generic.save') + '</button>';
@@ -2306,8 +2374,29 @@ async function saveLoreEntryModal() {
     var oldImage = entry.image || '';               // for cleanup-on-replace
     entry.name = name;
     entry.image = v('lore-entry-f-image') || null;
-    entry.description = (typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(document.getElementById('lore-entry-f-description')) : v('lore-entry-f-description');
-    entry.notes = (typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(document.getElementById('lore-entry-f-notes')) : v('lore-entry-f-notes');
+
+    var fields = loreFieldsFor(cat);
+    for (var fi = 0; fi < fields.length; fi++) {
+        var f = fields[fi];
+        if (f.type === 'abilities') {
+            var ab = {};
+            var any = false;
+            for (var ai = 0; ai < LORE_ABILITY_KEYS.length; ai++) {
+                var ak = LORE_ABILITY_KEYS[ai];
+                var av = v('lore-entry-f-ab-' + ak);
+                if (av !== '') { ab[ak] = parseInt(av, 10); any = true; }
+            }
+            entry.abilities = any ? ab : null;
+        } else if (f.type === 'textarea') {
+            var taEl = document.getElementById('lore-entry-f-' + f.key);
+            entry[f.key] = (typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(taEl) : (taEl ? taEl.value.trim() : '');
+        } else if (f.type === 'number') {
+            var nv = v('lore-entry-f-' + f.key);
+            entry[f.key] = nv === '' ? null : (isNaN(parseFloat(nv)) ? nv : parseFloat(nv));
+        } else {
+            entry[f.key] = v('lore-entry-f-' + f.key);
+        }
+    }
     if (isNew) data[cat].push(entry);
     else data[cat][idx] = entry;
     saveLoreCatsData(data);
@@ -2388,6 +2477,42 @@ function getLoreCatEntries(cat) {
 // Per-categorie zoekterm (module-level, zoals notesSearch).
 var loreCatSearch = '';
 
+// Render the type-specific info for a lore entry (shown in the expanded card
+// and on hover). Iterates the category's field-schema, skipping empties.
+function renderLoreEntryInfo(cat, e) {
+    var fields = loreFieldsFor(cat);
+    var html = '';
+    for (var fi = 0; fi < fields.length; fi++) {
+        var f = fields[fi];
+        if (f.type === 'abilities') {
+            var ab = e.abilities;
+            if (!ab) continue;
+            var hasAny = LORE_ABILITY_KEYS.some(function (k) { return ab[k] != null; });
+            if (!hasAny) continue;
+            html += '<div class="lore-ab-grid">';
+            for (var ai = 0; ai < LORE_ABILITY_KEYS.length; ai++) {
+                var ak = LORE_ABILITY_KEYS[ai];
+                var sc = ab[ak];
+                html += '<div class="lore-ab-cell"><span class="lore-ab-name">' + ak.toUpperCase() + '</span>';
+                html += '<span class="lore-ab-score">' + (sc != null ? escapeHtml(String(sc)) : '—') + '</span>';
+                html += '<span class="lore-ab-mod">' + (sc != null ? escapeHtml(abilityMod(sc)) : '') + '</span></div>';
+            }
+            html += '</div>';
+            continue;
+        }
+        var val = e[f.key];
+        if (val == null || val === '') continue;
+        if (f.type === 'textarea') {
+            html += '<div class="lore-info-block"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>';
+            html += '<div class="lore-info-text">' + renderRichText(val) + '</div></div>';
+        } else {
+            html += '<div class="lore-info-row"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>';
+            html += '<span class="lore-info-val">' + escapeHtml(String(val)) + '</span></div>';
+        }
+    }
+    return html;
+}
+
 function renderLoreCategory(cat) {
     if (typeof syncReady === 'undefined' || !syncReady) ensureEntityIds();
     var entries = getLoreCatEntries(cat);
@@ -2414,18 +2539,21 @@ function renderLoreCategory(cat) {
         return html;
     }
 
-    html += '<div class="lore-entry-grid">';
+    html += '<div class="lore-entry-grid lore-grid-' + cat + '">';
     for (var i = 0; i < filtered.length; i++) {
         var e = filtered[i];
         var realIdx = entries.indexOf(e);
+        var infoHtml = renderLoreEntryInfo(cat, e);
         html += '<div class="lore-entry-card" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
+        // Image (2:3 portrait) or initial-placeholder — always visible.
         if (e.image) {
             html += '<div class="lore-entry-img"><img src="' + escapeAttr(e.image) + '" alt=""></div>';
+        } else {
+            html += '<div class="lore-entry-img lore-entry-img-empty"><span>' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span></div>';
         }
         html += '<div class="lore-entry-body">';
-        html += '<h3>' + escapeHtml(e.name || '(naamloos)') + '</h3>';
-        if (e.description) html += '<p class="lore-entry-desc">' + renderRichText(e.description) + '</p>';
-        if (e.notes) html += '<p class="lore-entry-notes text-dim">' + renderRichText(e.notes) + '</p>';
+        html += '<h3 class="lore-entry-name">' + escapeHtml(e.name || '(naamloos)') + '</h3>';
+        if (infoHtml) html += '<div class="lore-entry-info">' + infoHtml + '</div>';
         if (isDM()) {
             html += '<div class="lore-entry-actions">';
             html += '<button class="btn btn-ghost btn-sm" data-action="edit-lore-entry" data-cat="' + cat + '" data-entry-idx="' + realIdx + '">' + t('generic.edit') + '</button>';
