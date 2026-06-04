@@ -1,5 +1,9 @@
 # D&D Within — To Do
 
+## Sessie 2026-06-04 (deel 2) — Lore monster/item cards
+- [x] P1 — **Lore-cards 2:3 portrait + horizontale click-expand** (afbeelding links, titel+info rechts). Veld-schema per categorie (`LORE_CAT_FIELDS` in ui-world.js): monsters = 5.5e statblock-velden (size/type/alignment/CR/profBonus/initiative/AC/HP/speed/abilities-grid/saves/skills/resistances/immunities/condImmunities/vulnerabilities/senses/languages/traits/actions/legendary/spellcasting/description); items = description + effect; rest = description + notes. Info zichtbaar op hover (items) + bij expand. Monster-velden afgestemd met dnd-5.5e-mechanics agent.
+- [~] P2 — Review: oude item/monster `notes` worden niet meer getoond (notes zit niet in item/monster-schema, data blijft wel bewaard). Laat weten of notes terug moet.
+
 ## Sessie 2026-06-04 — Clean URLs, Maps-windows, Places, storage-paden, Character Info widget
 - [x] P1 — **Clean URLs**: hash-router → History API (`navigate`/`getRoute`/`initRouter` in `core.js`, pushState/popstate + document click-interceptor op interne `<a href="/...">`). `<base href="/">` in index.html. ~35 `href="#/"` + alle `location.hash` omgezet. `_redirects` (SPA-fallback) toegevoegd. ⚠️ Vereist Cloudflare Pages — breekt GitHub Pages.
 - [x] P0 — **Cloudflare Pages migratie** — live op `dnd-within.pages.dev` (2026-06-04). Geverifieerd: root + diepe route `/lore/npcs` + asset `/core.js` allemaal 200, `<base href="/">` aanwezig, SPA-fallback via `_redirects` werkt. ⚠️ Nog te doen door Joshua: GitHub Pages uitzetten (Settings → Pages → Source: None) zodat de oude broken subpath-URL niet meer serveert.
