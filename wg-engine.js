@@ -660,8 +660,9 @@ function infoBoxLayout() {
 function maxDashWidth() {
   const wrap = document.querySelector('.canvas-wrap');
   if (!wrap) return Infinity;
-  const containerW = wrap.clientWidth - 16;   // canvas-wrap padding 4 8 → 16 px
-  const PAD = 22;
+  const containerW = wrap.clientWidth - 8;   // canvas-wrap padding 2 4 → 8 px horizontaal
+  // Klein gehouden zodat de grid tot dicht aan de canvas-rand reikt (verzoek 2026-06-04).
+  const PAD = 6;
   return Math.max(50, containerW - Math.max(state.dashboard.leftX, PAD) - PAD);
 }
 

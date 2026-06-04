@@ -554,6 +554,10 @@ function bindRightSidebar() {
   // Edit-values: toggle edit-values mode
   const editValuesBtn = document.getElementById('rs-edit-values');
   if (editValuesBtn) {
+    // Sync de knop-indicator + body-class met de echte state bij (re)mount,
+    // zodat de toggle nooit 'uit' lijkt terwijl editValuesMode nog aan staat.
+    editValuesBtn.classList.toggle('active', !!(state.config && state.config.editValuesMode));
+    document.body.classList.toggle('edit-values-active', !!(state.config && state.config.editValuesMode));
     editValuesBtn.addEventListener('click', () => {
       state.config.editValuesMode = !state.config.editValuesMode;
       document.body.classList.toggle('edit-values-active', state.config.editValuesMode);

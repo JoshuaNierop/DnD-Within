@@ -367,8 +367,10 @@ function makeWidgetImage() {
 }
 
 // V11: default geometry shared across all tabs (Joshua-keuze: shared, not per-tab)
+// leftX/topY = offset van de grid binnen de canvas. Klein gehouden zodat
+// widgets tot dicht aan de rand van de canvas-wrap kunnen (verzoek 2026-06-04).
 function defaultDashboardGeom() {
-  return { leftX: 22, width: 455, topY: 22, height: 230 };
+  return { leftX: 6, width: 455, topY: 6, height: 230 };
 }
 
 // V11: factory for one situation slot

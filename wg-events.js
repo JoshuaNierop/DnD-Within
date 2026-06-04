@@ -349,29 +349,36 @@ async function refreshCharCache(id) {
   });
 }
 
-// Write an ability score to Firebase and refresh.
+// Optimistische lokale update bij een value-edit. Past de gecachte
+// character-config aan, spiegelt 'm naar de D&D Within localStorage
+// (`dw_charconfig_<id>`) en herbouwt alleen de widgets — GEEN re-fetch en GEEN
+// renderApp. Dat is cruciaal: de Firebase-echo van de schrijfactie zou anders
+// (via sync.js applyLeaves) een main-app renderApp triggeren die de hele
+// character-page remount → edit-values toggle 'lijkt uit' + zichtbare flits.
+// Door localStorage vóór de echo al kloppend te zetten, ziet applyLeaves
+// `changed === 0` en blijft de render uit.
+function wgApplyConfigEdit(charId, mutate) {
+  const raw = WG_CHAR_CACHE[charId];
+  if (raw) {
+    if (!raw.config) raw.config = {};
+    mutate(raw.config);
+    try { localStorage.setItem('dw_charconfig_' + charId, JSON.stringify(raw.config)); } catch (e) {}
+  }
+  if (typeof rebuildAllInfoboxWidgets === 'function') rebuildAllInfoboxWidgets();
+  if (typeof render === 'function') render();
+}
+
+// Write an ability score to Firebase (optimistisch, geen re-render van de app).
 async function writeAbilityScore(abilityKey, value) {
   const charId = state.characterId;
+  wgApplyConfigEdit(charId, cfg => {
+    cfg.baseAbilities = Object.assign({}, cfg.baseAbilities || {}, { [abilityKey]: value });
+  });
   const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/config/baseAbilities.json';
   const body = {};
   body[abilityKey] = value;
   const res = await fetch(url, { method: 'PATCH', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
   if (!res.ok) throw new Error('HTTP ' + res.status);
-  // Refresh cache
-  WG_CHAR_STATUS[charId] = null;
-  await new Promise(resolve => {
-    fetchCharacterData(charId);
-    let t = 0;
-    const check = setInterval(() => {
-      t++;
-      if (WG_CHAR_STATUS[charId] === 'ready' || WG_CHAR_STATUS[charId] === 'error' || t > 50) {
-        clearInterval(check);
-        resolve();
-      }
-    }, 100);
-  });
-  // WGI-M6: sync naar D&D Within localStorage cache.
-  wgSyncCharToLocal(charId);
 }
 
 // Write a single character-config field (Character Info widget) to Firebase
@@ -386,24 +393,12 @@ async function writeCharConfigField(fieldKey, rawValue) {
   else if (fieldKey === 'subclass' && typeof subclassKeyFromName === 'function') value = subclassKeyFromName(value);
   else if (fieldKey === 'age') { const n = parseInt(value, 10); if (!isNaN(n)) value = n; }
   const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/config/' + encodeURIComponent(fieldKey) + '.json';
+  wgApplyConfigEdit(charId, cfg => { cfg[fieldKey] = value; });
   const res = await fetch(url, { method: 'PUT', body: JSON.stringify(value), headers: { 'Content-Type': 'application/json' } });
   if (!res.ok) throw new Error('HTTP ' + res.status);
-  WG_CHAR_STATUS[charId] = null;
-  await new Promise(resolve => {
-    fetchCharacterData(charId);
-    let t = 0;
-    const check = setInterval(() => {
-      t++;
-      if (WG_CHAR_STATUS[charId] === 'ready' || WG_CHAR_STATUS[charId] === 'error' || t > 50) {
-        clearInterval(check);
-        resolve();
-      }
-    }, 100);
-  });
-  wgSyncCharToLocal(charId);
 }
 
-// Write skill prof/expert arrays to Firebase and refresh.
+// Write skill prof/expert arrays to Firebase (optimistisch, geen app-render).
 async function writeSkillProficiency(skillKey, nextMark) {
   const charId = state.characterId;
   const raw = WG_CHAR_CACHE[charId];
@@ -413,26 +408,18 @@ async function writeSkillProficiency(skillKey, nextMark) {
   if (nextMark === '○') { prof.delete(skillKey); xp.delete(skillKey); }
   else if (nextMark === '●') { prof.add(skillKey); xp.delete(skillKey); }
   else if (nextMark === '★') { prof.add(skillKey); xp.add(skillKey); }
-  const base = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId);
-  const r1 = await fetch(base + '/config/defaultSkills.json', { method: 'PUT', body: JSON.stringify([...prof]), headers: { 'Content-Type': 'application/json' } });
-  if (!r1.ok) throw new Error('defaultSkills HTTP ' + r1.status);
-  const r2 = await fetch(base + '/config/expertSkills.json',  { method: 'PUT', body: JSON.stringify([...xp]),   headers: { 'Content-Type': 'application/json' } });
-  if (!r2.ok) throw new Error('expertSkills HTTP ' + r2.status);
-  // Refresh cache
-  WG_CHAR_STATUS[charId] = null;
-  await new Promise(resolve => {
-    fetchCharacterData(charId);
-    let t = 0;
-    const check = setInterval(() => {
-      t++;
-      if (WG_CHAR_STATUS[charId] === 'ready' || WG_CHAR_STATUS[charId] === 'error' || t > 50) {
-        clearInterval(check);
-        resolve();
-      }
-    }, 100);
+  const profArr = [...prof], xpArr = [...xp];
+  // Optimistisch: lege arrays uit de cache HALEN (Firebase dropt lege arrays,
+  // dus zo blijft de lokale config structureel gelijk aan de echo → geen render).
+  wgApplyConfigEdit(charId, c => {
+    if (profArr.length) c.defaultSkills = profArr; else delete c.defaultSkills;
+    if (xpArr.length)   c.expertSkills  = xpArr;   else delete c.expertSkills;
   });
-  // WGI-M6: sync naar D&D Within localStorage cache.
-  wgSyncCharToLocal(charId);
+  const base = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId);
+  const r1 = await fetch(base + '/config/defaultSkills.json', { method: 'PUT', body: JSON.stringify(profArr), headers: { 'Content-Type': 'application/json' } });
+  if (!r1.ok) throw new Error('defaultSkills HTTP ' + r1.status);
+  const r2 = await fetch(base + '/config/expertSkills.json',  { method: 'PUT', body: JSON.stringify(xpArr),   headers: { 'Content-Type': 'application/json' } });
+  if (!r2.ok) throw new Error('expertSkills HTTP ' + r2.status);
 }
 
 // ===== V11 Phase 3.3 -- Map widget edit-mode helpers =====
