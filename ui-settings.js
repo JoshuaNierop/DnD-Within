@@ -19,6 +19,7 @@ function renderSettings() {
     var tabs = [
         { id: 'account', label: t('settings.tab.account'), icon: '&#128100;' },
         { id: 'appearance', label: t('nav.theme') || 'Thema', icon: '&#127912;' },
+        { id: 'language', label: t('settings.language'), icon: '&#127760;' },
         { id: 'developer', label: t('settings.tab.developer'), icon: '&#128736;' }
     ];
     html += '<div class="settings-tabs">';
@@ -72,6 +73,10 @@ function renderSettings() {
         }
         html += '</div></div>';
         html += '</div></section>';
+    }
+
+    // === Language tab ===
+    if (settingsTab === 'language') {
         html += '<section class="settings-section">';
         html += '<div class="settings-card">';
         html += '<div class="settings-field">';
