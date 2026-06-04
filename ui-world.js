@@ -2068,12 +2068,12 @@ function searchRow(e, full) {
 }
 
 // ===== NPC editor-modal (vervangt de oude prompt()-keten) =====
+function npcModalFieldInner(id, label, value, type) {
+    return '<label class="login-label" for="' + id + '">' + label + '</label>' +
+        '<input type="' + (type || 'text') + '" class="edit-input" id="' + id + '" value="' + escapeAttr(value == null ? '' : String(value)) + '">';
+}
 function npcModalField(id, label, value, type) {
-    var html = '<div class="npc-form-field">';
-    html += '<label class="login-label" for="' + id + '">' + label + '</label>';
-    html += '<input type="' + (type || 'text') + '" class="edit-input" id="' + id + '" value="' + escapeAttr(value == null ? '' : String(value)) + '">';
-    html += '</div>';
-    return html;
+    return '<div class="npc-form-field">' + npcModalFieldInner(id, label, value, type) + '</div>';
 }
 
 function renderNPCModal(idx) {
@@ -2081,37 +2081,30 @@ function renderNPCModal(idx) {
     var isNew = (idx === -1 || idx == null);
     var n = isNew ? {} : (data.npcs[idx] || {});
 
+    var nfl = npcFirstLast(n);
+
     var html = '<div class="modal-overlay npc-modal-overlay">';
-    html += '<div class="modal-card modal-npc">';
+    html += '<div class="modal-card modal-lore">';
     html += '<div class="modal-header">';
     html += '<h2>' + (isNew ? 'Nieuwe NPC' : 'NPC bewerken') + '</h2>';
     html += '<button class="modal-close" data-action="close-npc-modal">&times;</button>';
     html += '</div>';
     html += '<div class="modal-body npc-form" data-npc-idx="' + (isNew ? -1 : idx) + '">';
 
-    // Image upload + preview.
-    html += '<div class="npc-form-image">';
-    html += '<div class="npc-form-image-preview" id="npc-image-preview">';
-    if (n.image) html += '<img src="' + escapeAttr(n.image) + '" alt="">';
-    else html += '<span class="npc-portrait-empty">' + escapeHtml((n.name || '?').charAt(0).toUpperCase()) + '</span>';
-    html += '</div>';
-    html += '<input type="hidden" id="npc-f-image" value="' + escapeAttr(n.image || '') + '">';
-    html += '<label class="note-image-upload"><span>' + (n.image ? 'Afbeelding wijzigen' : 'Afbeelding toevoegen') + '</span><input type="file" accept="image/*" data-action="upload-npc-image" style="display:none"></label>';
-    if (n.image) html += '<button type="button" class="btn btn-ghost btn-sm" data-action="remove-npc-image">' + t('generic.delete') + '</button>';
-    html += '</div>';
-
-    var nfl = npcFirstLast(n);
-    html += '<div class="npc-form-grid">';
+    // ---- Pagina 1 — Identiteit ----
+    html += '<div class="modal-page page-active" data-page="1">';
+    html += '<div class="lore-entry-header-row">';
+    html += renderImageBox({ previewId: 'npc-image-preview', hiddenId: 'npc-f-image', fileAction: 'upload-npc-image', value: n.image, name: n.name });
+    html += '<div class="lore-form-grid lore-header-fields">';
     html += npcModalField('npc-f-firstName', 'Voornaam', nfl.firstName);
-    html += npcModalField('npc-f-lastName', 'Achternaam (familienaam)', nfl.lastName);
-    html += npcModalField('npc-f-birthYear', 'Geboortejaar', n.birthYear, 'number');
+    html += npcModalField('npc-f-lastName', 'Achternaam', nfl.lastName);
+    html += '</div></div>';
+
+    html += '<div class="lore-form-grid">';
     html += npcModalField('npc-f-race', 'Race', n.race);
     html += npcModalField('npc-f-class', 'Class', n.npcClass);
     html += npcModalField('npc-f-profession', 'Profession', n.profession);
-    html += npcModalField('npc-f-relation', 'Relation', n.relation);
-    html += npcModalField('npc-f-faction', 'Faction', n.faction);
-    html += npcModalField('npc-f-religion', 'Religion', n.religion);
-    html += npcModalField('npc-f-location', 'Location', n.location);
+    html += npcModalField('npc-f-birthYear', 'Geboortejaar', n.birthYear, 'number');
     // Disposition select.
     html += '<div class="npc-form-field"><label class="login-label" for="npc-f-disposition">Disposition</label>';
     html += '<select class="edit-input" id="npc-f-disposition">';
@@ -2120,20 +2113,38 @@ function renderNPCModal(idx) {
         html += '<option value="' + dops[i] + '"' + ((n.disposition || 'unknown') === dops[i] ? ' selected' : '') + '>' + dops[i] + '</option>';
     }
     html += '</select></div>';
+    html += npcModalField('npc-f-faction', 'Faction', n.faction);
+    html += npcModalField('npc-f-religion', 'Religion', n.religion);
+    html += npcModalField('npc-f-location', 'Location', n.location);
+    html += '<div class="npc-form-field lore-field-full">' + npcModalFieldInner('npc-f-relation', 'Relation', n.relation) + '</div>';
+    html += '</div>'; // grid
+    html += '</div>'; // page 1
+
+    // ---- Pagina 2 — Details & notities ----
+    html += '<div class="modal-page" data-page="2">';
+    html += '<div class="lore-form-grid">';
     html += npcModalField('npc-f-preferences', 'Likes / Preferences', n.preferences);
     html += npcModalField('npc-f-dislikes', 'Dislikes', n.dislikes);
-    html += npcModalField('npc-f-pets', 'Pets', n.pets);
+    html += '<div class="npc-form-field lore-field-full">' + npcModalFieldInner('npc-f-pets', 'Pets', n.pets) + '</div>';
+    html += '<div class="npc-form-field lore-field-full"><label class="login-label" for="npc-f-notes">Notes</label>';
+    html += '<textarea class="edit-textarea" id="npc-f-notes" rows="5"' + mentionFieldAttr(n.notes) + '>' + mentionFieldVal(n.notes) + '</textarea></div>';
     html += '</div>';
+    html += '</div>'; // page 2
 
-    html += '<div class="npc-form-field npc-form-notes"><label class="login-label" for="npc-f-notes">Notes</label>';
-    html += '<textarea class="edit-textarea" id="npc-f-notes" rows="4"' + mentionFieldAttr(n.notes) + '>' + mentionFieldVal(n.notes) + '</textarea></div>';
+    html += '</div>'; // modal-body
 
-    html += '<div class="edit-actions">';
+    html += '<div class="modal-footer">';
+    html += '<div class="modal-footer-actions">';
+    html += '<button type="button" class="btn-page-prev" data-action="modal-page-prev" disabled aria-label="Vorige pagina">&larr;</button>';
+    html += '<span class="modal-page-indicator">1 / 2</span>';
+    html += '<button type="button" class="btn-page-next" data-action="modal-page-next" aria-label="Volgende pagina">&rarr;</button>';
+    html += '</div>';
+    html += '<div class="modal-footer-actions">';
     html += '<button class="edit-save" data-action="save-npc-modal">' + t('generic.save') + '</button>';
     html += '<button class="edit-cancel" data-action="close-npc-modal">' + t('generic.cancel') + '</button>';
     html += '</div>';
+    html += '</div>'; // footer
 
-    html += '</div>'; // modal-body
     html += '</div>'; // modal-card
     html += '</div>'; // modal-overlay
     return html;
@@ -2141,6 +2152,7 @@ function renderNPCModal(idx) {
 
 function openNPCModal(idx) {
     closeNPCModal();
+    _modalPage = 1;
     var div = document.createElement('div');
     div.className = 'npc-modal-active';
     div.innerHTML = renderNPCModal(idx == null ? -1 : idx);
@@ -2257,6 +2269,128 @@ function abilityMod(score) {
     return (m >= 0 ? '+' : '') + m;
 }
 
+// ===== Herbruikbare image-box (klik in de box → keuze Bestaande/Uploaden) =====
+// cfg: { previewId, hiddenId, fileAction, value, name }
+function renderImageBox(cfg) {
+    cfg = cfg || {};
+    var val = cfg.value || '';
+    var resolved = (typeof resolveImageSrc === 'function') ? resolveImageSrc(val) : val;
+    var html = '<div class="lore-image-box" data-action="toggle-img-menu" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" aria-label="Afbeelding instellen">';
+    html += '<div class="lore-image-preview" id="' + escapeAttr(cfg.previewId) + '">';
+    if (resolved) html += '<img src="' + escapeAttr(resolved) + '" alt="">';
+    else html += '<span class="npc-portrait-empty">' + escapeHtml((cfg.name || '?').charAt(0).toUpperCase()) + '</span>';
+    html += '</div>';
+    html += '<span class="lore-image-hint">Afbeelding</span>';
+    html += '<div class="lore-image-menu" role="menu">';
+    html += '<button type="button" data-action="img-pick-existing" role="menuitem">🖼️ Bestaande</button>';
+    html += '<button type="button" data-action="img-upload" role="menuitem">⬆️ Uploaden</button>';
+    html += '<button type="button" class="menu-remove" data-action="img-remove" role="menuitem"' + (resolved ? '' : ' style="display:none"') + '>🗑️ Verwijderen</button>';
+    html += '</div>';
+    html += '<input type="file" class="img-box-file" accept="image/*" data-action="' + escapeAttr(cfg.fileAction) + '" style="display:none">';
+    html += '<input type="hidden" id="' + escapeAttr(cfg.hiddenId) + '" value="' + escapeAttr(val) + '">';
+    html += '</div>';
+    return html;
+}
+
+// Render één lore-veld (gedeeld door modal-grid). Textarea/abilities = full-width.
+function renderLoreField(f, e) {
+    var full = (f.type === 'textarea' || f.type === 'abilities');
+    var rows = f.rows || 3;
+    var html = '<div class="npc-form-field' + (full ? ' lore-field-full' : '') + '">';
+    if (f.type === 'abilities') {
+        html += '<label class="login-label">' + escapeHtml(f.label) + '</label><div class="lore-ab-edit">';
+        var ab = e.abilities || {};
+        for (var ai = 0; ai < LORE_ABILITY_KEYS.length; ai++) {
+            var ak = LORE_ABILITY_KEYS[ai];
+            html += '<div class="lore-ab-edit-cell"><span class="lore-ab-edit-label">' + ak.toUpperCase() + '</span>';
+            html += '<input type="number" class="edit-input" id="lore-entry-f-ab-' + ak + '" value="' + escapeAttr(ab[ak] != null ? ab[ak] : '') + '"></div>';
+        }
+        html += '</div>';
+    } else if (f.type === 'textarea') {
+        html += '<label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
+        html += '<textarea class="edit-textarea" id="lore-entry-f-' + f.key + '" rows="' + rows + '"' + mentionFieldAttr(e[f.key]) + '>' + mentionFieldVal(e[f.key]) + '</textarea>';
+    } else {
+        html += '<label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
+        html += '<input type="' + (f.type === 'number' ? 'number' : 'text') + '" class="edit-input" id="lore-entry-f-' + f.key + '" value="' + escapeAttr(e[f.key] != null ? e[f.key] : '') + '">';
+    }
+    html += '</div>';
+    return html;
+}
+
+// Pagina-indeling per categorie: velden die niet op 1 pagina passen (monsters)
+// worden over 2 pagina's verdeeld. Overige categorieën = 1 pagina (alle velden).
+var LORE_CAT_PAGES = {
+    monsters: [
+        // P1 — identiteit + stat-block-getallen + ability scores
+        ['size', 'mtype', 'alignment', 'cr', 'profBonus', 'initiative', 'ac', 'hp', 'speed', 'abilities'],
+        // P2 — defenses & senses (korte velden)
+        ['saves', 'skills', 'senses', 'languages', 'resistances', 'immunities', 'condImmunities', 'vulnerabilities'],
+        // P3 — narratief (textareas)
+        ['traits', 'actions', 'legendary', 'spellcasting', 'description']
+    ]
+};
+function lorePagesFor(cat) {
+    var fields = loreFieldsFor(cat);
+    var map = LORE_CAT_PAGES[cat];
+    if (!map) return [fields];
+    var byKey = {};
+    fields.forEach(function (f) { byKey[f.key] = f; });
+    return map.map(function (keys) {
+        return keys.map(function (k) { return byKey[k]; }).filter(Boolean);
+    });
+}
+
+// ===== Modal-paginatie (gedeeld door lore- en NPC-modal) =====
+var _modalPage = 1;
+function goModalPage(n) {
+    var card = document.querySelector('.lore-entry-modal-active .modal-card, .npc-modal-active .modal-card');
+    if (!card) return;
+    var pages = card.querySelectorAll('.modal-page');
+    if (!pages.length || n < 1 || n > pages.length) return;
+    for (var i = 0; i < pages.length; i++) {
+        pages[i].classList.toggle('page-active', parseInt(pages[i].dataset.page, 10) === n);
+    }
+    _modalPage = n;
+    var ind = card.querySelector('.modal-page-indicator');
+    if (ind) ind.textContent = n + ' / ' + pages.length;
+    var prev = card.querySelector('[data-action="modal-page-prev"]');
+    var next = card.querySelector('[data-action="modal-page-next"]');
+    if (prev) prev.disabled = (n === 1);
+    if (next) next.disabled = (n === pages.length);
+}
+
+// Toggle/sluit het keuze-menu in een image-box.
+function toggleImageMenu(box) {
+    if (!box) return;
+    var menu = box.querySelector('.lore-image-menu');
+    if (!menu) return;
+    var willOpen = !menu.classList.contains('open');
+    closeAllImageMenus();
+    menu.classList.toggle('open', willOpen);
+    box.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+}
+function closeAllImageMenus() {
+    var menus = document.querySelectorAll('.lore-image-menu.open');
+    for (var i = 0; i < menus.length; i++) {
+        menus[i].classList.remove('open');
+        var b = menus[i].closest('.lore-image-box');
+        if (b) b.setAttribute('aria-expanded', 'false');
+    }
+}
+// Werk een image-box bij na een keuze/upload: preview + hidden value + remove-knop.
+function setImageBoxValue(box, refOrUrl, displayUrl) {
+    if (!box) return;
+    var prev = box.querySelector('.lore-image-preview');
+    var hid = box.querySelector('input[type="hidden"]');
+    if (hid) hid.value = refOrUrl || '';
+    if (prev) {
+        if (displayUrl) prev.innerHTML = '<img src="' + escapeAttr(displayUrl) + '" alt="">';
+        else prev.innerHTML = '<span class="npc-portrait-empty">?</span>';
+    }
+    var rm = box.querySelector('.menu-remove');
+    if (rm) rm.style.display = (refOrUrl ? '' : 'none');
+}
+
 function renderLoreEntryModal(cat, idx) {
     var entries = getLoreCatEntries(cat);
     var isNew = (idx === -1 || idx == null);
@@ -2264,60 +2398,59 @@ function renderLoreEntryModal(cat, idx) {
     var label = cat;
     for (var t2 = 0; t2 < LORE_TABS.length; t2++) if (LORE_TABS[t2].id === cat) label = LORE_TABS[t2].label.replace(/s$/, '');
 
+    var pages = lorePagesFor(cat);
+    var multi = pages.length > 1;
+
     var html = '<div class="modal-overlay lore-entry-modal-overlay">';
-    html += '<div class="modal-card modal-npc">';
+    html += '<div class="modal-card modal-lore">';
     html += '<div class="modal-header">';
     html += '<h2>' + (isNew ? 'Nieuw: ' + escapeHtml(label) : escapeHtml(label) + ' bewerken') + '</h2>';
     html += '<button class="modal-close" data-action="close-lore-entry-modal">&times;</button>';
     html += '</div>';
-    html += '<div class="modal-body npc-form lore-entry-form" data-cat="' + cat + '" data-entry-idx="' + (isNew ? -1 : idx) + '">';
+    html += '<div class="modal-body lore-entry-form" data-cat="' + cat + '" data-entry-idx="' + (isNew ? -1 : idx) + '">';
 
-    html += '<div class="npc-form-image">';
-    html += '<div class="npc-form-image-preview" id="lore-entry-image-preview">';
-    if (e.image) html += '<img src="' + escapeAttr(e.image) + '" alt="">';
-    else html += '<span class="npc-portrait-empty">' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span>';
-    html += '</div>';
-    html += '<input type="hidden" id="lore-entry-f-image" value="' + escapeAttr(e.image || '') + '">';
-    html += '<label class="note-image-upload"><span>' + (e.image ? 'Afbeelding wijzigen' : 'Afbeelding toevoegen') + '</span><input type="file" accept="image/*" data-action="upload-lore-entry-image" style="display:none"></label>';
-    if (e.image) html += '<button type="button" class="btn btn-ghost btn-sm" data-action="remove-lore-entry-image">' + t('generic.delete') + '</button>';
-    html += '</div>';
-
-    html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-name">Naam</label>';
-    html += '<input type="text" class="edit-input" id="lore-entry-f-name" value="' + escapeAttr(e.name || '') + '"></div>';
-
-    var fields = loreFieldsFor(cat);
-    for (var fi = 0; fi < fields.length; fi++) {
-        var f = fields[fi];
-        if (f.type === 'abilities') {
-            var ab = e.abilities || {};
-            html += '<div class="npc-form-field"><label class="login-label">' + escapeHtml(f.label) + '</label>';
-            html += '<div class="lore-ab-edit">';
-            for (var ai = 0; ai < LORE_ABILITY_KEYS.length; ai++) {
-                var ak = LORE_ABILITY_KEYS[ai];
-                html += '<div class="lore-ab-edit-cell"><span class="lore-ab-edit-label">' + ak.toUpperCase() + '</span>';
-                html += '<input type="number" class="edit-input" id="lore-entry-f-ab-' + ak + '" value="' + escapeAttr(ab[ak] != null ? ab[ak] : '') + '"></div>';
-            }
-            html += '</div></div>';
-        } else if (f.type === 'textarea') {
-            html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
-            html += '<textarea class="edit-textarea" id="lore-entry-f-' + f.key + '" rows="3"' + mentionFieldAttr(e[f.key]) + '>' + mentionFieldVal(e[f.key]) + '</textarea></div>';
-        } else {
-            html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
-            html += '<input type="' + (f.type === 'number' ? 'number' : 'text') + '" class="edit-input" id="lore-entry-f-' + f.key + '" value="' + escapeAttr(e[f.key] != null ? e[f.key] : '') + '"></div>';
+    for (var p = 0; p < pages.length; p++) {
+        html += '<div class="modal-page' + (p === 0 ? ' page-active' : '') + '" data-page="' + (p + 1) + '">';
+        if (p === 0) {
+            html += '<div class="lore-entry-header-row">';
+            html += renderImageBox({ previewId: 'lore-entry-image-preview', hiddenId: 'lore-entry-f-image', fileAction: 'upload-lore-entry-image', value: e.image, name: e.name });
+            html += '<div class="lore-form-grid lore-header-fields">';
+            html += '<div class="npc-form-field lore-field-full"><label class="login-label" for="lore-entry-f-name">Naam</label>';
+            html += '<input type="text" class="edit-input" id="lore-entry-f-name" value="' + escapeAttr(e.name || '') + '"></div>';
+            html += '</div>';
+            html += '</div>';
         }
+        html += '<div class="lore-form-grid">';
+        for (var fi = 0; fi < pages[p].length; fi++) html += renderLoreField(pages[p][fi], e);
+        html += '</div>';
+        html += '</div>';
     }
 
-    html += '<div class="edit-actions">';
+    html += '</div>'; // modal-body
+
+    html += '<div class="modal-footer">';
+    if (multi) {
+        html += '<div class="modal-footer-actions">';
+        html += '<button type="button" class="btn-page-prev" data-action="modal-page-prev" disabled aria-label="Vorige pagina">&larr;</button>';
+        html += '<span class="modal-page-indicator">1 / ' + pages.length + '</span>';
+        html += '<button type="button" class="btn-page-next" data-action="modal-page-next" aria-label="Volgende pagina">&rarr;</button>';
+        html += '</div>';
+    } else {
+        html += '<span></span>';
+    }
+    html += '<div class="modal-footer-actions">';
     html += '<button class="edit-save" data-action="save-lore-entry-modal">' + t('generic.save') + '</button>';
     html += '<button class="edit-cancel" data-action="close-lore-entry-modal">' + t('generic.cancel') + '</button>';
     html += '</div>';
+    html += '</div>'; // modal-footer
 
-    html += '</div></div></div>';
+    html += '</div></div>'; // modal-card, overlay
     return html;
 }
 
 function openLoreEntryModal(cat, idx) {
     closeLoreEntryModal();
+    _modalPage = 1;
     var div = document.createElement('div');
     div.className = 'lore-entry-modal-active';
     div.innerHTML = renderLoreEntryModal(cat, idx == null ? -1 : idx);
@@ -2521,7 +2654,7 @@ function renderLoreCategory(cat) {
         html += '<div class="lore-entry-card" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
         // Image (2:3 portrait) or initial-placeholder — always visible.
         if (e.image) {
-            html += '<div class="lore-entry-img"><img src="' + escapeAttr(e.image) + '" alt=""></div>';
+            html += '<div class="lore-entry-img"><img src="' + escapeAttr(resolveImageSrc(e.image)) + '" alt=""></div>';
         } else {
             html += '<div class="lore-entry-img lore-entry-img-empty"><span>' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span></div>';
         }

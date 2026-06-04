@@ -1002,6 +1002,49 @@ document.addEventListener('click', function(e) {
         return;
     }
 
+    // ----- Image-box (gedeeld door NPC/Lore-modals): klik in box → keuze-menu -----
+    var _imgPickBtn = target.closest('[data-action="img-pick-existing"]');
+    if (_imgPickBtn) {
+        var _ipBox = _imgPickBtn.closest('.lore-image-box');
+        if (typeof closeAllImageMenus === 'function') closeAllImageMenus();
+        if (typeof openImagePicker === 'function') openImagePicker({ onPick: function (refValue, url) {
+            if (typeof setImageBoxValue === 'function') setImageBoxValue(_ipBox, refValue, url);
+        }});
+        return;
+    }
+    var _imgUpBtn = target.closest('[data-action="img-upload"]');
+    if (_imgUpBtn) {
+        var _iuBox = _imgUpBtn.closest('.lore-image-box');
+        if (typeof closeAllImageMenus === 'function') closeAllImageMenus();
+        var _fileInp = _iuBox ? _iuBox.querySelector('.img-box-file') : null;
+        if (_fileInp) _fileInp.click();
+        return;
+    }
+    var _imgRmBtn = target.closest('[data-action="img-remove"]');
+    if (_imgRmBtn) {
+        if (typeof setImageBoxValue === 'function') setImageBoxValue(_imgRmBtn.closest('.lore-image-box'), '', '');
+        if (typeof closeAllImageMenus === 'function') closeAllImageMenus();
+        return;
+    }
+    var _imgBoxToggle = target.closest('[data-action="toggle-img-menu"]');
+    if (_imgBoxToggle && !target.closest('.lore-image-menu')) {
+        if (typeof toggleImageMenu === 'function') toggleImageMenu(_imgBoxToggle);
+        return;
+    }
+    if (!target.closest('.lore-image-box') && typeof closeAllImageMenus === 'function') {
+        closeAllImageMenus();   // klik buiten een box → sluit open keuze-menu
+    }
+
+    // ----- Modal-paginatie (lore + NPC) -----
+    if (target.closest('[data-action="modal-page-prev"]')) {
+        if (typeof goModalPage === 'function') goModalPage(_modalPage - 1);
+        return;
+    }
+    if (target.closest('[data-action="modal-page-next"]')) {
+        if (typeof goModalPage === 'function') goModalPage(_modalPage + 1);
+        return;
+    }
+
     // ----- NPC editor-modal (op document-niveau; modal hangt aan body) -----
     // Sluiten: klik op de overlay-achtergrond, of op een close/cancel-knop.
     if (target.matches('.npc-modal-overlay') || target.closest('[data-action="close-npc-modal"]')) {
@@ -1171,6 +1214,8 @@ document.addEventListener('change', function(e) {
                 if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
                 var hid = document.getElementById('npc-f-image');
                 if (!hid) return;
+                var _rmBox = hid.closest('.lore-image-box');
+                if (_rmBox) { var _rm = _rmBox.querySelector('.menu-remove'); if (_rm) _rm.style.display = ''; }
                 // Set the base64 immediately so an early Save never loses the
                 // image (race-proof); the Cloudinary URL replaces it when ready.
                 hid.value = dataUrl;
@@ -1233,6 +1278,8 @@ document.addEventListener('change', function(e) {
                 if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
                 var hid = document.getElementById('lore-entry-f-image');
                 if (!hid) return;
+                var _rmBoxL = hid.closest('.lore-image-box');
+                if (_rmBoxL) { var _rmL = _rmBoxL.querySelector('.menu-remove'); if (_rmL) _rmL.style.display = ''; }
                 hid.value = dataUrl;   // race-proof fallback
                 if (window.DWImages && DWImages.save) {
                     hid._uploadPromise = DWImages.save('lore', leCat + '/' + leName, dataUrl).then(function(imgVal) {
