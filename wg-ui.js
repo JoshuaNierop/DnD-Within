@@ -558,6 +558,9 @@ function bindRightSidebar() {
       state.config.editValuesMode = !state.config.editValuesMode;
       document.body.classList.toggle('edit-values-active', state.config.editValuesMode);
       editValuesBtn.classList.toggle('active', state.config.editValuesMode);
+      // Bug #rC2HV4: bij inschakelen geen hele widget meer geselecteerd laten;
+      // in edit-values mode selecteer je alleen losse infoboxen.
+      if (state.config.editValuesMode) state.activeWidgetIdx = -1;
       render();
     });
   }

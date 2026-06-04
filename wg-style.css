@@ -685,10 +685,10 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    margin: -4px 0 16px;
+    margin: -2px 0 6px;
   }
   .page-arrow {
-    width: 36px; height: 36px;
+    width: 28px; height: 28px;
     background: var(--user-bg-1, var(--panel));
     border: 1px solid var(--user-border, var(--border));
     color: var(--user-text-highlight, var(--text));
@@ -912,6 +912,11 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   svg g.resize-handle { display: none; }
   svg g.resize-handle.proximity-near,
   svg g.resize-handle.dragging { display: revert; }
+
+  /* Bug #rC2HV4: in edit-values mode geen hele-widget manipulatie — verberg
+     resize-handles + de move-topbar zodat alleen losse infoboxen overblijven. */
+  body.edit-values-active svg g.resize-handle { display: none !important; }
+  body.edit-values-active svg .widget-topbar { pointer-events: none; fill: transparent; }
 
   /* Mobile "hover": touch devices have no hovering pointer, so the proximity
      mechanism that reveals resize-handles never fires — they'd be invisible and

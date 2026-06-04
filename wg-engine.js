@@ -672,7 +672,9 @@ function applyResponsiveWidth() {
 
 function availableDashHeight() {
   const isMobile = window.innerWidth < 600;
-  const reserved = isMobile ? 480 : 280;
+  // Bug #Th_pfb: grid mag wat meer van het scherm vullen (kleinere reserve),
+  // maar laat onderaan genoeg vrij voor de dice/notes/chat FABs (geen overlap).
+  const reserved = isMobile ? 450 : 245;
   const padding = (state.config.dashPadding || 0) * 2;
   return Math.max(120, window.innerHeight - reserved - padding);
 }

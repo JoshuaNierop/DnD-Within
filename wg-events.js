@@ -59,6 +59,20 @@ function onPointerDown(evt) {
   gestureCommitted = false;
   lastPointerClient = { x: evt.clientX, y: evt.clientY };
 
+  // Bug #rC2HV4: in edit-values mode kun je een widget NIET als geheel
+  // selecteren of slepen — alleen losse infobox-cellen zijn bewerkbaar (die
+  // worden in de click-listener afgehandeld). Een klik op (een deel van) een
+  // widget of een resize-handle doet hier dus niets; lege ruimte mag nog
+  // swipen tussen pagina's.
+  if (state.config && state.config.editValuesMode) {
+    if (!Number.isNaN(wIdx) || hasHandle) return;
+    if (evt.target.closest && evt.target.closest('#canvas')) {
+      pendingGesture = { kind: 'swipe', startX: evt.clientX, startY: evt.clientY };
+      try { svg && svg.setPointerCapture(evt.pointerId); } catch (e) {}
+    }
+    return;
+  }
+
   if (!hasHandle) {
     // Geen handle: widget-body → selecteer-op-pointerup; lege ruimte → swipe/deselect.
     if (!Number.isNaN(wIdx)) {
