@@ -7,6 +7,7 @@
 - [x] P1 — **Maps: add-map window** (`openAddMapModal`): naam + plaatsing (main/sub) + afbeelding kiezen uit Places óf nieuwe upload. Nieuwe upload wordt ook als Place opgeslagen. Geen prompt/confirm-keten meer.
 - [x] P1 — **Storage-paden**: campaign-assets onder owner van actieve campaign (niet uploader → geen "Admin" meer); folder `Campains` → `Campaign`. Character-images blijven `<owner>/Characters/<naam>/`.
 - [x] P1 — **Character Info widget** (`basicInfo`): race/class/background/age/archetype als infobox; archetype level-gated (subclass gezet of level ≥3); value-edit schrijft terug naar character-config (reverse-lookup naar interne keys).
+- [x] P1 — **Bug: timeline session-editor sloot tijdens tussentijdse scene-saves** (add-scene/edit-scene/image-upload). Root cause: `sync.js applyLeaves` deed string-compare; Firebase echoot object-keys alfabetisch terug → mismatch met lokale insertion-order → `changed++` → spurious `renderApp()` wiste de inline form. Fix: order-onafhankelijke `_stableStringify`-vergelijking (objecten + arrays). ⚠️ Concurrent edit door ándere user kan de editor nog steeds sluiten (aparte concern, niet gefixt).
 - [~] P2 — Browser-verificatie van bovenstaande nog niet gedaan (lokaal niet getest). Zie review-flags in sessie-recap.
 
 
