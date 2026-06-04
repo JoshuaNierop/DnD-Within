@@ -547,21 +547,30 @@ function renderMaps() {
 
     var html = '<div class="maps-page">';
 
-    // Dimension tabs at top
+    // Header: dimension-dropdown (huidige dimensie + dropdown met dimensies en
+    // "Add dimension") + New map-knop ernaast.
     html += '<div class="maps-header">';
     html += '<h1>' + t('maps.title') + '</h1>';
-    html += '<div class="dimension-section">';
-    html += '<span class="dimension-label">' + t('maps.dimension') + '</span>';
-    html += '<div class="dimension-tabs">';
+    html += '<div class="maps-toolbar">';
+    html += '<div class="dimension-dropdown">';
+    html += '<button class="dimension-toggle" data-action="toggle-dimension-menu">';
+    html += '<span class="dimension-toggle-name">' + escapeHtml(dim.name || t('maps.dimension')) + '</span>';
+    html += '<span class="dimension-caret">▾</span>';
+    html += '</button>';
+    html += '<div class="dimension-menu">';
     for (var d = 0; d < dims.length; d++) {
         var activeClass = d === activeDimension ? ' active' : '';
-        html += '<button class="dimension-tab' + activeClass + '" data-action="select-dimension" data-dim="' + d + '">' + escapeHtml(dims[d].name) + '</button>';
+        html += '<button class="dimension-menu-item' + activeClass + '" data-action="select-dimension" data-dim="' + d + '">' + escapeHtml(dims[d].name) + '</button>';
     }
     if (isDM()) {
-        html += '<button class="dimension-tab dimension-add" data-action="manage-dimensions" title="' + escapeAttr(t('maps.dimensions')) + '">+</button>';
+        html += '<button class="dimension-menu-item dimension-menu-add" data-action="manage-dimensions">+ ' + escapeHtml(t('maps.dimension.add')) + '</button>';
     }
-    html += '</div>';
-    html += '</div>'; // end dimension-section
+    html += '</div>'; // dimension-menu
+    html += '</div>'; // dimension-dropdown
+    if (isDM()) {
+        html += '<button class="btn btn-primary btn-sm maps-new-btn" data-action="add-map">+ ' + escapeHtml(t('maps.newmap')) + '</button>';
+    }
+    html += '</div>'; // maps-toolbar
     html += '</div>'; // end maps-header
 
     if (activeMapId) {
@@ -712,82 +721,47 @@ function renderMaps() {
         }
 
     } else {
-        // MAP GRID MODE — gegroepeerd in rijen: per main map een rij met sub-maps half-size
+        // MAP GRID MODE — main/root map groot + gecentreerd (vult de verticale
+        // ruimte tot net boven de FABs); overige maps als responsive cards eronder.
         var maps = dim.maps || [];
+        var mainMap = null;
+        for (var gi = 0; gi < maps.length; gi++) { if (maps[gi].isRoot) { mainMap = maps[gi]; break; } }
+        if (!mainMap && maps.length) mainMap = maps[0];
+        var otherMaps = maps.filter(function (m) { return m !== mainMap; });
 
-        // Bepaal main maps (geen parentMapId, of die de oude isRoot-flag hebben).
-        // Sub maps zitten in dezelfde rij als hun parent.
-        var byParent = {};
-        var mainMaps = [];
-        for (var gi = 0; gi < maps.length; gi++) {
-            var gm = maps[gi];
-            if (gm.parentMapId) {
-                if (!byParent[gm.parentMapId]) byParent[gm.parentMapId] = [];
-                byParent[gm.parentMapId].push(gm);
-            } else {
-                mainMaps.push(gm);
-            }
-        }
-        // Orphaned subs (parent niet gevonden) → toon als main onder een 'Andere' rij
-        var orphans = [];
-        for (var pid in byParent) {
-            var found = mainMaps.some(function(m) { return m.id === pid; });
-            if (!found) orphans = orphans.concat(byParent[pid]);
-        }
-
-        function renderMapCard(gm, isSub) {
-            var cardHtml = '<div class="map-card' + (isSub ? ' map-card-sub' : '') + '" data-action="open-map" data-map-id="' + gm.id + '">';
+        function renderMapCard(gm, isMain) {
+            var cardHtml = '<div class="map-card' + (isMain ? ' map-card-main' : '') + '" data-action="open-map" data-map-id="' + gm.id + '">';
             if (gm.image) {
                 cardHtml += '<img class="map-card-img" src="' + gm.image + '" alt="">';
             } else {
                 cardHtml += '<div class="map-card-placeholder">&#128506;</div>';
             }
-            cardHtml += '<div class="map-card-info">';
-            cardHtml += '<span class="map-card-name">' + escapeHtml(gm.name) + '</span>';
-            if (gm.isRoot) cardHtml += '<span class="map-card-badge">' + t('maps.mainmap') + '</span>';
-            cardHtml += '</div>';
-            if (isDM()) {
+            cardHtml += '<div class="map-card-info"><span class="map-card-name">' + escapeHtml(gm.name) + '</span></div>';
+            if (isDM() && !isMain) {
                 cardHtml += '<button class="map-card-delete" data-action="delete-map" data-map-id="' + gm.id + '">&times;</button>';
             }
             cardHtml += '</div>';
             return cardHtml;
         }
 
-        // Render: één rij per main map (main + zijn subs)
-        for (var mi = 0; mi < mainMaps.length; mi++) {
-            var main = mainMaps[mi];
-            var subs = byParent[main.id] || [];
-            html += '<div class="maps-row">';
-            html += renderMapCard(main, false);
-            if (subs.length) {
-                html += '<div class="maps-row-subs">';
-                for (var si = 0; si < subs.length; si++) {
-                    html += renderMapCard(subs[si], true);
-                }
-                html += '</div>';
+        html += '<div class="maps-grid-mode">';
+        // Main map — vult de verticale ruimte, gecentreerd.
+        html += '<div class="map-main-stage">';
+        if (mainMap) {
+            html += renderMapCard(mainMap, true);
+        } else {
+            html += '<div class="map-main-empty">' + t('maps.noimageyet') + '</div>';
+        }
+        html += '</div>';
+        // Overige maps — responsive card-grid.
+        if (otherMaps.length) {
+            html += '<div class="maps-card-grid">';
+            for (var oi = 0; oi < otherMaps.length; oi++) {
+                html += renderMapCard(otherMaps[oi], false);
             }
             html += '</div>';
         }
-
-        // Orphans rij
-        if (orphans.length) {
-            html += '<div class="maps-row maps-row-orphans">';
-            html += '<div class="maps-row-subs">';
-            for (var oi = 0; oi < orphans.length; oi++) {
-                html += renderMapCard(orphans[oi], true);
-            }
-            html += '</div>';
-            html += '</div>';
-        }
-
-        if (isDM()) {
-            html += '<div class="maps-row maps-row-add">';
-            html += '<div class="map-card map-card-add" data-action="add-map">';
-            html += '<span class="map-card-add-icon">+</span>';
-            html += '<span class="map-card-name">' + t('maps.newmap') + '</span>';
-            html += '</div>';
-            html += '</div>';
-        }
+        html += '</div>'; // maps-grid-mode
     }
 
     html += '</div>'; // maps-page

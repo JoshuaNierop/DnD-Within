@@ -2918,9 +2918,41 @@ body[data-route^="characters/"] .navbar {
 .modal-btn-accent { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
 
 /* ===== MAPS PAGE ===== */
-.maps-page { padding-top: 76px; max-width: 1200px; margin: 0 auto; padding: 76px 2rem 4rem; position: relative; z-index: 1; }
-.maps-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+.maps-page { max-width: 1200px; margin: 0 auto; padding: 76px 2rem 5rem; position: relative; z-index: 1; display: flex; flex-direction: column; min-height: calc(100vh - 76px); }
+.maps-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; }
 .maps-header h1 { margin: 0; font-size: 1.8rem; color: var(--text-bright); }
+
+/* Maps toolbar: dimension-dropdown + New map-knop (compact, bovenaan rechts) */
+.maps-toolbar { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.dimension-dropdown { position: relative; }
+.dimension-toggle { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.9rem; background: var(--bg-block); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-main); cursor: pointer; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s; }
+.dimension-toggle:hover { border-color: var(--accent); }
+.dimension-toggle-name { font-weight: 600; }
+.dimension-caret { font-size: 0.7rem; color: var(--text-dim); transition: transform 0.2s; }
+.dimension-dropdown.open .dimension-caret { transform: rotate(180deg); }
+.dimension-menu { position: absolute; top: calc(100% + 4px); left: 0; min-width: 100%; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.25rem; display: none; flex-direction: column; gap: 2px; z-index: 60; box-shadow: 0 8px 24px rgba(0,0,0,0.35); white-space: nowrap; }
+.dimension-dropdown.open .dimension-menu { display: flex; }
+.dimension-menu-item { text-align: left; padding: 0.5rem 0.85rem; background: none; border: none; border-radius: var(--radius-sm); color: var(--text-dim); cursor: pointer; font-family: inherit; font-size: 0.85rem; transition: all 0.15s; }
+.dimension-menu-item:hover { color: var(--text-main); background: var(--bg-hover); }
+.dimension-menu-item.active { background: var(--accent); color: var(--bg-dark); font-weight: 700; }
+.dimension-menu-add { border-top: 1px solid var(--border); margin-top: 2px; color: var(--accent); font-weight: 600; }
+.dimension-menu-add:hover { color: var(--accent); background: var(--bg-hover); }
+.maps-new-btn { white-space: nowrap; }
+
+/* Maps grid mode: main map vult de verticale ruimte (gecentreerd), overige
+   maps als responsive cards eronder. */
+.maps-grid-mode { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+.map-main-stage { flex: 1 1 auto; min-height: 55vh; display: flex; align-items: stretch; justify-content: center; }
+.map-card-main { display: flex; flex-direction: column; align-items: center; max-width: 1000px; width: 100%; background: transparent; border: none; }
+.map-card-main:hover { transform: none; box-shadow: none; border: none; }
+.map-card-main .map-card-img { flex: 1 1 auto; min-height: 0; width: 100%; height: 100%; object-fit: contain; border-radius: var(--radius); }
+.map-card-main .map-card-placeholder { width: 100%; height: 55vh; border-radius: var(--radius); }
+.map-card-main .map-card-info { flex: 0 0 auto; text-align: center; padding-top: 0.6rem; }
+.map-card-main .map-card-name { font-size: 1.2rem; }
+.map-main-empty { color: var(--text-dim); font-style: italic; }
+.maps-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(120px, 16vw, 200px), 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.maps-card-grid .map-card-img,
+.maps-card-grid .map-card-placeholder { height: auto; aspect-ratio: 16 / 10; }
 
 /* Dimension Tabs */
 .dimension-section { display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start; }

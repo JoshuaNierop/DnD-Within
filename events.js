@@ -49,6 +49,12 @@ function bindPageEvents(route) {
     app.onclick = function(e) {
         var target = e.target;
 
+        // Close the maps dimension-dropdown when clicking anywhere outside it.
+        var _openDimDD = document.querySelector('.dimension-dropdown.open');
+        if (_openDimDD && !target.closest('.dimension-dropdown')) {
+            _openDimDD.classList.remove('open');
+        }
+
         // --- Mobile/touch: tap on welcome-banner toggles upload-slot visibility.
         // CSS hover-only works on desktop; on coarse-pointer devices we need an
         // explicit tap to reveal/hide the slots. Tap on a slot itself is ignored
@@ -2074,9 +2080,17 @@ function bindPageEvents(route) {
         }
 
         // --- Maps: dimension, map, pin handlers ---
+        // Dimension dropdown toggle (open/close het menu, geen re-render).
+        if (target.closest('[data-action="toggle-dimension-menu"]')) {
+            var dd = target.closest('.dimension-dropdown');
+            if (dd) dd.classList.toggle('open');
+            return;
+        }
+
         // Dimension selection
-        if (target.matches('[data-action="select-dimension"]')) {
-            activeDimension = parseInt(target.dataset.dim) || 0;
+        if (target.matches('[data-action="select-dimension"]') || target.closest('[data-action="select-dimension"]')) {
+            var selDimBtn = target.closest('[data-action="select-dimension"]') || target;
+            activeDimension = parseInt(selDimBtn.dataset.dim) || 0;
             activeMapId = null;
             mapZoom = 1; mapPanX = 0; mapPanY = 0;
             renderApp();
@@ -2087,6 +2101,8 @@ function bindPageEvents(route) {
         // <body>; de modal-interne acties worden document-level afgehandeld in
         // ui-modals.js (close/submit/delete). Hier alleen de open-knop in #app.
         if (target.matches('[data-action="manage-dimensions"]') || target.closest('[data-action="manage-dimensions"]')) {
+            var omd = document.querySelector('.dimension-dropdown.open');
+            if (omd) omd.classList.remove('open');
             if (typeof openDimensionsModal === 'function') openDimensionsModal();
             return;
         }
