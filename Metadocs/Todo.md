@@ -2,7 +2,7 @@
 
 ## Sessie 2026-06-04 — Clean URLs, Maps-windows, Places, storage-paden, Character Info widget
 - [x] P1 — **Clean URLs**: hash-router → History API (`navigate`/`getRoute`/`initRouter` in `core.js`, pushState/popstate + document click-interceptor op interne `<a href="/...">`). `<base href="/">` in index.html. ~35 `href="#/"` + alle `location.hash` omgezet. `_redirects` (SPA-fallback) toegevoegd. ⚠️ Vereist Cloudflare Pages — breekt GitHub Pages.
-- [!] P0 — **Cloudflare Pages migratie** — nodig om clean URLs live te krijgen (zie CLAUDE.md Deploy). Geblokkeerd op dash-actie Joshua (CF-project koppelen + GH Pages uitzetten).
+- [x] P0 — **Cloudflare Pages migratie** — live op `dnd-within.pages.dev` (2026-06-04). Geverifieerd: root + diepe route `/lore/npcs` + asset `/core.js` allemaal 200, `<base href="/">` aanwezig, SPA-fallback via `_redirects` werkt. ⚠️ Nog te doen door Joshua: GitHub Pages uitzetten (Settings → Pages → Source: None) zodat de oude broken subpath-URL niet meer serveert.
 - [x] P1 — **Maps: dimensies toevoegen/verwijderen via window** (`openDimensionsModal`), geen prompt meer. "+"-knop opent manager. Label "Dimension"/"Dimensie" via i18n `maps.dimension`.
 - [x] P1 — **Maps: add-map window** (`openAddMapModal`): naam + plaatsing (main/sub) + afbeelding kiezen uit Places óf nieuwe upload. Nieuwe upload wordt ook als Place opgeslagen. Geen prompt/confirm-keten meer.
 - [x] P1 — **Storage-paden**: campaign-assets onder owner van actieve campaign (niet uploader → geen "Admin" meer); folder `Campains` → `Campaign`. Character-images blijven `<owner>/Characters/<naam>/`.
