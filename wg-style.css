@@ -79,14 +79,14 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   main.app-main {
     flex: 1;
     min-width: 0;
-    padding: 24px;
+    padding: 12px;
     /* FAB clearance: hou onderkant van het canvas vrij voor de dice/notes/
        bug-report FABs zonder de sidebars in te korten. */
-    padding-block-end: 5rem;
+    padding-block-end: 2.5rem;
     overflow-y: auto;
   }
   @media (max-width: 600px) {
-    main.app-main { padding: 12px; padding-block-end: 5rem; }
+    main.app-main { padding: 6px; padding-block-end: 2.5rem; }
   }
 
   /* ----- Left sidebar ----- */
@@ -632,9 +632,9 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 4px 8px;
+    padding: 2px 4px;
     overflow-x: hidden;        /* V9: discrete paginering i.p.v. scrollen */
-    margin-bottom: 16px;
+    margin-bottom: 8px;
   }
 
   /* V10 — situatie-dashboard tabs (Character / Social / …) bovenaan het canvas.
