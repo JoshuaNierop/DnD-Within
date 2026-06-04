@@ -30,6 +30,40 @@ function buildRowsFromSource(widget) {
       ];
     });
   }
+  if (src === 'basicInfo') {
+    const cfg = raw.config || {};
+    const lvl = (raw.state && typeof raw.state.level === 'number') ? raw.state.level : 1;
+    const capLocal = (s) => (typeof capitalize === 'function')
+      ? capitalize(s)
+      : (s ? String(s).charAt(0).toUpperCase() + String(s).slice(1) : '');
+    const raceTxt  = (typeof raceDisplayName === 'function') ? raceDisplayName(cfg.race) : capLocal(cfg.race);
+    const classTxt = (typeof classDisplayName === 'function') ? classDisplayName(cfg.className) : capLocal(cfg.className);
+    const subTxt   = (typeof subclassDisplayName === 'function') ? subclassDisplayName(cfg.subclass) : capLocal(cfg.subclass);
+    const dash = '—';
+    // Vaste veld-volgorde; archetype alleen vanaf het level waarop je een
+    // subclass kiest (5.5e = level 3) of zodra er al één gekozen is. De
+    // edit-handler leest dezelfde field-key uit d.fieldKeys[rowIdx].
+    const fields = [
+      { key: 'race',       label: 'Race',       value: cfg.race ? raceTxt : dash },
+      { key: 'className',  label: 'Class',      value: cfg.className ? classTxt : dash },
+      { key: 'background', label: 'Background', value: cfg.background ? capLocal(cfg.background) : dash },
+      { key: 'age',        label: 'Age',        value: (cfg.age != null && cfg.age !== '') ? String(cfg.age) : dash },
+    ];
+    if (cfg.subclass || lvl >= 3) {
+      fields.push({ key: 'subclass', label: 'Archetype', value: cfg.subclass ? subTxt : dash });
+    }
+    d.columns = [
+      { key: 'field', label: 'Field' },
+      { key: 'value', label: 'Value' },
+    ];
+    d.fieldKeys = fields.map(f => f.key);   // rowIdx → config-field voor edit-write-back
+    d.rows = fields.map(f => [f.label, f.value]);
+    L.columnHighlight = [false, true];
+    L.columnAlign     = ['left', 'right'];
+    L.columnMaxChars  = [null, null];
+    L.columnAllCaps   = [false, false];
+    L.stacking = 'horizontal';
+  }
   if (src === 'skills') {
     const cfg = raw.config || {};
     const ab = cfg.baseAbilities || {};
@@ -236,7 +270,7 @@ function applyResponsive() {
 
 // ===== Widget-types: presets die een nieuwe widget seeden (size + source).
 // `kind` bepaalt de renderer: 'infobox' (data-grid) of 'map' (campagne-kaart).
-const WG_SOURCE_LABELS = { abilities: 'Ability Scores', skills: 'Skills' };
+const WG_SOURCE_LABELS = { abilities: 'Ability Scores', skills: 'Skills', basicInfo: 'Character Info' };
 const WG_WIDGET_TYPES = {
   abilityScores: { label: 'Ability Scores', kind: 'infobox', source: 'abilities', spanUnits: 4, spanUnitsY: 6,
                    cfg: { cellPadding: 0, widgetPadding: 4, infoBoxSpacing: 2, infoBoxPadding: 2 } },
@@ -244,6 +278,8 @@ const WG_WIDGET_TYPES = {
                    cfg: { cellPadding: 0, widgetPadding: 4, infoBoxSpacing: 2, infoBoxPadding: 2 } },
   map:           { label: 'Campagne-kaart',  kind: 'map',   spanUnits: 13, spanUnitsY: 11 },
   profilePicture:{ label: 'Profile picture', kind: 'image', spanUnits: 5,  spanUnitsY: 7  },
+  basicInfo:     { label: 'Character Info',  kind: 'infobox', source: 'basicInfo', spanUnits: 6, spanUnitsY: 6,
+                   cfg: { cellPadding: 0, widgetPadding: 4, infoBoxSpacing: 2, infoBoxPadding: 2 } },
 };
 const WG_DEFAULT_WIDGET_TYPE = 'abilityScores';
 
@@ -259,6 +295,10 @@ const WG_EDIT_CONFIG = {
     editColumnIdx: 0,  // prof-bolletjes-kolom
     type: 'cycle',
     cycle: ['○', '●', '★'],
+  },
+  basicInfo: {
+    editColumnIdx: 1,  // waarde-kolom (data: [field, value])
+    type: 'text',
   },
 };
 

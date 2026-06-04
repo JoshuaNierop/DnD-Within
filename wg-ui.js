@@ -392,6 +392,7 @@ function seedDefaultWidgets() {
     { id: 'abilityScores',  name: 'Ability Scores',  category: 'stats',     config: { type: 'abilityScores' } },
     { id: 'skills',         name: 'Skills',          category: 'stats',     config: { type: 'skills' } },
     { id: 'profilePicture', name: 'Profile picture', category: 'character', config: { type: 'profilePicture' } },
+    { id: 'characterInfo',  name: 'Character Info',  category: 'character', config: { type: 'basicInfo' } },
     { id: 'campaignMap',    name: 'Campagne-kaart',  category: 'exploring', config: { type: 'map' } },
   ];
   library.activeWidgetId = 'abilityScores';

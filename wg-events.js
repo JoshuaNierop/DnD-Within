@@ -360,6 +360,35 @@ async function writeAbilityScore(abilityKey, value) {
   wgSyncCharToLocal(charId);
 }
 
+// Write a single character-config field (Character Info widget) to Firebase
+// and refresh. Enumerated fields (race/className/subclass) are normalised back
+// to their internal key so the engine stays in sync; age becomes a number when
+// numeric; background is stored as typed.
+async function writeCharConfigField(fieldKey, rawValue) {
+  const charId = state.characterId;
+  let value = String(rawValue == null ? '' : rawValue).trim();
+  if (fieldKey === 'className' && typeof classKeyFromName === 'function') value = classKeyFromName(value);
+  else if (fieldKey === 'race' && typeof raceKeyFromName === 'function') value = raceKeyFromName(value);
+  else if (fieldKey === 'subclass' && typeof subclassKeyFromName === 'function') value = subclassKeyFromName(value);
+  else if (fieldKey === 'age') { const n = parseInt(value, 10); if (!isNaN(n)) value = n; }
+  const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/config/' + encodeURIComponent(fieldKey) + '.json';
+  const res = await fetch(url, { method: 'PUT', body: JSON.stringify(value), headers: { 'Content-Type': 'application/json' } });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  WG_CHAR_STATUS[charId] = null;
+  await new Promise(resolve => {
+    fetchCharacterData(charId);
+    let t = 0;
+    const check = setInterval(() => {
+      t++;
+      if (WG_CHAR_STATUS[charId] === 'ready' || WG_CHAR_STATUS[charId] === 'error' || t > 50) {
+        clearInterval(check);
+        resolve();
+      }
+    }, 100);
+  });
+  wgSyncCharToLocal(charId);
+}
+
 // Write skill prof/expert arrays to Firebase and refresh.
 async function writeSkillProficiency(skillKey, nextMark) {
   const charId = state.characterId;
@@ -857,6 +886,52 @@ document.addEventListener("click", async (e) => {
       }
     }
 
+    inp.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter')  { ev.preventDefault(); commitValue(); }
+      if (ev.key === 'Escape') { committed = true; inp.remove(); }
+    });
+    inp.addEventListener('blur', () => { if (!committed) commitValue(); });
+    return;
+  }
+
+  // ---- CHARACTER INFO: text input overlay, write back to config field ----
+  if (src === 'basicInfo' && editCfg.type === 'text') {
+    const widgetG = cellG.closest('[data-widget-idx]');
+    const wIdx = widgetG ? parseInt(widgetG.dataset.widgetIdx, 10) : state.activeWidgetIdx;
+    const w = state.widgets[wIdx];
+    const fieldKey = w && w.data && Array.isArray(w.data.fieldKeys) ? w.data.fieldKeys[rowIdx] : null;
+    if (!fieldKey) return;
+    const raw = WG_CHAR_CACHE[charId];
+    const curVal = (raw && raw.config && raw.config[fieldKey] != null) ? raw.config[fieldKey] : '';
+
+    const rect = cellG.getBoundingClientRect();
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'edit-input-overlay';
+    inp.value = String(curVal);
+    inp.style.left = Math.round(rect.left + window.scrollX) + 'px';
+    inp.style.top  = Math.round(rect.top  + window.scrollY) + 'px';
+    inp.style.width = Math.max(rect.width, 80) + 'px';
+    inp.style.height = rect.height > 0 ? rect.height + 'px' : 'auto';
+    document.body.appendChild(inp);
+    inp.focus();
+    inp.select();
+
+    let committed = false;
+    async function commitValue() {
+      if (committed) return;
+      committed = true;
+      inp.remove();
+      const typed = inp.value.trim();
+      if (typed === String(curVal).trim()) return;   // niets veranderd
+      try {
+        await writeCharConfigField(fieldKey, typed);
+        if (charId !== state.characterId) return;
+        showToast('Opgeslagen');
+      } catch (err) {
+        showToast('Save faalde · ' + err.message, 'error');
+      }
+    }
     inp.addEventListener('keydown', (ev) => {
       if (ev.key === 'Enter')  { ev.preventDefault(); commitValue(); }
       if (ev.key === 'Escape') { committed = true; inp.remove(); }

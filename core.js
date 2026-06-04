@@ -869,6 +869,33 @@ function raceDisplayName(race) {
     return names[race] || capitalize(race);
 }
 
+// Reverse-lookups: map a typed display name back to its internal key so a
+// free-text edit (e.g. in the Character Info widget) stays in sync with the
+// keys the engine indexes on. Falls back to the lowercased input when the name
+// is unknown (best-effort for custom values).
+function _reverseDisplay(displayFn, knownKeys, input) {
+    var typed = String(input == null ? '' : input).trim();
+    if (!typed) return '';
+    var lc = typed.toLowerCase();
+    for (var i = 0; i < knownKeys.length; i++) {
+        if (knownKeys[i].toLowerCase() === lc) return knownKeys[i];
+        if (String(displayFn(knownKeys[i])).toLowerCase() === lc) return knownKeys[i];
+    }
+    return lc;
+}
+function classKeyFromName(name) {
+    return _reverseDisplay(classDisplayName,
+        ['rogue','sorcerer','ranger','wizard','paladin','druid','fighter','warlock','barbarian','bard','cleric','monk'], name);
+}
+function raceKeyFromName(name) {
+    return _reverseDisplay(raceDisplayName,
+        ['woodElf','halfElf','human','halfling','tiefling','aasimar','dwarf','gnome','goliath','orc','dragonborn'], name);
+}
+function subclassKeyFromName(name) {
+    return _reverseDisplay(subclassDisplayName,
+        ['scout','wildMagic','thief','hunter','evocation','devotion','land','champion','fiend'], name);
+}
+
 function hasSpellcasting(className) {
     return ['sorcerer', 'wizard', 'druid', 'ranger', 'paladin', 'warlock', 'bard', 'cleric'].indexOf(className) !== -1;
 }
