@@ -50,13 +50,13 @@
 //     it (so an admin upload never lands under "Admin").
 // App-created item folders are Capitalised ("Portrait").
 //   DnD Within/<Owner>/Characters/<CharName>/<Type>    (Portrait, notes, …)
-//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/NPCs/<NpcName>
-//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Monsters/<Name>
-//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Items/<Name>
-//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Places/<Name>  (Places + maps)
-//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Religions|Factions|Events/<Name>
-//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Session/<sceneId>   (timeline scenes)
-//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Backgrounds/<slot>  (banners)
+//   DnD Within/<CampaignOwner>/Campains/<Campaign>/NPCs/<NpcName>
+//   DnD Within/<CampaignOwner>/Campains/<Campaign>/Monsters/<Name>
+//   DnD Within/<CampaignOwner>/Campains/<Campaign>/Items/<Name>
+//   DnD Within/<CampaignOwner>/Campains/<Campaign>/Places/<Name>  (Places + maps)
+//   DnD Within/<CampaignOwner>/Campains/<Campaign>/Religions|Factions|Events/<Name>
+//   DnD Within/<CampaignOwner>/Campains/<Campaign>/Session/<sceneId>   (timeline scenes)
+//   DnD Within/<CampaignOwner>/Campains/<Campaign>/Backgrounds/<slot>  (banners)
 // Note: unsigned uploads cannot set a custom filename, so each asset gets an
 // auto-generated name INSIDE its named folder (the folder leaf is the entity
 // name). The single source of truth for this mapping is buildFolder() below.
@@ -166,7 +166,7 @@
     // Build the Cloudinary folder for a (category, subpath) pair. This is the
     // single source of truth for the library hierarchy:
     //   DnD Within/<Owner>/Characters/<Name>/<type>
-    //   DnD Within/<CampaignOwner>/Campaign/<Campaign>/<Category>/<entity>
+    //   DnD Within/<CampaignOwner>/Campains/<Campaign>/<Category>/<entity>
     // The uploading user scopes the whole tree ("DnD Within/<User>/…") so two
     // users can never collide on the same entity name. Falls back to 'shared'.
     function uploaderId() {
@@ -244,7 +244,9 @@
             return f;
         }
         // Campaign-scoped assets all live under the campaign OWNER's folder.
-        var dmBase = ROOT + '/' + campaignOwnerName() + '/Campaign/' + activeCampaignName();
+        // Folder is "Campains" (matches Joshua's existing local tree — yes, the
+        // spelling is intentional so new uploads group with the old ones).
+        var dmBase = ROOT + '/' + campaignOwnerName() + '/Campains/' + activeCampaignName();
         if (category === 'campaign') {
             // subpath: "<seg>/<rest>" e.g. "timeline/<id>", "dashboard/<slot>"
             var cs = subpath.split('/');
