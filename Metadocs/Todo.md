@@ -1,5 +1,10 @@
 # D&D Within — To Do
 
+## Sessie 2026-06-04 (deel 3) — Lore/NPC create-windows herontworpen
+- [x] P1 — **Paged editor-modals** (`renderLoreEntryModal` + `renderNPCModal` in ui-world.js): passen op 1 pagina zonder scrollen; paginatie i.p.v. scrollen via `.modal-page` + `goModalPage()` (monsters 3 pagina's, NPC 2, rest 1). Compacte `.lore-form-grid` (auto-fit minmax) in site-stijl. Veld-groepering overlegd met dnd-agent.
+- [x] P1 — **Image-box klik→keuze** (`renderImageBox` + handlers in ui-modals.js): klik in de afbeeldingbox → menu Bestaande / Uploaden / Verwijderen. "Bestaande" slaat een live `@ref` op (lore-card resolvet nu via `resolveImageSrc`). UI/mobile overlegd met responsive-design agent.
+- [~] P2 — Review (niet lokaal getest): monster P2/P3 textareas kunnen op kleine schermen alsnog scrollen (overflow-y:auto als safety). NPC `birthYear` veld blijft; `relation`/`pets`/`notes` op juiste pagina's. Even checken of alles past zonder scroll op desktop + telefoon.
+
 ## Sessie 2026-06-04 (deel 2) — Lore monster/item cards
 - [x] P1 — **Lore-cards 2:3 portrait + horizontale click-expand** (afbeelding links, titel+info rechts). Veld-schema per categorie (`LORE_CAT_FIELDS` in ui-world.js): monsters = 5.5e statblock-velden (size/type/alignment/CR/profBonus/initiative/AC/HP/speed/abilities-grid/saves/skills/resistances/immunities/condImmunities/vulnerabilities/senses/languages/traits/actions/legendary/spellcasting/description); items = description + effect; rest = description + notes. Info zichtbaar op hover (items) + bij expand. Monster-velden afgestemd met dnd-5.5e-mechanics agent.
 - [~] P2 — Review: oude item/monster `notes` worden niet meer getoond (notes zit niet in item/monster-schema, data blijft wel bewaard). Laat weten of notes terug moet.
