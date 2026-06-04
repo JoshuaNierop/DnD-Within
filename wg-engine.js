@@ -660,9 +660,9 @@ function infoBoxLayout() {
 function maxDashWidth() {
   const wrap = document.querySelector('.canvas-wrap');
   if (!wrap) return Infinity;
-  const containerW = wrap.clientWidth - 8;   // canvas-wrap padding 2 4 → 8 px horizontaal
-  // Klein gehouden zodat de grid tot dicht aan de canvas-rand reikt (verzoek 2026-06-04).
-  const PAD = 6;
+  const containerW = wrap.clientWidth - 4;   // canvas-wrap padding 2px → 4 px horizontaal
+  // Minimaal zodat de grid strak langs de rand van de box loopt (verzoek 2026-06-04).
+  const PAD = 2;
   return Math.max(50, containerW - Math.max(state.dashboard.leftX, PAD) - PAD);
 }
 
@@ -673,9 +673,9 @@ function applyResponsiveWidth() {
 
 function availableDashHeight() {
   const isMobile = window.innerWidth < 600;
-  // Bug #Th_pfb: grid mag wat meer van het scherm vullen (kleinere reserve),
-  // maar laat onderaan genoeg vrij voor de dice/notes/chat FABs (geen overlap).
-  const reserved = isMobile ? 450 : 245;
+  // Grid vult de box verticaal verder (kleinere reserve). De FABs zijn nu 70%
+  // (kleiner) dus er is minder clearance nodig onderaan (2026-06-04).
+  const reserved = isMobile ? 410 : 210;
   const padding = (state.config.dashPadding || 0) * 2;
   return Math.max(120, window.innerHeight - reserved - padding);
 }

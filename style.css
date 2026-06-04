@@ -56,7 +56,10 @@
        --fab-slot-N geeft per FAB de horizontale offset vanaf de rechterrand. */
     --fab-bottom: 1.5rem;
     --fab-right-base: 5rem;
-    --fab-gap: 60px;
+    --fab-gap: 42px;
+    /* FAB-grootte gecentraliseerd op 70% van de oude 52px (verzoek 2026-06-04). */
+    --fab-size: 36px;
+    --fab-icon: 22px;
     --fab-slot-0: var(--fab-right-base);                              /* dice  — meest rechts */
     --fab-slot-1: calc(var(--fab-right-base) + var(--fab-gap));       /* notes */
     --fab-slot-2: calc(var(--fab-right-base) + var(--fab-gap) * 2);   /* chat  */
@@ -6837,15 +6840,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     position: fixed;
     bottom: var(--fab-bottom);
     right: var(--fab-slot-0);
-    width: 52px;
-    height: 52px;
+    width: var(--fab-size);
+    height: var(--fab-size);
     border-radius: 50%;
     background: #1a1a2e;
     border: 2px solid #fbbf24;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
+    font-size: 1.1rem;
     cursor: pointer;
     z-index: 90;
     transition: all 0.2s;
@@ -6861,8 +6864,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     box-shadow: 0 4px 20px rgba(251, 191, 36, 0.5);
 }
 .dice-fab-icon {
-    width: 32px;
-    height: 32px;
+    width: var(--fab-icon);
+    height: var(--fab-icon);
     color: #fbbf24;
     pointer-events: none;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
@@ -7486,7 +7489,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     position: fixed;
     bottom: var(--fab-bottom);
     right: var(--fab-slot-4);
-    width: 52px; height: 52px;
+    width: var(--fab-size); height: var(--fab-size);
     border-radius: 50%;
     background: #1a1a2e;
     border: 2px solid #4ade80;
@@ -7497,7 +7500,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     -webkit-user-select: none; user-select: none; touch-action: manipulation;
 }
 .search-fab:hover { border-color: #86efac; transform: scale(1.1); box-shadow: 0 4px 20px rgba(74, 222, 128, 0.5); }
-.search-fab-icon { width: 30px; height: 30px; color: #4ade80; pointer-events: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+.search-fab-icon { width: var(--fab-icon); height: var(--fab-icon); color: #4ade80; pointer-events: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
 .search-fab:hover .search-fab-icon { color: #86efac; }
 
 .search-overlay { z-index: 450; align-items: flex-start; }
@@ -9102,8 +9105,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     position: fixed;
     bottom: var(--fab-bottom);
     right: var(--fab-slot-1);
-    width: 52px;
-    height: 52px;
+    width: var(--fab-size);
+    height: var(--fab-size);
     border-radius: 50%;
     background: #1a1a2e;
     border: 2px solid #a78bfa;
@@ -9126,8 +9129,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     border-color: #c4b5fd;
 }
 .notes-fab-icon {
-    width: 28px;
-    height: 28px;
+    width: var(--fab-icon);
+    height: var(--fab-icon);
     color: #a78bfa;
     pointer-events: none;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
@@ -9317,8 +9320,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     position: fixed;
     bottom: var(--fab-bottom);
     right: var(--fab-slot-3);
-    width: 52px;
-    height: 52px;
+    width: var(--fab-size);
+    height: var(--fab-size);
     border-radius: 50%;
     background: #1a1a2e;
     border: 2px solid #f87171;
@@ -9336,8 +9339,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     border-color: #fca5a5;
 }
 .bug-fab .bug-svg {
-    width: 26px;
-    height: 26px;
+    width: var(--fab-icon);
+    height: var(--fab-icon);
     stroke: #f87171;
 }
 .bug-fab:hover .bug-svg { stroke: #fca5a5; }

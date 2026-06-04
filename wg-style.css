@@ -632,9 +632,9 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 2px 4px;
+    padding: 2px;              /* minimale box-padding zodat de grid strak langs de rand loopt */
     overflow-x: hidden;        /* V9: discrete paginering i.p.v. scrollen */
-    margin-bottom: 8px;
+    margin-bottom: 12px;       /* iets meer lucht tussen de box en de pagina-nav */
   }
 
   /* V10 — situatie-dashboard tabs (Character / Social / …) bovenaan het canvas.
