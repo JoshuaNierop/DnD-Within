@@ -1,0 +1,4 @@
+# Cloudflare Pages SPA fallback: serve index.html for every non-asset path so
+# clean URLs (/maps, /lore/npcs) work on hard refresh and deep links.
+# Static assets that exist on disk are served first; only unknown paths hit this.
+/*    /index.html   200

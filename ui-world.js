@@ -1444,7 +1444,7 @@ function renderLoreTabBar(activeTab) {
     for (var i = 0; i < LORE_TABS.length; i++) {
         var tab = LORE_TABS[i];
         var active = tab.id === activeTab ? ' active' : '';
-        html += '<a class="lore-tab' + active + '" href="#/lore/' + tab.id + '" role="tab">' + escapeHtml(tab.label) + '</a>';
+        html += '<a class="lore-tab' + active + '" href="/lore/' + tab.id + '" role="tab">' + escapeHtml(tab.label) + '</a>';
     }
     html += '</div>';
     return html;
@@ -1490,7 +1490,7 @@ function renderLoreArticlesInner() {
     var data = getLoreData();
     var html = '<div class="lore-cat-toolbar">';
     if (isDM()) {
-        html += '<a class="btn btn-primary btn-sm" href="#/lore/new">' + t('lore.addarticle') + '</a>';
+        html += '<a class="btn btn-primary btn-sm" href="/lore/new">' + t('lore.addarticle') + '</a>';
     }
     html += '</div>';
 
@@ -1501,7 +1501,7 @@ function renderLoreArticlesInner() {
     html += '<div class="lore-grid">';
     for (var i = 0; i < data.articles.length; i++) {
         var art = data.articles[i];
-        html += '<a class="lore-card" href="#/lore/' + art.id + '">';
+        html += '<a class="lore-card" href="/lore/' + art.id + '">';
         html += '<h3>' + escapeHtml(art.title) + '</h3>';
         html += '<p>' + escapeHtml((art.content || '').substring(0, 120)) + '…</p>';
         html += '</a>';
@@ -1517,10 +1517,10 @@ function renderLoreArticle(articleId) {
         if (data.articles[i].id === articleId) { article = data.articles[i]; break; }
     }
 
-    if (!article) return '<div class="page-placeholder"><h2>' + t('lore.notfound') + '</h2><a class="btn btn-ghost" href="#/lore">' + t('lore.backtolore') + '</a></div>';
+    if (!article) return '<div class="page-placeholder"><h2>' + t('lore.notfound') + '</h2><a class="btn btn-ghost" href="/lore">' + t('lore.backtolore') + '</a></div>';
 
     var html = '<div class="lore-page lore-article">';
-    html += '<a class="btn btn-ghost btn-sm" href="#/lore">&larr; ' + t('lore.backtolore') + '</a>';
+    html += '<a class="btn btn-ghost btn-sm" href="/lore">&larr; ' + t('lore.backtolore') + '</a>';
     html += '<h1>' + escapeHtml(article.title) + '</h1>';
 
     // Render content — split by double newlines for paragraphs
@@ -1539,7 +1539,7 @@ function renderLoreArticle(articleId) {
 
     if (isDM()) {
         html += '<div style="margin-top:2rem;display:flex;gap:0.5rem;">';
-        html += '<a class="btn btn-ghost btn-sm" href="#/lore/edit-' + article.id + '">' + t('generic.edit') + '</a>';
+        html += '<a class="btn btn-ghost btn-sm" href="/lore/edit-' + article.id + '">' + t('generic.edit') + '</a>';
         html += '<button class="btn btn-ghost btn-sm" data-action="delete-lore" data-article-id="' + article.id + '" style="color:var(--danger);">' + t('generic.delete') + '</button>';
         html += '</div>';
     }
@@ -1566,14 +1566,14 @@ function renderLoreEditor(editId) {
     }
 
     var html = '<div class="lore-page">';
-    html += '<a class="btn btn-ghost btn-sm" href="#/lore">&larr; ' + t('lore.backtolore') + '</a>';
+    html += '<a class="btn btn-ghost btn-sm" href="/lore">&larr; ' + t('lore.backtolore') + '</a>';
     html += '<h1>' + (isEdit ? t('lore.editarticle') : t('lore.newarticle')) + '</h1>';
     html += '<div class="lore-editor">';
     html += '<input type="text" class="edit-input" id="lore-title" placeholder="' + t('lore.articletitle') + '" value="' + escapeAttr(title) + '">';
     html += '<textarea class="edit-textarea lore-content-editor" id="lore-content" placeholder="' + t('lore.articlecontent') + '">' + escapeHtml(content) + '</textarea>';
     html += '<div class="edit-actions">';
     html += '<button class="edit-save" data-action="save-lore"' + (isEdit ? ' data-edit-id="' + editId + '"' : '') + '>' + t('generic.save') + '</button>';
-    html += '<a class="edit-cancel" href="#/lore">' + t('generic.cancel') + '</a>';
+    html += '<a class="edit-cancel" href="/lore">' + t('generic.cancel') + '</a>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
@@ -2339,7 +2339,7 @@ function renderLorePartyInner() {
 // houd deze voor eventuele directe call-sites).
 function renderLoreParty() {
     var html = '<div class="lore-page lore-article">';
-    html += '<a class="btn btn-ghost btn-sm" href="#/lore/party">&larr; ' + t('lore.backtolore') + '</a>';
+    html += '<a class="btn btn-ghost btn-sm" href="/lore/party">&larr; ' + t('lore.backtolore') + '</a>';
     html += '<h1>' + t('lore.theparty') + '</h1>';
     html += renderLorePartyInner();
     html += '</div>';

@@ -1120,7 +1120,7 @@ document.addEventListener('click', function(e) {
         if (et === 'npc' || et === 'lore') window._dwEntityFocus = { type: et, id: ei };
         if (typeof closeSearch === 'function') closeSearch();
         var dest = searchLink.getAttribute('href') || '';
-        if (dest && ('#' + (location.hash || '').replace(/^#/, '')) === dest) {
+        if (dest && dest === (location.pathname || '/')) {
             if (typeof applyEntityFocus === 'function') applyEntityFocus();
             e.preventDefault();
         }

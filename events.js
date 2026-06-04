@@ -1072,8 +1072,8 @@ function bindPageEvents(route) {
             if (etype === 'npc' || etype === 'lore') {
                 window._dwEntityFocus = { type: etype, id: eid };
                 var dest = entLink.getAttribute('href') || '';
-                if (dest && ('#' + (location.hash || '').replace(/^#/, '')) === dest) {
-                    // Already on the target tab → no hashchange fires; focus now.
+                if (dest && dest === (location.pathname || '/')) {
+                    // Already on the target tab → focus now + stop re-navigation.
                     if (typeof applyEntityFocus === 'function') applyEntityFocus();
                     e.preventDefault();
                 }
@@ -1691,7 +1691,7 @@ function bindPageEvents(route) {
             var vsBtn = target.matches('[data-action="view-session"]') ? target : target.closest('[data-action="view-session"]');
             var vsId = vsBtn.dataset.sessionId;
             if (vsId) localStorage.setItem('dw_timeline_focus_session', vsId);
-            // The <a href="#/timeline"> default handles navigation; do not return.
+            // The <a href="/timeline"> default handles navigation; do not return.
         }
 
         // Add session (show form). Accepts legacy [data-action="add-event"] too.

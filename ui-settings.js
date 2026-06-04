@@ -291,7 +291,7 @@ function bugSelectorClick(e) {
     bugSelectedElement = {
         descriptor: getElementDescriptor(el),
         path: getElementPath(el),
-        route: window.location.hash || '#/'
+        route: window.location.pathname || '/'
     };
     stopBugSelector();
     openBugReportModal();
@@ -305,7 +305,7 @@ function openBugReportModal() {
     var existing = document.querySelector('.bug-report-modal-wrap');
     if (existing) existing.remove();
 
-    var info = bugSelectedElement || { descriptor: 'Algemeen', path: '', route: window.location.hash || '#/' };
+    var info = bugSelectedElement || { descriptor: 'Algemeen', path: '', route: window.location.pathname || '/' };
     var html = '<div class="bug-report-modal-wrap">';
     html += '<div class="modal-overlay" data-action="close-bug-modal">';
     html += '<div class="bug-report-modal">';
@@ -361,7 +361,7 @@ function submitBugReport() {
         return;
     }
 
-    var info = bugSelectedElement || { descriptor: 'Algemeen', path: '', route: window.location.hash || '#/' };
+    var info = bugSelectedElement || { descriptor: 'Algemeen', path: '', route: window.location.pathname || '/' };
     var typeEl = document.querySelector('input[name="bug-type"]:checked');
     var reportType = typeEl ? typeEl.value : 'bug';
 

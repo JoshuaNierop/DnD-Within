@@ -264,22 +264,57 @@ function getCharacterCampaign(charId) {
 // Section 2: Router
 // ============================================================
 
-function navigate(hash) {
-    window.location.hash = hash;
+// Clean-URL router (History API). Internal routes are real paths ("/maps",
+// "/lore/npcs") — no "#". Cloudflare Pages serves index.html for every path via
+// _redirects (SPA fallback), so a hard refresh / deep link works.
+function navigate(path) {
+    if (path == null) path = '/';
+    path = String(path);
+    if (path.charAt(0) === '#') path = path.slice(1);   // tolerate legacy "#/x"
+    if (path.charAt(0) !== '/') path = '/' + path;
+    if (path !== (window.location.pathname + window.location.search)) {
+        window.history.pushState(null, '', path);
+    }
+    // Close mobile nav on navigation
+    var navLinks = document.querySelector('.nav-links.open');
+    if (navLinks) navLinks.classList.remove('open');
+    // Programmatic pushState doesn't fire popstate; signal listeners (e.g. the
+    // social module re-mount) that the route changed.
+    try { window.dispatchEvent(new Event('dw:navigated')); } catch (e) {}
+    renderApp();
 }
 
 function getRoute() {
-    var hash = window.location.hash.slice(1) || '/';
-    var parts = hash.split('/').filter(Boolean);
+    var path = window.location.pathname || '/';
+    var parts = path.split('/').filter(Boolean);
     return { path: '/' + parts.join('/'), parts: parts };
 }
 
+// Intercept clicks on internal-route anchors so the SPA navigates without a
+// full page load. External links, new-tab/modified clicks, and download links
+// fall through to the browser.
+function _isInternalRoute(href) {
+    if (!href) return false;
+    if (href.charAt(0) !== '/') return false;     // only root-relative app routes
+    if (href.charAt(1) === '/') return false;     // protocol-relative //host
+    return true;
+}
+
 function initRouter() {
-    window.addEventListener('hashchange', function() {
-        // Close mobile nav on navigation
+    window.addEventListener('popstate', function() {
         var navLinks = document.querySelector('.nav-links.open');
         if (navLinks) navLinks.classList.remove('open');
         renderApp();
+    });
+    document.addEventListener('click', function(e) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var a = e.target.closest ? e.target.closest('a') : null;
+        if (!a) return;
+        if (a.target === '_blank' || a.hasAttribute('download') || a.getAttribute('rel') === 'external') return;
+        var href = a.getAttribute('href');
+        if (!_isInternalRoute(href)) return;
+        e.preventDefault();
+        navigate(href);
     });
     renderApp();
 }

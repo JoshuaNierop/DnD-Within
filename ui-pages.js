@@ -10,7 +10,7 @@ function renderCharacterSheet(charId) {
         return '<div class="page-placeholder"><h2>' + t('char.notfound') + '</h2></div>';
     }
     var accent = config.accentColor || 'var(--accent)';
-    return '<a class="char-back-btn" href="#/home" aria-label="Terug naar campaign" title="Terug naar campaign">'
+    return '<a class="char-back-btn" href="/home" aria-label="Terug naar campaign" title="Terug naar campaign">'
          +   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
          +     '<path d="M19 12H5M12 19l-7-7 7-7"/>'
          +   '</svg>'
@@ -126,7 +126,7 @@ function renderNavbar(route) {
 
     var html = '<nav class="navbar">';
     html += '<div class="nav-brand">';
-    html += '<a class="nav-logo" href="#/welcome">D&D <span class="logo-accent">Within</span></a>';
+    html += '<a class="nav-logo" href="/welcome">D&D <span class="logo-accent">Within</span></a>';
     var brandCampaigns = getUserCampaigns();
     if (inCampaignView && brandCampaigns.length === 1 && campaigns[brandCampaigns[0]]) {
         html += '<span class="campaign-subtitle">' + escapeHtml(campaigns[brandCampaigns[0]].name) + '</span>';
@@ -147,7 +147,7 @@ function renderNavbar(route) {
             if (link.path === '/lore' && route.parts[0] === 'lore') isActive = true;
             if (link.path === '/notes' && route.parts[0] === 'notes') isActive = true;
             if (link.path === '/dm' && route.parts[0] === 'dm') isActive = true;
-            html += '<a class="nav-link' + (isActive ? ' active' : '') + '" href="#' + link.path + '"><span class="nav-icon">' + link.icon + '</span><span class="nav-text">' + link.label + '</span></a>';
+            html += '<a class="nav-link' + (isActive ? ' active' : '') + '" href="' + link.path + '"><span class="nav-icon">' + link.icon + '</span><span class="nav-text">' + link.label + '</span></a>';
         }
     } else {
         // Main menu links
@@ -156,7 +156,7 @@ function renderNavbar(route) {
             var pActive = route.path === plink.path || (plink.path === '/welcome' && (route.path === '/' || route.path === '/home'));
             if (plink.path === '/characters' && route.parts[0] === 'characters') pActive = true;
             if (plink.path === '/settings' && route.path === '/settings') pActive = true;
-            html += '<a class="nav-link' + (pActive ? ' active' : '') + '" href="#' + plink.path + '"><span class="nav-icon">' + plink.icon + '</span><span class="nav-text">' + plink.label + '</span></a>';
+            html += '<a class="nav-link' + (pActive ? ' active' : '') + '" href="' + plink.path + '"><span class="nav-icon">' + plink.icon + '</span><span class="nav-text">' + plink.label + '</span></a>';
         }
     }
 
@@ -322,7 +322,7 @@ function renderHome() {
     html += '<div class="home-section">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">';
     html += '<h2 class="section-title">' + t('home.mycharacters') + ' (' + myChars.length + ')</h2>';
-    html += '<a class="btn btn-ghost btn-sm" href="#/characters">' + t('home.viewall') + ' &rarr;</a>';
+    html += '<a class="btn btn-ghost btn-sm" href="/characters">' + t('home.viewall') + ' &rarr;</a>';
     html += '</div>';
     html += '<div class="character-cards">';
     for (var mi = 0; mi < myChars.length; mi++) {
@@ -358,7 +358,7 @@ function handleJoinCampaign(inviteCode) {
         }
     }
     if (!found) {
-        return '<div class="page-placeholder"><h2>' + t('join.invalid') + '</h2><p>' + t('join.invalid.hint') + '</p><a class="btn btn-primary" href="#/welcome">' + t('join.backhome') + '</a></div>';
+        return '<div class="page-placeholder"><h2>' + t('join.invalid') + '</h2><p>' + t('join.invalid.hint') + '</p><a class="btn btn-primary" href="/welcome">' + t('join.backhome') + '</a></div>';
     }
     var camp = campaigns[found];
     if (!camp.members) camp.members = [];
@@ -367,7 +367,7 @@ function handleJoinCampaign(inviteCode) {
         saveCampaigns(campaigns);
     }
     setActiveCampaign(found);
-    return '<div class="page-placeholder"><h2>' + t('join.welcome') + escapeHtml(camp.name) + '!</h2><p>' + t('join.added') + '</p><a class="btn btn-primary" href="#/party">' + t('join.toparty') + '</a></div>';
+    return '<div class="page-placeholder"><h2>' + t('join.welcome') + escapeHtml(camp.name) + '!</h2><p>' + t('join.added') + '</p><a class="btn btn-primary" href="/party">' + t('join.toparty') + '</a></div>';
 }
 
 // ============================================================
@@ -397,7 +397,7 @@ function renderParty() {
         html += '<h3>' + t('party.choosechar') + '</h3>';
         html += '<p class="text-dim">' + t('party.choosechar.hint') + escapeHtml(camp.name) + '.</p>';
         if (myChars.length === 0) {
-            html += '<p>' + t('party.nocharacters') + ' <a href="#/characters">' + t('party.nocharacters.link') + '</a>.</p>';
+            html += '<p>' + t('party.nocharacters') + ' <a href="/characters">' + t('party.nocharacters.link') + '</a>.</p>';
         } else {
             html += '<div class="party-assign-grid">';
             for (var ai = 0; ai < myChars.length; ai++) {
@@ -652,7 +652,7 @@ function renderDashboard() {
         for (var ri = 0; ri < recentEvents.length; ri++) {
             var rev = recentEvents[ri];
             var revPreview = (typeof sessionPreviewText === 'function') ? sessionPreviewText(rev) : (rev.desc || '');
-            html += '<a class="dash-recent-event" href="#/timeline" data-action="view-session" data-session-id="' + escapeAttr(rev.id || '') + '" title="' + escapeAttr(t('dash.recent.open') || 'Open session') + '">';
+            html += '<a class="dash-recent-event" href="/timeline" data-action="view-session" data-session-id="' + escapeAttr(rev.id || '') + '" title="' + escapeAttr(t('dash.recent.open') || 'Open session') + '">';
             if (rev.session) html += '<span class="timeline-date">' + t('dash.session') + ' ' + escapeHtml(rev.session) + '</span>';
             html += '<strong class="dash-recent-title">' + escapeHtml(rev.title || '') + '</strong>';
             html += '<p class="text-dim dash-recent-desc">' + escapeHtml(revPreview) + '</p>';
@@ -772,7 +772,7 @@ function renderDashboard() {
     // DM quick link
     if (isDM()) {
         html += '<div style="text-align:center;margin-top:1rem;">';
-        html += '<a class="btn btn-ghost" href="#/dm">' + t('dm.tools') + ' &rarr;</a>';
+        html += '<a class="btn btn-ghost" href="/dm">' + t('dm.tools') + ' &rarr;</a>';
         html += '</div>';
     }
 
@@ -810,7 +810,7 @@ function renderDMPage(subpage) {
     for (var ti = 0; ti < tabs.length; ti++) {
         var tab = tabs[ti];
         var isActive = (subpage || 'initiative') === tab.id;
-        html += '<a class="dm-tab' + (isActive ? ' active' : '') + '" href="#/dm/' + tab.id + '">' + tab.icon + ' ' + tab.label + '</a>';
+        html += '<a class="dm-tab' + (isActive ? ' active' : '') + '" href="/dm/' + tab.id + '">' + tab.icon + ' ' + tab.label + '</a>';
     }
     html += '</div>';
 
@@ -819,8 +819,9 @@ function renderDMPage(subpage) {
     if (activeSection === 'initiative') {
         html += renderDMInitiative();
     } else if (activeSection === 'npcs') {
-        // Legacy redirect: NPCs leven nu op de Lore-pagina.
-        window.location.hash = '#/lore/npcs';
+        // Legacy redirect: NPCs leven nu op de Lore-pagina. Defer zodat de
+        // huidige render-pass eerst afrondt (navigate() rendert opnieuw).
+        setTimeout(function() { navigate('/lore/npcs'); }, 0);
         return '';
     } else if (activeSection === 'families') {
         html += renderDMFamilies();
@@ -1383,7 +1384,7 @@ function renderCharCard(cid, cfg, state, isOwn) {
     var imgSrc = portrait || banner || '';
 
     var isOnline = typeof isUserOnline === 'function' && isUserOnline(cfg.player || cid);
-    var html = '<a class="char-card" href="#/characters/' + cid + '" style="--card-accent:' + cfg.accentColor + '">';
+    var html = '<a class="char-card" href="/characters/' + cid + '" style="--card-accent:' + cfg.accentColor + '">';
     html += '<div class="presence-dot' + (isOnline ? ' online' : '') + '" data-user-id="' + (cfg.player || cid) + '"></div>';
     html += '<div class="char-card-img">';
     if (imgSrc) {

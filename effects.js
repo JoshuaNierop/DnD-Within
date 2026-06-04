@@ -96,7 +96,7 @@ var QuickNotes = {
 
         html += '<div class="qnotes-actions">';
         html += '<button class="btn btn-primary btn-sm qnotes-save" data-action="qnote-save">Opslaan</button>';
-        html += '<a class="btn btn-ghost btn-sm" href="#/notes">Alle notities</a>';
+        html += '<a class="btn btn-ghost btn-sm" href="/notes">Alle notities</a>';
         html += '</div>';
         if (this.justSaved) {
             html += '<div class="qnotes-toast">Opgeslagen ✓</div>';
@@ -113,7 +113,7 @@ var QuickNotes = {
                 for (var ci = 0; ci < cats.length; ci++) { if (cats[ci].id === n.tagCategory) { cat = cats[ci]; break; } }
                 if (!cat) cat = cats[cats.length - 1];
                 var safeTitle = (n.title || 'Zonder titel').replace(/</g, '&lt;');
-                html += '<a class="qnotes-item" href="#/notes/view-' + n.id + '" style="--cat-color:' + cat.color + '">';
+                html += '<a class="qnotes-item" href="/notes/view-' + n.id + '" style="--cat-color:' + cat.color + '">';
                 html += '<span class="qnotes-item-icon">' + cat.icon + '</span>';
                 html += '<span class="qnotes-item-title">' + safeTitle + '</span>';
                 html += '</a>';

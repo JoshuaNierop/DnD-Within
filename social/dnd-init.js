@@ -150,8 +150,12 @@ const mountPoll = setInterval(() => {
     }
 }, 500);
 
-// Re-mount bij hash-route change (gebruiker switcht user via UI)
-window.addEventListener('hashchange', () => {
+// Re-mount bij route change (gebruiker switcht user via UI). Clean-URL router
+// gebruikt History API → luister op popstate (back/forward) én op het custom
+// 'dw:navigated' event dat navigate() bij elke pushState dispatcht.
+function _onRouteChange() {
     const me = getCurrentUserSafe();
     if (me?.uid && me.uid !== lastSyncedUid) mount();
-});
+}
+window.addEventListener('popstate', _onRouteChange);
+window.addEventListener('dw:navigated', _onRouteChange);
