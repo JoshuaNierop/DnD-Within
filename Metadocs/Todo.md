@@ -1,5 +1,15 @@
 # D&D Within — To Do
 
+## Sessie 2026-06-04 — Clean URLs, Maps-windows, Places, storage-paden, Character Info widget
+- [x] P1 — **Clean URLs**: hash-router → History API (`navigate`/`getRoute`/`initRouter` in `core.js`, pushState/popstate + document click-interceptor op interne `<a href="/...">`). `<base href="/">` in index.html. ~35 `href="#/"` + alle `location.hash` omgezet. `_redirects` (SPA-fallback) toegevoegd. ⚠️ Vereist Cloudflare Pages — breekt GitHub Pages.
+- [!] P0 — **Cloudflare Pages migratie** — nodig om clean URLs live te krijgen (zie CLAUDE.md Deploy). Geblokkeerd op dash-actie Joshua (CF-project koppelen + GH Pages uitzetten).
+- [x] P1 — **Maps: dimensies toevoegen/verwijderen via window** (`openDimensionsModal`), geen prompt meer. "+"-knop opent manager. Label "Dimension"/"Dimensie" via i18n `maps.dimension`.
+- [x] P1 — **Maps: add-map window** (`openAddMapModal`): naam + plaatsing (main/sub) + afbeelding kiezen uit Places óf nieuwe upload. Nieuwe upload wordt ook als Place opgeslagen. Geen prompt/confirm-keten meer.
+- [x] P1 — **Storage-paden**: campaign-assets onder owner van actieve campaign (niet uploader → geen "Admin" meer); folder `Campains` → `Campaign`. Character-images blijven `<owner>/Characters/<naam>/`.
+- [x] P1 — **Character Info widget** (`basicInfo`): race/class/background/age/archetype als infobox; archetype level-gated (subclass gezet of level ≥3); value-edit schrijft terug naar character-config (reverse-lookup naar interne keys).
+- [~] P2 — Browser-verificatie van bovenstaande nog niet gedaan (lokaal niet getest). Zie review-flags in sessie-recap.
+
+
 ## Cloudinary hiërarchie + @-links + afbeelding-hergebruik (2026-06-01)
 Volledig ontwerp: `Metadocs/Design-Links-en-Image-Reuse.md`. Keuzes Joshua: vaste id's eerst · MVP-link-types = Characters + NPCs + Lore-kaarten · link toont actuele naam · image-picker bij NPC/Lore/Character-profiel (banners niet).
 
@@ -60,7 +70,7 @@ Volledige prompt: `Metadocs/Prompt-Timeline-Lore-2026-06-01.md`. Keuzes Joshua: 
 
 #### Open voor review (Joshua)
 - [ ] P1 — **Bug #1 live-verificatie**: editor-close fix is de self-echo van de eigen client (`world/timeline` mapte fout naar `dw_timeline`). Statisch + single-client gefixt; het multi-client scenario (2 windows tegelijk) kon ik niet reproduceren — graag in de praktijk testen.
-- [ ] P3 — Cities vs Locations overlappen (beide tabs op jouw verzoek). Eventueel later Cities als subset van Locations.
+- [x] P3 — Cities vs Locations samengevoegd → één **Places**-tab (2026-06-04). `LORE_TABS`/`LORE_CATEGORY_TABS` + eenmalige migratie `_migrateLoreCatsToPlaces` (merge `cities`+`locations` → `places` in `dw_lore_cats`).
 - [ ] P3 — Generieke categorieën delen één simpel entry-model. Categorie-specifieke velden (bv. Monsters: CR/HP/type, Religions: pantheon) zijn later toe te voegen.
 - [ ] P3 — NPC-age leunt op een handmatig "huidig jaar"-veld in de NPC-toolbar (opgeslagen in `dw_npcs.currentYear`). Overweeg dit campagne-breed te koppelen aan een wereld-kalender.
 - [ ] P3 — Na artikel-save landt de redirect op de Party-tab i.p.v. Articles-tab (bestaande `save-lore` navigeert naar `#/lore`). Kosmetisch.

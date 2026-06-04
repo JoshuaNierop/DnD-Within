@@ -4,7 +4,7 @@ Interactive D&D 5.5e character sheet en campaign management SPA voor 8 spelers.
 
 ## Tech Stack
 - Vanilla JavaScript + Firebase Realtime Database (REST API)
-- Hash-based SPA router
+- Clean-URL SPA router (History API: `navigate()`/`getRoute()`/`initRouter()` in `core.js`) — links zijn echte paden `/maps`, een document-level click-interceptor vangt interne `<a href="/...">`. `<base href="/">` in index.html zodat relatieve assets op diepe routes laden.
 - Custom CSS met responsive/touch support
 - Geen build tools — direct browser
 
@@ -38,7 +38,13 @@ Interactive D&D 5.5e character sheet en campaign management SPA voor 8 spelers.
 - Multi-language (NL/EN), Admin mode (admin/admin)
 
 ## Deploy
-GitHub Pages: `JoshuaNierop/DnD-Within` — source branch `master`, path `/`
-- `git push origin master` → auto-deploy
-- Live: https://joshuanierop.github.io/DnD-Within/
-- ⚠️ Cloudflare Pages migratie staat open (Todo "Hosting" P1) — nog niet geconfigureerd; geen `wrangler.toml` in repo, alleen stray `.wrangler/` cache (gitignored)
+⚠️ **Clean URLs vereisen Cloudflare Pages** — GitHub Pages (project-site onder `/DnD-Within/`) kan geen SPA-fallback en breekt op `<base href="/">`. Migratie naar Cloudflare Pages is nu NOODZAKELIJK voor de live site.
+
+Cloudflare Pages setup (Joshua, eenmalig):
+1. Cloudflare dash → Pages → Connect to Git → repo `JoshuaNierop/DnD-Within`, branch `master`.
+2. Build command: *(leeg)*; Build output directory: `/` (repo-root).
+3. `_redirects` (in repo-root) levert de SPA-fallback (`/* /index.html 200`) → clean URLs werken op refresh/deeplink.
+4. Custom domain koppelen; daarna GitHub Pages uitzetten (Settings → Pages → Source: None) zodat de oude broken subpath-versie niet meer serveert.
+
+- Repo: `JoshuaNierop/DnD-Within`, branch `master`
+- Oude live (breekt na deze commit): https://joshuanierop.github.io/DnD-Within/
