@@ -1,5 +1,22 @@
 # D&D Within — Testresults
 
+## 2026-06-04 — Clean URLs, maps/lore redesign, widget, storage-paden, 3 bugs
+
+### Geverifieerd
+- **Clean URLs live op Cloudflare Pages** (`dnd-within.pages.dev`): root, diepe route `/lore/npcs` en asset `/core.js` allemaal HTTP 200; `<base href="/">` aanwezig; SPA-fallback via `_redirects` werkt op hard-refresh/deeplink. (curl-geverifieerd, niet handmatig doorgeklikt.)
+- **Timeline session-editor self-echo bug (FIXED):** tussentijdse scene-saves (afbeelding/extra scene) sloten de editor + sloegen niets op. Root cause: `sync.js applyLeaves` deed string-compare; Firebase echoot object-keys alfabetisch → mismatch met lokale insertion-order → `changed++` → spurious `renderApp()` wiste de inline form. Fix: order-onafhankelijke `_stableStringify`-vergelijking (objecten + arrays).
+- **3 open hub-bugs gefixt** (#Th_pfb grid-hoogte, #09Izy- pageNav-hoogte, #rC2HV4 edit-values selecteert alleen infoboxen). Hub op `fixed`. 0 open dnd-within bugs.
+
+### Nog te verifiëren in browser (review-flags — niet lokaal getest, statische site)
+- **Character Info widget:** een class/race wijzigen via value-edit → werkt de sheet bij? (display-naam ↔ interne key reverse-lookup; multi-word/onbekende waarden kunnen desyncen). Archetype-rij gating leest `raw.state.level`.
+- **Maps redesign:** dimensie-dropdown open/sluit, dimensie wisselen, New map; main map vult de verticale ruimte zonder FAB-overlap (`55vh` + reserve-getallen zijn schattingen, tunebaar).
+- **Lore/NPC paged editor-modals:** passen ze écht zonder scroll op desktop + telefoon? Monster-P3 (5 textareas) heeft `overflow-y:auto` safety. Image-box klik→Bestaande/Uploaden/Verwijderen.
+- **Lore cards:** monster/item hover-reveal + click-expand (2:3 → horizontaal). Oude `notes` op item/monster niet meer getoond (data bewaard).
+- **Storage-paden:** nieuwe campaign-assets onder `Maxime/Campains/Serpent of Valoria/...` (niet "Admin"). Eén oud monster staat nog onder `…/Campaign/…` (vorige tikfout) — orphan, niet kritisch.
+- **3 bug-fixes:** grid vult meer maar overlapt de dice/notes/chat-FABs niet; edit-values toggle aan → alleen infoboxen, geen hele-widget select/drag.
+
+---
+
 ## 2026-06-01 — Timeline save data-loss (FIXED) + home banner-slots
 - **Bug:** nieuwe timeline-sessions werden niet opgeslagen; formulier sloot, niets bewaard. Root cause: `_migrateMonolithicTimeline()` regenereerde `dw_chapters` uit een stale lege `dw_timeline` (terug-gesynct via Firebase) bij élke `getTimelineData()` → overschreef net-opgeslagen sessions (9× per save-flow). Gereproduceerd + gefixt + live geverifieerd via Playwright op de GitHub Pages-build (sessie blijft nu over 6 re-renders).
 - **Fix:** ui-world.js — guard: als `dw_chapters` bestaat is legacy obsoleet → purge `dw_timeline` lokaal + `syncRemove` + return.

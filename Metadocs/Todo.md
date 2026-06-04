@@ -1,5 +1,10 @@
 # D&D Within — To Do
 
+## Sessie 2026-06-04 (deel 4) — Hub-bugs gefixt (3/3, 0 open)
+- [x] P1 — #Th_pfb — Widget-grid vult meer scherm (`availableDashHeight` reserve 280→245 desktop / 480→450 mobile), zonder FAB-overlap.
+- [x] P1 — #09Izy- — `#pageNav` compacter (arrows 36→28px, margin `-4/16`→`-2/6`).
+- [x] P1 — #rC2HV4 — Edit-values mode: alleen losse infoboxen selecteerbaar (geen hele-widget select/drag); selectie gewist bij inschakelen; resize-handles + move-topbar verborgen. `wg-events.js`/`wg-ui.js`/`wg-style.css`.
+
 ## Sessie 2026-06-04 (deel 3) — Lore/NPC create-windows herontworpen
 - [x] P1 — **Paged editor-modals** (`renderLoreEntryModal` + `renderNPCModal` in ui-world.js): passen op 1 pagina zonder scrollen; paginatie i.p.v. scrollen via `.modal-page` + `goModalPage()` (monsters 3 pagina's, NPC 2, rest 1). Compacte `.lore-form-grid` (auto-fit minmax) in site-stijl. Veld-groepering overlegd met dnd-agent.
 - [x] P1 — **Image-box klik→keuze** (`renderImageBox` + handlers in ui-modals.js): klik in de afbeeldingbox → menu Bestaande / Uploaden / Verwijderen. "Bestaande" slaat een live `@ref` op (lore-card resolvet nu via `resolveImageSrc`). UI/mobile overlegd met responsive-design agent.
