@@ -2,6 +2,11 @@
 
 ## 2026-06-04 — Clean URLs, maps/lore redesign, widget, storage-paden, 3 bugs
 
+### Geverifieerd (deel 5 — laat op 2026-06-04)
+- **Value-edit zonder reload (FIXED):** dashboard value-edits (skills/abilities/character-info) deden een re-fetch + triggerden via de Firebase-echo een `renderApp()` → character-page remount → flits + edit-values toggle "lijkt uit". Fix: optimistische lokale update (cache + `dw_charconfig_<id>`) vóór de PATCH zodat `applyLeaves` `changed=0` ziet; geen re-fetch/renderApp meer; toggle-knop synct bij (re)mount.
+- **3 hub-bugs gefixt** (#G0tAIk Character Info read-only in dashboard, #692n main map kleiner/gecapt, #iPRW main map links uitgelijnd). 0 open.
+- **Open interpretatie-flags:** #G0tAIk — "deze widget" aangenomen als Character Info (niet skills/abilities). #iPRW — main map nu links i.p.v. center (eerdere keuze teruggedraaid n.a.v. nieuwe bug). Beide even bevestigen in browser.
+
 ### Geverifieerd
 - **Clean URLs live op Cloudflare Pages** (`dnd-within.pages.dev`): root, diepe route `/lore/npcs` en asset `/core.js` allemaal HTTP 200; `<base href="/">` aanwezig; SPA-fallback via `_redirects` werkt op hard-refresh/deeplink. (curl-geverifieerd, niet handmatig doorgeklikt.)
 - **Timeline session-editor self-echo bug (FIXED):** tussentijdse scene-saves (afbeelding/extra scene) sloten de editor + sloegen niets op. Root cause: `sync.js applyLeaves` deed string-compare; Firebase echoot object-keys alfabetisch → mismatch met lokale insertion-order → `changed++` → spurious `renderApp()` wiste de inline form. Fix: order-onafhankelijke `_stableStringify`-vergelijking (objecten + arrays).

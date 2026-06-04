@@ -1,5 +1,12 @@
 # D&D Within — To Do
 
+## Sessie 2026-06-04 (deel 5) — Dashboard value-edit + maps polish + 3 hub-bugs
+- [x] P1 — **Value-edit zonder page-reload:** write-functies (`writeSkillProficiency`/`writeAbilityScore`/`writeCharConfigField` in wg-events.js) updaten nu optimistisch de cache + `dw_charconfig_<id>` vóór de PATCH → Firebase-echo ziet `changed=0` (via `_stableStringify`) → geen `renderApp()`/remount meer. Edit-values toggle-knop synct bij elke (re)mount met de echte state.
+- [x] P1 — **Widgets dichter naar canvas-rand:** `defaultDashboardGeom` leftX/topY 22→6, `maxDashWidth` PAD 22→6 + padding-aftrek 16→8.
+- [x] P1 — #G0tAIk — **Character Info widget niet meer bewerkbaar** in het dashboard (Joshua bedacht zich): `basicInfo` uit `WG_EDIT_CONFIG`. Widget toont alleen; race/class bewerk je op de sheet. ⚠️ interpretatie: "deze widget" = Character Info (meest recente editbare widget); skills/abilities blijven wél editbaar.
+- [x] P1 — #692n — **Main map kleiner + gecapt** (`max-width:720px`, `max-height: calc(100vh-300px)`) zodat hij volledig in beeld past.
+- [x] P1 — #iPRW — **Main map links uitgelijnd** met de "Maps" h1 (zoals de Party-titel boven de character cards) i.p.v. gecentreerd. ⚠️ dit draait de eerdere "center aligned"-keuze terug, conform de nieuwe bug.
+
 ## Sessie 2026-06-04 (deel 4) — Hub-bugs gefixt (3/3, 0 open)
 - [x] P1 — #Th_pfb — Widget-grid vult meer scherm (`availableDashHeight` reserve 280→245 desktop / 480→450 mobile), zonder FAB-overlap.
 - [x] P1 — #09Izy- — `#pageNav` compacter (arrows 36→28px, margin `-4/16`→`-2/6`).
