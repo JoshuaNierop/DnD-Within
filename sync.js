@@ -249,6 +249,23 @@ function extractLeaves(obj, prefix, result) {
     }
 }
 
+// Order-independent JSON stringify: keys sorted recursively. Used so that a
+// self-echoed Firebase write (which returns object keys in alphabetical order,
+// e.g. {image,layout,text}) is recognised as IDENTICAL to what we stored in a
+// different insertion order ({layout,text,image}). Without this, the string
+// compare below counted every echo as a change → spurious renderApp() that
+// closed the open timeline session editor mid-edit.
+function _stableStringify(v) {
+    if (v === null || typeof v !== 'object') return JSON.stringify(v);
+    if (Array.isArray(v)) return '[' + v.map(_stableStringify).join(',') + ']';
+    var keys = Object.keys(v).sort();
+    var parts = [];
+    for (var i = 0; i < keys.length; i++) {
+        parts.push(JSON.stringify(keys[i]) + ':' + _stableStringify(v[keys[i]]));
+    }
+    return '{' + parts.join(',') + '}';
+}
+
 function applyLeaves(leaves) {
     var changed = 0;
     for (var i = 0; i < leaves.length; i++) {
@@ -266,6 +283,15 @@ function applyLeaves(leaves) {
             next = JSON.stringify(val);
         } else {
             next = String(val);
+        }
+        // Structural equality check (ignores object key-order) so a self-echoed
+        // write never counts as a change. Applies to objects AND arrays of
+        // objects (e.g. dw_chapters), whose element key-order Firebase also
+        // normalises on read-back.
+        if (existing !== null && typeof val === 'object') {
+            var sameStruct = false;
+            try { sameStruct = _stableStringify(JSON.parse(existing)) === _stableStringify(val); } catch (e) { sameStruct = false; }
+            if (sameStruct) continue;
         }
         if (existing !== next) {
             try {
