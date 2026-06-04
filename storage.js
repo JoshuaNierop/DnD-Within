@@ -43,17 +43,20 @@
 //
 // Image taxonomy (Cloudinary folder = nested path via "/") — mirrors Joshua's
 // local "DnD Within" tree so the media library is human-browsable. The first
-// segment is the human LOGIN NAME: a character files under its OWNER (e.g. Ren
-// → Joshua), every campaign asset files under the DM (e.g. Maxime) — NOT under
-// whoever uploaded it. App-created item folders are Capitalised ("Portrait").
+// segment is the human LOGIN NAME. There are exactly TWO buckets:
+//   * a CHARACTER image files under the character's OWNER (e.g. Ren → Joshua);
+//   * EVERY other (campaign) asset files under the OWNER of the actively-open
+//     campaign (e.g. Serpent of Valoria → Maxime) — NOT under whoever uploaded
+//     it (so an admin upload never lands under "Admin").
+// App-created item folders are Capitalised ("Portrait").
 //   DnD Within/<Owner>/Characters/<CharName>/<Type>    (Portrait, notes, …)
-//   DnD Within/<DM>/Campains/<Campaign>/NPCs/<NpcName>
-//   DnD Within/<DM>/Campains/<Campaign>/Monsters/<Name>
-//   DnD Within/<DM>/Campains/<Campaign>/Items/<Name>
-//   DnD Within/<DM>/Campains/<Campaign>/Places/<Name>  (Cities + Locations + maps)
-//   DnD Within/<DM>/Campains/<Campaign>/Religions|Factions|Events/<Name>
-//   DnD Within/<DM>/Campains/<Campaign>/Session/<sceneId>   (timeline scenes)
-//   DnD Within/<DM>/Campains/<Campaign>/Backgrounds/<slot>  (time-of-day banners)
+//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/NPCs/<NpcName>
+//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Monsters/<Name>
+//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Items/<Name>
+//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Places/<Name>  (Places + maps)
+//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Religions|Factions|Events/<Name>
+//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Session/<sceneId>   (timeline scenes)
+//   DnD Within/<CampaignOwner>/Campaign/<Campaign>/Backgrounds/<slot>  (banners)
 // Note: unsigned uploads cannot set a custom filename, so each asset gets an
 // auto-generated name INSIDE its named folder (the folder leaf is the entity
 // name). The single source of truth for this mapping is buildFolder() below.
@@ -111,9 +114,11 @@
         maps:      'Places',
         notes:     'Notes'
     };
-    // Map a lore-category id to its folder name (Cities/Locations share Places).
+    // Map a lore-category id to its folder name. 'places' is the single
+    // location category (legacy 'locations'/'cities' still map here for old data).
     var LORE_CAT_MAP = {
-        items: 'Items', monsters: 'Monsters', locations: 'Places', cities: 'Places',
+        items: 'Items', monsters: 'Monsters', places: 'Places',
+        locations: 'Places', cities: 'Places',
         religions: 'Religions', factions: 'Factions', events: 'Events', npcs: 'NPCs'
     };
 
@@ -160,8 +165,8 @@
 
     // Build the Cloudinary folder for a (category, subpath) pair. This is the
     // single source of truth for the library hierarchy:
-    //   DnD Within/Characters/<Name>/<type>
-    //   DnD Within/Campains/<Campaign>/<Category>/<entity>
+    //   DnD Within/<Owner>/Characters/<Name>/<type>
+    //   DnD Within/<CampaignOwner>/Campaign/<Campaign>/<Category>/<entity>
     // The uploading user scopes the whole tree ("DnD Within/<User>/…") so two
     // users can never collide on the same entity name. Falls back to 'shared'.
     function uploaderId() {
@@ -200,18 +205,25 @@
         return userDisplayName(uploaderId());
     }
 
-    // DM display name of the active campaign — campaign assets (NPCs, maps,
-    // scenes, lore, banners) all file under the DM (e.g. Maxime), regardless of
-    // who uploads them. Falls back to the uploader's display name.
-    function campaignDMName() {
+    // Owner display name of the actively-open campaign — campaign assets (NPCs,
+    // maps, scenes, lore, banners) all file under the campaign OWNER (e.g.
+    // Serpent of Valoria → Maxime), regardless of who uploads them. The owner is
+    // the campaign's explicit `owner` field, else its `dm`. Crucially it NEVER
+    // falls back to the uploader (that is what put fresh Items/Places under
+    // "Admin"); an unresolvable campaign yields the stable 'shared' bucket.
+    function campaignOwnerName() {
         try {
             var id = activeCampaignId();
             if (typeof getCampaigns === 'function') {
                 var camps = getCampaigns();
-                if (camps && camps[id] && camps[id].dm) return userDisplayName(camps[id].dm);
+                var camp = camps && camps[id];
+                if (camp) {
+                    var ownerId = camp.owner || camp.dm;
+                    if (ownerId) return userDisplayName(ownerId);
+                }
             }
         } catch (e) { /* ignore */ }
-        return userDisplayName(uploaderId());
+        return 'shared';
     }
 
     // Capitalise each "/"-segment of a fixed item-type path so app-created
@@ -231,8 +243,8 @@
             if (type) f += '/' + capPath(type);
             return f;
         }
-        // Campaign-scoped assets all live under the DM's folder.
-        var dmBase = ROOT + '/' + campaignDMName() + '/Campains/' + activeCampaignName();
+        // Campaign-scoped assets all live under the campaign OWNER's folder.
+        var dmBase = ROOT + '/' + campaignOwnerName() + '/Campaign/' + activeCampaignName();
         if (category === 'campaign') {
             // subpath: "<seg>/<rest>" e.g. "timeline/<id>", "dashboard/<slot>"
             var cs = subpath.split('/');

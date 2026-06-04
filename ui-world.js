@@ -1263,14 +1263,13 @@ var LORE_TABS = [
     { id: 'items',     label: 'Items' },
     { id: 'religions', label: 'Religions' },
     { id: 'factions',  label: 'Factions' },
-    { id: 'cities',    label: 'Cities' },
-    { id: 'locations', label: 'Locations' },
+    { id: 'places',    label: 'Places' },
     { id: 'monsters',  label: 'Monsters' },
     { id: 'events',    label: 'Events' },
     { id: 'articles',  label: 'Articles' }
 ];
 // De generieke categorie-tabs (alles behalve party/npcs/articles).
-var LORE_CATEGORY_TABS = ['items', 'religions', 'factions', 'cities', 'locations', 'monsters', 'events'];
+var LORE_CATEGORY_TABS = ['items', 'religions', 'factions', 'places', 'monsters', 'events'];
 
 function isLoreTab(id) {
     for (var i = 0; i < LORE_TABS.length; i++) if (LORE_TABS[i].id === id) return true;
@@ -1707,8 +1706,10 @@ function collectEntities() {
 // Singular, uppercase type-label for an entity (used in @-mention suggestions
 // and the global Search): CHARACTER / NPC / LOCATION / ITEM / MONSTER / …
 var LORE_SINGULAR = {
-    items: 'ITEM', locations: 'LOCATION', cities: 'CITY', monsters: 'MONSTER',
-    factions: 'FACTION', religions: 'RELIGION', events: 'EVENT'
+    items: 'ITEM', places: 'PLACE', monsters: 'MONSTER',
+    factions: 'FACTION', religions: 'RELIGION', events: 'EVENT',
+    // legacy ids (pre cities+locations → places merge), kept for old mentions
+    locations: 'PLACE', cities: 'PLACE'
 };
 function entityTypeLabel(e) {
     if (!e) return '';
@@ -1891,7 +1892,7 @@ function searchResults() {
 function renderSearchOverlay() {
     var html = '<div class="modal-overlay search-overlay">';
     html += '<div class="search-panel">';
-    html += '<div class="search-bar"><input type="text" id="global-search-input" class="edit-input" placeholder="Zoek characters, NPCs, locations, items…" value="' + escapeAttr(searchQuery) + '">';
+    html += '<div class="search-bar"><input type="text" id="global-search-input" class="edit-input" placeholder="Zoek characters, NPCs, places, items…" value="' + escapeAttr(searchQuery) + '">';
     html += '<button class="modal-close" data-action="close-search">&times;</button></div>';
 
     var res = searchResults();
@@ -2182,12 +2183,35 @@ function renderLoreParty() {
     return html;
 }
 
-// ===== Generieke lore-categorie entries (items/religions/factions/cities/
-// locations/monsters/events). E\u00e9n store, gefilterd per categorie. =====
+// ===== Generieke lore-categorie entries (items/religions/factions/places/
+// monsters/events). E\u00e9n store, gefilterd per categorie. =====
 function getLoreCatsData() {
     var saved = localStorage.getItem('dw_lore_cats');
-    if (saved) { try { var p = JSON.parse(saved); if (p && typeof p === 'object') return p; } catch (e) {} }
+    if (saved) {
+        try {
+            var p = JSON.parse(saved);
+            if (p && typeof p === 'object') return _migrateLoreCatsToPlaces(p);
+        } catch (e) {}
+    }
     return {};
+}
+// One-time merge: the old 'cities' + 'locations' categories collapse into a
+// single 'places'. Runs once (the legacy keys are removed + persisted, so it
+// is idempotent on the next read).
+function _migrateLoreCatsToPlaces(data) {
+    var hadLegacy = Array.isArray(data.cities) || Array.isArray(data.locations);
+    if (!hadLegacy) return data;
+    var places = Array.isArray(data.places) ? data.places : [];
+    if (Array.isArray(data.locations)) places = places.concat(data.locations);
+    if (Array.isArray(data.cities))    places = places.concat(data.cities);
+    data.places = places;
+    delete data.locations;
+    delete data.cities;
+    try {
+        localStorage.setItem('dw_lore_cats', JSON.stringify(data));
+        if (typeof syncUpload === 'function') syncUpload('dw_lore_cats');
+    } catch (e) {}
+    return data;
 }
 function saveLoreCatsData(data) {
     localStorage.setItem('dw_lore_cats', JSON.stringify(data));
