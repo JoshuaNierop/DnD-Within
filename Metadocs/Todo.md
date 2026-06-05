@@ -1,5 +1,19 @@
 # D&D Within — To Do
 
+## Sessie 2026-06-05 — Maps: Pin Area editing redesign
+- [x] P1 — Blauwe per-pin overlay (`.pin-label` + edit/delete-knoppen) verwijderd; vervangen door Pin Area modus.
+- [x] P1 — "Edit pin" → **Pin Area toggle** (breadcrumb) die in "Pins opslaan" verandert als hij aan staat.
+- [x] P1 — Editing-HUD onderaan: rondheid-slider (per geselecteerde area), Pin toevoegen, Label/link, Verwijderen.
+- [x] P1 — Nieuwe area = polygon met 3 dots; klik op dikke rand = hoekpunt toevoegen; tik hoekpunt = verwijderen (min 3); sleep area = verplaatsen.
+- [x] P1 — Rondheid 0%(hoekig)->100%(rond) via geparametriseerde `smoothClosedPath`; legacy polygons identiek bij default 60%.
+
+### Te reviewen door Joshua (niet zeker, niet end-to-end getest in browser)
+- [ ] P2 — **Label/link-knop behouden in HUD** i.p.v. de oude potlood-overlay. Jij noemde de potlood-knop niet meer; ik zette 'm in de HUD (alleen bij selectie) om portal-links niet te verliezen. Akkoord, of mag die functie helemaal weg?
+- [ ] P2 — **Add-pin houdt de label/link-modal** bij aanmaken (zoals voorheen). Liever direct een area plaatsen zonder modal?
+- [ ] P2 — **Legacy circle-pins** (oude data, geen nodes) blijven cirkels: verplaatsbaar via centerhandle, rondheid-slider disabled. Reshapen = verwijderen + opnieuw toevoegen.
+- [ ] P3 — **Pin dots**: niet-geselecteerde areas tonen 1 centroid-dot + omtrek; vertices verschijnen pas bij selectie. Genoeg, of alle vertices altijd tonen?
+- [ ] P3 — Drag die op de **rand** begint voegt een hoekpunt toe i.p.v. te verplaatsen (interieur = verplaatsen). Acceptabel?
+
 ## Sessie 2026-06-04 (deel 6) — 2 hub-bugs + image-rename
 - [x] P2 — #SmcU — **rename-map via window** (`openRenameMapModal`) i.p.v. `prompt()`.
 - [x] P2 — #ACyi — **timeline image-only scene**: afbeelding 75%→50% + horizontaal gecentreerd.
