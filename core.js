@@ -152,7 +152,7 @@ var COLOR_THEMES = [
 ];
 
 function getUserTheme() {
-    return localStorage.getItem('dw_theme_' + currentUserId()) || 'ocean';
+    return localStorage.getItem('dw_theme_' + currentUserId()) || 'amber';
 }
 
 function setUserTheme(themeId) {
