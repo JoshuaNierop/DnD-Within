@@ -12,6 +12,15 @@ var mapPanX = 0;
 var mapPanY = 0;
 var addingPin = false;
 var editingPins = false;
+var selectedPinIdx = null; // index of the pin/area currently selected in Pin Area edit mode
+
+// Default roundness for areas without an explicit value. 0.6 reproduces the
+// legacy Catmull-Rom look (factor 1/6) so old polygons render identically.
+var DEFAULT_PIN_ROUNDNESS = 0.6;
+function pinRoundness(pin) {
+    var r = pin && pin.shape ? pin.shape.roundness : undefined;
+    return (typeof r === 'number') ? Math.max(0, Math.min(1, r)) : DEFAULT_PIN_ROUNDNESS;
+}
 var _mapResizeObserver = null;
 
 // Pin shape helpers: every pin has an area shape (circle default, polygon when 3+ nodes).
@@ -36,19 +45,28 @@ function normalizePin(pin) {
 }
 
 // Catmull-Rom → Bezier closed-loop path string for organic polygons. Input: array of {x,y}.
-function smoothClosedPath(pts) {
+// roundness ∈ [0,1]: 0 = straight lines (angular polygon), 1 = maximally round.
+// Tension factor maps linearly; 0.6 → 0.168 ≈ the legacy 1/6 cardinal spline.
+function smoothClosedPath(pts, roundness) {
     var n = pts.length;
     if (n < 3) return '';
+    var f = (typeof roundness === 'number' ? Math.max(0, Math.min(1, roundness)) : DEFAULT_PIN_ROUNDNESS) * 0.28;
+    if (f <= 0.001) {
+        // Pure polygon: straight edges.
+        var dl = 'M' + pts[0].x.toFixed(2) + ',' + pts[0].y.toFixed(2);
+        for (var k = 1; k < n; k++) dl += ' L' + pts[k].x.toFixed(2) + ',' + pts[k].y.toFixed(2);
+        return dl + ' Z';
+    }
     var d = 'M' + pts[0].x.toFixed(2) + ',' + pts[0].y.toFixed(2);
     for (var i = 0; i < n; i++) {
         var p0 = pts[(i - 1 + n) % n];
         var p1 = pts[i];
         var p2 = pts[(i + 1) % n];
         var p3 = pts[(i + 2) % n];
-        var c1x = p1.x + (p2.x - p0.x) / 6;
-        var c1y = p1.y + (p2.y - p0.y) / 6;
-        var c2x = p2.x - (p3.x - p1.x) / 6;
-        var c2y = p2.y - (p3.y - p1.y) / 6;
+        var c1x = p1.x + (p2.x - p0.x) * f;
+        var c1y = p1.y + (p2.y - p0.y) * f;
+        var c2x = p2.x - (p3.x - p1.x) * f;
+        var c2y = p2.y - (p3.y - p1.y) * f;
         d += ' C' + c1x.toFixed(2) + ',' + c1y.toFixed(2) +
              ' ' + c2x.toFixed(2) + ',' + c2y.toFixed(2) +
              ' ' + p2.x.toFixed(2) + ',' + p2.y.toFixed(2);
@@ -200,10 +218,19 @@ function mapEditPostRender() {
     if (!editingPins) return;
     var svg = document.querySelector('.map-shapes');
     if (!svg) return;
-    // Pin-label repositioning is handled by mapSvgAlignPostRender → _alignPinLabels
-    // (idempotent + survives resize). Keep this function focused on edit handlers.
 
-    // Drag a single node
+    // Live-redraw the selected area's outline (fill + edge overlay) from its nodes.
+    function _redrawSelectedPath(pin) {
+        var g = svg.querySelector('.map-pin-g[data-pin-idx="' + selectedPinIdx + '"]');
+        if (!g) return;
+        var dStr = (pin.shape.nodes && pin.shape.nodes.length >= 3)
+            ? smoothClosedPath(pin.shape.nodes, pinRoundness(pin)) : '';
+        g.querySelectorAll('.map-shape, .map-shape-edge').forEach(function(p) {
+            if (p.tagName === 'path' && dStr) p.setAttribute('d', dStr);
+        });
+    }
+
+    // ── Drag a single vertex (move); tap (no drag) removes it, min 3 nodes ──
     svg.querySelectorAll('.shape-node').forEach(function(el) {
         el.addEventListener('pointerdown', function(ev) {
             ev.preventDefault();
@@ -228,11 +255,7 @@ function mapEditPostRender() {
                 pin.shape.nodes[nodeIdx].y = p.y;
                 el.setAttribute('cx', p.x);
                 el.setAttribute('cy', p.y);
-                var g = el.parentNode;
-                var shapeEl = g.querySelector('.map-shape');
-                if (shapeEl && pin.shape.nodes.length >= 3) {
-                    shapeEl.setAttribute('d', smoothClosedPath(pin.shape.nodes));
-                }
+                _redrawSelectedPath(pin);
             }
             function onUp() {
                 el.releasePointerCapture(ev.pointerId);
@@ -242,14 +265,12 @@ function mapEditPostRender() {
                 if (startedDrag) {
                     saveMapsData(info.data);
                     renderApp();
-                } else {
-                    if (confirm('Node verwijderen?')) {
-                        pin.shape.nodes.splice(nodeIdx, 1);
-                        if (pin.shape.nodes.length < 3) pin.shape.kind = 'circle';
-                        saveMapsData(info.data);
-                        renderApp();
-                    }
+                } else if (pin.shape.nodes.length > 3) {
+                    pin.shape.nodes.splice(nodeIdx, 1);
+                    saveMapsData(info.data);
+                    renderApp();
                 }
+                // ≤3 nodes: ignore tap (a triangle is the minimum area).
             }
             el.addEventListener('pointermove', onMove);
             el.addEventListener('pointerup', onUp);
@@ -257,7 +278,7 @@ function mapEditPostRender() {
         });
     });
 
-    // Drag the circle center (whole-shape move) when no nodes yet
+    // ── Drag the circle center (legacy circle pins: move whole shape) ──
     svg.querySelectorAll('.shape-center').forEach(function(el) {
         el.addEventListener('pointerdown', function(ev) {
             ev.preventDefault();
@@ -267,14 +288,9 @@ function mapEditPostRender() {
             if (!info) return;
             var pin = normalizePin(info.map.pins[pinIdx]);
             el.setPointerCapture(ev.pointerId);
-            var startX = ev.clientX, startY = ev.clientY;
             var startedDrag = false;
             function onMove(mv) {
-                if (!startedDrag) {
-                    var dx = mv.clientX - startX, dy = mv.clientY - startY;
-                    if (dx * dx + dy * dy < 16) return;
-                    startedDrag = true;
-                }
+                startedDrag = true;
                 var p = _svgEvToPct(svg, mv);
                 pin.shape.cx = p.x;
                 pin.shape.cy = p.y;
@@ -292,10 +308,7 @@ function mapEditPostRender() {
                 el.removeEventListener('pointermove', onMove);
                 el.removeEventListener('pointerup', onUp);
                 el.removeEventListener('pointercancel', onUp);
-                if (startedDrag) {
-                    saveMapsData(info.data);
-                    renderApp();
-                }
+                if (startedDrag) { saveMapsData(info.data); renderApp(); }
             }
             el.addEventListener('pointermove', onMove);
             el.addEventListener('pointerup', onUp);
@@ -303,31 +316,95 @@ function mapEditPostRender() {
         });
     });
 
-    // Click on shape → add a node (max 10)
-    svg.querySelectorAll('.map-shape').forEach(function(el) {
+    // ── Drag the SELECTED area body → translate all its vertices together ──
+    svg.querySelectorAll('.map-shape.is-selected').forEach(function(el) {
+        if (el.tagName !== 'path') return; // polygons only
+        el.addEventListener('pointerdown', function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var info = _getActiveMapPins();
+            if (!info) return;
+            var pin = normalizePin(info.map.pins[selectedPinIdx]);
+            if (!pin.shape.nodes || pin.shape.nodes.length < 3) return;
+            el.setPointerCapture(ev.pointerId);
+            var prev = _svgEvToPct(svg, ev);
+            var startX = ev.clientX, startY = ev.clientY;
+            var startedDrag = false;
+            function onMove(mv) {
+                if (!startedDrag) {
+                    var dx0 = mv.clientX - startX, dy0 = mv.clientY - startY;
+                    if (dx0 * dx0 + dy0 * dy0 < 16) return;
+                    startedDrag = true;
+                }
+                var p = _svgEvToPct(svg, mv);
+                var dx = p.x - prev.x, dy = p.y - prev.y;
+                prev = p;
+                for (var i = 0; i < pin.shape.nodes.length; i++) {
+                    pin.shape.nodes[i].x = Math.max(0, Math.min(100, pin.shape.nodes[i].x + dx));
+                    pin.shape.nodes[i].y = Math.max(0, Math.min(100, pin.shape.nodes[i].y + dy));
+                }
+                _redrawSelectedPath(pin);
+                // move vertex handles too
+                var g = el.parentNode;
+                g.querySelectorAll('.shape-node').forEach(function(h, hi) {
+                    if (pin.shape.nodes[hi]) {
+                        h.setAttribute('cx', pin.shape.nodes[hi].x);
+                        h.setAttribute('cy', pin.shape.nodes[hi].y);
+                    }
+                });
+            }
+            function onUp() {
+                el.releasePointerCapture(ev.pointerId);
+                el.removeEventListener('pointermove', onMove);
+                el.removeEventListener('pointerup', onUp);
+                el.removeEventListener('pointercancel', onUp);
+                if (startedDrag) { saveMapsData(info.data); renderApp(); }
+            }
+            el.addEventListener('pointermove', onMove);
+            el.addEventListener('pointerup', onUp);
+            el.addEventListener('pointercancel', onUp);
+        });
+    });
+
+    // ── Click the selected area's thick edge → insert a vertex there (max 12) ──
+    svg.querySelectorAll('.map-shape-edge').forEach(function(el) {
         el.addEventListener('click', function(ev) {
             ev.preventDefault();
             ev.stopPropagation();
-            var pinIdx = parseInt(el.dataset.pinIdx, 10);
             var info = _getActiveMapPins();
             if (!info) return;
-            var pin = normalizePin(info.map.pins[pinIdx]);
-            if (pin.shape.nodes.length >= 10) {
-                alert('Maximum 10 nodes per pin.');
-                return;
-            }
+            var pin = normalizePin(info.map.pins[selectedPinIdx]);
+            if (!pin.shape.nodes || pin.shape.nodes.length >= 12) { if (pin.shape.nodes && pin.shape.nodes.length >= 12) alert('Maximaal 12 hoekpunten per area.'); return; }
             var p = _svgEvToPct(svg, ev);
-            if (pin.shape.nodes.length < 3) {
-                pin.shape.nodes.push({ x: p.x, y: p.y });
-                if (pin.shape.nodes.length >= 3) pin.shape.kind = 'polygon';
-            } else {
-                var insertAfter = _closestEdgeIdx(pin.shape.nodes, p);
-                pin.shape.nodes.splice(insertAfter + 1, 0, { x: p.x, y: p.y });
-            }
+            var insertAfter = _closestEdgeIdx(pin.shape.nodes, p);
+            pin.shape.nodes.splice(insertAfter + 1, 0, { x: p.x, y: p.y });
             saveMapsData(info.data);
             renderApp();
         });
     });
+
+    // ── Roundness slider (per selected area) ──
+    var roundEl = document.querySelector('[data-action="pin-roundness"]');
+    if (roundEl) {
+        var valEl = document.querySelector('.pin-round-val');
+        roundEl.addEventListener('input', function() {
+            if (selectedPinIdx === null) return;
+            var info = _getActiveMapPins();
+            if (!info) return;
+            var pin = normalizePin(info.map.pins[selectedPinIdx]);
+            pin.shape.roundness = parseInt(roundEl.value, 10) / 100;
+            if (valEl) valEl.textContent = roundEl.value + '%';
+            _redrawSelectedPath(pin);
+        });
+        roundEl.addEventListener('change', function() {
+            if (selectedPinIdx === null) return;
+            var info = _getActiveMapPins();
+            if (!info) return;
+            var pin = normalizePin(info.map.pins[selectedPinIdx]);
+            pin.shape.roundness = parseInt(roundEl.value, 10) / 100;
+            saveMapsData(info.data);
+        });
+    }
 }
 
 function getMapsData() {
@@ -624,8 +701,7 @@ function renderMaps() {
         }
         html += '<span class="map-title">' + escapeHtml(map.name) + '</span>';
         if (isDM()) {
-            html += '<button class="btn btn-ghost btn-sm" data-action="add-pin">' + t('maps.addpin') + '</button>';
-            html += '<button class="btn btn-ghost btn-sm' + (editingPins ? ' is-active' : '') + '" data-action="toggle-edit-pins">&#9998; ' + (editingPins ? 'Klaar met editen' : 'Edit pin') + '</button>';
+            html += '<button class="btn btn-ghost btn-sm' + (editingPins ? ' is-active' : '') + '" data-action="toggle-edit-pins">' + (editingPins ? '&#128190; Pins opslaan' : '&#128205; Pin Area') + '</button>';
             html += '<label class="btn btn-ghost btn-sm">' + t('maps.changeimage') + '<input type="file" accept="image/*" data-action="update-map-image" data-map-id="' + map.id + '" style="display:none"></label>';
             html += '<button class="btn btn-ghost btn-sm" data-action="rename-map" data-map-id="' + map.id + '">&#9998; Rename</button>';
             html += '<button class="btn btn-ghost btn-sm" data-action="delete-map" data-map-id="' + map.id + '" style="color:var(--danger);">&#128465; Delete map</button>';
@@ -661,19 +737,30 @@ function renderMaps() {
             }
         }
 
+        // Clamp stale selection (pin may have been deleted / map switched)
+        if (selectedPinIdx !== null && selectedPinIdx >= pins.length) selectedPinIdx = null;
+
         html += '<svg class="map-shapes" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">';
         for (var pi = 0; pi < pins.length; pi++) {
             var pin = normalizePin(pins[pi]);
             var s = pin.shape;
             var isLink = pin.targetMap && allMapsLookup[pin.targetMap];
             var usePolygon = s.kind === 'polygon' || (s.nodes && s.nodes.length >= 3);
+            var isSelected = editingPins && isDM() && pi === selectedPinIdx;
             var shapeClass = 'map-shape';
             if (isLink) shapeClass += ' has-link';
+            if (isSelected) shapeClass += ' is-selected';
 
+            // Click behaviour on the shape body:
+            //  - view mode + link → navigate to target map
+            //  - edit mode + not selected → select this pin (handled by delegated click)
+            //  - edit mode + selected → no data-action; drag/translate wired in mapEditPostRender
             var clickAttrs = '';
             if (isLink && !editingPins && !addingPin) {
                 var targetInfo = allMapsLookup[pin.targetMap];
                 clickAttrs = ' data-action="goto-map" data-target="' + pin.targetMap + '" data-target-dim="' + targetInfo.dimIdx + '"';
+            } else if (editingPins && isDM() && !isSelected) {
+                clickAttrs = ' data-action="select-pin" data-pin-idx="' + pi + '"';
             }
 
             html += '<g class="map-pin-g" data-pin-idx="' + pi + '">';
@@ -685,43 +772,36 @@ function renderMaps() {
                 titleStr = '<title>' + escapeHtml(titleParts.join('  ')) + '</title>';
             }
             if (usePolygon) {
-                var d = smoothClosedPath(s.nodes);
+                var d = smoothClosedPath(s.nodes, pinRoundness(pin));
                 html += '<path class="' + shapeClass + '" d="' + d + '" data-pin-idx="' + pi + '"' + clickAttrs + '>' + titleStr + '</path>';
+                // Selected area: thick transparent edge overlay catches border clicks → add vertex
+                if (isSelected) {
+                    html += '<path class="map-shape-edge" d="' + d + '" data-pin-idx="' + pi + '" data-action="add-vertex"></path>';
+                }
             } else {
                 html += '<circle class="' + shapeClass + '" cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" data-pin-idx="' + pi + '"' + clickAttrs + '>' + titleStr + '</circle>';
             }
 
-            // Edit handles: nodes als drag-bare circles
-            if (editingPins && isDM()) {
-                // Always-visible centroid handle (move whole shape) — show only for circle without nodes
+            // Edit handles for the SELECTED pin only: draggable vertices / center.
+            if (isSelected) {
                 if (!usePolygon && (!s.nodes || s.nodes.length === 0)) {
-                    html += '<circle class="shape-center" cx="' + s.cx + '" cy="' + s.cy + '" r="1.2" data-pin-idx="' + pi + '" data-handle="center"></circle>';
+                    html += '<circle class="shape-center" cx="' + s.cx + '" cy="' + s.cy + '" r="1.4" data-pin-idx="' + pi + '" data-handle="center"></circle>';
                 }
                 if (s.nodes && s.nodes.length) {
                     for (var ni = 0; ni < s.nodes.length; ni++) {
                         var nd = s.nodes[ni];
-                        html += '<circle class="shape-node" cx="' + nd.x + '" cy="' + nd.y + '" r="1.1" data-pin-idx="' + pi + '" data-node-idx="' + ni + '"></circle>';
+                        html += '<circle class="shape-node" cx="' + nd.x + '" cy="' + nd.y + '" r="1.3" data-pin-idx="' + pi + '" data-node-idx="' + ni + '"></circle>';
                     }
                 }
+            }
+            // Edit mode, unselected area: a centroid dot makes the pin visible + easy to click-select.
+            if (editingPins && isDM() && !isSelected) {
+                var cc = pinCentroid(pin);
+                html += '<circle class="pin-dot' + (isLink ? ' has-link' : '') + '" cx="' + cc.x + '" cy="' + cc.y + '" r="1.3" data-action="select-pin" data-pin-idx="' + pi + '"></circle>';
             }
             html += '</g>';
         }
         html += '</svg>';
-
-        // Pin labels (HTML overlay) — alleen in edit-mode zichtbaar met edit/delete buttons
-        if (editingPins && isDM()) {
-            for (var pli = 0; pli < pins.length; pli++) {
-                var plPin = normalizePin(pins[pli]);
-                var c = pinCentroid(plPin);
-                var labelClass = 'pin-label';
-                if (plPin.targetMap && allMapsLookup[plPin.targetMap]) labelClass += ' has-link';
-                html += '<div class="' + labelClass + '" style="left:' + c.x + '%;top:' + c.y + '%;" data-pin-idx="' + pli + '">';
-                if (plPin.label) html += escapeHtml(plPin.label);
-                html += '<button class="pin-edit-btn" data-action="edit-pin-meta" data-pin-idx="' + pli + '" title="Label/link">&#9998;</button>';
-                html += '<button class="pin-edit-btn pin-edit-delete" data-action="delete-pin" data-pin-idx="' + pli + '" title="Verwijder pin">&times;</button>';
-                html += '</div>';
-            }
-        }
 
         html += '</div>'; // map-canvas
         html += '</div>'; // map-viewer
@@ -734,10 +814,28 @@ function renderMaps() {
             html += '</div>';
         }
 
-        if (editingPins && !addingPin) {
+        if (editingPins && isDM() && !addingPin) {
+            var selPin = (selectedPinIdx !== null && pins[selectedPinIdx]) ? normalizePin(pins[selectedPinIdx]) : null;
+            var selIsPolygon = selPin && (selPin.shape.kind === 'polygon' || (selPin.shape.nodes && selPin.shape.nodes.length >= 3));
+            var roundPct = selPin ? Math.round(pinRoundness(selPin) * 100) : 60;
+            var hint = selPin
+                ? 'Sleep de area om te verplaatsen · klik op de rand om een hoekpunt toe te voegen · sleep hoekpunten om te kneden · tik een hoekpunt om het te verwijderen.'
+                : 'Klik op een area om hem te selecteren, of voeg een nieuwe pin-area toe.';
+
             html += '<div class="pin-add-overlay pin-edit-overlay">';
-            html += '<p>Klik op een vorm om een node toe te voegen (max 10). Sleep nodes om te verplaatsen.</p>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="toggle-edit-pins">Klaar</button>';
+            html += '<p class="pin-edit-hint">' + hint + '</p>';
+            html += '<div class="pin-edit-tools">';
+            // Roundness slider (per selected area)
+            html += '<label class="pin-round-ctl' + ((selPin && selIsPolygon) ? '' : ' is-disabled') + '">';
+            html += '<span>Rondheid</span>';
+            html += '<input type="range" min="0" max="100" value="' + roundPct + '" data-action="pin-roundness"' + ((selPin && selIsPolygon) ? '' : ' disabled') + '>';
+            html += '<span class="pin-round-val">' + roundPct + '%</span>';
+            html += '</label>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="add-pin">&#43; Pin toevoegen</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="edit-pin-meta" data-pin-idx="' + (selPin ? selectedPinIdx : '') + '"' + (selPin ? '' : ' disabled') + '>&#9998; Label/link</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="delete-selected-pin" style="color:var(--danger);"' + (selPin ? '' : ' disabled') + '>&#128465; Verwijderen</button>';
+            html += '<button class="btn btn-primary btn-sm" data-action="toggle-edit-pins">&#128190; Pins opslaan</button>';
+            html += '</div>';
             html += '</div>';
         }
 

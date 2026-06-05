@@ -56,10 +56,10 @@
        --fab-slot-N geeft per FAB de horizontale offset vanaf de rechterrand. */
     --fab-bottom: 1.5rem;
     --fab-right-base: 5rem;
-    --fab-gap: 42px;
-    /* FAB-grootte gecentraliseerd op 70% van de oude 52px (verzoek 2026-06-04). */
-    --fab-size: 36px;
-    --fab-icon: 22px;
+    --fab-gap: 52px;
+    /* FAB-grootte gecentraliseerd: 36px +15% = 41px (verzoek 2026-06-04). */
+    --fab-size: 41px;
+    --fab-icon: 25px;
     --fab-slot-0: var(--fab-right-base);                              /* dice  — meest rechts */
     --fab-slot-1: calc(var(--fab-right-base) + var(--fab-gap));       /* notes */
     --fab-slot-2: calc(var(--fab-right-base) + var(--fab-gap) * 2);   /* chat  */
@@ -3052,16 +3052,33 @@ div.map-placeholder { width: 100%; height: 100%; display: flex; align-items: cen
     fill: color-mix(in oklab, var(--accent) 18%, transparent);
     stroke: color-mix(in oklab, var(--accent) 75%, transparent);
 }
-/* In edit-mode: always show outline so DM can see + click shapes */
+/* In edit-mode: always show outline so DM can see + click shapes to select */
 .map-canvas.is-editing-pins .map-shape {
     fill: color-mix(in oklab, var(--accent) 8%, transparent);
     stroke: color-mix(in oklab, var(--accent) 60%, transparent);
     stroke-dasharray: 3 2;
+    cursor: pointer;
 }
 .map-canvas.is-editing-pins .map-shape:hover {
     fill: color-mix(in oklab, var(--accent) 22%, transparent);
     stroke: var(--accent);
     stroke-dasharray: none;
+}
+/* Selected area: thick solid gold border + draggable body */
+.map-canvas.is-editing-pins .map-shape.is-selected {
+    fill: color-mix(in oklab, var(--gold) 16%, transparent);
+    stroke: var(--gold);
+    stroke-width: 4;
+    stroke-dasharray: none;
+    cursor: move;
+}
+/* Transparent thick edge overlay on the selected area — catches border clicks to add a vertex */
+.map-shape-edge {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 3.5;
+    cursor: crosshair;
+    pointer-events: stroke;
 }
 /* Edit handles: draggable nodes + center handle */
 .shape-node, .shape-center {
@@ -3072,8 +3089,20 @@ div.map-placeholder { width: 100%; height: 100%; display: flex; align-items: cen
     cursor: grab;
     transition: r 0.15s ease;
 }
-.shape-node:hover, .shape-center:hover { fill: var(--gold); }
+.shape-node { fill: var(--gold); }
+.shape-node:hover, .shape-center:hover { fill: var(--accent); }
 .shape-node:active, .shape-center:active { cursor: grabbing; }
+/* Centroid marker for unselected areas in edit mode — click to select */
+.pin-dot {
+    fill: var(--accent);
+    stroke: white;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+    cursor: pointer;
+    transition: fill 0.15s ease;
+}
+.pin-dot.has-link { fill: var(--gold); }
+.pin-dot:hover { fill: white; }
 
 /* Pin label — HTML overlay shown only in edit-mode (default-mode uses SVG <title> tooltip) */
 .pin-label {
@@ -3131,7 +3160,14 @@ div.map-placeholder { width: 100%; height: 100%; display: flex; align-items: cen
 /* Pin Adding / Editing Mode toolbar */
 .pin-add-overlay { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: var(--bg-card); border: 1px solid var(--accent); border-radius: var(--radius); padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 1rem; z-index: 30; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
 .pin-add-overlay p { margin: 0; font-size: 0.85rem; color: var(--text-main); }
-.pin-edit-overlay { border-color: var(--gold); }
+.pin-edit-overlay { border-color: var(--gold); flex-direction: column; align-items: stretch; max-width: min(92vw, 680px); gap: 0.6rem; }
+.pin-edit-overlay .pin-edit-hint { font-size: 0.78rem; color: var(--text-dim); text-align: center; }
+.pin-edit-tools { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+.pin-round-ctl { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--text-main); padding: 0.2rem 0.55rem; border: 1px solid var(--border); border-radius: 100px; }
+.pin-round-ctl input[type="range"] { width: 120px; accent-color: var(--gold); cursor: pointer; }
+.pin-round-ctl .pin-round-val { min-width: 2.6em; text-align: right; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.pin-round-ctl.is-disabled { opacity: 0.45; }
+.pin-edit-tools .btn[disabled] { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 
 /* ===== TIMELINE PAGE ===== */
 .timeline-page {

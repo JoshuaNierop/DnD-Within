@@ -2112,6 +2112,7 @@ function bindPageEvents(route) {
             var card = target.closest('[data-action="open-map"]') || target;
             activeMapId = card.dataset.mapId;
             mapZoom = 1; mapPanX = 0; mapPanY = 0;
+            selectedPinIdx = null;
             renderApp();
             return;
         }
@@ -2120,6 +2121,7 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="map-back"]')) {
             activeMapId = null;
             addingPin = false;
+            selectedPinIdx = null;
             window._mapHistory = [];
             renderApp();
             return;
@@ -2132,6 +2134,7 @@ function bindPageEvents(route) {
                 activeDimension = prev.dim;
                 activeMapId = prev.mapId;
                 mapZoom = 1; mapPanX = 0; mapPanY = 0;
+                selectedPinIdx = null;
                 renderApp();
             }
             return;
@@ -2196,6 +2199,7 @@ function bindPageEvents(route) {
             window._mapHistory.push({ mapId: activeMapId, dim: activeDimension });
             activeMapId = gotoEl.dataset.target;
             mapZoom = 1; mapPanX = 0; mapPanY = 0;
+            selectedPinIdx = null;
             renderApp();
             return;
         }
@@ -2204,7 +2208,36 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="toggle-edit-pins"]') || target.closest('[data-action="toggle-edit-pins"]')) {
             editingPins = !editingPins;
             addingPin = false;
+            selectedPinIdx = null;
             renderApp();
+            return;
+        }
+
+        // Select a pin/area in Pin Area edit mode
+        if (target.matches('[data-action="select-pin"]') || target.closest('[data-action="select-pin"]')) {
+            e.stopPropagation();
+            var selEl = target.closest('[data-action="select-pin"]') || target;
+            selectedPinIdx = parseInt(selEl.dataset.pinIdx, 10);
+            renderApp();
+            return;
+        }
+
+        // Delete the currently selected pin/area
+        if (target.matches('[data-action="delete-selected-pin"]') || target.closest('[data-action="delete-selected-pin"]')) {
+            e.stopPropagation();
+            if (selectedPinIdx === null) return;
+            if (!confirm('Verwijder deze pin-area?')) return;
+            var dsData = getMapsData();
+            var dsDim = dsData.dimensions[activeDimension];
+            for (var dsi = 0; dsi < dsDim.maps.length; dsi++) {
+                if (dsDim.maps[dsi].id === activeMapId) {
+                    dsDim.maps[dsi].pins.splice(selectedPinIdx, 1);
+                    saveMapsData(dsData);
+                    selectedPinIdx = null;
+                    renderApp();
+                    break;
+                }
+            }
             return;
         }
 
@@ -2307,13 +2340,24 @@ function bindPageEvents(route) {
                         for (var cmi2 = 0; cmi2 < mDim2.maps.length; cmi2++) {
                             if (mDim2.maps[cmi2].id === activeMapId) {
                                 if (!Array.isArray(mDim2.maps[cmi2].pins)) mDim2.maps[cmi2].pins = mDim2.maps[cmi2].pins ? Object.values(mDim2.maps[cmi2].pins) : [];
+                                // New area = triangle (3 dots) around the click point, ~6% radius.
+                                var rr = 6;
                                 var newPin = {
                                     id: 'pin' + Date.now(),
                                     label: label,
                                     targetMap: targetMapId || null,
-                                    shape: { kind: 'circle', cx: pinX, cy: pinY, r: 5, nodes: [] }
+                                    shape: {
+                                        kind: 'polygon',
+                                        roundness: 0.6,
+                                        nodes: [
+                                            { x: pinX, y: Math.max(0, pinY - rr) },
+                                            { x: Math.min(100, pinX + rr * 0.87), y: Math.min(100, pinY + rr * 0.5) },
+                                            { x: Math.max(0, pinX - rr * 0.87), y: Math.min(100, pinY + rr * 0.5) }
+                                        ]
+                                    }
                                 };
                                 mDim2.maps[cmi2].pins.push(newPin);
+                                selectedPinIdx = mDim2.maps[cmi2].pins.length - 1;
                                 break;
                             }
                         }
