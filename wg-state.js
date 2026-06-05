@@ -386,6 +386,13 @@ function currentDevice() {
 }
 
 const WG_SITUATIONS = ['character', 'social', 'exploring', 'combat', 'inventory'];
+// DM-modus situatie-tabs (DM Dashboard, character-onafhankelijk). Widgets per
+// tab komen later; de tabs zelf bestaan nu al. Zie memory dnd_within_dm_dashboard.
+const WG_SITUATIONS_DM = ['social', 'exploring', 'combat', 'ambient'];
+// Actieve situatie-lijst voor de huidige mount-context.
+function wgSituations() {
+  return state.context === 'dm' ? WG_SITUATIONS_DM : WG_SITUATIONS;
+}
 
 const state = {
   responsive: JSON.parse(JSON.stringify(WG_RESPONSIVE_DEFAULTS)), // deep copy zodat user kan tweaken
@@ -407,6 +414,8 @@ const state = {
     widgetRadius: 12,
   },
   characterId: 'saya',           // V9: dashboard-breed — alle character-widgets volgen dit
+  context: 'character',          // DM-dashboard: 'character' | 'dm' — zet via mount({context})
+  dmCampaignId: null,            // DM-modus: campaign waaraan dashboard+monsters hangen
   activeSituation: 'character',  // V11: welke tab open is
   device: 'desktop',             // V11: current device class; set bij init via currentDevice()
   // V11: per-device, per-situation widget state. All starts empty; Firebase in next phase.

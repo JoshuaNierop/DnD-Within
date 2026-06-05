@@ -386,6 +386,14 @@ const library = {
 };
 
 function seedDefaultWidgets() {
+  // DM Dashboard: character-widgets gelden niet. DM-widgets (party-overzicht,
+  // monster-prep, …) komen later — voor nu een lege library zodat de grid/tabs
+  // werken zonder character-widgets aan te bieden.
+  if (state.context === 'dm') {
+    library.saved = [];
+    library.activeWidgetId = null;
+    return;
+  }
   // Library-entries verwijzen alleen naar een widget-type; loadWidget →
   // addWidget seedt de rest uit WG_WIDGET_TYPES.
   library.saved = [

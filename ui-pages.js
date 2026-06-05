@@ -389,15 +389,19 @@ function renderParty() {
     // Check if current user has a character in the party
     var myPartyChar = camp.party && camp.party[uid] ? camp.party[uid] : null;
     var isMember = camp.members && camp.members.indexOf(uid) !== -1;
-
-    // Character assignment prompt — but the DM of this campaign has no party
-    // character, so show a DM Dashboard button instead of the "choose a
-    // character" prompt (bug 2026-06-05).
-    if (isMember && !myPartyChar && isCampaignDM()) {
-        html += '<div class="party-assign-prompt party-dm-prompt">';
+    // DM Dashboard: grote knop bovenaan, alleen voor de campaign-DM én admin —
+    // leidt naar het DM Dashboard (/dm). Net als een speler op z'n character
+    // klikt om naar z'n dashboard te gaan (verzoek 2026-06-05).
+    var isDmOrAdmin = isCampaignDM() || isAdmin();
+    if (isDmOrAdmin) {
+        html += '<div class="party-dm-prompt">';
         html += '<a class="btn btn-primary btn-lg" href="/dm">' + t('party.dmdashboard') + '</a>';
         html += '</div>';
-    } else if (isMember && !myPartyChar) {
+    }
+
+    // Character assignment prompt — niet tonen aan DM/admin (die hebben geen
+    // party-character en gebruiken het DM Dashboard).
+    if (isMember && !myPartyChar && !isDmOrAdmin) {
         var myChars = getMyCharacterIds();
         html += '<div class="party-assign-prompt">';
         html += '<h3>' + t('party.choosechar') + '</h3>';
@@ -794,49 +798,19 @@ var dmTab = 'initiative';
 
 function renderDMPage(subpage) {
     if (!isDM()) return '<p>Access denied.</p>';
-    var html = '<div class="dm-page">';
-    html += '<div class="dm-page-head">';
-    html += '<h1 class="page-title">' + t('dm.tools') + '</h1>';
-    if (isAdmin() || isCampaignDM()) {
-        html += '<button class="dm-toggle dm-toggle-inline' + (isDMMode() ? ' active' : '') + '" data-action="toggle-dm-mode" title="' + t('nav.dmtoggle.title') + '">';
-        html += '<svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>';
-        html += '<span class="dm-toggle-label">' + (isDMMode() ? 'DM mode' : 'Player mode') + '</span>';
-        html += '</button>';
-    }
-    html += '</div>';
-
-    // Tab bar
-    // NPCs verplaatst naar de Lore-pagina (#/lore/npcs).
-    var tabs = [
-        { id: 'initiative', label: t('dm.initiative'), icon: '&#9876;' },
-        { id: 'families', label: t('dm.families'), icon: '&#128106;' },
-        { id: 'campaigns', label: t('dm.campaigns'), icon: '&#127760;' }
-    ];
-    html += '<div class="dm-tabs">';
-    for (var ti = 0; ti < tabs.length; ti++) {
-        var tab = tabs[ti];
-        var isActive = (subpage || 'initiative') === tab.id;
-        html += '<a class="dm-tab' + (isActive ? ' active' : '') + '" href="/dm/' + tab.id + '">' + tab.icon + ' ' + tab.label + '</a>';
-    }
-    html += '</div>';
-
-    var activeSection = subpage || 'initiative';
-
-    if (activeSection === 'initiative') {
-        html += renderDMInitiative();
-    } else if (activeSection === 'npcs') {
-        // Legacy redirect: NPCs leven nu op de Lore-pagina. Defer zodat de
-        // huidige render-pass eerst afrondt (navigate() rendert opnieuw).
-        setTimeout(function() { navigate('/lore/npcs'); }, 0);
-        return '';
-    } else if (activeSection === 'families') {
-        html += renderDMFamilies();
-    } else if (activeSection === 'campaigns') {
-        html += renderDMCampaigns();
-    }
-
-    html += '</div>';
-    return html;
+    // DM Dashboard (2026-06-05): de oude tools-tabs (initiative=kapot,
+    // families=staat al onder Lore, campaigns=overbodig) zijn vervangen door
+    // een volwaardig DM Dashboard dat de WidgetGrid in DM-modus draait. De
+    // WidgetGrid-template levert zelf de topbar + situatie-tabs (Social /
+    // Exploring / Combat / Ambient). Mount gebeurt in app.js (postRender) op
+    // deze lege host. `.character-page` is vereist: wg-style.css is @scope
+    // (.character-page). Widgets komen later — zie memory dnd_within_dm_dashboard.
+    return '<a class="char-back-btn" href="/party" aria-label="Terug naar party" title="Terug naar party">'
+         +   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+         +     '<path d="M19 12H5M12 19l-7-7 7-7"/>'
+         +   '</svg>'
+         + '</a>'
+         + '<div class="character-page dm-page"></div>';
 }
 
 function renderDMInitiative() {

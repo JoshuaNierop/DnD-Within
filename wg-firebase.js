@@ -240,7 +240,7 @@ function emptySituationPayload() {
 // Serialize all 5 situations for state.device into a PATCH body.
 function buildSavePayload() {
   const payload = {};
-  for (const sit of WG_SITUATIONS) {
+  for (const sit of wgSituations()) {
     const slot = state.dashboardsByDevice[state.device][sit];
     if (!slot || !slot.widgets || !slot.widgets.length) {
       payload[sit] = emptySituationPayload();
@@ -259,10 +259,17 @@ function buildSavePayload() {
 // PATCH current device dashboard to Firebase.
 // V11 phase 2: deze knop verhuist in Phase 3 naar right sidebar; tijdelijk hijacked voor save-dashboard.
 async function saveDashboards() {
+  const isDM = state.context === 'dm';
   const charId = state.characterId;
-  if (!charId) { showToast('Geen character geselecteerd', 'error'); return; }
+  let url;
+  if (isDM) {
+    if (!state.dmCampaignId) { showToast('Geen campaign actief', 'error'); return; }
+    url = FIREBASE_DB + '/dw/dmDashboards/' + encodeURIComponent(state.dmCampaignId) + '/' + state.device + '.json';
+  } else {
+    if (!charId) { showToast('Geen character geselecteerd', 'error'); return; }
+    url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/dashboards/' + state.device + '.json';
+  }
   const payload = buildSavePayload();
-  const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/dashboards/' + state.device + '.json';
   try {
     const res = await fetch(url, {
       method: 'PATCH',
@@ -270,8 +277,8 @@ async function saveDashboards() {
       body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    // Race check: if character changed during save, warn user
-    if (state.characterId !== charId) {
+    // Race check: if the character changed during save, warn user (character-modus).
+    if (!isDM && state.characterId !== charId) {
       showToast('Character gewijzigd tijdens save', 'error');
       return;
     }
@@ -283,8 +290,15 @@ async function saveDashboards() {
 
 // GET all dashboards for a character and populate state.dashboardsByDevice.
 async function loadDashboards(charId) {
-  if (!charId) return;
-  const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/dashboards.json';
+  const isDM = state.context === 'dm';
+  let url;
+  if (isDM) {
+    if (!state.dmCampaignId) return;
+    url = FIREBASE_DB + '/dw/dmDashboards/' + encodeURIComponent(state.dmCampaignId) + '.json';
+  } else {
+    if (!charId) return;
+    url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/dashboards.json';
+  }
   let tree = null;
   try {
     const res = await fetch(url);
@@ -297,15 +311,15 @@ async function loadDashboards(charId) {
     return;
   }
 
-  // Guard: character may have changed during async fetch
-  if (state.characterId !== charId) return;
+  // Guard: character may have changed during async fetch (character-modus only)
+  if (!isDM && state.characterId !== charId) return;
 
   // tree is null (no data yet) or { mobile: {...}, tablet: {...}, desktop: {...} }
   const devices = ['mobile', 'tablet', 'desktop'];
   for (const device of devices) {
     const deviceData = tree && tree[device] ? tree[device] : {};
     state.dashboardsByDevice[device] = {};
-    for (const sit of WG_SITUATIONS) {
+    for (const sit of wgSituations()) {
       const saved = deviceData[sit];
       if (!saved) {
         // No data for this situation -- leave as lazy-init (empty on first access)

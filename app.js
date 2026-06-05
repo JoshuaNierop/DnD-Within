@@ -195,6 +195,22 @@ function postRenderEffects(route) {
             }
         }
     }
+    // DM Dashboard: mount WidgetGrid in DM-modus binnen de lege .dm-page div
+    // (per campaign). Widgets komen later; tabs + grid werken nu al.
+    if (route.parts[0] === 'dm' && typeof isDM === 'function' && isDM()) {
+        var dmPageEl = document.querySelector('.dm-page');
+        if (dmPageEl && window.WidgetGrid && typeof window.WidgetGrid.mount === 'function') {
+            try {
+                window.WidgetGrid.mount(dmPageEl, {
+                    context: 'dm',
+                    campaignId: typeof getActiveCampaign === 'function' ? getActiveCampaign() : null,
+                    canEdit: true
+                });
+            } catch (e) {
+                console.error('[DM-dashboard] WidgetGrid.mount failed', e);
+            }
+        }
+    }
     // Timeline session-focus: if a recent-event card stashed a session id,
     // scroll the matching session into view (and clear the flag).
     if (route.parts[0] === 'timeline') {

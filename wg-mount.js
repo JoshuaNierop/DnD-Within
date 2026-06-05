@@ -74,29 +74,57 @@ function WidgetGridInit() {
   setDevView(state.config.devView);
   setShowDashboardInfo(state.config.showDashboardInfo);
   render();
-  // V9: één dashboard-brede character + lijst voor de dropdown.
-  renderCharacterSelect();          // init met huidige id alvast
-  fetchCharacterList();              // populeer dropdown async
-  fetchCharacterData(state.characterId);
-  // V11 Phase 2: load dashboards from Firebase on boot
-  loadDashboards(state.characterId);
+  if (state.context === 'dm') {
+    // DM Dashboard: geen character-fetch. Reset de widget-library (anders
+    // blijven character-widgets van een vorige character-mount staan) en laad
+    // het DM-dashboard (per campaign).
+    seedDefaultWidgets();
+    renderSidebar();
+    loadDashboards();
+  } else {
+    // V9: één dashboard-brede character + lijst voor de dropdown.
+    renderCharacterSelect();          // init met huidige id alvast
+    fetchCharacterList();              // populeer dropdown async
+    fetchCharacterData(state.characterId);
+    // V11 Phase 2: load dashboards from Firebase on boot
+    loadDashboards(state.characterId);
+  }
   // V11: pulse sidebar on initial open as onboarding hint (overridden if dashboards load)
   pulseSidebar();
   // Lijn de bovenste category-knop uit op de canvas-top.
   alignSidebarTop();
 }
 
-// WGI-M4: V8 body markup als template-string (orig index.html lines 1077-1254).
+// WGI-M4: V8 body markup als template-functie (orig index.html lines 1077-1254).
 // Wordt geïnjecteerd in de mount-root door WidgetGrid.mount(rootEl, opts).
-const WidgetGridBodyTemplate = `
+// context 'character' (default) of 'dm' (DM Dashboard) bepaalt de situatie-tabs
+// en of de character-only sidebar-sectie verschijnt.
+function wgBodyTemplate(context) {
+  const isDM = context === 'dm';
+  const tabs = isDM
+    ? [['social', 'Social'], ['exploring', 'Exploring'], ['combat', 'Combat'], ['ambient', 'Ambient']]
+    : [['character', 'Character'], ['social', 'Social'], ['exploring', 'Exploring'], ['combat', 'Combat'], ['inventory', 'Inventory']];
+  const tabsHtml = tabs.map((tb, i) =>
+    `<button class="dash-tab${i === 0 ? ' active' : ''}" data-situation="${tb[0]}">${tb[1]}</button>`
+  ).join('\n    ');
+  // Character-only sidebar-sectie (character-dropdown) — niet in DM-modus.
+  const charSection = isDM ? '' : `
+    <div class="rs-char-section">
+      <div class="sidebar-section-label">Character</div>
+      <select id="characterSelect" class="character-select" aria-label="Character" title="Character"></select>
+    </div>`;
+  const charToggleBtn = isDM ? '' : `
+    <button class="rs-btn cat-item" id="rs-char-toggle" aria-label="Character wisselen" title="Character wisselen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+    </button>`;
+  return `
 <header class="app-topbar">
   <div class="topbar-spacer-left" aria-hidden="true"></div>
   <nav class="dash-tabs" id="dashTabs" aria-label="Situatie dashboards">
-    <button class="dash-tab active" data-situation="character">Character</button>
-    <button class="dash-tab" data-situation="social">Social</button>
-    <button class="dash-tab" data-situation="exploring">Exploring</button>
-    <button class="dash-tab" data-situation="combat">Combat</button>
-    <button class="dash-tab" data-situation="inventory">Inventory</button>
+    ${tabsHtml}
   </nav>
   <div class="topbar-spacer-right" aria-hidden="true"></div>
 </header>
@@ -111,11 +139,7 @@ const WidgetGridBodyTemplate = `
   </div>
 </aside>
 <aside class="sidebar right-sidebar" id="rightSidebar" aria-label="Dashboard tools">
-  <div class="sidebar-panel">
-    <div class="rs-char-section">
-      <div class="sidebar-section-label">Character</div>
-      <select id="characterSelect" class="character-select" aria-label="Character" title="Character"></select>
-    </div>
+  <div class="sidebar-panel">${charSection}
   </div>
   <nav class="sidebar-categories">
     <button class="rs-btn cat-item" id="rs-tidy" aria-label="Widgets opruimen" title="Opruimen — widgets compact herindelen">
@@ -132,12 +156,7 @@ const WidgetGridBodyTemplate = `
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
       </svg>
     </button>
-    <button class="rs-btn cat-item" id="rs-char-toggle" aria-label="Character wisselen" title="Character wisselen">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-      </svg>
-    </button>
+    ${charToggleBtn}
     <button class="rs-btn cat-item" id="rs-edit-values" aria-label="Waarden bewerken" title="Waarden bewerken">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -264,6 +283,7 @@ const WidgetGridBodyTemplate = `
 </main>
 </div>
 `;
+}
 
 // WGI-M4: public mount/unmount API for inline integration in D&D Within.
 const WidgetGrid = {
@@ -272,15 +292,19 @@ const WidgetGrid = {
    * herinitialiseert DOM-refs binnen die scope en bootstrap-d de bind* +
    * fetch sequence.
    *
-   * @param {HTMLElement} rootEl - .character-page div (mount target)
-   * @param {{characterId?: string, canEdit?: boolean}} opts
+   * @param {HTMLElement} rootEl - .character-page / .dm-page div (mount target)
+   * @param {{characterId?: string, canEdit?: boolean, context?: 'character'|'dm', campaignId?: string}} opts
    */
   mount(rootEl, opts) {
     if (!rootEl) return;
     opts = opts || {};
     if (rootEl._wgMounted) return; // idempotent
-    rootEl.innerHTML = WidgetGridBodyTemplate;
+    state.context = opts.context === 'dm' ? 'dm' : 'character';
+    state.dmCampaignId = opts.campaignId || null;
+    rootEl.innerHTML = wgBodyTemplate(state.context);
     if (opts.characterId) state.characterId = opts.characterId;
+    // Default actieve tab per context (DM heeft geen 'character'-tab).
+    state.activeSituation = (state.context === 'dm') ? 'social' : 'character';
     if (typeof WidgetGridInitSettingsRefs === 'function') {
       WidgetGridInitSettingsRefs(rootEl);
     }
@@ -303,6 +327,11 @@ const WidgetGrid = {
     if (typeof state !== 'undefined') {
       state.dashboardsByDevice = { mobile: {}, tablet: {}, desktop: {} };
       state.activeWidgetIdx = -1;
+      // Reset naar character-context zodat de volgende mount (bv. character-page)
+      // niet per ongeluk in DM-modus blijft.
+      state.context = 'character';
+      state.dmCampaignId = null;
+      state.activeSituation = 'character';
     }
   },
   // Exposed voor debug + dev-tools

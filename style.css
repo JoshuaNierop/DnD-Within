@@ -854,7 +854,8 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
 }
 /* Verberg DnD navbar op character-pages — WidgetGrid's situation-tabs zijn
    de enige topbar. `body[data-route^="characters/"]` wordt gezet in renderApp. */
-body[data-route^="characters/"] .navbar {
+body[data-route^="characters/"] .navbar,
+body[data-route^="dm"] .navbar {
     display: none;
 }
 
@@ -4100,10 +4101,15 @@ footer {
    op de buiten-wrappers op character-routes (zekerheids-sweep voor browsers
    die `:has()` niet ondersteunen of voor cascade-conflicten). */
 body[data-route^="characters/"] .main-content,
-body[data-route^="characters/"] .character-page {
+body[data-route^="characters/"] .character-page,
+body[data-route^="dm"] .main-content,
+body[data-route^="dm"] .character-page {
     padding-inline: 0 !important;
     margin-inline: 0 !important;
 }
+
+/* DM Dashboard: knop bovenaan /party naar het DM Dashboard. */
+.party-dm-prompt { margin: 0.5rem 0 1rem; }
 
 /* ===== GOLD ROW (Inventory) ===== */
 .gold-row {
