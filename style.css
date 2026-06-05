@@ -56,10 +56,10 @@
        --fab-slot-N geeft per FAB de horizontale offset vanaf de rechterrand. */
     --fab-bottom: 1.5rem;
     --fab-right-base: 5rem;
-    --fab-gap: 52px;
-    /* FAB-grootte gecentraliseerd: 36px +15% = 41px (verzoek 2026-06-04). */
-    --fab-size: 41px;
-    --fab-icon: 25px;
+    --fab-gap: 56px;            /* = --fab-size + 10px tussenruimte (verzoek 2026-06-05) */
+    /* FAB-grootte gecentraliseerd: 46px met 10px ruimte ertussen (verzoek 2026-06-05). */
+    --fab-size: 46px;
+    --fab-icon: 28px;
     --fab-slot-0: var(--fab-right-base);                              /* dice  — meest rechts */
     --fab-slot-1: calc(var(--fab-right-base) + var(--fab-gap));       /* notes */
     --fab-slot-2: calc(var(--fab-right-base) + var(--fab-gap) * 2);   /* chat  */
@@ -4592,6 +4592,22 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .scene-image-preview img { max-width: 50%; max-height: 160px; object-fit: cover; border-radius: var(--radius-sm); }
 .scene-text-input { min-height: 70px; width: 100%; }
 
+/* Scene image-size picker (S/M/L) — only rendered when a scene has an image. */
+.scene-size-picker { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; }
+.scene-size-label { font-size: 0.7rem; color: var(--text-dim); }
+.scene-size-option {
+    background: var(--bg-card);
+    border: 1px solid var(--border, var(--hairline-gold));
+    border-radius: var(--radius-sm);
+    width: 28px; height: 28px;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 0.72rem; font-weight: 600;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.scene-size-option:hover { border-color: var(--accent); color: var(--text-main); }
+.scene-size-option.active { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+
 /* Collapsed scene block — shows full scene content (readonly) plus the
    header bar with Edit + remove. Padding matches the expanded editor so
    blocks read as a coherent stack inside the Edit Session form. */
@@ -4665,6 +4681,18 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .scene-block-readonly .scene-split-text > p:first-child { margin-top: 0; }
 .timeline-session-block .scene-image-only img,
 .scene-block-readonly .scene-image-only img { max-width: 50%; display: block; margin-inline: auto; border-radius: var(--radius-sm); }
+
+/* Scene image-size (small / medium / large) — default = medium (matches the
+   pre-existing sizing so old scenes are unchanged). Applies to both the
+   image-only layout and the floated split layouts. bug 2026-06-05. */
+.timeline-session-block .scene.scene-img-small .scene-image-only img,
+.scene-block-readonly.scene-img-small .scene-image-only img { max-width: 30%; }
+.timeline-session-block .scene.scene-img-large .scene-image-only img,
+.scene-block-readonly.scene-img-large .scene-image-only img { max-width: 80%; }
+.timeline-session-block .scene.scene-img-small .scene-split-img,
+.scene-block-readonly.scene-img-small .scene-split-img { inline-size: clamp(80px, 18%, 170px); }
+.timeline-session-block .scene.scene-img-large .scene-split-img,
+.scene-block-readonly.scene-img-large .scene-split-img { inline-size: clamp(150px, 38%, 340px); }
 
 /* Focus-flash when navigating from a Recent card */
 .session-focus-flash {

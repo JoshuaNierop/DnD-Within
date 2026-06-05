@@ -390,8 +390,14 @@ function renderParty() {
     var myPartyChar = camp.party && camp.party[uid] ? camp.party[uid] : null;
     var isMember = camp.members && camp.members.indexOf(uid) !== -1;
 
-    // Character assignment prompt
-    if (isMember && !myPartyChar) {
+    // Character assignment prompt — but the DM of this campaign has no party
+    // character, so show a DM Dashboard button instead of the "choose a
+    // character" prompt (bug 2026-06-05).
+    if (isMember && !myPartyChar && isCampaignDM()) {
+        html += '<div class="party-assign-prompt party-dm-prompt">';
+        html += '<a class="btn btn-primary btn-lg" href="/dm">' + t('party.dmdashboard') + '</a>';
+        html += '</div>';
+    } else if (isMember && !myPartyChar) {
         var myChars = getMyCharacterIds();
         html += '<div class="party-assign-prompt">';
         html += '<h3>' + t('party.choosechar') + '</h3>';

@@ -1745,6 +1745,20 @@ function bindPageEvents(route) {
             return;
         }
 
+        // Pick scene image size (small/medium/large). Editor-only state; the
+        // active option is persisted on the next per-scene commit / Save
+        // (same pattern as pick-scene-layout). bug 2026-06-05.
+        if (target.matches('[data-action="pick-scene-image-size"]') || target.closest('[data-action="pick-scene-image-size"]')) {
+            var szBtn = target.matches('[data-action="pick-scene-image-size"]') ? target : target.closest('[data-action="pick-scene-image-size"]');
+            var szBlock = szBtn.closest('.scene-block');
+            if (!szBlock) return;
+            var szOpts = szBlock.querySelectorAll('.scene-size-option');
+            for (var zi = 0; zi < szOpts.length; zi++) szOpts[zi].classList.remove('active');
+            szBtn.classList.add('active');
+            szBlock.dataset.imageSize = szBtn.dataset.size || 'medium';
+            return;
+        }
+
         // Scene: "Kies bestaande" → open picker; store a LIVE ref on the block
         // and commit the scene immediately.
         if (target.matches('[data-action="pick-scene-image"]') || target.closest('[data-action="pick-scene-image"]')) {
@@ -1755,8 +1769,10 @@ function bindPageEvents(route) {
                 psBlock.dataset.imageRef = refValue;
                 var sIdx = psBlock.dataset.sceneIdx;
                 var sec = psBlock.querySelector('.scene-image-section');
+                var psSize = psBlock.dataset.imageSize || 'medium';
                 if (sec) {
                     sec.innerHTML = '<div class="scene-image-preview"><img src="' + escapeAttr(url) + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + sIdx + '">' + (t('generic.delete') || 'Delete') + '</button></div>' +
+                        (typeof sceneSizePickerHtml === 'function' ? sceneSizePickerHtml(psSize, sIdx) : '') +
                         '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + sIdx + '">Kies bestaande</button>';
                 }
                 var scId = psBlock.dataset.sceneId || ('sc' + Date.now() + Math.random().toString(36).slice(2, 7));
@@ -1765,7 +1781,7 @@ function bindPageEvents(route) {
                 var lay = lEl ? lEl.dataset.layout : (psBlock.dataset.layout || 'image-left');
                 var taEl = psBlock.querySelector('.scene-text-input');
                 var taTok = taEl ? ((typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(taEl) : taEl.value) : '';
-                if (typeof saveScene === 'function') saveScene(scId, { layout: lay, text: taTok, image: refValue });
+                if (typeof saveScene === 'function') saveScene(scId, { layout: lay, text: taTok, image: refValue, imageSize: psSize });
             } });
             return;
         }
@@ -1788,7 +1804,8 @@ function bindPageEvents(route) {
                         return {
                             layout: blob.layout || (block.dataset.layout || 'text'),
                             text: blob.text || '',
-                            image: blob.image || null
+                            image: blob.image || null,
+                            imageSize: blob.imageSize || (block.dataset.imageSize || 'medium')
                         };
                     }
                 }
@@ -1808,7 +1825,9 @@ function bindPageEvents(route) {
                 var preview = block.querySelector('.scene-image-preview img');
                 imgVal = preview ? preview.getAttribute('src') : null;
             }
-            return { layout: layout, text: textVal, image: imgVal };
+            var sizeEl = block.querySelector('.scene-size-option.active');
+            var imgSize = sizeEl ? sizeEl.dataset.size : (block.dataset.imageSize || 'medium');
+            return { layout: layout, text: textVal, image: imgVal, imageSize: imgSize };
         }
 
         // Commit the currently-active scene to its own storage blob.
@@ -2620,8 +2639,10 @@ function bindPageEvents(route) {
                         var imgSec3 = blockUp.querySelector('.scene-image-section');
                         var idx3 = blockUp.dataset.sceneIdx;
                         delete blockUp.dataset.imageRef;   // uploading a new image overrides any live ref
+                        var upSize = blockUp.dataset.imageSize || 'medium';
                         if (imgSec3) {
                             imgSec3.innerHTML = '<div class="scene-image-preview"><img src="' + dataUrl + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + idx3 + '">' + (t('generic.delete') || 'Delete') + '</button></div>' +
+                                (typeof sceneSizePickerHtml === 'function' ? sceneSizePickerHtml(upSize, idx3) : '') +
                                 '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + idx3 + '">Kies bestaande</button>';
                         }
                         // Per-scene save: only this scene's blob goes over the wire.
@@ -2638,7 +2659,7 @@ function bindPageEvents(route) {
                             // Image binary → Firebase Storage; only the URL is
                             // saved per scene (base64 fallback if Storage is off).
                             DWImages.save('campaign', 'timeline/' + sceneId, dataUrl).then(function (imgVal) {
-                                saveScene(sceneId, { layout: layout, text: sceneText, image: imgVal });
+                                saveScene(sceneId, { layout: layout, text: sceneText, image: imgVal, imageSize: upSize });
                                 if (typeof showToast === 'function') showToast('Scene opgeslagen', 'success');
                             }).catch(function (e) {
                                 console.error('[scene] image-save failed', e);

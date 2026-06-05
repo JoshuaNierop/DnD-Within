@@ -279,6 +279,7 @@ var TRANSLATIONS = {
 
         // Timeline
         'timeline.title': 'Tijdlijn',
+        'timeline.imgsize': 'Grootte',
         'timeline.chapter': 'Chapter',
         'timeline.addchapter': '+ Chapter',
         'timeline.addevent': '+ Event',
@@ -420,6 +421,7 @@ var TRANSLATIONS = {
         'party.nocharacters.link': 'Maak er eerst een aan',
         'party.yourchar': 'Jouw character: ',
         'party.changechar': 'Wissel character',
+        'party.dmdashboard': 'DM Dashboard',
         'party.empty': 'Nog geen characters in de party.',
         'party.manage': 'Campaign Beheer',
         'party.invitelink': 'Invite Link',
@@ -889,6 +891,7 @@ var TRANSLATIONS = {
 
         // Timeline
         'timeline.title': 'Timeline',
+        'timeline.imgsize': 'Size',
         'timeline.chapter': 'Chapter',
         'timeline.addchapter': '+ Chapter',
         'timeline.addevent': '+ Event',
@@ -1030,6 +1033,7 @@ var TRANSLATIONS = {
         'party.nocharacters.link': 'Create one first',
         'party.yourchar': 'Your character: ',
         'party.changechar': 'Switch character',
+        'party.dmdashboard': 'DM Dashboard',
         'party.empty': 'No characters in the party yet.',
         'party.manage': 'Campaign Management',
         'party.invitelink': 'Invite Link',

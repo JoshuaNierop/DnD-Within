@@ -966,7 +966,7 @@ function _saveSceneBlob(sceneId, scene) {
         // Last-ditch: if the payload has an image, shrink it hard and retry.
         if (scene && scene.image) {
             _shrinkDataUrl(scene.image, 700, 0.6).then(function(smaller) {
-                var smallScene = { layout: scene.layout, text: scene.text, image: smaller };
+                var smallScene = { layout: scene.layout, text: scene.text, image: smaller, imageSize: scene.imageSize || 'medium' };
                 try {
                     localStorage.setItem(key, JSON.stringify(smallScene));
                     if (typeof syncUpload === 'function') syncUpload(key);
@@ -1242,6 +1242,29 @@ var SCENE_LAYOUTS = [
     { id: 'image-only',  icon: '\ud83c\udf05',                 label: 'Just Image' }
 ];
 
+// Scene image sizes \u2014 small / medium / large (verzoek 2026-06-05). Used by
+// both the editor picker and the display render (class scene-img-<size>).
+var SCENE_IMG_SIZES = ['small', 'medium', 'large'];
+function sceneImgSize(scene) {
+    var sz = scene && scene.imageSize;
+    return (SCENE_IMG_SIZES.indexOf(sz) !== -1) ? sz : 'medium';
+}
+// Size picker markup, shown inside the scene-image-section only when an image
+// is present. Reused by the initial editor render and the pick/upload handlers
+// (events.js) so the three image-present code paths stay in sync.
+function sceneSizePickerHtml(size, sceneIdx) {
+    var sz = (SCENE_IMG_SIZES.indexOf(size) !== -1) ? size : 'medium';
+    var labels = { small: 'S', medium: 'M', large: 'L' };
+    var h = '<div class="scene-size-picker" data-scene-idx="' + sceneIdx + '">';
+    h += '<span class="scene-size-label">' + (t('timeline.imgsize') || 'Grootte') + '</span>';
+    for (var i = 0; i < SCENE_IMG_SIZES.length; i++) {
+        var id = SCENE_IMG_SIZES[i];
+        h += '<button type="button" class="scene-size-option' + (sz === id ? ' active' : '') + '" data-action="pick-scene-image-size" data-size="' + id + '" data-scene-idx="' + sceneIdx + '">' + labels[id] + '</button>';
+    }
+    h += '</div>';
+    return h;
+}
+
 // Plain-text preview from the first scene with text content (for the homepage
 // Recent block + smart wraps). Returns '' when no scenes have text.
 function sessionPreviewText(sess) {
@@ -1264,7 +1287,8 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
     var needsImage = layout !== 'text';
     var needsText = layout !== 'image-only';
     var imgRefAttr = isImageRef(s.image) ? (' data-image-ref="' + escapeAttr(s.image) + '"') : '';
-    var html = '<div class="scene-block' + (expanded ? ' scene-block-expanded' : ' scene-block-collapsed') + '" data-scene-idx="' + sceneIdx + '" data-scene-id="' + escapeAttr(sceneId) + '" data-layout="' + layout + '"' + imgRefAttr + '>';
+    var imgSize = sceneImgSize(s);
+    var html = '<div class="scene-block' + (expanded ? ' scene-block-expanded' : ' scene-block-collapsed') + '" data-scene-idx="' + sceneIdx + '" data-scene-id="' + escapeAttr(sceneId) + '" data-layout="' + layout + '" data-image-size="' + imgSize + '"' + imgRefAttr + '>';
     html += '<div class="scene-block-header">';
     html += '<span class="scene-block-title">Scene ' + (sceneIdx + 1) + '</span>';
     if (!expanded) {
@@ -1286,6 +1310,7 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
         html += '<div class="scene-image-section" style="display:' + (needsImage ? 'block' : 'none') + '">';
         if (s.image) {
             html += '<div class="scene-image-preview"><img src="' + escapeAttr(resolveImageSrc(s.image)) + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + sceneIdx + '">' + t('generic.delete') + '</button></div>';
+            html += sceneSizePickerHtml(imgSize, sceneIdx);
         } else {
             html += '<label class="note-image-upload"><span>' + t('notes.addimage') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + sceneIdx + '" style="display:none"></label>';
         }
@@ -1302,7 +1327,7 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
         // (full image, full text, real layout) so the DM can see all content
         // at a glance without expanding every block. Only the editor chrome
         // (layout-picker, file-input, textarea) is hidden.
-        html += '<div class="scene scene-layout-' + layout + ' scene-block-readonly">';
+        html += '<div class="scene scene-layout-' + layout + ' scene-img-' + imgSize + ' scene-block-readonly">';
         if (layout === 'image-only' && s.image) {
             html += '<div class="scene-image-only"><img src="' + escapeAttr(resolveImageSrc(s.image)) + '" alt=""></div>';
         } else if ((layout === 'image-left' || layout === 'image-right') && s.image) {
@@ -1459,7 +1484,7 @@ function renderTimeline() {
                 for (var sci = 0; sci < scenes.length; sci++) {
                     var sc = scenes[sci];
                     var scLayout = sc.layout || 'text';
-                    html += '<div class="scene scene-layout-' + scLayout + '">';
+                    html += '<div class="scene scene-layout-' + scLayout + ' scene-img-' + sceneImgSize(sc) + '">';
                     if (scLayout === 'image-only' && sc.image) {
                         html += '<div class="scene-image-only"><img src="' + escapeAttr(resolveImageSrc(sc.image)) + '" alt=""></div>';
                     } else if ((scLayout === 'image-left' || scLayout === 'image-right') && sc.image) {

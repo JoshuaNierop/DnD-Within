@@ -116,8 +116,11 @@
         var safeName = String(e.name || '').replace(/[\]|@]/g, '').trim();
         // Insert the clean "@Name" the user sees; remember the id→name mapping on
         // the field so save can expand it back to the [[type:id|Name]] token.
-        ta.value = before + '@' + safeName + ' ' + after;
-        var caret = (before + '@' + safeName + ' ').length;
+        // No trailing space: mentionsToTokens already accepts a punctuation/EOL
+        // boundary, so the user types whatever follows (space, "," "." "?") and
+        // the link no longer forces a stray space before punctuation.
+        ta.value = before + '@' + safeName + after;
+        var caret = (before + '@' + safeName).length;
         try {
             var list = JSON.parse(ta.dataset.mentions || '[]');
             list.push({ name: safeName, type: e.type, id: e.id });
