@@ -7370,6 +7370,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     background: linear-gradient(to top, rgba(0,0,0,0.94) 70%, rgba(0,0,0,0.78));
 }
 .lore-entry-card:not(.expanded):hover .lore-entry-info { display: block; }
+/* Monsters: minder info bij hover, alles pas bij klik (expanded).
+   Hover toont enkel de naam; de volledige statblock verschijnt na klik.
+   (Fix 2026-06-07 — gerapporteerd op /lore/monsters) */
+.lore-grid-monsters .lore-entry-card:not(.expanded):hover .lore-entry-info { display: none; }
+.lore-grid-monsters .lore-entry-card:not(.expanded):hover .lore-entry-body {
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 35%, rgba(0,0,0,0.5) 75%, transparent);
+}
 .lore-entry-info::-webkit-scrollbar { width: 5px; }
 .lore-entry-info::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 3px; }
 
@@ -9564,6 +9571,19 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
     border-radius: var(--radius);
     padding: 1rem;
     margin: 0.75rem 0;
+}
+/* NPC-kaart: het ingebedde familiediagram moet compacter zijn én dezelfde
+   achtergrond hebben als de Families-pagina (var(--bg-card)). (Fix 2026-06-07) */
+.npc-family-section .famdiag-wrap {
+    background: var(--bg-card);
+    padding: 0.55rem 0.65rem;
+    margin: 0.5rem 0 0;
+}
+.npc-family-section .famdiag-canvas-scroll {
+    background: var(--bg-card);
+    max-height: 320px;
+    --famdiag-scale: 0.78;
+    padding: 0.25rem;
 }
 .famdiag-header {
     display: flex;

@@ -152,6 +152,20 @@ function combatSetHp(ent, val) {
   if (typeof val !== 'number' || isNaN(val)) return;
   ent.currentHP = Math.max(0, Math.min(ent.maxHP, Math.round(val)));
 }
+// HP-tier op basis van (current + temp) / max. Bepaalt de kleur van de HP-box:
+//   ok  : >50%  (groen)
+//   warn: 25–50% (oranje)
+//   crit: 0–25%  (rood)
+//   ko  : <=0    (KO)
+function combatHpTier(ent) {
+  const max = ent.maxHP > 0 ? ent.maxHP : 1;
+  const cur = (ent.currentHP || 0) + (ent.tempHP || 0);
+  if (cur <= 0) return 'ko';
+  const pct = cur / max;
+  if (pct > 0.5) return 'ok';
+  if (pct > 0.25) return 'warn';
+  return 'crit';
+}
 
 // ===========================================================================
 //  Render
@@ -248,9 +262,8 @@ function combatCell(field, ent, widgetIdx) {
   }
   if (field === 'hp') {
     const c = hEl('div', 'combat-cell combat-cell-hp');
-    const bloodied = ent.maxHP > 0 && ent.currentHP <= Math.floor(ent.maxHP / 2);
     const stepper = combatStepper(
-      ent.currentHP, 'hp' + (bloodied ? ' bloodied' : '') + (ent.currentHP <= 0 ? ' down' : ''),
+      ent.currentHP, 'hp hp-' + combatHpTier(ent) + (ent.currentHP <= 0 ? ' down' : ''),
       () => mutateEncounter((enc) => { const t = enc.entities.find(x => x.id === ent.id); if (t) combatApplyHpDelta(t, -1); }),
       () => mutateEncounter((enc) => { const t = enc.entities.find(x => x.id === ent.id); if (t) combatApplyHpDelta(t, +1); }),
       (raw) => {
@@ -326,10 +339,14 @@ function combatBuildDmTable(root, enc, widgetIdx, transpose) {
   }
   if (!transpose) {
     const head = hEl('div', 'combat-row combat-head');
-    WG_COMBAT_FIELDS.forEach(f => head.appendChild(hEl('div', 'combat-cell combat-head-cell', WG_COMBAT_FIELD_LABEL[f])));
+    WG_COMBAT_FIELDS.forEach(f => head.appendChild(hEl('div', 'combat-cell combat-head-cell combat-head-' + f, WG_COMBAT_FIELD_LABEL[f])));
     table.appendChild(head);
     sorted.forEach(ent => {
-      const row = hEl('div', 'combat-row' + (enc.running && enc.activeId === ent.id ? ' is-active' : ''));
+      // KO (0 HP): monster-rij dimt (KO = goed nieuws voor de DM); pc/npc-rij
+      // valt juist op (KO van een bondgenoot is doorgaans slecht) — zónder amber.
+      const ko = ent.currentHP <= 0;
+      const koCls = ko ? (ent.kind === 'monster' ? ' combat-row-ko-monster' : ' combat-row-ko-ally') : '';
+      const row = hEl('div', 'combat-row' + (enc.running && enc.activeId === ent.id ? ' is-active' : '') + koCls);
       WG_COMBAT_FIELDS.forEach(f => row.appendChild(combatCell(f, ent, widgetIdx)));
       table.appendChild(row);
     });
@@ -337,7 +354,7 @@ function combatBuildDmTable(root, enc, widgetIdx, transpose) {
     // Transpose: één rij per veld, één kolom per entity.
     WG_COMBAT_FIELDS.forEach(f => {
       const row = hEl('div', 'combat-row');
-      row.appendChild(hEl('div', 'combat-cell combat-head-cell', WG_COMBAT_FIELD_LABEL[f]));
+      row.appendChild(hEl('div', 'combat-cell combat-head-cell combat-head-' + f, WG_COMBAT_FIELD_LABEL[f]));
       sorted.forEach(ent => {
         const cell = combatCell(f, ent, widgetIdx);
         if (enc.running && enc.activeId === ent.id) cell.classList.add('col-active');

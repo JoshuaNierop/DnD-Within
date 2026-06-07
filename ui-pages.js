@@ -112,10 +112,9 @@ function renderNavbar(route) {
         { path: '/lore', label: t('nav.lore'), icon: svgI('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>') },
         { path: '/notes', label: t('nav.notes'), icon: svgI('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>') }
     ]);
-    if (isDM()) {
-        // Wrench/tang icoon voor DM Tools
-        campLinks.push({ path: '/dm', label: t('dm.tools'), icon: svgI('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>') });
-    }
+    // DM Tools navbar-link verwijderd (2026-06-07): het DM Dashboard is
+    // bereikbaar via de party-pagina (grote knop), net als spelers hun
+    // character-dashboard bereiken. "DM Tools" als los concept bestaat niet meer.
 
     // Personal links (main menu)
     var personalLinks = [
@@ -779,12 +778,8 @@ function renderDashboard() {
     html += '</div>';
     html += '</div>';
 
-    // DM quick link
-    if (isDM()) {
-        html += '<div style="text-align:center;margin-top:1rem;">';
-        html += '<a class="btn btn-ghost" href="/dm">' + t('dm.tools') + ' &rarr;</a>';
-        html += '</div>';
-    }
+    // (DM quick link "DM Tools →" verwijderd 2026-06-07 — DM Dashboard is
+    //  bereikbaar via de grote knop op de party-pagina.)
 
     html += '</div>';
     return html;
@@ -1428,7 +1423,7 @@ function renderCharacterList() {
 
     var html = '<div class="dashboard">';
     html += '<h2 class="section-title">' + t('home.mycharacters') + '</h2>';
-    html += '<p class="text-dim">Je persoonlijke characters. Wijs ze toe aan een campaign via de Party pagina.</p>';
+    html += '<p class="text-dim">' + t('characters.subtitle') + '</p>';
     html += '<div class="character-cards">';
 
     for (var i = 0; i < myChars.length; i++) {

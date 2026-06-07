@@ -82,6 +82,13 @@ function WidgetGridInit() {
     renderSidebar();
     loadDashboards();
   } else {
+    // Speler-dashboard: reset de widget-library expliciet naar de speler-palette.
+    // (Fix 2026-06-07) `library` is een module-global die blijft staan na een
+    // DM-dashboard bezoek; daardoor toonde een speler-dashboard de DM-only
+    // "Combat Tracker" i.p.v. de reguliere speler-widgets. seedDefaultWidgets()
+    // branch't zelf op state.context, dus dit zet altijd de juiste palette.
+    seedDefaultWidgets();
+    renderSidebar();
     // V9: één dashboard-brede character + lijst voor de dropdown.
     renderCharacterSelect();          // init met huidige id alvast
     fetchCharacterList();              // populeer dropdown async

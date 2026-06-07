@@ -1153,7 +1153,14 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     border-radius: 8px; padding: 3px 6px;
   }
   .combat-row.combat-head { background: transparent; border: none; padding: 0 6px; }
-  .combat-head-cell { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--user-text-muted, var(--muted)); }
+  .combat-head-cell { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--user-text-muted, var(--muted)); justify-content: center; }
+  /* Alle headers horizontaal gecentreerd behalve de naam-kolom. */
+  .combat-head-name { justify-content: flex-start; }
+  /* Dunne kolom-afscheidingslijnen — subtiele site-borderkleur (niet amber). */
+  .combat-row .combat-cell:not(:last-child) {
+    border-right: 1px solid color-mix(in srgb, var(--user-border, var(--border)) 55%, transparent);
+  }
+  .combat-row.combat-head .combat-cell:not(:last-child) { border-right-color: transparent; }
   .combat-row.is-active {
     border-color: var(--user-text-highlight, var(--accent));
     box-shadow: 0 0 0 1px var(--user-text-highlight, var(--accent)) inset;
@@ -1161,6 +1168,14 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   }
   .combat-cell { display: flex; align-items: center; min-width: 0; }
   .combat-cell-name { flex-direction: column; align-items: stretch; gap: 1px; }
+  /* KO-rijen: monster dimt weg (KO = uit het gevecht); bondgenoot valt op
+     met een rode danger-rand (níét amber) zodat de DM het direct ziet. */
+  .combat-row.combat-row-ko-monster { opacity: .45; filter: saturate(.5); }
+  .combat-row.combat-row-ko-ally {
+    border-color: #f04a4a;
+    box-shadow: 0 0 0 1px #f04a4a inset;
+    background: color-mix(in srgb, #f04a4a 12%, var(--user-bg-1, var(--bg)));
+  }
 
   .combat-portrait { width: 30px; height: 30px; border-radius: 50%; overflow: hidden; flex: 0 0 auto;
     background: var(--user-bg-2, var(--panel)); display: flex; align-items: center; justify-content: center;
@@ -1193,7 +1208,10 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   }
   .combat-step-input:focus { outline: none; border-color: var(--user-text-highlight, var(--accent)); }
   .combat-stepper.hp .combat-step-input { width: 40px; }
-  .combat-stepper.hp.bloodied .combat-step-input { color: #f08a8a; }
+  /* HP-box kleurt naar resterend HP-percentage ((current+temp)/max). */
+  .combat-stepper.hp.hp-ok   .combat-step-input { color: #7ed47e; border-color: color-mix(in srgb, #7ed47e 45%, var(--user-border, var(--border))); }
+  .combat-stepper.hp.hp-warn .combat-step-input { color: #e0a23a; border-color: color-mix(in srgb, #e0a23a 45%, var(--user-border, var(--border))); }
+  .combat-stepper.hp.hp-crit .combat-step-input { color: #f04a4a; border-color: color-mix(in srgb, #f04a4a 45%, var(--user-border, var(--border))); }
   .combat-stepper.hp.down .combat-step-input { color: #f04a4a; text-decoration: line-through; }
   .combat-hp-max { font-size: 11px; color: var(--user-text-muted, var(--muted)); margin-left: 4px; white-space: nowrap; }
 
