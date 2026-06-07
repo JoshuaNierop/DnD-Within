@@ -1376,6 +1376,19 @@ function renderCharCard(cid, cfg, state, isOwn) {
     html += '<div class="char-card-overlay">';
     html += '<span class="char-card-name">' + escapeHtml(firstName) + '</span>';
     html += '</div>';
+    // Eigen character: edit (#1) + delete (#4) acties. Knoppen zitten in de
+    // anchor; hun handlers in events.js roepen preventDefault aan zodat de
+    // kaart-navigatie niet afgaat.
+    if (isOwn) {
+        html += '<div class="char-card-actions">';
+        html += '<button class="char-card-action-btn" data-action="edit-character" data-char-id="' + escapeAttr(cid) + '" title="' + t('char.edit') + '" aria-label="' + t('char.edit') + '">'
+             +    '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'
+             +  '</button>';
+        html += '<button class="char-card-action-btn char-card-action-danger" data-action="delete-character" data-char-id="' + escapeAttr(cid) + '" title="' + t('char.delete') + '" aria-label="' + t('char.delete') + '">'
+             +    '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+             +  '</button>';
+        html += '</div>';
+    }
     html += '</a>';
     return html;
 }
@@ -1419,6 +1432,8 @@ function hydrateCharCardPortraits() {
 
 function renderCharacterList() {
     var uid = currentUserId();
+    // #4: ruim verlopen prullenbak-items op (>7 dagen) bij elke bezoek.
+    if (typeof purgeExpiredCharTrash === 'function') purgeExpiredCharTrash();
     var myChars = getMyCharacterIds();
 
     var html = '<div class="dashboard">';
@@ -1457,8 +1472,34 @@ function renderCharacterList() {
     html += '</div>';
     html += '</div>';
 
-    html += '</div>';
-    html += '</div>';
+    html += '</div>'; // .character-cards
+
+    // #4: Prullenbak — door deze gebruiker verwijderde characters (herstelbaar).
+    if (typeof getCharTrash === 'function') {
+        var trash = getCharTrash();
+        var trashIds = Object.keys(trash).filter(function (cid) {
+            return (trash[cid].owner || uid) === uid;
+        });
+        if (trashIds.length) {
+            var ttl = (typeof CHAR_TRASH_TTL_MS !== 'undefined') ? CHAR_TRASH_TTL_MS : (7 * 24 * 60 * 60 * 1000);
+            html += '<div class="char-trash-section">';
+            html += '<h3 class="section-title char-trash-title">🗑️ ' + t('char.trash.title') + '</h3>';
+            html += '<div class="char-trash-list">';
+            for (var ti = 0; ti < trashIds.length; ti++) {
+                var tcid = trashIds[ti];
+                var ent = trash[tcid];
+                var daysLeft = Math.max(0, Math.ceil((ent.deletedAt + ttl - Date.now()) / (24 * 60 * 60 * 1000)));
+                html += '<div class="char-trash-item">';
+                html += '<span class="char-trash-name">' + escapeHtml(ent.name || tcid) + '</span>';
+                html += '<span class="char-trash-meta">' + daysLeft + ' ' + t('char.trash.daysleft') + '</span>';
+                html += '<button class="btn btn-ghost btn-sm" data-action="restore-character" data-char-id="' + escapeAttr(tcid) + '">' + t('char.trash.restore') + '</button>';
+                html += '</div>';
+            }
+            html += '</div></div>';
+        }
+    }
+
+    html += '</div>'; // .dashboard
     return html;
 }
 

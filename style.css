@@ -723,6 +723,91 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
     box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 20px color-mix(in srgb, var(--card-accent, var(--accent)) 20%, transparent);
 }
 
+/* Char-card edit/delete acties (#1/#4) — overlay rechtsboven, zichtbaar op hover/touch */
+.char-card-actions {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    gap: 0.35rem;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.char-card:hover .char-card-actions,
+.char-card:focus-within .char-card-actions { opacity: 1; }
+@media (hover: none) { .char-card-actions { opacity: 1; } }
+.char-card-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.char-card-action-btn:hover { background: rgba(0,0,0,0.8); border-color: var(--card-accent, var(--accent)); }
+.char-card-action-danger:hover { border-color: var(--danger); color: var(--danger); }
+
+/* Prullenbak-sectie (#4) */
+.char-trash-section { margin-top: 2rem; }
+.char-trash-title { font-size: 1rem; opacity: 0.85; }
+.char-trash-list { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; }
+.char-trash-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+}
+.char-trash-name { font-weight: 600; }
+.char-trash-meta { color: var(--text-dim); font-size: 0.8rem; margin-left: auto; }
+
+/* Delete-character confirm modal (#4) */
+.char-delete-modal-wrap { position: fixed; inset: 0; z-index: 10002; }
+.char-delete-modal {
+    max-width: 460px;
+    width: calc(100% - 2rem);
+    margin: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.char-delete-warn { color: var(--text-dim); line-height: 1.5; }
+.char-delete-prompt code {
+    background: var(--bg-block);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    color: var(--danger);
+    font-weight: 600;
+}
+.char-delete-input {
+    width: 100%;
+    margin: 0.75rem 0;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-block);
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+.char-delete-input:focus { outline: none; border-color: var(--danger); }
+.char-delete-confirm { width: 100%; }
+.btn-danger {
+    background: var(--danger);
+    color: #fff;
+    border: 1px solid var(--danger);
+}
+.btn-danger:disabled { opacity: 0.45; cursor: not-allowed; }
+
 .char-card:nth-child(1) { animation-delay: 0.05s; }
 .char-card:nth-child(2) { animation-delay: 0.1s; }
 .char-card:nth-child(3) { animation-delay: 0.15s; }

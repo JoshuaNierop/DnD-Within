@@ -1058,7 +1058,86 @@ function getMyCharacterIds() {
     var uid = currentUserId();
     var allIds = getAllCharacterIds();
     return allIds.filter(function(id) {
-        return userOwnsCharacter(uid, id);
+        return userOwnsCharacter(uid, id) && !isCharTrashed(id);
     });
+}
+
+// ===== Character-prullenbak (#4) — soft-delete met 7-daagse retentie =====
+var CHAR_TRASH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+function getCharTrash() {
+    try { return JSON.parse(localStorage.getItem('dw_chartrash') || '{}') || {}; }
+    catch (e) { return {}; }
+}
+function saveCharTrash(trash) {
+    localStorage.setItem('dw_chartrash', JSON.stringify(trash));
+    if (typeof syncUpload === 'function') syncUpload('dw_chartrash');
+}
+function isCharTrashed(charId) {
+    return !!getCharTrash()[charId];
+}
+// Verplaats een character naar de prullenbak: weg uit de characters-lijst van de
+// eigenaar, config/state blijven bewaard voor herstel.
+function deleteCharacterToTrash(charId) {
+    var cfg = loadCharConfig(charId);
+    if (!cfg) return false;
+    var owner = cfg.player || currentUserId();
+    if (typeof usersCache !== 'undefined' && usersCache && usersCache[owner] &&
+        Array.isArray(usersCache[owner].characters)) {
+        var arr = usersCache[owner].characters;
+        var i = arr.indexOf(charId);
+        if (i !== -1) arr.splice(i, 1);
+        if (typeof syncSaveUser === 'function') syncSaveUser(owner, usersCache[owner]);
+        localStorage.setItem('dw_users', JSON.stringify(usersCache));
+    }
+    var trash = getCharTrash();
+    trash[charId] = { deletedAt: Date.now(), name: cfg.name || charId, owner: owner };
+    saveCharTrash(trash);
+    return true;
+}
+// Herstel een character uit de prullenbak terug naar de eigenaar.
+function restoreCharacterFromTrash(charId) {
+    var trash = getCharTrash();
+    var entry = trash[charId];
+    if (!entry) return false;
+    var owner = entry.owner || currentUserId();
+    if (typeof usersCache !== 'undefined' && usersCache) {
+        if (!usersCache[owner]) {
+            var u = getUserData(owner);
+            usersCache[owner] = u ? JSON.parse(JSON.stringify(u)) : { name: owner, role: 'player', password: owner };
+        }
+        if (!Array.isArray(usersCache[owner].characters)) usersCache[owner].characters = [];
+        if (usersCache[owner].characters.indexOf(charId) === -1) usersCache[owner].characters.push(charId);
+        if (typeof syncSaveUser === 'function') syncSaveUser(owner, usersCache[owner]);
+        localStorage.setItem('dw_users', JSON.stringify(usersCache));
+    }
+    delete trash[charId];
+    saveCharTrash(trash);
+    return true;
+}
+// Definitief verwijderen: config, state, images, whispers, notes.
+function hardDeleteCharacter(charId) {
+    var keys = ['dw_charconfig_' + charId, 'dw_char_' + charId,
+                'dw_img_' + charId + '_portrait', 'dw_img_' + charId + '_banner',
+                'dw_whisper_' + charId, 'dw_notes_' + charId];
+    keys.forEach(function (k) {
+        localStorage.removeItem(k);
+        if (typeof syncRemove === 'function') syncRemove(k);
+    });
+}
+// Ruim prullenbak-items op die ouder zijn dan de retentie (7 dagen).
+function purgeExpiredCharTrash() {
+    var trash = getCharTrash();
+    var now = Date.now();
+    var changed = false;
+    Object.keys(trash).forEach(function (cid) {
+        var d = trash[cid] && trash[cid].deletedAt;
+        if (d && (now - d) >= CHAR_TRASH_TTL_MS) {
+            hardDeleteCharacter(cid);
+            delete trash[cid];
+            changed = true;
+        }
+    });
+    if (changed) saveCharTrash(trash);
 }
 

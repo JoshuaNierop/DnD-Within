@@ -141,6 +141,7 @@ var wizardState = null;
 function initWizardState() {
     wizardState = {
         step: 1,
+        editId: null,
         name: '',
         race: '',
         className: '',
@@ -193,7 +194,7 @@ function renderWizardModal() {
 
     // Header
     html += '<div class="wizard-header">';
-    html += '<h2 class="wizard-title">' + t('wizard.title') + '</h2>';
+    html += '<h2 class="wizard-title">' + (wizardState.editId ? (t('wizard.edittitle') === 'wizard.edittitle' ? 'Character bewerken' : t('wizard.edittitle')) : t('wizard.title')) + '</h2>';
     html += '<button class="modal-close" data-action="close-wizard">&times;</button>';
     html += '</div>';
 
@@ -259,7 +260,7 @@ function renderWizardModal() {
     if (step < totalSteps) {
         html += '<button class="btn btn-primary" data-action="wizard-next">' + t('wizard.next') + '</button>';
     } else {
-        html += '<button class="btn btn-primary" data-action="wizard-create">' + t('wizard.create') + '</button>';
+        html += '<button class="btn btn-primary" data-action="wizard-create">' + (wizardState.editId ? (t('wizard.save') === 'wizard.save' ? 'Opslaan' : t('wizard.save')) : t('wizard.create')) + '</button>';
     }
     html += '</div>';
 
@@ -684,13 +685,18 @@ function createCharacterFromWizard() {
         return false;
     }
 
-    var charId = generateCharId(wizardState.name);
+    // Edit-modus (#1): bewerk een bestaand character i.p.v. een nieuw aanmaken.
+    // Behoud het id, de niet-wizard config-velden (weapons, quotes, items,
+    // timeline, family, …) én de volledige runtime-state (level, HP, items).
+    var isEdit = !!(wizardState && wizardState.editId);
+    var charId = isEdit ? wizardState.editId : generateCharId(wizardState.name);
     var bgBonuses = calcBgBonuses();
+    var existing = isEdit ? (loadCharConfig(charId) || {}) : {};
 
-    var config = {
+    var config = Object.assign({}, existing, {
         id: charId,
         name: wizardState.name,
-        player: currentUserId(),
+        player: existing.player || currentUserId(),
         race: wizardState.race,
         className: wizardState.className,
         subclass: wizardState.subclass || '',
@@ -702,19 +708,28 @@ function createCharacterFromWizard() {
         backgroundBonuses: bgBonuses,
         defaultSkills: wizardState.skills.slice(),
         defaultCantrips: wizardState.cantrips.slice(),
-        defaultPrepared: [],
-        weapons: [],
-        appearance: wizardState.appearance ? [wizardState.appearance] : [],
+        appearance: wizardState.appearance ? [wizardState.appearance] : (existing.appearance || []),
         personality: Object.assign({}, wizardState.personality),
-        backstory: wizardState.backstory || '',
-        quotes: [],
-        defaultItems: [],
-        charTimeline: [],
-        family: []
-    };
+        backstory: wizardState.backstory || ''
+    });
+    // Velden die alleen bij een NIEUW character geïnitialiseerd worden.
+    if (!isEdit) {
+        config.defaultPrepared = [];
+        config.weapons = [];
+        config.quotes = [];
+        config.defaultItems = [];
+        config.charTimeline = [];
+        config.family = [];
+    }
 
     // Save config
     saveCharConfig(charId, config);
+
+    // Edit-modus: runtime-state (level, HP, gekozen skills/items) intact laten.
+    if (isEdit) {
+        showToast(t('wizard.editsuccess') === 'wizard.editsuccess' ? 'Character bijgewerkt' : t('wizard.editsuccess'), 'success');
+        return charId;
+    }
 
     // Save default state
     var defaultState = {
@@ -768,6 +783,129 @@ function openWizard() {
     document.body.appendChild(div);
     lockBodyScroll();
     bindWizardEvents();
+}
+
+// Reverse-map de opgeslagen background (display-naam of key) terug naar de
+// wizard-key die getWizardBackgrounds() gebruikt.
+function bgKeyFromConfig(bgValue) {
+    if (!bgValue || !DATA.backgrounds) return '';
+    if (DATA.backgrounds[bgValue]) return bgValue;            // was al een key
+    var keys = Object.keys(DATA.backgrounds);
+    for (var i = 0; i < keys.length; i++) {
+        if (DATA.backgrounds[keys[i]].name === bgValue) return keys[i];
+    }
+    return '';
+}
+
+// Bouw een wizardState uit een bestaande character-config (#1 edit).
+function buildWizardStateFromConfig(charId) {
+    var cfg = loadCharConfig(charId);
+    if (!cfg) return false;
+    initWizardState();
+    wizardState.editId = charId;
+    wizardState.name = cfg.name || '';
+    wizardState.race = cfg.race || '';
+    wizardState.className = cfg.className || '';
+    wizardState.subclass = cfg.subclass || '';
+    wizardState.background = bgKeyFromConfig(cfg.background);
+    wizardState.alignment = cfg.alignment || 'True Neutral';
+    wizardState.age = (cfg.age != null) ? cfg.age : '';
+    wizardState.accentColor = cfg.accentColor || '#22d3ee';
+    if (cfg.baseAbilities) wizardState.baseAbilities = Object.assign({ str:10, dex:10, con:10, int:10, wis:10, cha:10 }, cfg.baseAbilities);
+    // Reverse de background-bonuskeuze (+2 / +1) uit backgroundBonuses.
+    var bb = cfg.backgroundBonuses || {};
+    var plus2 = '', plus1 = '';
+    Object.keys(bb).forEach(function (ab) {
+        if (bb[ab] === 2) plus2 = ab;
+        else if (bb[ab] === 1) plus1 = ab;
+    });
+    wizardState.bgBonusChoice = { plus2: plus2, plus1: plus1 };
+    wizardState.skills = (cfg.defaultSkills || []).slice();
+    wizardState.cantrips = (cfg.defaultCantrips || []).slice();
+    wizardState.appearance = (cfg.appearance && cfg.appearance[0]) ? cfg.appearance[0] : '';
+    wizardState.personality = Object.assign({ traits:'', ideal:'', bond:'', flaw:'' }, cfg.personality || {});
+    wizardState.backstory = cfg.backstory || '';
+    return true;
+}
+
+// Open de creation-wizard in edit-modus met een bestaand character voorgevuld.
+function openWizardForEdit(charId) {
+    if (!buildWizardStateFromConfig(charId)) {
+        showToast('Character niet gevonden', 'error');
+        return;
+    }
+    var div = document.createElement('div');
+    div.id = 'wizard-container';
+    div.innerHTML = renderWizardModal();
+    document.body.appendChild(div);
+    lockBodyScroll();
+    bindWizardEvents();
+}
+
+// Delete-character bevestigingsmodal (#4). Vereist dat de gebruiker exact
+// "gebruikersnaam-characternaam" typt voordat het character naar de prullenbak
+// gaat. Case-insensitive, na trim.
+function openDeleteCharacterModal(charId) {
+    var cfg = loadCharConfig(charId);
+    if (!cfg) { showToast('Character niet gevonden', 'error'); return; }
+    var existing = document.querySelector('.char-delete-modal-wrap');
+    if (existing) existing.remove();
+
+    var owner = cfg.player || currentUserId();
+    var ownerData = getUserData(owner);
+    var ownerName = (ownerData && ownerData.name) ? ownerData.name : owner;
+    var phrase = String(ownerName) + '-' + String(cfg.name || charId);
+
+    var html = '<div class="char-delete-modal-wrap">';
+    html += '<div class="modal-overlay" data-action="close-delete-modal">';
+    html += '<div class="char-delete-modal" role="dialog" aria-modal="true">';
+    html += '<div class="modal-header"><h2>🗑️ ' + t('char.delete.title') + '</h2>'
+         +    '<button class="modal-close" data-action="close-delete-modal">&times;</button></div>';
+    html += '<div class="modal-body">';
+    html += '<p class="char-delete-warn">' + t('char.delete.warn') + '</p>';
+    html += '<p class="char-delete-prompt">' + t('char.delete.prompt') + ' <code>' + escapeHtml(phrase) + '</code></p>';
+    html += '<input type="text" class="char-delete-input" id="char-delete-input" placeholder="' + t('char.delete.plh') + '" autocomplete="off">';
+    html += '<button class="btn btn-danger char-delete-confirm" id="char-delete-confirm" disabled>' + t('char.delete.confirm') + '</button>';
+    html += '</div></div></div></div>';
+
+    var wrap = document.createElement('div');
+    wrap.innerHTML = html;
+    document.body.appendChild(wrap.firstChild);
+    lockBodyScroll();
+
+    var modalWrap = document.querySelector('.char-delete-modal-wrap');
+    var input = document.getElementById('char-delete-input');
+    var confirmBtn = document.getElementById('char-delete-confirm');
+    var matches = function () {
+        return input.value.trim().toLowerCase() === phrase.toLowerCase();
+    };
+    if (input) {
+        input.addEventListener('input', function () { confirmBtn.disabled = !matches(); });
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && matches()) { e.preventDefault(); confirmBtn.click(); }
+        });
+        setTimeout(function () { input.focus(); }, 30);
+    }
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (!matches()) return;
+            deleteCharacterToTrash(charId);
+            closeDeleteCharacterModal();
+            showToast(t('char.delete.done'), 'success');
+            if (typeof renderApp === 'function') renderApp();
+        });
+    }
+    if (modalWrap) {
+        modalWrap.querySelectorAll('[data-action="close-delete-modal"]').forEach(function (b) {
+            b.addEventListener('click', function (e) { if (e.target === this) closeDeleteCharacterModal(); });
+        });
+    }
+}
+function closeDeleteCharacterModal() {
+    var el = document.querySelector('.char-delete-modal-wrap');
+    if (el) el.remove();
+    unlockBodyScroll();
 }
 
 function closeWizard() {
@@ -855,8 +993,15 @@ function bindWizardEvents() {
     if (createBtn) createBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         saveWizardStepData();
-        var newCharId = createCharacterFromWizard();
-        if (newCharId) { closeWizard(); navigate('/characters/' + newCharId); }
+        var wasEdit = !!(wizardState && wizardState.editId);
+        var resultId = createCharacterFromWizard();
+        if (resultId) {
+            closeWizard();
+            // Edit: blijf op de huidige pagina (ververs zodat wijzigingen tonen);
+            // create: ga naar het nieuwe character.
+            if (wasEdit) { if (typeof renderApp === 'function') renderApp(); }
+            else navigate('/characters/' + resultId);
+        }
     });
 
     // Color buttons

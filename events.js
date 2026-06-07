@@ -81,6 +81,35 @@ function bindPageEvents(route) {
 
         // (Character dashboard system removed — new dashboard TBD on an empty canvas.)
 
+        // --- Character-kaart acties (#1 edit / #4 delete) ---
+        // Knoppen zitten IN de <a class="char-card">. app.onclick bubblet vóór de
+        // document-router → preventDefault hier blokkeert de kaart-navigatie.
+        var _editCharBtn = target.closest && target.closest('[data-action="edit-character"]');
+        if (_editCharBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof openWizardForEdit === 'function') openWizardForEdit(_editCharBtn.getAttribute('data-char-id'));
+            return;
+        }
+        var _delCharBtn = target.closest && target.closest('[data-action="delete-character"]');
+        if (_delCharBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof openDeleteCharacterModal === 'function') openDeleteCharacterModal(_delCharBtn.getAttribute('data-char-id'));
+            return;
+        }
+        var _restoreCharBtn = target.closest && target.closest('[data-action="restore-character"]');
+        if (_restoreCharBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof restoreCharacterFromTrash === 'function') {
+                restoreCharacterFromTrash(_restoreCharBtn.getAttribute('data-char-id'));
+                showToast(t('char.trash.restored'), 'success');
+                if (typeof renderApp === 'function') renderApp();
+            }
+            return;
+        }
+
         // --- Login page ---
         if (route.path === '/login' || !currentUser()) {
             // Login submit

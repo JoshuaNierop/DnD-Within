@@ -58,7 +58,8 @@ var SYNC_PREFIXES = [
 var SYNC_EXACT = [
     'dw_maps', 'dw_timeline', 'dw_lore', 'dw_lore_cats',
     'dw_chapters', 'dw_party_level',
-    'dw_initiative', 'dw_session_number', 'dw_dashboard', 'dw_party_gold', 'dw_quests', 'dw_npcs', 'dw_campaigns', 'dw_families'
+    'dw_initiative', 'dw_session_number', 'dw_dashboard', 'dw_party_gold', 'dw_quests', 'dw_npcs', 'dw_campaigns', 'dw_families',
+    'dw_chartrash'   // #4: character-prullenbak (soft-delete map, 7-daagse retentie)
 ];
 
 function isSyncableKey(key) {
@@ -74,6 +75,10 @@ function isSyncableKey(key) {
 // ===== Path Mapping: localStorage → Firebase =====
 
 function keyToPath(key) {
+    // Character-prullenbak (moet vóór de dw_char_ prefix-check, anders mapt hij
+    // verkeerd naar characters/trash/state).
+    if (key === 'dw_chartrash') return 'campaign/char_trash';
+
     // Character config: dw_charconfig_ren → characters/ren/config
     if (key.indexOf('dw_charconfig_') === 0)
         return 'characters/' + key.substring(14) + '/config';
@@ -180,6 +185,7 @@ function firebasePathToLocalKey(path) {
     if (p[0] === 'campaign' && p[1] === 'party_gold') return 'dw_party_gold';
     if (p[0] === 'campaign' && p[1] === 'party_level') return 'dw_party_level';
     if (p[0] === 'campaign' && p[1] === 'campaigns') return 'dw_campaigns';
+    if (p[0] === 'campaign' && p[1] === 'char_trash') return 'dw_chartrash';
 
     return null;
 }
