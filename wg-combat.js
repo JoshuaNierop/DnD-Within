@@ -12,9 +12,16 @@
 // geometrie + cfg.transpose op.
 
 const WG_VIS_CYCLE = ['hidden', 'silhouette', 'revealed'];
-const WG_VIS_LABEL = { hidden: 'Verborgen', silhouette: 'Silhouet', revealed: 'Zichtbaar' };
 const WG_VIS_GLYPH = { hidden: '—', silhouette: '?', revealed: '◉' };
-const WG_KIND_LABEL = { pc: 'Speler', npc: 'NPC', monster: 'Monster' };
+// i18n: labels worden op render-tijd opgehaald zodat een taalwissel (NL/EN)
+// de combat-widget direct meeneemt. ct() valt terug op de key als t() ontbreekt.
+function ct(key) { return (typeof t === 'function') ? t(key) : key; }
+function combatVisLabel(vis) { return ct('combat.vis.' + vis); }
+function combatKindLabel(kind) { return ct('combat.kind.' + kind); }
+function combatFieldLabel(field) {
+  if (field === 'portrait' || field === 'del') return '';
+  return ct('combat.col.' + field);
+}
 
 // ---- Encounter model (gedeeld, auto-synced) ----
 function emptyEncounter() {
@@ -238,7 +245,7 @@ function combatCell(field, ent, widgetIdx) {
       const v = inp.value.trim();
       if (v && v !== ent.name) mutateEncounter((enc) => { const t = enc.entities.find(x => x.id === ent.id); if (t) t.name = v; });
     });
-    const kind = hEl('span', 'combat-kind-badge combat-kind-' + ent.kind, WG_KIND_LABEL[ent.kind] || '');
+    const kind = hEl('span', 'combat-kind-badge combat-kind-' + ent.kind, combatKindLabel(ent.kind) || '');
     c.appendChild(inp); c.appendChild(kind);
     return c;
   }
@@ -296,7 +303,7 @@ function combatCell(field, ent, widgetIdx) {
   if (field === 'vis') {
     const c = hEl('div', 'combat-cell combat-cell-vis');
     const btn = hEl('button', 'combat-vis-btn vis-' + ent.visibility, WG_VIS_GLYPH[ent.visibility]);
-    btn.title = WG_VIS_LABEL[ent.visibility];
+    btn.title = combatVisLabel(ent.visibility);
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       mutateEncounter((enc) => {
@@ -311,7 +318,7 @@ function combatCell(field, ent, widgetIdx) {
   if (field === 'del') {
     const c = hEl('div', 'combat-cell combat-cell-del');
     const btn = hEl('button', 'combat-del-btn', '×');
-    btn.title = 'Verwijderen';
+    btn.title = ct('combat.delete');
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       mutateEncounter((enc) => {
@@ -326,20 +333,19 @@ function combatCell(field, ent, widgetIdx) {
 }
 
 const WG_COMBAT_FIELDS = ['portrait', 'name', 'init', 'hp', 'ac', 'vis', 'del'];
-const WG_COMBAT_FIELD_LABEL = { portrait: '', name: 'Naam', init: 'Init', hp: 'HP', ac: 'AC', vis: 'Zicht', del: '' };
 
 // DM-tabel (volledige tracker).
 function combatBuildDmTable(root, enc, widgetIdx, transpose) {
   const sorted = combatSortEntities(enc.entities);
   const table = hEl('div', 'combat-table' + (transpose ? ' transposed' : ''));
   if (!sorted.length) {
-    table.appendChild(hEl('div', 'combat-empty', 'Nog geen deelnemers. Klik op “+ Deelnemer” om te beginnen.'));
+    table.appendChild(hEl('div', 'combat-empty', ct('combat.empty.dm')));
     root.appendChild(table);
     return;
   }
   if (!transpose) {
     const head = hEl('div', 'combat-row combat-head');
-    WG_COMBAT_FIELDS.forEach(f => head.appendChild(hEl('div', 'combat-cell combat-head-cell combat-head-' + f, WG_COMBAT_FIELD_LABEL[f])));
+    WG_COMBAT_FIELDS.forEach(f => head.appendChild(hEl('div', 'combat-cell combat-head-cell combat-head-' + f, combatFieldLabel(f))));
     table.appendChild(head);
     sorted.forEach(ent => {
       // KO (0 HP): monster-rij dimt (KO = goed nieuws voor de DM); pc/npc-rij
@@ -354,7 +360,7 @@ function combatBuildDmTable(root, enc, widgetIdx, transpose) {
     // Transpose: één rij per veld, één kolom per entity.
     WG_COMBAT_FIELDS.forEach(f => {
       const row = hEl('div', 'combat-row');
-      row.appendChild(hEl('div', 'combat-cell combat-head-cell combat-head-' + f, WG_COMBAT_FIELD_LABEL[f]));
+      row.appendChild(hEl('div', 'combat-cell combat-head-cell combat-head-' + f, combatFieldLabel(f)));
       sorted.forEach(ent => {
         const cell = combatCell(f, ent, widgetIdx);
         if (enc.running && enc.activeId === ent.id) cell.classList.add('col-active');
@@ -371,7 +377,7 @@ function combatBuildPlayerList(root, enc, transpose) {
   const visible = combatSortEntities(enc.entities.filter(e => e.visibility !== 'hidden'));
   const list = hEl('div', 'combat-initiative' + (transpose ? ' horizontal' : ''));
   if (!visible.length) {
-    list.appendChild(hEl('div', 'combat-empty', enc.running ? 'Geen zichtbare deelnemers.' : 'Geen actief gevecht.'));
+    list.appendChild(hEl('div', 'combat-empty', enc.running ? ct('combat.empty.novisible') : ct('combat.empty.nofight')));
     root.appendChild(list);
     return;
   }
@@ -401,22 +407,22 @@ function drawCombatTable(g, widget, x, contentY, w, contentH, widgetIdx) {
 
   // Header
   const header = hEl('div', 'combat-header');
-  const roundPill = hEl('div', 'combat-round', enc.running ? ('Ronde ' + enc.round) : (mode === 'dm' ? 'Niet gestart' : 'Initiative'));
+  const roundPill = hEl('div', 'combat-round', enc.running ? (ct('combat.round') + ' ' + enc.round) : (mode === 'dm' ? ct('combat.notstarted') : ct('combat.initiative')));
   header.appendChild(roundPill);
 
   if (mode === 'dm') {
     const controls = hEl('div', 'combat-controls');
-    const startBtn = hEl('button', 'combat-ctrl-btn' + (enc.running ? ' active' : ''), enc.running ? 'Stop' : 'Start');
+    const startBtn = hEl('button', 'combat-ctrl-btn' + (enc.running ? ' active' : ''), enc.running ? ct('combat.stop') : ct('combat.start'));
     startBtn.addEventListener('click', (e) => { e.stopPropagation(); combatToggleRunning(); });
     const prevBtn = hEl('button', 'combat-ctrl-btn', '▲');
-    prevBtn.title = 'Vorige beurt (↑)';
+    prevBtn.title = ct('combat.prevturn');
     prevBtn.disabled = !enc.running;
     prevBtn.addEventListener('click', (e) => { e.stopPropagation(); combatAdvanceTurn(-1); });
     const nextBtn = hEl('button', 'combat-ctrl-btn', '▼');
-    nextBtn.title = 'Volgende beurt (↓)';
+    nextBtn.title = ct('combat.nextturn');
     nextBtn.disabled = !enc.running;
     nextBtn.addEventListener('click', (e) => { e.stopPropagation(); combatAdvanceTurn(1); });
-    const addBtn = hEl('button', 'combat-ctrl-btn combat-add-btn', '+ Deelnemer');
+    const addBtn = hEl('button', 'combat-ctrl-btn combat-add-btn', ct('combat.addparticipant'));
     addBtn.addEventListener('click', (e) => { e.stopPropagation(); showCombatAddPanel(e.clientX, e.clientY); });
     controls.appendChild(startBtn);
     controls.appendChild(prevBtn);
@@ -501,7 +507,7 @@ function combatAddSources(tab) {
         key: id,
         name: cfg.name || raw.name || id,
         portrait: (raw.images && raw.images.portrait) || null,
-        meta: WG_CHAR_STATUS[id] === 'ready' ? '' : 'laden…',
+        meta: WG_CHAR_STATUS[id] === 'ready' ? '' : ct('combat.loading'),
         make: () => {
           if (!WG_CHAR_CACHE[id] && typeof fetchCharacterData === 'function') {
             fetchCharacterData(id);
@@ -543,7 +549,7 @@ function showCombatAddPanel(clientX, clientY) {
   pop.style.top = (clientY + 8) + 'px';
 
   const tabs = hEl('div', 'combat-add-tabs');
-  [['party', 'Party'], ['npcs', 'NPC’s'], ['monsters', 'Monsters']].forEach(([id, label]) => {
+  [['party', ct('combat.tab.party')], ['npcs', ct('combat.tab.npcs')], ['monsters', ct('combat.tab.monsters')]].forEach(([id, label]) => {
     const b = hEl('button', 'combat-add-tab' + (_combatAddTab === id ? ' active' : ''), label);
     b.addEventListener('click', (e) => { e.stopPropagation(); _combatAddTab = id; renderList(); pop.querySelectorAll('.combat-add-tab').forEach(t => t.classList.toggle('active', t.textContent === label)); });
     tabs.appendChild(b);
@@ -556,7 +562,7 @@ function showCombatAddPanel(clientX, clientY) {
   function renderList() {
     listWrap.innerHTML = '';
     const items = combatAddSources(_combatAddTab);
-    if (!items.length) { listWrap.appendChild(hEl('div', 'combat-empty', 'Niets voorbereid in deze categorie.')); return; }
+    if (!items.length) { listWrap.appendChild(hEl('div', 'combat-empty', ct('combat.empty.cat'))); return; }
     items.forEach(src => {
       const row = hEl('button', 'combat-add-item');
       const pic = hEl('div', 'combat-portrait small');
@@ -581,7 +587,7 @@ function showCombatAddPanel(clientX, clientY) {
   renderList();
 
   const foot = hEl('div', 'mep-row');
-  const close = hEl('button', 'btn-cancel', 'Sluiten');
+  const close = hEl('button', 'btn-cancel', ct('combat.close'));
   close.addEventListener('click', (e) => { e.stopPropagation(); dismissCombatAddPanel(); });
   foot.appendChild(close);
   pop.appendChild(foot);
