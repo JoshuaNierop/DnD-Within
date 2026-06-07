@@ -1,5 +1,17 @@
 # D&D Within — To Do
 
+## Bugfix-batch 2026-06-07 (hub) — openstaand + review
+
+### Nog open
+- [ ] P2 — #9 Combat-widget **auto-resize naar content**: widget moet groeien/krimpen met het aantal entities (geen scroll/lege ruimte). Engine-niveau (WidgetGrid spanUnitsY dynamisch); rest van #9 (HP-kleuren, KO-rijen, headers, separators, NL/EN i18n, naam-kolom) is klaar.
+- [ ] P3 — #2 Wizard volledige UX/mobile-redesign (reporter vroeg om mobile-touch/UI/DnD/architect agents). Skip-bug + smallere inputs zijn gefixt; multi-kolom/touch-herontwerp blijft open.
+
+### Te verifiëren in browser (gebouwd, niet live getest)
+- [ ] P2 — #6 Bug-reporter sub-widget-selectie: pointer/click op SVG-foreignObject is subtiel — controleer dat klikken op een widget-deel in bug-mode nu echt het sub-div selecteert.
+- [ ] P2 — #5/#7 Widget copy/paste + ctrl-multiselect: test Ctrl+C/V, Ctrl-klik multi-select, en dat een ge-paste kopie de juiste genummerde naam krijgt.
+- [ ] P2 — #1 Edit-character: bg-bonus (+2/+1) en background-key reverse-map controleren; edit verandert runtime-state (skills/cantrips) bewust NIET — bevestig dat dat gewenst is.
+- [ ] P3 — #4 Prullenbak: een getrasht character dat nog in een campaign-party zit wordt niet uit die party verwijderd. Overweeg party-cleanup bij delete.
+
 ## Sessie 2026-06-07 — Combat Tracker + Initiative Tracker widgets
 Nieuwe widget-`kind: 'combat'`. DM-tracker (volledig, bewerkbaar) + speler-variant (publieke subset).
 Encounter gedeeld via `dw_initiative` ↔ Firebase `dm/initiative` (bestaande sync, live).
