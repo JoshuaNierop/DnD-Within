@@ -612,8 +612,8 @@ function infoBoxLayout() {
   const boxPxW = state.layout.boxPxW || 0;
   const boxPxH = state.layout.boxPxH || 0;
   const count = state.data.rows.length || 0;
-  const minPad = state.cfg.widgetPadding;
-  const minSp = state.cfg.infoBoxSpacing;
+  const minPad = state.cfg.widgetPadding || 0;
+  const minSp = state.cfg.infoBoxSpacing || 0;
 
   const base = {
     boxesPerRow: 0, rows: 0, rowsNeeded: 0,

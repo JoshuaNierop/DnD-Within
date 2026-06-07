@@ -203,6 +203,12 @@ function wgBodyTemplate(context) {
         <div class="control"><label>Type</label>
           <select id="widgetType" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:16px;"></select>
         </div>
+        <div class="control" data-kind="combat"><label>Tabel-oriëntatie</label>
+          <div class="radio-group" id="combatTranspose">
+            <label><input type="radio" name="combatTranspose" value="normal" checked><span>Rijen</span></label>
+            <label><input type="radio" name="combatTranspose" value="transpose"><span>Kolommen</span></label>
+          </div>
+        </div>
         <div class="control" data-kind="infobox"><label>Stacking</label>
           <div class="radio-group" id="stacking">
             <label><input type="radio" name="stacking" value="horizontal" checked><span>Horizontal</span></label>

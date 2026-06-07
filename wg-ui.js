@@ -67,6 +67,20 @@ function bindInputs() {
       });
     });
   }
+
+  // Combat-tabel oriëntatie (transpose) — per combat-widget
+  const transGroup = document.getElementById('combatTranspose');
+  if (transGroup) {
+    transGroup.querySelectorAll('input[name="combatTranspose"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const w = state.widget;
+        if (!r.checked || !w) return;
+        if (!w.cfg) w.cfg = {};
+        w.cfg.transpose = (r.value === 'transpose');
+        render();
+      });
+    });
+  }
 }
 
 // ----- Palettes -----
@@ -260,6 +274,10 @@ function syncWidgetPanel() {
   document.querySelectorAll('input[name="stacking"]').forEach(r => {
     r.checked = (r.value === w.layout.stacking);
   });
+  const _trans = !!(w.cfg && w.cfg.transpose);
+  document.querySelectorAll('input[name="combatTranspose"]').forEach(r => {
+    r.checked = (r.value === (_trans ? 'transpose' : 'normal'));
+  });
   updateStatus();
   renderWidgetColumnControls();
   applyPanelVisibility();
@@ -390,8 +408,10 @@ function seedDefaultWidgets() {
   // monster-prep, …) komen later — voor nu een lege library zodat de grid/tabs
   // werken zonder character-widgets aan te bieden.
   if (state.context === 'dm') {
-    library.saved = [];
-    library.activeWidgetId = null;
+    library.saved = [
+      { id: 'combatTracker', name: 'Combat Tracker', category: 'combat', config: { type: 'combatTracker' } },
+    ];
+    library.activeWidgetId = 'combatTracker';
     return;
   }
   // Library-entries verwijzen alleen naar een widget-type; loadWidget →
@@ -402,6 +422,7 @@ function seedDefaultWidgets() {
     { id: 'profilePicture', name: 'Profile picture', category: 'character', config: { type: 'profilePicture' } },
     { id: 'characterInfo',  name: 'Character Info',  category: 'character', config: { type: 'basicInfo' } },
     { id: 'campaignMap',    name: 'Campagne-kaart',  category: 'exploring', config: { type: 'map' } },
+    { id: 'initiativeTracker', name: 'Initiative Tracker', category: 'combat', config: { type: 'initiativeTracker' } },
   ];
   library.activeWidgetId = 'abilityScores';
 }

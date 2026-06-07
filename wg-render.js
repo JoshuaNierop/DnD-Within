@@ -375,6 +375,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true) {
     }));
     if (kind === 'map') drawMapInWidget(widgetG, state.widget, x, contentY, w, contentH, widgetIdx);
     else if (kind === 'image') drawImageInWidget(widgetG, state.widget, x, contentY, w, contentH, widgetIdx);
+    else if (kind === 'combat') drawCombatTable(widgetG, state.widget, x, contentY, w, contentH, widgetIdx);
     else drawInfoBoxesInWidget(widgetG, x, y, barH);
   }
 

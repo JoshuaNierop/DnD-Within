@@ -1,5 +1,25 @@
 # D&D Within — To Do
 
+## Sessie 2026-06-07 — Combat Tracker + Initiative Tracker widgets
+Nieuwe widget-`kind: 'combat'`. DM-tracker (volledig, bewerkbaar) + speler-variant (publieke subset).
+Encounter gedeeld via `dw_initiative` ↔ Firebase `dm/initiative` (bestaande sync, live).
+- [x] P1 — `wg-combat.js`: encounter-model (get/save/mutate), entity-fabrieken (character via `getHP`/`getAC`/`getMod`, NPC, monster), HP-delta (temp-HP eerst), 3-state visibility, init-sort (null onderaan, dexMod-tiebreak).
+- [x] P1 — SVG-render via `foreignObject` + HTML-tabel (portret/naam/init±/HP±/AC/zicht/×). Render-dispatch-branch in `wg-render.js`.
+- [x] P1 — Turn-control: Start/Stop, Volgende/Vorige (▲▼ + ↑/↓ keys), ronde-teller, actieve-rij highlight (pointer op entity-id, niet index).
+- [x] P1 — Add-deelnemer paneel (in-page, geen popup): bronnen Party (`getPartyCharIds`) / NPC's (`dw_npcs`) / Monsters (`dw_lore_cats.monsters`), auto portret+stats.
+- [x] P1 — Speler **Initiative Tracker** (`type:initiativeTracker`): alleen niet-verborgen, gesorteerd, portret+naam, silhouet → "??". Read-only.
+- [x] P1 — Transpose-toggle (rijen↔kolommen) in widget-settings (`data-kind="combat"`).
+- [x] P0 — **Remount-fix**: Firebase strijpt `null` → echo verschilde structureel → `renderApp()` bij elke edit. Opgelost via null-strip replacer in `saveEncounter` (geverifieerd: 0 renderApp-calls bij init/HP/vis-edits).
+- [x] P1 — NPC-formulier (`renderNPCModal`/`saveNPCModal`): HP/AC/ability-scores toegevoegd zodat NPC's als combat-bron werken.
+- [x] P1 — `infoBoxLayout` robuust gemaakt (`|| 0`) zodat non-infobox-cfg niet crasht.
+
+### Te reviewen door Joshua (gebouwd, nog niet door jou getest aan tafel)
+- [ ] P2 — **Snapshot-HP**: character/NPC/monster HP+AC worden bij toevoegen gekopieerd (bevriest); een sheet-edit of level-up mid-combat verandert de tracker NIET. Bewuste keuze — akkoord, of wil je een "refresh van sheet"-knop?
+- [ ] P2 — **Monster HP/AC zijn strings** ("136 (16d10+48)") → leidende int geparsed. Monsters met niet-numerieke/lege HP krijgen 1. Check je monster-data.
+- [ ] P2 — **DM-only schrijven** is UI-niveau (alleen de DM heeft de Combat Tracker). Firebase-rule-hardening voor `dm/initiative` is nog niet gedaan.
+- [ ] P3 — **Condities** (prone/stunned/…) bewust uit v1 gelaten — jij bedacht nog een eigen oplossing.
+- [ ] P3 — Default widget-breedte (14 cols) kan in een smal dashboard de tabel horizontaal laten scrollen; DM kan de widget verbreden.
+
 ## Sessie 2026-06-05 — Maps: Pin Area editing redesign
 - [x] P1 — Blauwe per-pin overlay (`.pin-label` + edit/delete-knoppen) verwijderd; vervangen door Pin Area modus.
 - [x] P1 — "Edit pin" → **Pin Area toggle** (breadcrumb) die in "Pins opslaan" verandert als hij aan staat.

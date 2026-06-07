@@ -2264,8 +2264,21 @@ function renderNPCModal(idx) {
     html += '</div>'; // grid
     html += '</div>'; // page 1
 
-    // ---- Pagina 2 — Details & notities ----
+    // ---- Pagina 2 — Combat stats, details & notities ----
     html += '<div class="modal-page" data-page="2">';
+    var nab = n.abilities || {};
+    html += '<div class="lore-form-grid">';
+    html += npcModalField('npc-f-hp', 'HP', n.hp, 'number');
+    html += npcModalField('npc-f-ac', 'AC', n.ac, 'number');
+    html += '</div>';
+    html += '<div class="lore-form-grid npc-ability-grid">';
+    html += npcModalField('npc-f-str', 'STR', nab.str, 'number');
+    html += npcModalField('npc-f-dex', 'DEX', nab.dex, 'number');
+    html += npcModalField('npc-f-con', 'CON', nab.con, 'number');
+    html += npcModalField('npc-f-int', 'INT', nab.int, 'number');
+    html += npcModalField('npc-f-wis', 'WIS', nab.wis, 'number');
+    html += npcModalField('npc-f-cha', 'CHA', nab.cha, 'number');
+    html += '</div>';
     html += '<div class="lore-form-grid">';
     html += npcModalField('npc-f-preferences', 'Likes / Preferences', n.preferences);
     html += npcModalField('npc-f-dislikes', 'Dislikes', n.dislikes);
@@ -2341,6 +2354,13 @@ async function saveNPCModal() {
     npc.religion = v('npc-f-religion');
     npc.location = v('npc-f-location');
     npc.disposition = v('npc-f-disposition') || 'unknown';
+    // Combat stats (voor de Combat Tracker). Leeg → veld weglaten.
+    function vnum(id) { var s = v(id); if (s === '') return null; var nmb = parseInt(s, 10); return isNaN(nmb) ? null : nmb; }
+    var _hp = vnum('npc-f-hp'); if (_hp != null) npc.hp = _hp; else delete npc.hp;
+    var _ac = vnum('npc-f-ac'); if (_ac != null) npc.ac = _ac; else delete npc.ac;
+    var _ab = { str: vnum('npc-f-str'), dex: vnum('npc-f-dex'), con: vnum('npc-f-con'), int: vnum('npc-f-int'), wis: vnum('npc-f-wis'), cha: vnum('npc-f-cha') };
+    var _hasAb = Object.keys(_ab).some(function (k) { return _ab[k] != null; });
+    if (_hasAb) { Object.keys(_ab).forEach(function (k) { if (_ab[k] == null) delete _ab[k]; }); npc.abilities = _ab; } else delete npc.abilities;
     npc.preferences = v('npc-f-preferences');
     npc.dislikes = v('npc-f-dislikes');
     npc.pets = v('npc-f-pets');

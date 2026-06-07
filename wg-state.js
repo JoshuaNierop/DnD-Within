@@ -280,6 +280,10 @@ const WG_WIDGET_TYPES = {
   profilePicture:{ label: 'Profile picture', kind: 'image', spanUnits: 5,  spanUnitsY: 7  },
   basicInfo:     { label: 'Character Info',  kind: 'infobox', source: 'basicInfo', spanUnits: 6, spanUnitsY: 6,
                    cfg: { cellPadding: 0, widgetPadding: 4, infoBoxSpacing: 2, infoBoxPadding: 2 } },
+  combatTracker:    { label: 'Combat Tracker',    kind: 'combat', spanUnits: 14, spanUnitsY: 11,
+                      cfg: { widgetPadding: 0, transpose: false } },
+  initiativeTracker:{ label: 'Initiative Tracker', kind: 'combat', spanUnits: 6,  spanUnitsY: 11,
+                      cfg: { widgetPadding: 0, transpose: false } },
 };
 const WG_DEFAULT_WIDGET_TYPE = 'abilityScores';
 
