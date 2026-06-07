@@ -109,7 +109,7 @@ function render() {
       if (w.spanUnits < 1) continue;
       if (pageOf(w.globalCol) !== state.currentPage) continue;  // V9: alleen huidige pagina
       state.activeWidgetIdx = i;
-      drawWidgetOnDashboard(svg, i, i === prevActive);
+      drawWidgetOnDashboard(svg, i, i === prevActive, wgIsSelected(i) && i !== prevActive);
     }
     state.activeWidgetIdx = prevActive;
   }
@@ -329,7 +329,7 @@ function titleLayout() {
   return { lines: [lineA, lineB], fs, lineH, totalH: Math.max(WIDGET_TOPBAR_H, Math.ceil(lineH * 2) + 8) };
 }
 
-function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true) {
+function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelected = false) {
   const vl = dashVLayout();
   if (vl.tileCount < 1) return;
   const x = widgetLeftX();
@@ -349,6 +349,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true) {
   // onPointerDown opgepikt voor multi-widget targeting.
   const widgetG = el('g', {
     class: 'widget' + (isActive ? ' is-active' : ' is-inactive')
+                     + (isMultiSelected ? ' is-multi-selected' : '')
                      + (isDragging ? ' is-dragging-self' : ''),
     'data-widget-idx': String(widgetIdx),
   });

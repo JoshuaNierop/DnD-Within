@@ -480,9 +480,28 @@ Object.defineProperty(state, 'data',   { get() { return state.widget?.data   ?? 
 Object.defineProperty(state, 'layout', { get() { return state.widget?.layout ?? EMPTY_LAYOUT; }, configurable: true });
 Object.defineProperty(state, 'cfg',    { get() { return state.widget?.cfg    ?? EMPTY_CFG;    }, configurable: true });
 
+// Multi-select (transient, per huidige tab — niet geserialiseerd). Bevat de
+// EXTRA geselecteerde indices náást de actieve (state.activeWidgetIdx blijft de
+// "primaire"/laatst-aangeklikte die de settings opent). Wordt gewist bij
+// tab-/situatie-wissel (clearSelection) en bij klik in lege ruimte.
+let wgSelectedIdxs = [];
+// Alle geselecteerde indices (actief + extra's), uniek + geldig.
+function wgGetSelectedIdxs() {
+  const n = state.widgets.length;
+  const set = new Set(wgSelectedIdxs.filter(i => i >= 0 && i < n));
+  if (state.activeWidgetIdx >= 0 && state.activeWidgetIdx < n) set.add(state.activeWidgetIdx);
+  return [...set];
+}
+function wgIsSelected(i) {
+  return i === state.activeWidgetIdx || wgSelectedIdxs.indexOf(i) >= 0;
+}
+function wgSetSelection(idxs) { wgSelectedIdxs = (idxs || []).slice(); }
+function wgClearMultiSelection() { wgSelectedIdxs = []; }
+
 // V11: deselect active widget in current tab
 function clearSelection() {
   state.activeWidgetIdx = -1;
+  wgSelectedIdxs = [];
 }
 
 // V11: pulse left sidebar amber once (empty-tab feedback, ~600ms)

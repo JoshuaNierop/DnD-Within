@@ -22,6 +22,13 @@ function getSVGPoint(svg, evt) {
 }
 
 function onPointerDown(evt) {
+  // Bug-reporter actief (#6): de canvas mag de interactie NIET kapen. Zonder
+  // deze guard zet pointerdown een select-gesture en re-rendert pointerup de
+  // hele SVG-inhoud — het aangeklikte sub-div van de widget is dan weg vóór de
+  // native click landt, dus de element-picker selecteert niets. Vroeg uitstappen
+  // (geen pendingGesture) laat pointerup een no-op zijn → de click bereikt het
+  // intacte sub-div → picker kan delen van widgets selecteren.
+  if (typeof bugReporterActive !== 'undefined' && bugReporterActive) return;
   // Map-action buttons (upload-portrait, etc.) moeten SYNCHROON afgehandeld
   // worden in pointerdown. Anders triggert pointerup een setActiveWidget+
   // render() die de SVG-target vervangt vóór de click event fires, en gaat
@@ -76,7 +83,8 @@ function onPointerDown(evt) {
   if (!hasHandle) {
     // Geen handle: widget-body → selecteer-op-pointerup; lege ruimte → swipe/deselect.
     if (!Number.isNaN(wIdx)) {
-      pendingGesture = { kind: 'select', widgetIdx: wIdx, startX: evt.clientX, startY: evt.clientY };
+      pendingGesture = { kind: 'select', widgetIdx: wIdx, startX: evt.clientX, startY: evt.clientY,
+                         additive: !!(evt.ctrlKey || evt.metaKey) };
     } else if (evt.target.closest && evt.target.closest('#canvas')) {
       pendingGesture = { kind: 'swipe', startX: evt.clientX, startY: evt.clientY };
       try { svg && svg.setPointerCapture(evt.pointerId); } catch (e) {}
@@ -152,9 +160,9 @@ function onPointerUp(evt) {
 
   if (!committed) {
     // Onder de drag-threshold gebleven → het was een klik.
-    if (pg.kind === 'select') setActiveWidget(pg.widgetIdx);
+    if (pg.kind === 'select') selectWidgetClick(pg.widgetIdx, pg.additive);
     else if (pg.kind === 'swipe') deselectWidgets();
-    render();
+    else render();
     return;
   }
 

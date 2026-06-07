@@ -723,8 +723,40 @@ document.addEventListener('keydown', (e) => {
   if (state.activeWidgetIdx < 0 || !state.widget) return;
   // V11: allow removing last widget (tab can be empty)
   e.preventDefault();
+  // Multi-select: verwijder alle geselecteerde widgets in één keer.
+  const sel = wgGetSelectedIdxs();
+  if (sel.length > 1) {
+    if (confirm(`${sel.length} widgets verwijderen?`)) removeSelectedWidgets();
+    return;
+  }
   if (confirm(`Widget "${displayTitle(state.widget)}" verwijderen?`)) {
     removeWidget(state.activeWidgetIdx);
+  }
+});
+
+// Widget-clipboard: Ctrl/Cmd+C kopieert de geselecteerde widget(s),
+// Ctrl/Cmd+V plakt ze (kopie krijgt automatisch een genummerde naam).
+document.addEventListener('keydown', (e) => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  const k = e.key.toLowerCase();
+  if (k !== 'c' && k !== 'v') return;
+  // Niet kapen wanneer de gebruiker tekst in een veld kopieert/plakt.
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' ||
+             ae.tagName === 'SELECT' || ae.isContentEditable)) return;
+  // Alleen actief wanneer een WidgetGrid-canvas in beeld is.
+  if (typeof state === 'undefined' || !document.getElementById('canvas')) return;
+  // Tekstselectie kopiëren laten we met rust.
+  if (k === 'c') {
+    const selTxt = window.getSelection && window.getSelection().toString();
+    if (selTxt) return;
+    if (wgGetSelectedIdxs().length === 0) return;
+    e.preventDefault();
+    wgCopySelected();
+  } else {
+    if (!_wgClipboard || !_wgClipboard.length) return;
+    e.preventDefault();
+    wgPasteClipboard();
   }
 });
 

@@ -871,8 +871,17 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     stroke: var(--user-border-glow, #fbbf24);
     filter: drop-shadow(0 0 10px color-mix(in srgb, var(--user-border-glow, #fbbf24) 65%, transparent));
   }
+  /* Multi-select: mede-geselecteerde (niet-actieve) widgets krijgen een
+     zichtbare maar zachtere rand dan de actieve widget. */
+  svg g.widget.is-multi-selected .widget-onboard-rect {
+    stroke-width: 2.5;
+    stroke: var(--user-border-glow, #fbbf24);
+    stroke-opacity: 0.85;
+    fill-opacity: 1;
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--user-border-glow, #fbbf24) 45%, transparent));
+  }
   /* Inactieve widgets iets gedempt zodat focus op active blijft */
-  svg g.widget.is-inactive .widget-onboard-rect {
+  svg g.widget.is-inactive:not(.is-multi-selected) .widget-onboard-rect {
     fill-opacity: 0.55;
     stroke-opacity: 0.5;
   }

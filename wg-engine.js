@@ -1,18 +1,29 @@
 
 // Effectieve titel: door de gebruiker gezet, anders auto.
 // Map → naam van de huidige map; image → type-label; info → data-source-label.
-function autoTitle(widget) {
+// Basis-label van een widget (zonder dupe-nummer): map → mapnaam, infobox →
+// data-source-label, overige soorten → type-label.
+function widgetBaseLabel(widget) {
   if (!widget) return 'Widget';
   const kind = widgetKind(widget);
   if (kind === 'map') return currentMapName(widget) || WG_WIDGET_TYPES.map.label;
-  if (kind !== 'infobox') return (WG_WIDGET_TYPES[widget.type] || {}).label || 'Widget';
-  const base = WG_SOURCE_LABELS[widget.data && widget.data.source] || 'Widget';
+  if (kind === 'infobox') return WG_SOURCE_LABELS[widget.data && widget.data.source] || 'Widget';
+  return (WG_WIDGET_TYPES[widget.type] || {}).label || 'Widget';
+}
+function autoTitle(widget) {
+  if (!widget) return 'Widget';
+  // Maps houden hun kaartnaam (geen nummering — elke map heeft een eigen naam).
+  if (widgetKind(widget) === 'map') return widgetBaseLabel(widget);
+  const base = widgetBaseLabel(widget);
+  // Nummer duplicaten van hetzelfde basis-label voor ALLE soorten (Ability
+  // Scores, Skills, Profile picture, …): de eerste houdt de naam, de tweede
+  // krijgt " 2", enz. Zo krijgt een ge-paste kopie automatisch een nummer.
   const idx = state.widgets.indexOf(widget);
   let dupes = 0;
   for (let i = 0; i < idx; i++) {
     const ow = state.widgets[i];
-    if (widgetKind(ow) === 'infobox' &&
-        (WG_SOURCE_LABELS[ow.data && ow.data.source] || 'Widget') === base) dupes++;
+    if (widgetKind(ow) === 'map') continue;
+    if (widgetBaseLabel(ow) === base) dupes++;
   }
   return dupes === 0 ? base : `${base} ${dupes + 1}`;
 }
@@ -144,6 +155,7 @@ function setActiveWidget(idx) {
 // terug op widget 0, dus er crasht niets.
 function deselectWidgets() {
   state.activeWidgetIdx = -1;
+  wgClearMultiSelection();
   if (settingsScope === 'widget' && _settingsPanel && _settingsPanel.classList.contains('open')) {
     closeSettings();
   }
@@ -240,11 +252,110 @@ function removeWidget(idx) {
   if (idx < 0 || idx >= state.widgets.length) return false;
   // V11: per-tab arrays can go to zero; no global minimum widget count
   state.widgets.splice(idx, 1);
+  wgClearMultiSelection();
   if (state.activeWidgetIdx >= state.widgets.length) {
     state.activeWidgetIdx = state.widgets.length - 1;
   } else if (state.activeWidgetIdx > idx) {
     state.activeWidgetIdx -= 1;
   }
+  render();
+  return true;
+}
+
+// Verwijder alle geselecteerde widgets in één keer (Delete met multi-select).
+function removeSelectedWidgets() {
+  const idxs = wgGetSelectedIdxs().sort((a, b) => b - a); // hoog→laag: splice-veilig
+  if (!idxs.length) return false;
+  wgClearMultiSelection();
+  for (const i of idxs) state.widgets.splice(i, 1);
+  state.activeWidgetIdx = -1;
+  render();
+  return true;
+}
+
+// ----- Klik-selectie (user-gesture) -----
+// additive = Ctrl/Cmd ingedrukt → toggle in de multi-selectie. Anders: enkel
+// deze widget. De primaire (laatst-aangeklikte) is altijd state.activeWidgetIdx;
+// settings openen werkt dus op de laatst aangeklikte widget.
+function selectWidgetClick(idx, additive) {
+  if (idx < 0 || idx >= state.widgets.length) return;
+  if (!additive) {
+    wgClearMultiSelection();
+    setActiveWidget(idx);
+    render();
+    return;
+  }
+  const pos = wgSelectedIdxs.indexOf(idx);
+  if (idx === state.activeWidgetIdx) {
+    // Actieve nogmaals ctrl-klikken → deselecteren; promoveer een andere.
+    if (pos >= 0) wgSelectedIdxs.splice(pos, 1);
+    const remaining = wgSelectedIdxs.filter(i => i !== idx);
+    state.activeWidgetIdx = remaining.length ? remaining[remaining.length - 1] : -1;
+  } else if (pos >= 0) {
+    // Geselecteerd (niet-actief) → uit de selectie halen.
+    wgSelectedIdxs.splice(pos, 1);
+  } else {
+    // Toevoegen: bewaar de huidige actieve in de selectie, maak deze actief.
+    if (state.activeWidgetIdx >= 0 && wgSelectedIdxs.indexOf(state.activeWidgetIdx) < 0) {
+      wgSelectedIdxs.push(state.activeWidgetIdx);
+    }
+    wgSelectedIdxs.push(idx);
+    state.activeWidgetIdx = idx;
+  }
+  if (settingsScope === 'widget' && _settingsPanel && _settingsPanel.classList.contains('open')) {
+    if (state.activeWidgetIdx >= 0) syncWidgetPanel(); else closeSettings();
+  }
+  render();
+}
+
+// ----- Clipboard (copy/paste van widgets) -----
+let _wgClipboard = [];
+function wgCopySelected() {
+  const idxs = wgGetSelectedIdxs();
+  if (!idxs.length) return false;
+  _wgClipboard = idxs.map(i => {
+    try { return JSON.parse(JSON.stringify(state.widgets[i])); } catch (e) { return null; }
+  }).filter(Boolean);
+  return _wgClipboard.length > 0;
+}
+// Maak een custom titel uniek (alleen nodig als de bron een handmatige titel
+// had; lege titels nummert autoTitle vanzelf).
+function wgUniqueTitle(base) {
+  const existing = new Set(state.widgets.map(w => (w.title || '').trim()).filter(Boolean));
+  if (!existing.has(base)) return base;
+  let n = 2;
+  while (existing.has(`${base} ${n}`)) n++;
+  return `${base} ${n}`;
+}
+function wgPasteClipboard() {
+  if (!_wgClipboard || !_wgClipboard.length) return false;
+  const newIdxs = [];
+  for (const src of _wgClipboard) {
+    let clone;
+    try { clone = JSON.parse(JSON.stringify(src)); } catch (e) { continue; }
+    clone.spanUnits = Math.max(1, Math.floor(clone.spanUnits || 1));
+    clone.spanUnitsY = Math.max(1, Math.floor(clone.spanUnitsY || 1));
+    const free = findFreeWidgetSpot(clone.spanUnits, clone.spanUnitsY);
+    clone.globalCol = free.globalCol;
+    clone.startRowIdx = free.startRowIdx;
+    // Lege titel → autoTitle nummert ("Skills", "Skills 2", …). Custom titel →
+    // uniek maken zodat hij niet botst met het origineel.
+    if (clone.title && clone.title.trim()) clone.title = wgUniqueTitle(clone.title.trim());
+    state.widgets.push(clone);
+    const ni = state.widgets.length - 1;
+    newIdxs.push(ni);
+    const t = WG_WIDGET_TYPES[clone.type];
+    if (t && t.kind === 'map') fetchMapsData();
+    else if (t && t.kind === 'infobox') {
+      if (WG_CHAR_CACHE[state.characterId]) rebuildWidget(clone);
+      else fetchCharacterData(state.characterId);
+    }
+  }
+  if (!newIdxs.length) return false;
+  const last = newIdxs[newIdxs.length - 1];
+  wgSetSelection(newIdxs);
+  state.activeWidgetIdx = last;
+  state.currentPage = pageOf(state.widgets[last].globalCol);
   render();
   return true;
 }
