@@ -1155,9 +1155,11 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   .combat-table { display: flex; flex-direction: column; gap: 4px; min-width: max-content; }
   .combat-row {
     display: grid;
-    /* Naam-kolom: geen harde minimumbreedte (#9) — sizet mee met de namen
-       i.p.v. een vaste 110px-floor. */
-    grid-template-columns: 34px minmax(auto,1.4fr) 84px 120px 52px 40px 28px;
+    /* Naam-kolom: bescheiden floor (96px) die nog meegroeit met langere namen.
+       Compromis: bug #9 verwijderde de harde 110px-floor; latere DM-bug vroeg
+       toch weer een minimumbreedte → 96px geeft een ondergrens zónder de kolom
+       opnieuw rigide te maken (1.4fr blijft groeien). */
+    grid-template-columns: 34px minmax(96px,1.4fr) 84px 120px 52px 40px 28px;
     align-items: center; gap: 6px;
     background: var(--user-bg-1, var(--bg));
     border: 1px solid var(--user-border, var(--border));
