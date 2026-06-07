@@ -8448,8 +8448,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-.wizard-input-sm { width: 80px; text-align: center; padding: 0.5rem; }
-.wizard-select-sm { width: 75px; padding: 0.4rem; font-size: 0.85rem; }
+/* #2 design: tekst-inputs/selects niet over de volle (brede) modal laten
+   uitrekken — zo oogt het rustiger en past er meer op één wizard-stap. */
+.wizard-input, .wizard-select { max-width: 440px; }
+.wizard-textarea { max-width: 600px; }
+
+.wizard-input-sm { width: 80px; text-align: center; padding: 0.5rem; max-width: none; }
+.wizard-select-sm { width: 75px; padding: 0.4rem; font-size: 0.85rem; max-width: none; }
 
 .wizard-textarea {
     background: var(--bg-block);

@@ -958,39 +958,52 @@ function refreshWizard() {
     }
 }
 
+// Idempotente binding: voorkomt dat herhaalde bindWizardEvents-aanroepen
+// (refreshWizard bindt twee keer: direct + na de crossfade) dezelfde node
+// dubbel koppelen. Zonder dit kreeg de "Volgende"-knop twee click-listeners →
+// step += 2 → pagina's werden overgeslagen (#2). Verse nodes (innerHTML-replace)
+// hebben de vlag nog niet en worden dus precies één keer gebonden.
+function _wzBindOnce(node, evt, handler) {
+    if (!node) return;
+    if (node._wzBound && node._wzBound[evt]) return;
+    node._wzBound = node._wzBound || {};
+    node._wzBound[evt] = true;
+    node.addEventListener(evt, handler);
+}
+
 function bindWizardEvents() {
     var container = document.getElementById('wizard-container');
     if (!container) return;
 
     // Direct button bindings (more robust than delegation through fixed overlay)
     var closeBtn = container.querySelector('.modal-close');
-    if (closeBtn) closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeWizard(); });
+    _wzBindOnce(closeBtn, 'click', function(e) { e.stopPropagation(); closeWizard(); });
 
     var overlay = container.querySelector('.wizard-overlay');
-    if (overlay) overlay.addEventListener('click', function(e) { if (e.target === overlay) closeWizard(); });
+    _wzBindOnce(overlay, 'click', function(e) { if (e.target === overlay) closeWizard(); });
 
     var prevBtn = container.querySelector('[data-action="wizard-prev"]');
-    if (prevBtn) prevBtn.addEventListener('click', function(e) {
+    _wzBindOnce(prevBtn, 'click', function(e) {
         e.stopPropagation();
         saveWizardStepData();
         if (wizardState.step > 1) { wizardState.step--; refreshWizard(); }
     });
 
     var cancelBtn = container.querySelector('[data-action="wizard-cancel"]');
-    if (cancelBtn) cancelBtn.addEventListener('click', function(e) {
+    _wzBindOnce(cancelBtn, 'click', function(e) {
         e.stopPropagation();
         closeWizard();
     });
 
     var nextBtn = container.querySelector('[data-action="wizard-next"]');
-    if (nextBtn) nextBtn.addEventListener('click', function(e) {
+    _wzBindOnce(nextBtn, 'click', function(e) {
         e.stopPropagation();
         saveWizardStepData();
         if (wizardState.step < 6) { wizardState.step++; refreshWizard(); }
     });
 
     var createBtn = container.querySelector('[data-action="wizard-create"]');
-    if (createBtn) createBtn.addEventListener('click', function(e) {
+    _wzBindOnce(createBtn, 'click', function(e) {
         e.stopPropagation();
         saveWizardStepData();
         var wasEdit = !!(wizardState && wizardState.editId);
@@ -1007,7 +1020,7 @@ function bindWizardEvents() {
     // Color buttons
     var colorBtns = container.querySelectorAll('[data-action="wizard-color"]');
     for (var ci = 0; ci < colorBtns.length; ci++) {
-        colorBtns[ci].addEventListener('click', function(e) {
+        _wzBindOnce(colorBtns[ci], 'click', function(e) {
             e.stopPropagation();
             wizardState.accentColor = this.dataset.color;
             refreshWizard();
@@ -1017,7 +1030,7 @@ function bindWizardEvents() {
     // Skill checkboxes
     var skillBoxes = container.querySelectorAll('[data-action="wizard-skill"]');
     for (var si = 0; si < skillBoxes.length; si++) {
-        skillBoxes[si].addEventListener('click', function() {
+        _wzBindOnce(skillBoxes[si], 'click', function() {
             var sk = this.dataset.skill;
             var idx = wizardState.skills.indexOf(sk);
             if (this.checked && idx === -1) wizardState.skills.push(sk);
@@ -1029,7 +1042,7 @@ function bindWizardEvents() {
     // Cantrip checkboxes
     var cantripBoxes = container.querySelectorAll('[data-action="wizard-cantrip"]');
     for (var cbi = 0; cbi < cantripBoxes.length; cbi++) {
-        cantripBoxes[cbi].addEventListener('click', function() {
+        _wzBindOnce(cantripBoxes[cbi], 'click', function() {
             var cn = this.dataset.cantrip;
             var idx = wizardState.cantrips.indexOf(cn);
             if (this.checked && idx === -1) wizardState.cantrips.push(cn);
