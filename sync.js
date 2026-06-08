@@ -225,6 +225,7 @@ function initFirebaseSync() {
                 syncDownloadBugs();
                 syncListenBugs();
                 initPresence();
+                if (typeof initMonsterHypotheses === 'function') initMonsterHypotheses();
                 // Backfill stable entity ids now that real data is present.
                 if (typeof ensureEntityIds === 'function') ensureEntityIds();
                 // Re-render alleen als Firebase nieuwe/andere data leverde dan de localStorage cache.
@@ -551,6 +552,54 @@ function initPresence() {
 
 function isUserOnline(userId) {
     return onlineUsers[userId] && onlineUsers[userId].online;
+}
+
+// ===== Monster hypotheses (fog of war #0C4rMb) =====
+// Gedeelde speler-gokken op verborgen monster-velden. Apart top-level pad (buiten
+// dw/) zodat het los staat van de DM-data én van de generieke per-key sync. De DM
+// abonneert NIET en de render leest dit nooit → de DM ziet de speler-gokken niet.
+var monsterHypotheses = {};
+function initMonsterHypotheses() {
+    if (!syncDb) return;
+    if (typeof isDM === 'function' && isDM()) return; // DM ziet/abonneert niet
+    syncDb.ref('monster_hypotheses').on('value', function (snap) {
+        monsterHypotheses = snap.val() || {};
+        // Gericht patchen: werk alleen de getoonde hypothese-waarden bij, NIET een
+        // input waar iemand op dit moment in typt (anders klapt z'n invoer weg).
+        try {
+            var inputs = document.querySelectorAll('.lore-hyp-input');
+            for (var i = 0; i < inputs.length; i++) {
+                var inp = inputs[i];
+                if (inp === document.activeElement) continue;
+                var card = inp.closest('.lore-entry-card');
+                var eid = card ? card.getAttribute('data-entry-id') : '';
+                var field = inp.getAttribute('data-field');
+                if (!eid || !field) continue;
+                var rec = monsterHypotheses[eid] && monsterHypotheses[eid][field];
+                var v = (rec && rec.value != null) ? String(rec.value) : '';
+                if (inp.value !== v) inp.value = v;
+                var row = inp.closest('.is-hypothesis');
+                if (row) row.classList.toggle('is-empty-hyp', !v);
+                var valSpan = card ? card.querySelector('[data-hyp-val="' + field + '"]') : null;
+                if (valSpan) valSpan.textContent = v;
+            }
+        } catch (e) { /* ignore */ }
+    });
+}
+function getMonsterHypothesis(entryId, field) {
+    if (!entryId || !monsterHypotheses[entryId]) return null;
+    return monsterHypotheses[entryId][field] || null;
+}
+function saveMonsterHypothesis(entryId, field, value) {
+    if (!syncDb || !entryId || !field) return;
+    var uid = (typeof currentUserId === 'function') ? currentUserId() : null;
+    var ref = syncDb.ref('monster_hypotheses/' + entryId + '/' + field);
+    if (value == null || value === '') { ref.remove(); return; }
+    ref.set({ value: String(value), by: uid || 'anon', ts: firebase.database.ServerValue.TIMESTAMP });
+}
+function clearMonsterHypotheses(entryId) {
+    if (!syncDb || !entryId) return;
+    syncDb.ref('monster_hypotheses/' + entryId).remove();
 }
 
 // ===== Bug Report Sync =====

@@ -7503,6 +7503,66 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .lore-info-block .lore-info-label { display: block; margin-bottom: 0.12rem; }
 .lore-info-text { line-height: 1.45; white-space: pre-wrap; }
 
+/* === Monster fog of war (#0C4rMb) === */
+/* DM per-veld oog/slot-toggle */
+.lore-info-row, .lore-info-block { align-items: center; }
+.lore-vis-toggle {
+    flex: 0 0 auto;
+    margin-left: auto;
+    width: 30px; height: 30px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid transparent; border-radius: 7px;
+    font-size: 0.95rem; line-height: 1; cursor: pointer;
+    opacity: 0.75; transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.lore-vis-toggle:hover { background: var(--bg-hover); border-color: var(--border); opacity: 1; }
+.lore-vis-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* DM-view: privé velden subtiel getint zodat je in één blik ziet wat verborgen is */
+.lore-info-row.is-private, .lore-info-block.is-private, .lore-ab-wrap.is-private {
+    background: color-mix(in srgb, var(--accent-warm) 9%, transparent);
+    border-radius: 6px;
+}
+.lore-ab-wrap { position: relative; }
+.lore-ab-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+
+/* Speler-hypothese: "krijt"-stijl (onzeker) vs canon (gewone tekst) */
+.lore-info-row.is-hypothesis { border-left: 2px dotted var(--accent); padding-left: 0.5rem; margin-left: -0.5rem; }
+.lore-hyp { display: inline-flex; flex-direction: column; gap: 0.1rem; min-width: 0; flex: 1; }
+.lore-hyp-val { display: none; } /* anker voor realtime-patch; input toont de waarde al */
+.lore-hyp-input {
+    font: inherit; font-style: italic;
+    color: color-mix(in srgb, var(--accent) 40%, var(--text-main));
+    background: transparent; border: none; border-bottom: 1px dashed var(--accent);
+    padding: 0.15rem 0.1rem; width: 100%; min-width: 0; border-radius: 4px; cursor: text;
+    transition: background 0.15s, border-color 0.15s;
+}
+.lore-hyp-input::placeholder { color: var(--text-dim); font-style: italic; }
+.lore-hyp-input:focus { outline: none; font-style: normal; background: var(--bg-block); box-shadow: 0 1px 0 var(--accent); }
+.is-hypothesis .lore-info-label::after {
+    content: '?'; display: inline-flex; align-items: center; justify-content: center;
+    width: 1.1em; height: 1.1em; margin-left: 0.4em;
+    border: 1px solid var(--accent); border-radius: 999px;
+    font-size: 0.7em; font-weight: 700; color: var(--accent); vertical-align: 0.05em;
+}
+.lore-hyp-meta { font-size: 0.7rem; color: var(--text-dim); }
+.is-hypothesis.is-empty-hyp .lore-hyp-meta { display: none; }
+/* live-puls als een andere speler net invulde */
+.lore-hyp.just-updated .lore-hyp-input { animation: hyp-pulse 1.1s ease-out 1; }
+@keyframes hyp-pulse {
+    0% { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+    100% { background: transparent; }
+}
+@media (hover: none) {
+    .lore-vis-toggle { position: relative; opacity: 0.85; }
+    .lore-vis-toggle::after { content: ''; position: absolute; inset: -7px; }
+}
+@media (max-width: 600px) {
+    .lore-hyp-input { font-size: 16px; } /* voorkomt iOS-zoom bij focus */
+}
+@media (prefers-reduced-motion: reduce) {
+    .lore-hyp.just-updated .lore-hyp-input { animation: none; }
+}
+
 /* Ability-score compact grid (display) */
 .lore-ab-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.3rem; margin: 0.5rem 0; }
 .lore-ab-cell { display: flex; flex-direction: column; align-items: center; padding: 0.28rem 0.1rem; background: var(--bg-hover, rgba(255,255,255,0.06)); border-radius: 6px; }

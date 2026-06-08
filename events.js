@@ -45,6 +45,20 @@ function bindPageEvents(route) {
         state = loadCharState(charId);
     }
 
+    // ---- Change delegation on #app (monster-hypothese gedeeld opslaan #0C4rMb) ----
+    app.onchange = function(e) {
+        var t = e.target;
+        if (t && t.matches && t.matches('[data-action="save-monster-hyp"]')) {
+            if (typeof saveMonsterHypothesis === 'function') {
+                saveMonsterHypothesis(t.dataset.entry, t.dataset.field, t.value.trim());
+            }
+            var hypRow = t.closest('.is-hypothesis');
+            if (hypRow) hypRow.classList.toggle('is-empty-hyp', !t.value.trim());
+            var vSpan = t.parentElement ? t.parentElement.querySelector('[data-hyp-val]') : null;
+            if (vSpan) vSpan.textContent = t.value.trim();
+        }
+    };
+
     // ---- Click delegation on #app ----
     app.onclick = function(e) {
         var target = e.target;
@@ -1175,13 +1189,47 @@ function bindPageEvents(route) {
                 var leCat = ldBtn.dataset.cat;
                 var leIdx = parseInt(ldBtn.dataset.entryIdx, 10);
                 var lcData = getLoreCatsData();
-                if (Array.isArray(lcData[leCat])) { lcData[leCat].splice(leIdx, 1); saveLoreCatsData(lcData); renderApp(); }
+                if (Array.isArray(lcData[leCat])) {
+                    var delEnt = lcData[leCat][leIdx];
+                    // Ruim verweesde monster-hypotheses op (#0C4rMb).
+                    if (leCat === 'monsters' && delEnt && delEnt.id && typeof clearMonsterHypotheses === 'function') {
+                        clearMonsterHypotheses(delEnt.id);
+                    }
+                    lcData[leCat].splice(leIdx, 1); saveLoreCatsData(lcData); renderApp();
+                }
             }
             return;
         }
+        // DM zet een monster-veld op public/private (#0C4rMb). Vóór de card-toggle
+        // zodat de kaart niet ook in/uitklapt bij een klik op het oog/slot-icoon.
+        if (target.matches('[data-action="toggle-field-vis"]') || target.closest('[data-action="toggle-field-vis"]')) {
+            var visBtn = target.matches('[data-action="toggle-field-vis"]') ? target : target.closest('[data-action="toggle-field-vis"]');
+            var vEid = visBtn.dataset.entry;
+            var vField = visBtn.dataset.field;
+            var cats = getLoreCatsData();
+            var arr = cats.monsters || [];
+            var ent = null;
+            for (var vi = 0; vi < arr.length; vi++) { if (arr[vi].id === vEid) { ent = arr[vi]; break; } }
+            if (ent) {
+                if (!ent.visibility) ent.visibility = {};
+                var curVis = ent.visibility[vField] || (MONSTER_PUBLIC_DEFAULTS[vField] ? 'public' : 'private');
+                var newVis = (curVis === 'public') ? 'private' : 'public';
+                ent.visibility[vField] = newVis;
+                saveLoreCatsData(cats);
+                // Lokale UI-update i.p.v. renderApp() → de kaart blijft uitgeklapt.
+                var priv = newVis === 'private';
+                visBtn.setAttribute('aria-pressed', priv ? 'true' : 'false');
+                visBtn.textContent = priv ? '🔒' : '👁';
+                visBtn.title = priv ? 'Verborgen voor spelers — klik om te tonen' : 'Zichtbaar voor spelers — klik om te verbergen';
+                var rowEl = visBtn.closest('.lore-info-row') || visBtn.closest('.lore-info-block') || visBtn.closest('.lore-ab-wrap');
+                if (rowEl) rowEl.classList.toggle('is-private', priv);
+            }
+            return;
+        }
+
         if (target.matches('[data-action="toggle-lore-entry"]') || target.closest('[data-action="toggle-lore-entry"]')) {
             // Niet togglen als er op een actie-knop in de kaart geklikt is.
-            if (target.closest('[data-action="edit-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]')) return;
+            if (target.closest('[data-action="edit-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]') || target.closest('[data-action="toggle-field-vis"]') || target.closest('.lore-hyp-input')) return;
             // Bewust GEEN accordion: lore-kaarten (incl. monsters /lore/monsters) mogen
             // met meerdere tegelijk uitgeklapt blijven — los togglen, siblings niet
             // sluiten (#I1oOpc). Alleen NPC-kaarten gebruiken wel een accordion.

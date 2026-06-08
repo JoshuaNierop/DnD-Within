@@ -2750,7 +2750,105 @@ var loreCatSearch = '';
 
 // Render the type-specific info for a lore entry (shown in the expanded card
 // and on hover). Iterates the category's field-schema, skipping empties.
+// Monster "fog of war" (#0C4rMb): per-veld public/private (DM-bezit, op e.visibility)
+// + gedeelde speler-hypotheses (apart Firebase-pad, realtime). Default-public alleen
+// voor velden die een speler sowieso waarneemt; rest private.
+var MONSTER_PUBLIC_DEFAULTS = { size: true, mtype: true, speed: true, description: true };
+function monsterFieldVis(e, key) {
+    if (e.visibility && e.visibility[key]) return e.visibility[key];
+    return MONSTER_PUBLIC_DEFAULTS[key] ? 'public' : 'private';
+}
+function monsterNumericField(key) { return key === 'ac' || key === 'hp'; }
+function monsterVisToggle(eid, key, vis) {
+    var priv = vis === 'private';
+    return '<button class="lore-vis-toggle" data-action="toggle-field-vis" data-entry="' + escapeAttr(eid) +
+        '" data-field="' + key + '" aria-pressed="' + (priv ? 'true' : 'false') +
+        '" aria-label="Zichtbaarheid voor spelers" title="' +
+        (priv ? 'Verborgen voor spelers — klik om te tonen' : 'Zichtbaar voor spelers — klik om te verbergen') +
+        '">' + (priv ? '🔒' : '👁') + '</button>';
+}
+function monsterAbilitiesGrid(ab) {
+    var h = '<div class="lore-ab-grid">';
+    for (var ai = 0; ai < LORE_ABILITY_KEYS.length; ai++) {
+        var ak = LORE_ABILITY_KEYS[ai];
+        var sc = ab[ak];
+        h += '<div class="lore-ab-cell"><span class="lore-ab-name">' + ak.toUpperCase() + '</span>';
+        h += '<span class="lore-ab-score">' + (sc != null ? escapeHtml(String(sc)) : '—') + '</span>';
+        h += '<span class="lore-ab-mod">' + (sc != null ? escapeHtml(abilityMod(sc)) : '') + '</span></div>';
+    }
+    return h + '</div>';
+}
+function renderMonsterHypRow(f, eid) {
+    var cur = (typeof getMonsterHypothesis === 'function') ? getMonsterHypothesis(eid, f.key) : null;
+    var curVal = (cur && cur.value != null) ? String(cur.value) : '';
+    var numeric = monsterNumericField(f.key);
+    var ph = numeric ? 'gok bv. 15 of 14-16' : 'vul een gok in';
+    var meta = '';
+    if (cur && cur.by) {
+        var byName = (typeof getUserData === 'function' && getUserData(cur.by)) ? getUserData(cur.by).name : '';
+        meta = '<span class="lore-hyp-meta">groepsgok' + (byName ? ' · ' + escapeHtml(byName) : '') + '</span>';
+    }
+    return '<div class="lore-info-row is-hypothesis' + (curVal ? '' : ' is-empty-hyp') + '" data-hyp-field="' + f.key + '">' +
+        '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
+        '<span class="lore-hyp"><input class="lore-hyp-input" type="text" ' + (numeric ? 'inputmode="numeric" ' : '') +
+        'data-action="save-monster-hyp" data-entry="' + escapeAttr(eid) + '" data-field="' + f.key +
+        '" value="' + escapeAttr(curVal) + '" placeholder="' + ph + '">' +
+        '<span class="lore-hyp-val" data-hyp-val="' + f.key + '">' + escapeHtml(curVal) + '</span>' + meta + '</span></div>';
+}
+// Rol-gesplitste render voor monster-statblocks.
+function renderMonsterEntryInfo(e) {
+    var fields = loreFieldsFor('monsters');
+    var dm = (typeof isDM === 'function') && isDM();
+    var eid = e.id || '';
+    var html = '';
+    for (var fi = 0; fi < fields.length; fi++) {
+        var f = fields[fi];
+        var vis = monsterFieldVis(e, f.key);
+        if (f.type === 'abilities') {
+            var ab = e.abilities;
+            var hasAb = ab && LORE_ABILITY_KEYS.some(function (k) { return ab[k] != null; });
+            if (dm) {
+                if (!hasAb) continue;
+                html += '<div class="lore-ab-wrap' + (vis === 'private' ? ' is-private' : '') + '">' +
+                    '<div class="lore-ab-head"><span class="lore-info-label">Ability Scores</span>' + monsterVisToggle(eid, 'abilities', vis) + '</div>' +
+                    monsterAbilitiesGrid(ab) + '</div>';
+            } else if (vis === 'public' && hasAb) {
+                html += monsterAbilitiesGrid(ab);
+            }
+            continue;
+        }
+        var val = e[f.key];
+        var hasVal = !(val == null || val === '');
+        if (dm) {
+            if (!hasVal) continue; // leeg veld: niets te tonen of te verbergen
+            if (f.type === 'textarea') {
+                html += '<div class="lore-info-block' + (vis === 'private' ? ' is-private' : '') + '">' +
+                    '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' + monsterVisToggle(eid, f.key, vis) +
+                    '<div class="lore-info-text">' + renderRichText(val) + '</div></div>';
+            } else {
+                html += '<div class="lore-info-row' + (vis === 'private' ? ' is-private' : '') + '">' +
+                    '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
+                    '<span class="lore-info-val">' + escapeHtml(String(val)) + '</span>' + monsterVisToggle(eid, f.key, vis) + '</div>';
+            }
+        } else if (vis === 'public') {
+            if (!hasVal) continue;
+            if (f.type === 'textarea') {
+                html += '<div class="lore-info-block"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
+                    '<div class="lore-info-text">' + renderRichText(val) + '</div></div>';
+            } else {
+                html += '<div class="lore-info-row"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
+                    '<span class="lore-info-val">' + escapeHtml(String(val)) + '</span></div>';
+            }
+        } else {
+            // Speler + privaat veld → gedeelde hypothese-input (geen textarea-hyp in v1).
+            if (f.type !== 'textarea') html += renderMonsterHypRow(f, eid);
+        }
+    }
+    return html;
+}
+
 function renderLoreEntryInfo(cat, e) {
+    if (cat === 'monsters') return renderMonsterEntryInfo(e);
     var fields = loreFieldsFor(cat);
     var html = '';
     for (var fi = 0; fi < fields.length; fi++) {
