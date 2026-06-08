@@ -551,8 +551,11 @@ function renderWizardStep2() {
 function renderWizardStep3() {
     var html = '<h3 class="wizard-step-title">' + t('wizard.step.details') + '</h3>';
 
-    // Subclass
-    if (wizardState.className) {
+    // Subclass — 2024 PHB: je kiest je subclass pas op level 3 (#vXF9qQ). De wizard
+    // maakt level-1 characters, dus de keuze alleen tonen bij het bewerken van een
+    // character dat al level 3+ is.
+    var wizLevel = wizardState.editId ? (((typeof loadCharState === 'function' && loadCharState(wizardState.editId)) || {}).level || 1) : 1;
+    if (wizardState.className && wizLevel >= 3) {
         var subclasses = getWizardSubclasses(wizardState.className);
         if (subclasses.length > 0) {
             html += '<div class="wizard-field">';
@@ -587,17 +590,10 @@ function renderWizardStep3() {
     html += '<input type="number" class="wizard-input wizard-input-sm" id="wizard-age" value="' + (wizardState.age || '') + '" min="1" max="999" placeholder="' + t('wizard.age.label') + '">';
     html += '</div>';
 
-    // Accent Color
-    html += '<div class="wizard-field">';
-    html += '<label class="wizard-label">' + t('wizard.accentcolor') + '</label>';
-    html += '<div class="wizard-colors">';
-    for (var ci = 0; ci < COLOR_THEMES.length; ci++) {
-        var theme = COLOR_THEMES[ci];
-        var selClass = wizardState.accentColor === theme.accent ? ' selected' : '';
-        html += '<span class="color-option' + selClass + '" data-action="wizard-color" data-color="' + theme.accent + '" style="background:' + theme.accent + ';" title="' + theme.name + '"></span>';
-    }
-    html += '</div>';
-    html += '</div>';
+    // Accent Color verwijderd uit de wizard (#YAJBUH): per-character kleur hoort niet
+    // in de creation/edit-flow. Bestaande waarde blijft behouden (edit laadt+bewaart
+    // cfg.accentColor); nieuwe characters krijgen de default. Globaal thema staat in
+    // de algemene settings (settings-select-theme).
 
     return html;
 }
