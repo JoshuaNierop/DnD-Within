@@ -471,7 +471,9 @@ function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
     g.appendChild(txt);
     return;
   }
-  // Afbeelding met behoud van aspect (letterbox), geclipt op het map-rect.
+  // Afbeelding vult het rect met behoud van aspect (cover/slice — fit op de
+  // grootste dimensie, overschot valt buiten beeld), geclipt op het ronde rect
+  // (#b2s0wu).
   const clipId = `imgclip-${widgetIdx}`;
   const clip = el('clipPath', { id: clipId });
   clip.appendChild(el('path', { d: roundedPath(mx, my, mw, mh, r, r, r, r) }));
@@ -481,7 +483,7 @@ function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   clipG.appendChild(el('rect', { x: mx, y: my, width: mw, height: mh, class: 'map-placeholder' }));
   const img = el('image', {
     x: mx, y: my, width: mw, height: mh,
-    preserveAspectRatio: 'xMidYMid meet', class: 'map-image',
+    preserveAspectRatio: 'xMidYMid slice', class: 'map-image',
   });
   img.setAttribute('href', src);
   clipG.appendChild(img);
