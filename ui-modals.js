@@ -235,8 +235,8 @@ function renderWizardAbilityScores() {
     var method = wizardState.abilityMethod || 'manual';
     var prim = classPrimaryAbilities(wizardState.className);
     var html = '<div class="wizard-field">';
-    html += '<label class="wizard-label">Ability Scores (basis)</label>';
-    var methods = [['manual', 'Handmatig'], ['array', 'Standaard Array'], ['pointbuy', 'Point Buy']];
+    html += '<label class="wizard-label">' + t('wizard.abilities.label') + '</label>';
+    var methods = [['manual', t('wizard.method.manual')], ['array', t('wizard.method.array')], ['pointbuy', t('wizard.method.pointbuy')]];
     html += '<div class="wizard-ability-method">';
     for (var mi = 0; mi < methods.length; mi++) {
         var on = method === methods[mi][0];
@@ -247,7 +247,7 @@ function renderWizardAbilityScores() {
     if (method === 'pointbuy') {
         var left = POINTBUY_BUDGET - pointBuySpent();
         var poolCls = left === 0 ? ' is-empty' : (left < 0 ? ' is-over' : '');
-        html += '<div class="wizard-pointbuy-pool' + poolCls + '">Punten over <span class="pool-val">' + left + '</span>/' + POINTBUY_BUDGET + '</div>';
+        html += '<div class="wizard-pointbuy-pool' + poolCls + '">' + t('wizard.pointbuy.left') + ' <span class="pool-val">' + left + '</span>/' + POINTBUY_BUDGET + '</div>';
     } else if (method === 'array') {
         html += '<div class="wizard-array-pool">';
         var assigned = ABILITY_KEYS.map(function (a) { return wizardState.baseAbilities[a]; });
@@ -432,9 +432,9 @@ function renderWizardStep1() {
     html += '</div>';
     if (curLineages.length) {
         html += '<div class="wizard-field wizard-subfield">';
-        html += '<label class="wizard-label">Lineage / Subras</label>';
+        html += '<label class="wizard-label">' + t('wizard.lineage.label') + '</label>';
         html += '<select class="wizard-select" id="wizard-lineage" data-action="wizard-lineage-change">';
-        html += '<option value="">Kies lineage…</option>';
+        html += '<option value="">' + t('wizard.lineage.choose') + '</option>';
         for (var li = 0; li < curLineages.length; li++) {
             var lk = curLineages[li];
             if (!DATA[lk]) continue;
@@ -478,7 +478,7 @@ function renderWizardStep1() {
         html += '<summary>' + classDisplayName(wizardState.className) + ' Info</summary>';
         var primAbs = classPrimaryAbilities(wizardState.className);
         if (primAbs.length) {
-            html += '<p class="wizard-detail wizard-primary-note">&#9733; <strong>Primaire stat:</strong> ' + primAbs.map(function(a) { return a.toUpperCase(); }).join(primAbs.length > 1 ? ' / ' : '') + ' &middot; <strong>Con</strong> altijd nuttig (HP)</p>';
+            html += '<p class="wizard-detail wizard-primary-note">&#9733; <strong>' + t('wizard.primary.label') + '</strong> ' + primAbs.map(function(a) { return a.toUpperCase(); }).join(primAbs.length > 1 ? ' / ' : '') + ' &middot; ' + t('wizard.primary.con') + '</p>';
         }
         html += '<p class="wizard-detail"><strong>Hit Die:</strong> d' + classData.hitDie + '</p>';
         html += '<p class="wizard-detail"><strong>Saving Throws:</strong> ' + classData.savingThrows.map(function(s) { return s.toUpperCase(); }).join(', ') + '</p>';
@@ -521,7 +521,7 @@ function renderWizardStep2() {
 
         // Background bonus distribution
         html += '<div class="wizard-bg-bonus">';
-        html += '<label class="wizard-label">Verdeel bonussen (+2 en +1):</label>';
+        html += '<label class="wizard-label">' + t('wizard.bg.distribute') + '</label>';
         html += '<div class="wizard-bonus-row">';
         for (var bi = 0; bi < bg.abilityScores.length; bi++) {
             var ab = bg.abilityScores[bi];
