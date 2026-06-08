@@ -1,5 +1,11 @@
 # D&D Within — To Do
 
+## i18n bilinguale data (#aftET9)
+- [x] P1 — `dloc()`-helper + backgrounds + race-features bilinguaal ({nl,en}); wizard render via dloc(); wizard UI-labels via t()
+- [ ] P3 — Class/subclass `desc` bilinguaal — **deferred**: geen render-site (geen UI toont het); migreren zodra er een class-detail-UI komt (dloc handelt het incrementeel af)
+- [ ] P3 — Spell/item `desc` bilinguaal — **deferred**: dead data (tooltips verwijderd); pas vertalen als spell/item-detail-UI terugkomt
+- [ ] P3 — Display-name-helpers (raceDisplayName/classDisplayName, core.js) zijn hardcoded EN; bilinguaal maken als NL-namen gewenst zijn
+
 ## Bugfix-batch 2026-06-07 (hub) — openstaand + review
 
 ### Nog open
