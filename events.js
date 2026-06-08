@@ -1230,11 +1230,20 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="toggle-lore-entry"]') || target.closest('[data-action="toggle-lore-entry"]')) {
             // Niet togglen als er op een actie-knop in de kaart geklikt is.
             if (target.closest('[data-action="edit-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]') || target.closest('[data-action="toggle-field-vis"]') || target.closest('.lore-hyp-input')) return;
-            // Bewust GEEN accordion: lore-kaarten (incl. monsters /lore/monsters) mogen
+            // Bewust GEEN accordion: lore-kaarten (incl. monsters/places/items) mogen
             // met meerdere tegelijk uitgeklapt blijven — los togglen, siblings niet
             // sluiten (#I1oOpc). Alleen NPC-kaarten gebruiken wel een accordion.
             var leCard = target.matches('[data-action="toggle-lore-entry"]') ? target : target.closest('[data-action="toggle-lore-entry"]');
-            if (leCard) leCard.classList.toggle('expanded');
+            if (leCard) {
+                leCard.classList.toggle('expanded');
+                // Spiegel naar de persistente set zodat een latere re-render de
+                // uitgeklapte kaart niet inklapt (#LLD4YT/#3gKQ37).
+                var lid = leCard.getAttribute('data-entry-id');
+                if (lid && typeof loreExpandedIds !== 'undefined') {
+                    if (leCard.classList.contains('expanded')) loreExpandedIds[lid] = true;
+                    else delete loreExpandedIds[lid];
+                }
+            }
             return;
         }
 

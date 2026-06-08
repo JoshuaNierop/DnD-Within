@@ -2747,6 +2747,8 @@ function getLoreCatEntries(cat) {
 
 // Per-categorie zoekterm (module-level, zoals notesSearch).
 var loreCatSearch = '';
+// Persistente set van uitgeklapte lore-entry-ids (overleeft re-renders).
+var loreExpandedIds = {};
 
 // Render the type-specific info for a lore entry (shown in the expanded card
 // and on hover). Iterates the category's field-schema, skipping empties.
@@ -2913,7 +2915,10 @@ function renderLoreCategory(cat) {
         var e = filtered[i];
         var realIdx = entries.indexOf(e);
         var infoHtml = renderLoreEntryInfo(cat, e);
-        html += '<div class="lore-entry-card" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
+        // Expand-state uit een persistente set zodat een re-render uitgeklapte
+        // kaarten niet inklapt (#LLD4YT/#3gKQ37 — meerdere tegelijk open blijven).
+        var expCls = (e.id && loreExpandedIds[e.id]) ? ' expanded' : '';
+        html += '<div class="lore-entry-card' + expCls + '" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
         // Image (2:3 portrait) or initial-placeholder — always visible.
         if (e.image) {
             html += '<div class="lore-entry-img"><img src="' + escapeAttr(resolveImageSrc(e.image)) + '" alt=""></div>';
