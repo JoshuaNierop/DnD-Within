@@ -98,7 +98,9 @@ const WG_PALETTES = {
       '--user-text-highlight':  '#6b4a16',
       '--user-border':          '#b8a06f',
       '--user-border-soft':     'rgba(184,160,111,0.35)',
-      '--user-border-glow':     '#b8a06f',
+      '--user-border-glow':     '#e8a31c',   // distinct amber: actief/geselecteerd moet
+                                             // opvallen t.o.v. de rustende rand (#b8a06f),
+                                             // anders lijkt elke widget geselecteerd (#9OOOz2)
       '--info-font-body':       "Georgia, 'Times New Roman', serif",
       '--info-font-display':    "Georgia, 'Times New Roman', serif",
     },
