@@ -147,6 +147,7 @@ function initWizardState() {
         race: '',
         className: '',
         background: '',
+        abilityMethod: 'manual',
         baseAbilities: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
         bgBonusChoice: { plus2: '', plus1: '' },
         subclass: '',
@@ -212,6 +213,84 @@ var CLASS_PRIMARY_ABILITY = {
 };
 function classPrimaryAbilities(className) {
     return CLASS_PRIMARY_ABILITY[className] || [];
+}
+
+// Ability-score generatie (2024 PHB). Standard array vrij toewijsbaar; point-buy
+// 27 punten, scores 8-15 met onderstaande kostentabel (#bij5sk).
+var STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
+var POINTBUY_COST = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
+var POINTBUY_BUDGET = 27;
+var ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+function pointBuySpent() {
+    var s = 0;
+    ABILITY_KEYS.forEach(function (a) {
+        var v = wizardState.baseAbilities[a];
+        if (POINTBUY_COST[v] != null) s += POINTBUY_COST[v];
+    });
+    return s;
+}
+// Bouwt het ability-score-blok van step2 met method-switch (handmatig/array/point-buy)
+// + primaire-stat highlight (#bij5sk, #kbowMj).
+function renderWizardAbilityScores() {
+    var method = wizardState.abilityMethod || 'manual';
+    var prim = classPrimaryAbilities(wizardState.className);
+    var html = '<div class="wizard-field">';
+    html += '<label class="wizard-label">Ability Scores (basis)</label>';
+    var methods = [['manual', 'Handmatig'], ['array', 'Standaard Array'], ['pointbuy', 'Point Buy']];
+    html += '<div class="wizard-ability-method">';
+    for (var mi = 0; mi < methods.length; mi++) {
+        var on = method === methods[mi][0];
+        html += '<button type="button" class="wizard-method-btn' + (on ? ' is-active' : '') + '" data-action="wizard-ability-method" data-method="' + methods[mi][0] + '" aria-pressed="' + (on ? 'true' : 'false') + '">' + methods[mi][1] + '</button>';
+    }
+    html += '</div>';
+
+    if (method === 'pointbuy') {
+        var left = POINTBUY_BUDGET - pointBuySpent();
+        var poolCls = left === 0 ? ' is-empty' : (left < 0 ? ' is-over' : '');
+        html += '<div class="wizard-pointbuy-pool' + poolCls + '">Punten over <span class="pool-val">' + left + '</span>/' + POINTBUY_BUDGET + '</div>';
+    } else if (method === 'array') {
+        html += '<div class="wizard-array-pool">';
+        var assigned = ABILITY_KEYS.map(function (a) { return wizardState.baseAbilities[a]; });
+        STANDARD_ARRAY.forEach(function (v) {
+            var used = assigned.indexOf(v) !== -1;
+            html += '<span class="wizard-array-chip' + (used ? ' is-used' : '') + '">' + v + '</span>';
+        });
+        html += '</div>';
+    }
+
+    html += '<div class="wizard-abilities">';
+    for (var i = 0; i < ABILITY_KEYS.length; i++) {
+        var ab = ABILITY_KEYS[i];
+        var isPrim = prim.indexOf(ab) !== -1;
+        html += '<div class="wizard-ability' + (isPrim ? ' is-primary' : '') + '">';
+        html += '<label>' + ab.toUpperCase() + '</label>';
+        if (method === 'manual') {
+            html += '<input type="number" class="wizard-input wizard-input-sm" data-action="wizard-ability" data-ability="' + ab + '" value="' + wizardState.baseAbilities[ab] + '" min="3" max="20">';
+        } else if (method === 'array') {
+            var cur = wizardState.baseAbilities[ab];
+            html += '<select class="wizard-select-sm wizard-array-select' + (cur ? ' has-value' : '') + '" data-action="wizard-array-assign" data-ability="' + ab + '">';
+            html += '<option value="">&mdash;</option>';
+            STANDARD_ARRAY.forEach(function (v) {
+                var usedElsewhere = false;
+                ABILITY_KEYS.forEach(function (other) { if (other !== ab && wizardState.baseAbilities[other] === v) usedElsewhere = true; });
+                html += '<option value="' + v + '"' + (cur === v ? ' selected' : '') + (usedElsewhere ? ' disabled' : '') + '>' + v + '</option>';
+            });
+            html += '</select>';
+        } else {
+            var pv = wizardState.baseAbilities[ab];
+            var canDec = pv > 8;
+            var canInc = pv < 15 && (POINTBUY_BUDGET - pointBuySpent()) >= (POINTBUY_COST[pv + 1] - POINTBUY_COST[pv]);
+            html += '<div class="wizard-ability-stepper">';
+            html += '<button type="button" class="stepper-btn" data-action="wizard-pointbuy" data-ability="' + ab + '" data-dir="-1"' + (canDec ? '' : ' disabled') + '>&minus;</button>';
+            html += '<span class="stepper-val">' + pv + '</span>';
+            html += '<button type="button" class="stepper-btn" data-action="wizard-pointbuy" data-ability="' + ab + '" data-dir="1"' + (canInc ? '' : ' disabled') + '>+</button>';
+            html += '</div>';
+        }
+        html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+    return html;
 }
 
 function getWizardBackgrounds() {
@@ -463,20 +542,8 @@ function renderWizardStep2() {
     }
     html += '</div>';
 
-    // Ability Scores
-    html += '<div class="wizard-field">';
-    html += '<label class="wizard-label">Ability Scores (basis)</label>';
-    html += '<div class="wizard-abilities">';
-    var abs = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-    for (var i = 0; i < abs.length; i++) {
-        var ab = abs[i];
-        html += '<div class="wizard-ability">';
-        html += '<label>' + ab.toUpperCase() + '</label>';
-        html += '<input type="number" class="wizard-input wizard-input-sm" data-action="wizard-ability" data-ability="' + ab + '" value="' + wizardState.baseAbilities[ab] + '" min="3" max="20">';
-        html += '</div>';
-    }
-    html += '</div>';
-    html += '</div>';
+    // Ability Scores — method-switch (handmatig / standaard array / point-buy)
+    html += renderWizardAbilityScores();
 
     return html;
 }
@@ -767,6 +834,22 @@ function createCharacterFromWizard() {
         return false;
     }
 
+    // Ability-score validatie per methode (#bij5sk).
+    if (wizardState.abilityMethod === 'array') {
+        var got = ABILITY_KEYS.map(function (a) { return wizardState.baseAbilities[a]; }).sort(function (x, y) { return x - y; });
+        var want = STANDARD_ARRAY.slice().sort(function (x, y) { return x - y; });
+        if (got.join(',') !== want.join(',')) {
+            showToast('Standaard array: wijs elk van 15/14/13/12/10/8 precies één keer toe.', 'error');
+            return false;
+        }
+    } else if (wizardState.abilityMethod === 'pointbuy') {
+        var bad = ABILITY_KEYS.some(function (a) { var v = wizardState.baseAbilities[a]; return v < 8 || v > 15; });
+        if (bad || pointBuySpent() > POINTBUY_BUDGET) {
+            showToast('Point buy: scores 8-15 en maximaal ' + POINTBUY_BUDGET + ' punten.', 'error');
+            return false;
+        }
+    }
+
     // Edit-modus (#1): bewerk een bestaand character i.p.v. een nieuw aanmaken.
     // Behoud het id, de niet-wizard config-velden (weapons, quotes, items,
     // timeline, family, …) én de volledige runtime-state (level, HP, items).
@@ -787,6 +870,7 @@ function createCharacterFromWizard() {
         age: wizardState.age || null,
         accentColor: wizardState.accentColor,
         baseAbilities: Object.assign({}, wizardState.baseAbilities),
+        abilityMethod: wizardState.abilityMethod || 'manual',
         backgroundBonuses: bgBonuses,
         defaultSkills: wizardState.skills.slice(),
         defaultCantrips: wizardState.cantrips.slice(),
@@ -903,6 +987,7 @@ function buildWizardStateFromConfig(charId) {
     wizardState.age = (cfg.age != null) ? cfg.age : '';
     wizardState.accentColor = cfg.accentColor || '#22d3ee';
     if (cfg.baseAbilities) wizardState.baseAbilities = Object.assign({ str:10, dex:10, con:10, int:10, wis:10, cha:10 }, cfg.baseAbilities);
+    wizardState.abilityMethod = cfg.abilityMethod || 'manual';
     // Reverse de background-bonuskeuze (+2 / +1) uit backgroundBonuses.
     var bb = cfg.backgroundBonuses || {};
     var plus2 = '', plus1 = '';
@@ -1119,6 +1204,39 @@ function bindWizardEvents() {
         });
     }
 
+    // Ability-method switch (#bij5sk): reset baseAbilities naar de method-default.
+    var methodBtns = container.querySelectorAll('[data-action="wizard-ability-method"]');
+    for (var mbi = 0; mbi < methodBtns.length; mbi++) {
+        _wzBindOnce(methodBtns[mbi], 'click', function(e) {
+            e.stopPropagation();
+            var m = this.dataset.method;
+            if (m === wizardState.abilityMethod) return;
+            wizardState.abilityMethod = m;
+            ABILITY_KEYS.forEach(function(a) {
+                if (m === 'array') wizardState.baseAbilities[a] = 0;       // onassigned
+                else if (m === 'pointbuy') wizardState.baseAbilities[a] = 8;
+                else if (wizardState.baseAbilities[a] < 3) wizardState.baseAbilities[a] = 10;
+            });
+            refreshWizard();
+        });
+    }
+
+    // Point-buy steppers (#bij5sk)
+    var pbBtns = container.querySelectorAll('[data-action="wizard-pointbuy"]');
+    for (var pbi = 0; pbi < pbBtns.length; pbi++) {
+        _wzBindOnce(pbBtns[pbi], 'click', function(e) {
+            e.stopPropagation();
+            var a = this.dataset.ability;
+            var dir = parseInt(this.dataset.dir, 10);
+            var nv = (wizardState.baseAbilities[a] || 8) + dir;
+            if (nv < 8 || nv > 15) return;
+            var delta = POINTBUY_COST[nv] - POINTBUY_COST[wizardState.baseAbilities[a]];
+            if (dir > 0 && (POINTBUY_BUDGET - pointBuySpent()) < delta) return; // te duur
+            wizardState.baseAbilities[a] = nv;
+            refreshWizard();
+        });
+    }
+
     // Skill checkboxes
     var skillBoxes = container.querySelectorAll('[data-action="wizard-skill"]');
     for (var si = 0; si < skillBoxes.length; si++) {
@@ -1210,6 +1328,24 @@ function bindWizardEvents() {
             var ab = target.dataset.ability;
             var val = parseInt(target.value) || 10;
             wizardState.baseAbilities[ab] = Math.max(3, Math.min(20, val));
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-array-assign"]')) {
+            saveWizardStepData();
+            var aAb = target.dataset.ability;
+            var aVal = parseInt(target.value, 10) || 0;
+            // Standard array: elke waarde precies 1×. Pakt een ander veld al deze
+            // waarde, wissel die om (swap) zodat geen waarde dubbel/verloren raakt.
+            if (aVal) {
+                ABILITY_KEYS.forEach(function(other) {
+                    if (other !== aAb && wizardState.baseAbilities[other] === aVal) {
+                        wizardState.baseAbilities[other] = wizardState.baseAbilities[aAb] || 0;
+                    }
+                });
+            }
+            wizardState.baseAbilities[aAb] = aVal;
+            refreshWizard();
             return;
         }
     };

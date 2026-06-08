@@ -8585,6 +8585,130 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .wizard-ability.is-primary:focus-within { border-color: var(--accent); }
 .wizard-primary-note { color: var(--text-dim); }
 .wizard-primary-note strong { color: var(--accent-warm); }
+
+/* === Ability-method switch (segmented pills) — #bij5sk === */
+.wizard-ability-method {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.3rem;
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.9rem;
+}
+.wizard-method-btn {
+    flex: 1 1 auto;
+    min-width: 8rem;
+    min-height: 44px;
+    padding: 0.55rem 0.9rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: calc(var(--radius-sm) - 2px);
+    color: var(--text-dim);
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.wizard-method-btn:hover { color: var(--text-main); }
+.wizard-method-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wizard-method-btn[aria-pressed="true"],
+.wizard-method-btn.is-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg-dark);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+@media (hover: none) { .wizard-method-btn:hover { color: var(--text-dim); } }
+
+/* === Point-buy pool-teller === */
+.wizard-pointbuy-pool {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    margin-bottom: 0.8rem;
+    padding: 0.45rem 0.85rem;
+    background: var(--bg-block);
+    border: 1px solid var(--hairline-gold);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    transition: border-color 0.2s, color 0.2s;
+}
+.wizard-pointbuy-pool .pool-val { font-size: 1.05rem; font-weight: 700; color: var(--accent-warm); transition: color 0.2s; }
+.wizard-pointbuy-pool.is-empty { border-color: var(--accent); }
+.wizard-pointbuy-pool.is-empty .pool-val { color: var(--accent); }
+.wizard-pointbuy-pool.is-over { border-color: #f87171; color: #f87171; }
+.wizard-pointbuy-pool.is-over .pool-val { color: #f87171; }
+
+/* === Ability stepper (− / waarde / +) === */
+.wizard-ability-stepper {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg-card);
+}
+.wizard-ability-stepper .stepper-btn {
+    min-width: 38px;
+    min-height: 44px;
+    padding: 0;
+    background: var(--bg-block);
+    border: none;
+    color: var(--accent);
+    font-size: 1.2rem;
+    line-height: 1;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.wizard-ability-stepper .stepper-btn:hover { background: var(--accent); color: var(--bg-dark); }
+.wizard-ability-stepper .stepper-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.wizard-ability-stepper .stepper-btn:disabled { color: var(--text-dim); opacity: 0.4; cursor: not-allowed; }
+.wizard-ability-stepper .stepper-val {
+    flex: 1;
+    min-width: 2.2ch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    padding: 0 0.2rem;
+    user-select: none;
+}
+@media (hover: none) { .wizard-ability-stepper .stepper-btn:hover { background: var(--bg-block); color: var(--accent); } }
+
+/* === Standard-array toewijzing === */
+.wizard-array-pool { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
+.wizard-array-chip {
+    min-width: 38px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem;
+    background: var(--bg-block);
+    border: 1px solid var(--hairline-gold);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--accent-warm);
+    transition: opacity 0.2s, border-color 0.2s;
+}
+.wizard-array-chip.is-used { opacity: 0.3; border-color: var(--border); color: var(--text-dim); text-decoration: line-through; }
+.wizard-array-select { width: 100%; max-width: none; text-align: center; text-align-last: center; }
+.wizard-array-select.has-value { border-color: var(--accent); color: var(--text-bright); }
+
 .wizard-ability label {
     font-family: var(--font-display);
     font-size: 0.7rem;
@@ -8910,6 +9034,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     .wizard-content { padding: 1rem; }
     .wizard-abilities { grid-template-columns: repeat(3, 1fr); }
     .wizard-skill-grid { grid-template-columns: 1fr; }
+    .wizard-method-btn { flex-basis: 100%; }
+    .wizard-ability-stepper .stepper-btn { min-width: 34px; }
     .wizard-nav { padding: 0.75rem 1rem; }
     .wizard-header { padding: 0.85rem 1rem; }
     .wizard-title { font-size: 1.05rem; letter-spacing: 0.08em; }
