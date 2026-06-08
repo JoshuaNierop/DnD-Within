@@ -737,7 +737,32 @@ function handleMapAction(action, widgetIdx) {
       inp.value = "";
     };
     inp.click();
+  } else if (action === "crop-portrait") {
+    cropWidgetPortrait(widgetIdx);
   }
+}
+
+// #fATDUg: open de crop-editor voor het profielfoto-widget en sla de focal/zoom
+// op onder /dw/characters/{id}/images/portraitCrop (sibling van portrait).
+function cropWidgetPortrait(widgetIdx) {
+  const charId = state.characterId;
+  if (!charId) { showToast("Geen actieve character", "error"); return; }
+  const raw = WG_CHAR_CACHE[charId];
+  const src = raw && raw.images && raw.images.portrait;
+  if (!src) { showToast("Geen portret om bij te snijden", "error"); return; }
+  const crop = (raw.images && raw.images.portraitCrop) || null;
+  if (typeof openCropEditor !== "function") { showToast("Crop-editor niet geladen", "error"); return; }
+  openCropEditor({
+    src: src,
+    crop: crop,
+    shape: "circle",
+    onSave: (newCrop) => {
+      if (state.characterId !== charId) return; // race-guard
+      savePortraitCrop(charId, newCrop); // schrijft cache + firebase + mirror
+      render();
+      showToast("Uitsnede opgeslagen", "success");
+    },
+  });
 }
 
 // V11 Phase 3.4: upload portret naar /dw/characters/{id}/images/portrait.json

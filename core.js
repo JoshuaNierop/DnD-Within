@@ -425,6 +425,38 @@ function loadImage(charId, type) {
     return localStorage.getItem('dw_img_' + charId + '_' + type) || '';
 }
 
+// #fATDUg: portret-uitsnede (focal {x,y} 0-100 + zoom>=1). Canoniek in Firebase
+// onder /dw/characters/{id}/images/portraitCrop (zo leest het widget het via
+// WG_CHAR_CACHE); een localStorage-mirror geeft de wizard een sync-read.
+function loadPortraitCrop(charId) {
+    try {
+        if (typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[charId] &&
+            WG_CHAR_CACHE[charId].images && WG_CHAR_CACHE[charId].images.portraitCrop) {
+            return WG_CHAR_CACHE[charId].images.portraitCrop;
+        }
+    } catch (_) {}
+    try {
+        var s = localStorage.getItem('dw_imgcrop_' + charId + '_portrait');
+        if (s) return JSON.parse(s);
+    } catch (_) {}
+    return null;
+}
+
+function savePortraitCrop(charId, crop) {
+    try { localStorage.setItem('dw_imgcrop_' + charId + '_portrait', JSON.stringify(crop)); } catch (_) {}
+    try {
+        if (typeof FIREBASE_DB !== 'undefined') {
+            fetch(FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/images/portraitCrop.json',
+                { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(crop) });
+        }
+    } catch (_) {}
+    try {
+        if (typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[charId] && WG_CHAR_CACHE[charId].images) {
+            WG_CHAR_CACHE[charId].images.portraitCrop = crop;
+        }
+    } catch (_) {}
+}
+
 function saveImage(charId, type, base64) {
     var key = 'dw_img_' + charId + '_' + type;
     // Route image binary through Firebase Storage when available; persist only

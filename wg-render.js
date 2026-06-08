@@ -419,21 +419,40 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
   // Map widget action buttons (add-pin / upload-image / delete-map) zijn
   // verwijderd: deze edits horen alleen op de Maps-page (DM/Admin only).
 
-  // V11 Phase 3.4: profile-picture widget upload-button
+  // V11 Phase 3.4: profile-picture widget upload-button (+ crop-button, #fATDUg)
   if (kind === 'image' && state.config.editValuesMode) {
-    const BTN_W = 20, BTN_H = 16;
+    const BTN_W = 20, BTN_H = 16, GAP = 4;
     const btnY = y + (barH - BTN_H) / 2;
-    const bx = x + w - 6 - BTN_W;
+
+    // Upload-knop (rechts)
+    const bxUp = x + w - 6 - BTN_W;
     const btnG = el('g', { class: 'map-action-btn', 'data-map-action': 'upload-portrait' });
     const btnTitle = el('title', {});
     btnTitle.textContent = 'Afbeelding uploaden';
     btnG.appendChild(btnTitle);
-    btnG.appendChild(el('rect', { x: bx, y: btnY, width: BTN_W, height: BTN_H, rx: 3 }));
-    const cx = bx + BTN_W / 2, cy = btnY + BTN_H / 2;
+    btnG.appendChild(el('rect', { x: bxUp, y: btnY, width: BTN_W, height: BTN_H, rx: 3 }));
+    const cx = bxUp + BTN_W / 2, cy = btnY + BTN_H / 2;
     btnG.appendChild(el('polyline', { points: `${cx - 4},${cy + 1} ${cx},${cy - 4} ${cx + 4},${cy + 1}` }));
     btnG.appendChild(el('line',     { x1: cx, y1: cy - 4, x2: cx, y2: cy + 5 }));
     btnG.appendChild(el('line',     { x1: cx - 5, y1: cy + 5, x2: cx + 5, y2: cy + 5 }));
     widgetG.appendChild(btnG);
+
+    // Crop-knop (links van upload) — alleen op het profielfoto-widget mét portret
+    const hasPortrait = (function () {
+      if (!state.widget || state.widget.type !== 'profilePicture') return false;
+      const raw = WG_CHAR_CACHE[state.characterId];
+      return !!(raw && raw.images && raw.images.portrait);
+    })();
+    if (hasPortrait) {
+      const bxCr = bxUp - GAP - BTN_W;
+      const crG = el('g', { class: 'map-action-btn', 'data-map-action': 'crop-portrait' });
+      const crTitle = el('title', {});
+      crTitle.textContent = 'Bijsnijden';
+      crG.appendChild(crTitle);
+      crG.appendChild(el('rect', { x: bxCr, y: btnY, width: BTN_W, height: BTN_H, rx: 3 }));
+      drawCropGlyph(crG, bxCr + BTN_W / 2, btnY + BTN_H / 2);
+      widgetG.appendChild(crG);
+    }
   }
 
   // Resize handles — in widgetG zodat data-widget-idx propageert via parent
@@ -442,8 +461,36 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
   drawHandle(widgetG, x + w / 2, y + h, 'widget-bottom-2d');
 }
 
+// Crop-icoon (twee L-hoeken) getekend met lijnen, gecentreerd op (cx,cy).
+function drawCropGlyph(parent, cx, cy) {
+  // bovenste/linker hoek + onderste/rechter hoek vormen het crop-frame
+  parent.appendChild(el('polyline', { points: `${cx - 5},${cy - 2} ${cx - 2},${cy - 2} ${cx - 2},${cy - 6}` }));
+  parent.appendChild(el('polyline', { points: `${cx + 5},${cy + 2} ${cx + 2},${cy + 2} ${cx + 2},${cy + 6}` }));
+  parent.appendChild(el('line', { x1: cx - 6, y1: cy + 2, x2: cx + 3, y2: cy + 2 }));
+  parent.appendChild(el('line', { x1: cx - 2, y1: cy - 3, x2: cx - 2, y2: cy + 6 }));
+}
+
+// Cache van natuurlijke beeldafmetingen (voor exacte cover+focal-point crop).
+// src → {w,h}; 'pending' terwijl de Image() laadt. Bij load → render().
+const WG_IMG_DIMS = {};
+function wgImgNatural(src, onReady) {
+  if (!src) return null;
+  const cached = WG_IMG_DIMS[src];
+  if (cached && cached !== 'pending') return cached;
+  if (cached === 'pending') return null;
+  WG_IMG_DIMS[src] = 'pending';
+  const im = new Image();
+  im.onload = function () {
+    WG_IMG_DIMS[src] = { w: im.naturalWidth || 1, h: im.naturalHeight || 1 };
+    if (typeof onReady === 'function') onReady();
+  };
+  im.onerror = function () { WG_IMG_DIMS[src] = { w: 1, h: 1 }; };
+  im.src = src;
+  return null;
+}
+
 // Tekent één afbeelding in een 'image'-widget (bv. Profile picture).
-// Behoudt het aspect (letterbox); toont een placeholder als er geen src is.
+// Vult het rect via cover/slice; past optioneel crop-params (focal + zoom) toe.
 function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   const pad = (widget.cfg && widget.cfg.widgetPadding) || 0;
   const mx = x + pad, my = contentY + pad;
@@ -452,12 +499,14 @@ function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   const r = Math.min(state.style.widgetRadius || 0, Math.min(mw, mh) / 2);
   // V9: profielfoto-widget leest het portrait van de huidige character;
   // andere image-widgets gebruiken hun eigen widget.image.src.
-  let src = null;
+  let src = null, crop = null;
   if (widget.type === 'profilePicture') {
     const raw = WG_CHAR_CACHE[state.characterId];
     src = (raw && raw.images && raw.images.portrait) || null;
+    crop = (raw && raw.images && raw.images.portraitCrop) || null;
   } else {
     src = widget.image && widget.image.src;
+    crop = widget.image && widget.image.crop;
   }
   if (!src) {
     // Nog geen afbeelding ingesteld → placeholder.
@@ -481,12 +530,33 @@ function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   const clipG = el('g', { 'clip-path': `url(#${clipId})` });
   g.appendChild(clipG);
   clipG.appendChild(el('rect', { x: mx, y: my, width: mw, height: mh, class: 'map-placeholder' }));
-  const img = el('image', {
-    x: mx, y: my, width: mw, height: mh,
-    preserveAspectRatio: 'xMidYMid slice', class: 'map-image',
-  });
-  img.setAttribute('href', src);
-  clipG.appendChild(img);
+
+  // Crop-params: {x,y} focal in 0-100 (50=midden), zoom>=1. Exacte cover+focal
+  // vereist de natuurlijke beeldverhouding → async geladen via wgImgNatural.
+  const hasCrop = crop && (crop.zoom > 1.001 || crop.x !== 50 || crop.y !== 50);
+  const nat = hasCrop ? wgImgNatural(src, () => render()) : null;
+  if (hasCrop && nat) {
+    const z = Math.max(1, crop.zoom || 1);
+    const fx = Math.min(1, Math.max(0, (crop.x == null ? 50 : crop.x) / 100));
+    const fy = Math.min(1, Math.max(0, (crop.y == null ? 50 : crop.y) / 100));
+    const scale = Math.max(mw / nat.w, mh / nat.h) * z;
+    const rw = nat.w * scale, rh = nat.h * scale;
+    const ox = -(rw - mw) * fx, oy = -(rh - mh) * fy;
+    const img = el('image', {
+      x: mx + ox, y: my + oy, width: rw, height: rh,
+      preserveAspectRatio: 'none', class: 'map-image',
+    });
+    img.setAttribute('href', src);
+    clipG.appendChild(img);
+  } else {
+    // Geen crop (of nat-dims nog niet geladen): cover/slice gecentreerd.
+    const img = el('image', {
+      x: mx, y: my, width: mw, height: mh,
+      preserveAspectRatio: 'xMidYMid slice', class: 'map-image',
+    });
+    img.setAttribute('href', src);
+    clipG.appendChild(img);
+  }
 }
 
 // Tekent een campagne-kaart in een map-widget: SVG-image + klikbare pin-shapes.

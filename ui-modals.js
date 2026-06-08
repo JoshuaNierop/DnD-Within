@@ -155,6 +155,7 @@ function initWizardState() {
         age: '',
         accentColor: '#22d3ee',
         portrait: '',
+        portraitCrop: null,
         skills: [],
         cantrips: [],
         appearance: '',
@@ -354,15 +355,22 @@ function renderWizardModal() {
     // Portret-upload (#5Y8aZh): label wraps a hidden file input → de hele cirkel
     // is een tap-target. Base64 leeft in wizardState.portrait (overleeft de
     // refreshWizard re-render); de Cloudinary-upload gebeurt pas bij character-save.
+    html += '<div class="wizard-portrait-wrap">';
     html += '<label class="wizard-sidebar-portrait" style="border-color:' + sidebarColor + '">';
     if (wizardState.portrait) {
-        html += '<img class="wizard-portrait-img" src="' + escapeAttr(wizardState.portrait) + '" alt="">';
+        html += '<img id="wizardPortraitImg" class="wizard-portrait-img" src="' + escapeAttr(wizardState.portrait) + '" alt="">';
     } else {
         html += '<span class="wizard-portrait-placeholder">&#128100;</span>';
     }
     html += '<span class="wizard-portrait-overlay" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Zm0-8.2h2.3l1.2-1.6h2.8A1.7 1.7 0 0 1 22 6.8v10.4A1.7 1.7 0 0 1 20.3 19H3.7A1.7 1.7 0 0 1 2 17.2V6.8A1.7 1.7 0 0 1 3.7 5h2.8L7.7 3H12Z"/></svg></span>';
     html += '<input type="file" accept="image/*" class="wizard-portrait-input" aria-label="Portret uploaden" data-action="upload-wizard-portrait">';
     html += '</label>';
+    // Crop-knop (#fATDUg): alleen tonen als er een portret is; buiten het <label>
+    // zodat een klik niet de file-picker triggert.
+    if (wizardState.portrait) {
+        html += '<button type="button" class="portrait-crop-btn" data-action="crop-wizard-portrait" title="Bijsnijden" aria-label="Portret bijsnijden"><svg viewBox="0 0 24 24"><path d="M7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7V7z M17 15h2V7c0-1.1-.9-2-2-2H9v2h8z"/></svg></button>';
+    }
+    html += '</div>';
     html += '<div class="wizard-sidebar-name" style="color:' + sidebarColor + '">' + escapeHtml(wizardState.name || '???') + '</div>';
     if (wizardState.race) html += '<div class="wizard-sidebar-detail">' + raceDisplayName(wizardState.race) + '</div>';
     if (wizardState.className) html += '<div class="wizard-sidebar-detail">' + classDisplayName(wizardState.className) + '</div>';
@@ -894,6 +902,10 @@ function createCharacterFromWizard() {
     if (wizardState.portrait && wizardState.portrait.indexOf('data:') === 0) {
         saveImage(charId, 'portrait', wizardState.portrait);
     }
+    // Portret-uitsnede (#fATDUg) meeslaan zodat dashboard-widget + sheet hem oppikken.
+    if (typeof savePortraitCrop === 'function') {
+        savePortraitCrop(charId, wizardState.portraitCrop || null);
+    }
 
     // Edit-modus: runtime-state (level, HP, gekozen skills/items) intact laten.
     if (isEdit) {
@@ -996,6 +1008,7 @@ function buildWizardStateFromConfig(charId) {
     wizardState.cantrips = (cfg.defaultCantrips || []).slice();
     wizardState.appearance = (cfg.appearance && cfg.appearance[0]) ? cfg.appearance[0] : '';
     wizardState.portrait = (typeof loadImage === 'function') ? (loadImage(charId, 'portrait') || '') : '';
+    wizardState.portraitCrop = loadPortraitCrop(charId);
     wizardState.personality = Object.assign({ traits:'', ideal:'', bond:'', flaw:'' }, cfg.personality || {});
     wizardState.backstory = cfg.backstory || '';
     return true;
@@ -1088,6 +1101,41 @@ function closeWizard() {
     unlockBodyScroll();
 }
 
+// #fATDUg: positioneer de wizard-sidebar-preview volgens de opgeslagen uitsnede
+// (focal {x,y} 0-100 + zoom). Zelfde cover+focal-formule als het SVG-widget, zodat
+// wizard en dashboard identiek croppen. Zonder uitsnede → default CSS-cover.
+function hydrateWizardPortraitCrop() {
+    var img = document.getElementById('wizardPortraitImg');
+    if (!img) return;
+    var crop = wizardState && wizardState.portraitCrop;
+    var box = img.closest('.wizard-sidebar-portrait');
+    var hasCrop = crop && (crop.zoom > 1.001 || crop.x !== 50 || crop.y !== 50);
+    if (!box || !hasCrop) {
+        img.style.position = ''; img.style.left = ''; img.style.top = '';
+        img.style.width = ''; img.style.height = ''; img.style.maxWidth = ''; img.style.objectFit = '';
+        return;
+    }
+    var apply = function () {
+        var bw = box.clientWidth || 120, bh = box.clientHeight || 120;
+        var nw = img.naturalWidth, nh = img.naturalHeight;
+        if (!nw || !nh) return;
+        var z = Math.max(1, crop.zoom || 1);
+        var fx = Math.min(1, Math.max(0, (crop.x == null ? 50 : crop.x) / 100));
+        var fy = Math.min(1, Math.max(0, (crop.y == null ? 50 : crop.y) / 100));
+        var scale = Math.max(bw / nw, bh / nh) * z;
+        var rw = nw * scale, rh = nh * scale;
+        img.style.position = 'absolute';
+        img.style.left = (-(rw - bw) * fx) + 'px';
+        img.style.top = (-(rh - bh) * fy) + 'px';
+        img.style.width = rw + 'px';
+        img.style.height = rh + 'px';
+        img.style.maxWidth = 'none';
+        img.style.objectFit = 'fill';
+    };
+    if (img.complete && img.naturalWidth) apply();
+    else img.onload = apply;
+}
+
 function refreshWizard() {
     var el = document.getElementById('wizard-container');
     if (!el) return;
@@ -1161,6 +1209,27 @@ function bindWizardEvents() {
         saveWizardStepData();
         if (wizardState.step > 1) { wizardState.step--; refreshWizard(); }
     });
+
+    // Crop-knop (#fATDUg) — opent de crop-editor; bij opslaan zet de uitsnede in
+    // wizardState (gepersisteerd bij character-save) en hydrateert de preview.
+    var cropBtn = container.querySelector('[data-action="crop-wizard-portrait"]');
+    _wzBindOnce(cropBtn, 'click', function(e) {
+        e.stopPropagation();
+        if (!wizardState || !wizardState.portrait) return;
+        if (typeof openCropEditor !== 'function') { showToast('Crop-editor niet geladen', 'error'); return; }
+        openCropEditor({
+            src: wizardState.portrait,
+            crop: wizardState.portraitCrop,
+            shape: 'circle',
+            onSave: function (newCrop) {
+                wizardState.portraitCrop = newCrop;
+                hydrateWizardPortraitCrop();
+            }
+        });
+    });
+
+    // Pas een eventuele uitsnede toe op de sidebar-preview.
+    hydrateWizardPortraitCrop();
 
     var cancelBtn = container.querySelector('[data-action="wizard-cancel"]');
     _wzBindOnce(cancelBtn, 'click', function(e) {
@@ -1619,21 +1688,9 @@ document.addEventListener('change', function(e) {
         if (wpFile && typeof _compressImageFile === 'function' && wizardState) {
             _compressImageFile(wpFile, 600, 0.8, function (dataUrl) {
                 wizardState.portrait = dataUrl;
-                // Directe preview zonder volledige re-render.
-                var box = document.querySelector('.wizard-sidebar-portrait');
-                if (box) {
-                    var ph = box.querySelector('.wizard-portrait-placeholder');
-                    var im = box.querySelector('.wizard-portrait-img');
-                    if (im) { im.src = dataUrl; }
-                    else {
-                        if (ph) ph.remove();
-                        var newImg = document.createElement('img');
-                        newImg.className = 'wizard-portrait-img';
-                        newImg.alt = '';
-                        newImg.src = dataUrl;
-                        box.insertBefore(newImg, box.firstChild);
-                    }
-                }
+                wizardState.portraitCrop = null; // nieuw beeld → reset uitsnede
+                // Re-render de sidebar zodat de crop-knop verschijnt + preview klopt.
+                if (typeof refreshWizard === 'function') refreshWizard();
             });
             try { target.value = ''; } catch (_) {}
         }
@@ -1731,4 +1788,139 @@ document.addEventListener('change', function(e) {
         return;
     }
 });
+
+// ============================================================
+// #fATDUg — Portret crop-editor (knop-gebaseerd + sleep/scroll)
+// Generiek: gebruikt door het profielfoto-widget (wg-events.js) én de
+// character-wizard (bindWizardEvents). Bewerkt focal {x,y} 0-100 + zoom>=1 en
+// roept opts.onSave(crop) aan. Slaat zelf niets op — de aanroeper persisteert.
+// ============================================================
+function openCropEditor(opts) {
+    opts = opts || {};
+    var src = opts.src;
+    if (!src) return;
+    var shape = opts.shape === 'square' ? 'square' : 'circle';
+    var st = {
+        x: (opts.crop && opts.crop.x != null) ? opts.crop.x : 50,
+        y: (opts.crop && opts.crop.y != null) ? opts.crop.y : 50,
+        zoom: (opts.crop && opts.crop.zoom) ? Math.max(1, opts.crop.zoom) : 1
+    };
+
+    var prev = document.getElementById('crop-editor');
+    if (prev) prev.remove();
+
+    var ov = document.createElement('div');
+    ov.id = 'crop-editor';
+    ov.className = 'modal-overlay crop-editor-overlay';
+    ov.innerHTML =
+        '<div class="crop-card">' +
+            '<div class="crop-header"><h2>Portret bijsnijden</h2>' +
+            '<button class="modal-close" data-crop="cancel" aria-label="Sluiten">&times;</button></div>' +
+            '<div class="crop-stage"><div class="crop-box crop-' + shape + '">' +
+            '<img class="crop-img" alt="" draggable="false"></div></div>' +
+            '<div class="crop-controls">' +
+                '<div class="crop-zoom-row">' +
+                    '<button class="crop-btn" data-crop="zoom-out" aria-label="Uitzoomen">&minus;</button>' +
+                    '<span class="crop-zoom-val">100%</span>' +
+                    '<button class="crop-btn" data-crop="zoom-in" aria-label="Inzoomen">+</button>' +
+                '</div>' +
+                '<div class="crop-dpad">' +
+                    '<button class="crop-btn dpad-up" data-crop="up" aria-label="Omhoog">&#9650;</button>' +
+                    '<button class="crop-btn dpad-left" data-crop="left" aria-label="Links">&#9664;</button>' +
+                    '<button class="crop-btn dpad-center" data-crop="reset" aria-label="Centreren" title="Reset">&#8982;</button>' +
+                    '<button class="crop-btn dpad-right" data-crop="right" aria-label="Rechts">&#9654;</button>' +
+                    '<button class="crop-btn dpad-down" data-crop="down" aria-label="Omlaag">&#9660;</button>' +
+                '</div>' +
+                '<p class="crop-hint">Sleep de foto of gebruik de knoppen. Scrollen zoomt.</p>' +
+            '</div>' +
+            '<div class="crop-actions">' +
+                '<button class="edit-cancel" data-crop="cancel">Annuleren</button>' +
+                '<button class="edit-save" data-crop="save">Opslaan</button>' +
+            '</div>' +
+        '</div>';
+    document.body.appendChild(ov);
+    if (typeof lockBodyScroll === 'function') lockBodyScroll();
+
+    var box = ov.querySelector('.crop-box');
+    var img = ov.querySelector('.crop-img');
+    var zoomVal = ov.querySelector('.crop-zoom-val');
+    img.src = src;
+
+    var rendered = { rw: 0, rh: 0, bw: 0, bh: 0 };
+    function apply() {
+        var bw = box.clientWidth, bh = box.clientHeight;
+        var nw = img.naturalWidth, nh = img.naturalHeight;
+        if (!nw || !nh || !bw) return;
+        st.zoom = Math.min(4, Math.max(1, st.zoom));
+        st.x = Math.min(100, Math.max(0, st.x));
+        st.y = Math.min(100, Math.max(0, st.y));
+        var scale = Math.max(bw / nw, bh / nh) * st.zoom;
+        var rw = nw * scale, rh = nh * scale;
+        img.style.width = rw + 'px';
+        img.style.height = rh + 'px';
+        img.style.left = (-(rw - bw) * (st.x / 100)) + 'px';
+        img.style.top = (-(rh - bh) * (st.y / 100)) + 'px';
+        rendered = { rw: rw, rh: rh, bw: bw, bh: bh };
+        zoomVal.textContent = Math.round(st.zoom * 100) + '%';
+    }
+    if (img.complete && img.naturalWidth) apply();
+    else img.onload = apply;
+
+    function close() {
+        if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+        document.removeEventListener('keydown', onKey);
+        ov.remove();
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    document.addEventListener('keydown', onKey);
+
+    ov.addEventListener('click', function (e) {
+        if (e.target === ov) { close(); return; }
+        var b = e.target.closest('[data-crop]');
+        if (!b) return;
+        var a = b.dataset.crop;
+        var PAN = 4, ZS = 0.15;
+        if (a === 'cancel') return close();
+        if (a === 'save') {
+            if (opts.onSave) opts.onSave({ x: Math.round(st.x), y: Math.round(st.y), zoom: Math.round(st.zoom * 100) / 100 });
+            return close();
+        }
+        if (a === 'zoom-in') st.zoom += ZS;
+        else if (a === 'zoom-out') st.zoom -= ZS;
+        else if (a === 'up') st.y -= PAN;
+        else if (a === 'down') st.y += PAN;
+        else if (a === 'left') st.x -= PAN;
+        else if (a === 'right') st.x += PAN;
+        else if (a === 'reset') { st.x = 50; st.y = 50; st.zoom = 1; }
+        apply();
+    });
+
+    box.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        st.zoom += (e.deltaY < 0 ? 0.1 : -0.1);
+        apply();
+    }, { passive: false });
+
+    var drag = null;
+    box.addEventListener('pointerdown', function (e) {
+        drag = { sx: e.clientX, sy: e.clientY, x: st.x, y: st.y };
+        try { box.setPointerCapture(e.pointerId); } catch (_) {}
+        box.classList.add('dragging');
+    });
+    box.addEventListener('pointermove', function (e) {
+        if (!drag) return;
+        var ovx = rendered.rw - rendered.bw, ovy = rendered.rh - rendered.bh;
+        if (ovx > 0) st.x = drag.x - ((e.clientX - drag.sx) / ovx) * 100;
+        if (ovy > 0) st.y = drag.y - ((e.clientY - drag.sy) / ovy) * 100;
+        apply();
+    });
+    function endDrag(e) {
+        if (!drag) return;
+        drag = null;
+        box.classList.remove('dragging');
+        try { box.releasePointerCapture(e.pointerId); } catch (_) {}
+    }
+    box.addEventListener('pointerup', endDrag);
+    box.addEventListener('pointercancel', endDrag);
+}
 
