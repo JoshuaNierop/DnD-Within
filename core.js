@@ -876,6 +876,19 @@ function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+// Data-localize (#aftET9): game-data velden mogen óf een kale string (legacy NL),
+// óf een {nl, en}-object zijn. Geeft de string in de actieve taal terug, met NL
+// als canonieke fallback. Backward-compatible: ongemigreerde string-data blijft werken.
+function dloc(value) {
+    if (value == null) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object') {
+        var lang = (typeof getLang === 'function') ? getLang() : 'en';
+        return value[lang] || value.nl || value.en || '';
+    }
+    return String(value);
+}
+
 function classDisplayName(className) {
     var names = {
         rogue: 'Rogue', sorcerer: 'Sorcerer', ranger: 'Ranger',

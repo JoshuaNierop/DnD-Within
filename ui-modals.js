@@ -454,7 +454,7 @@ function renderWizardStep1() {
         if (raceData.darkvision) html += '<p class="wizard-detail"><strong>Darkvision:</strong> ' + raceData.darkvision + 'ft</p>';
         if (raceData.features) {
             for (var fi = 0; fi < raceData.features.length; fi++) {
-                html += '<p class="wizard-detail"><strong>' + escapeHtml(raceData.features[fi].name) + ':</strong> ' + escapeHtml(raceData.features[fi].desc) + '</p>';
+                html += '<p class="wizard-detail"><strong>' + escapeHtml(raceData.features[fi].name) + ':</strong> ' + escapeHtml(dloc(raceData.features[fi].desc)) + '</p>';
             }
         }
         html += '</details>';
@@ -513,7 +513,7 @@ function renderWizardStep2() {
         var bg = DATA.backgrounds[wizardState.background];
         html += '<details class="wizard-preview" open>';
         html += '<summary>' + bg.name + '</summary>';
-        html += '<p class="wizard-detail">' + escapeHtml(bg.desc) + '</p>';
+        html += '<p class="wizard-detail">' + escapeHtml(dloc(bg.desc)) + '</p>';
         html += '<p class="wizard-detail"><strong>Skills:</strong> ' + bg.skills.join(', ') + '</p>';
         html += '<p class="wizard-detail"><strong>Tool:</strong> ' + bg.tool + '</p>';
         html += '<p class="wizard-detail"><strong>Feat:</strong> ' + bg.feat + '</p>';

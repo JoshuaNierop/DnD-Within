@@ -9,9 +9,9 @@ const DATA = {
         darkvision: 60,
         legacy: true,
         features: [
-            { name: "Darkvision", desc: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light." },
-            { name: "Fey Ancestry", desc: "Advantage op saving throws tegen charmed. Magie kan je niet in slaap brengen." },
-            { name: "Skill Versatility", desc: "Proficiency in 2 extra skills naar keuze." }
+            { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
+            { name: "Fey Ancestry", desc: { nl: "Advantage op saving throws tegen charmed. Magie kan je niet in slaap brengen.", en: "Advantage on saving throws against charmed. Magic cannot put you to sleep." } },
+            { name: "Skill Versatility", desc: { nl: "Proficiency in 2 extra skills naar keuze.", en: "Proficiency in 2 additional skills of your choice." } }
         ]
     },
 
@@ -19,9 +19,9 @@ const DATA = {
     human: {
         speed: 30,
         features: [
-            { name: "Resourceful", desc: "Je krijgt Heroic Inspiration na elke long rest." },
-            { name: "Skillful", desc: "Je krijgt proficiency in 1 extra skill naar keuze." },
-            { name: "Versatile", desc: "Je krijgt een origin feat naar keuze." }
+            { name: "Resourceful", desc: { nl: "Je krijgt Heroic Inspiration na elke long rest.", en: "You gain Heroic Inspiration after every long rest." } },
+            { name: "Skillful", desc: { nl: "Je krijgt proficiency in 1 extra skill naar keuze.", en: "You gain proficiency in 1 additional skill of your choice." } },
+            { name: "Versatile", desc: { nl: "Je krijgt een origin feat naar keuze.", en: "You gain an origin feat of your choice." } }
         ]
     },
 
@@ -29,10 +29,10 @@ const DATA = {
     halfling: {
         speed: 30,
         features: [
-            { name: "Brave", desc: "Advantage op saving throws tegen frightened." },
-            { name: "Halfling Nimbleness", desc: "Je kunt door de ruimte van creatures bewegen die groter zijn dan jij (Medium of groter)." },
-            { name: "Luck", desc: "Als je een 1 rolt op een d20 voor een attack roll, ability check of saving throw, mag je opnieuw rollen en het nieuwe resultaat gebruiken." },
-            { name: "Naturally Stealthy", desc: "Je kunt je verbergen achter een creature dat minstens Medium is." }
+            { name: "Brave", desc: { nl: "Advantage op saving throws tegen frightened.", en: "Advantage on saving throws against frightened." } },
+            { name: "Halfling Nimbleness", desc: { nl: "Je kunt door de ruimte van creatures bewegen die groter zijn dan jij (Medium of groter).", en: "You can move through the space of creatures larger than you (Medium or larger)." } },
+            { name: "Luck", desc: { nl: "Als je een 1 rolt op een d20 voor een attack roll, ability check of saving throw, mag je opnieuw rollen en het nieuwe resultaat gebruiken.", en: "When you roll a 1 on a d20 for an attack roll, ability check or saving throw, you can reroll and use the new result." } },
+            { name: "Naturally Stealthy", desc: { nl: "Je kunt je verbergen achter een creature dat minstens Medium is.", en: "You can hide behind a creature that is at least Medium." } }
         ]
     },
 
@@ -41,9 +41,9 @@ const DATA = {
         speed: 30,
         darkvision: 60,
         features: [
-            { name: "Darkvision", desc: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light." },
-            { name: "Fiendish Legacy", desc: "Kies een legacy: Abyssal (poison resistance), Chthonic (necrotic resistance), of Infernal (fire resistance). Je krijgt bijbehorende spells op hogere levels." },
-            { name: "Otherworldly Presence", desc: "Je kent de Thaumaturgy cantrip." }
+            { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
+            { name: "Fiendish Legacy", desc: { nl: "Kies een legacy: Abyssal (poison resistance), Chthonic (necrotic resistance), of Infernal (fire resistance). Je krijgt bijbehorende spells op hogere levels.", en: "Choose a legacy: Abyssal (poison resistance), Chthonic (necrotic resistance), or Infernal (fire resistance). You gain associated spells at higher levels." } },
+            { name: "Otherworldly Presence", desc: { nl: "Je kent de Thaumaturgy cantrip.", en: "You know the Thaumaturgy cantrip." } }
         ]
     },
 
@@ -52,11 +52,11 @@ const DATA = {
         speed: 30,
         darkvision: 60,
         features: [
-            { name: "Celestial Resistance", desc: "Je hebt resistance tegen necrotic en radiant damage." },
-            { name: "Darkvision", desc: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light." },
-            { name: "Healing Hands", desc: "Als action, raak een creature aan om HP te herstellen gelijk aan je proficiency bonus. 1x per long rest." },
-            { name: "Light Bearer", desc: "Je kent de Light cantrip." },
-            { name: "Celestial Revelation", desc: "Vanaf level 3: kies Heavenly Wings (vliegende speed), Inner Radiance (extra radiant damage in een aura), of Necrotic Shroud (frightened aura + extra necrotic damage)." }
+            { name: "Celestial Resistance", desc: { nl: "Je hebt resistance tegen necrotic en radiant damage.", en: "You have resistance to necrotic and radiant damage." } },
+            { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
+            { name: "Healing Hands", desc: { nl: "Als action, raak een creature aan om HP te herstellen gelijk aan je proficiency bonus. 1x per long rest.", en: "As an action, touch a creature to restore HP equal to your proficiency bonus. Once per long rest." } },
+            { name: "Light Bearer", desc: { nl: "Je kent de Light cantrip.", en: "You know the Light cantrip." } },
+            { name: "Celestial Revelation", desc: { nl: "Vanaf level 3: kies Heavenly Wings (vliegende speed), Inner Radiance (extra radiant damage in een aura), of Necrotic Shroud (frightened aura + extra necrotic damage).", en: "From level 3: choose Heavenly Wings (flying speed), Inner Radiance (extra radiant damage in an aura), or Necrotic Shroud (frightened aura + extra necrotic damage)." } }
         ]
     },
 
@@ -65,11 +65,11 @@ const DATA = {
         speed: 35,
         darkvision: 60,
         features: [
-            { name: "Darkvision", desc: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light." },
-            { name: "Fey Ancestry", desc: "Advantage op saving throws tegen de charmed condition. Je bent immuun voor magische slaap." },
-            { name: "Keen Senses", desc: "Proficiency in de Perception skill." },
-            { name: "Trance", desc: "Je hoeft niet te slapen. In plaats daarvan mediteer je 4 uur per long rest." },
-            { name: "Elf Lineage: Wood Elf", desc: "Walking speed 35ft. Level 3: Longstrider (1x/long rest gratis). Level 5: Pass Without Trace (1x/long rest gratis)." }
+            { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
+            { name: "Fey Ancestry", desc: { nl: "Advantage op saving throws tegen de charmed condition. Je bent immuun voor magische slaap.", en: "Advantage on saving throws against the charmed condition. You are immune to magical sleep." } },
+            { name: "Keen Senses", desc: { nl: "Proficiency in de Perception skill.", en: "Proficiency in the Perception skill." } },
+            { name: "Trance", desc: { nl: "Je hoeft niet te slapen. In plaats daarvan mediteer je 4 uur per long rest.", en: "You do not need to sleep. Instead, you meditate for 4 hours per long rest." } },
+            { name: "Elf Lineage: Wood Elf", desc: { nl: "Walking speed 35ft. Level 3: Longstrider (1x/long rest gratis). Level 5: Pass Without Trace (1x/long rest gratis).", en: "Walking speed 35ft. Level 3: Longstrider (free, 1x/long rest). Level 5: Pass Without Trace (free, 1x/long rest)." } }
         ]
     },
 
@@ -78,11 +78,11 @@ const DATA = {
         speed: 30,
         darkvision: 60,
         features: [
-            { name: "Darkvision", desc: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light." },
-            { name: "Fey Ancestry", desc: "Advantage op saving throws tegen de charmed condition. Je bent immuun voor magische slaap." },
-            { name: "Keen Senses", desc: "Proficiency in de Perception skill." },
-            { name: "Trance", desc: "Je hoeft niet te slapen. In plaats daarvan mediteer je 4 uur per long rest." },
-            { name: "Elf Lineage: High Elf", desc: "Leer 1 wizard cantrip (INT). Level 3: Detect Magic (1x/long rest gratis). Level 5: Misty Step (1x/long rest gratis). Bij long rest: wissel cantrip optioneel." }
+            { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
+            { name: "Fey Ancestry", desc: { nl: "Advantage op saving throws tegen de charmed condition. Je bent immuun voor magische slaap.", en: "Advantage on saving throws against the charmed condition. You are immune to magical sleep." } },
+            { name: "Keen Senses", desc: { nl: "Proficiency in de Perception skill.", en: "Proficiency in the Perception skill." } },
+            { name: "Trance", desc: { nl: "Je hoeft niet te slapen. In plaats daarvan mediteer je 4 uur per long rest.", en: "You do not need to sleep. Instead, you meditate for 4 hours per long rest." } },
+            { name: "Elf Lineage: High Elf", desc: { nl: "Leer 1 wizard cantrip (INT). Level 3: Detect Magic (1x/long rest gratis). Level 5: Misty Step (1x/long rest gratis). Bij long rest: wissel cantrip optioneel.", en: "Learn 1 wizard cantrip (INT). Level 3: Detect Magic (free, 1x/long rest). Level 5: Misty Step (free, 1x/long rest). On a long rest: optionally swap the cantrip." } }
         ]
     },
 
@@ -91,11 +91,11 @@ const DATA = {
         speed: 30,
         darkvision: 120,
         features: [
-            { name: "Superior Darkvision", desc: "Je kunt in dim light zien als bright light tot 120ft, en in duisternis als dim light." },
-            { name: "Fey Ancestry", desc: "Advantage op saving throws tegen de charmed condition. Je bent immuun voor magische slaap." },
-            { name: "Keen Senses", desc: "Proficiency in de Perception skill." },
-            { name: "Trance", desc: "Je hoeft niet te slapen. In plaats daarvan mediteer je 4 uur per long rest." },
-            { name: "Elf Lineage: Drow", desc: "Leer Dancing Lights cantrip (CHA). Level 3: Faerie Fire (1x/long rest gratis). Level 5: Darkness (1x/long rest gratis)." }
+            { name: "Superior Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 120ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 120ft, and in darkness as if it were dim light." } },
+            { name: "Fey Ancestry", desc: { nl: "Advantage op saving throws tegen de charmed condition. Je bent immuun voor magische slaap.", en: "Advantage on saving throws against the charmed condition. You are immune to magical sleep." } },
+            { name: "Keen Senses", desc: { nl: "Proficiency in de Perception skill.", en: "Proficiency in the Perception skill." } },
+            { name: "Trance", desc: { nl: "Je hoeft niet te slapen. In plaats daarvan mediteer je 4 uur per long rest.", en: "You do not need to sleep. Instead, you meditate for 4 hours per long rest." } },
+            { name: "Elf Lineage: Drow", desc: { nl: "Leer Dancing Lights cantrip (CHA). Level 3: Faerie Fire (1x/long rest gratis). Level 5: Darkness (1x/long rest gratis).", en: "Learn the Dancing Lights cantrip (CHA). Level 3: Faerie Fire (free, 1x/long rest). Level 5: Darkness (free, 1x/long rest)." } }
         ]
     },
 
@@ -104,10 +104,10 @@ const DATA = {
         speed: 30,
         darkvision: 120,
         features: [
-            { name: "Darkvision", desc: "Je kunt in dim light zien als bright light tot 120ft, en in duisternis als dim light." },
-            { name: "Dwarven Resilience", desc: "Resistance tegen poison damage. Advantage op saving throws tegen de poisoned condition." },
-            { name: "Dwarven Toughness", desc: "Je max HP stijgt met 1 per level (retroactief)." },
-            { name: "Stonecunning", desc: "Als bonus action, activeer Tremorsense 60ft op stenen oppervlakken voor 10 minuten. Aantal keer = proficiency bonus per long rest." }
+            { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 120ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 120ft, and in darkness as if it were dim light." } },
+            { name: "Dwarven Resilience", desc: { nl: "Resistance tegen poison damage. Advantage op saving throws tegen de poisoned condition.", en: "Resistance to poison damage. Advantage on saving throws against the poisoned condition." } },
+            { name: "Dwarven Toughness", desc: { nl: "Je max HP stijgt met 1 per level (retroactief).", en: "Your max HP increases by 1 per level (retroactive)." } },
+            { name: "Stonecunning", desc: { nl: "Als bonus action, activeer Tremorsense 60ft op stenen oppervlakken voor 10 minuten. Aantal keer = proficiency bonus per long rest.", en: "As a bonus action, activate Tremorsense 60ft on stone surfaces for 10 minutes. Number of uses = proficiency bonus per long rest." } }
         ]
     },
 
@@ -116,9 +116,9 @@ const DATA = {
         speed: 30,
         darkvision: 60,
         features: [
-            { name: "Darkvision", desc: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light." },
-            { name: "Gnome Cunning", desc: "Advantage op INT, WIS en CHA saving throws tegen spells en magische effecten." },
-            { name: "Gnome Lineage", desc: "Kies Forest Gnome (Minor Illusion cantrip + Speak with Animals prof bonus keer/long rest) of Rock Gnome (Mending + Prestidigitation cantrips, Tinker: maak clockwork devices)." }
+            { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
+            { name: "Gnome Cunning", desc: { nl: "Advantage op INT, WIS en CHA saving throws tegen spells en magische effecten.", en: "Advantage on INT, WIS and CHA saving throws against spells and magical effects." } },
+            { name: "Gnome Lineage", desc: { nl: "Kies Forest Gnome (Minor Illusion cantrip + Speak with Animals prof bonus keer/long rest) of Rock Gnome (Mending + Prestidigitation cantrips, Tinker: maak clockwork devices).", en: "Choose Forest Gnome (Minor Illusion cantrip + Speak with Animals, prof bonus times/long rest) or Rock Gnome (Mending + Prestidigitation cantrips, Tinker: make clockwork devices)." } }
         ]
     },
 
@@ -126,9 +126,9 @@ const DATA = {
     goliath: {
         speed: 35,
         features: [
-            { name: "Giant Ancestry", desc: "Kies een Giant lineage: Cloud (Fog Cloud bonus action), Fire (fire resistance + 1d10 fire damage reactie), Frost (cold resistance + 1d10 cold damage reactie), Hill (knock prone op hit), Stone (resistance via reaction), Storm (fly 30ft als bonus action). Uses = prof bonus per long rest." },
-            { name: "Large Form", desc: "Vanaf level 5: als bonus action word je Large voor 10 minuten. Advantage op STR checks, +10ft speed. 1x per long rest." },
-            { name: "Powerful Build", desc: "Je telt als Large voor carrying capacity en push/drag/lift." }
+            { name: "Giant Ancestry", desc: { nl: "Kies een Giant lineage: Cloud (Fog Cloud bonus action), Fire (fire resistance + 1d10 fire damage reactie), Frost (cold resistance + 1d10 cold damage reactie), Hill (knock prone op hit), Stone (resistance via reaction), Storm (fly 30ft als bonus action). Uses = prof bonus per long rest.", en: "Choose a Giant lineage: Cloud (Fog Cloud bonus action), Fire (fire resistance + 1d10 fire damage reaction), Frost (cold resistance + 1d10 cold damage reaction), Hill (knock prone on hit), Stone (resistance via reaction), Storm (fly 30ft as a bonus action). Uses = prof bonus per long rest." } },
+            { name: "Large Form", desc: { nl: "Vanaf level 5: als bonus action word je Large voor 10 minuten. Advantage op STR checks, +10ft speed. 1x per long rest.", en: "From level 5: as a bonus action you become Large for 10 minutes. Advantage on STR checks, +10ft speed. Once per long rest." } },
+            { name: "Powerful Build", desc: { nl: "Je telt als Large voor carrying capacity en push/drag/lift.", en: "You count as Large for carrying capacity and push/drag/lift." } }
         ]
     },
 
@@ -137,9 +137,9 @@ const DATA = {
         speed: 30,
         darkvision: 120,
         features: [
-            { name: "Darkvision", desc: "Je kunt in dim light zien als bright light tot 120ft, en in duisternis als dim light." },
-            { name: "Adrenaline Rush", desc: "Als bonus action, Dash en krijg temporary HP gelijk aan je proficiency bonus x hit die. Uses = prof bonus per long rest." },
-            { name: "Relentless Endurance", desc: "Als je naar 0 HP gaat maar niet instant killed, ga je naar 1 HP in plaats daarvan. 1x per long rest." }
+            { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 120ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 120ft, and in darkness as if it were dim light." } },
+            { name: "Adrenaline Rush", desc: { nl: "Als bonus action, Dash en krijg temporary HP gelijk aan je proficiency bonus x hit die. Uses = prof bonus per long rest.", en: "As a bonus action, Dash and gain temporary HP equal to your proficiency bonus x hit die. Uses = prof bonus per long rest." } },
+            { name: "Relentless Endurance", desc: { nl: "Als je naar 0 HP gaat maar niet instant killed, ga je naar 1 HP in plaats daarvan. 1x per long rest.", en: "When you drop to 0 HP but are not instantly killed, you drop to 1 HP instead. Once per long rest." } }
         ]
     },
 
@@ -147,9 +147,9 @@ const DATA = {
     dragonborn: {
         speed: 30,
         features: [
-            { name: "Draconic Ancestry", desc: "Kies een drakentype. Je krijgt resistance tegen het bijbehorende element (acid/cold/fire/lightning/poison)." },
-            { name: "Breath Weapon", desc: "Vervang 1 attack in je Attack action: 15ft cone of 30ft line (kies per gebruik). DEX/CON save. Damage: 1d10 (lvl 1), 2d10 (lvl 5), 3d10 (lvl 11), 4d10 (lvl 17). Uses = prof bonus per long rest." },
-            { name: "Draconic Flight", desc: "Vanaf level 5: als bonus action, groei spectrale vleugels. Fly speed = walking speed voor 10 minuten. 1x per long rest." }
+            { name: "Draconic Ancestry", desc: { nl: "Kies een drakentype. Je krijgt resistance tegen het bijbehorende element (acid/cold/fire/lightning/poison).", en: "Choose a dragon type. You gain resistance to the associated element (acid/cold/fire/lightning/poison)." } },
+            { name: "Breath Weapon", desc: { nl: "Vervang 1 attack in je Attack action: 15ft cone of 30ft line (kies per gebruik). DEX/CON save. Damage: 1d10 (lvl 1), 2d10 (lvl 5), 3d10 (lvl 11), 4d10 (lvl 17). Uses = prof bonus per long rest.", en: "Replace 1 attack in your Attack action: 15ft cone or 30ft line (choose per use). DEX/CON save. Damage: 1d10 (lvl 1), 2d10 (lvl 5), 3d10 (lvl 11), 4d10 (lvl 17). Uses = prof bonus per long rest." } },
+            { name: "Draconic Flight", desc: { nl: "Vanaf level 5: als bonus action, groei spectrale vleugels. Fly speed = walking speed voor 10 minuten. 1x per long rest.", en: "From level 5: as a bonus action, grow spectral wings. Fly speed = walking speed for 10 minutes. Once per long rest." } }
         ]
     },
 
@@ -2145,7 +2145,7 @@ const DATA = {
             skills: ["Sleight of Hand", "Stealth"],
             tool: "Thieves' Tools",
             feat: "Lucky",
-            desc: "LEGACY (niet in 2024 PHB). Opgegroeid op straat. Je kent de stad beter dan wie dan ook.",
+            desc: { nl: "LEGACY (niet in 2024 PHB). Opgegroeid op straat. Je kent de stad beter dan wie dan ook.", en: "LEGACY (not in the 2024 PHB). Raised on the streets. You know the city better than anyone." },
             equipment: {
                 A: { items: ["Small knife", "Map of city", "Pet mouse", "Token from parents", "Common clothes", "Pouch"], gp: 10 },
                 B: { gp: 50 }
@@ -2159,7 +2159,7 @@ const DATA = {
             skills: ["Insight", "Religion"],
             tool: "Calligrapher's Supplies",
             feat: "Magic Initiate (Cleric)",
-            desc: "Je hebt je leven gewijd aan de dienst van een tempel of religieuze orde. Je kent de rituelen en overtuigingen van je geloof.",
+            desc: { nl: "Je hebt je leven gewijd aan de dienst van een tempel of religieuze orde. Je kent de rituelen en overtuigingen van je geloof.", en: "You have devoted your life to serving a temple or religious order. You know the rites and beliefs of your faith." },
             equipment: {
                 A: { items: ["Calligrapher's Supplies", "Book (prayers)", "Holy Symbol", "Parchment (10 sheets)", "Robe"], gp: 8 },
                 B: { gp: 50 }
@@ -2171,7 +2171,7 @@ const DATA = {
             skills: ["Investigation", "Persuasion"],
             tool: "Artisan's Tools",
             feat: "Crafter",
-            desc: "Je bent opgeleid als ambachtsman. Je maakt dingen met je handen en hebt een scherp oog voor kwaliteit.",
+            desc: { nl: "Je bent opgeleid als ambachtsman. Je maakt dingen met je handen en hebt een scherp oog voor kwaliteit.", en: "You trained as a craftsperson. You make things with your hands and have a keen eye for quality." },
             equipment: {
                 A: { items: ["Artisan's Tools (one of your choice)", "Pouch (x2)", "Traveler's Clothes"], gp: 32 },
                 B: { gp: 50 }
@@ -2183,7 +2183,7 @@ const DATA = {
             skills: ["Deception", "Sleight of Hand"],
             tool: "Forgery Kit",
             feat: "Skilled",
-            desc: "Je hebt altijd een talent gehad voor het misleiden van anderen. Valse identiteiten, oplichterij en bedrog zijn je specialiteit.",
+            desc: { nl: "Je hebt altijd een talent gehad voor het misleiden van anderen. Valse identiteiten, oplichterij en bedrog zijn je specialiteit.", en: "You have always had a talent for deceiving others. False identities, scams and trickery are your specialty." },
             equipment: {
                 A: { items: ["Costume", "Forgery Kit", "Bottle of ink", "Quill", "Sealing wax", "Parchment (12 sheets)", "Pouch"], gp: 15 },
                 B: { gp: 50 }
@@ -2195,7 +2195,7 @@ const DATA = {
             skills: ["Sleight of Hand", "Stealth"],
             tool: "Thieves' Tools",
             feat: "Alert",
-            desc: "Je hebt een verleden in de misdaad. Of het nu diefstal, smokkel of erger was — je kent de schaduwzijde van de maatschappij.",
+            desc: { nl: "Je hebt een verleden in de misdaad. Of het nu diefstal, smokkel of erger was — je kent de schaduwzijde van de maatschappij.", en: "You have a past in crime. Whether theft, smuggling or worse — you know the shadowy side of society." },
             equipment: {
                 A: { items: ["Dagger (x2)", "Thieves' Tools", "Crowbar", "Pouch (x2)", "Traveler's Clothes"], gp: 16 },
                 B: { gp: 50 }
@@ -2207,7 +2207,7 @@ const DATA = {
             skills: ["Acrobatics", "Performance"],
             tool: "Musical Instrument",
             feat: "Musician",
-            desc: "Je leeft voor het publiek. Als muzikant, danser, acteur of verteller weet je hoe je een menigte moet boeien.",
+            desc: { nl: "Je leeft voor het publiek. Als muzikant, danser, acteur of verteller weet je hoe je een menigte moet boeien.", en: "You live for the audience. As a musician, dancer, actor or storyteller, you know how to captivate a crowd." },
             equipment: {
                 A: { items: ["Musical Instrument (one of your choice)", "Perfume", "Costume", "Traveler's Clothes"], gp: 11 },
                 B: { gp: 50 }
@@ -2219,7 +2219,7 @@ const DATA = {
             skills: ["Animal Handling", "Nature"],
             tool: "Carpenter's Tools",
             feat: "Tough",
-            desc: "Je bent opgegroeid op het land. Hard werken, de seizoenen en de natuur hebben je gevormd tot wie je bent.",
+            desc: { nl: "Je bent opgegroeid op het land. Hard werken, de seizoenen en de natuur hebben je gevormd tot wie je bent.", en: "You grew up on the land. Hard work, the seasons and nature shaped you into who you are." },
             equipment: {
                 A: { items: ["Carpenter's Tools", "Shovel", "Iron Pot", "Traveler's Clothes", "Pouch"], gp: 30 },
                 B: { gp: 50 }
@@ -2231,7 +2231,7 @@ const DATA = {
             skills: ["Athletics", "Perception"],
             tool: "Gaming Set",
             feat: "Alert",
-            desc: "Je hebt gediend als wachter, stadswacht of lijfwacht. Je bent getraind om gevaar te herkennen en te reageren.",
+            desc: { nl: "Je hebt gediend als wachter, stadswacht of lijfwacht. Je bent getraind om gevaar te herkennen en te reageren.", en: "You have served as a watchman, city guard or bodyguard. You are trained to spot danger and respond." },
             equipment: {
                 A: { items: ["Spear", "Light Crossbow", "Bolts (20)", "Quiver", "Gaming Set (one of your choice)", "Hooded Lantern", "Manacles", "Traveler's Clothes", "Pouch"], gp: 12 },
                 B: { gp: 50 }
@@ -2243,7 +2243,7 @@ const DATA = {
             skills: ["Stealth", "Survival"],
             tool: "Cartographer's Tools",
             feat: "Magic Initiate (Druid)",
-            desc: "Je hebt je leven lang reizigers door de wildernis geleid. Je kent de paden en gevaren van de natuur.",
+            desc: { nl: "Je hebt je leven lang reizigers door de wildernis geleid. Je kent de paden en gevaren van de natuur.", en: "You have spent your life guiding travelers through the wilderness. You know the paths and perils of nature." },
             equipment: {
                 A: { items: ["Shortbow", "Arrows (20)", "Quiver", "Cartographer's Tools", "Musical Instrument (one of your choice)", "Bedroll", "Traveler's Clothes", "Pouch"], gp: 3 },
                 B: { gp: 50 }
@@ -2255,7 +2255,7 @@ const DATA = {
             skills: ["Medicine", "Religion"],
             tool: "Herbalism Kit",
             feat: "Healer",
-            desc: "Je hebt jarenlang in afzondering geleefd — mediterend, studerend of genezend. Je draagt wijsheid mee uit de stilte.",
+            desc: { nl: "Je hebt jarenlang in afzondering geleefd — mediterend, studerend of genezend. Je draagt wijsheid mee uit de stilte.", en: "You lived in seclusion for years — meditating, studying or healing. You carry wisdom drawn from the silence." },
             equipment: {
                 A: { items: ["Quarterstaff", "Herbalism Kit", "Bedroll", "Book (philosophy)", "Lamp", "Oil flask (x3)", "Traveler's Clothes", "Pouch"], gp: 16 },
                 B: { gp: 50 }
@@ -2267,7 +2267,7 @@ const DATA = {
             skills: ["Animal Handling", "Persuasion"],
             tool: "Navigator's Tools",
             feat: "Lucky",
-            desc: "Je bent een handelaar, koopman of marktverkoper. Je kent de waarde van goederen en de kunst van het onderhandelen.",
+            desc: { nl: "Je bent een handelaar, koopman of marktverkoper. Je kent de waarde van goederen en de kunst van het onderhandelen.", en: "You are a trader, merchant or market vendor. You know the value of goods and the art of negotiation." },
             equipment: {
                 A: { items: ["Navigator's Tools", "Pouch (x2)", "Mule with Saddlebags", "Traveler's Clothes"], gp: 22 },
                 B: { gp: 50 }
@@ -2279,7 +2279,7 @@ const DATA = {
             skills: ["History", "Persuasion"],
             tool: "Gaming Set",
             feat: "Skilled",
-            desc: "Je bent geboren in een adellijke familie met invloed en rijkdom. Je kent de etiquette van het hof en de last van verwachtingen.",
+            desc: { nl: "Je bent geboren in een adellijke familie met invloed en rijkdom. Je kent de etiquette van het hof en de last van verwachtingen.", en: "You were born into a noble family of influence and wealth. You know the etiquette of the court and the weight of expectations." },
             equipment: {
                 A: { items: ["Gaming Set (one of your choice)", "Fine Clothes", "Signet Ring", "Scroll of Pedigree", "Pouch"], gp: 29 },
                 B: { gp: 50 }
@@ -2291,7 +2291,7 @@ const DATA = {
             skills: ["Arcana", "History"],
             tool: "Calligrapher's Supplies",
             feat: "Magic Initiate (Wizard)",
-            desc: "Jarenlang heb je kennis vergaard uit boeken en bibliotheken. Je bent een expert in je vakgebied.",
+            desc: { nl: "Jarenlang heb je kennis vergaard uit boeken en bibliotheken. Je bent een expert in je vakgebied.", en: "For years you have gathered knowledge from books and libraries. You are an expert in your field." },
             equipment: {
                 A: { items: ["Quarterstaff", "Calligrapher's Supplies", "Book (history)", "Parchment (8 sheets)", "Bottle of ink", "Quill", "Robe"], gp: 8 },
                 B: { gp: 50 }
@@ -2303,7 +2303,7 @@ const DATA = {
             skills: ["Acrobatics", "Perception"],
             tool: "Navigator's Tools",
             feat: "Tavern Brawler",
-            desc: "Je hebt gevaren op de open zee. Stormen, piraten en verre havens — je hebt het allemaal meegemaakt.",
+            desc: { nl: "Je hebt gevaren op de open zee. Stormen, piraten en verre havens — je hebt het allemaal meegemaakt.", en: "You have sailed the open sea. Storms, pirates and distant harbors — you have seen it all." },
             equipment: {
                 A: { items: ["Dagger", "Navigator's Tools", "Rope (50 ft)", "Traveler's Clothes", "Pouch"], gp: 20 },
                 B: { gp: 50 }
@@ -2315,7 +2315,7 @@ const DATA = {
             skills: ["Investigation", "Perception"],
             tool: "Calligrapher's Supplies",
             feat: "Skilled",
-            desc: "Je hebt gewerkt als schrijver, kopiist of archivaris. Details ontgaan je zelden en je pen is je beste vriend.",
+            desc: { nl: "Je hebt gewerkt als schrijver, kopiist of archivaris. Details ontgaan je zelden en je pen is je beste vriend.", en: "You worked as a writer, copyist or archivist. Details rarely escape you and your pen is your best friend." },
             equipment: {
                 A: { items: ["Calligrapher's Supplies", "Fine Clothes", "Lamp", "Oil flask (x3)", "Parchment (12 sheets)", "Bottle of ink", "Quill", "Pouch"], gp: 23 },
                 B: { gp: 50 }
@@ -2327,7 +2327,7 @@ const DATA = {
             skills: ["Athletics", "Intimidation"],
             tool: "Gaming Set",
             feat: "Savage Attacker",
-            desc: "Je hebt gediend in een leger of militie. Je kent de discipline van het slagveld en de kameraadschap van soldaten.",
+            desc: { nl: "Je hebt gediend in een leger of militie. Je kent de discipline van het slagveld en de kameraadschap van soldaten.", en: "You have served in an army or militia. You know the discipline of the battlefield and the camaraderie of soldiers." },
             equipment: {
                 A: { items: ["Spear", "Shortbow", "Arrows (20)", "Quiver", "Gaming Set (one of your choice)", "Healer's Kit", "Traveler's Clothes", "Pouch"], gp: 14 },
                 B: { gp: 50 }
@@ -2339,7 +2339,7 @@ const DATA = {
             skills: ["Insight", "Stealth"],
             tool: "Thieves' Tools",
             feat: "Lucky",
-            desc: "Je bent een zwerver, een reiziger zonder vaste bestemming. De weg is je thuis en je overleefd door je instincten.",
+            desc: { nl: "Je bent een zwerver, een reiziger zonder vaste bestemming. De weg is je thuis en je overleefd door je instincten.", en: "You are a wanderer, a traveler without a fixed destination. The road is your home and you survive on your instincts." },
             equipment: {
                 A: { items: ["Dagger (x2)", "Thieves' Tools", "Gaming Set (one of your choice)", "Pouch (x2)", "Traveler's Clothes"], gp: 16 },
                 B: { gp: 50 }
