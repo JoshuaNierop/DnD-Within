@@ -171,6 +171,18 @@ function getWizardClasses() {
     return classKeys.filter(function(c) { return DATA[c] && DATA[c].hitDie; });
 }
 
+// Primaire ability score(s) per class (2024 PHB "Primary Ability"-regel). Wordt
+// gebruikt om in de wizard te tonen welke stats belangrijk zijn (#kbowMj).
+var CLASS_PRIMARY_ABILITY = {
+    barbarian: ['str'], bard: ['cha'], cleric: ['wis'], druid: ['wis'],
+    fighter: ['str', 'dex'], monk: ['dex', 'wis'], paladin: ['str', 'cha'],
+    ranger: ['dex', 'wis'], rogue: ['dex'], sorcerer: ['cha'],
+    warlock: ['cha'], wizard: ['int']
+};
+function classPrimaryAbilities(className) {
+    return CLASS_PRIMARY_ABILITY[className] || [];
+}
+
 function getWizardBackgrounds() {
     var bgs = DATA.backgrounds;
     if (!bgs) return [];
@@ -333,6 +345,10 @@ function renderWizardStep1() {
         var classData = DATA[wizardState.className];
         html += '<details class="wizard-preview" open>';
         html += '<summary>' + classDisplayName(wizardState.className) + ' Info</summary>';
+        var primAbs = classPrimaryAbilities(wizardState.className);
+        if (primAbs.length) {
+            html += '<p class="wizard-detail wizard-primary-note">&#9733; <strong>Primaire stat:</strong> ' + primAbs.map(function(a) { return a.toUpperCase(); }).join(primAbs.length > 1 ? ' / ' : '') + ' &middot; <strong>Con</strong> altijd nuttig (HP)</p>';
+        }
         html += '<p class="wizard-detail"><strong>Hit Die:</strong> d' + classData.hitDie + '</p>';
         html += '<p class="wizard-detail"><strong>Saving Throws:</strong> ' + classData.savingThrows.map(function(s) { return s.toUpperCase(); }).join(', ') + '</p>';
         if (classData.cantripsKnown) {
