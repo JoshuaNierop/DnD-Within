@@ -9,7 +9,12 @@
 ## Bugfix-batch 2026-06-07 (hub) — openstaand + review
 
 ### Nog open
-- [ ] P2 — #9 Combat-widget **auto-resize naar content**: widget moet groeien/krimpen met het aantal entities (geen scroll/lege ruimte). Engine-niveau (WidgetGrid spanUnitsY dynamisch); rest van #9 (HP-kleuren, KO-rijen, headers, separators, NL/EN i18n, naam-kolom) is klaar.
+- [!] P2 — #9 / #NU-YZ6 Combat/Initiative-widget **auto-resize naar zichtbare content** — ONTWERP KLAAR (architect 2026-06-08), vereist browser-geteste sessie. Plan:
+  - **Hoogte-fit**: nieuwe `_fitCombatSpanY(w, growOnly)`-branch in `compactSpanUnitsY` (wg-engine.js:653, vóór de `!== 'infobox'` bail). Telt entities: player (`initiativeTracker`) = `entities.filter(e=>e.visibility!=='hidden').length` (silhouette telt mee → fog-of-war veilig); DM (`combatTracker`) = alle. `pxNeeded = HEADER + PAD + n*ROW + (n-1)*gap`; zoek kleinste `s` met `widgetContentPxHFor(s) >= pxNeeded`; min `spanUnitsY=2`, cap `rowsPerPage()`.
+  - **Hooks**: `recomputeCombatWidgets()` (loop combat-widgets, `withWidget`+`compactSpanUnitsY(false)`) aanroepen in `mutateEncounter` (wg-combat.js:66, vóór `saveEncounter` — krimp vrij) én in `recomputeAllWidgets` pass B (grow-only, viewport-resize).
+  - **Ruimteverdeling**: CSS `.combat-fitted .combat-initiative/.combat-table { justify-content: space-between }` + `.combat-fitted .combat-body { overflow:hidden }` (gescoped, breekt niets zonder klasse); klasse op `.combat-root` zetten in wg-combat.js:404.
+  - **BROWSER-TEST nodig** voor: (1) rij-hoogte-constanten `ROW≈46/HEADER≈40/PAD≈16` tunen (player portret-rij ≠ DM table-rij); (2) persistentie — `mutateEncounter` slaat de encounter op, NIET de widget-layout → check of `spanUnitsY`-wijziging behouden blijft / op load opnieuw fit (grow-only op load shrinkt niet → widget blijft 11 tot eerste mutatie); (3) grow-pad + `resolveCollisions` (start krimp-only, groei pas ná visuele check); (4) geen render-storm.
+  - rest van #9 (HP-kleuren, KO-rijen, headers, separators, NL/EN i18n, naam-kolom) is klaar.
 - [ ] P3 — #2 Wizard volledige UX/mobile-redesign (reporter vroeg om mobile-touch/UI/DnD/architect agents). Skip-bug + smallere inputs zijn gefixt; multi-kolom/touch-herontwerp blijft open.
 
 ### Te verifiëren in browser (gebouwd, niet live getest)
