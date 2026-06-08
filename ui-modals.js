@@ -152,6 +152,7 @@ function initWizardState() {
         alignment: 'True Neutral',
         age: '',
         accentColor: '#22d3ee',
+        portrait: '',
         skills: [],
         cantrips: [],
         appearance: '',
@@ -198,19 +199,21 @@ function renderWizardModal() {
     html += '<button class="modal-close" data-action="close-wizard">&times;</button>';
     html += '</div>';
 
-    // Three-panel body: vertical stepper (left) + content (center) + summary sidebar (right)
-    html += '<div class="wizard-body">';
-
-    // Vertical stepper sidebar
-    html += '<aside class="wizard-steps">';
+    // Horizontal stepper (full width, under header) — gives the steps the whole
+    // modal width and removes the cramped vertical-aside overlap (#EG9koC).
+    html += '<nav class="wizard-steps" aria-label="Stappen">';
     var stepLabels = [t('wizard.step.basics'), t('wizard.step.background'), t('wizard.step.details'), t('wizard.step.skills'), t('wizard.step.story'), t('wizard.step.summary')];
     for (var si = 1; si <= totalSteps; si++) {
         var stepClass = 'wizard-step-dot';
         if (si < step) stepClass += ' completed';
         if (si === step) stepClass += ' active';
-        html += '<div class="' + stepClass + '"><span class="step-num">' + (si < step ? '&#10003;' : si) + '</span><span class="step-label">' + stepLabels[si - 1] + '</span></div>';
+        var stepAria = (si === step) ? ' aria-current="step"' : '';
+        html += '<div class="' + stepClass + '"' + stepAria + '><span class="step-num">' + (si < step ? '&#10003;' : si) + '</span><span class="step-label">' + stepLabels[si - 1] + '</span></div>';
     }
-    html += '</aside>';
+    html += '</nav>';
+
+    // Two-panel body: content (center) + summary sidebar (right)
+    html += '<div class="wizard-body">';
 
     // Main content
     html += '<div class="wizard-content">';
@@ -226,7 +229,18 @@ function renderWizardModal() {
     html += '<div class="wizard-sidebar">';
     html += '<div class="wizard-sidebar-title">' + t('wizard.step.summary') + '</div>';
     var sidebarColor = wizardState.accentColor || 'var(--accent)';
-    html += '<div class="wizard-sidebar-portrait" style="border-color:' + sidebarColor + '"><span style="font-size:2rem;opacity:0.3;">&#128100;</span></div>';
+    // Portret-upload (#5Y8aZh): label wraps a hidden file input → de hele cirkel
+    // is een tap-target. Base64 leeft in wizardState.portrait (overleeft de
+    // refreshWizard re-render); de Cloudinary-upload gebeurt pas bij character-save.
+    html += '<label class="wizard-sidebar-portrait" style="border-color:' + sidebarColor + '">';
+    if (wizardState.portrait) {
+        html += '<img class="wizard-portrait-img" src="' + escapeAttr(wizardState.portrait) + '" alt="">';
+    } else {
+        html += '<span class="wizard-portrait-placeholder">&#128100;</span>';
+    }
+    html += '<span class="wizard-portrait-overlay" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Zm0-8.2h2.3l1.2-1.6h2.8A1.7 1.7 0 0 1 22 6.8v10.4A1.7 1.7 0 0 1 20.3 19H3.7A1.7 1.7 0 0 1 2 17.2V6.8A1.7 1.7 0 0 1 3.7 5h2.8L7.7 3H12Z"/></svg></span>';
+    html += '<input type="file" accept="image/*" class="wizard-portrait-input" aria-label="Portret uploaden" data-action="upload-wizard-portrait">';
+    html += '</label>';
     html += '<div class="wizard-sidebar-name" style="color:' + sidebarColor + '">' + escapeHtml(wizardState.name || '???') + '</div>';
     if (wizardState.race) html += '<div class="wizard-sidebar-detail">' + raceDisplayName(wizardState.race) + '</div>';
     if (wizardState.className) html += '<div class="wizard-sidebar-detail">' + classDisplayName(wizardState.className) + '</div>';
@@ -725,6 +739,14 @@ function createCharacterFromWizard() {
     // Save config
     saveCharConfig(charId, config);
 
+    // Portret (#5Y8aZh): pas hier opslaan — charId bestaat nu, dus de Cloudinary-
+    // folder wordt <Owner>/Characters/<CharName>/Portrait via saveImage(). Alleen
+    // een NIEUWE upload (data:-URL) re-uploaden; een onveranderd bestaand http-URL
+    // in edit-modus overslaan.
+    if (wizardState.portrait && wizardState.portrait.indexOf('data:') === 0) {
+        saveImage(charId, 'portrait', wizardState.portrait);
+    }
+
     // Edit-modus: runtime-state (level, HP, gekozen skills/items) intact laten.
     if (isEdit) {
         showToast(t('wizard.editsuccess') === 'wizard.editsuccess' ? 'Character bijgewerkt' : t('wizard.editsuccess'), 'success');
@@ -823,6 +845,7 @@ function buildWizardStateFromConfig(charId) {
     wizardState.skills = (cfg.defaultSkills || []).slice();
     wizardState.cantrips = (cfg.defaultCantrips || []).slice();
     wizardState.appearance = (cfg.appearance && cfg.appearance[0]) ? cfg.appearance[0] : '';
+    wizardState.portrait = (typeof loadImage === 'function') ? (loadImage(charId, 'portrait') || '') : '';
     wizardState.personality = Object.assign({ traits:'', ideal:'', bond:'', flaw:'' }, cfg.personality || {});
     wizardState.backstory = cfg.backstory || '';
     return true;
@@ -1376,6 +1399,34 @@ document.addEventListener('input', function(e) {
 document.addEventListener('change', function(e) {
     var target = e.target;
 
+    // Wizard portret-upload (#5Y8aZh): base64 in wizardState.portrait + directe
+    // preview. De Cloudinary-upload draait pas bij character-save (charId bestaat
+    // dan pas), zodat een geannuleerde wizard geen weesmap achterlaat.
+    if (target.matches('[data-action="upload-wizard-portrait"]')) {
+        var wpFile = target.files && target.files[0];
+        if (wpFile && typeof _compressImageFile === 'function' && wizardState) {
+            _compressImageFile(wpFile, 600, 0.8, function (dataUrl) {
+                wizardState.portrait = dataUrl;
+                // Directe preview zonder volledige re-render.
+                var box = document.querySelector('.wizard-sidebar-portrait');
+                if (box) {
+                    var ph = box.querySelector('.wizard-portrait-placeholder');
+                    var im = box.querySelector('.wizard-portrait-img');
+                    if (im) { im.src = dataUrl; }
+                    else {
+                        if (ph) ph.remove();
+                        var newImg = document.createElement('img');
+                        newImg.className = 'wizard-portrait-img';
+                        newImg.alt = '';
+                        newImg.src = dataUrl;
+                        box.insertBefore(newImg, box.firstChild);
+                    }
+                }
+            });
+            try { target.value = ''; } catch (_) {}
+        }
+        return;
+    }
     if (target.matches('[data-action="upload-npc-image"]')) {
         var npcFile = target.files && target.files[0];
         if (npcFile && typeof _compressImageFile === 'function') {
