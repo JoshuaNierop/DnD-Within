@@ -8430,6 +8430,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .wizard-field { display: flex; flex-direction: column; gap: 0.5rem; }
 
+/* Soort + lineage/subras selector (#OdBL9u) — mobile-first gestapeld, vanaf 620px
+   naast elkaar. De lineage-select verschijnt alleen als de soort lineages heeft. */
+.wizard-subfield-group { display: flex; flex-direction: column; gap: 0.75rem; }
+.wizard-subfield-group > .wizard-field { gap: 0.4rem; }
+.wizard-subfield .wizard-label::before { content: '\21B3  '; color: var(--text-dim); }
+@media (min-width: 620px) {
+    .wizard-subfield-group { flex-direction: row; align-items: flex-start; }
+    .wizard-subfield-group > .wizard-field { flex: 1 1 0; min-width: 0; }
+    .wizard-subfield-group .wizard-select { width: 100%; max-width: none; }
+}
+
 .wizard-label {
     font-family: var(--font-display);
     font-size: 0.72rem;

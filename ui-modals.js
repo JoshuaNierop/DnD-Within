@@ -143,6 +143,7 @@ function initWizardState() {
         step: 1,
         editId: null,
         name: '',
+        species: '',
         race: '',
         className: '',
         background: '',
@@ -164,6 +165,36 @@ function initWizardState() {
 function getWizardRaces() {
     var raceKeys = ['human', 'halfling', 'tiefling', 'aasimar', 'woodElf', 'dwarf', 'gnome', 'goliath', 'orc', 'dragonborn'];
     return raceKeys.filter(function(r) { return DATA[r] && !DATA[r].legacy; });
+}
+
+// 2024 PHB species → bestaande platte DATA-race-keys. Elf is één soort met drie
+// lineages (Wood/High/Drow); de overige soorten mappen 1-op-1. config.race blijft
+// altijd een platte DATA-key (woodElf/human/…) zodat geen enkele reader breekt.
+var WIZARD_SPECIES = {
+    aasimar: [], dragonborn: [], dwarf: [],
+    elf: ['woodElf', 'highElf', 'drow'],
+    gnome: [], goliath: [], halfling: [], human: [], orc: [], tiefling: []
+};
+function getWizardSpeciesKeys() {
+    return Object.keys(WIZARD_SPECIES).filter(function (sp) {
+        var lin = WIZARD_SPECIES[sp];
+        if (lin.length) return lin.some(function (k) { return DATA[k] && !DATA[k].legacy; });
+        return DATA[sp] && !DATA[sp].legacy;
+    });
+}
+function speciesDisplayName(sp) {
+    if (sp === 'elf') return 'Elf';
+    return raceDisplayName(sp);
+}
+// Reverse: van een platte race-key naar de bijbehorende species-key (voor edit-modus).
+function speciesFromRaceKey(raceKey) {
+    if (!raceKey) return '';
+    if (WIZARD_SPECIES[raceKey]) return raceKey;
+    var found = '';
+    Object.keys(WIZARD_SPECIES).forEach(function (sp) {
+        if (WIZARD_SPECIES[sp].indexOf(raceKey) !== -1) found = sp;
+    });
+    return found;
 }
 
 function getWizardClasses() {
@@ -304,17 +335,38 @@ function renderWizardStep1() {
     html += '<input type="text" class="wizard-input" id="wizard-name" value="' + escapeAttr(wizardState.name) + '" placeholder="' + t('wizard.name.plh') + '">';
     html += '</div>';
 
-    // Race
-    var races = getWizardRaces();
+    // Soort (species) + optionele lineage/subras (#OdBL9u). Elf is één soort met
+    // een verplichte lineage-keuze; andere soorten mappen direct op een race-key.
+    var speciesKeys = getWizardSpeciesKeys();
+    var curSpecies = wizardState.species || speciesFromRaceKey(wizardState.race);
+    var curLineages = (curSpecies && WIZARD_SPECIES[curSpecies]) ? WIZARD_SPECIES[curSpecies] : [];
+    html += '<div class="wizard-subfield-group">';
     html += '<div class="wizard-field">';
     html += '<label class="wizard-label">' + t('wizard.race.label') + '</label>';
-    html += '<select class="wizard-select" id="wizard-race" data-action="wizard-race-change">';
+    html += '<select class="wizard-select" id="wizard-species" data-action="wizard-species-change">';
     html += '<option value="">' + t('wizard.race.default') + '</option>';
-    for (var i = 0; i < races.length; i++) {
-        var sel = wizardState.race === races[i] ? ' selected' : '';
-        html += '<option value="' + races[i] + '"' + sel + '>' + raceDisplayName(races[i]) + '</option>';
+    for (var i = 0; i < speciesKeys.length; i++) {
+        var spSel = curSpecies === speciesKeys[i] ? ' selected' : '';
+        html += '<option value="' + speciesKeys[i] + '"' + spSel + '>' + speciesDisplayName(speciesKeys[i]) + '</option>';
     }
     html += '</select>';
+    html += '</div>';
+    if (curLineages.length) {
+        html += '<div class="wizard-field wizard-subfield">';
+        html += '<label class="wizard-label">Lineage / Subras</label>';
+        html += '<select class="wizard-select" id="wizard-lineage" data-action="wizard-lineage-change">';
+        html += '<option value="">Kies lineage…</option>';
+        for (var li = 0; li < curLineages.length; li++) {
+            var lk = curLineages[li];
+            if (!DATA[lk]) continue;
+            var liSel = wizardState.race === lk ? ' selected' : '';
+            html += '<option value="' + lk + '"' + liSel + '>' + raceDisplayName(lk) + '</option>';
+        }
+        html += '</select>';
+        html += '</div>';
+    }
+    html += '</div>'; // wizard-subfield-group
+    html += '<div class="wizard-field">';
     if (wizardState.race && DATA[wizardState.race]) {
         var raceData = DATA[wizardState.race];
         html += '<details class="wizard-preview" open>';
@@ -843,6 +895,7 @@ function buildWizardStateFromConfig(charId) {
     wizardState.editId = charId;
     wizardState.name = cfg.name || '';
     wizardState.race = cfg.race || '';
+    wizardState.species = speciesFromRaceKey(wizardState.race);
     wizardState.className = cfg.className || '';
     wizardState.subclass = cfg.subclass || '';
     wizardState.background = bgKeyFromConfig(cfg.background);
@@ -1093,7 +1146,18 @@ function bindWizardEvents() {
     container.onchange = function(e) {
         var target = e.target;
 
-        if (target.matches('[data-action="wizard-race-change"]')) {
+        if (target.matches('[data-action="wizard-species-change"]')) {
+            saveWizardStepData();
+            var sp = target.value;
+            wizardState.species = sp;
+            var lineages = (sp && WIZARD_SPECIES[sp]) ? WIZARD_SPECIES[sp] : [];
+            // Soort zonder lineages → race = soort; mét lineages → forceer keuze.
+            wizardState.race = lineages.length ? '' : sp;
+            refreshWizard();
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-lineage-change"]')) {
             saveWizardStepData();
             wizardState.race = target.value;
             refreshWizard();
