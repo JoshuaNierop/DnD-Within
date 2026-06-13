@@ -6293,6 +6293,12 @@ body.modal-open {
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
+
+    /* Met een echte afbeelding voelt de base-banner rand te druk (gouden
+       hairline + meerdere inner glows die met de foto vechten). Rustiger:
+       subtiele border + één zachte drop-shadow, geen inset-ringen. */
+    border-color: color-mix(in srgb, var(--hairline-gold) 45%, transparent);
+    box-shadow: 0 12px 32px -16px color-mix(in srgb, var(--bg-dark) 90%, transparent);
 }
 @media (min-width: 700px) {
     .welcome-banner.has-banner { min-height: 160px; max-height: 220px; }
