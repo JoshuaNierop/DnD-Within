@@ -191,6 +191,11 @@ function combatPortraitNode(ent, masked) {
   if (src) {
     const img = document.createElement('img');
     img.src = src; img.alt = '';
+    // PC-portretten volgen dezelfde profielfoto-uitsnede als overal (#fATDUg).
+    if (!masked && ent.kind === 'pc' && ent.ref && typeof portraitCropStyle === 'function') {
+      const cs = portraitCropStyle(loadPortraitCrop(ent.ref));
+      if (cs) img.style.cssText += cs;
+    }
     img.addEventListener('error', () => {
       if (img.parentNode) img.parentNode.replaceChild(combatInitialNode(masked ? '?' : ent.name), img);
     });
@@ -567,7 +572,7 @@ function showCombatAddPanel(clientX, clientY) {
       const row = hEl('button', 'combat-add-item');
       const pic = hEl('div', 'combat-portrait small');
       const psrc = (src.portrait && typeof resolveImageSrc === 'function') ? resolveImageSrc(src.portrait) : (src.portrait || '');
-      if (psrc) { const img = document.createElement('img'); img.src = psrc; img.alt = ''; img.addEventListener('error', () => { img.replaceWith(combatInitialNode(src.name)); }); pic.appendChild(img); }
+      if (psrc) { const img = document.createElement('img'); img.src = psrc; img.alt = ''; if (_combatAddTab === 'party' && src.key && typeof portraitCropStyle === 'function') { const cs = portraitCropStyle(loadPortraitCrop(src.key)); if (cs) img.style.cssText += cs; } img.addEventListener('error', () => { img.replaceWith(combatInitialNode(src.name)); }); pic.appendChild(img); }
       else pic.appendChild(combatInitialNode(src.name));
       row.appendChild(pic);
       row.appendChild(hEl('span', 'combat-add-name', src.name));

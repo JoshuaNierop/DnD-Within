@@ -436,10 +436,31 @@ function loadPortraitCrop(charId) {
         }
     } catch (_) {}
     try {
-        var s = localStorage.getItem('dw_imgcrop_' + charId + '_portrait');
+        // dw_imgcrop_* = lokale sync-mirror (geschreven door savePortraitCrop op dit
+        // device). dw_img_<id>_portraitCrop = de Firebase→localStorage down-sync
+        // (sync.js mapt images/portraitCrop hierheen) — dit maakt de uitsnede van
+        // élk gesynct character leesbaar, ook in lijst/combat op een ander device.
+        var s = localStorage.getItem('dw_imgcrop_' + charId + '_portrait')
+             || localStorage.getItem('dw_img_' + charId + '_portraitCrop');
         if (s) return JSON.parse(s);
     } catch (_) {}
     return null;
+}
+
+// #fATDUg: vertaalt een opgeslagen portret-uitsnede (focal {x,y} 0-100 + zoom>=1)
+// naar een inline-style voor een <img> die zijn box vult via object-fit:cover binnen
+// een overflow:hidden container. object-position plaatst het focal-punt; transform
+// scale(z) (met dezelfde origin) zoomt eromheen. Dit reproduceert exact dezelfde
+// crop als het SVG-dashboard-widget, zodat de profielfoto overal identiek oogt.
+function portraitCropStyle(crop) {
+    if (!crop) return '';
+    var x = (crop.x == null ? 50 : crop.x);
+    var y = (crop.y == null ? 50 : crop.y);
+    var z = Math.max(1, crop.zoom || 1);
+    if (z <= 1.001 && x === 50 && y === 50) return '';
+    var s = 'object-position:' + x + '% ' + y + '%;';
+    if (z > 1.001) s += 'transform:scale(' + z + ');transform-origin:' + x + '% ' + y + '%;';
+    return s;
 }
 
 function savePortraitCrop(charId, crop) {

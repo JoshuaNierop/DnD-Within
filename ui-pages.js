@@ -416,8 +416,11 @@ function renderParty() {
                 html += '<div class="party-assign-card" data-action="assign-to-party" data-char-id="' + myChars[ai] + '">';
                 var aPortrait = loadImage(myChars[ai], 'portrait');
                 html += '<div class="char-card-img">';
-                if (aPortrait) html += '<img src="' + aPortrait + '" alt="">';
-                else html += '<div class="char-card-placeholder">&#128100;</div>';
+                if (aPortrait) {
+                    var apStyle = (typeof portraitCropStyle === 'function')
+                        ? portraitCropStyle(loadPortraitCrop(myChars[ai])) : '';
+                    html += '<img src="' + aPortrait + '" alt=""' + (apStyle ? ' style="' + apStyle + '"' : '') + '>';
+                } else html += '<div class="char-card-placeholder">&#128100;</div>';
                 html += '</div>';
                 html += '<strong>' + escapeHtml(acfg.name) + '</strong>';
                 html += '<span class="text-dim">' + raceDisplayName(acfg.race) + ' ' + classDisplayName(acfg.className) + '</span>';
@@ -1363,7 +1366,10 @@ function renderCharCard(cid, cfg, state, isOwn) {
     html += '<div class="presence-dot' + (isOnline ? ' online' : '') + '" data-user-id="' + (cfg.player || cid) + '"></div>';
     html += '<div class="char-card-img">';
     if (imgSrc) {
-        html += '<img src="' + imgSrc + '" alt="">';
+        // Profielfoto-uitsnede consistent met dashboard/wizard toepassen (#fATDUg).
+        var ccStyle = (portrait && typeof portraitCropStyle === 'function')
+            ? portraitCropStyle(loadPortraitCrop(cid)) : '';
+        html += '<img src="' + imgSrc + '" alt=""' + (ccStyle ? ' style="' + ccStyle + '"' : '') + '>';
     } else {
         // No local image — e.g. localStorage quota skipped the base64 blob, or
         // the portrait was uploaded from another device/widget. Mark it for
@@ -1413,7 +1419,7 @@ function hydrateCharCardPortraits() {
         fetch(charBase + 'portrait.json')
             .then(function (r) { return r.ok ? r.json() : null; })
             .then(function (val) {
-                if (val) return val;
+                if (val) { node._fromPortrait = true; return val; }
                 return fetch(charBase + 'banner.json')
                     .then(function (r) { return r.ok ? r.json() : null; });
             })
@@ -1425,6 +1431,16 @@ function hydrateCharCardPortraits() {
                 img.alt = '';
                 img.src = val;
                 wrap.replaceChild(img, node);
+                // Crop alleen op het portret (niet op de banner-fallback). Lokaal
+                // gesyncte crop eerst; anders rechtstreeks uit Firebase ophalen
+                // zodat de uitsnede ook op een ander device klopt (#fATDUg).
+                if (!node._fromPortrait || typeof portraitCropStyle !== 'function') return;
+                var local = loadPortraitCrop(cid);
+                if (local) { img.style.cssText += portraitCropStyle(local); return; }
+                fetch(charBase + 'portraitCrop.json')
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (cr) { if (cr) img.style.cssText += portraitCropStyle(cr); })
+                    .catch(function () {});
             })
             .catch(function () { delete node.dataset.hydrating; });
     });
