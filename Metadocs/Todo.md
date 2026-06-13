@@ -1,5 +1,9 @@
 # D&D Within — To Do
 
+## Experiment — lore card move-animatie (branch `josh/lore-card-anim`, 2026-06-14)
+- [~] P3 — FLIP-animatie voor lore-grid herschikking (Isotope-achtig). Helpers `loreFlipCapture()`/`loreFlipPlay()` in ui-world.js (match op `data-entry-id`, respecteert `prefers-reduced-motion`). Hooks: accordion-toggle + lore-cat-search in events.js. Movers gliden via `transform: translate`, nieuw-in-beeld kaarten faden/scalen in. 300ms, cubic-bezier(0.2,0.7,0.2,1).
+  - **Te beoordelen aan tafel**: uitklappende kaart krijgt translate-only (springt direct naar volle grootte, glijdt vanaf oude positie) — check of dat niet te abrupt is. Bij gescrollde pagina + filter kan de delta iets afwijken (viewport-based FLIP). Branch nog niet gemerged.
+
 ## Notes & crop-editor (2026-06-14)
 - [x] P2 — Crop-editor preview vierkant (default `shape:'square'`) + referentieraster op 25/50/75% horizontaal+verticaal (`.crop-grid` overlay, 50%-lijn iets feller). Helpt gelijkmatig croppen.
 - [x] P2 — **Tag-functie uit notes verwijderd** (vrije tags ÉN categorie) — vervangen door @-referenties. Weg uit: notes-bord (filter-tabs, kaart-categoriekleur→`var(--accent)`, chips), note-detail, note-editor (categorie-picker + tags-sectie), save-logica, QuickNotes-panel (effects.js). Handlers verwijderd: filter-notes, pick-note-cat, add-tag, remove-tag, qnote-cat, qnote-add-tag, qnote-remove-tag. `TAG_CATEGORIES`-constante + dode i18n/CSS bewust gelaten (onschadelijk, geen stray-refs). Bestaande notes behouden hun oude tags/tagCategory-data stil (niet meer getoond/bewerkt).

@@ -1201,6 +1201,8 @@ function bindPageEvents(route) {
             var leCard = target.matches('[data-action="toggle-lore-entry"]') ? target : target.closest('[data-action="toggle-lore-entry"]');
             if (leCard) {
                 var willExpand = !leCard.classList.contains('expanded');
+                // FLIP: posities meten vóór de layout-wijziging (Isotope-achtig).
+                if (typeof loreFlipCapture === 'function') loreFlipCapture();
                 if (willExpand) {
                     // Alle andere kaarten sluiten (DOM + persistente set leegmaken)
                     // zodat een latere re-render er ook maar één open toont.
@@ -1212,6 +1214,8 @@ function bindPageEvents(route) {
                     }
                 }
                 leCard.classList.toggle('expanded', willExpand);
+                // Play: animeer de herschikking naar de nieuwe posities.
+                if (typeof loreFlipPlay === 'function') loreFlipPlay();
                 // Spiegel naar de persistente set zodat een latere re-render de
                 // uitgeklapte kaart niet inklapt (#LLD4YT/#3gKQ37).
                 var lid = leCard.getAttribute('data-entry-id');
@@ -2848,7 +2852,11 @@ function bindPageEvents(route) {
             clearTimeout(target._searchTimer);
             target._searchTimer = setTimeout(function() {
                 var cursorPos = target.selectionStart;
+                // FLIP: meet de huidige kaart-posities, re-render, animeer dan de
+                // verplaatsing/fade-in van de gefilterde set (Isotope-achtig).
+                if (typeof loreFlipCapture === 'function') loreFlipCapture();
                 renderApp();
+                if (typeof loreFlipPlay === 'function') loreFlipPlay();
                 var el = document.getElementById('lore-cat-search');
                 if (el) { el.focus(); el.setSelectionRange(cursorPos, cursorPos); }
             }, 200);

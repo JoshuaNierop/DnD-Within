@@ -2750,6 +2750,72 @@ var loreCatSearch = '';
 // Persistente set van uitgeklapte lore-entry-ids (overleeft re-renders).
 var loreExpandedIds = {};
 
+// === Lore-grid FLIP-animatie (Isotope-achtig herschikken) =====================
+// De lore-grid herschikt bij (a) accordion-expand/collapse (grid-column 1/-1) en
+// (b) zoekfilter (re-render met andere set). Grid-herplaatsing is niet direct te
+// transitionen, dus gebruiken we FLIP: meet posities First → mute layout-wijziging
+// → Invert via transform → Play door de transform weg te animeren. Kaarten worden
+// op data-entry-id gematcht zodat het ook over een volledige re-render werkt.
+var _loreFlipRects = null;
+function _loreReduceMotion() {
+    try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+    catch (_) { return false; }
+}
+function loreFlipCapture() {
+    _loreFlipRects = null;
+    if (_loreReduceMotion()) return;
+    var grid = document.querySelector('.lore-entry-grid');
+    if (!grid) return;
+    var rects = {};
+    grid.querySelectorAll('.lore-entry-card').forEach(function (c) {
+        var id = c.getAttribute('data-entry-id');
+        if (id) rects[id] = c.getBoundingClientRect();
+    });
+    _loreFlipRects = rects;
+}
+function loreFlipPlay() {
+    var old = _loreFlipRects;
+    _loreFlipRects = null;
+    if (!old) return;
+    var grid = document.querySelector('.lore-entry-grid');
+    if (!grid) return;
+    var DUR = 300;
+    var movers = [];
+    grid.querySelectorAll('.lore-entry-card').forEach(function (card) {
+        var id = card.getAttribute('data-entry-id');
+        var first = id ? old[id] : null;
+        var last = card.getBoundingClientRect();
+        if (first) {
+            var dx = first.left - last.left, dy = first.top - last.top;
+            if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return; // niet verplaatst
+            card.style.transition = 'none';
+            card.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+            movers.push(card);
+        } else {
+            // Nieuw in beeld (bv. door filter) → subtiele fade/scale-in.
+            card.style.transition = 'none';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.96)';
+            movers.push(card);
+        }
+    });
+    if (!movers.length) return;
+    requestAnimationFrame(function () {
+        movers.forEach(function (card) {
+            card.style.transition = 'transform ' + DUR + 'ms cubic-bezier(0.2,0.7,0.2,1), opacity ' + DUR + 'ms ease';
+            card.style.transform = '';
+            card.style.opacity = '';
+        });
+    });
+    setTimeout(function () {
+        movers.forEach(function (card) {
+            card.style.transition = '';
+            card.style.transform = '';
+            card.style.opacity = '';
+        });
+    }, DUR + 60);
+}
+
 // Render the type-specific info for a lore entry (shown in the expanded card
 // and on hover). Iterates the category's field-schema, skipping empties.
 // Monster "fog of war" (#0C4rMb): per-veld public/private (DM-bezit, op e.visibility)
