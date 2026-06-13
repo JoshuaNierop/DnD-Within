@@ -1196,17 +1196,27 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="toggle-lore-entry"]') || target.closest('[data-action="toggle-lore-entry"]')) {
             // Niet togglen als er op een actie-knop in de kaart geklikt is.
             if (target.closest('[data-action="edit-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]') || target.closest('[data-action="toggle-field-vis"]') || target.closest('.lore-hyp-input')) return;
-            // Bewust GEEN accordion: lore-kaarten (incl. monsters/places/items) mogen
-            // met meerdere tegelijk uitgeklapt blijven — los togglen, siblings niet
-            // sluiten (#I1oOpc). Alleen NPC-kaarten gebruiken wel een accordion.
+            // Accordion: max. één lore-kaart tegelijk uitgeklapt. Een tweede openen
+            // klapt de vorige in (gevraagd 2026-06-14; keert #I1oOpc bewust om).
             var leCard = target.matches('[data-action="toggle-lore-entry"]') ? target : target.closest('[data-action="toggle-lore-entry"]');
             if (leCard) {
-                leCard.classList.toggle('expanded');
+                var willExpand = !leCard.classList.contains('expanded');
+                if (willExpand) {
+                    // Alle andere kaarten sluiten (DOM + persistente set leegmaken)
+                    // zodat een latere re-render er ook maar één open toont.
+                    document.querySelectorAll('.lore-entry-card.expanded').forEach(function (c) {
+                        c.classList.remove('expanded');
+                    });
+                    if (typeof loreExpandedIds !== 'undefined') {
+                        for (var k in loreExpandedIds) delete loreExpandedIds[k];
+                    }
+                }
+                leCard.classList.toggle('expanded', willExpand);
                 // Spiegel naar de persistente set zodat een latere re-render de
                 // uitgeklapte kaart niet inklapt (#LLD4YT/#3gKQ37).
                 var lid = leCard.getAttribute('data-entry-id');
                 if (lid && typeof loreExpandedIds !== 'undefined') {
-                    if (leCard.classList.contains('expanded')) loreExpandedIds[lid] = true;
+                    if (willExpand) loreExpandedIds[lid] = true;
                     else delete loreExpandedIds[lid];
                 }
             }
