@@ -262,20 +262,6 @@ function bindPageEvents(route) {
         // Edit note
         if (target.matches('[data-action="edit-note"]')) { navigate('/notes/edit-' + target.dataset.noteId); return; }
 
-        // Filter notes
-        if (target.matches('[data-action="filter-notes"]')) {
-            notesFilter = target.dataset.cat || 'all';
-            renderApp();
-            return;
-        }
-
-        // Pick category in editor
-        if (target.matches('[data-action="pick-note-cat"]')) {
-            document.querySelectorAll('.note-cat-option').forEach(function(b) { b.classList.remove('active'); });
-            target.classList.add('active');
-            return;
-        }
-
         // Pick layout in editor
         if (target.matches('[data-action="pick-note-layout"]') || target.closest('[data-action="pick-note-layout"]')) {
             var layoutBtn = target.matches('[data-action="pick-note-layout"]') ? target : target.closest('[data-action="pick-note-layout"]');
@@ -298,7 +284,6 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="save-note"]')) {
             var noteTitleEl = document.getElementById('note-title');
             var noteContentEl = document.getElementById('note-content');
-            var noteActiveCat = document.querySelector('.note-cat-option.active');
             var noteActiveLayout = document.querySelector('.note-layout-option.active');
             var noteImg = document.querySelector('.note-image-preview img');
 
@@ -307,21 +292,6 @@ function bindPageEvents(route) {
             var noteData = getNotesData();
             var saveNoteId = target.dataset.noteId;
 
-            // Collect tags from the tag list (new format: {text, category})
-            var noteTags = [];
-            if (window._noteTags) {
-                noteTags = window._noteTags.slice();
-            } else {
-                // Fallback: read existing note tags
-                var existingNote = null;
-                if (saveNoteId) {
-                    for (var fni = 0; fni < noteData.notes.length; fni++) {
-                        if (noteData.notes[fni].id === saveNoteId) { existingNote = noteData.notes[fni]; break; }
-                    }
-                }
-                if (existingNote) noteTags = existingNote.tags || [];
-            }
-            var noteCategory = noteActiveCat ? noteActiveCat.dataset.cat : 'other';
             var noteLayout = noteActiveLayout ? noteActiveLayout.dataset.layout : 'text-only';
             // A live reference on the section wins over the preview src (which
             // shows the resolved URL, not the value we want to persist).
@@ -348,8 +318,6 @@ function bindPageEvents(route) {
             var noteObj = {
                 title: noteTitleEl.value.trim(),
                 content: noteContentEl ? ((typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(noteContentEl) : noteContentEl.value) : '',
-                tags: noteTags,
-                tagCategory: noteCategory,
                 layout: noteLayout,
                 image: noteImageRef ? noteImageRef : (noteImage && noteImage.indexOf('data:') === 0 ? noteImage : null),
                 images: galleryImages,
@@ -363,8 +331,6 @@ function bindPageEvents(route) {
                         var existing = noteData.notes[sni];
                         existing.title = noteObj.title;
                         existing.content = noteObj.content;
-                        existing.tags = noteObj.tags;
-                        existing.tagCategory = noteObj.tagCategory;
                         existing.layout = noteObj.layout;
                         if (noteObj.image) existing.image = noteObj.image;
                         else if (noteLayout === 'text-only' || noteLayout === 'gallery' || noteLayout === 'checklist') existing.image = null;
@@ -1292,71 +1258,6 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Add tag to note
-        if (target.matches('[data-action="add-tag"]')) {
-            var tagTextEl = document.getElementById('tag-text');
-            var tagCatEl = document.getElementById('tag-category');
-            if (tagTextEl && tagTextEl.value.trim()) {
-                if (!window._noteTags) {
-                    // Initialize from existing tags in DOM
-                    window._noteTags = [];
-                    document.querySelectorAll('#note-tags-list .note-tag').forEach(function(el) {
-                        var txt = el.textContent.replace('\u00d7', '').trim();
-                        // Remove leading emoji
-                        txt = txt.replace(/^[\ud800-\udbff][\udc00-\udfff]\s*/, '').trim();
-                        window._noteTags.push({ text: txt, category: 'other' });
-                    });
-                }
-                window._noteTags.push({
-                    text: tagTextEl.value.trim(),
-                    category: tagCatEl ? tagCatEl.value : 'other'
-                });
-                // Re-render tag list
-                var tagListEl = document.getElementById('note-tags-list');
-                if (tagListEl) {
-                    var tagHtml = '';
-                    for (var tti = 0; tti < window._noteTags.length; tti++) {
-                        var tg = window._noteTags[tti];
-                        var tgCat = null;
-                        for (var tci = 0; tci < TAG_CATEGORIES.length; tci++) {
-                            if (TAG_CATEGORIES[tci].id === tg.category) { tgCat = TAG_CATEGORIES[tci]; break; }
-                        }
-                        if (!tgCat) tgCat = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
-                        tagHtml += '<span class="note-tag" style="border-color:' + tgCat.color + '">' + tgCat.icon + ' ' + escapeHtml(tg.text) + '<button class="tag-remove" data-action="remove-tag" data-tag-idx="' + tti + '">&times;</button></span>';
-                    }
-                    tagListEl.innerHTML = tagHtml;
-                }
-                tagTextEl.value = '';
-            }
-            return;
-        }
-
-        // Remove tag from note
-        if (target.matches('[data-action="remove-tag"]') || target.closest('[data-action="remove-tag"]')) {
-            var removeTagBtn = target.matches('[data-action="remove-tag"]') ? target : target.closest('[data-action="remove-tag"]');
-            var tagIdx = parseInt(removeTagBtn.dataset.tagIdx);
-            if (!window._noteTags) window._noteTags = [];
-            if (!isNaN(tagIdx) && tagIdx < window._noteTags.length) {
-                window._noteTags.splice(tagIdx, 1);
-                // Re-render
-                var tagListEl = document.getElementById('note-tags-list');
-                if (tagListEl) {
-                    var tagHtml = '';
-                    for (var tti = 0; tti < window._noteTags.length; tti++) {
-                        var tg = window._noteTags[tti];
-                        var tgCat = null;
-                        for (var tci = 0; tci < TAG_CATEGORIES.length; tci++) {
-                            if (TAG_CATEGORIES[tci].id === tg.category) { tgCat = TAG_CATEGORIES[tci]; break; }
-                        }
-                        if (!tgCat) tgCat = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
-                        tagHtml += '<span class="note-tag" style="border-color:' + tgCat.color + '">' + tgCat.icon + ' ' + escapeHtml(tg.text) + '<button class="tag-remove" data-action="remove-tag" data-tag-idx="' + tti + '">&times;</button></span>';
-                    }
-                    tagListEl.innerHTML = tagHtml;
-                }
-            }
-            return;
-        }
-
         // Remove gallery image
         if (target.matches('[data-action="remove-gallery-image"]')) {
             var thumbEl = target.closest('.note-gallery-thumb');
@@ -1516,21 +1417,8 @@ function bindPageEvents(route) {
             }
             return;
         }
-        if (target.matches('[data-action="qnote-cat"]')) {
-            if (typeof QuickNotes !== 'undefined') QuickNotes.setCategory(target.dataset.cat);
-            return;
-        }
         if (target.matches('[data-action="qnote-save"]')) {
             if (typeof QuickNotes !== 'undefined') QuickNotes.save();
-            return;
-        }
-        if (target.matches('[data-action="qnote-add-tag"]')) {
-            if (typeof QuickNotes !== 'undefined') QuickNotes.addTag();
-            return;
-        }
-        if (target.matches('[data-action="qnote-remove-tag"]') || target.closest('[data-action="qnote-remove-tag"]')) {
-            var remBtn = target.matches('[data-action="qnote-remove-tag"]') ? target : target.closest('[data-action="qnote-remove-tag"]');
-            if (typeof QuickNotes !== 'undefined') QuickNotes.removeTag(parseInt(remBtn.dataset.tagIdx));
             return;
         }
 

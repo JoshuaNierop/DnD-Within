@@ -9095,6 +9095,28 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     -webkit-user-drag: none;
     pointer-events: none;
 }
+/* Referentieraster op 25/50/75% (horizontaal + verticaal) zodat je beelden
+   gelijkmatig kunt uitlijnen. pointer-events:none → slepen/zoomen blijft werken.
+   Multi-position color stops tekenen 1px-lijnen; de 50%-lijn is iets feller als
+   middenmarkering. */
+.crop-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    --grid-c: rgba(255, 255, 255, 0.28);
+    --grid-mid: rgba(255, 255, 255, 0.45);
+    background-image:
+        linear-gradient(90deg,
+            transparent 0 calc(25% - 0.5px), var(--grid-c) calc(25% - 0.5px) calc(25% + 0.5px),
+            transparent calc(25% + 0.5px) calc(50% - 0.5px), var(--grid-mid) calc(50% - 0.5px) calc(50% + 0.5px),
+            transparent calc(50% + 0.5px) calc(75% - 0.5px), var(--grid-c) calc(75% - 0.5px) calc(75% + 0.5px),
+            transparent calc(75% + 0.5px)),
+        linear-gradient(180deg,
+            transparent 0 calc(25% - 0.5px), var(--grid-c) calc(25% - 0.5px) calc(25% + 0.5px),
+            transparent calc(25% + 0.5px) calc(50% - 0.5px), var(--grid-mid) calc(50% - 0.5px) calc(50% + 0.5px),
+            transparent calc(50% + 0.5px) calc(75% - 0.5px), var(--grid-c) calc(75% - 0.5px) calc(75% + 0.5px),
+            transparent calc(75% + 0.5px));
+}
 .crop-controls {
     display: flex;
     flex-direction: column;

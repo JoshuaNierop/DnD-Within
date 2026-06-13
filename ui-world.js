@@ -2994,22 +2994,14 @@ function renderNotes() {
     var data = getNotesData();
     var notes = data.notes || [];
 
-    // Filter and search
+    // Search (titel + inhoud). Categorie/tag-filtering is verwijderd — referenties
+    // (@-mentions) vervangen het taggen.
     var filtered = notes;
-    if (notesFilter !== 'all') {
-        var nf = notesFilter.toLowerCase();
-        filtered = filtered.filter(function(n) {
-            if (n.tagCategory === notesFilter) return true;
-            if (n.tags && n.tags.some(function(t){ return t.toLowerCase() === nf; })) return true;
-            return false;
-        });
-    }
     if (notesSearch) {
         var q = notesSearch.toLowerCase();
         filtered = filtered.filter(function(n) {
             return (n.title && n.title.toLowerCase().indexOf(q) >= 0) ||
-                   (n.content && n.content.toLowerCase().indexOf(q) >= 0) ||
-                   (n.tags && n.tags.some(function(t) { return t.toLowerCase().indexOf(q) >= 0; }));
+                   (n.content && n.content.toLowerCase().indexOf(q) >= 0);
         });
     }
 
@@ -3031,19 +3023,6 @@ function renderNotes() {
     html += '<input type="text" class="notes-search-input" data-action="search-notes" placeholder="' + t('notes.search') + '" value="' + escapeAttr(notesSearch) + '">';
     html += '</div>';
 
-    // Category filter tabs
-    html += '<div class="notes-categories">';
-    html += '<button class="notes-cat-btn' + (notesFilter === 'all' ? ' active' : '') + '" data-action="filter-notes" data-cat="all">' + t('notes.all') + '</button>';
-    for (var ci = 0; ci < TAG_CATEGORIES.length; ci++) {
-        var cat = TAG_CATEGORIES[ci];
-        var count = notes.filter(function(n) { return n.tagCategory === cat.id; }).length;
-        html += '<button class="notes-cat-btn' + (notesFilter === cat.id ? ' active' : '') + '" data-action="filter-notes" data-cat="' + cat.id + '" style="--cat-color:' + cat.color + '">';
-        html += cat.icon + ' ' + t('notecat.' + cat.id);
-        if (count > 0) html += ' <span class="notes-cat-count">' + count + '</span>';
-        html += '</button>';
-    }
-    html += '</div>';
-
     // Notes grid
     if (filtered.length === 0) {
         html += '<div class="notes-empty">';
@@ -3058,13 +3037,8 @@ function renderNotes() {
         html += '<div class="notes-grid">';
         for (var ni = 0; ni < filtered.length; ni++) {
             var note = filtered[ni];
-            var cat = null;
-            for (var fi = 0; fi < TAG_CATEGORIES.length; fi++) {
-                if (TAG_CATEGORIES[fi].id === note.tagCategory) { cat = TAG_CATEGORIES[fi]; break; }
-            }
-            if (!cat) cat = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
 
-            html += '<div class="note-card' + (note.pinned ? ' note-card-pinned' : '') + '" data-action="view-note" data-note-id="' + note.id + '" style="--cat-color:' + cat.color + '">';
+            html += '<div class="note-card' + (note.pinned ? ' note-card-pinned' : '') + '" data-action="view-note" data-note-id="' + note.id + '" style="--cat-color:var(--accent)">';
 
             // Pin badge
             if (note.pinned) {
@@ -3087,7 +3061,7 @@ function renderNotes() {
             }
 
             html += '<div class="note-card-body">';
-            html += '<div class="note-card-meta"><span class="note-card-cat">' + cat.icon + ' ' + t('notecat.' + cat.id) + '</span><span class="note-card-date">' + formatNoteDate(note.updated) + '</span></div>';
+            html += '<div class="note-card-meta"><span class="note-card-date">' + formatNoteDate(note.updated) + '</span></div>';
             html += '<h3 class="note-card-title">' + escapeHtml(note.title || t('generic.unnamed')) + '</h3>';
 
             // Checklist preview
@@ -3104,16 +3078,6 @@ function renderNotes() {
                 html += '</div>';
             } else {
                 html += '<p class="note-card-preview">' + escapeHtml((note.content || '').substring(0, 120)) + (note.content && note.content.length > 120 ? '...' : '') + '</p>';
-            }
-
-            if (note.tags && note.tags.length > 0) {
-                html += '<div class="note-card-tags">';
-                for (var ti = 0; ti < Math.min(note.tags.length, 4); ti++) {
-                    var tagText = typeof note.tags[ti] === 'object' ? note.tags[ti].text : note.tags[ti];
-                    html += '<span class="note-tag">' + escapeHtml(tagText) + '</span>';
-                }
-                if (note.tags.length > 4) html += '<span class="note-tag">+' + (note.tags.length - 4) + '</span>';
-                html += '</div>';
             }
 
             html += '</div>';
@@ -3135,13 +3099,8 @@ function renderNoteEditor(noteId) {
         }
     }
 
-    // Initialize tag state for this editor session
-    window._noteTags = note ? (note.tags || []).slice() : [];
-
     var title = note ? note.title : '';
     var content = note ? note.content : '';
-    var tags = note ? (note.tags || []).join(', ') : '';
-    var category = note ? note.tagCategory : 'other';
     var layout = note ? note.layout : 'text-only';
     var image = note ? note.image : null;
     var images = note ? (note.images || []) : [];
@@ -3161,17 +3120,6 @@ function renderNoteEditor(noteId) {
 
     // Title
     html += '<input type="text" class="edit-input note-title-input" id="note-title" placeholder="' + t('lore.articletitle') + '" value="' + escapeAttr(title) + '">';
-
-    // Category selector
-    html += '<div class="note-category-picker">';
-    html += '<label class="text-dim" style="font-size:0.8rem;">' + t('notes.category') + '</label>';
-    html += '<div class="note-cat-options">';
-    for (var ci = 0; ci < TAG_CATEGORIES.length; ci++) {
-        var ecat = TAG_CATEGORIES[ci];
-        html += '<button class="note-cat-option' + (category === ecat.id ? ' active' : '') + '" data-action="pick-note-cat" data-cat="' + ecat.id + '" style="--cat-color:' + ecat.color + '">' + ecat.icon + ' ' + t('notecat.' + ecat.id) + '</button>';
-    }
-    html += '</div>';
-    html += '</div>';
 
     // Layout selector
     html += '<div class="note-layout-picker">';
@@ -3231,31 +3179,6 @@ function renderNoteEditor(noteId) {
     // Content (hidden for checklist layout)
     html += '<textarea class="edit-textarea note-content-input" id="note-content" placeholder="' + t('notes.notecontent') + '"' + mentionFieldAttr(content) + ' style="display:' + (layout === 'checklist' ? 'none' : 'block') + '">' + mentionFieldVal(content) + '</textarea>';
 
-    // Tags with category
-    html += '<div class="note-tags-section">';
-    html += '<label class="text-dim" style="font-size:0.8rem;">' + t('notes.tags') + '</label>';
-    html += '<div class="note-tags-list" id="note-tags-list">';
-    var parsedTags = note ? (note.tags || []) : [];
-    for (var nti = 0; nti < parsedTags.length; nti++) {
-        var tagObj = typeof parsedTags[nti] === 'object' ? parsedTags[nti] : { text: parsedTags[nti], category: 'other' };
-        var tagCat = null;
-        for (var tci = 0; tci < TAG_CATEGORIES.length; tci++) {
-            if (TAG_CATEGORIES[tci].id === tagObj.category) { tagCat = TAG_CATEGORIES[tci]; break; }
-        }
-        if (!tagCat) tagCat = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
-        html += '<span class="note-tag" style="border-color:' + tagCat.color + '">' + tagCat.icon + ' ' + escapeHtml(typeof tagObj === 'string' ? tagObj : tagObj.text) + '<button class="tag-remove" data-action="remove-tag" data-tag-idx="' + nti + '">&times;</button></span>';
-    }
-    html += '</div>';
-    html += '<div class="note-tag-add">';
-    html += '<select class="edit-input" id="tag-category" style="width:auto;">';
-    for (var tci = 0; tci < TAG_CATEGORIES.length; tci++) {
-        html += '<option value="' + TAG_CATEGORIES[tci].id + '">' + TAG_CATEGORIES[tci].icon + ' ' + t('notecat.' + TAG_CATEGORIES[tci].id) + '</option>';
-    }
-    html += '</select>';
-    html += '<input type="text" class="edit-input" id="tag-text" placeholder="Tag name..." style="flex:1;">';
-    html += '<button class="btn btn-ghost btn-sm" data-action="add-tag">+</button>';
-    html += '</div>';
-    html += '</div>';
 
     // Save/Delete
     html += '<div class="note-editor-actions">';
@@ -3277,12 +3200,6 @@ function renderNoteView(noteId) {
         if (data.notes[i].id === noteId) { note = data.notes[i]; break; }
     }
     if (!note) return '<div class="page-placeholder"><h2>' + t('notes.notfound') + '</h2></div>';
-
-    var cat = null;
-    for (var ci = 0; ci < TAG_CATEGORIES.length; ci++) {
-        if (TAG_CATEGORIES[ci].id === note.tagCategory) { cat = TAG_CATEGORIES[ci]; break; }
-    }
-    if (!cat) cat = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
 
     var html = '<div class="notes-page">';
     html += '<div class="notes-header">';
@@ -3315,7 +3232,7 @@ function renderNoteView(noteId) {
     }
 
     html += '<div class="note-view-text">';
-    html += '<div class="note-view-meta"><span class="note-view-cat" style="color:' + cat.color + '">' + cat.icon + ' ' + t('notecat.' + cat.id) + '</span><span class="note-view-date">' + formatNoteDate(note.updated) + '</span></div>';
+    html += '<div class="note-view-meta"><span class="note-view-date">' + formatNoteDate(note.updated) + '</span></div>';
     html += '<h1>' + escapeHtml(note.title || t('generic.unnamed')) + '</h1>';
 
     // Checklist view
@@ -3343,21 +3260,6 @@ function renderNoteView(noteId) {
         }
     }
 
-    if (note.tags && note.tags.length > 0) {
-        html += '<div class="note-view-tags">';
-        for (var ti = 0; ti < note.tags.length; ti++) {
-            var tagItem = note.tags[ti];
-            var tagText = typeof tagItem === 'object' ? tagItem.text : tagItem;
-            var tagCatId = typeof tagItem === 'object' ? tagItem.category : 'other';
-            var tagCatObj = null;
-            for (var tci = 0; tci < TAG_CATEGORIES.length; tci++) {
-                if (TAG_CATEGORIES[tci].id === tagCatId) { tagCatObj = TAG_CATEGORIES[tci]; break; }
-            }
-            if (!tagCatObj) tagCatObj = TAG_CATEGORIES[TAG_CATEGORIES.length - 1];
-            html += '<span class="note-tag" style="border-left:3px solid ' + tagCatObj.color + ';padding-left:0.4rem;">' + tagCatObj.icon + ' ' + escapeHtml(tagText) + '</span>';
-        }
-        html += '</div>';
-    }
     html += '</div>';
 
     if (note.image && note.layout === 'image-right') {

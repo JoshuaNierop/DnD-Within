@@ -1,5 +1,10 @@
 # D&D Within — To Do
 
+## Notes & crop-editor (2026-06-14)
+- [x] P2 — Crop-editor preview vierkant (default `shape:'square'`) + referentieraster op 25/50/75% horizontaal+verticaal (`.crop-grid` overlay, 50%-lijn iets feller). Helpt gelijkmatig croppen.
+- [x] P2 — **Tag-functie uit notes verwijderd** (vrije tags ÉN categorie) — vervangen door @-referenties. Weg uit: notes-bord (filter-tabs, kaart-categoriekleur→`var(--accent)`, chips), note-detail, note-editor (categorie-picker + tags-sectie), save-logica, QuickNotes-panel (effects.js). Handlers verwijderd: filter-notes, pick-note-cat, add-tag, remove-tag, qnote-cat, qnote-add-tag, qnote-remove-tag. `TAG_CATEGORIES`-constante + dode i18n/CSS bewust gelaten (onschadelijk, geen stray-refs). Bestaande notes behouden hun oude tags/tagCategory-data stil (niet meer getoond/bewerkt).
+  - **Nog visueel te checken aan tafel**: notes-bord zonder filter-tabs, note-editor zonder categorie/tags, QuickNotes-panel, crop-raster-uitlijning.
+
 ## i18n bilinguale data (#aftET9)
 - [x] P1 — `dloc()`-helper + backgrounds + race-features bilinguaal ({nl,en}); wizard render via dloc(); wizard UI-labels via t()
 - [ ] P3 — Class/subclass `desc` bilinguaal — **deferred**: geen render-site (geen UI toont het); migreren zodra er een class-detail-UI komt (dloc handelt het incrementeel af)

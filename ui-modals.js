@@ -1799,7 +1799,10 @@ function openCropEditor(opts) {
     opts = opts || {};
     var src = opts.src;
     if (!src) return;
-    var shape = opts.shape === 'square' ? 'square' : 'circle';
+    // Vierkante preview is de default: het raster (25/50/75% horizontaal +
+    // verticaal) geeft een referentiekader om gelijkmatig te croppen. Een caller
+    // kan expliciet shape:'circle' vragen.
+    var shape = opts.shape === 'circle' ? 'circle' : 'square';
     var st = {
         x: (opts.crop && opts.crop.x != null) ? opts.crop.x : 50,
         y: (opts.crop && opts.crop.y != null) ? opts.crop.y : 50,
@@ -1817,7 +1820,8 @@ function openCropEditor(opts) {
             '<div class="crop-header"><h2>Portret bijsnijden</h2>' +
             '<button class="modal-close" data-crop="cancel" aria-label="Sluiten">&times;</button></div>' +
             '<div class="crop-stage"><div class="crop-box crop-' + shape + '">' +
-            '<img class="crop-img" alt="" draggable="false"></div></div>' +
+            '<img class="crop-img" alt="" draggable="false">' +
+            '<div class="crop-grid" aria-hidden="true"></div></div></div>' +
             '<div class="crop-controls">' +
                 '<div class="crop-zoom-row">' +
                     '<button class="crop-btn" data-crop="zoom-out" aria-label="Uitzoomen">&minus;</button>' +
