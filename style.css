@@ -8244,7 +8244,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ============================================================
    DM Page
    ============================================================ */
-.dm-page { max-width: 1100px; margin: 0 auto; }
+/* WGI: .dm-page is sinds de herbouw (commit e139d5d) de WidgetGrid dashboard-host
+   en draagt óók de .character-page class. De oude tools-page-constraint hieronder
+   (max-width 1100px, gecentreerd) won qua bron-volgorde van .character-page en
+   maakte het DM-dashboard smal. Neutraliseren → full-bleed, identiek aan het
+   speler-dashboard (alleen andere widgets/tabs). */
+.dm-page { max-width: none; margin: 0; }
 .dm-page .page-title { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-bright); }
 .dm-tabs { display: flex; gap: 0.25rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0; }
 .dm-tab {
