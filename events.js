@@ -2828,29 +2828,23 @@ function bindPageEvents(route) {
             return;
         }
 
-        // NPC search
+        // NPC search — alleen het resultaten-grid verversen (geen page-reload,
+        // geen focus-verlies, skip bij identieke resultaten).
         if (target.matches('#npc-search')) {
             npcSearchQuery = target.value;
-            // Debounced re-render
             clearTimeout(target._searchTimer);
             target._searchTimer = setTimeout(function() {
-                var cursorPos = target.selectionStart;
-                renderApp();
-                var el = document.getElementById('npc-search');
-                if (el) { el.focus(); el.setSelectionRange(cursorPos, cursorPos); }
+                updateSearchResults('npc-results', function() { return renderNPCResultsInner(); });
             }, 200);
             return;
         }
 
-        // Lore-categorie search
+        // Lore-categorie search — idem: alleen het entry-grid verversen.
         if (target.matches('#lore-cat-search')) {
             loreCatSearch = target.value;
             clearTimeout(target._searchTimer);
             target._searchTimer = setTimeout(function() {
-                var cursorPos = target.selectionStart;
-                renderApp();
-                var el = document.getElementById('lore-cat-search');
-                if (el) { el.focus(); el.setSelectionRange(cursorPos, cursorPos); }
+                updateSearchResults('lore-cat-results', function(c) { return renderLoreResultsInner(c.dataset.cat); });
             }, 200);
             return;
         }

@@ -144,6 +144,20 @@ function renderApp() {
     if (!routeChanged) requestAnimationFrame(function() { app.classList.remove('no-animate'); });
 }
 
+// Gerichte content-update voor live-zoeken: vervangt ALLEEN de innerHTML van het
+// resultaten-container i.p.v. de hele pagina via renderApp() (die titel, tabs,
+// searchbar en navbar zou herbouwen + de page-load-animatie zou tonen). builderFn
+// krijgt de container mee en geeft de nieuwe resultaten-HTML terug. Levert het
+// dezelfde HTML op → niets doen (geen herladen bij identieke gevonden content).
+// Geen page-load-animatie: die blijft voorbehouden aan een echte route-wissel.
+function updateSearchResults(containerId, builderFn) {
+    var c = document.getElementById(containerId);
+    if (!c) { renderApp(); return; }   // container weg (bv. andere pagina) → val terug
+    var html = builderFn(c);
+    if (html == null || c.innerHTML === html) return;
+    c.innerHTML = html;
+}
+
 // Open + highlight the NPC / lore-entry card that a clicked @-mention link
 // targeted (window._dwEntityFocus = {type, id}). Mirrors the timeline
 // session-focus flow. Safe no-op when nothing is pending or the card is absent.

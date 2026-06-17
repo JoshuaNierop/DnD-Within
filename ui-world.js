@@ -1873,6 +1873,18 @@ function renderNPCTracker() {
     }
     html += '</div>';
 
+    html += '<div class="npc-results" id="npc-results">' + renderNPCResultsInner() + '</div>';
+    return html;
+}
+
+// Query-/filter-afhankelijke NPC-resultaten (grid of lege-staat). Apart zodat de
+// search-handler alleen dit deel ververst i.p.v. de hele pagina te herladen.
+// Leest filter-state uit de module-vars (npcSearchQuery/npcFilterDisp/Faction).
+function renderNPCResultsInner() {
+    var data = getNPCData();
+    var npcs = data.npcs || [];
+    var currentYear = data.currentYear || '';
+    var html = '';
     // Filteren: zoekterm + disposition + faction.
     var q = npcSearchQuery.toLowerCase();
     var list = [];
@@ -2897,6 +2909,17 @@ function renderLoreCategory(cat) {
     }
     html += '</div>';
 
+    html += '<div class="lore-entry-results" id="lore-cat-results" data-cat="' + cat + '">' + renderLoreResultsInner(cat) + '</div>';
+    return html;
+}
+
+// Query-afhankelijke lore-resultaten (grid of lege-staat). Apart zodat de
+// search-handler alleen dit deel ververst i.p.v. de hele pagina te herladen.
+function renderLoreResultsInner(cat) {
+    var entries = getLoreCatEntries(cat);
+    var label = cat;
+    for (var t2 = 0; t2 < LORE_TABS.length; t2++) if (LORE_TABS[t2].id === cat) label = LORE_TABS[t2].label;
+    var html = '';
     var q = loreCatSearch.toLowerCase();
     var filtered = entries.filter(function (e) {
         if (!q) return true;

@@ -1,5 +1,9 @@
 # D&D Within — To Do
 
+## Search-rerender 2026-06-17 — gerichte content-update
+- [x] P2 — **NPC- en lore-search herlaadden de hele pagina** per toetsaanslag (titel/tabs/searchbar flikkerden weg + laadanimatie). Nu: `updateSearchResults(containerId, builderFn)` (app.js) vervangt alleen de innerHTML van het resultaten-container. Resultaten afgesplitst in `renderNPCResultsInner()` + `renderLoreResultsInner(cat)` (ui-world.js); wrappers `#npc-results` / `#lore-cat-results`. Search-handlers (events.js) roepen geen `renderApp()` meer aan. Identieke gevonden content → `c.innerHTML === html` skip (geen herlaad). Page-load-animatie blijft voorbehouden aan echte route-wissel (bestaande `routeChanged`/`no-animate`-gate, ongewijzigd). Input houdt focus/caret vanzelf (DOM niet aangeraakt).
+  - **Follow-up (niet gedaan)**: NPC disposition/faction-filterknoppen gaan nog via `renderApp()` (vereisen ook toolbar-update voor de active-chip-highlight). Search was de gevraagde scope.
+
 ## Hub-bugs 2026-06-17 (Engels-only, crop, skill-tooltips, combat-fit)
 - [x] P1 — #Oud-_izpLBetwa **Talen-toggle eruit, site Engels-only**. `getLang()` hard op `'en'` (i18n.js), `setLang()` no-op, `t()`-fallback nu Engels i.p.v. Nederlands (zodat ontbrekende EN-keys geen NL-variant meer tonen). Language-tab + lang-knoppen uit Settings (ui-settings.js). i18n-infra (TRANSLATIONS/dloc) bewust BEHOUDEN — alleen vergrendeld, omkeerbaar. Dode handlers `toggle-lang`/`settings-set-lang` in events.js gelaten (no-op, onschadelijk).
 - [x] P2 — #Ov6eNGFGreI **Crop-editor toonde ronde preview** → beide callers (`crop-wizard-portrait` ui-modals.js, `crop-portrait` wg-events.js) nu `shape:'square'`. Default was al square; de callers forceerden circle.
