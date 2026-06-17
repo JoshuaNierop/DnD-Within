@@ -7,7 +7,15 @@
 ## Hub-bugs 2026-06-17 (Engels-only, crop, skill-tooltips, combat-fit)
 - [x] P1 — #Oud-_izpLBetwa **Talen-toggle eruit, site Engels-only**. `getLang()` hard op `'en'` (i18n.js), `setLang()` no-op, `t()`-fallback nu Engels i.p.v. Nederlands (zodat ontbrekende EN-keys geen NL-variant meer tonen). Language-tab + lang-knoppen uit Settings (ui-settings.js). i18n-infra (TRANSLATIONS/dloc) bewust BEHOUDEN — alleen vergrendeld, omkeerbaar. Dode handlers `toggle-lang`/`settings-set-lang` in events.js gelaten (no-op, onschadelijk).
 - [x] P2 — #Ov6eNGFGreI **Crop-editor toonde ronde preview** → beide callers (`crop-wizard-portrait` ui-modals.js, `crop-portrait` wg-events.js) nu `shape:'square'`. Default was al square; de callers forceerden circle.
-- [~] P2 — #Ov6e4Bv9 **Skill-widget hover-tooltips** — GEÏMPLEMENTEERD. Native SVG `<title>` op de cel-bg (geen custom positionering). `WG_SKILL_DESC` (18 skills, EN) in wg-data.js; `d.tooltips` (rows×cols) in skills-builder wg-state.js; `<title>` in drawCellBg (wg-render.js). Tooltips: prof-kolom = "Proficient/Expertise/Not proficient"; naam = skill-uitleg + welke ability; bonus = opbouw "+3 from Dex, +2 proficiency, +2 expertise = +5". **NOG VISUEEL CHECKEN**: tooltip-tekst leesbaar, hover-doel groot genoeg, reporter vroeg specifiek de bonus-opbouw + skill-uitleg + prof/expertise-label — controleren of dit dekt wat hij bedoelde.
+- [x] P2 — #Ov6e4Bv9 **Info-box tooltips (hover + long-press)** — HERBOUWD naar custom tooltip-window (native `<title>` was traag/onzichtbaar). Werkt nu op ALLE infobox-widgets: Ability Scores, Skills, Character Info.
+  - **Data**: `d.tooltips[row][col] = {title, body}` in wg-state.js per source. `WG_ABILITY_INFO` + `WG_SKILL_DESC` in wg-data.js (EN).
+    - Abilities: naam=wat de ability bestuurt; score=modifier-afleiding; modifier=gebruik.
+    - Skills: prof-kolom=proficiency-uitleg; naam=skill-omschrijving; bonus=opbouw ("+3 from Dex / +2 proficiency / +2 expertise / = +5").
+    - Character Info: korte uitleg per veld (race/class/background/age/archetype).
+  - **Render**: `data-tip-title`/`data-tip-body` op de cel-bg-path (wg-render.js drawCellBg). Tekst → `pointer-events:none` zodat hover/press altijd op de cel landt.
+  - **UI**: `.wg-tooltip`-card GLOBAAL in style.css (niet @scope, want hangt aan body); fade-in, viewport-clamp, accent-warm titel.
+  - **Interactie** (wg-events.js, `initInfoTooltip`): desktop hover (mouseover/move/out); touch/pen **long-press 450ms** (annuleert bij beweging >10px of pointerup), auto-hide na 5s. **Botst niet met slepen**: drag gaat enkel via topbar-handle (geen tip-data) en elke beweging annuleert de long-press-timer.
+  - **NOG CHECKEN AAN TAFEL**: long-press-duur (450ms) prettig op telefoon/tablet; tooltip-positie bij cellen onderaan het scherm; of de teksten kloppen/nuttig zijn.
 
 ## Notes & crop-editor (2026-06-14)
 - [x] P2 — Crop-editor preview vierkant (default `shape:'square'`) + referentieraster op 25/50/75% horizontaal+verticaal (`.crop-grid` overlay, 50%-lijn iets feller). Helpt gelijkmatig croppen.

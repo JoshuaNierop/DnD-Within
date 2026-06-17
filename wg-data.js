@@ -29,6 +29,17 @@ function titleizeAbility(abilityKey) {
   return map[abilityKey] || abilityKey.toUpperCase().substring(0, 3);
 }
 
+// Wat elke ability bestuurt — voor de hover/long-press-tooltips op de
+// Ability-Scores-widget. Engels-only (i18n-lock).
+const WG_ABILITY_INFO = {
+  str: 'Physical power. Used for melee attack & damage rolls, Athletics, jumping, lifting, and carrying capacity.',
+  dex: 'Agility and reflexes. Used for AC in light/no armor, initiative, ranged & finesse attacks, Acrobatics, Stealth, and Sleight of Hand.',
+  con: 'Health and stamina. Used for your hit points, Concentration saving throws, and resisting exhaustion.',
+  int: 'Reasoning and memory. Used for Arcana, History, Investigation, Nature, and Religion checks.',
+  wis: 'Awareness and insight. Used for Perception, Insight, Medicine, Survival, and Animal Handling checks.',
+  cha: 'Force of personality. Used for Deception, Intimidation, Performance, and Persuasion checks.',
+};
+
 // D&D 5.5e skill → ability mapping
 const WG_SKILLS = [
   { key: 'acrobatics',     label: 'Acrobatics',      ability: 'dex' },

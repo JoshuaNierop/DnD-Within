@@ -974,3 +974,127 @@ document.addEventListener("click", async (e) => {
     return;
   }
 });
+
+// ===========================================================================
+//  Info-box tooltip (#bug Ov6e4Bv9) — hover (desktop) + long-press (touch/pen)
+// ---------------------------------------------------------------------------
+//  Tooltip-data zit als data-tip-title/data-tip-body op de cel-bg-paths
+//  (wg-render.js drawCellBg). De tekst erboven heeft pointer-events:none, dus
+//  hover/long-press landt altijd op de cel.
+//
+//  Botst NIET met slepen: een widget sleep je alleen via de topbar-handle
+//  (widget-move-2d) of resize-handles — die dragen géén tooltip-data. Een touch
+//  op de widget-BODY start hooguit een 'select'-gesture (geen drag), en élke
+//  beweging > LP_MOVE_CANCEL annuleert de long-press-timer, dus tijdens een
+//  sleep/scroll verschijnt nooit een tooltip.
+// ===========================================================================
+(function initInfoTooltip() {
+  var LONG_PRESS_MS = 450;     // ingedrukt houden vóór de tooltip verschijnt
+  var LP_MOVE_CANCEL = 10;     // px beweging die de long-press annuleert
+  var TOUCH_AUTO_HIDE_MS = 5000;
+  var tipEl = null;
+  var lpTimer = null, lpStart = null, lpTip = null, autoHideTimer = null;
+
+  function ensureTipEl() {
+    if (tipEl && document.body.contains(tipEl)) return tipEl;
+    tipEl = document.createElement('div');
+    tipEl.className = 'wg-tooltip';
+    tipEl.setAttribute('role', 'tooltip');
+    document.body.appendChild(tipEl);
+    return tipEl;
+  }
+  // Vind de dichtstbijzijnde cel met tooltip-data vanaf het event-target.
+  function tipFrom(target) {
+    var el = (target && target.closest) ? target.closest('[data-tip-title],[data-tip-body]') : null;
+    if (!el) return null;
+    var title = el.getAttribute('data-tip-title') || '';
+    var body = el.getAttribute('data-tip-body') || '';
+    if (!title && !body) return null;
+    return { el: el, title: title, body: body };
+  }
+  function position(cx, cy) {
+    var e = tipEl;
+    // Meet bij (0,0) en clamp daarna binnen de viewport.
+    e.style.left = '0px'; e.style.top = '0px';
+    var r = e.getBoundingClientRect();
+    var x = cx + 14, y = cy + 16;
+    if (x + r.width > window.innerWidth - 8) x = Math.max(8, cx - r.width - 14);
+    if (y + r.height > window.innerHeight - 8) y = Math.max(8, cy - r.height - 16);
+    e.style.left = x + 'px';
+    e.style.top = y + 'px';
+  }
+  function show(tip, cx, cy) {
+    var e = ensureTipEl();
+    e.innerHTML = '';
+    if (tip.title) {
+      var h = document.createElement('div');
+      h.className = 'wg-tooltip-title';
+      h.textContent = tip.title;
+      e.appendChild(h);
+    }
+    if (tip.body) {
+      var b = document.createElement('div');
+      b.className = 'wg-tooltip-body';
+      b.textContent = tip.body;
+      e.appendChild(b);
+    }
+    position(cx, cy);
+    // forceer reflow zodat de fade-in speelt ook bij hergebruik
+    void e.offsetWidth;
+    e.classList.add('visible');
+  }
+  function hide() {
+    if (tipEl) tipEl.classList.remove('visible');
+    clearTimeout(autoHideTimer); autoHideTimer = null;
+  }
+  function cancelLongPress() {
+    clearTimeout(lpTimer); lpTimer = null; lpStart = null; lpTip = null;
+  }
+
+  // ---- Desktop: hover ----
+  document.addEventListener('mouseover', function (ev) {
+    if (ev.pointerType === 'touch') return;
+    var tip = tipFrom(ev.target);
+    if (tip) show(tip, ev.clientX, ev.clientY);
+  });
+  document.addEventListener('mousemove', function (ev) {
+    if (!tipEl || !tipEl.classList.contains('visible')) return;
+    var tip = tipFrom(ev.target);
+    if (!tip) { hide(); return; }
+    position(ev.clientX, ev.clientY);
+  });
+  document.addEventListener('mouseout', function (ev) {
+    if (tipFrom(ev.target)) hide();
+  });
+
+  // ---- Touch/pen: long-press ----
+  document.addEventListener('pointerdown', function (ev) {
+    if (ev.pointerType !== 'touch' && ev.pointerType !== 'pen') {
+      // Muis-klik buiten een tooltip-cel sluit een open tooltip.
+      if (!tipFrom(ev.target)) hide();
+      return;
+    }
+    // Nieuwe touch: bestaande tooltip weg tenzij op dezelfde cel.
+    var tip = tipFrom(ev.target);
+    if (!tip) { hide(); cancelLongPress(); return; }
+    cancelLongPress();
+    lpStart = { x: ev.clientX, y: ev.clientY };
+    lpTip = tip;
+    lpTimer = setTimeout(function () {
+      show(lpTip, lpStart.x, lpStart.y);
+      lpTimer = null;
+      clearTimeout(autoHideTimer);
+      autoHideTimer = setTimeout(hide, TOUCH_AUTO_HIDE_MS);
+    }, LONG_PRESS_MS);
+  }, true);
+  document.addEventListener('pointermove', function (ev) {
+    if (!lpStart) return;
+    if (Math.hypot(ev.clientX - lpStart.x, ev.clientY - lpStart.y) > LP_MOVE_CANCEL) cancelLongPress();
+  }, true);
+  document.addEventListener('pointerup', cancelLongPress, true);
+  document.addEventListener('pointercancel', cancelLongPress, true);
+
+  // Tooltip verdwijnt bij scrollen/resize (de cel kan onder de cursor wegschuiven).
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('resize', hide);
+})();

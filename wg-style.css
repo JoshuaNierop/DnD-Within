@@ -836,7 +836,10 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     stroke: var(--user-border-glow);
     filter: drop-shadow(0 0 8px color-mix(in srgb, var(--user-border-glow) 50%, transparent));
   }
-  svg .info-box-text { fill: var(--user-text-regular); font-family: var(--info-font-body); }
+  /* Tekst is display-only → pointer-events:none zodat hover/long-press altijd op
+     de onderliggende cel-bg (info-box-cell) landt, waar de tooltip-data op zit. */
+  svg .info-box-text { fill: var(--user-text-regular); font-family: var(--info-font-body); pointer-events: none; }
+  svg .info-box-cell { pointer-events: auto; }
   svg .info-box-text.highlight { fill: var(--user-text-highlight); }
   svg .info-box-text.is-prof-col { font-size: 1.25em; }
   svg .widget-onboard-rect {

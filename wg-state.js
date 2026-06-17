@@ -19,17 +19,31 @@ function buildRowsFromSource(widget) {
     L.columnMaxChars = [3, null, null];
     L.columnAllCaps = [true, false, false];
     L.stacking = 'vertical';
+    const abInfo = (typeof WG_ABILITY_INFO === 'object' && WG_ABILITY_INFO) ? WG_ABILITY_INFO : {};
+    const abTips = [];
     d.rows = ['str','dex','con','int','wis','cha'].map(k => {
       const score = ab[k];
-      const modStr = (typeof score === 'number')
-        ? (() => { const m = Math.floor((score - 10) / 2); return `(${m >= 0 ? '+' : ''}${m})`; })()
-        : '—';
+      const hasScore = (typeof score === 'number');
+      const m = hasScore ? Math.floor((score - 10) / 2) : 0;
+      const modStr = hasScore ? `(${m >= 0 ? '+' : ''}${m})` : '—';
+      const name = WG_ABILITY_LABELS[k];
+      const modSigned = `${m >= 0 ? '+' : ''}${m}`;
+      // Tooltips: naam = wat de ability bestuurt; score = afleiding van de
+      // modifier; modifier = de bonus die je overal optelt.
+      abTips.push([
+        { title: name, body: abInfo[k] || '' },
+        { title: name + ' score', body: hasScore
+            ? `Raw score ${score}. The modifier is (score − 10) ÷ 2, rounded down → ${modSigned}.`
+            : 'Not set yet.' },
+        { title: `${name} modifier ${modSigned}`, body: (abInfo[k] || '') + (hasScore ? `\n\nApplied to every ${titleizeAbility(k)}-based roll.` : '') },
+      ]);
       return [
-        WG_ABILITY_LABELS[k],
+        name,
         String(score ?? '—'),
         modStr,
       ];
     });
+    d.tooltips = abTips;
   }
   if (src === 'basicInfo') {
     const cfg = raw.config || {};
@@ -59,6 +73,18 @@ function buildRowsFromSource(widget) {
     ];
     d.fieldKeys = fields.map(f => f.key);   // rowIdx → config-field voor edit-write-back
     d.rows = fields.map(f => [f.label, f.value]);
+    // Tooltips: korte uitleg per veld (zelfde tip op label- en waarde-cel).
+    var biTipBody = {
+      race:       "Your ancestry — sets your size, speed, and racial traits.",
+      className:  "Your profession — sets your hit die, proficiencies, and class features.",
+      background: "Your life before adventuring — grants skill & tool proficiencies and a starting feat.",
+      age:        "Your character's age in years.",
+      subclass:   "Your subclass — a specialization within your class, chosen at level 3.",
+    };
+    d.tooltips = fields.map(function (f) {
+      var tip = { title: f.label, body: biTipBody[f.key] || '' };
+      return [tip, tip];
+    });
     L.columnHighlight = [false, true];
     L.columnAlign     = ['left', 'right'];
     L.columnMaxChars  = [null, null];
@@ -88,16 +114,19 @@ function buildRowsFromSource(widget) {
       const mark = isExpert ? '★' : (isProf ? '●' : '○');
       const total = mod + (isExpert ? 2 * profBonus : (isProf ? profBonus : 0));
       const abName = titleizeAbility(s.ability);
-      // Tooltips (#bug Ov6e4Bv9): bonus-opbouw, skill-uitleg, proficiency-status.
-      const parts = [`${fmtBonus(mod)} from ${abName}`];
+      const fullAb = WG_ABILITY_LABELS[s.ability] || abName;
+      // Tooltips (#bug Ov6e4Bv9): proficiency-status, skill-uitleg, bonus-opbouw.
+      const parts = [`${fmtBonus(mod)} from ${fullAb}`];
       if (isProf || isExpert) parts.push(`+${profBonus} proficiency`);
       if (isExpert) parts.push(`+${profBonus} expertise`);
-      const bonusTip = parts.join(', ') + ` = ${fmtBonus(total)}`;
-      const profTip = isExpert ? 'Expertise (proficiency counts double)'
-        : (isProf ? 'Proficient' : 'Not proficient');
-      const nameTip = (descMap[s.key] ? descMap[s.key] + '\n\n' : '')
-        + `${s.label} uses your ${abName} modifier.`;
-      tips.push([profTip, nameTip, bonusTip]);
+      const bonusBody = parts.join('\n') + `\n= ${fmtBonus(total)}`;
+      const profBody = isExpert ? 'Expertise — your proficiency bonus counts double for this skill.'
+        : (isProf ? 'Proficient — your proficiency bonus is added.' : 'Not proficient — only the ability modifier applies.');
+      tips.push([
+        { title: 'Proficiency', body: profBody },
+        { title: `${s.label} (${fullAb})`, body: descMap[s.key] || `${s.label} uses your ${fullAb} modifier.` },
+        { title: 'Modifier breakdown', body: bonusBody },
+      ]);
       return [
         mark,
         { main: s.label, suffix: ' (' + abName + ')' },

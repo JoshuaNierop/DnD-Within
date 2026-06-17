@@ -271,15 +271,15 @@ function drawCellBg(svg, x, y, w, h, colIdx, isFirst, isLast, stacking, tooltip)
     tl = isFirst ? r : 0; tr = isFirst ? r : 0;
     bl = isLast  ? r : 0; br = isLast  ? r : 0;
   }
-  const path = el('path', { d: roundedPath(x, y, w, h, tl, tr, br, bl), class: cls });
-  // Native SVG <title>: hover-tooltip (#bug Ov6e4Bv9). De cel-bg vult de hele
-  // cel → goed hover-doel. Geen custom positionering nodig.
-  if (tooltip) {
-    const titleEl = el('title', {});
-    titleEl.textContent = String(tooltip);
-    path.appendChild(titleEl);
+  const attrs = { d: roundedPath(x, y, w, h, tl, tr, br, bl), class: cls };
+  // Tooltip-payload op de cel-bg (#bug Ov6e4Bv9). De cel-bg vult de hele cel en
+  // de tekst erboven staat op pointer-events:none → hover/long-press landt altijd
+  // hier. De custom tooltip-laag (wg-events.js) leest deze data-attributen.
+  if (tooltip && (tooltip.title || tooltip.body)) {
+    if (tooltip.title) attrs['data-tip-title'] = tooltip.title;
+    if (tooltip.body)  attrs['data-tip-body'] = tooltip.body;
   }
-  svg.appendChild(path);
+  svg.appendChild(el('path', attrs));
 }
 
 function drawCellText(svg, x, y, w, h, value, align, highlight, colIdx) {

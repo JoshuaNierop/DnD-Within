@@ -7200,6 +7200,46 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* ============================================================
+   Widget info-box tooltip (hover desktop / long-press touch)
+   Global (niet @scope) zodat het body-niveau element gestyled wordt.
+   ============================================================ */
+.wg-tooltip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100000;
+    max-width: 280px;
+    pointer-events: none;
+    background: var(--bg-elevated, #221d19);
+    color: var(--text-main, #e8e2d6);
+    border: 1px solid var(--border-light, #3e342c);
+    border-radius: 10px;
+    padding: 9px 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+.wg-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.wg-tooltip-title {
+    font-weight: 700;
+    color: var(--accent-warm, #c9a961);
+    margin-bottom: 3px;
+}
+.wg-tooltip-body {
+    white-space: pre-line;
+    color: var(--text-dim, #9a8e7e);
+}
+@media (prefers-reduced-motion: reduce) {
+    .wg-tooltip { transition: none; }
+}
+
+/* ============================================================
    Party Gold Card
    ============================================================ */
 .party-gold-card .gold-input {
