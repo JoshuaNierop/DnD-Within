@@ -845,9 +845,13 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   svg .widget-onboard-rect {
     fill: var(--user-bg-2);
     fill-opacity: 1;
-    stroke: var(--user-border);
-    stroke-opacity: 0.6;
-    transition: stroke 0.2s, filter 0.2s;
+    /* Bug -OvLi017: default = vrijwel geen rand zodat widgets niet "geselecteerd"
+       lijken. Alleen .is-active / .is-multi-selected krijgen de heldere amber
+       rand + glow (zie hieronder). */
+    stroke: var(--user-border-soft);
+    stroke-opacity: 0.5;
+    stroke-width: 1;
+    transition: stroke 0.2s, stroke-opacity 0.2s, stroke-width 0.2s, filter 0.2s;
   }
   svg .widget-content-area { fill: transparent; }
   svg .widget-onboard-topbar {

@@ -380,7 +380,12 @@ function renderWizardModal() {
     var abs = ['str','dex','con','int','wis','cha'];
     html += '<div class="wizard-sidebar-abilities">';
     for (var ai = 0; ai < abs.length; ai++) {
-        html += '<div class="wizard-sidebar-ab"><span class="wizard-sidebar-ab-label">' + abs[ai].toUpperCase() + '</span><span class="wizard-sidebar-ab-val">' + wizardState.baseAbilities[abs[ai]] + '</span></div>';
+        var sbd = abilityBreakdown(abs[ai]);
+        html += '<div class="wizard-sidebar-ab" data-tip-title="' + escapeAttr(sbd.tipTitle) + '" data-tip-body="' + escapeAttr(sbd.tipBody) + '">'
+            + '<span class="wizard-sidebar-ab-label">' + abs[ai].toUpperCase() + '</span>'
+            + '<span class="wizard-sidebar-ab-val">' + sbd.total + '</span>'
+            + (sbd.bonus > 0 ? '<span class="wizard-sidebar-ab-bonus">+' + sbd.bonus + '</span>' : '')
+            + '</div>';
     }
     html += '</div>';
     if (wizardState.skills.length > 0) {
@@ -725,13 +730,11 @@ function renderWizardStep6() {
     html += '<div class="wizard-abilities wizard-abilities-summary">';
     for (var i = 0; i < abs.length; i++) {
         var ab = abs[i];
-        var base = wizardState.baseAbilities[ab];
-        var bonus = bgBonuses[ab] || 0;
-        var total = base + bonus;
-        html += '<div class="wizard-ability">';
+        var bd = abilityBreakdown(ab);
+        html += '<div class="wizard-ability" data-tip-title="' + escapeAttr(bd.tipTitle) + '" data-tip-body="' + escapeAttr(bd.tipBody) + '">';
         html += '<label>' + ab.toUpperCase() + '</label>';
-        html += '<span class="wizard-ability-total">' + total + '</span>';
-        if (bonus > 0) html += '<span class="wizard-ability-bonus">(+' + bonus + ')</span>';
+        html += '<span class="wizard-ability-total">' + bd.total + '</span>';
+        if (bd.bonus > 0) html += '<span class="wizard-ability-bonus">(+' + bd.bonus + ')</span>';
         html += '</div>';
     }
     html += '</div>';
@@ -776,6 +779,26 @@ function calcBgBonuses() {
         if (bonuses.hasOwnProperty(ab1)) bonuses[ab1] = 1;
     }
     return bonuses;
+}
+
+// Opbouw van een ability-waarde voor de summary: standaard-array basewaarde +
+// verdeelde background-bonus = totaal. Levert ook de tooltip-tekst (title/body)
+// die het custom tooltip-systeem (wg-events.js, document-breed op data-tip-*)
+// oppikt — zo zie je bij hover/long-press hoe de waarde is opgebouwd.
+function abilityBreakdown(ab) {
+    var base = wizardState.baseAbilities[ab] || 0;
+    var bonus = calcBgBonuses()[ab] || 0;
+    var total = base + bonus;
+    var bgName = (wizardState.background && DATA.backgrounds[wizardState.background])
+        ? DATA.backgrounds[wizardState.background].name : 'background';
+    var lines = ['Base ' + base];
+    if (bonus > 0) lines.push('+' + bonus + ' from ' + bgName + ' (background)');
+    lines.push('= ' + total);
+    return {
+        base: base, bonus: bonus, total: total,
+        tipTitle: ab.toUpperCase() + ' ' + total,
+        tipBody: lines.join('\n'),
+    };
 }
 
 function saveWizardStepData() {

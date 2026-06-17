@@ -6294,10 +6294,10 @@ body.modal-open {
     background-position: center center;
     background-repeat: no-repeat;
 
-    /* Met een echte afbeelding voelt de base-banner rand te druk (gouden
-       hairline + meerdere inner glows die met de foto vechten). Rustiger:
-       subtiele border + één zachte drop-shadow, geen inset-ringen. */
-    border-color: color-mix(in srgb, var(--hairline-gold) 45%, transparent);
+    /* Bug -OvLhpp: gouden hairline gaf een "inverse" rand die met de foto
+       vecht. Rustiger = monochrome, neutrale hairline (geen tint) + één zachte
+       drop-shadow, geen inset-ringen. */
+    border-color: color-mix(in srgb, var(--text) 16%, transparent);
     box-shadow: 0 12px 32px -16px color-mix(in srgb, var(--bg-dark) 90%, transparent);
 }
 @media (min-width: 700px) {
@@ -9282,6 +9282,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     color: var(--text-bright);
     line-height: 1.2;
 }
+/* Background-bonus badge in de sidebar-summary (verdeelde punten zichtbaar). */
+.wizard-sidebar-ab-bonus {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--accent-warm, #c9a961);
+    line-height: 1;
+    margin-top: 1px;
+}
+/* Cursor-hint dat de ability-vakjes een breakdown-tooltip hebben. */
+.wizard-sidebar-ab[data-tip-body],
+.wizard-abilities-summary .wizard-ability[data-tip-body] { cursor: help; }
 .wizard-sidebar-section {
     width: 100%;
     margin-top: 0.85rem;

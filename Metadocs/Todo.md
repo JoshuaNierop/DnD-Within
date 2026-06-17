@@ -1,5 +1,11 @@
 # D&D Within — To Do
 
+## Wizard summary — ability-opbouw zichtbaar 2026-06-17
+- [x] P2 — **Verdeelde background-punten zichtbaar in summary + hover-breakdown** (create + edit, zelfde wizard). De sidebar-summary toonde alleen de standaard-array basewaarde (geen background-bonus). Nu:
+  - `abilityBreakdown(ab)` (ui-modals.js): base (standaard-array) + verdeelde background-bonus = totaal, plus tooltip-tekst.
+  - Sidebar-summary toont nu het TOTAAL + een `+N` bonus-badge; eindsummary toonde totaal al.
+  - Hover/long-press op een ability-vakje toont de opbouw ("Base 12 / +2 from Sage (background) / = 14") via het bestaande custom-tooltip-systeem (data-tip-title/body, document-breed in wg-events.js → werkt ook in de modal). CSS: `.wizard-sidebar-ab-bonus` + `cursor:help`.
+
 ## Combat tracker — character toevoegen 2026-06-17
 - [x] P1 — **Ongecachet character → placeholder-snapshot** (naam=lowercase id, portret null, HP 1, AC 10) die nooit bijwerkte; afbeelding/naam/HP klopten pas na verwijderen+opnieuw toevoegen. Fix:
   - Add-flow haalt nu eerst de character-data op (`combatEnsureChar`, await + poll) vóór `combatEntityFromCharacter` snapshot maakt → correcte naam/portret/HP/AC vanaf toevoegen. Click-handler async + dubbelklik-guard + `.loading`-state.
