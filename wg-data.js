@@ -50,3 +50,26 @@ const WG_SKILLS = [
   { key: 'stealth',        label: 'Stealth',         ability: 'dex' },
   { key: 'survival',       label: 'Survival',        ability: 'wis' },
 ];
+
+// Skill-omschrijvingen (#bug Ov6e4Bv9 — hover-tooltips op de Skills-widget):
+// korte uitleg + wanneer de skill van toepassing is. Engels-only (zie i18n-lock).
+const WG_SKILL_DESC = {
+  acrobatics:     'Stay on your feet, keep your balance, or perform a stunt. Used when slipping, tumbling, or crossing a tightrope or icy surface.',
+  animalHandling: 'Calm, control, or read the intentions of an animal. Used to soothe a mount, train a beast, or sense whether a creature will attack.',
+  arcana:         'Recall lore about spells, magic items, planes, and arcane symbols. Used to identify a spell being cast or understand a magical effect.',
+  athletics:      'Cover physical activity like climbing, jumping, and swimming. Used to scale a wall, grapple a foe, or swim against a current.',
+  deception:      'Convincingly hide the truth through words or actions. Used to lie, disguise intent, or fast-talk your way past a guard.',
+  history:        'Recall lore about events, people, kingdoms, and ancient wars. Used to remember a historical fact or recognise a legendary item.',
+  insight:        "Read a creature's true intentions and emotions. Used to detect a lie, predict a next move, or gauge someone's mood.",
+  intimidation:   'Influence others through threats, hostility, or force of presence. Used to coerce information or back someone down.',
+  investigation:  'Look for clues and make deductions from them. Used to find a hidden object, spot a trap, or work out how something was done.',
+  medicine:       'Stabilise a dying creature or diagnose an illness. Used to stop death saves or identify a poison or disease.',
+  nature:         'Recall lore about terrain, plants, animals, and weather. Used to identify a creature or predict natural hazards.',
+  perception:     'Spot, hear, or otherwise notice the presence of something. Used to detect hidden creatures, listen at a door, or keep watch.',
+  performance:    'Delight an audience with music, dance, acting, or storytelling. Used to entertain a crowd or busk for coin.',
+  persuasion:     'Influence others honestly with tact, grace, and good faith. Used to negotiate, win trust, or convince diplomatically.',
+  religion:       'Recall lore about deities, rites, holy symbols, and cults. Used to recognise a religious practice or identify undead lore.',
+  sleightOfHand:  'Perform manual trickery: planting, palming, or lifting. Used to pick a pocket, conceal an object, or disarm a small trap.',
+  stealth:        'Conceal yourself: move silently and stay out of sight. Used to sneak past enemies, hide, or set up an ambush.',
+  survival:       'Follow tracks, hunt, navigate, and endure the wild. Used to track a quarry, find safe shelter, or avoid getting lost.',
+};

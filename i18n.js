@@ -1339,20 +1339,22 @@ var TRANSLATIONS = {
     }
 };
 
-// Current language (stored in localStorage)
+// Taal is vergrendeld op Engels (bug -Oud-_izpLBetwa): de toggle is verwijderd
+// en de site is Engels-only. getLang() negeert localStorage zodat een oude
+// dw_lang='nl' geen Nederlandse strings meer naar boven haalt.
 function getLang() {
-    return localStorage.getItem('dw_lang') || 'en';
+    return 'en';
 }
 
 function setLang(lang) {
-    localStorage.setItem('dw_lang', lang);
+    // No-op: taal vergrendeld op Engels.
 }
 
-// Translation function
+// Translation function — fallback is Engels (NIET Nederlands), zodat een
+// ontbrekende EN-key nooit een Nederlandse variant toont op de Engels-only site.
 function t(key) {
-    var lang = getLang();
-    var dict = TRANSLATIONS[lang] || TRANSLATIONS['nl'];
-    return dict[key] || TRANSLATIONS['nl'][key] || key;
+    var dict = TRANSLATIONS['en'] || {};
+    return dict[key] || key;
 }
 
 // Check if subclass should be visible based on level

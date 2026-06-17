@@ -1220,7 +1220,7 @@ function bindWizardEvents() {
         openCropEditor({
             src: wizardState.portrait,
             crop: wizardState.portraitCrop,
-            shape: 'circle',
+            shape: 'square',
             onSave: function (newCrop) {
                 wizardState.portraitCrop = newCrop;
                 hydrateWizardPortraitCrop();

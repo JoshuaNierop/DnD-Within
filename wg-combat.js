@@ -406,7 +406,7 @@ function drawCombatTable(g, widget, x, contentY, w, contentH, widgetIdx) {
   const fo = el('foreignObject', { x: x, y: contentY, width: w, height: contentH });
   const root = document.createElement('div');
   root.setAttribute('xmlns', WG_XHTML_NS);
-  root.className = 'combat-root combat-mode-' + mode;
+  root.className = 'combat-root combat-mode-' + mode + (widget._combatFits ? ' combat-fitted' : '');
   // Combat-interacties mogen de canvas-drag-arbiter niet triggeren.
   root.addEventListener('pointerdown', (e) => e.stopPropagation());
 

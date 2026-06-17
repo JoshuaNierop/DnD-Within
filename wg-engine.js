@@ -653,6 +653,7 @@ function widgetContentPxHFor(spanUnitsY) {
 function compactSpanUnitsY(growOnly = false) {
   const w = state.widget;
   if (!w) return;
+  if (widgetKind(w) === 'combat') { _fitCombatSpanY(growOnly); return; }
   if (widgetKind(w) !== 'infobox') return;             // map/image: vrije, onafhankelijke afmetingen
   const boxPxW = state.layout.boxPxW;
   const boxPxH = state.layout.boxPxH;
@@ -673,6 +674,59 @@ function compactSpanUnitsY(growOnly = false) {
     if (widgetContentPxHFor(s) >= pxNeeded) { chosen = s; break; }
   }
   w.spanUnitsY = growOnly ? Math.max(w.spanUnitsY, chosen) : chosen;
+}
+
+// Combat/Initiative-widget: hoogte volgt het aantal ZICHTBARE entities, in hele
+// dashboard-tegels (#NU-YZ6). Hidden entities tellen NIET mee in de speler-variant
+// — anders verraadt de widget-grootte een verborgen vijand (fog-of-war). De
+// resterende speling wordt tussen de rijen verdeeld via .combat-fitted
+// (space-between) in de CSS. growOnly net als compactSpanUnitsY: een
+// viewport-resize mag groeien maar nooit krimpen.
+//
+// LET OP: de rij-/header-px-constanten zijn schattingen en moeten aan tafel
+// fijngesteld worden (zie Todo #NU-YZ6). Bewust iets royaal → liever één tegel
+// te veel dan content die net wegvalt.
+const COMBAT_FIT = { headerPx: 30, bodyPadPx: 12, rowPx: 40, rowGapPx: 5, dmHeadPx: 18, transposeRows: 7, minSpanY: 2 };
+function _fitCombatSpanY(growOnly) {
+  const w = state.widget;
+  if (!w) return;
+  const mode = (typeof combatMode === 'function')
+    ? combatMode(w) : (w.type === 'initiativeTracker' ? 'player' : 'dm');
+  let ents = [];
+  try { const enc = getEncounter(); if (enc && Array.isArray(enc.entities)) ents = enc.entities; } catch (e) {}
+  const n = (mode === 'player')
+    ? ents.filter(e => e && e.visibility !== 'hidden').length
+    : ents.length;
+  const C = COMBAT_FIT;
+  const transpose = !!(w.cfg && w.cfg.transpose);
+  let pxNeeded;
+  if (transpose) {
+    // Getransponeerd: vaste rij-set (één rij per veld), groeit niet met entities.
+    pxNeeded = C.headerPx + C.bodyPadPx + C.transposeRows * C.rowPx + (C.transposeRows - 1) * C.rowGapPx;
+  } else {
+    const rows = Math.max(n, 1);
+    const headExtra = (mode === 'dm') ? (C.dmHeadPx + C.rowGapPx) : 0;
+    pxNeeded = C.headerPx + C.bodyPadPx + headExtra + rows * C.rowPx + (rows - 1) * C.rowGapPx;
+  }
+  const maxSpanUnitsY = Math.max(C.minSpanY, rowsPerPage());   // cap op schermhoogte
+  let chosen = maxSpanUnitsY;
+  for (let s = C.minSpanY; s <= maxSpanUnitsY; s++) {
+    if (widgetContentPxHFor(s) >= pxNeeded) { chosen = s; break; }
+  }
+  chosen = Math.max(C.minSpanY, Math.min(chosen, maxSpanUnitsY));
+  w.spanUnitsY = growOnly ? Math.max(w.spanUnitsY, chosen) : chosen;
+  // Vlag voor de renderer: past álle content binnen de gekozen hoogte? Zo ja →
+  // space-between verdeelt de speling tussen de rijen; zo nee → body scrollt.
+  w._combatFits = widgetContentPxHFor(w.spanUnitsY) >= pxNeeded;
+}
+
+// Fit alle combat-widgets (DM-tracker + speler-tracker) vóór een render-pass.
+// Idempotent: zelfde entities → zelfde spanUnitsY, dus geen render-storm.
+function recomputeCombatWidgets(growOnly) {
+  if (!state.widgets) return;
+  for (const w of state.widgets) {
+    if (widgetKind(w) === 'combat') withWidget(w, () => _fitCombatSpanY(!!growOnly));
+  }
 }
 
 // Pas breedte aan zodat alle info-boxes precies passen, gegeven huidige hoogte.

@@ -19,7 +19,7 @@ function renderSettings() {
     var tabs = [
         { id: 'account', label: t('settings.tab.account'), icon: '&#128100;' },
         { id: 'appearance', label: t('nav.theme') || 'Thema', icon: '&#127912;' },
-        { id: 'language', label: t('settings.language'), icon: '&#127760;' },
+        // Language-tab verwijderd (bug -Oud-_izpLBetwa): site is Engels-only.
         { id: 'developer', label: t('settings.tab.developer'), icon: '&#128736;' }
     ];
     html += '<div class="settings-tabs">';
@@ -75,18 +75,7 @@ function renderSettings() {
         html += '</div></section>';
     }
 
-    // === Language tab ===
-    if (settingsTab === 'language') {
-        html += '<section class="settings-section">';
-        html += '<div class="settings-card">';
-        html += '<div class="settings-field">';
-        html += '<label class="settings-label">' + t('settings.language') + '</label>';
-        html += '<div class="settings-lang-options">';
-        html += '<button class="settings-lang-btn' + (getLang() === 'nl' ? ' active' : '') + '" data-action="settings-set-lang" data-lang="nl">Nederlands</button>';
-        html += '<button class="settings-lang-btn' + (getLang() === 'en' ? ' active' : '') + '" data-action="settings-set-lang" data-lang="en">English</button>';
-        html += '</div></div>';
-        html += '</div></section>';
-    }
+    // Language-tab verwijderd (bug -Oud-_izpLBetwa): site is Engels-only.
 
     // === Developer tab ===
     if (settingsTab === 'developer') {

@@ -755,7 +755,7 @@ function cropWidgetPortrait(widgetIdx) {
   openCropEditor({
     src: src,
     crop: crop,
-    shape: "circle",
+    shape: "square",
     onSave: (newCrop) => {
       if (state.characterId !== charId) return; // race-guard
       savePortraitCrop(charId, newCrop); // schrijft cache + firebase + mirror

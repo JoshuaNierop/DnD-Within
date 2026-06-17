@@ -60,6 +60,7 @@ function render() {
   // clamp de zichtbare pagina → teken.
   normalizePositions();
   if (!dragHandle) {
+    recomputeCombatWidgets(false);   // #NU-YZ6: combat-widgets fitten op zichtbare content
     resolveCollisionsAll();
     normalizePositions();
     // V10: lege tussen-pagina's wegwerken (geen "page 2 leeg, page 3 vol").
@@ -189,6 +190,7 @@ function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
   const src = state.data.source;
   const editCfg = WG_EDIT_CONFIG[src];
   const highlights = state.layout.columnHighlight || [];
+  const rowTips = (state.data.tooltips && state.data.tooltips[rowIdx]) || null;
 
   // Helper: wrap a draw call in an editable-cell <g> if in edit-values mode + column matches
   function wrapEditable(colIdx, drawFn) {
@@ -214,7 +216,7 @@ function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
       if (cw <= 0) continue;
       const _cx = cx, _i = i, _cw = cw;
       wrapEditable(i, (target) => {
-        drawCellBg(target, _cx, by, _cw, bh, _i, _i === 0, _i === last, 'horizontal');
+        drawCellBg(target, _cx, by, _cw, bh, _i, _i === 0, _i === last, 'horizontal', rowTips && rowTips[_i]);
         drawCellText(target, _cx, by, _cw, bh, displayValue(rowData[_i], _i), aligns[_i] || 'left', highlights[_i], _i);
       });
       cx += cw;
@@ -227,7 +229,7 @@ function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
     for (let i = 0; i < cols.length; i++) {
       const _cy = cy, _i = i;
       wrapEditable(i, (target) => {
-        drawCellBg(target, bx, _cy, bw, rowH, _i, _i === 0, _i === last, 'vertical');
+        drawCellBg(target, bx, _cy, bw, rowH, _i, _i === 0, _i === last, 'vertical', rowTips && rowTips[_i]);
         drawCellText(target, bx, _cy, bw, rowH, displayValue(rowData[_i], _i), 'center', highlights[_i], _i);
       });
       cy += rowH;
@@ -258,7 +260,7 @@ function roundedPath(x, y, w, h, tl, tr, br, bl) {
 
 // Cell-bg met buitenste-corner rounding: alleen de buitenkant van de
 // info-box als geheel is afgerond; aanrakingen tussen cellen blijven scherp.
-function drawCellBg(svg, x, y, w, h, colIdx, isFirst, isLast, stacking) {
+function drawCellBg(svg, x, y, w, h, colIdx, isFirst, isLast, stacking, tooltip) {
   const cls = `info-box-cell col-${colIdx % 3}`;
   const r = state.style.cellRadius || 0;
   let tl, tr, br, bl;
@@ -269,7 +271,15 @@ function drawCellBg(svg, x, y, w, h, colIdx, isFirst, isLast, stacking) {
     tl = isFirst ? r : 0; tr = isFirst ? r : 0;
     bl = isLast  ? r : 0; br = isLast  ? r : 0;
   }
-  svg.appendChild(el('path', { d: roundedPath(x, y, w, h, tl, tr, br, bl), class: cls }));
+  const path = el('path', { d: roundedPath(x, y, w, h, tl, tr, br, bl), class: cls });
+  // Native SVG <title>: hover-tooltip (#bug Ov6e4Bv9). De cel-bg vult de hele
+  // cel → goed hover-doel. Geen custom positionering nodig.
+  if (tooltip) {
+    const titleEl = el('title', {});
+    titleEl.textContent = String(tooltip);
+    path.appendChild(titleEl);
+  }
+  svg.appendChild(path);
 }
 
 function drawCellText(svg, x, y, w, h, value, align, highlight, colIdx) {

@@ -3,6 +3,7 @@
 function buildRowsFromSource(widget) {
   const d = widget.data, L = widget.layout;
   const src = d.source;
+  d.tooltips = null;   // per-cel hover-tekst (rows × cols); alleen Skills vult dit nu
   const raw = WG_CHAR_CACHE[state.characterId];   // V9: dashboard-brede character-cache
   if (!raw) { d.rows = []; d.columns = []; return; }
   if (src === 'abilities') {
@@ -77,6 +78,8 @@ function buildRowsFromSource(widget) {
       { key: 'bonus', label: 'Bonus' },
     ];
     const expert = new Set(cfg.expertSkills || []);
+    const tips = [];
+    const descMap = (typeof WG_SKILL_DESC === 'object' && WG_SKILL_DESC) ? WG_SKILL_DESC : {};
     d.rows = WG_SKILLS.map(s => {
       const score = ab[s.ability];
       const mod = (typeof score === 'number') ? Math.floor((score - 10) / 2) : 0;
@@ -84,12 +87,24 @@ function buildRowsFromSource(widget) {
       const isExpert = expert.has(s.key);
       const mark = isExpert ? '★' : (isProf ? '●' : '○');
       const total = mod + (isExpert ? 2 * profBonus : (isProf ? profBonus : 0));
+      const abName = titleizeAbility(s.ability);
+      // Tooltips (#bug Ov6e4Bv9): bonus-opbouw, skill-uitleg, proficiency-status.
+      const parts = [`${fmtBonus(mod)} from ${abName}`];
+      if (isProf || isExpert) parts.push(`+${profBonus} proficiency`);
+      if (isExpert) parts.push(`+${profBonus} expertise`);
+      const bonusTip = parts.join(', ') + ` = ${fmtBonus(total)}`;
+      const profTip = isExpert ? 'Expertise (proficiency counts double)'
+        : (isProf ? 'Proficient' : 'Not proficient');
+      const nameTip = (descMap[s.key] ? descMap[s.key] + '\n\n' : '')
+        + `${s.label} uses your ${abName} modifier.`;
+      tips.push([profTip, nameTip, bonusTip]);
       return [
         mark,
-        { main: s.label, suffix: ' (' + titleizeAbility(s.ability) + ')' },
+        { main: s.label, suffix: ' (' + abName + ')' },
         fmtBonus(total),
       ];
     });
+    d.tooltips = tips;
     L.columnHighlight = [false, false, true];
     L.columnAlign     = ['center', 'left', 'right'];
     L.columnMaxChars  = [null, 8, null];

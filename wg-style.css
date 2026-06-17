@@ -1150,6 +1150,12 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   .combat-add-btn { background: var(--user-text-highlight, var(--accent)); color: var(--user-bg-1, #1a1208); border-color: transparent; }
 
   .combat-body { flex: 1 1 auto; overflow: auto; padding: 4px 6px 6px; }
+  /* #NU-YZ6 — auto-fit hoogte: als alle entities binnen de widget passen, wordt
+     de overgebleven speling gelijk tussen de rijen verdeeld (space-between)
+     i.p.v. als lege onderrand. Past niet alles → klasse blijft weg, body scrollt. */
+  .combat-fitted .combat-body { overflow: hidden; }
+  .combat-fitted .combat-table,
+  .combat-fitted .combat-initiative { height: 100%; justify-content: space-between; }
   .combat-empty { padding: 16px 8px; text-align: center; color: var(--user-text-muted, var(--muted)); font-size: 12px; }
 
   .combat-table { display: flex; flex-direction: column; gap: 4px; min-width: max-content; }
