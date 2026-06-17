@@ -1120,6 +1120,17 @@ function getCharacterIds(ignoreCampaign) {
     });
 }
 
+// Sorteer character-ids op weergavenaam. De namen zijn "Voornaam Achternaam",
+// dus alfabetisch op de volledige naam = voornaam-eerst (niet op achternaam).
+// Fallback op het id wanneer een character (nog) geen naam heeft.
+function sortCharIdsByName(ids) {
+    return ids.slice().sort(function(a, b) {
+        var na = (loadCharConfig(a) || {}).name || a;
+        var nb = (loadCharConfig(b) || {}).name || b;
+        return String(na).localeCompare(String(nb), undefined, { sensitivity: 'base' });
+    });
+}
+
 function getMyCharacterIds() {
     var uid = currentUserId();
     var allIds = getAllCharacterIds();

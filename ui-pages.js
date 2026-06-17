@@ -441,6 +441,7 @@ function renderParty() {
     // Party members
     html += '<div class="character-cards">';
     var partyCharIds = getPartyCharIds();
+    if (typeof sortCharIdsByName === 'function') partyCharIds = sortCharIdsByName(partyCharIds);
     for (var i = 0; i < partyCharIds.length; i++) {
         var cid = partyCharIds[i];
         var cfg = loadCharConfig(cid);
@@ -768,8 +769,9 @@ function renderDashboard() {
     html += '<h2 class="section-title">' + t('dash.partyoverview') + '</h2>';
     html += '<div class="character-cards">';
 
-    for (var i = 0; i < charIds.length; i++) {
-        var cid = charIds[i];
+    var sortedCharIds = (typeof sortCharIdsByName === 'function') ? sortCharIdsByName(charIds) : charIds;
+    for (var i = 0; i < sortedCharIds.length; i++) {
+        var cid = sortedCharIds[i];
         var ccfg = loadCharConfig(cid);
         var cstate = loadCharState(cid);
         if (!ccfg) continue;
