@@ -1296,6 +1296,7 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   }
   .combat-add-item:hover { border-color: var(--user-text-highlight, var(--accent)); }
   .combat-add-item.added { background: color-mix(in srgb, var(--user-text-highlight, var(--accent)) 25%, var(--user-bg-1, var(--bg))); }
+  .combat-add-item.loading { opacity: .6; cursor: progress; }
   .combat-add-name { font-weight: 600; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .combat-add-meta { font-size: 10px; color: var(--user-text-muted, var(--muted)); text-transform: capitalize; }
 

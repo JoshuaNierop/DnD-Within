@@ -116,7 +116,7 @@ function combatEntityFromCharacter(charId) {
       dexMod = getMod(getAbilityScore(cfg, st, 'dex'));
     }
   } catch (e) {}
-  const name = cfg.name || raw.name || charId;
+  const name = cfg.name || raw.name || combatCapId(charId);
   const portrait = (raw.images && raw.images.portrait) || null;
   return {
     id: combatNewId(), kind: 'pc', ref: charId, name: name, portrait: portrait,
@@ -139,6 +139,51 @@ function combatEntityFromMonster(m) {
     portrait: m.image || null, initiative: null, dexMod: dexModFromAbilities(m.abilities),
     currentHP: hp, maxHP: hp, tempHP: 0, ac: parseLeadingInt(m.ac, 10), visibility: 'hidden',
   };
+}
+
+// Zorg dat een character-record in de cache staat vóór we er een entity van
+// snapshotten. Zonder dit kreeg een ongecachet character een placeholder-snapshot
+// (naam = lowercase id, portret null, HP 1, AC 10) die nooit meer bijwerkte → de
+// afbeelding/naam/HP klopten pas na verwijderen + opnieuw toevoegen.
+async function combatEnsureChar(id) {
+  if (!id || WG_CHAR_CACHE[id]) return;
+  if (typeof fetchCharacterData !== 'function') return;
+  try { await fetchCharacterData(id); } catch (e) {}
+  // Als er al een fetch 'loading' was, returnt fetchCharacterData meteen zonder
+  // te wachten → kort pollen tot de cache gevuld (of fout) is.
+  for (let i = 0; i < 60 && !WG_CHAR_CACHE[id] &&
+       (typeof WG_CHAR_STATUS === 'undefined' || WG_CHAR_STATUS[id] !== 'error'); i++) {
+    await new Promise(r => setTimeout(r, 50));
+  }
+}
+
+// Identiteit (naam + portret) van een PC-entity is GEEN bevroren combat-state:
+// die hoort altijd het echte character te volgen. Resolve daarom op render-tijd
+// uit de cache (heelt ook oude placeholder-snapshots zodra de data binnen is).
+// HP/AC blijven wél een snapshot (bewuste keuze).
+// Capitaliseer een character-id voor gebruik als naam-fallback (character zonder
+// config.name → "ancha" wordt "Ancha"). Tast echte namen niet aan.
+function combatCapId(id) {
+  const s = String(id || '');
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+function combatDisplayName(ent) {
+  if (!ent) return '';
+  if (ent.kind === 'pc' && ent.ref && WG_CHAR_CACHE[ent.ref]) {
+    const c = WG_CHAR_CACHE[ent.ref].config;
+    if (c && c.name) return c.name;
+  }
+  let nm = ent.name || '';
+  // id-fallback (oude placeholder-snapshot, of character zonder naam) → kapitaal.
+  if (!nm || nm === ent.ref) nm = combatCapId(ent.ref || nm);
+  return nm;
+}
+function combatDisplayPortrait(ent) {
+  if (ent && ent.kind === 'pc' && ent.ref && WG_CHAR_CACHE[ent.ref]) {
+    const im = WG_CHAR_CACHE[ent.ref].images;
+    if (im && im.portrait) return im.portrait;
+  }
+  return (ent && ent.portrait) || null;
 }
 
 // ---- HP-mutaties (temp HP eerst bij schade; heal raakt temp nooit) ----
@@ -186,8 +231,10 @@ function hEl(tag, cls, txt) {
 }
 function combatPortraitNode(ent, masked) {
   const wrap = hEl('div', 'combat-portrait');
-  const src = (!masked && ent.portrait && typeof resolveImageSrc === 'function')
-    ? resolveImageSrc(ent.portrait) : (masked ? '' : (ent.portrait || ''));
+  const portrait = combatDisplayPortrait(ent);
+  const dispName = combatDisplayName(ent);
+  const src = (!masked && portrait && typeof resolveImageSrc === 'function')
+    ? resolveImageSrc(portrait) : (masked ? '' : (portrait || ''));
   if (src) {
     const img = document.createElement('img');
     img.src = src; img.alt = '';
@@ -197,11 +244,11 @@ function combatPortraitNode(ent, masked) {
       if (cs) img.style.cssText += cs;
     }
     img.addEventListener('error', () => {
-      if (img.parentNode) img.parentNode.replaceChild(combatInitialNode(masked ? '?' : ent.name), img);
+      if (img.parentNode) img.parentNode.replaceChild(combatInitialNode(masked ? '?' : dispName), img);
     });
     wrap.appendChild(img);
   } else {
-    wrap.appendChild(combatInitialNode(masked ? '?' : ent.name));
+    wrap.appendChild(combatInitialNode(masked ? '?' : dispName));
   }
   return wrap;
 }
@@ -243,7 +290,7 @@ function combatCell(field, ent, widgetIdx) {
   if (field === 'name') {
     const c = hEl('div', 'combat-cell combat-cell-name');
     const inp = document.createElement('input');
-    inp.type = 'text'; inp.className = 'combat-name-input'; inp.value = ent.name || '';
+    inp.type = 'text'; inp.className = 'combat-name-input'; inp.value = combatDisplayName(ent);
     inp.addEventListener('pointerdown', (e) => e.stopPropagation());
     inp.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') inp.blur(); });
     inp.addEventListener('blur', () => {
@@ -390,7 +437,7 @@ function combatBuildPlayerList(root, enc, transpose) {
     const masked = ent.visibility === 'silhouette';
     const item = hEl('div', 'combat-init-item' + (enc.running && enc.activeId === ent.id ? ' is-active' : '') + (masked ? ' masked' : ''));
     item.appendChild(combatPortraitNode(ent, masked));
-    item.appendChild(hEl('span', 'combat-init-name', masked ? '??' : (ent.name || '')));
+    item.appendChild(hEl('span', 'combat-init-name', masked ? '??' : combatDisplayName(ent)));
     list.appendChild(item);
   });
   root.appendChild(list);
@@ -402,6 +449,18 @@ function drawCombatTable(g, widget, x, contentY, w, contentH, widgetIdx) {
   const mode = combatMode(widget);
   const transpose = !!(widget.cfg && widget.cfg.transpose);
   const enc = getEncounter();
+
+  // Heel oude/placeholder PC-entities: warm de character-cache zodat naam +
+  // portret (combatDisplayName/Portrait) resolven. Guarded op WG_CHAR_STATUS
+  // zodat een 'loading'/'ready'/'error' niet elke render opnieuw fetcht.
+  if (typeof fetchCharacterData === 'function' && Array.isArray(enc.entities)) {
+    enc.entities.forEach(e => {
+      if (!e || e.kind !== 'pc' || !e.ref || WG_CHAR_CACHE[e.ref]) return;
+      const st = (typeof WG_CHAR_STATUS !== 'undefined') ? WG_CHAR_STATUS[e.ref] : null;
+      if (st === 'loading' || st === 'ready' || st === 'error') return;
+      fetchCharacterData(e.ref);
+    });
+  }
 
   const fo = el('foreignObject', { x: x, y: contentY, width: w, height: contentH });
   const root = document.createElement('div');
@@ -510,17 +569,13 @@ function combatAddSources(tab) {
       const cfg = raw.config || {};
       return {
         key: id,
-        name: cfg.name || raw.name || id,
+        name: cfg.name || raw.name || combatCapId(id),
         portrait: (raw.images && raw.images.portrait) || null,
         meta: WG_CHAR_STATUS[id] === 'ready' ? '' : ct('combat.loading'),
-        make: () => {
-          if (!WG_CHAR_CACHE[id] && typeof fetchCharacterData === 'function') {
-            fetchCharacterData(id);
-            const ent = { id: combatNewId(), kind: 'pc', ref: id, name: cfg.name || id, portrait: null, initiative: null, dexMod: 0, currentHP: 1, maxHP: 1, tempHP: 0, ac: 10, visibility: 'revealed' };
-            return ent;
-          }
-          return combatEntityFromCharacter(id);
-        },
+        // ensure() haalt de character-data binnen vóór we snapshotten; make()
+        // bouwt daarna de entity uit de (nu warme) cache → correcte naam/portret/HP/AC.
+        ensure: () => combatEnsureChar(id),
+        make: () => combatEntityFromCharacter(id),
       };
     });
   }
@@ -577,13 +632,25 @@ function showCombatAddPanel(clientX, clientY) {
       row.appendChild(pic);
       row.appendChild(hEl('span', 'combat-add-name', src.name));
       if (src.meta) row.appendChild(hEl('span', 'combat-add-meta', src.meta));
-      row.addEventListener('click', (e) => {
+      row.addEventListener('click', async (e) => {
         e.stopPropagation();
-        const ent = src.make();
-        if (ent) {
-          mutateEncounter((enc) => { enc.entities.push(ent); });
-          row.classList.add('added');
-          setTimeout(() => row.classList.remove('added'), 600);
+        if (row._adding) return;          // dubbelklik-guard tijdens async fetch
+        row._adding = true;
+        try {
+          // Eerst eventuele data binnenhalen (party-chars) zodat de snapshot klopt.
+          if (typeof src.ensure === 'function') {
+            row.classList.add('loading');
+            await src.ensure();
+            row.classList.remove('loading');
+          }
+          const ent = src.make();
+          if (ent) {
+            mutateEncounter((enc) => { enc.entities.push(ent); });
+            row.classList.add('added');
+            setTimeout(() => row.classList.remove('added'), 600);
+          }
+        } finally {
+          row._adding = false;
         }
       });
       listWrap.appendChild(row);

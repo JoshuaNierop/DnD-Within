@@ -1,5 +1,12 @@
 # D&D Within — To Do
 
+## Combat tracker — character toevoegen 2026-06-17
+- [x] P1 — **Ongecachet character → placeholder-snapshot** (naam=lowercase id, portret null, HP 1, AC 10) die nooit bijwerkte; afbeelding/naam/HP klopten pas na verwijderen+opnieuw toevoegen. Fix:
+  - Add-flow haalt nu eerst de character-data op (`combatEnsureChar`, await + poll) vóór `combatEntityFromCharacter` snapshot maakt → correcte naam/portret/HP/AC vanaf toevoegen. Click-handler async + dubbelklik-guard + `.loading`-state.
+  - PC-identiteit (naam+portret) wordt op render-tijd uit de cache geresolved (`combatDisplayName`/`combatDisplayPortrait`) → bestaande foute rijen helen zodra de cache warm is. HP/AC blijven snapshot.
+  - `drawCombatTable` prefetcht ongecachede PC-refs (guarded op WG_CHAR_STATUS, geen storm) zodat oude rijen self-healen.
+- [x] P2 — **Lowercase namen**: `io` heeft wél een naam ("Io Starbloom") → toonde "io" door de id-fallback, nu gefixt. `ancha`/`varragoth` hebben GEEN `config.name` in de DB → vielen terug op het id. id-fallback wordt nu gekapitaliseerd (`combatCapId`: ancha→Ancha) zonder echte namen aan te tasten. **Echte fix voor ancha/varragoth = een naam invullen in hun character-config** (data-kwestie, niet code).
+
 ## Search-rerender 2026-06-17 — gerichte content-update
 - [x] P2 — **NPC- en lore-search herlaadden de hele pagina** per toetsaanslag (titel/tabs/searchbar flikkerden weg + laadanimatie). Nu: `updateSearchResults(containerId, builderFn)` (app.js) vervangt alleen de innerHTML van het resultaten-container. Resultaten afgesplitst in `renderNPCResultsInner()` + `renderLoreResultsInner(cat)` (ui-world.js); wrappers `#npc-results` / `#lore-cat-results`. Search-handlers (events.js) roepen geen `renderApp()` meer aan. Identieke gevonden content → `c.innerHTML === html` skip (geen herlaad). Page-load-animatie blijft voorbehouden aan echte route-wissel (bestaande `routeChanged`/`no-animate`-gate, ongewijzigd). Input houdt focus/caret vanzelf (DOM niet aangeraakt).
   - **Follow-up (niet gedaan)**: NPC disposition/faction-filterknoppen gaan nog via `renderApp()` (vereisen ook toolbar-update voor de active-chip-highlight). Search was de gevraagde scope.
