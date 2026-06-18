@@ -8848,6 +8848,25 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     transition: opacity 0.2s, border-color 0.2s;
 }
 .wizard-array-chip.is-used { opacity: 0.3; border-color: var(--border); color: var(--text-dim); text-decoration: line-through; }
+.wizard-array-suggest {
+    margin-left: auto;
+    min-height: 32px;
+    padding: 0 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--accent);
+    color: var(--bg-dark);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.1s;
+}
+.wizard-array-suggest:hover { filter: brightness(1.1); }
+.wizard-array-suggest:active { transform: translateY(1px); }
 .wizard-array-select { width: 100%; max-width: none; text-align: center; text-align-last: center; }
 .wizard-array-select.has-value { border-color: var(--accent); color: var(--text-bright); }
 

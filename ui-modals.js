@@ -217,6 +217,36 @@ function classPrimaryAbilities(className) {
     return CLASS_PRIMARY_ABILITY[className] || [];
 }
 
+// Volledige ability-prioriteit per class (1e → 6e), waarmee de "Suggested"-knop
+// het standard array [15,14,13,12,10,8] toewijst zoals D&D het aanraadt: de
+// primaire ability(s) eerst, daarna CON voor overleving (lager bij casters) en
+// de rest aflopend. Een suggestie — speler kan altijd handmatig herschikken.
+var CLASS_ABILITY_PRIORITY = {
+    barbarian: ['str', 'con', 'dex', 'wis', 'cha', 'int'],
+    bard:      ['cha', 'dex', 'con', 'wis', 'int', 'str'],
+    cleric:    ['wis', 'con', 'str', 'dex', 'cha', 'int'],
+    druid:     ['wis', 'con', 'dex', 'int', 'cha', 'str'],
+    fighter:   ['str', 'con', 'dex', 'wis', 'cha', 'int'],
+    monk:      ['dex', 'wis', 'con', 'str', 'cha', 'int'],
+    paladin:   ['cha', 'str', 'con', 'dex', 'wis', 'int'],
+    ranger:    ['dex', 'wis', 'con', 'str', 'int', 'cha'],
+    rogue:     ['dex', 'con', 'wis', 'int', 'cha', 'str'],
+    sorcerer:  ['cha', 'con', 'dex', 'wis', 'int', 'str'],
+    warlock:   ['cha', 'con', 'dex', 'wis', 'int', 'str'],
+    wizard:    ['int', 'con', 'dex', 'wis', 'cha', 'str']
+};
+
+// Geeft een {ability: score}-map volgens de class-prioriteit; valt terug op de
+// ABILITY_KEYS-volgorde voor onbekende classes.
+function wizardSuggestedArray(className) {
+    var order = CLASS_ABILITY_PRIORITY[className] || ABILITY_KEYS.slice();
+    var out = {};
+    for (var i = 0; i < ABILITY_KEYS.length; i++) {
+        out[order[i]] = STANDARD_ARRAY[i];
+    }
+    return out;
+}
+
 // Ability-score generatie (2024 PHB). Standard array vrij toewijsbaar; point-buy
 // 27 punten, scores 8-15 met onderstaande kostentabel (#bij5sk).
 var STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
@@ -257,6 +287,7 @@ function renderWizardAbilityScores() {
             var used = assigned.indexOf(v) !== -1;
             html += '<span class="wizard-array-chip' + (used ? ' is-used' : '') + '">' + v + '</span>';
         });
+        html += '<button type="button" class="wizard-array-suggest" data-action="wizard-array-suggest" title="' + t('wizard.array.suggest.tip') + '">' + t('wizard.array.suggest') + '</button>';
         html += '</div>';
     }
 
@@ -1423,6 +1454,18 @@ function bindWizardEvents() {
             var delta = POINTBUY_COST[nv] - POINTBUY_COST[wizardState.baseAbilities[a]];
             if (dir > 0 && (POINTBUY_BUDGET - pointBuySpent()) < delta) return; // te duur
             wizardState.baseAbilities[a] = nv;
+            refreshWizard();
+        });
+    }
+
+    // "Suggested"-knop: vult het standard array automatisch volgens class-prioriteit.
+    var suggestBtns = container.querySelectorAll('[data-action="wizard-array-suggest"]');
+    for (var sgi = 0; sgi < suggestBtns.length; sgi++) {
+        _wzBindOnce(suggestBtns[sgi], 'click', function(e) {
+            e.stopPropagation();
+            if (wizardState.abilityMethod !== 'array') return;
+            var sug = wizardSuggestedArray(wizardState.className);
+            ABILITY_KEYS.forEach(function(a) { wizardState.baseAbilities[a] = sug[a] || 0; });
             refreshWizard();
         });
     }
