@@ -158,6 +158,7 @@ function initWizardState() {
         portraitCrop: null,
         skills: [],
         cantrips: [],
+        prepared: [],
         appearance: '',
         personality: { traits: '', ideal: '', bond: '', flaw: '' },
         backstory: ''
@@ -635,18 +636,43 @@ function renderWizardStep4() {
     // All skills list for "any"
     var allSkills = ["acrobatics", "animal handling", "arcana", "athletics", "deception", "history", "insight", "intimidation", "investigation", "medicine", "nature", "perception", "performance", "persuasion", "religion", "sleight of hand", "stealth", "survival"];
 
-    var availableSkills = skillOpts.indexOf("any") !== -1 ? allSkills : skillOpts;
+    // 2024 PHB: een background geeft 2 VASTE skills + een Origin Feat. Deze staan
+    // los van de class-skill-keuzes en zijn niet kiesbaar. We tonen ze als
+    // "granted" en sluiten ze uit van de class-lijst zodat je geen duplicaat kiest
+    // (overlap-regel) en het keuzebudget niet wordt opgegeten.
+    var bgData = wizardState.background ? DATA.backgrounds[wizardState.background] : null;
+    var bgSkills = bgData && bgData.skills ? bgData.skills.map(function (s) { return s.toLowerCase(); }) : [];
+
+    var availableSkills = (skillOpts.indexOf("any") !== -1 ? allSkills : skillOpts)
+        .filter(function (s) { return bgSkills.indexOf(s) === -1; });
+
+    // Granted-sectie (background skills + tool + origin feat).
+    if (bgData) {
+        html += '<div class="wizard-field wizard-granted">';
+        html += '<label class="wizard-label">From your background (granted)</label>';
+        html += '<div class="wizard-skill-grid">';
+        for (var bi = 0; bi < bgSkills.length; bi++) {
+            html += '<label class="wizard-skill-item checked disabled" title="Granted by ' + escapeAttr(bgData.name) + '">';
+            html += '<input type="checkbox" checked disabled>';
+            html += '<span>' + capitalize(bgSkills[bi]) + '</span>';
+            html += '</label>';
+        }
+        html += '</div>';
+        if (bgData.tool) html += '<p class="wizard-detail"><strong>Tool:</strong> ' + escapeHtml(bgData.tool) + '</p>';
+        if (bgData.feat) html += '<p class="wizard-detail"><strong>Origin Feat:</strong> ' + escapeHtml(bgData.feat) + '</p>';
+        html += '</div>';
+    }
 
     // Budget telt alleen skills die uit déze class-lijst komen. Background-skills
-    // (in 2024 vast toegekend en bij edit-modus al in wizardState.skills geladen)
-    // mogen het class-keuzebudget niet opeten — anders kon je er minder kiezen dan
-    // het label zegt (#klopt-aantal / "kan er maar 1 selecteren").
+    // (vast toegekend, en bij edit-modus al in wizardState.skills geladen) mogen het
+    // class-keuzebudget niet opeten — anders kon je er minder kiezen dan het label
+    // zegt (#klopt-aantal / "kan er maar 1 selecteren").
     var classChosenCount = wizardState.skills.filter(function (s) {
         return availableSkills.indexOf(s) !== -1;
     }).length;
 
     html += '<div class="wizard-field">';
-    html += '<label class="wizard-label">Choose ' + skillCount + ' skills:</label>';
+    html += '<label class="wizard-label">Choose ' + skillCount + ' class skills:</label>';
     html += '<div class="wizard-skill-grid">';
     for (var i = 0; i < availableSkills.length; i++) {
         var sk = availableSkills[i];
@@ -675,6 +701,38 @@ function renderWizardStep4() {
                 html += '<label class="wizard-skill-item' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '">';
                 html += '<input type="checkbox" data-action="wizard-cantrip" data-cantrip="' + escapeAttr(sp.name) + '"' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '>';
                 html += '<span>' + escapeHtml(sp.name) + '</span>';
+                html += '</label>';
+            }
+            html += '</div>';
+            html += '</div>';
+        }
+    }
+
+    // Level-1 spell selection for spellcasters (#6). 2024: full casters prepare from
+    // their list; count = spellcasting-ability mod + level (zie getMaxPrepared, zodat
+    // de wizard exact matcht met het spell-prep scherm). Half casters (paladin/ranger)
+    // krijgen pas spells vanaf level 2 → overslaan. Geen L1-spell-data → overslaan.
+    var spellLevel1 = getSpellsForLevel(wizardState.className, 1);
+    var startsLater = (classData.spellcastingStart || 1) > 1;
+    if (!startsLater && spellLevel1 && spellLevel1.length > 0) {
+        var castAbil = (typeof getSpellcastingAbility === 'function')
+            ? getSpellcastingAbility(wizardState.className, wizardState.subclass) : 'cha';
+        var totalAbil = (wizardState.baseAbilities[castAbil] || 10) + (calcBgBonuses()[castAbil] || 0);
+        var castMod = Math.floor((totalAbil - 10) / 2);
+        var spellCount = (typeof getMaxPrepared === 'function')
+            ? getMaxPrepared({ level: 1 }, castMod, wizardState.className)
+            : Math.max(1, castMod + 1);
+        if (spellCount > 0) {
+            html += '<div class="wizard-field">';
+            html += '<label class="wizard-label">Choose ' + spellCount + ' level-1 spells (' + castAbil.toUpperCase() + '):</label>';
+            html += '<div class="wizard-skill-grid">';
+            for (var spi = 0; spi < spellLevel1.length; spi++) {
+                var ls = spellLevel1[spi];
+                var lchecked = wizardState.prepared.indexOf(ls.name) !== -1;
+                var ldisabled = !lchecked && wizardState.prepared.length >= spellCount;
+                html += '<label class="wizard-skill-item' + (lchecked ? ' checked' : '') + (ldisabled ? ' disabled' : '') + '">';
+                html += '<input type="checkbox" data-action="wizard-spell" data-spell="' + escapeAttr(ls.name) + '"' + (lchecked ? ' checked' : '') + (ldisabled ? ' disabled' : '') + '>';
+                html += '<span>' + escapeHtml(ls.name) + '</span>';
                 html += '</label>';
             }
             html += '</div>';
@@ -758,18 +816,23 @@ function renderWizardStep6() {
     html += '</div>';
 
     // Details
+    var sumBg = wizardState.background ? DATA.backgrounds[wizardState.background] : null;
     html += '<div class="wizard-summary-section">';
     html += '<h4>Details</h4>';
     if (wizardState.subclass && wizardCharLevel() >= 3) html += '<p><strong>Subclass:</strong> ' + subclassDisplayName(wizardState.subclass) + '</p>';
+    if (sumBg && sumBg.feat) html += '<p><strong>Origin Feat:</strong> ' + escapeHtml(sumBg.feat) + '</p>';
     html += '<p><strong>Alignment:</strong> ' + wizardState.alignment + '</p>';
     if (wizardState.age) html += '<p><strong>Age:</strong> ' + wizardState.age + '</p>';
     html += '</div>';
 
-    // Skills
-    if (wizardState.skills.length > 0) {
+    // Skills — class-keuzes + vaste background-skills (2024), deduped.
+    var sumBgSkills = sumBg && sumBg.skills ? sumBg.skills.map(function (s) { return s.toLowerCase(); }) : [];
+    var allChosenSkills = wizardState.skills.slice();
+    sumBgSkills.forEach(function (s) { if (allChosenSkills.indexOf(s) === -1) allChosenSkills.push(s); });
+    if (allChosenSkills.length > 0) {
         html += '<div class="wizard-summary-section">';
         html += '<h4>Skills</h4>';
-        html += '<p>' + wizardState.skills.map(function(s) { return capitalize(s); }).join(', ') + '</p>';
+        html += '<p>' + allChosenSkills.map(function(s) { return capitalize(s); }).join(', ') + '</p>';
         html += '</div>';
     }
 
@@ -778,6 +841,14 @@ function renderWizardStep6() {
         html += '<div class="wizard-summary-section">';
         html += '<h4>Cantrips</h4>';
         html += '<p>' + wizardState.cantrips.join(', ') + '</p>';
+        html += '</div>';
+    }
+
+    // Spells (level 1)
+    if (wizardState.prepared.length > 0) {
+        html += '<div class="wizard-summary-section">';
+        html += '<h4>Spells</h4>';
+        html += '<p>' + wizardState.prepared.map(function(s) { return escapeHtml(s); }).join(', ') + '</p>';
         html += '</div>';
     }
 
@@ -832,6 +903,7 @@ function saveWizardStepData() {
                 wizardState.className = newClass;
                 wizardState.skills = [];
                 wizardState.cantrips = [];
+                wizardState.prepared = [];
                 wizardState.subclass = '';
             }
         }
@@ -902,6 +974,14 @@ function createCharacterFromWizard() {
     var bgBonuses = calcBgBonuses();
     var existing = isEdit ? (loadCharConfig(charId) || {}) : {};
 
+    // 2024: background geeft 2 vaste skills + een Origin Feat. Skills mergen in
+    // defaultSkills (dedupe), feat los bewaren voor weergave + state.asiChoices.
+    var bgData = wizardState.background ? DATA.backgrounds[wizardState.background] : null;
+    var bgSkills = bgData && bgData.skills ? bgData.skills.map(function (s) { return s.toLowerCase(); }) : [];
+    var bgFeat = bgData && bgData.feat ? bgData.feat : '';
+    var mergedSkills = wizardState.skills.slice();
+    bgSkills.forEach(function (s) { if (mergedSkills.indexOf(s) === -1) mergedSkills.push(s); });
+
     var config = Object.assign({}, existing, {
         id: charId,
         name: wizardState.name,
@@ -916,15 +996,16 @@ function createCharacterFromWizard() {
         baseAbilities: Object.assign({}, wizardState.baseAbilities),
         abilityMethod: wizardState.abilityMethod || 'manual',
         backgroundBonuses: bgBonuses,
-        defaultSkills: wizardState.skills.slice(),
+        originFeat: bgFeat,
+        defaultSkills: mergedSkills,
         defaultCantrips: wizardState.cantrips.slice(),
+        defaultPrepared: wizardState.prepared.slice(),
         appearance: wizardState.appearance ? [wizardState.appearance] : (existing.appearance || []),
         personality: Object.assign({}, wizardState.personality),
         backstory: wizardState.backstory || ''
     });
     // Velden die alleen bij een NIEUW character geïnitialiseerd worden.
     if (!isEdit) {
-        config.defaultPrepared = [];
         config.weapons = [];
         config.quotes = [];
         config.defaultItems = [];
@@ -953,15 +1034,18 @@ function createCharacterFromWizard() {
         return charId;
     }
 
-    // Save default state
+    // Save default state. Origin Feat (2024) gaat in asiChoices op level 1 zodat de
+    // bestaande feat-engine (engine.js leest state.asiChoices per level) hem oppikt;
+    // mechanische sub-keuzes van sommige feats (bv. Magic Initiate-spells) worden
+    // nog niet automatisch toegepast — alleen de feat-naam wordt vastgelegd.
     var defaultState = {
         level: 1,
-        skills: wizardState.skills.slice(),
+        skills: mergedSkills.slice(),
         expertise: [],
         cantrips: wizardState.cantrips.slice(),
-        prepared: [],
+        prepared: wizardState.prepared.slice(),
         metamagic: [],
-        asiChoices: {},
+        asiChoices: bgFeat ? { 1: { type: 'feat', feat: bgFeat, origin: true } } : {},
         favorites: [],
         items: [],
         customAbilities: null,
@@ -1046,6 +1130,7 @@ function buildWizardStateFromConfig(charId) {
     wizardState.bgBonusChoice = { plus2: plus2, plus1: plus1 };
     wizardState.skills = (cfg.defaultSkills || []).slice();
     wizardState.cantrips = (cfg.defaultCantrips || []).slice();
+    wizardState.prepared = (cfg.defaultPrepared || []).slice();
     wizardState.appearance = (cfg.appearance && cfg.appearance[0]) ? cfg.appearance[0] : '';
     wizardState.portrait = (typeof loadImage === 'function') ? (loadImage(charId, 'portrait') || '') : '';
     wizardState.portraitCrop = loadPortraitCrop(charId);
@@ -1366,6 +1451,18 @@ function bindWizardEvents() {
         });
     }
 
+    // Level-1 spell checkboxes (#6)
+    var spellBoxes = container.querySelectorAll('[data-action="wizard-spell"]');
+    for (var sbi = 0; sbi < spellBoxes.length; sbi++) {
+        _wzBindOnce(spellBoxes[sbi], 'click', function() {
+            var sn = this.dataset.spell;
+            var idx = wizardState.prepared.indexOf(sn);
+            if (this.checked && idx === -1) wizardState.prepared.push(sn);
+            else if (!this.checked && idx !== -1) wizardState.prepared.splice(idx, 1);
+            refreshWizard();
+        });
+    }
+
     container.onchange = function(e) {
         var target = e.target;
 
@@ -1394,6 +1491,7 @@ function bindWizardEvents() {
                 wizardState.className = newClass;
                 wizardState.skills = [];
                 wizardState.cantrips = [];
+                wizardState.prepared = [];
                 wizardState.subclass = '';
             }
             refreshWizard();
@@ -1404,6 +1502,12 @@ function bindWizardEvents() {
             saveWizardStepData();
             wizardState.background = target.value;
             wizardState.bgBonusChoice = { plus2: '', plus1: '' };
+            // 2024: background-skills zijn vast en worden apart toegekend. Verwijder
+            // ze uit de class-keuzes zodat ze niet dubbel tellen of als class-pick
+            // blijven hangen na het wisselen van background.
+            var newBg = DATA.backgrounds[wizardState.background];
+            var newBgSkills = newBg && newBg.skills ? newBg.skills.map(function (s) { return s.toLowerCase(); }) : [];
+            wizardState.skills = wizardState.skills.filter(function (s) { return newBgSkills.indexOf(s) === -1; });
             refreshWizard();
             return;
         }

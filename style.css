@@ -2662,6 +2662,18 @@ body[data-route^="dm"] .navbar {
     margin-bottom: 1.5rem;
 }
 
+/* 2024: vaste, niet-kiesbare toekenningen uit de background (skills/tool/feat). */
+.wizard-granted {
+    border-left: 3px solid var(--accent);
+    padding-left: 0.75rem;
+    opacity: 0.95;
+}
+.wizard-granted .wizard-detail {
+    margin: 0.35rem 0 0;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+}
+
 .wizard-field label {
     display: block;
     font-size: 0.85rem;

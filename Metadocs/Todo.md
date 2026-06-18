@@ -1,5 +1,20 @@
 # D&D Within — To Do
 
+## Hub-bugs 2026-06-18 — Character creation wizard (10 reports)
+- [x] P2 — #OvPSV/#OvPSU **"Klopt dit aantal?" (4 cantrips / 2 skills)** — geverifieerd correct (Sorcerer L1 = 4 cantrips, 2 class skills, 2024 PHB). Geen bug → dismissed in hub.
+- [x] P1 — #OvPS2 **Nederlandse teksten in wizard-menus** → alles Engels gemaakt (stap 4/5/6 labels + summary-headers + aria-labels + toasts; fallback-strings edit/save). De t()-laag is al EN-only sinds 2026-06-17; dit waren hardcoded NL-strings die t() omzeilden.
+- [x] P1 — #OvPRm/#OvPRk **"Subclass: Land" getoond bij level-1 character** → subclass nu verborgen in sidebar + summary onder level 3 (2024: subclass kies je op L3). `wizardCharLevel()` helper, consistent met stap 3.
+- [x] P1 — #OvPNqG/#OvPNqB **"Kies 2 vaardigheden maar kan er 1 selecteren"** → class-skill-budget telt nu alleen skills uit de class-lijst; background-skills (vast toegekend) eten het keuzebudget niet meer op.
+- [x] P1 — #OvPSC **Investigation auto-geselecteerd / #OvPSN level-1 feat / #OvPRt spellcaster-spells** → 2024-creation uitgebouwd:
+  - Background geeft 2 VASTE skills (locked "granted"-sectie) + tool + **Origin Feat** (vast per background). Skills los van class-keuzes, overlap uitgesloten.
+  - Origin Feat opgeslagen in `config.originFeat` + `state.asiChoices[1]` (engine pikt feats per level op; bv. Tough → +HP werkt).
+  - **Spell-keuze bij creation** voor casters (bard/cleric/druid/sorcerer/warlock/wizard): aantal = spell-mod + level (via `getMaxPrepared`, matcht het prep-scherm). Paladin/ranger overgeslagen (spells vanaf L2). Opgeslagen in `config.defaultPrepared` + `state.prepared`.
+- [!] P2 — **Review-punten 2024-creation** (bewust niet auto-afgemaakt):
+  - Origin-feat sub-keuzes niet toegepast: Magic Initiate (Acolyte→2 cantrips+1 spell), Tavern Brawler ability-keuze. Alleen feat-naam vastgelegd.
+  - Wizard: app-model gebruikt prepared = INT-mod+level i.p.v. 2024-spellbook-van-6. Bewust consistent gehouden met bestaand prep-scherm.
+  - `asiChoices[1]` voor origin feat: checken of geen enkele ASI/level-up-UI dit als "level-1 ASI" verkeerd toont.
+  - data.js cantripsKnown: druid L1 = 4 in data, 2024 PHB = 2 (losse data-bug, buiten scope).
+
 ## Wizard summary — ability-opbouw zichtbaar 2026-06-17
 - [x] P2 — **Verdeelde background-punten zichtbaar in summary + hover-breakdown** (create + edit, zelfde wizard). De sidebar-summary toonde alleen de standaard-array basewaarde (geen background-bonus). Nu:
   - `abilityBreakdown(ab)` (ui-modals.js): base (standaard-array) + verdeelde background-bonus = totaal, plus tooltip-tekst.
