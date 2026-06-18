@@ -244,7 +244,11 @@ function applyDrag(handle, svgX, svgY) {
     let col = Math.round(relX / unit);
     if (col < 0) col = 0;
     const rightCol = colInPage(w.globalCol) + w.spanUnits - 1;
-    if (col > rightCol) col = rightCol;
+    // Combat-tracker: niet smaller dan minimum-breedte (alles zichtbaar houden).
+    const minSpanL = combatMinSpanUnits(w);
+    const maxColL = rightCol - minSpanL + 1;
+    if (col > maxColL) col = maxColL;
+    if (col < 0) col = 0;
     w.spanUnits = rightCol - col + 1;
     w.globalCol = pageOf(w.globalCol) * tpp + col;
     compactSpanUnitsY();
@@ -257,7 +261,9 @@ function applyDrag(handle, svgX, svgY) {
     const relX = svgX - state.dashboard.leftX - dl.spacing - t;
     let col = Math.round(relX / unit);
     const leftCol = colInPage(w.globalCol);
-    if (col < leftCol) col = leftCol;
+    // Combat-tracker: niet smaller dan minimum-breedte (alles zichtbaar houden).
+    const minColR = leftCol + combatMinSpanUnits(w) - 1;
+    if (col < minColR) col = minColR;
     if (col > tpp - 1) col = tpp - 1;
     w.spanUnits = col - leftCol + 1;
     compactSpanUnitsY();

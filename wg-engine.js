@@ -720,12 +720,44 @@ function _fitCombatSpanY(growOnly) {
   w._combatFits = widgetContentPxHFor(w.spanUnitsY) >= pxNeeded;
 }
 
+// Minimale BREEDTE (in dashboard-tegels / spanUnits) waarbij de combat-tracker
+// al zijn kolommen toont zonder horizontaal te moeten scrollen. De volledige
+// tabel (grid-template 34+96+84+120+52+40+28 + 6×6 gaps ≈ 490px, plus body- en
+// widget-padding) vraagt ~510px. In transpose-mode (één veld per rij) is de
+// widget juist smal → geen ondergrens. Bewust iets royaal (zie #NU-YZ6-filosofie:
+// liever iets te breed dan content die net wegvalt).
+const COMBAT_MIN_PX = 510;
+function combatMinSpanUnits(w) {
+  if (!w || widgetKind(w) !== 'combat') return 1;
+  if (w.cfg && w.cfg.transpose) return 1;            // getransponeerd = smal, geen floor
+  const maxSpan = Math.max(1, tilesPerPage());
+  for (let s = 1; s <= maxSpan; s++) {
+    if (widgetPxWFor(s) >= COMBAT_MIN_PX) return s;
+  }
+  return maxSpan;                                    // pagina te smal → zo breed mogelijk
+}
+
 // Fit alle combat-widgets (DM-tracker + speler-tracker) vóór een render-pass.
 // Idempotent: zelfde entities → zelfde spanUnitsY, dus geen render-storm.
 function recomputeCombatWidgets(growOnly) {
   if (!state.widgets) return;
   for (const w of state.widgets) {
-    if (widgetKind(w) === 'combat') withWidget(w, () => _fitCombatSpanY(!!growOnly));
+    if (widgetKind(w) !== 'combat') continue;
+    withWidget(w, () => {
+      _fitCombatSpanY(!!growOnly);
+      // Breedte-ondergrens afdwingen: bestaande te smalle widgets (of na een
+      // layout-wissel) groeien terug tot alle kolommen zichtbaar zijn.
+      const tpp = Math.max(1, tilesPerPage());
+      const minSpan = Math.min(combatMinSpanUnits(w), tpp);
+      if (w.spanUnits < minSpan) {
+        w.spanUnits = minSpan;
+        // Schuif zo nodig naar links zodat de bredere widget binnen de pagina past.
+        const col = colInPage(w.globalCol);
+        if (col + minSpan > tpp) {
+          w.globalCol = pageOf(w.globalCol) * tpp + Math.max(0, tpp - minSpan);
+        }
+      }
+    });
   }
 }
 
