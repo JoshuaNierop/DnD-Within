@@ -308,6 +308,15 @@ function getWizardSubclasses(className) {
     });
 }
 
+// Effectief character-level binnen de wizard. Nieuw character = level 1; bij edit
+// het opgeslagen level. 2024 PHB: subclass kies je pas op level 3, dus onder level
+// 3 hoort er nergens een subclass getoond of geselecteerd te zijn (#vXF9qQ).
+function wizardCharLevel() {
+    if (!wizardState || !wizardState.editId) return 1;
+    var st = (typeof loadCharState === 'function' && loadCharState(wizardState.editId)) || {};
+    return st.level || 1;
+}
+
 function renderWizardModal() {
     if (!wizardState) return '';
     var step = wizardState.step;
@@ -318,13 +327,13 @@ function renderWizardModal() {
 
     // Header
     html += '<div class="wizard-header">';
-    html += '<h2 class="wizard-title">' + (wizardState.editId ? (t('wizard.edittitle') === 'wizard.edittitle' ? 'Character bewerken' : t('wizard.edittitle')) : t('wizard.title')) + '</h2>';
+    html += '<h2 class="wizard-title">' + (wizardState.editId ? (t('wizard.edittitle') === 'wizard.edittitle' ? 'Edit Character' : t('wizard.edittitle')) : t('wizard.title')) + '</h2>';
     html += '<button class="modal-close" data-action="close-wizard">&times;</button>';
     html += '</div>';
 
     // Horizontal stepper (full width, under header) — gives the steps the whole
     // modal width and removes the cramped vertical-aside overlap (#EG9koC).
-    html += '<nav class="wizard-steps" aria-label="Stappen">';
+    html += '<nav class="wizard-steps" aria-label="Steps">';
     var stepLabels = [t('wizard.step.basics'), t('wizard.step.background'), t('wizard.step.details'), t('wizard.step.skills'), t('wizard.step.story'), t('wizard.step.summary')];
     for (var si = 1; si <= totalSteps; si++) {
         var stepClass = 'wizard-step-dot';
@@ -363,18 +372,18 @@ function renderWizardModal() {
         html += '<span class="wizard-portrait-placeholder">&#128100;</span>';
     }
     html += '<span class="wizard-portrait-overlay" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Zm0-8.2h2.3l1.2-1.6h2.8A1.7 1.7 0 0 1 22 6.8v10.4A1.7 1.7 0 0 1 20.3 19H3.7A1.7 1.7 0 0 1 2 17.2V6.8A1.7 1.7 0 0 1 3.7 5h2.8L7.7 3H12Z"/></svg></span>';
-    html += '<input type="file" accept="image/*" class="wizard-portrait-input" aria-label="Portret uploaden" data-action="upload-wizard-portrait">';
+    html += '<input type="file" accept="image/*" class="wizard-portrait-input" aria-label="Upload portrait" data-action="upload-wizard-portrait">';
     html += '</label>';
     // Crop-knop (#fATDUg): alleen tonen als er een portret is; buiten het <label>
     // zodat een klik niet de file-picker triggert.
     if (wizardState.portrait) {
-        html += '<button type="button" class="portrait-crop-btn" data-action="crop-wizard-portrait" title="Bijsnijden" aria-label="Portret bijsnijden"><svg viewBox="0 0 24 24"><path d="M7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7V7z M17 15h2V7c0-1.1-.9-2-2-2H9v2h8z"/></svg></button>';
+        html += '<button type="button" class="portrait-crop-btn" data-action="crop-wizard-portrait" title="Crop" aria-label="Crop portrait"><svg viewBox="0 0 24 24"><path d="M7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7V7z M17 15h2V7c0-1.1-.9-2-2-2H9v2h8z"/></svg></button>';
     }
     html += '</div>';
     html += '<div class="wizard-sidebar-name" style="color:' + sidebarColor + '">' + escapeHtml(wizardState.name || '???') + '</div>';
     if (wizardState.race) html += '<div class="wizard-sidebar-detail">' + raceDisplayName(wizardState.race) + '</div>';
     if (wizardState.className) html += '<div class="wizard-sidebar-detail">' + classDisplayName(wizardState.className) + '</div>';
-    if (wizardState.subclass) html += '<div class="wizard-sidebar-detail" style="color:var(--text-dim);font-size:0.7rem;">' + subclassDisplayName(wizardState.subclass) + '</div>';
+    if (wizardState.subclass && wizardCharLevel() >= 3) html += '<div class="wizard-sidebar-detail" style="color:var(--text-dim);font-size:0.7rem;">' + subclassDisplayName(wizardState.subclass) + '</div>';
     if (wizardState.background && DATA.backgrounds[wizardState.background]) html += '<div class="wizard-sidebar-detail">' + DATA.backgrounds[wizardState.background].name + '</div>';
     // Ability scores mini display
     var abs = ['str','dex','con','int','wis','cha'];
@@ -409,7 +418,7 @@ function renderWizardModal() {
     if (step < totalSteps) {
         html += '<button class="btn btn-primary" data-action="wizard-next">' + t('wizard.next') + '</button>';
     } else {
-        html += '<button class="btn btn-primary" data-action="wizard-create">' + (wizardState.editId ? (t('wizard.save') === 'wizard.save' ? 'Opslaan' : t('wizard.save')) : t('wizard.create')) + '</button>';
+        html += '<button class="btn btn-primary" data-action="wizard-create">' + (wizardState.editId ? (t('wizard.save') === 'wizard.save' ? 'Save' : t('wizard.save')) : t('wizard.create')) + '</button>';
     }
     html += '</div>';
 
@@ -567,7 +576,7 @@ function renderWizardStep3() {
     // Subclass — 2024 PHB: je kiest je subclass pas op level 3 (#vXF9qQ). De wizard
     // maakt level-1 characters, dus de keuze alleen tonen bij het bewerken van een
     // character dat al level 3+ is.
-    var wizLevel = wizardState.editId ? (((typeof loadCharState === 'function' && loadCharState(wizardState.editId)) || {}).level || 1) : 1;
+    var wizLevel = wizardCharLevel();
     if (wizardState.className && wizLevel >= 3) {
         var subclasses = getWizardSubclasses(wizardState.className);
         if (subclasses.length > 0) {
@@ -628,13 +637,21 @@ function renderWizardStep4() {
 
     var availableSkills = skillOpts.indexOf("any") !== -1 ? allSkills : skillOpts;
 
+    // Budget telt alleen skills die uit déze class-lijst komen. Background-skills
+    // (in 2024 vast toegekend en bij edit-modus al in wizardState.skills geladen)
+    // mogen het class-keuzebudget niet opeten — anders kon je er minder kiezen dan
+    // het label zegt (#klopt-aantal / "kan er maar 1 selecteren").
+    var classChosenCount = wizardState.skills.filter(function (s) {
+        return availableSkills.indexOf(s) !== -1;
+    }).length;
+
     html += '<div class="wizard-field">';
-    html += '<label class="wizard-label">Kies ' + skillCount + ' vaardigheden:</label>';
+    html += '<label class="wizard-label">Choose ' + skillCount + ' skills:</label>';
     html += '<div class="wizard-skill-grid">';
     for (var i = 0; i < availableSkills.length; i++) {
         var sk = availableSkills[i];
         var checked = wizardState.skills.indexOf(sk) !== -1;
-        var disabled = !checked && wizardState.skills.length >= skillCount;
+        var disabled = !checked && classChosenCount >= skillCount;
         html += '<label class="wizard-skill-item' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '">';
         html += '<input type="checkbox" data-action="wizard-skill" data-skill="' + sk + '"' + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '>';
         html += '<span>' + capitalize(sk) + '</span>';
@@ -649,7 +666,7 @@ function renderWizardStep4() {
         var spellData = getSpellsForLevel(wizardState.className, 0);
         if (spellData && spellData.length > 0) {
             html += '<div class="wizard-field">';
-            html += '<label class="wizard-label">Kies ' + cantripsCount + ' cantrips:</label>';
+            html += '<label class="wizard-label">Choose ' + cantripsCount + ' cantrips:</label>';
             html += '<div class="wizard-skill-grid">';
             for (var i = 0; i < spellData.length; i++) {
                 var sp = spellData[i];
@@ -677,22 +694,22 @@ function renderWizardStep5() {
     html += '</div>';
 
     html += '<div class="wizard-field">';
-    html += '<label class="wizard-label">Persoonlijkheidskenmerken</label>';
+    html += '<label class="wizard-label">Personality Traits</label>';
     html += '<textarea class="wizard-textarea wizard-textarea-sm" id="wizard-traits" placeholder="Traits...">' + escapeHtml(wizardState.personality.traits) + '</textarea>';
     html += '</div>';
 
     html += '<div class="wizard-field">';
-    html += '<label class="wizard-label">Ideaal</label>';
+    html += '<label class="wizard-label">Ideal</label>';
     html += '<textarea class="wizard-textarea wizard-textarea-sm" id="wizard-ideal" placeholder="Ideal...">' + escapeHtml(wizardState.personality.ideal) + '</textarea>';
     html += '</div>';
 
     html += '<div class="wizard-field">';
-    html += '<label class="wizard-label">Band</label>';
+    html += '<label class="wizard-label">Bond</label>';
     html += '<textarea class="wizard-textarea wizard-textarea-sm" id="wizard-bond" placeholder="Bond...">' + escapeHtml(wizardState.personality.bond) + '</textarea>';
     html += '</div>';
 
     html += '<div class="wizard-field">';
-    html += '<label class="wizard-label">Zwakheid</label>';
+    html += '<label class="wizard-label">Flaw</label>';
     html += '<textarea class="wizard-textarea wizard-textarea-sm" id="wizard-flaw" placeholder="Flaw...">' + escapeHtml(wizardState.personality.flaw) + '</textarea>';
     html += '</div>';
 
@@ -711,7 +728,7 @@ function renderWizardStep6() {
 
     // Name & basics
     html += '<div class="wizard-summary-section">';
-    html += '<h4>Basisgegevens</h4>';
+    html += '<h4>Basics</h4>';
     html += '<p><strong>' + t('wizard.summary.name') + '</strong> ' + escapeHtml(wizardState.name || t('wizard.empty')) + '</p>';
     html += '<p><strong>' + t('wizard.summary.race') + '</strong> ' + (wizardState.race ? raceDisplayName(wizardState.race) : t('wizard.notchosen')) + '</p>';
     html += '<p><strong>' + t('wizard.summary.class') + '</strong> ' + (wizardState.className ? classDisplayName(wizardState.className) : t('wizard.notchosen')) + '</p>';
@@ -719,9 +736,9 @@ function renderWizardStep6() {
 
     // Background
     html += '<div class="wizard-summary-section">';
-    html += '<h4>Achtergrond</h4>';
+    html += '<h4>Background</h4>';
     var bgName = wizardState.background && DATA.backgrounds[wizardState.background] ? DATA.backgrounds[wizardState.background].name : t('wizard.notchosen');
-    html += '<p><strong>Achtergrond:</strong> ' + bgName + '</p>';
+    html += '<p><strong>Background:</strong> ' + bgName + '</p>';
 
     // Ability scores with bonuses
     var abs = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
@@ -743,15 +760,15 @@ function renderWizardStep6() {
     // Details
     html += '<div class="wizard-summary-section">';
     html += '<h4>Details</h4>';
-    if (wizardState.subclass) html += '<p><strong>Subclass:</strong> ' + subclassDisplayName(wizardState.subclass) + '</p>';
+    if (wizardState.subclass && wizardCharLevel() >= 3) html += '<p><strong>Subclass:</strong> ' + subclassDisplayName(wizardState.subclass) + '</p>';
     html += '<p><strong>Alignment:</strong> ' + wizardState.alignment + '</p>';
-    if (wizardState.age) html += '<p><strong>Leeftijd:</strong> ' + wizardState.age + '</p>';
+    if (wizardState.age) html += '<p><strong>Age:</strong> ' + wizardState.age + '</p>';
     html += '</div>';
 
     // Skills
     if (wizardState.skills.length > 0) {
         html += '<div class="wizard-summary-section">';
-        html += '<h4>Vaardigheden</h4>';
+        html += '<h4>Skills</h4>';
         html += '<p>' + wizardState.skills.map(function(s) { return capitalize(s); }).join(', ') + '</p>';
         html += '</div>';
     }
@@ -866,13 +883,13 @@ function createCharacterFromWizard() {
         var got = ABILITY_KEYS.map(function (a) { return wizardState.baseAbilities[a]; }).sort(function (x, y) { return x - y; });
         var want = STANDARD_ARRAY.slice().sort(function (x, y) { return x - y; });
         if (got.join(',') !== want.join(',')) {
-            showToast('Standaard array: wijs elk van 15/14/13/12/10/8 precies één keer toe.', 'error');
+            showToast('Standard array: assign each of 15/14/13/12/10/8 exactly once.', 'error');
             return false;
         }
     } else if (wizardState.abilityMethod === 'pointbuy') {
         var bad = ABILITY_KEYS.some(function (a) { var v = wizardState.baseAbilities[a]; return v < 8 || v > 15; });
         if (bad || pointBuySpent() > POINTBUY_BUDGET) {
-            showToast('Point buy: scores 8-15 en maximaal ' + POINTBUY_BUDGET + ' punten.', 'error');
+            showToast('Point buy: scores 8-15 and at most ' + POINTBUY_BUDGET + ' points.', 'error');
             return false;
         }
     }
@@ -932,7 +949,7 @@ function createCharacterFromWizard() {
 
     // Edit-modus: runtime-state (level, HP, gekozen skills/items) intact laten.
     if (isEdit) {
-        showToast(t('wizard.editsuccess') === 'wizard.editsuccess' ? 'Character bijgewerkt' : t('wizard.editsuccess'), 'success');
+        showToast(t('wizard.editsuccess') === 'wizard.editsuccess' ? 'Character updated' : t('wizard.editsuccess'), 'success');
         return charId;
     }
 
