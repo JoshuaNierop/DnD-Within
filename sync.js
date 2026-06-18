@@ -211,6 +211,15 @@ function initFirebaseSync() {
         syncReady = true;
         console.log('[Sync] Firebase verbonden!');
 
+        // Echte authenticatie (Firebase Auth) — laag bovenop het userId-systeem.
+        if (typeof dwAuthInit === 'function') dwAuthInit();
+        // Transitie-config (legacyOpen-vlag) spiegelen voor de login-flow.
+        syncDb.ref('dw/config').on('value', function (snap) {
+            var cfg = snap.val() || {};
+            if (typeof window !== 'undefined') { window.dwConfig = cfg; }
+            if (typeof dwConfig !== 'undefined') { dwConfig = cfg; }
+        }, function () {});
+
         // Initialize the image-storage layer (Cloudinary with base64
         // fallback). Safe no-op if CONFIG isn't filled in yet.
         if (typeof DWImages !== 'undefined' && DWImages.init) DWImages.init();

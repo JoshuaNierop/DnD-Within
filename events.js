@@ -126,6 +126,40 @@ function bindPageEvents(route) {
 
         // --- Login page ---
         if (route.path === '/login' || !currentUser()) {
+            // Toon/verberg reset-paneel
+            if (target.closest('[data-action="login-show-reset"]')) {
+                var fm = document.getElementById('login-form-main');
+                var fr = document.getElementById('login-form-reset');
+                if (fm) fm.style.display = 'none';
+                if (fr) fr.style.display = 'block';
+                return;
+            }
+            if (target.closest('[data-action="login-hide-reset"]')) {
+                var fm2 = document.getElementById('login-form-main');
+                var fr2 = document.getElementById('login-form-reset');
+                if (fr2) fr2.style.display = 'none';
+                if (fm2) fm2.style.display = 'block';
+                return;
+            }
+            // Wachtwoord-reset versturen
+            if (target.closest('[data-action="login-send-reset"]')) {
+                var resetEmailEl = document.getElementById('login-reset-email');
+                var resetMsgEl = document.getElementById('login-reset-msg');
+                var rEmail = resetEmailEl ? resetEmailEl.value.trim() : '';
+                if (!rEmail) {
+                    if (resetMsgEl) { resetMsgEl.textContent = t('login.error.resetnoemail'); resetMsgEl.style.display = 'block'; }
+                    return;
+                }
+                if (typeof dwSendReset === 'function') {
+                    dwSendReset(rEmail).then(function () {
+                        if (resetMsgEl) { resetMsgEl.style.color = 'var(--accent)'; resetMsgEl.textContent = t('login.reset.sent'); resetMsgEl.style.display = 'block'; }
+                    }).catch(function () {
+                        // Bewust generiek (geen e-mail-enumeratie prijsgeven)
+                        if (resetMsgEl) { resetMsgEl.style.color = 'var(--accent)'; resetMsgEl.textContent = t('login.reset.sent'); resetMsgEl.style.display = 'block'; }
+                    });
+                }
+                return;
+            }
             // Login submit
             if (target.matches('[data-action="login-submit"]') || target.closest('[data-action="login-submit"]')) {
                 var usernameEl = document.getElementById('login-username');
@@ -133,18 +167,47 @@ function bindPageEvents(route) {
                 var errorEl = document.getElementById('login-error');
                 if (!usernameEl || !passwordEl) return;
 
-                var username = usernameEl.value.trim().toLowerCase();
+                var identifier = usernameEl.value.trim();
                 var password = passwordEl.value;
+                if (errorEl) errorEl.style.display = 'none';
 
-                // Find user by username — check usersCache first, then DEFAULT_USERS
+                // E-mailadres → echte Firebase Auth login (met zelf-registratie
+                // bij eerste keer). Anders → legacy username-login.
+                var looksLikeEmail = identifier.indexOf('@') !== -1;
+                if (looksLikeEmail && typeof dwEmailLogin === 'function') {
+                    var submitBtn = target.closest('[data-action="login-submit"]');
+                    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = t('login.checking'); }
+                    var resetBtn = function () { if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = t('login.submit'); } };
+                    dwEmailLogin(identifier, password).then(function (uid) {
+                        setSession(uid);
+                        applyUserTheme();
+                        navigate('/welcome');
+                    }).catch(function (err) {
+                        resetBtn();
+                        var code = err && err.code;
+                        var msg = t('login.error.generic');
+                        if (code === 'no-account') msg = t('login.error.noaccount');
+                        else if (code === 'wrong-password' || code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') msg = t('login.error.password');
+                        else if (code === 'auth/weak-password') msg = t('login.error.weakpass');
+                        if (errorEl) { errorEl.textContent = msg; errorEl.style.display = 'block'; }
+                    });
+                    return;
+                }
+
+                // --- Legacy username-login ---
+                if (typeof dwLegacyOpen === 'function' && !dwLegacyOpen()) {
+                    if (errorEl) { errorEl.textContent = t('login.error.legacyclosed'); errorEl.style.display = 'block'; }
+                    return;
+                }
+                var username = identifier.toLowerCase();
                 var matchedId = null;
                 var lookupSources = [usersCache, DEFAULT_USERS];
                 for (var si = 0; si < lookupSources.length; si++) {
                     var src = lookupSources[si];
                     if (!src) continue;
-                    for (var uid in src) {
-                        if (uid === username || (src[uid].name && src[uid].name.toLowerCase() === username)) {
-                            matchedId = uid;
+                    for (var uid2 in src) {
+                        if (uid2 === username || (src[uid2].name && src[uid2].name.toLowerCase() === username)) {
+                            matchedId = uid2;
                             break;
                         }
                     }
@@ -180,6 +243,7 @@ function bindPageEvents(route) {
 
         // Logout
         if (target.matches('[data-action="logout"]') || target.closest('[data-action="logout"]')) {
+            if (typeof dwSignOut === 'function') dwSignOut();
             clearSession();
             navigate('/login');
             return;
@@ -242,6 +306,17 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="settings-toggle-debug"]')) {
             setDebugMode(target.checked);
             showToast(target.checked ? t('settings.debug.enabled') : t('settings.debug.disabled'), 'success');
+            return;
+        }
+        // Admin: e-mail koppelen aan account
+        if (target.matches('[data-action="admin-save-email"]') || target.closest('[data-action="admin-save-email"]')) {
+            var aseBtn = target.matches('[data-action="admin-save-email"]') ? target : target.closest('[data-action="admin-save-email"]');
+            if (typeof handleAdminSaveEmail === 'function') handleAdminSaveEmail(aseBtn.dataset.uid);
+            return;
+        }
+        // Admin: login-cutover toggle
+        if (target.matches('[data-action="admin-toggle-legacy"]')) {
+            if (typeof handleAdminToggleLegacy === 'function') handleAdminToggleLegacy(target.checked);
             return;
         }
 

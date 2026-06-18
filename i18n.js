@@ -7,10 +7,24 @@ var TRANSLATIONS = {
     nl: {
         // Login
         'login.username': 'Gebruikersnaam',
+        'login.identifier': 'E-mail of gebruikersnaam',
+        'login.email': 'E-mailadres',
         'login.password': 'Wachtwoord',
         'login.submit': 'Inloggen',
+        'login.forgot': 'Wachtwoord vergeten?',
+        'login.firsttime': 'Eerste keer? Vul je e-mail + een nieuw wachtwoord in om je account aan te maken.',
+        'login.checking': 'Bezig met inloggen…',
+        'login.reset.title': 'Wachtwoord resetten',
+        'login.reset.hint': 'Vul je e-mailadres in; we sturen een reset-link.',
+        'login.reset.send': 'Stuur reset-link',
+        'login.reset.sent': 'Reset-link verstuurd. Check je inbox (en spam).',
         'login.error.notfound': 'Gebruiker niet gevonden.',
         'login.error.password': 'Onjuist wachtwoord.',
+        'login.error.noaccount': 'Dit e-mailadres is nog niet aan een account gekoppeld. Vraag de DM/admin om je e-mail te koppelen.',
+        'login.error.legacyclosed': 'Username-login is uitgeschakeld. Log in met je e-mailadres.',
+        'login.error.weakpass': 'Wachtwoord te zwak — gebruik minstens 6 tekens.',
+        'login.error.generic': 'Inloggen mislukt. Probeer het opnieuw.',
+        'login.error.resetnoemail': 'Vul eerst je e-mailadres in.',
 
         // Navbar
         'nav.dashboard': 'Home',
@@ -674,10 +688,24 @@ var TRANSLATIONS = {
     en: {
         // Login
         'login.username': 'Username',
+        'login.identifier': 'Email or username',
+        'login.email': 'Email address',
         'login.password': 'Password',
         'login.submit': 'Login',
+        'login.forgot': 'Forgot password?',
+        'login.firsttime': 'First time? Enter your email + a new password to create your account.',
+        'login.checking': 'Signing in…',
+        'login.reset.title': 'Reset password',
+        'login.reset.hint': 'Enter your email; we will send a reset link.',
+        'login.reset.send': 'Send reset link',
+        'login.reset.sent': 'Reset link sent. Check your inbox (and spam).',
         'login.error.notfound': 'User not found.',
         'login.error.password': 'Incorrect password.',
+        'login.error.noaccount': 'This email is not linked to an account yet. Ask the DM/admin to link your email.',
+        'login.error.legacyclosed': 'Username login is disabled. Please log in with your email.',
+        'login.error.weakpass': 'Password too weak — use at least 6 characters.',
+        'login.error.generic': 'Login failed. Please try again.',
+        'login.error.resetnoemail': 'Enter your email address first.',
 
         // Navbar
         'nav.dashboard': 'Home',

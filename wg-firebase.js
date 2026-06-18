@@ -6,6 +6,14 @@ let WG_CHAR_STATUS = {};     // { id: 'loading'|'ready'|'error' }
 let WG_CHAR_ERROR  = {};     // { id: message | null }
 let WG_CHAR_LIST   = [];     // [{ id, name }] — voor de dropdown
 
+// Hangt het Firebase ID-token aan een REST-URL zodra de gebruiker via Firebase
+// Auth is ingelogd (anders no-op → werkt nog onder open/legacy rules).
+function wgAuthUrl(url) {
+  const tok = (typeof window !== 'undefined' && typeof window.dwGetIdToken === 'function') ? window.dwGetIdToken() : null;
+  if (!tok) return url;
+  return url + (url.indexOf('?') === -1 ? '?' : '&') + 'auth=' + encodeURIComponent(tok);
+}
+
 // ===== WGI-M6: targeted localStorage sync na V11 REST writes =====
 // Wanneer V8 inside D&D Within draait, schrijven de V11 edit-flows direct
 // PATCH/PUT naar Firebase. Daarna refresh'en ze WG_CHAR_CACHE[id] of
@@ -48,7 +56,7 @@ async function fetchCharacterData(id) {
   WG_CHAR_STATUS[id] = 'loading';
   if (id === state.characterId) updateStatus();
   try {
-    const res = await fetch(`${FIREBASE_DB}/dw/characters/${encodeURIComponent(id)}.json`);
+    const res = await fetch(wgAuthUrl(`${FIREBASE_DB}/dw/characters/${encodeURIComponent(id)}.json`));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     if (!json) throw new Error('not found');
@@ -81,12 +89,12 @@ function rebuildAllInfoboxWidgets() {
 
 async function fetchCharacterList() {
   try {
-    const res = await fetch(`${FIREBASE_DB}/dw/characters.json?shallow=true`);
+    const res = await fetch(wgAuthUrl(`${FIREBASE_DB}/dw/characters.json?shallow=true`));
     const obj = await res.json();
     const ids = Object.keys(obj || {});
     const names = await Promise.all(ids.map(async id => {
       try {
-        const r = await fetch(`${FIREBASE_DB}/dw/characters/${encodeURIComponent(id)}/config/name.json`);
+        const r = await fetch(wgAuthUrl(`${FIREBASE_DB}/dw/characters/${encodeURIComponent(id)}/config/name.json`));
         const n = await r.json();
         return typeof n === 'string' && n ? n : null;
       } catch { return null; }
@@ -271,7 +279,7 @@ async function saveDashboards() {
   }
   const payload = buildSavePayload();
   try {
-    const res = await fetch(url, {
+    const res = await fetch(wgAuthUrl(url), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -301,7 +309,7 @@ async function loadDashboards(charId) {
   }
   let tree = null;
   try {
-    const res = await fetch(url);
+    const res = await fetch(wgAuthUrl(url));
     if (!res.ok) throw new Error('HTTP ' + res.status);
     tree = await res.json();
   } catch (err) {

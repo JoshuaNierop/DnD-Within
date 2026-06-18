@@ -22,6 +22,9 @@ function renderSettings() {
         // Language-tab verwijderd (bug -Oud-_izpLBetwa): site is Engels-only.
         { id: 'developer', label: t('settings.tab.developer'), icon: '&#128736;' }
     ];
+    if (typeof isAdmin === 'function' && isAdmin()) {
+        tabs.push({ id: 'admin', label: 'Beheer', icon: '&#128272;' });
+    }
     html += '<div class="settings-tabs">';
     for (var sti = 0; sti < tabs.length; sti++) {
         var stab = tabs[sti];
@@ -76,6 +79,42 @@ function renderSettings() {
     }
 
     // Language-tab verwijderd (bug -Oud-_izpLBetwa): site is Engels-only.
+
+    // === Admin tab (accounts → e-mail koppelen + login-cutover) ===
+    if (settingsTab === 'admin' && typeof isAdmin === 'function' && isAdmin()) {
+        var allUsers = usersCache || DEFAULT_USERS || {};
+        html += '<section class="settings-section">';
+        html += '<div class="settings-card">';
+        html += '<h3 class="settings-subtitle">E-mail koppelen aan accounts</h3>';
+        html += '<p class="settings-hint">Koppel per account een e-mailadres. De speler logt daarna in met e-mail + zelfgekozen wachtwoord (eerste keer = wachtwoord instellen). Username-login blijft werken tot de cutover hieronder.</p>';
+        var uids = Object.keys(allUsers).filter(function (k) { return k !== '__config'; }).sort();
+        for (var aui = 0; aui < uids.length; aui++) {
+            var auId = uids[aui];
+            var auData = allUsers[auId] || {};
+            var linked = !!auData.authUid;
+            html += '<div class="admin-user-row">';
+            html += '<div class="admin-user-meta">';
+            html += '<span class="admin-user-name">' + escapeHtml(auData.name || auId) + '</span>';
+            html += '<span class="admin-user-id">' + escapeAttr(auId) + (auData.role === 'admin' ? ' · admin' : '') + '</span>';
+            html += '</div>';
+            html += '<input type="email" class="settings-input admin-email-input" data-uid="' + escapeAttr(auId) + '" value="' + escapeAttr(auData.email || '') + '" placeholder="naam@voorbeeld.nl" autocomplete="off">';
+            html += '<span class="admin-link-badge ' + (linked ? 'is-linked' : '') + '" title="' + (linked ? 'Heeft al ingelogd via e-mail' : 'Nog niet via e-mail ingelogd') + '">' + (linked ? '&#10003; gekoppeld' : '&#9711; open') + '</span>';
+            html += '<button class="btn btn-small" data-action="admin-save-email" data-uid="' + escapeAttr(auId) + '">Opslaan</button>';
+            html += '</div>';
+        }
+        html += '</div></section>';
+
+        // Cutover-toggle
+        var legacyOpenNow = !(typeof dwLegacyOpen === 'function') || dwLegacyOpen();
+        html += '<section class="settings-section">';
+        html += '<div class="settings-card">';
+        html += '<div class="settings-field settings-toggle-field">';
+        html += '<div><label class="settings-label">Username-login toestaan (transitie)</label>';
+        html += '<p class="settings-hint">Aan = oude username-login werkt nog én de database staat open. Uit (cutover) = alleen ingelogde e-mailaccounts hebben toegang. Zet pas uit als iedereen minstens één keer via e-mail heeft ingelogd (&#10003; gekoppeld).</p></div>';
+        html += '<label class="toggle-switch"><input type="checkbox" id="admin-legacy-toggle"' + (legacyOpenNow ? ' checked' : '') + ' data-action="admin-toggle-legacy"><span class="toggle-slider"></span></label>';
+        html += '</div>';
+        html += '</div></section>';
+    }
 
     // === Developer tab ===
     if (settingsTab === 'developer') {
@@ -157,6 +196,38 @@ function handleSaveSettings() {
     showToast(t('settings.saved'), 'success');
     if (successEl) { successEl.textContent = t('generic.saved'); successEl.style.display = 'block'; }
     setTimeout(function() { renderApp(); }, 600);
+}
+
+// Admin: koppel een e-mailadres aan een bestaand account (userId blijft de
+// interne sleutel; de speler logt daarna in via e-mail). Schrijft alleen het
+// email-veld — authUid wordt door auth.js gezet bij de eerste e-mail-login.
+function handleAdminSaveEmail(userId) {
+    if (typeof isAdmin !== 'function' || !isAdmin()) return;
+    var input = document.querySelector('.admin-email-input[data-uid="' + (window.CSS && CSS.escape ? CSS.escape(userId) : userId) + '"]');
+    var email = input ? input.value.trim().toLowerCase() : '';
+    var u = getUserData(userId);
+    if (!u) return;
+    if (!usersCache) usersCache = {};
+    if (!usersCache[userId]) usersCache[userId] = JSON.parse(JSON.stringify(u));
+    usersCache[userId].email = email;
+    if (typeof syncSaveUser === 'function') syncSaveUser(userId, usersCache[userId]);
+    localStorage.setItem('dw_users', JSON.stringify(usersCache));
+    showToast(email ? ('E-mail gekoppeld aan ' + (u.name || userId)) : ('E-mail losgekoppeld van ' + (u.name || userId)), 'success');
+}
+
+// Admin: zet de transitievlag dw/config/legacyOpen. Aan = username-login + open
+// DB; uit = cutover (alleen geauthenticeerd). Dit is het scherpe moment —
+// pas uitzetten als iedereen via e-mail heeft ingelogd.
+function handleAdminToggleLegacy(enabled) {
+    if (typeof isAdmin !== 'function' || !isAdmin()) return;
+    if (typeof syncReady === 'undefined' || !syncReady || !syncDb) {
+        showToast('Firebase nog niet verbonden — probeer opnieuw.', 'error');
+        return;
+    }
+    syncDb.ref('dw/config/legacyOpen').set(!!enabled);
+    if (typeof window !== 'undefined') { window.dwConfig = window.dwConfig || {}; window.dwConfig.legacyOpen = !!enabled; }
+    if (typeof dwConfig !== 'undefined') dwConfig.legacyOpen = !!enabled;
+    showToast(enabled ? 'Username-login AAN (transitie)' : 'Cutover: alleen e-mail-login', enabled ? 'success' : 'info');
 }
 
 // ============================================================

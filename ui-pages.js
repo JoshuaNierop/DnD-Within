@@ -45,10 +45,12 @@ function renderLogin() {
     html += '<div class="login-logo">&#9876;</div>';
     html += '<h1 class="login-title">D&D Within</h1>';
     html += '<p class="login-subtitle">Valoria Campaign Platform</p>';
-    html += '<div class="login-form">';
+
+    // --- Inlog-formulier (e-mail of legacy username) ---
+    html += '<div class="login-form" id="login-form-main">';
     html += '<div class="login-field">';
-    html += '<label class="login-label">' + t('login.username') + '</label>';
-    html += '<input type="text" class="login-input" id="login-username" placeholder="' + t('login.username') + '" autocomplete="username">';
+    html += '<label class="login-label">' + t('login.identifier') + '</label>';
+    html += '<input type="text" class="login-input" id="login-username" placeholder="' + t('login.email') + '" autocomplete="username">';
     html += '</div>';
     html += '<div class="login-field">';
     html += '<label class="login-label">' + t('login.password') + '</label>';
@@ -56,7 +58,22 @@ function renderLogin() {
     html += '</div>';
     html += '<button class="login-submit" data-action="login-submit">' + t('login.submit') + '</button>';
     html += '<p class="login-error" id="login-error" style="display:none;"></p>';
+    html += '<p class="login-hint">' + t('login.firsttime') + '</p>';
+    html += '<button type="button" class="login-link" data-action="login-show-reset">' + t('login.forgot') + '</button>';
     html += '</div>';
+
+    // --- Reset-paneel (verborgen tot "wachtwoord vergeten") ---
+    html += '<div class="login-form" id="login-form-reset" style="display:none;">';
+    html += '<p class="login-hint">' + t('login.reset.hint') + '</p>';
+    html += '<div class="login-field">';
+    html += '<label class="login-label">' + t('login.email') + '</label>';
+    html += '<input type="email" class="login-input" id="login-reset-email" placeholder="' + t('login.email') + '" autocomplete="email">';
+    html += '</div>';
+    html += '<button class="login-submit" data-action="login-send-reset">' + t('login.reset.send') + '</button>';
+    html += '<p class="login-error" id="login-reset-msg" style="display:none;"></p>';
+    html += '<button type="button" class="login-link" data-action="login-hide-reset">&#8592; ' + t('login.submit') + '</button>';
+    html += '</div>';
+
     html += '</div>';
     html += '</div>';
     return html;

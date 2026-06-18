@@ -262,10 +262,10 @@ export function createFirebaseAdapter({
         }
         // Index entries voor beide users — sender lastSeen=now (heeft 'm net verstuurd)
         await dbPatch(`users/${me.uid}/chats/${chatId}`, { lastSeenTs: ts, unread: 0 });
-        // Receiver: increment unread (transactioneel-onveilig maar OK voor v1)
-        const recvIdx = await dbGet(`users/${otherUid}/chats/${chatId}`).catch(() => null);
+        // Receiver: unread atomair ophogen via Firebase server-value increment —
+        // geen read-then-write race meer bij gelijktijdige berichten.
         await dbPatch(`users/${otherUid}/chats/${chatId}`, {
-            unread: (recvIdx?.unread || 0) + 1,
+            unread: { '.sv': { increment: 1 } },
             lastTs: ts,
         });
         return pushRes?.name;

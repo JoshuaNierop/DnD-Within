@@ -1,9 +1,11 @@
 // dnd-init.js — D&D Within bridge naar social-module.
 //
-// D&D heeft geen Firebase Auth (open rules). Identity = currentUserId() uit
-// localStorage session. Party members in dw/users/ worden auto-gespiegeld als
-// "friends" in dw/social/users/{me}/friends, zodat de standaard chat-widget
-// "just works" zonder add/accept-flow.
+// Identity = currentUserId() uit de session (de interne userId — NIET de
+// Firebase-uid). Chat-threads blijven daardoor aan userId hangen → geen migratie
+// nodig bij de overstap naar Firebase Auth. Het Firebase ID-token wordt wél
+// meegestuurd (getToken) zodat de chat blijft werken zodra de DB-rules na de
+// cutover authenticatie eisen. Party members in dw/users/ worden auto-gespiegeld
+// als "friends" zodat de chat-widget "just works" zonder add/accept-flow.
 
 import { createFirebaseAdapter } from './firebase-adapter.js';
 import { mountChatWidget } from './chat-widget.js';
@@ -17,6 +19,13 @@ let widget = null;
 let adapter = null;
 let lastSyncedUid = null;
 let initRunning = false;
+
+// Hangt het Firebase ID-token aan een REST-URL (no-op zolang er geen auth is).
+function authUrl(url) {
+    const tok = (typeof window.dwGetIdToken === 'function') ? window.dwGetIdToken() : null;
+    if (!tok) return url;
+    return url + (url.indexOf('?') === -1 ? '?' : '&') + 'auth=' + encodeURIComponent(tok);
+}
 
 function getCurrentUserSafe() {
     if (typeof window.currentUserId !== 'function') return null;
@@ -40,7 +49,7 @@ function getAdapter() {
     adapter = createFirebaseAdapter({
         databaseURL: FIREBASE_DB_URL,
         rootPath: ROOT_PATH,
-        getToken: () => null,                     // open rules — geen auth nodig
+        getToken: () => (typeof window.dwGetIdToken === 'function' ? window.dwGetIdToken() : null),
         getUid: () => getCurrentUserSafe()?.uid,
         getMyProfile: async () => getCurrentUserSafe() || {
             uid: 'anonymous', displayName: 'Anonymous', email: '',
@@ -54,8 +63,8 @@ async function syncPartyAsFriends() {
     const me = getCurrentUserSafe();
     if (!me?.uid) return;
 
-    // Lees party uit dw/users via REST (geen auth nodig)
-    const r = await fetch(`${FIREBASE_DB_URL}/dw/users.json`).catch(() => null);
+    // Lees party uit dw/users via REST (token meegegeven indien ingelogd)
+    const r = await fetch(authUrl(`${FIREBASE_DB_URL}/dw/users.json`)).catch(() => null);
     if (!r?.ok) return;
     const users = await r.json().catch(() => null);
     if (!users || typeof users !== 'object') return;
@@ -67,9 +76,9 @@ async function syncPartyAsFriends() {
         const displayName = u?.name || u?.displayName || uid;
         const friendPath = `${FIREBASE_DB_URL}/${ROOT_PATH}/users/${myUid}/friends/${uid}.json`;
         // Schrijf alleen als nog niet bestaat (idempotent — voorkomt overschrijven van eigen wijzigingen)
-        const exists = await fetch(friendPath).then(r => r.ok ? r.json() : null).catch(() => null);
+        const exists = await fetch(authUrl(friendPath)).then(r => r.ok ? r.json() : null).catch(() => null);
         if (exists) continue;
-        writes.push(fetch(friendPath, {
+        writes.push(fetch(authUrl(friendPath), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -82,9 +91,9 @@ async function syncPartyAsFriends() {
         // Index entry zodat ze in chat-list verschijnen (ook zonder berichten)
         const chatId = chatIdFor(myUid, uid);
         const idxPath = `${FIREBASE_DB_URL}/${ROOT_PATH}/users/${myUid}/chats/${chatId}.json`;
-        const idxExists = await fetch(idxPath).then(r => r.ok ? r.json() : null).catch(() => null);
+        const idxExists = await fetch(authUrl(idxPath)).then(r => r.ok ? r.json() : null).catch(() => null);
         if (!idxExists) {
-            writes.push(fetch(idxPath, {
+            writes.push(fetch(authUrl(idxPath), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ unread: 0, lastSeenTs: 0 }),

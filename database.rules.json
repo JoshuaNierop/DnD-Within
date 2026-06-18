@@ -1,6 +1,11 @@
 {
   "rules": {
-    ".read": "now < 1808870400000",
-    ".write": "now < 1808870400000"
+    ".read": "root.child('dw/config/legacyOpen').val() !== false || (auth != null && root.child('dw/authMap').child(auth.uid).exists())",
+    ".write": "root.child('dw/config/legacyOpen').val() !== false || (auth != null && root.child('dw/authMap').child(auth.uid).exists())",
+    "dw": {
+      "config": {
+        ".read": true
+      }
+    }
   }
 }
