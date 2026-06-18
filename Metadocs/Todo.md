@@ -1,5 +1,17 @@
 # D&D Within — To Do
 
+## Inlogsysteem & Auth (2026-06-18)
+- [x] P0 — Echt inlogsysteem via Firebase Authentication (e-mail + wachtwoord) — `auth.js`, login-handler, reset-flow. Dual-login transitie (oude username blijft werken zolang `dw/config/legacyOpen !== false`).
+- [x] P0 — Security rules gated op `legacyOpen`; na cutover alleen accounts in `dw/authMap` (allowlist). Tijdbom (now<2027) weg. Gedeployed.
+- [x] P1 — Admin-tab (instellingen): e-mail koppelen per account + cutover-toggle mét lockout-guard.
+- [x] P1 — Chat op auth gezet (token meegegeven, identiteit blijft userId → geen thread-migratie) + unread-teller atomair (race weg).
+- [!] P0 — **Handmatig:** Firebase Console → Authentication → Sign-in method → **Email/Password aanzetten**. Zonder dit faalt e-mail-login (`auth/operation-not-allowed`).
+- [ ] P1 — Cutover uitvoeren: (1) admin koppelt e-mails in admin-tab, (2) alle 8 spelers loggen 1× via e-mail in (✓ gekoppeld), (3) admin zelf via e-mail inloggen, (4) toggle uit. Daarna oude username-login uitgefaseerd.
+- [ ] P2 — Plaintext-wachtwoorden in `dw/users` opruimen ná cutover (legacy username-login heeft ze nu nog nodig).
+- [ ] P2 — Per-user ownership in rules (betaalde/multi-tenant fase): nu heeft elk authMap-account full read/write op alles. Zie firebase-expert advies (campaign-membership i.p.v. globale allowlist).
+- [ ] P3 — `dw/admins`-node als break-glass herstelpad i.p.v. afhankelijkheid van toevallig-gekoppelde admin.
+
+
 ## Hub-bugs 2026-06-18 — Character creation wizard (10 reports)
 - [x] P2 — #OvPSV/#OvPSU **"Klopt dit aantal?" (4 cantrips / 2 skills)** — geverifieerd correct (Sorcerer L1 = 4 cantrips, 2 class skills, 2024 PHB). Geen bug → dismissed in hub.
 - [x] P1 — #OvPS2 **Nederlandse teksten in wizard-menus** → alles Engels gemaakt (stap 4/5/6 labels + summary-headers + aria-labels + toasts; fallback-strings edit/save). De t()-laag is al EN-only sinds 2026-06-17; dit waren hardcoded NL-strings die t() omzeilden.
