@@ -226,6 +226,9 @@ function initFirebaseSync() {
 
         // Download users first, then all data
         syncDownloadUsers(function() {
+            // usersCache is nu gevuld → herstel een bestaande Firebase-sessie die
+            // bij app-start mogelijk te vroeg kwam om te resolven.
+            if (typeof dwTryRestoreSession === 'function') dwTryRestoreSession();
             seedUsers();
             syncDownloadAll(function(changed) {
                 console.log('[Sync] Download voltooid. Wijzigingen: ' + changed);

@@ -224,6 +224,37 @@ function handleAdminToggleLegacy(enabled) {
         showToast('Firebase nog niet verbonden — probeer opnieuw.', 'error');
         return;
     }
+    // Cutover-guard: uitzetten sluit iedereen buiten die niet via e-mail is
+    // ingelogd (authUid ontbreekt) of geen e-mail gekoppeld heeft. Blokkeer dat
+    // — anders is de party permanent buitengesloten zonder self-recovery.
+    function resetToggle() { var cb = document.getElementById('admin-legacy-toggle'); if (cb) cb.checked = true; }
+    if (!enabled) {
+        var allUsers = usersCache || {};
+        var noEmail = [], notLinked = [];
+        Object.keys(allUsers).forEach(function (id) {
+            if (id === '__config') return;
+            var u = allUsers[id] || {};
+            if (u.role === 'admin') return;            // admin apart gecheckt hieronder
+            if (!u.email) noEmail.push(u.name || id);
+            else if (!u.authUid) notLinked.push(u.name || id);
+        });
+        // Admin zelf moet gekoppeld zijn, anders is de cutover onomkeerbaar in-app.
+        var adminId = currentUserId();
+        var adminU = allUsers[adminId] || getUserData(adminId) || {};
+        if (!adminU.authUid) {
+            showToast('Log éérst zelf via e-mail in (admin moet in authMap staan) — anders kun je de cutover niet terugdraaien.', 'error');
+            resetToggle();
+            return;
+        }
+        if (noEmail.length || notLinked.length) {
+            var msg = 'Cutover geblokkeerd. ';
+            if (noEmail.length) msg += 'Geen e-mail gekoppeld: ' + noEmail.join(', ') + '. ';
+            if (notLinked.length) msg += 'Nog niet via e-mail ingelogd: ' + notLinked.join(', ') + '.';
+            showToast(msg, 'error');
+            resetToggle();
+            return;
+        }
+    }
     syncDb.ref('dw/config/legacyOpen').set(!!enabled);
     if (typeof window !== 'undefined') { window.dwConfig = window.dwConfig || {}; window.dwConfig.legacyOpen = !!enabled; }
     if (typeof dwConfig !== 'undefined') dwConfig.legacyOpen = !!enabled;

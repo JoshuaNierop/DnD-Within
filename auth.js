@@ -57,6 +57,22 @@ function dwAuthInit() {
     });
 }
 
+// Sessie-herstel ná het laden van usersCache. onAuthStateChanged kan vuren
+// vóórdat de users gedownload zijn (LOCAL persistence herstelt de Firebase-sessie
+// vroeg) — dan faalt resolve stil. sync.js roept dit aan zodra users binnen zijn.
+function dwTryRestoreSession() {
+    if (!dwAuthAvailable()) return;
+    var user = firebase.auth().currentUser;
+    if (!user) return;
+    if (typeof currentUserId === 'function' && currentUserId()) return;  // al een sessie
+    var uid = dwResolveUserIdFromAuth(user);
+    if (!uid) return;
+    dwLinkAuthUid(uid, user.uid);
+    setSession(uid);
+    if (typeof applyUserTheme === 'function') applyUserTheme();
+    if (typeof renderApp === 'function') renderApp();
+}
+
 // Resolve interne userId bij een Firebase-account: eerst via authUid, anders via
 // het gekoppelde e-mailadres.
 function dwResolveUserIdFromAuth(user) {
@@ -91,12 +107,14 @@ function dwLinkAuthUid(userId, authUid) {
     if (!userId || !authUid) return;
     var u = getUserData(userId);
     if (!u || u.authUid === authUid) return;
-    u.authUid = authUid;
+    // Lokale cache bijwerken — clone (NIET de DEFAULT_USERS-constante muteren).
     if (!usersCache) usersCache = {};
     if (!usersCache[userId]) usersCache[userId] = JSON.parse(JSON.stringify(u));
     usersCache[userId].authUid = authUid;
-    if (typeof syncSaveUser === 'function') syncSaveUser(userId, usersCache[userId]);
+    // Schrijf ALLEEN het authUid-veld (geen full .set() → wist geen door de admin
+    // gekoppelde email of andere velden op de remote user-node) + de reverse-lookup.
     if (typeof syncReady !== 'undefined' && syncReady && syncDb) {
+        syncDb.ref('dw/users/' + userId + '/authUid').set(authUid);
         syncDb.ref('dw/authMap/' + authUid).set(userId);
     }
 }
