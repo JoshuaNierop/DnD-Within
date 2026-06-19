@@ -7562,18 +7562,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.5rem; height: 1.5rem;
-    font-size: 0.72rem;
-    line-height: 1;
+    width: 1.6rem; height: 1.6rem;
+    line-height: 0;
     color: #fff;
-    background: rgba(34, 197, 94, 0.85);
-    border: none;
+    background: transparent;
+    border: 1.5px solid #fff;
     border-radius: 50%;
     cursor: pointer;
-    backdrop-filter: blur(2px);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
 }
-.lore-entry-vis.is-private { background: rgba(0, 0, 0, 0.78); color: #fca5a5; }
-.lore-entry-vis:hover { filter: brightness(1.1); }
+.lore-entry-vis svg { display: block; }
+.lore-entry-vis.is-private { color: #fff; border-color: #fff; }
+.lore-entry-vis:hover { background: rgba(255, 255, 255, 0.18); }
 /* Privé monster: dimmen + gestreepte rand zodat de DM het in één oogopslag ziet. */
 .lore-entry-card.is-private-entry { border-style: dashed; border-color: var(--danger); }
 .lore-entry-card.is-private-entry .lore-entry-img { opacity: 0.6; }

@@ -1282,7 +1282,7 @@ function bindPageEvents(route) {
                 var hid = evEnt.hidden === true;
                 evBtn.setAttribute('aria-pressed', hid ? 'true' : 'false');
                 evBtn.classList.toggle('is-private', hid);
-                evBtn.textContent = hid ? '🔒' : '👁';
+                evBtn.innerHTML = hid ? DW_ICON_EYEOFF : DW_ICON_EYE;
                 evBtn.title = hid ? 'Privé — alleen de DM ziet dit monster. Klik om vrij te geven.' : 'Publiek — spelers zien dit monster. Klik om te verbergen.';
                 var evCard = evBtn.closest('.lore-entry-card');
                 if (evCard) evCard.classList.toggle('is-private-entry', hid);
