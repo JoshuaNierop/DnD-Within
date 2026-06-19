@@ -2409,7 +2409,7 @@ var LORE_CAT_FIELDS = {
     monsters: [
         { key: 'size',          label: 'Size',                type: 'text' },
         { key: 'mtype',         label: 'Type',                type: 'text' },
-        { key: 'alignment',     label: 'Alignment',           type: 'text' },
+        { key: 'disposition',   label: 'Disposition',         type: 'select', options: ['friendly', 'neutral', 'hostile'] },
         { key: 'cr',            label: 'CR',                  type: 'text' },
         { key: 'profBonus',     label: 'Prof. Bonus',         type: 'number' },
         { key: 'initiative',    label: 'Initiative',          type: 'number' },
@@ -2485,6 +2485,17 @@ function renderLoreField(f, e) {
     } else if (f.type === 'textarea') {
         html += '<label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
         html += '<textarea class="edit-textarea" id="lore-entry-f-' + f.key + '" rows="' + rows + '"' + mentionFieldAttr(e[f.key]) + '>' + mentionFieldVal(e[f.key]) + '</textarea>';
+    } else if (f.type === 'select') {
+        html += '<label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
+        html += '<select class="edit-input" id="lore-entry-f-' + f.key + '">';
+        var cur = e[f.key] || '';
+        html += '<option value=""' + (cur ? '' : ' selected') + '>—</option>';
+        var opts = f.options || [];
+        for (var oi = 0; oi < opts.length; oi++) {
+            var ov = opts[oi];
+            html += '<option value="' + escapeAttr(ov) + '"' + (cur === ov ? ' selected' : '') + '>' + escapeHtml(capitalize(ov)) + '</option>';
+        }
+        html += '</select>';
     } else {
         html += '<label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
         html += '<input type="' + (f.type === 'number' ? 'number' : 'text') + '" class="edit-input" id="lore-entry-f-' + f.key + '" value="' + escapeAttr(e[f.key] != null ? e[f.key] : '') + '">';
@@ -2498,7 +2509,7 @@ function renderLoreField(f, e) {
 var LORE_CAT_PAGES = {
     monsters: [
         // P1 — identiteit + stat-block-getallen + ability scores
-        ['size', 'mtype', 'alignment', 'cr', 'profBonus', 'initiative', 'ac', 'hp', 'speed', 'abilities'],
+        ['size', 'mtype', 'disposition', 'cr', 'profBonus', 'initiative', 'ac', 'hp', 'speed', 'abilities'],
         // P2 — defenses & senses (korte velden)
         ['saves', 'skills', 'senses', 'languages', 'resistances', 'immunities', 'condImmunities', 'vulnerabilities'],
         // P3 — narratief (textareas)
@@ -2844,6 +2855,7 @@ function renderMonsterEntryInfo(e) {
         }
         var val = e[f.key];
         var hasVal = !(val == null || val === '');
+        var dispVal = (f.type === 'select' && hasVal) ? capitalize(String(val)) : String(val);
         if (dm) {
             if (!hasVal) continue; // leeg veld: niets te tonen of te verbergen
             if (f.type === 'textarea') {
@@ -2853,7 +2865,7 @@ function renderMonsterEntryInfo(e) {
             } else {
                 html += '<div class="lore-info-row' + (vis === 'private' ? ' is-private' : '') + '">' +
                     '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
-                    '<span class="lore-info-val">' + escapeHtml(String(val)) + '</span>' + monsterVisToggle(eid, f.key, vis) + '</div>';
+                    '<span class="lore-info-val">' + escapeHtml(dispVal) + '</span>' + monsterVisToggle(eid, f.key, vis) + '</div>';
             }
         } else if (vis === 'public') {
             if (!hasVal) continue;
@@ -2862,7 +2874,7 @@ function renderMonsterEntryInfo(e) {
                     '<div class="lore-info-text">' + renderRichText(val) + '</div></div>';
             } else {
                 html += '<div class="lore-info-row"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
-                    '<span class="lore-info-val">' + escapeHtml(String(val)) + '</span></div>';
+                    '<span class="lore-info-val">' + escapeHtml(dispVal) + '</span></div>';
             }
         } else {
             // Speler + privaat veld → gedeelde hypothese-input (geen textarea-hyp in v1).
