@@ -7562,7 +7562,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.6rem; height: 1.6rem;
+    width: 1.12rem; height: 1.12rem;
     line-height: 0;
     color: #fff;
     background: transparent;
