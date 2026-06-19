@@ -905,6 +905,11 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   svg g.editable-cell:hover .info-box-cell.wgx-act-temp { fill-opacity: 0.32; }
   svg g.editable-cell:hover .info-box-cell.wgx-act-dmg  { fill-opacity: 0.32; }
   svg g.editable-cell:hover .info-box-cell.wgx-act-heal { fill-opacity: 0.32; }
+  /* Rust-widget tiles (wg-rest.js). */
+  svg .info-box-cell.wgx-act-rest-long  { fill: var(--info-indigo, #6c5ce7); fill-opacity: 0.20; }
+  svg .info-box-cell.wgx-act-rest-short { fill: var(--info-amber, #e0a106);  fill-opacity: 0.18; }
+  svg g.editable-cell:hover .info-box-cell.wgx-act-rest-long  { fill-opacity: 0.34; }
+  svg g.editable-cell:hover .info-box-cell.wgx-act-rest-short { fill-opacity: 0.30; }
   svg g.editable-cell { cursor: pointer; }
   svg .widget-onboard-rect {
     fill: var(--user-bg-2);

@@ -1,5 +1,16 @@
 # D&D Within — To Do
 
+## Level-Up & Spell-Prepare (BG3-stijl, E5.5) — 2026-06-19
+Ontwerp: `Metadocs/LevelUp-SpellPrepare-Design.md`.
+- [x] P1 — Fase 1: Long/Short-rest widget (`wg-rest.js`) — state-reset + prepare-window hook
+- [!] P0 — Fase 0 vóór fase 2/3: verifieer 2024 prepared-max (vaste tabel vs ability-mod+level) tegen fysieke PHB — blokkerend
+- [ ] P1 — Fase 0: `getMaxPrepared()` formule→tabel + `casterCategory`/`preparedSpells` per class in data.js
+- [ ] P1 — Fase 0: 2014-resten fixen (Druid cantrips 3→2, Bard Magical Secrets, Wizard "Memorize na short rest", subclass-levels→L3)
+- [ ] P1 — Fase 2: spell-prepare window (`wg-prepare.js`) — 5 caster-categorieën, opent vanuit long rest
+- [ ] P1 — Fase 3: level-up widget (`wg-levelup.js`) — glow bij char-level < party-level, BG3-stap-window, `getLevelUpDelta`
+- [ ] P2 — Fase 4: multiclass aggregator wire-up + config-model (`getCombinedCasterLevel`)
+- [ ] P2 — Beslissen: HP bij level-up vast-gemiddelde vs rollen; EK/AT spell-lijst eigen vs gefilterd-Wizard
+
 ## Inlogsysteem & Auth (2026-06-18)
 - [x] P0 — Echt inlogsysteem via Firebase Authentication (e-mail + wachtwoord) — `auth.js`, login-handler, reset-flow. Dual-login transitie (oude username blijft werken zolang `dw/config/legacyOpen !== false`).
 - [x] P0 — Security rules gated op `legacyOpen`; na cutover alleen accounts in `dw/authMap` (allowlist). Tijdbom (now<2027) weg. Gedeployed.
