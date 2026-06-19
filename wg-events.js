@@ -817,8 +817,16 @@ async function uploadPortrait(widgetIdx, file) {
 // WGI fix: bind aan document zodat de listener ook werkt na latere mount
 // (in standalone V8 bestaat #canvas bij script-load, in D&D Within inline-mount niet).
 document.addEventListener("click", async (e) => {
-  if (typeof state === "undefined" || !state.config || !state.config.editValuesMode) return;
+  if (typeof state === "undefined" || !state.config) return;
   if (!e.target.closest || !e.target.closest("#canvas")) return;
+  // HP-cellen (WG_EDIT_CONFIG[src].mode === 'always') zijn óók buiten edit-values
+  // mode klikbaar; al het andere blijft achter de edit-toggle.
+  if (!state.config.editValuesMode) {
+    const ac = e.target.closest("g.editable-cell");
+    const acSrc = ac && ac.dataset.source;
+    const acCfg = acSrc && (typeof WG_EDIT_CONFIG !== 'undefined') ? WG_EDIT_CONFIG[acSrc] : null;
+    if (!acCfg || acCfg.mode !== 'always') return;
+  }
 
   // Map action buttons (topbar icons in edit-values mode for map widgets)
   const mapActionEl = e.target.closest("[data-map-action]");
@@ -861,6 +869,14 @@ document.addEventListener("click", async (e) => {
   if (!editCfg) return;
 
   const charId = state.characterId;
+
+  // ---- Geporte infobox-bronnen (bv. 'hp'): per-rij dispatch via registry ----
+  if (typeof WG_INFOBOX_CLICK_HANDLERS !== 'undefined' && WG_INFOBOX_CLICK_HANDLERS[src]) {
+    const raw = WG_CHAR_CACHE[charId];
+    try { await WG_INFOBOX_CLICK_HANDLERS[src]({ cellG, raw, charId, rowIdx }); }
+    catch (err) { showToast('Save faalde · ' + err.message, 'error'); }
+    return;
+  }
 
   // ---- WG_SKILLS: cycle the proficiency mark ----
   if (src === 'skills' && editCfg.type === 'cycle') {

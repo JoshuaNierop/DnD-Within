@@ -109,8 +109,15 @@ function render() {
       const w = state.widgets[i];
       if (w.spanUnits < 1) continue;
       if (pageOf(w.globalCol) !== state.currentPage) continue;  // V9: alleen huidige pagina
+      // Bug: bepaal active/multi-select VÓÓR het muteren van activeWidgetIdx.
+      // De assignment hieronder zet activeWidgetIdx = i zodat de geometrie-helpers
+      // in drawWidgetOnDashboard de juiste widget lezen; maar wgIsSelected(i) leest
+      // óók activeWidgetIdx — als je dat na de mutatie evalueert is i === activeWidgetIdx
+      // altijd waar en glowt élke widget. Daarom hier eerst vastleggen.
+      const isActive = (i === prevActive);
+      const isMultiSelected = wgIsSelected(i) && !isActive;
       state.activeWidgetIdx = i;
-      drawWidgetOnDashboard(svg, i, i === prevActive, wgIsSelected(i) && i !== prevActive);
+      drawWidgetOnDashboard(svg, i, isActive, isMultiSelected);
     }
     state.activeWidgetIdx = prevActive;
   }
@@ -191,10 +198,15 @@ function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
   const editCfg = WG_EDIT_CONFIG[src];
   const highlights = state.layout.columnHighlight || [];
   const rowTips = (state.data.tooltips && state.data.tooltips[rowIdx]) || null;
+  // Per-rij extra cel-class (bv. HP-widget actie-tints wgx-act-*).
+  const rowExtraCls = (state.layout.rowExtraClass && state.layout.rowExtraClass[rowIdx]) || null;
 
-  // Helper: wrap a draw call in an editable-cell <g> if in edit-values mode + column matches
+  // Helper: wrap a draw call in an editable-cell <g> if in edit-values mode + column matches.
+  // editCfg.mode === 'always' → ook klikbaar buiten edit-values mode (HP-widget:
+  // damage/heal tijdens spel zonder edit-toggle).
   function wrapEditable(colIdx, drawFn) {
-    const isEditable = state.config.editValuesMode && editCfg && editCfg.editColumnIdx === colIdx;
+    const isEditable = editCfg && editCfg.editColumnIdx === colIdx
+      && (state.config.editValuesMode || editCfg.mode === 'always');
     if (isEditable) {
       const g = el('g', {
         class: 'editable-cell',
@@ -216,7 +228,7 @@ function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
       if (cw <= 0) continue;
       const _cx = cx, _i = i, _cw = cw;
       wrapEditable(i, (target) => {
-        drawCellBg(target, _cx, by, _cw, bh, _i, _i === 0, _i === last, 'horizontal', rowTips && rowTips[_i]);
+        drawCellBg(target, _cx, by, _cw, bh, _i, _i === 0, _i === last, 'horizontal', rowTips && rowTips[_i], rowExtraCls);
         drawCellText(target, _cx, by, _cw, bh, displayValue(rowData[_i], _i), aligns[_i] || 'left', highlights[_i], _i);
       });
       cx += cw;
@@ -229,7 +241,7 @@ function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
     for (let i = 0; i < cols.length; i++) {
       const _cy = cy, _i = i;
       wrapEditable(i, (target) => {
-        drawCellBg(target, bx, _cy, bw, rowH, _i, _i === 0, _i === last, 'vertical', rowTips && rowTips[_i]);
+        drawCellBg(target, bx, _cy, bw, rowH, _i, _i === 0, _i === last, 'vertical', rowTips && rowTips[_i], rowExtraCls);
         drawCellText(target, bx, _cy, bw, rowH, displayValue(rowData[_i], _i), 'center', highlights[_i], _i);
       });
       cy += rowH;
@@ -260,8 +272,8 @@ function roundedPath(x, y, w, h, tl, tr, br, bl) {
 
 // Cell-bg met buitenste-corner rounding: alleen de buitenkant van de
 // info-box als geheel is afgerond; aanrakingen tussen cellen blijven scherp.
-function drawCellBg(svg, x, y, w, h, colIdx, isFirst, isLast, stacking, tooltip) {
-  const cls = `info-box-cell col-${colIdx % 3}`;
+function drawCellBg(svg, x, y, w, h, colIdx, isFirst, isLast, stacking, tooltip, extraCls) {
+  const cls = `info-box-cell col-${colIdx % 3}` + (extraCls ? ' ' + extraCls : '');
   const r = state.style.cellRadius || 0;
   let tl, tr, br, bl;
   if (stacking === 'horizontal') {

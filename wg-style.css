@@ -29,6 +29,72 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   display: none;
 }
 
+/* Body-niveau overlays — bewust BUITEN @scope (.character-page) zodat ze ook
+   matchen op elementen die aan document.body hangen (de inline value-editor en
+   de HP quick-amount popover worden daar gemount). Erven --user-* van <html>. */
+.edit-input-overlay {
+  position: absolute;
+  background: var(--user-bg-2, var(--panel, #2a2318));
+  border: 2px solid var(--user-text-highlight, var(--accent, #c9a961));
+  color: var(--user-text-regular, var(--text, #e8dcc8));
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: var(--info-font-body, inherit);
+  z-index: 200;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+.edit-input-overlay:focus { outline: none; }
+
+/* HP quick-amount popover (damage/heal stapelen) — body-level, geport uit VIX. */
+.wgx-quick-overlay {
+  position: absolute;
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: var(--user-bg-2, var(--panel, #2a2318));
+  border: 1px solid var(--user-border-soft, var(--border, #3e342c));
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+  font-family: var(--info-font-body, inherit);
+}
+.wgx-quick-overlay .wgx-quick-row { display: flex; align-items: center; gap: 6px; }
+.wgx-quick-overlay .wgx-quick-label {
+  font-size: 0.78rem;
+  min-width: 54px;
+  opacity: 0.85;
+  color: var(--user-text-regular, var(--text, #e8dcc8));
+}
+.wgx-quick-overlay .wgx-quick-row.wgx-quick-heal   .wgx-quick-label { color: var(--ok, #5cb85c); opacity: 1; }
+.wgx-quick-overlay .wgx-quick-row.wgx-quick-damage .wgx-quick-label { color: var(--alert, #c44); opacity: 1; }
+.wgx-quick-overlay .wgx-quick-btn {
+  min-width: 38px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--user-border-soft, var(--border, #3e342c));
+  background: transparent;
+  color: var(--user-text-regular, var(--text, #e8dcc8));
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.wgx-quick-overlay .wgx-quick-btn:hover { background: rgba(255,255,255,0.06); }
+.wgx-quick-overlay .wgx-quick-btn.wgx-heal   { border-color: var(--ok, #5cb85c);    color: var(--ok, #5cb85c); }
+.wgx-quick-overlay .wgx-quick-btn.wgx-damage { border-color: var(--alert, #c44);     color: var(--alert, #c44); }
+.wgx-quick-overlay .wgx-quick-custom { font-weight: 700; }
+.wgx-quick-overlay .wgx-quick-done {
+  margin-top: 2px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--user-text-highlight, var(--accent, #c9a961));
+  background: transparent;
+  color: var(--user-text-highlight, var(--accent, #c9a961));
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
 @scope (.character-page) {
 
 
@@ -270,20 +336,10 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     stroke-width: 1.5;
     fill-opacity: 0.55;
   }
-  .edit-input-overlay {
-    position: absolute;
-    background: var(--user-bg-2, var(--panel, #2a2318));
-    border: 2px solid var(--user-text-highlight, var(--accent, #c9a961));
-    color: var(--user-text-regular, var(--text, #e8dcc8));
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-family: var(--info-font-body, inherit);
-    z-index: 200;
-    text-align: center;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
-  }
-  .edit-input-overlay:focus { outline: none; }
+  /* .edit-input-overlay staat NIET hier: het wordt aan document.body gehangen
+     (buiten .character-page) → een @scope-regel zou nooit matchen en de input
+     viel met position:static onderaan de pagina. De regel staat nu globaal
+     bovenaan dit bestand (zie boven het @scope-blok). */
 
 
   .sidebar-widgets {
@@ -842,6 +898,14 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   svg .info-box-cell { pointer-events: auto; }
   svg .info-box-text.highlight { fill: var(--user-text-highlight); }
   svg .info-box-text.is-prof-col { font-size: 1.25em; }
+  /* HP-widget actie-cellen: subtiele tint als affordance (geport uit VIX). */
+  svg .info-box-cell.wgx-act-temp { fill: var(--info-blue, #4f86c6); fill-opacity: 0.20; }
+  svg .info-box-cell.wgx-act-dmg  { fill: var(--alert, #c44);        fill-opacity: 0.20; }
+  svg .info-box-cell.wgx-act-heal { fill: var(--ok, #5cb85c);        fill-opacity: 0.20; }
+  svg g.editable-cell:hover .info-box-cell.wgx-act-temp { fill-opacity: 0.32; }
+  svg g.editable-cell:hover .info-box-cell.wgx-act-dmg  { fill-opacity: 0.32; }
+  svg g.editable-cell:hover .info-box-cell.wgx-act-heal { fill-opacity: 0.32; }
+  svg g.editable-cell { cursor: pointer; }
   svg .widget-onboard-rect {
     fill: var(--user-bg-2);
     fill-opacity: 1;

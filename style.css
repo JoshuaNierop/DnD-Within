@@ -7239,16 +7239,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     top: 0;
     left: 0;
     z-index: 100000;
-    max-width: 280px;
+    width: max-content;
+    max-width: 300px;
     pointer-events: none;
     background: var(--bg-elevated, #221d19);
     color: var(--text-main, #e8e2d6);
     border: 1px solid var(--border-light, #3e342c);
-    border-radius: 10px;
-    padding: 9px 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    border-radius: 12px;
+    padding: 11px 14px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.6);
     font-size: 0.82rem;
-    line-height: 1.45;
+    line-height: 1.5;
     opacity: 0;
     transform: translateY(4px);
     transition: opacity 0.12s ease, transform 0.12s ease;
@@ -7257,14 +7258,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     opacity: 1;
     transform: translateY(0);
 }
+/* Titel: accentkleur + dunne scheidingslijn naar de body voor heldere hiërarchie. */
 .wg-tooltip-title {
     font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 0.02em;
     color: var(--accent-warm, #c9a961);
-    margin-bottom: 3px;
+    padding-bottom: 6px;
+    margin-bottom: 7px;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-warm, #c9a961) 28%, transparent);
 }
+/* Body: pre-line bewaart opbouw-regels (bv. modifier-breakdown) als losse regels. */
 .wg-tooltip-body {
     white-space: pre-line;
-    color: var(--text-dim, #9a8e7e);
+    color: var(--text-dim, #cabdab);
+}
+/* Titel-only tooltip (geen body): geen overbodige divider/marge. */
+.wg-tooltip-title:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
 }
 @media (prefers-reduced-motion: reduce) {
     .wg-tooltip { transition: none; }

@@ -6,6 +6,12 @@ function buildRowsFromSource(widget) {
   d.tooltips = null;   // per-cel hover-tekst (rows × cols); alleen Skills vult dit nu
   const raw = WG_CHAR_CACHE[state.characterId];   // V9: dashboard-brede character-cache
   if (!raw) { d.rows = []; d.columns = []; return; }
+  // Geporte/extra infobox-bronnen (bv. 'hp' uit wg-hp.js) registreren zich in
+  // WG_EXTRA_INFOBOX_BUILDERS en bouwen rows/layout zelf.
+  if (typeof WG_EXTRA_INFOBOX_BUILDERS !== 'undefined' && WG_EXTRA_INFOBOX_BUILDERS[src]) {
+    WG_EXTRA_INFOBOX_BUILDERS[src](widget);
+    return;
+  }
   if (src === 'abilities') {
     // baseAbilities zit binnen `config` in de D&D Within schema
     const ab = (raw.config && raw.config.baseAbilities) || raw.baseAbilities || {};
@@ -28,12 +34,12 @@ function buildRowsFromSource(widget) {
       const modStr = hasScore ? `(${m >= 0 ? '+' : ''}${m})` : '—';
       const name = WG_ABILITY_LABELS[k];
       const modSigned = `${m >= 0 ? '+' : ''}${m}`;
-      // Tooltips: naam = wat de ability bestuurt; score = afleiding van de
-      // modifier; modifier = de bonus die je overal optelt.
+      // Tooltips: naam = wat de ability bestuurt; score = WAAR de waarde vandaan
+      // komt (samenstelling); modifier = de bonus die je overal optelt.
       abTips.push([
         { title: name, body: abInfo[k] || '' },
         { title: name + ' score', body: hasScore
-            ? `Raw score ${score}. The modifier is (score − 10) ÷ 2, rounded down → ${modSigned}.`
+            ? `Your ${name} score of ${score}. Set at character creation (point buy, standard array, or rolled), then raised by your background's ability score increases and any Ability Score Improvements or feats taken as you level up.`
             : 'Not set yet.' },
         { title: `${name} modifier ${modSigned}`, body: (abInfo[k] || '') + (hasScore ? `\n\nApplied to every ${titleizeAbility(k)}-based roll.` : '') },
       ]);
