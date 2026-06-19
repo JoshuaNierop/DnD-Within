@@ -14,7 +14,8 @@ var DEFAULT_USERS = {
     io:          { name: "Shea", role: "player", password: "shea", characters: ["io"] },
     lira:        { name: "Gloria", role: "player", password: "gloria", characters: ["lira"] },
     nero:        { name: "Thomas", role: "player", password: "thomas", characters: ["nero"] },
-    dm:          { name: "Maxime", role: "player", password: "maxime", characters: [] }
+    dm:          { name: "Maxime", role: "player", password: "maxime", characters: [] },
+    yoeri:       { name: "Yoeri", role: "player", password: "yoeri", characters: [] }
 };
 
 // Users cache populated from Firebase; falls back to DEFAULT_USERS
