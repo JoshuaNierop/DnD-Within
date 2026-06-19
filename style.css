@@ -7655,8 +7655,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .lore-info-row, .lore-info-block { align-items: center; }
 .lore-vis-toggle {
     flex: 0 0 auto;
-    margin-left: auto;
-    width: 30px; height: 30px;
+    order: -1;
+    width: 24px; height: 24px;
     display: inline-flex; align-items: center; justify-content: center;
     background: transparent; border: 1px solid transparent; border-radius: 7px;
     font-size: 0.95rem; line-height: 1; cursor: pointer;
