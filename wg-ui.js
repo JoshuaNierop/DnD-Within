@@ -423,6 +423,7 @@ function seedDefaultWidgets() {
     { id: 'skills',         name: 'Skills',          category: 'stats',     config: { type: 'skills' } },
     { id: 'hpBase',         name: 'Hit Points',      category: 'stats',     config: { type: 'hpBase' } },
     { id: 'longRest',       name: 'Rust',            category: 'stats',     config: { type: 'longRest' } },
+    { id: 'preparedSpells', name: 'Prepared Spells', category: 'stats',     config: { type: 'preparedSpells' } },
     { id: 'profilePicture', name: 'Profile picture', category: 'character', config: { type: 'profilePicture' } },
     { id: 'characterInfo',  name: 'Character Info',  category: 'character', config: { type: 'basicInfo' } },
     { id: 'campaignMap',    name: 'Campagne-kaart',  category: 'exploring', config: { type: 'map' } },

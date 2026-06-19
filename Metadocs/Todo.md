@@ -2,7 +2,9 @@
 
 ## Level-Up & Spell-Prepare (BG3-stijl, E5.5) — 2026-06-19
 Ontwerp: `Metadocs/LevelUp-SpellPrepare-Design.md`.
-- [x] P1 — Fase 1: Long/Short-rest widget (`wg-rest.js`) — state-reset + prepare-window hook
+- [x] P1 — Fase 1: Long/Short-rest widget (`wg-rest.js`) — state-reset + prepare-window hook; klikbaar geverifieerd (zelfde 'always'-mode pad als HP)
+- [x] P1 — Prepared Spells display-widget (`wg-prepare.js`) — skills-stijl infoboxen, per-rij hover-tooltip (D&D 5.5e-agent indeling), auto-rescale, fit om inhoud
+- [ ] P2 — Spell-data verbeterpunt: expliciet `ritual: true` veld i.p.v. regex-afleiding uit desc (onbetrouwbaar); evt. `school` toevoegen
 - [!] P0 — Fase 0 vóór fase 2/3: verifieer 2024 prepared-max (vaste tabel vs ability-mod+level) tegen fysieke PHB — blokkerend
 - [ ] P1 — Fase 0: `getMaxPrepared()` formule→tabel + `casterCategory`/`preparedSpells` per class in data.js
 - [ ] P1 — Fase 0: 2014-resten fixen (Druid cantrips 3→2, Bard Magical Secrets, Wizard "Memorize na short rest", subclass-levels→L3)
