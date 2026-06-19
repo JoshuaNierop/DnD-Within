@@ -1268,9 +1268,31 @@ function bindPageEvents(route) {
             return;
         }
 
+        // DM zet een heel monster op privé/publiek (entry-niveau). Vóór de
+        // card-toggle zodat de kaart niet in/uitklapt bij de klik.
+        if (target.matches('[data-action="toggle-entry-vis"]') || target.closest('[data-action="toggle-entry-vis"]')) {
+            var evBtn = target.matches('[data-action="toggle-entry-vis"]') ? target : target.closest('[data-action="toggle-entry-vis"]');
+            var evIdx = parseInt(evBtn.dataset.entryIdx, 10);
+            var evCats = getLoreCatsData();
+            var evArr = evCats.monsters || [];
+            var evEnt = (!isNaN(evIdx) && evIdx >= 0) ? evArr[evIdx] : null;
+            if (evEnt) {
+                evEnt.hidden = !(evEnt.hidden === true);
+                saveLoreCatsData(evCats);
+                var hid = evEnt.hidden === true;
+                evBtn.setAttribute('aria-pressed', hid ? 'true' : 'false');
+                evBtn.classList.toggle('is-private', hid);
+                evBtn.textContent = hid ? '🔒 Privé' : '👁 Publiek';
+                evBtn.title = hid ? 'Privé — alleen de DM ziet dit monster. Klik om vrij te geven.' : 'Publiek — spelers zien dit monster. Klik om te verbergen.';
+                var evCard = evBtn.closest('.lore-entry-card');
+                if (evCard) evCard.classList.toggle('is-private-entry', hid);
+            }
+            return;
+        }
+
         if (target.matches('[data-action="toggle-lore-entry"]') || target.closest('[data-action="toggle-lore-entry"]')) {
             // Niet togglen als er op een actie-knop in de kaart geklikt is.
-            if (target.closest('[data-action="edit-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]') || target.closest('[data-action="toggle-field-vis"]') || target.closest('.lore-hyp-input')) return;
+            if (target.closest('[data-action="edit-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]') || target.closest('[data-action="toggle-field-vis"]') || target.closest('[data-action="toggle-entry-vis"]') || target.closest('.lore-hyp-input')) return;
             // Accordion: max. één lore-kaart tegelijk uitgeklapt. Een tweede openen
             // klapt de vorige in (gevraagd 2026-06-14; keert #I1oOpc bewust om).
             var leCard = target.matches('[data-action="toggle-lore-entry"]') ? target : target.closest('[data-action="toggle-lore-entry"]');

@@ -2781,6 +2781,14 @@ function monsterVisToggle(eid, key, vis) {
         (priv ? 'Verborgen voor spelers — klik om te tonen' : 'Zichtbaar voor spelers — klik om te verbergen') +
         '">' + (priv ? '🔒' : '👁') + '</button>';
 }
+// Entry-niveau toggle: het hele monster privé (alleen DM) of publiek (spelers
+// zien de kaart, met per-veld fog-of-war). Default publiek (e.hidden !== true).
+function monsterEntryVisToggle(idx, hidden) {
+    return '<button class="lore-entry-vis' + (hidden ? ' is-private' : '') + '" data-action="toggle-entry-vis" data-entry-idx="' + idx +
+        '" aria-pressed="' + (hidden ? 'true' : 'false') + '" title="' +
+        (hidden ? 'Privé — alleen de DM ziet dit monster. Klik om vrij te geven.' : 'Publiek — spelers zien dit monster. Klik om te verbergen.') +
+        '">' + (hidden ? '🔒 Privé' : '👁 Publiek') + '</button>';
+}
 function monsterAbilitiesGrid(ab) {
     var h = '<div class="lore-ab-grid">';
     for (var ai = 0; ai < LORE_ABILITY_KEYS.length; ai++) {
@@ -2936,12 +2944,20 @@ function renderLoreResultsInner(cat) {
     html += '<div class="lore-entry-grid lore-grid-' + cat + '">';
     for (var i = 0; i < filtered.length; i++) {
         var e = filtered[i];
+        // Entry-niveau zichtbaarheid (monsters): een privé monster is volledig
+        // verborgen voor spelers (analoog aan per-veld fog-of-war, maar voor de
+        // hele kaart). DM ziet 'm altijd, met een markering + toggle.
+        var entryHidden = (cat === 'monsters') && e.hidden === true;
+        if (entryHidden && !isDM()) continue;
         var realIdx = entries.indexOf(e);
         var infoHtml = renderLoreEntryInfo(cat, e);
         // Expand-state uit een persistente set zodat een re-render uitgeklapte
         // kaarten niet inklapt (#LLD4YT/#3gKQ37 — meerdere tegelijk open blijven).
         var expCls = (e.id && loreExpandedIds[e.id]) ? ' expanded' : '';
-        html += '<div class="lore-entry-card' + expCls + '" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
+        html += '<div class="lore-entry-card' + expCls + (entryHidden ? ' is-private-entry' : '') + '" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
+        if (cat === 'monsters' && isDM()) {
+            html += monsterEntryVisToggle(realIdx, e.hidden === true);
+        }
         // Image (2:3 portrait) or initial-placeholder — always visible.
         if (e.image) {
             html += '<div class="lore-entry-img"><img src="' + escapeAttr(resolveImageSrc(e.image)) + '" alt=""></div>';
