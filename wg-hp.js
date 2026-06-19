@@ -30,6 +30,8 @@ Object.assign(WG_WIDGET_TYPES, {
 });
 // mode 'always' = klik zonder edit-toggle; editColumnIdx 0 = de enige kolom is klikbaar.
 WG_EDIT_CONFIG.hp = { mode: 'always', editColumnIdx: 0 };
+// Auto-titel voor infobox-bron 'hp' (widgetBaseLabel leest WG_SOURCE_LABELS).
+if (typeof WG_SOURCE_LABELS !== 'undefined') WG_SOURCE_LABELS.hp = 'Hit Points';
 
 // ===== HP-state reader (max uit config.hp.max of 10 + CON-mod) =====
 function wgxDefaultHp(raw) {

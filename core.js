@@ -10,7 +10,7 @@ var DEFAULT_USERS = {
     saya:        { name: "Eva", role: "player", password: "eva", characters: ["saya"] },
     ancha:       { name: "Andrew", role: "player", password: "andrew", characters: ["ancha"] },
     varragoth:   { name: "Duko", role: "player", password: "duko", characters: ["varragoth"] },
-    placeholder: { name: "Nils", role: "player", password: "nils", characters: ["placeholder"] },
+    barius:      { name: "Nils", role: "player", password: "nils", characters: ["barius"] },
     io:          { name: "Shea", role: "player", password: "shea", characters: ["io"] },
     lira:        { name: "Gloria", role: "player", password: "gloria", characters: ["lira"] },
     nero:        { name: "Thomas", role: "player", password: "thomas", characters: ["nero"] },
@@ -187,7 +187,7 @@ function setActiveCampaign(campaignId) {
     localStorage.setItem('dw_active_campaign', campaignId);
 }
 
-var DEFAULT_VALORIA = { name: 'The Serpent of Valoria', dm: 'dm', created: Date.now(), members: ['dm','ren','saya','ancha','varragoth','placeholder','io','lira','nero'], party: { ren: 'ren', saya: 'saya', ancha: 'ancha', varragoth: 'varragoth', placeholder: 'placeholder', io: 'io', lira: 'lira', nero: 'nero' }, inviteCode: 'VALORIA' };
+var DEFAULT_VALORIA = { name: 'The Serpent of Valoria', dm: 'dm', created: Date.now(), members: ['dm','ren','saya','ancha','varragoth','barius','io','lira','nero'], party: { ren: 'ren', saya: 'saya', ancha: 'ancha', varragoth: 'varragoth', barius: 'barius', io: 'io', lira: 'lira', nero: 'nero' }, inviteCode: 'VALORIA' };
 
 function getCampaigns() {
     var saved = localStorage.getItem('dw_campaigns');
@@ -212,7 +212,7 @@ function getCampaigns() {
     }
     // Ensure valoria has all 8 members
     if (camps.valoria && camps.valoria.members && camps.valoria.members.length < 8) {
-        var allPlayers = ['ren','saya','ancha','varragoth','placeholder','io','lira','nero'];
+        var allPlayers = ['ren','saya','ancha','varragoth','barius','io','lira','nero'];
         for (var pi = 0; pi < allPlayers.length; pi++) {
             if (camps.valoria.members.indexOf(allPlayers[pi]) === -1) {
                 camps.valoria.members.push(allPlayers[pi]);
