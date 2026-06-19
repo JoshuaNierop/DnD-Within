@@ -2680,6 +2680,9 @@ async function saveLoreEntryModal() {
             entry[f.key] = v('lore-entry-f-' + f.key);
         }
     }
+    // Nieuwe monsters staan standaard op privé (alleen DM); de DM geeft ze
+    // expliciet vrij met de entry-toggle op de kaart.
+    if (isNew && cat === 'monsters') entry.hidden = true;
     if (isNew) data[cat].push(entry);
     else data[cat][idx] = entry;
     saveLoreCatsData(data);
@@ -2787,7 +2790,7 @@ function monsterEntryVisToggle(idx, hidden) {
     return '<button class="lore-entry-vis' + (hidden ? ' is-private' : '') + '" data-action="toggle-entry-vis" data-entry-idx="' + idx +
         '" aria-pressed="' + (hidden ? 'true' : 'false') + '" title="' +
         (hidden ? 'Privé — alleen de DM ziet dit monster. Klik om vrij te geven.' : 'Publiek — spelers zien dit monster. Klik om te verbergen.') +
-        '">' + (hidden ? '🔒 Privé' : '👁 Publiek') + '</button>';
+        '">' + (hidden ? '🔒' : '👁') + '</button>';
 }
 function monsterAbilitiesGrid(ab) {
     var h = '<div class="lore-ab-grid">';
