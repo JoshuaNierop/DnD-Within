@@ -148,6 +148,14 @@ function getHP(config, state) {
     return Math.max(hp, 1);
 }
 
+// Effectieve max HP: handmatige override (config.hp.max) wint als die een
+// positief getal is; anders de rules-afgeleide waarde uit getHP().
+function getMaxHP(config, state) {
+    var override = config && config.hp && config.hp.max;
+    if (typeof override === 'number' && override > 0) return override;
+    return getHP(config, state);
+}
+
 function getAC(config, state) {
     var dexMod = getMod(getAbilityScore(config, state, 'dex'));
     var className = config.className;

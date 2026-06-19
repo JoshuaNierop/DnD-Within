@@ -37,15 +37,26 @@ if (typeof WG_SOURCE_LABELS !== 'undefined') WG_SOURCE_LABELS.hp = 'Hit Points';
 function wgxDefaultHp(raw) {
   const cfg = (raw && raw.config) || {};
   const st  = (raw && raw.state)  || {};
-  const con = (cfg.baseAbilities && cfg.baseAbilities.con) ?? 10;
-  const conMod = Math.floor((con - 10) / 2);
-  const max = (cfg.hp && cfg.hp.max) ?? (10 + conMod);
+  // Max: rules-afgeleid via de hoofd-app (getMaxHP = override > getHP). Fallback
+  // op 10 + CON-mod als de engine niet geladen is (bv. standalone widget-grid).
+  let max;
+  if (cfg.hp && typeof cfg.hp.max === 'number' && cfg.hp.max > 0) {
+    max = cfg.hp.max;
+  } else if (typeof getMaxHP === 'function') {
+    try { max = getMaxHP(cfg, st); } catch (e) {}
+  }
+  if (typeof max !== 'number' || !(max > 0)) {
+    const con = (cfg.baseAbilities && cfg.baseAbilities.con) ?? 10;
+    max = 10 + Math.floor((con - 10) / 2);
+  }
+  // Canoniek = state.hp.*; legacy platte velden (currentHP/tempHP/deathSaves) als fallback.
   const hpSt = st.hp || {};
+  const flatCur = (typeof st.currentHP === 'number') ? st.currentHP : undefined;
   return {
     max,
-    current: (typeof hpSt.current === 'number') ? hpSt.current : max,
-    temp:    (typeof hpSt.temp    === 'number') ? hpSt.temp    : 0,
-    deathSaves: hpSt.deathSaves || { successes: 0, failures: 0 },
+    current: (typeof hpSt.current === 'number') ? hpSt.current : (flatCur != null ? flatCur : max),
+    temp:    (typeof hpSt.temp    === 'number') ? hpSt.temp    : (typeof st.tempHP === 'number' ? st.tempHP : 0),
+    deathSaves: hpSt.deathSaves || st.deathSaves || { successes: 0, failures: 0 },
     stable: !!hpSt.stable,
     dead:   !!hpSt.dead,
   };

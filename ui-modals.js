@@ -161,8 +161,39 @@ function initWizardState() {
         prepared: [],
         appearance: '',
         personality: { traits: '', ideal: '', bond: '', flaw: '' },
-        backstory: ''
+        backstory: '',
+        // HP: leeg = auto. hpMaxOverride leeg → afgeleide max (getHP). hpCurrent
+        // leeg → start op (effectieve) max. hpTemp leeg → 0.
+        hpMaxOverride: '',
+        hpCurrent: '',
+        hpTemp: ''
     };
+}
+
+// Effectieve/afgeleide max HP voor de wizard-preview. Bouwt een mini-config +
+// -state uit wizardState en leunt op de engine (getHP/getMaxHP).
+function wizardDerivedMaxHP() {
+    var cfg = {
+        className: wizardState.className,
+        race: wizardState.race,
+        baseAbilities: wizardState.baseAbilities
+    };
+    var st = { level: wizardCharLevel(), asiChoices: {} };
+    if (wizardState.editId && typeof loadCharState === 'function') {
+        var existing = loadCharState(wizardState.editId);
+        if (existing && existing.asiChoices) st.asiChoices = existing.asiChoices;
+    }
+    if (typeof getHP === 'function' && wizardState.className) {
+        try { return getHP(cfg, st); } catch (e) {}
+    }
+    var con = (wizardState.baseAbilities && wizardState.baseAbilities.con) || 10;
+    return 10 + Math.floor((con - 10) / 2);
+}
+// Wat het character als max HP krijgt (override wint als positief getal).
+function wizardEffectiveMaxHP() {
+    var ov = parseInt(wizardState.hpMaxOverride, 10);
+    if (!isNaN(ov) && ov > 0) return ov;
+    return wizardDerivedMaxHP();
 }
 
 function getWizardRaces() {
@@ -429,6 +460,14 @@ function renderWizardModal() {
             + '</div>';
     }
     html += '</div>';
+    // HP-samenvatting (alleen zinvol zodra klasse gekozen is)
+    if (wizardState.className) {
+        var sbMax = wizardEffectiveMaxHP();
+        var sbOver = (parseInt(wizardState.hpMaxOverride, 10) > 0);
+        html += '<div class="wizard-sidebar-section"><span class="wizard-sidebar-section-title">Hit Points</span>';
+        html += '<span class="wizard-sidebar-tag">♥ ' + sbMax + ' max' + (sbOver ? ' (override)' : '') + '</span>';
+        html += '</div>';
+    }
     if (wizardState.skills.length > 0) {
         html += '<div class="wizard-sidebar-section"><span class="wizard-sidebar-section-title">Skills</span>';
         for (var si2 = 0; si2 < wizardState.skills.length; si2++) {
@@ -642,6 +681,34 @@ function renderWizardStep3() {
     html += '<div class="wizard-field">';
     html += '<label class="wizard-label">' + t('wizard.age.label') + '</label>';
     html += '<input type="number" class="wizard-input wizard-input-sm" id="wizard-age" value="' + (wizardState.age || '') + '" min="1" max="999" placeholder="' + t('wizard.age.label') + '">';
+    html += '</div>';
+
+    // Hit Points — afgeleide max (klasse + CON + level) met optionele override.
+    // Current/Temp defaulten op vol; bij edit voorgevuld uit state.hp.
+    var derivedMax = wizardDerivedMaxHP();
+    var effMax = wizardEffectiveMaxHP();
+    html += '<div class="wizard-field wizard-hp">';
+    html += '<label class="wizard-label">Hit Points</label>';
+    html += '<div class="wizard-hp-grid">';
+    // Max (afgeleid, read-only) + override
+    html += '<div class="wizard-hp-cell">';
+    html += '<span class="wizard-hp-sub">Max (afgeleid)</span>';
+    html += '<span class="wizard-hp-derived" id="wizard-hp-derived">' + derivedMax + '</span>';
+    html += '</div>';
+    html += '<div class="wizard-hp-cell">';
+    html += '<span class="wizard-hp-sub">Override</span>';
+    html += '<input type="number" class="wizard-input wizard-input-sm" id="wizard-hp-max" value="' + (wizardState.hpMaxOverride !== '' ? wizardState.hpMaxOverride : '') + '" min="1" max="999" placeholder="' + derivedMax + '">';
+    html += '</div>';
+    html += '<div class="wizard-hp-cell">';
+    html += '<span class="wizard-hp-sub">Current</span>';
+    html += '<input type="number" class="wizard-input wizard-input-sm" id="wizard-hp-current" value="' + (wizardState.hpCurrent !== '' ? wizardState.hpCurrent : '') + '" min="0" max="999" placeholder="' + effMax + '">';
+    html += '</div>';
+    html += '<div class="wizard-hp-cell">';
+    html += '<span class="wizard-hp-sub">Temp</span>';
+    html += '<input type="number" class="wizard-input wizard-input-sm" id="wizard-hp-temp" value="' + (wizardState.hpTemp !== '' ? wizardState.hpTemp : '') + '" min="0" max="999" placeholder="0">';
+    html += '</div>';
+    html += '</div>';
+    html += '<p class="wizard-hint">Max wordt automatisch berekend uit klasse, CON en level. Vul Override alleen in voor gerolde/homebrew HP. Current/Temp leeg = volledig.</p>';
     html += '</div>';
 
     // Accent Color verwijderd uit de wizard (#YAJBUH): per-character kleur hoort niet
@@ -949,6 +1016,12 @@ function saveWizardStepData() {
         if (subEl) wizardState.subclass = subEl.value;
         if (alignEl) wizardState.alignment = alignEl.value;
         if (ageEl) wizardState.age = ageEl.value ? parseInt(ageEl.value) : '';
+        var hpMaxEl = document.getElementById('wizard-hp-max');
+        var hpCurEl = document.getElementById('wizard-hp-current');
+        var hpTmpEl = document.getElementById('wizard-hp-temp');
+        if (hpMaxEl) wizardState.hpMaxOverride = hpMaxEl.value.trim();
+        if (hpCurEl) wizardState.hpCurrent = hpCurEl.value.trim();
+        if (hpTmpEl) wizardState.hpTemp = hpTmpEl.value.trim();
     } else if (step === 5) {
         var appEl = document.getElementById('wizard-appearance');
         var traitsEl = document.getElementById('wizard-traits');
@@ -1044,6 +1117,16 @@ function createCharacterFromWizard() {
         config.family = [];
     }
 
+    // HP max-override: positief getal → bewaren in config.hp.max; leeg → afgeleid
+    // (override verwijderen zodat getMaxHP terugvalt op getHP).
+    var hpOverride = parseInt(wizardState.hpMaxOverride, 10);
+    if (!isNaN(hpOverride) && hpOverride > 0) {
+        config.hp = Object.assign({}, config.hp, { max: hpOverride });
+    } else if (config.hp) {
+        delete config.hp.max;
+        if (Object.keys(config.hp).length === 0) delete config.hp;
+    }
+
     // Save config
     saveCharConfig(charId, config);
 
@@ -1059,8 +1142,32 @@ function createCharacterFromWizard() {
         savePortraitCrop(charId, wizardState.portraitCrop || null);
     }
 
-    // Edit-modus: runtime-state (level, HP, gekozen skills/items) intact laten.
+    // Edit-modus: runtime-state (level, gekozen skills/items) intact laten, maar
+    // HP (current/temp) bijwerken als de gebruiker ze in de wizard heeft gezet.
     if (isEdit) {
+        var est = (typeof loadCharState === 'function' && loadCharState(charId)) || {};
+        var effMaxE = wizardEffectiveMaxHP();
+        var prevHp = est.hp || {};
+        var prevDS = prevHp.deathSaves || est.deathSaves || { successes: 0, failures: 0 };
+        var curE = parseInt(wizardState.hpCurrent, 10);
+        var tmpE = parseInt(wizardState.hpTemp, 10);
+        var startCurE = (!isNaN(curE) && curE >= 0) ? Math.min(curE, effMaxE) : Math.min(
+            (typeof prevHp.current === 'number') ? prevHp.current
+              : (typeof est.currentHP === 'number' ? est.currentHP : effMaxE), effMaxE);
+        var startTmpE = (!isNaN(tmpE) && tmpE >= 0) ? tmpE
+            : (typeof prevHp.temp === 'number' ? prevHp.temp : (typeof est.tempHP === 'number' ? est.tempHP : 0));
+        var aliveE = startCurE > 0;
+        est.hp = {
+            current: startCurE,
+            temp: startTmpE,
+            deathSaves: aliveE ? { successes: 0, failures: 0 } : prevDS,
+            stable: aliveE ? false : !!prevHp.stable,
+            dead: aliveE ? false : !!prevHp.dead
+        };
+        // Legacy platte velden meespiegelen voor backward-compat readers.
+        est.currentHP = startCurE;
+        est.tempHP = startTmpE;
+        saveCharState(charId, est);
         showToast(t('wizard.editsuccess') === 'wizard.editsuccess' ? 'Character updated' : t('wizard.editsuccess'), 'success');
         return charId;
     }
@@ -1069,6 +1176,12 @@ function createCharacterFromWizard() {
     // bestaande feat-engine (engine.js leest state.asiChoices per level) hem oppikt;
     // mechanische sub-keuzes van sommige feats (bv. Magic Initiate-spells) worden
     // nog niet automatisch toegepast — alleen de feat-naam wordt vastgelegd.
+    // HP: nieuw character start op (effectieve) max tenzij anders ingevuld.
+    var effMaxNew = wizardEffectiveMaxHP();
+    var curNew = parseInt(wizardState.hpCurrent, 10);
+    var tmpNew = parseInt(wizardState.hpTemp, 10);
+    var startCurNew = (!isNaN(curNew) && curNew >= 0) ? Math.min(curNew, effMaxNew) : effMaxNew;
+    var startTmpNew = (!isNaN(tmpNew) && tmpNew >= 0) ? tmpNew : 0;
     var defaultState = {
         level: 1,
         skills: mergedSkills.slice(),
@@ -1080,8 +1193,9 @@ function createCharacterFromWizard() {
         favorites: [],
         items: [],
         customAbilities: null,
-        currentHP: null,
-        tempHP: 0,
+        hp: { current: startCurNew, temp: startTmpNew, deathSaves: { successes: 0, failures: 0 }, stable: false, dead: false },
+        currentHP: startCurNew,
+        tempHP: startTmpNew,
         deathSaves: { successes: 0, failures: 0 },
         conditions: [],
         spellSlotsUsed: {},
@@ -1167,6 +1281,17 @@ function buildWizardStateFromConfig(charId) {
     wizardState.portraitCrop = loadPortraitCrop(charId);
     wizardState.personality = Object.assign({ traits:'', ideal:'', bond:'', flaw:'' }, cfg.personality || {});
     wizardState.backstory = cfg.backstory || '';
+    // HP voorvullen: override uit config.hp.max, current/temp uit state.hp (canoniek)
+    // met fallback op de legacy platte velden.
+    wizardState.hpMaxOverride = (cfg.hp && typeof cfg.hp.max === 'number') ? String(cfg.hp.max) : '';
+    var est = (typeof loadCharState === 'function' && loadCharState(charId)) || {};
+    var ehp = est.hp || {};
+    var curVal = (typeof ehp.current === 'number') ? ehp.current
+        : (typeof est.currentHP === 'number' ? est.currentHP : '');
+    var tmpVal = (typeof ehp.temp === 'number') ? ehp.temp
+        : (typeof est.tempHP === 'number' ? est.tempHP : '');
+    wizardState.hpCurrent = (curVal === '' ? '' : String(curVal));
+    wizardState.hpTemp = (tmpVal === '' || tmpVal === 0 ? '' : String(tmpVal));
     return true;
 }
 

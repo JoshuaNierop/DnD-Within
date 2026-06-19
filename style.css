@@ -2681,6 +2681,40 @@ body[data-route^="dm"] .navbar {
     margin-bottom: 1.5rem;
 }
 
+/* HP-sectie in de wizard (step 3): afgeleide max + override/current/temp. */
+.wizard-hp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+}
+.wizard-hp-cell { display: flex; flex-direction: column; gap: 0.3rem; }
+.wizard-hp-sub {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.wizard-hp-derived {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-warm, var(--accent));
+    padding: 0.5rem 0;
+    text-align: center;
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+.wizard-hp-grid input { width: 100%; text-align: center; }
+.wizard-hint {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin: 0.5rem 0 0;
+    line-height: 1.4;
+}
+@media (max-width: 520px) {
+    .wizard-hp-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* 2024: vaste, niet-kiesbare toekenningen uit de background (skills/tool/feat). */
 .wizard-granted {
     border-left: 3px solid var(--accent);
