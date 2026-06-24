@@ -68,7 +68,7 @@ function wgxSpellTooltip(name, sp, stats) {
   const isCantrip = sp && sp.level === 0;
   const lvlLabel = sp ? (isCantrip ? 'Cantrip' : 'Lvl ' + sp.level) : '?';
   const title = name + ' · ' + lvlLabel;
-  if (!sp) return { title: title, body: 'Onbekende spell — geen data beschikbaar.' };
+  if (!sp) return { title: title, body: 'Unknown spell — no data available.' };
   // Regel 1: time · range [· Concentration] [· Ritual]
   let line1 = (sp.time || '?') + ' · ' + (sp.range || '?');
   if (wgxSpellIsConcentration(sp)) line1 += ' · Concentration';
@@ -86,7 +86,7 @@ function wgxBuildPrepared(widget) {
   const raw = WG_CHAR_CACHE[state.characterId] || {};
   const st  = raw.state || {};
   const d = widget.data, L = widget.layout;
-  const spellData = (typeof DATA !== 'undefined' && DATA.spellData) || {};
+  const spellData = (typeof DATA !== 'undefined' && DATA.spellPool) || {};
   const stats = wgxSpellStats(raw);
 
   d.columns = [
@@ -112,7 +112,7 @@ function wgxBuildPrepared(widget) {
 
   const rows = [], tips = [];
   if (entries.length === 0) {
-    rows.push(['', 'Geen spells voorbereid', '']);
+    rows.push(['', 'No spells prepared', '']);
     tips.push(null);
   } else {
     for (const e of entries) {

@@ -474,24 +474,44 @@ function renderParty() {
         html += '</div>';
     }
 
-    // Party members
-    html += '<div class="character-cards">';
+    // Party members — gesplitst in main players + guest players (#OvvKY4d).
     var partyCharIds = getPartyCharIds();
     if (typeof sortCharIdsByName === 'function') partyCharIds = sortCharIdsByName(partyCharIds);
+    // charId → owner-uid lookup (guest-status hangt aan de uid in camp.guests).
+    var guestSet = (camp && camp.guests) ? camp.guests : {};
+    var charToUid = {};
+    if (camp && camp.party) { for (var pu in camp.party) charToUid[camp.party[pu]] = pu; }
+    var mainIds = [], guestIds = [];
     for (var i = 0; i < partyCharIds.length; i++) {
-        var cid = partyCharIds[i];
-        var cfg = loadCharConfig(cid);
-        var state = loadCharState(cid);
-        if (!cfg) continue;
-        var isOwn = userOwnsCharacter(uid, cid);
-        html += renderCharCard(cid, cfg, state, isOwn);
+        var ownerUid = charToUid[partyCharIds[i]];
+        if (ownerUid && guestSet[ownerUid]) guestIds.push(partyCharIds[i]);
+        else mainIds.push(partyCharIds[i]);
     }
+    var renderCardList = function (ids) {
+        var out = '';
+        for (var ci = 0; ci < ids.length; ci++) {
+            var ccid = ids[ci];
+            var ccfg = loadCharConfig(ccid);
+            var cst = loadCharState(ccid);
+            if (!ccfg) continue;
+            out += renderCharCard(ccid, ccfg, cst, userOwnsCharacter(uid, ccid));
+        }
+        return out;
+    };
 
+    html += '<div class="character-cards">';
+    html += renderCardList(mainIds);
     if (partyCharIds.length === 0) {
         html += '<p class="text-dim" style="padding:2rem;">' + t('party.empty') + '</p>';
     }
-
     html += '</div>';
+
+    if (guestIds.length > 0) {
+        html += '<h2 class="party-guest-title">Guest players</h2>';
+        html += '<div class="character-cards">';
+        html += renderCardList(guestIds);
+        html += '</div>';
+    }
 
     // DM: manage members
     if (isDM() && isCampaignDM()) {
@@ -500,7 +520,7 @@ function renderParty() {
 
         // Invite link
         if (camp.inviteCode) {
-            var inviteUrl = window.location.origin + window.location.pathname + '#/join/' + camp.inviteCode;
+            var inviteUrl = window.location.origin + '/join/' + camp.inviteCode;
             html += '<div style="margin-bottom:1rem;">';
             html += '<label class="login-label">' + t('party.invitelink') + '</label>';
             html += '<div style="display:flex;gap:0.5rem;">';
@@ -527,6 +547,9 @@ function renderParty() {
                 html += '<span class="text-dim">' + t('party.nochar') + '</span>';
             }
             if (mUid !== camp.dm) {
+                // #OvvKY4d: speler op main/guest zetten.
+                var isG = !!(camp.guests && camp.guests[mUid]);
+                html += '<button class="btn btn-ghost btn-sm member-role-toggle' + (isG ? ' is-guest' : '') + '" data-action="toggle-guest" data-user-id="' + escapeAttr(mUid) + '" title="Toggle main/guest player">' + (isG ? 'Guest' : 'Main') + '</button>';
                 html += '<button class="btn btn-ghost btn-sm" data-action="remove-member" data-user-id="' + escapeAttr(mUid) + '" style="color:var(--danger);">&times;</button>';
             }
             html += '</div>';
@@ -701,6 +724,9 @@ function renderDashboard() {
         for (var ri = 0; ri < recentEvents.length; ri++) {
             var rev = recentEvents[ri];
             var revPreview = (typeof sessionPreviewText === 'function') ? sessionPreviewText(rev) : (rev.desc || '');
+            // #OvvKnEi: strip mention-tokens naar kale naam (geen rauwe [[..]]-id;
+            // geen nested <a> want de hele kaart is al een link).
+            if (typeof mentionsStripToName === 'function') revPreview = mentionsStripToName(revPreview);
             html += '<a class="dash-recent-event" href="/timeline" data-action="view-session" data-session-id="' + escapeAttr(rev.id || '') + '" title="' + escapeAttr(t('dash.recent.open') || 'Open session') + '">';
             if (rev.session) html += '<span class="timeline-date">' + t('dash.session') + ' ' + escapeHtml(rev.session) + '</span>';
             html += '<strong class="dash-recent-title">' + escapeHtml(rev.title || '') + '</strong>';

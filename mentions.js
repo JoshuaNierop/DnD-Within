@@ -178,6 +178,15 @@
             return '@' + (name || id);
         });
     };
+    // Tokens → kale naam (geen @, geen link) — voor plain-text weergave op
+    // plekken waar een echte <a>-link niet kan (bv. binnen een omhullende <a>,
+    // zoals de recent-event preview op /home). #OvvKnEi
+    window.mentionsStripToName = function (text) {
+        if (text == null) return '';
+        return String(text).replace(TOKEN_RE, function (m, type, id, name) {
+            return (name || id);
+        });
+    };
     // Extract the mention map [{name,type,id}] from token-text (for data-mentions).
     window.mentionsExtract = function (text) {
         var list = [];

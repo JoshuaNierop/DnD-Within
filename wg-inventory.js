@@ -218,7 +218,7 @@ function invMetaLine(item) {
   if (item.weight != null) bits.push(item.weight + ' lb');
   if (db) {
     if (db.type === 'weapon') { if (db.dmg) bits.push(db.dmg + ' ' + (db.damageType || '')); if (db.mastery) bits.push(invCap(db.mastery)); }
-    else if (db.type === 'armor') { bits.push('AC ' + db.baseAC + (db.armorCategory === 'light' ? ' + Dex' : db.armorCategory === 'medium' ? ' + Dex (max 2)' : '')); }
+    else if (db.type === 'armor') { bits.push('AC ' + db.baseAC + (db.dexCap === null ? ' + Dex' : db.dexCap === 0 ? '' : ' + Dex (max ' + db.dexCap + ')')); }
     else if (db.type === 'shield') { bits.push('+' + db.acBonus + ' AC'); }
     else if (db.type === 'ammunition') { /* weight only */ }
     else { bits.push(INV_TYPE_LABEL[db.type] || invCap(db.type)); }
@@ -236,7 +236,7 @@ function invTooltip(item) {
     var cost = (item.pack.def.cost != null) ? (item.pack.def.cost + ' ' + (item.pack.def.costUnit || 'gp')) : null;
     if (cost) lines.push('Cost: ' + cost);
     lines.push('');
-    lines.push('Inhoud:');
+    lines.push('Contents:');
     item.pack.def.contents.forEach(function (c) { lines.push('• ' + c[0] + (c[1] > 1 ? ' ×' + c[1] : '')); });
   } else if (db) {
     var sub = db.subtype ? (' · ' + invCap(db.subtype.replace('-', ' '))) : '';
@@ -249,8 +249,8 @@ function invTooltip(item) {
       if (db.mastery) { lines.push(''); lines.push('Mastery — ' + invCap(db.mastery)); var md = invMasteryDesc(db.mastery); if (md) lines.push(md); }
     } else if (db.type === 'armor') {
       lines.push('Base AC: ' + db.baseAC + (db.dexCap === null ? ' + Dex' : db.dexCap === 0 ? ' (no Dex)' : ' + Dex (max ' + db.dexCap + ')'));
-      if (db.strengthReq) lines.push('Vereist Str ' + db.strengthReq);
-      if (db.stealthDisadvantage) lines.push('Disadvantage op Stealth');
+      if (db.strengthReq) lines.push('Requires Str ' + db.strengthReq);
+      if (db.stealthDisadvantage) lines.push('Disadvantage on Stealth');
     } else if (db.type === 'shield') {
       lines.push('AC-bonus: +' + db.acBonus);
     }
@@ -299,7 +299,7 @@ function drawInventoryGrid(g, widget, x, contentY, w, contentH, widgetIdx) {
 
   var grid = invHEl('div', 'inv-grid');
   if (items.length === 0) {
-    grid.appendChild(invHEl('div', 'inv-empty', 'Geen items'));
+    grid.appendChild(invHEl('div', 'inv-empty', 'No items'));
   } else {
     for (var i = 0; i < items.length; i++) {
       grid.appendChild(invBoxNode(items[i], display));
@@ -353,7 +353,8 @@ function invBoxNode(item, display) {
     box.appendChild(head);
     var meta = invMetaLine(item);
     if (meta) box.appendChild(invHEl('div', 'inv-meta', meta));
-    if (item.notes) box.appendChild(invHEl('div', 'inv-notes', item.notes));
+    // #OvvLMOV: notes NIET op de card (variabele hoogte → overflow). Staan in de
+    // tooltip (invTooltip regel ~266). Cards houden zo een uniforme vaste grootte.
   }
   return box;
 }
@@ -361,7 +362,9 @@ function invBoxNode(item, display) {
 // ===== Fit-om-content =====
 // rij-px-schattingen (bewust royaal — zelfde filosofie als COMBAT_FIT). Text-box
 // is hoger (naam + meta + evt. notes); image-box compacter maar met thumbnail.
-var INV_FIT = { headPx: 6, summaryPx: 22, gapPx: 8, textRowPx: 62, imageRowPx: 92, minSpanY: 3 };
+// #OvvLMOV: rowPx == de vaste grid-auto-rows hoogtes (54 text / 96 image) zodat
+// de hoogte-fit exact klopt en niets clipt.
+var INV_FIT = { headPx: 6, summaryPx: 22, gapPx: 8, textRowPx: 54, imageRowPx: 96, minSpanY: 3 };
 function _fitInventorySpanY(growOnly) {
   var w = state.widget;
   if (!w) return;

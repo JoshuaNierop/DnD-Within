@@ -412,12 +412,6 @@ function openBugReportModal() {
     html += '<div class="bug-element-path"><small>' + escapeHtml(info.path) + '</small></div></div>';
     html += '<div class="bug-field"><label class="bug-label">' + t('bug.page') + '</label>';
     html += '<div class="bug-element-info"><code>' + escapeHtml(info.route) + '</code></div></div>';
-    html += '<div class="bug-field"><label class="bug-label">' + t('bug.type') + '</label>';
-    html += '<div class="bug-type-toggle">';
-    html += '<label class="bug-type-option"><input type="radio" name="bug-type" value="bug" checked><span class="bug-type-chip bug-type-bug">&#x1FAB2; ' + t('bug.type.bug') + '</span></label>';
-    html += '<label class="bug-type-option"><input type="radio" name="bug-type" value="feature"><span class="bug-type-chip bug-type-feature">&#x2728; ' + t('bug.type.feature') + '</span></label>';
-    html += '<label class="bug-type-option"><input type="radio" name="bug-type" value="design"><span class="bug-type-chip bug-type-design">&#x1F3A8; ' + (t('bug.type.design') === 'bug.type.design' ? 'Design' : t('bug.type.design')) + '</span></label>';
-    html += '</div></div>';
     html += '<div class="bug-field"><label class="bug-label">' + t('bug.description') + '</label>';
     html += '<textarea class="bug-textarea" id="bug-description" rows="4" placeholder="' + t('bug.plh') + '"></textarea></div>';
     html += '<button class="login-submit" data-action="submit-bug">' + t('bug.submit') + '</button>';
@@ -457,12 +451,11 @@ function submitBugReport() {
         return;
     }
 
-    var info = bugSelectedElement || { descriptor: 'Algemeen', path: '', route: window.location.pathname || '/' };
-    var typeEl = document.querySelector('input[name="bug-type"]:checked');
-    var reportType = typeEl ? typeEl.value : 'bug';
+    var info = bugSelectedElement || { descriptor: 'General', path: '', route: window.location.pathname || '/' };
 
+    // #OvvK9a3: geen types meer — elke melding is gewoon een bug.
     var bug = {
-        type: reportType,
+        type: 'bug',
         element: info.descriptor,
         elementPath: info.path,
         route: info.route,
@@ -472,13 +465,12 @@ function submitBugReport() {
         status: 'open'
     };
 
-    var typeLabel = reportType === 'feature' ? 'Feature' : reportType === 'design' ? 'Design' : 'Bug';
     submitBugToHub(bug).then(function(res) {
         closeBugReportModal();
-        showToast(typeLabel + ' ' + t('bug.reported'), 'success');
+        showToast('Bug ' + t('bug.reported'), 'success');
     }).catch(function(err) {
         console.error('[Bug] submit failed', err);
-        showToast('Verzenden mislukt: ' + err.message, 'error');
+        showToast('Submit failed: ' + err.message, 'error');
     });
 }
 

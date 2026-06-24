@@ -137,10 +137,10 @@ function wgBodyTemplate(context) {
 </header>
 <div class="app-row">
 <aside class="sidebar" id="leftSidebar" aria-label="Widget library">
-  <nav class="sidebar-categories" id="sidebarCategories" aria-label="Categorieën"></nav>
+  <nav class="sidebar-categories" id="sidebarCategories" aria-label="Categories"></nav>
   <div class="sidebar-panel">
     <div class="sidebar-search">
-      <input type="search" id="sidebarSearch" placeholder="Zoek widgets…" aria-label="Zoek widgets">
+      <input type="search" id="sidebarSearch" placeholder="Search widgets…" aria-label="Search widgets">
     </div>
     <div class="sidebar-widgets" id="sidebarWidgets"></div>
   </div>
@@ -149,7 +149,7 @@ function wgBodyTemplate(context) {
   <div class="sidebar-panel">${charSection}
   </div>
   <nav class="sidebar-categories">
-    <button class="rs-btn cat-item" id="rs-tidy" aria-label="Widgets opruimen" title="Opruimen — widgets compact herindelen">
+    <button class="rs-btn cat-item" id="rs-tidy" aria-label="Tidy widgets" title="Tidy — repack widgets compactly">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="8" height="10" rx="1"/>
         <rect x="13" y="3" width="8" height="6" rx="1"/>
@@ -157,20 +157,20 @@ function wgBodyTemplate(context) {
         <rect x="3" y="15" width="8" height="6" rx="1"/>
       </svg>
     </button>
-    <button class="rs-btn cat-item" id="settingsToggle" aria-label="Settings openen" aria-expanded="false" title="Settings">
+    <button class="rs-btn cat-item" id="settingsToggle" aria-label="Open settings" aria-expanded="false" title="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
       </svg>
     </button>
     ${charToggleBtn}
-    <button class="rs-btn cat-item" id="rs-edit-values" aria-label="Waarden bewerken" title="Waarden bewerken">
+    <button class="rs-btn cat-item" id="rs-edit-values" aria-label="Edit values" title="Edit values">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
       </svg>
     </button>
-    <button class="rs-btn cat-item" id="rs-save" aria-label="Dashboard opslaan" title="Dashboard opslaan">
+    <button class="rs-btn cat-item" id="rs-save" aria-label="Save dashboard" title="Save dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
         <polyline points="17 21 17 13 7 13 7 21"/>
@@ -184,12 +184,12 @@ function wgBodyTemplate(context) {
 <aside class="settings-panel" id="settingsPanel" aria-hidden="true">
   <div class="settings-header">
     <h2 id="settingsTitle">Settings</h2>
-    <button class="settings-close" id="settingsClose" aria-label="Settings sluiten">×</button>
+    <button class="settings-close" id="settingsClose" aria-label="Close settings">×</button>
   </div>
   <div class="settings-tabs" role="tablist">
     <button class="settings-tab active" data-tab="data" data-scope="widget" data-kind="infobox" role="tab">Data</button>
     <button class="settings-tab" data-tab="widget" data-scope="widget" role="tab">Widget</button>
-    <button class="settings-tab" data-tab="style" data-scope="dashboard" role="tab">Stijl</button>
+    <button class="settings-tab" data-tab="style" data-scope="dashboard" role="tab">Style</button>
     <button class="settings-tab" data-tab="dev" data-scope="dashboard" role="tab">Dev</button>
   </div>
   <div class="settings-body">
@@ -197,8 +197,8 @@ function wgBodyTemplate(context) {
       <div class="controls">
         <div class="control"><label>Data source</label>
           <select id="dataSource" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:16px;">
-            <option value="abilities">Ability Scores (6 rijen)</option>
-            <option value="skills">Skills (18 rijen)</option>
+            <option value="abilities">Ability Scores (6 rows)</option>
+            <option value="skills">Skills (18 rows)</option>
           </select>
         </div>
         <div class="control"><label>Status</label><div class="readout" id="dataStatus">—</div></div>
@@ -206,20 +206,20 @@ function wgBodyTemplate(context) {
     </div>
     <div class="settings-pane" data-pane="widget">
       <div class="controls">
-        <div class="control"><label>Titel</label><input type="text" id="widgetTitle" placeholder="—"></div>
+        <div class="control"><label>Title</label><input type="text" id="widgetTitle" placeholder="—"></div>
         <div class="control"><label>Type</label>
           <select id="widgetType" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:16px;"></select>
         </div>
-        <div class="control" data-kind="combat"><label>Tabel-oriëntatie</label>
+        <div class="control" data-kind="combat"><label>Table orientation</label>
           <div class="radio-group" id="combatTranspose">
-            <label><input type="radio" name="combatTranspose" value="normal" checked><span>Rijen</span></label>
-            <label><input type="radio" name="combatTranspose" value="transpose"><span>Kolommen</span></label>
+            <label><input type="radio" name="combatTranspose" value="normal" checked><span>Rows</span></label>
+            <label><input type="radio" name="combatTranspose" value="transpose"><span>Columns</span></label>
           </div>
         </div>
-        <div class="control" data-kind="inventory"><label>Weergave</label>
+        <div class="control" data-kind="inventory"><label>Display</label>
           <div class="radio-group" id="invDisplay">
-            <label><input type="radio" name="invDisplay" value="text" checked><span>Tekst</span></label>
-            <label><input type="radio" name="invDisplay" value="image"><span>Afbeelding</span></label>
+            <label><input type="radio" name="invDisplay" value="text" checked><span>Text</span></label>
+            <label><input type="radio" name="invDisplay" value="image"><span>Image</span></label>
           </div>
         </div>
         <div class="control" data-kind="infobox"><label>Stacking</label>
@@ -236,7 +236,7 @@ function wgBodyTemplate(context) {
         <div class="control" style="grid-column: 1 / -1;">
           <label>Export widget JSON</label>
           <div style="display:flex;gap:8px;align-items:center;">
-            <button id="exportWidgetBtn" style="padding:8px 12px;background:var(--accent);color:var(--bg);border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;">Genereer + kopieer</button>
+            <button id="exportWidgetBtn" style="padding:8px 12px;background:var(--accent);color:var(--bg);border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;">Generate + copy</button>
             <span id="exportWidgetStatus" style="font-size:12px;color:var(--muted);"></span>
           </div>
           <textarea id="exportWidgetJson" readonly style="margin-top:6px;width:100%;height:160px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font:12px/1.4 ui-monospace,monospace;resize:vertical;"></textarea>
@@ -246,16 +246,16 @@ function wgBodyTemplate(context) {
     <div class="settings-pane" data-pane="style">
       <div class="controls">
         <div class="control" style="grid-column: 1 / -1;">
-          <label>Kleuren-palet</label>
+          <label>Color palette</label>
           <select id="paletteSelect" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:16px;"></select>
         </div>
         <div class="control" style="grid-column: 1 / -1;">
-          <label>Weergave</label>
+          <label>Display</label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);text-transform:none;letter-spacing:normal;font-weight:500;padding:4px 0;">
-            <input type="checkbox" id="devViewToggleInput"> Developer view (raster + dev-panels)
+            <input type="checkbox" id="devViewToggleInput"> Developer view (grid + dev panels)
           </label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);text-transform:none;letter-spacing:normal;font-weight:500;padding:4px 0;">
-            <input type="checkbox" id="showDashboardInfoInput"> Dashboard-info onder canvas tonen
+            <input type="checkbox" id="showDashboardInfoInput"> Show dashboard info under canvas
           </label>
         </div>
       </div>

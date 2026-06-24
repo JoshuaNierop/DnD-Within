@@ -762,11 +762,12 @@ function cropWidgetPortrait(widgetIdx) {
     src: src,
     crop: crop,
     shape: "square",
+    aspect: 3 / 4, // #OvvJdjg: portret-vormig bewerk-veld
     onSave: (newCrop) => {
       if (state.characterId !== charId) return; // race-guard
       savePortraitCrop(charId, newCrop); // schrijft cache + firebase + mirror
       render();
-      showToast("Uitsnede opgeslagen", "success");
+      showToast("Crop saved", "success");
     },
   });
 }

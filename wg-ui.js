@@ -208,7 +208,7 @@ function renderWidgetColumnControls() {
   container.innerHTML = '';
   const cols = state.data.columns || [];
   if (cols.length === 0) {
-    container.innerHTML = '<div class="info-row"><span class="key">(geen kolommen)</span></div>';
+    container.innerHTML = '<div class="info-row"><span class="key">(no columns)</span></div>';
     return;
   }
   const inputStyle = 'width:60px;padding:4px 6px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:14px;';
@@ -501,7 +501,7 @@ function renderSidebar() {
   const html = [];
   html.push(`<div class="sidebar-section-label">${cat ? cat.name : ''} (${items.length})</div>`);
   if (items.length === 0) {
-    html.push('<div class="widget-item empty">Geen widgets</div>');
+    html.push('<div class="widget-item empty">No widgets</div>');
   } else {
     html.push(items.map(w => `
       <div class="widget-item ${w.id === library.activeWidgetId ? 'active' : ''}" data-wid="${w.id}">${w.name}</div>

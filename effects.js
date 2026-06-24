@@ -58,15 +58,15 @@ var QuickNotes = {
 
         // Quick add form
         html += '<div class="qnotes-form">';
-        html += '<input type="text" id="qnote-title" class="qnotes-input" placeholder="Titel..." value="' + (this.draft.title || '').replace(/"/g, '&quot;') + '">';
-        html += '<textarea id="qnote-content" class="qnotes-textarea" placeholder="Schrijf iets...">' + (this.draft.content || '').replace(/</g, '&lt;') + '</textarea>';
+        html += '<input type="text" id="qnote-title" class="qnotes-input" placeholder="Title..." value="' + (this.draft.title || '').replace(/"/g, '&quot;') + '">';
+        html += '<textarea id="qnote-content" class="qnotes-textarea" placeholder="Write something...">' + (this.draft.content || '').replace(/</g, '&lt;') + '</textarea>';
 
         html += '<div class="qnotes-actions">';
-        html += '<button class="btn btn-primary btn-sm qnotes-save" data-action="qnote-save">Opslaan</button>';
-        html += '<a class="btn btn-ghost btn-sm" href="/notes">Alle notities</a>';
+        html += '<button class="btn btn-primary btn-sm qnotes-save" data-action="qnote-save">Save</button>';
+        html += '<a class="btn btn-ghost btn-sm" href="/notes">All notes</a>';
         html += '</div>';
         if (this.justSaved) {
-            html += '<div class="qnotes-toast">Opgeslagen ✓</div>';
+            html += '<div class="qnotes-toast">Saved ✓</div>';
         }
         html += '</div>';
 
@@ -76,7 +76,7 @@ var QuickNotes = {
             html += '<div class="qnotes-recent-label">Recent</div>';
             for (var ri = 0; ri < recent.length; ri++) {
                 var n = recent[ri];
-                var safeTitle = (n.title || 'Zonder titel').replace(/</g, '&lt;');
+                var safeTitle = (n.title || 'Untitled').replace(/</g, '&lt;');
                 html += '<a class="qnotes-item" href="/notes/view-' + n.id + '" style="--cat-color:var(--accent)">';
                 html += '<span class="qnotes-item-icon">📝</span>';
                 html += '<span class="qnotes-item-title">' + safeTitle + '</span>';

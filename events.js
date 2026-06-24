@@ -620,6 +620,21 @@ function bindPageEvents(route) {
             return;
         }
 
+        // --- Party: toggle main/guest player (#OvvKY4d) ---
+        if (target.matches('[data-action="toggle-guest"]')) {
+            var guestUid = target.dataset.userId;
+            var gCamps = getCampaigns();
+            var gCampId = getActiveCampaign();
+            if (gCamps[gCampId]) {
+                if (!gCamps[gCampId].guests) gCamps[gCampId].guests = {};
+                if (gCamps[gCampId].guests[guestUid]) delete gCamps[gCampId].guests[guestUid];
+                else gCamps[gCampId].guests[guestUid] = true;
+                saveCampaigns(gCamps);
+                renderApp();
+            }
+            return;
+        }
+
         // --- Party: add member ---
         if (target.matches('[data-action="add-member"]')) {
             var addInput = document.getElementById('add-member-input');

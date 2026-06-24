@@ -1528,6 +1528,7 @@ function bindWizardEvents() {
             src: wizardState.portrait,
             crop: wizardState.portraitCrop,
             shape: 'square',
+            aspect: 3 / 4, // #OvvJdjg: portret-vormig bewerk-veld
             onSave: function (newCrop) {
                 wizardState.portraitCrop = newCrop;
                 hydrateWizardPortraitCrop();
@@ -2141,6 +2142,10 @@ function openCropEditor(opts) {
     // verticaal) geeft een referentiekader om gelijkmatig te croppen. Een caller
     // kan expliciet shape:'circle' vragen.
     var shape = opts.shape === 'circle' ? 'circle' : 'square';
+    // #OvvJdjg: het bewerk-veld krijgt de vorm van het doel-portret (rechthoekig,
+    // portret 3:4) i.p.v. vierkant, zodat de crop-preview matcht met hoe het
+    // portret echt getoond wordt. Caller kan een eigen aspect (breedte/hoogte) geven.
+    var aspect = (typeof opts.aspect === 'number' && opts.aspect > 0) ? opts.aspect : null;
     var st = {
         x: (opts.crop && opts.crop.x != null) ? opts.crop.x : 50,
         y: (opts.crop && opts.crop.y != null) ? opts.crop.y : 50,
@@ -2155,29 +2160,29 @@ function openCropEditor(opts) {
     ov.className = 'modal-overlay crop-editor-overlay';
     ov.innerHTML =
         '<div class="crop-card">' +
-            '<div class="crop-header"><h2>Portret bijsnijden</h2>' +
-            '<button class="modal-close" data-crop="cancel" aria-label="Sluiten">&times;</button></div>' +
+            '<div class="crop-header"><h2>Crop portrait</h2>' +
+            '<button class="modal-close" data-crop="cancel" aria-label="Close">&times;</button></div>' +
             '<div class="crop-stage"><div class="crop-box crop-' + shape + '">' +
             '<img class="crop-img" alt="" draggable="false">' +
             '<div class="crop-grid" aria-hidden="true"></div></div></div>' +
             '<div class="crop-controls">' +
                 '<div class="crop-zoom-row">' +
-                    '<button class="crop-btn" data-crop="zoom-out" aria-label="Uitzoomen">&minus;</button>' +
+                    '<button class="crop-btn" data-crop="zoom-out" aria-label="Zoom out">&minus;</button>' +
                     '<span class="crop-zoom-val">100%</span>' +
-                    '<button class="crop-btn" data-crop="zoom-in" aria-label="Inzoomen">+</button>' +
+                    '<button class="crop-btn" data-crop="zoom-in" aria-label="Zoom in">+</button>' +
                 '</div>' +
                 '<div class="crop-dpad">' +
-                    '<button class="crop-btn dpad-up" data-crop="up" aria-label="Omhoog">&#9650;</button>' +
-                    '<button class="crop-btn dpad-left" data-crop="left" aria-label="Links">&#9664;</button>' +
-                    '<button class="crop-btn dpad-center" data-crop="reset" aria-label="Centreren" title="Reset">&#8982;</button>' +
-                    '<button class="crop-btn dpad-right" data-crop="right" aria-label="Rechts">&#9654;</button>' +
-                    '<button class="crop-btn dpad-down" data-crop="down" aria-label="Omlaag">&#9660;</button>' +
+                    '<button class="crop-btn dpad-up" data-crop="up" aria-label="Up">&#9650;</button>' +
+                    '<button class="crop-btn dpad-left" data-crop="left" aria-label="Left">&#9664;</button>' +
+                    '<button class="crop-btn dpad-center" data-crop="reset" aria-label="Center" title="Reset">&#8982;</button>' +
+                    '<button class="crop-btn dpad-right" data-crop="right" aria-label="Right">&#9654;</button>' +
+                    '<button class="crop-btn dpad-down" data-crop="down" aria-label="Down">&#9660;</button>' +
                 '</div>' +
-                '<p class="crop-hint">Sleep de foto of gebruik de knoppen. Scrollen zoomt.</p>' +
+                '<p class="crop-hint">Drag the photo or use the buttons. Scroll to zoom.</p>' +
             '</div>' +
             '<div class="crop-actions">' +
-                '<button class="edit-cancel" data-crop="cancel">Annuleren</button>' +
-                '<button class="edit-save" data-crop="save">Opslaan</button>' +
+                '<button class="edit-cancel" data-crop="cancel">Cancel</button>' +
+                '<button class="edit-save" data-crop="save">Save</button>' +
             '</div>' +
         '</div>';
     document.body.appendChild(ov);
@@ -2186,6 +2191,13 @@ function openCropEditor(opts) {
     var box = ov.querySelector('.crop-box');
     var img = ov.querySelector('.crop-img');
     var zoomVal = ov.querySelector('.crop-zoom-val');
+    // #OvvJdjg: portret-vorm op het bewerk-veld zetten (override van de vierkante CSS).
+    if (aspect) {
+        box.style.height = 'auto';
+        box.style.aspectRatio = String(aspect);
+        box.style.maxHeight = '70vh';
+        box.style.maxWidth = 'calc(70vh * ' + aspect + ')';
+    }
     img.src = src;
 
     var rendered = { rw: 0, rh: 0, bw: 0, bh: 0 };

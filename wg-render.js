@@ -471,7 +471,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
       const bxCr = bxUp - GAP - BTN_W;
       const crG = el('g', { class: 'map-action-btn', 'data-map-action': 'crop-portrait' });
       const crTitle = el('title', {});
-      crTitle.textContent = 'Bijsnijden';
+      crTitle.textContent = 'Crop';
       crG.appendChild(crTitle);
       crG.appendChild(el('rect', { x: bxCr, y: btnY, width: BTN_W, height: BTN_H, rx: 3 }));
       drawCropGlyph(crG, bxCr + BTN_W / 2, btnY + BTN_H / 2);

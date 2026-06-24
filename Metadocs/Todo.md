@@ -1,5 +1,21 @@
 # D&D Within — To Do
 
+## Hub-bugs 2026-06-25 (8 nieuwe reports) — architect + dnd-5.5e geraadpleegd
+- [x] P2 — #OvvFjE (dm) **Quick-notes knoppen NL→EN** (Titel/Schrijf iets/Opslaan/Alle notities/Opgeslagen/Zonder titel). `effects.js`.
+- [x] P1 — #OvvJdjg (ren) **Crop-editor veld-vorm**: vierkant → portret (3:4). `aspect`-optie in `openCropEditor` (`ui-modals.js`), beide callers (`wg-events.js`, `ui-modals.js`) geven 3/4 mee. Crop-UI ook volledig Engels.
+- [x] P2 — #OvvJuHg (ren) **NL-knoppen character-page → EN**: hele `wg-mount.js` sidebar/settings-template (sidebar tool-buttons, tabs, labels, radios), + empty-states (`wg-ui.js`/`wg-inventory.js`/`wg-prepare.js`), crop-titel (`wg-render.js`), tooltip-restjes (`wg-inventory.js`).
+- [x] P2 — #OvvK9a3 (ren) **Bug-reporter types weg**: type-keuze (bug/feature/design) uit modal; payload vast `type:'bug'`. `ui-settings.js`.
+- [x] P1 — #OvvKY4d (ren) **Guest players**: `camp.guests={uid:true}` (rijdt op `dw_campaigns`); party-page splitst in main + "Guest players"-sectie; DM zet speler op Main/Guest via toggle in de member-lijst. `core.js`(migratie)/`ui-pages.js`/`events.js`/`style.css`.
+- [x] P2 — #OvvKnEi (ren) **Recent-event toonde rauwe mention-id**: `mentionsStripToName()` helper (`mentions.js`) → kale naam in de preview (geen nested `<a>`). `ui-pages.js`.
+- [x] P1 — #OvvLMOV (ren) **Inventory item-cards uniforme grootte**: vaste `grid-auto-rows` (54px text / 96px image), `.inv-box height:100%/overflow:hidden`, meta single-line, notes verplaatst naar tooltip; fit-schatting exact gemaakt. `wg-inventory.js`/`wg-style.css`. + armor-AC meta op `dexCap` (dnd-agent).
+- [x] P1 — #OvvLp0J (ren) **Mention-links hadden `#/`**: `collectEntities` routes → clean URLs (`/characters/`, `/lore/...`); invite-URL `#/join/`→`/join/`. `ui-world.js`/`ui-pages.js`.
+- [x] P0 — **Bonus (dnd-agent vond)**: `wg-prepare.js` las `DATA.spellData` (bestaat niet) i.p.v. `DATA.spellPool` → álle prepared-spell kaarten waren leeg. Gefixt.
+
+### Data-flags (dnd-agent, niet auto-aangepast)
+- [ ] P3 — `DATA.items.weapons` Shortbow mastery `slow` is fout (2024=`vex`); `itemDB` heeft het goed. Legacy `weapons`-array opruimen.
+- [ ] P3 — Spell `save`/`attack` + expliciet `ritual:true` ontbreken in `spellPool` → ritual-tag onbetrouwbaar, save-vs-attack alleen in tooltip.
+
+
 ## Hub-bugs 2026-06-24 (7 reports) + Session Agenda feature
 Architect + dnd-5.5e-mechanics agents geraadpleegd. 6/7 bugs gefixt + agenda-feature.
 - [x] P2 — #OvPn4 (io) **Welcome-banner border** → `var(--border)` (gelijk aan stat/level-kaarten). `style.css`.

@@ -9805,6 +9805,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     border-bottom: 1px solid var(--border);
 }
 .member-row:last-child { border-bottom: none; }
+/* #OvvKY4d: guest players */
+.party-guest-title {
+    margin: 2rem 0 1rem;
+    color: var(--text-bright);
+    font-size: 1.1rem;
+    opacity: 0.85;
+}
+.member-role-toggle { margin-left: auto; }
+.member-role-toggle.is-guest {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
 
 .dm-party-manage {
     background: var(--bg-block);

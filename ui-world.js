@@ -1967,7 +1967,7 @@ function collectEntities() {
             var cimg = (typeof loadImage === 'function') ? (loadImage(ids[i], 'portrait') || '') : '';
             var cdesc = '';
             try { cdesc = (typeof raceDisplayName === 'function' ? raceDisplayName(cfg.race) : (cfg.race || '')) + (cfg.className ? ' ' + (typeof classDisplayName === 'function' ? classDisplayName(cfg.className) : cfg.className) : ''); } catch (e3) {}
-            list.push({ type: 'character', cat: 'Characters', id: ids[i], name: cfg.name || ids[i], image: cimg || null, desc: cdesc.trim(), route: '#/characters/' + ids[i] });
+            list.push({ type: 'character', cat: 'Characters', id: ids[i], name: cfg.name || ids[i], image: cimg || null, desc: cdesc.trim(), route: '/characters/' + ids[i] });
         }
     } catch (e) { /* ignore */ }
     // NPCs — Lore-tab, inline-focus.
@@ -1977,7 +1977,7 @@ function collectEntities() {
             var n = npcs[ni];
             if (!n || !n.id) continue;
             var ndesc = [n.race, n.npcClass, n.faction].filter(Boolean).join(' · ') || (n.notes || '');
-            list.push({ type: 'npc', cat: 'NPCs', id: n.id, name: n.name || '(naamloos)', image: n.image || null, desc: ndesc, route: '#/lore/npcs' });
+            list.push({ type: 'npc', cat: 'NPCs', id: n.id, name: n.name || '(unnamed)', image: n.image || null, desc: ndesc, route: '/lore/npcs' });
         }
     } catch (e) { /* ignore */ }
     // Lore-cat entries.
@@ -1989,7 +1989,7 @@ function collectEntities() {
             for (var li = 0; li < LORE_TABS.length; li++) if (LORE_TABS[li].id === c) label = LORE_TABS[li].label;
             ld[c].forEach(function (e2) {
                 if (!e2 || !e2.id) return;
-                list.push({ type: 'lore', cat: label, loreCat: c, id: e2.id, name: e2.name || '(naamloos)', image: e2.image || null, desc: e2.description || '', route: '#/lore/' + c });
+                list.push({ type: 'lore', cat: label, loreCat: c, id: e2.id, name: e2.name || '(unnamed)', image: e2.image || null, desc: e2.description || '', route: '/lore/' + c });
             });
         });
     } catch (e) { /* ignore */ }
