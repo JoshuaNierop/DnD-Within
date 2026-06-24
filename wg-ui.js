@@ -448,6 +448,7 @@ function seedDefaultWidgets() {
     { id: 'characterInfo',  name: 'Character Info',  category: 'character', config: { type: 'basicInfo' } },
     { id: 'campaignMap',    name: 'Campagne-kaart',  category: 'exploring', config: { type: 'map' } },
     { id: 'initiativeTracker', name: 'Initiative Tracker', category: 'combat', config: { type: 'initiativeTracker' } },
+    { id: 'inventory',      name: 'Inventory',       category: 'inventory', config: { type: 'inventory' } },
   ];
   library.activeWidgetId = 'abilityScores';
 }
