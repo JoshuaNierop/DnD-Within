@@ -1,5 +1,22 @@
 # D&D Within — To Do
 
+## Hub-bugs 2026-06-24 (7 reports) + Session Agenda feature
+Architect + dnd-5.5e-mechanics agents geraadpleegd. 6/7 bugs gefixt + agenda-feature.
+- [x] P2 — #OvPn4 (io) **Welcome-banner border** → `var(--border)` (gelijk aan stat/level-kaarten). `style.css`.
+- [x] P2 — #OvVUxz (dm) **Monster-statblock 2/3 kolommen** → korte velden + abilities in `.monster-stat-cols` (CSS columns), narratieve textarea-blokken full-width eronder. `ui-world.js renderMonsterEntryInfo` + `style.css`.
+- [x] P1 — #OvVZiZ (saya) **Archetype zichtbaar onder L3 + kwam terug** → root-cause: wizard-save schreef stale `wizardState.subclass` terug. Fix: `subclassChoiceLevel()` helper (Cleric L1, rest L3); display-gate (`wg-state.js`) + wizard save/load-gate (`ui-modals.js`) op level; saya's Firebase `config/subclass` geleegd. Draconic-plan blijft in `draconicAncestry`-note → herkiesbaar op L3.
+- [x] P2 — #Ovv0gie (barius) **"Spellcasting?"** → Paladin (half-caster, geen L1-cantrips) toonde fout "No". Nu via `hasSpellcasting()` + `spellcastingStart` → "Yes (from level 2)". `ui-modals.js`.
+- [x] P2 — #Ovv13Yv (barius) **Ability scores onwijzigbaar** → reporter keek naar read-only background-preview, niet de editor. Herlabeld "Ability boosts… (set your scores below)" + NL-restje weg. Echte editor (manual/array/point-buy) staat eronder. STR/CHA/CON klopt voor Paladin (dnd-agent bevestigd).
+- [x] P1 — #Ovv3O3E (dm) **Campaign session-edit knop werkt niet** → `ReferenceError: ev is not defined` (handler-param heet `e`) gooide de onclick af vóór de modal opende. `ev`→`e` in `events.js`. Modal tegelijk uitgebreid naar agenda-editor.
+- [!] P2 — #Ovv22sJ (barius) **Sidebar category-knoppen klikken werkt niet** → best-effort: per-element click vervangen door delegatie op `#leftSidebar` (touch/re-render-robuust), hover behouden. **Niet live gereproduceerd → aan tafel verifiëren.** `wg-ui.js`.
+
+### Session Agenda (per campaign) — nieuw
+- [x] P1 — Datamodel `camp.agenda = [{id, datetime, title, notes}]` op bestaande `dw_campaigns` (geen sync.js-wijziging). `nextSession` blijft afgeleid (`deriveNextSession`). Migratie seedt agenda uit bestaand `nextSession`. `core.js`.
+- [x] P1 — CRUD via uitgebreide edit-campaign-modal: rijen toevoegen/verwijderen, datum+titel+notitie, DM-only (bestaande gate). `events.js`.
+- [x] P1 — Read-only "Upcoming sessions" lijst op de campaign-card (volgende 3). `ui-pages.js` + `style.css` + i18n `home.upcoming/more`.
+- [ ] P3 — Optioneel: agenda ook surfacen op `/home` dashboard (soonest entry voedt al de session-card via afgeleide nextSession).
+
+
 ## Inventory Widget (`wg-inventory.js`) — 2026-06-24
 Ontwerp via dnd-5.5e-mechanics (item-DB) + architect (render/fit). Custom
 `kind:'inventory'` à la combat (foreignObject HTML, geen kolom-tabel).

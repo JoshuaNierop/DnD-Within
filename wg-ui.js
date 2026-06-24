@@ -462,17 +462,23 @@ function renderSidebar() {
         <span class="cat-icon">${c.icon}</span>
       </button>
     `).join('');
-    catContainer.querySelectorAll('.cat-item').forEach(b => {
-      b.addEventListener('click', () => {
-        library.activeCategory = b.dataset.cat;
-        // Klik = pin het panel open (vereist voor touch; harmless op desktop)
-        document.getElementById('leftSidebar')?.classList.add('pinned');
+    // #Ovv22sJ: klik-handler via DELEGATIE op de stabiele #leftSidebar i.p.v.
+    // per-element op de telkens her-gerenderde knoppen. Per-element listeners
+    // gingen verloren bij re-render/timing op touch → knoppen leken "dood".
+    // Eenmalig binden (dataset-guard); overleeft elke renderSidebar()-pass.
+    const leftSb = document.getElementById('leftSidebar');
+    if (leftSb && !leftSb.dataset.catDelegated) {
+      leftSb.dataset.catDelegated = '1';
+      leftSb.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.cat-item[data-cat]');
+        if (!btn || !leftSb.contains(btn)) return;
+        library.activeCategory = btn.dataset.cat;
+        leftSb.classList.add('pinned'); // klik pint het panel open (vereist voor touch)
         renderSidebar();
       });
-      // V10: hover over een categorie opent direct die categorie in het panel.
-      // Het panel zelf opent al via :hover op de sidebar; de hover op de knop
-      // wisselt enkel de actieve categorie. Reset naar 'all' gebeurt pas bij
-      // sidebar-collapse (mouseleave / click-outside / Esc).
+    }
+    // V10: hover over een categorie opent direct die categorie in het panel.
+    catContainer.querySelectorAll('.cat-item').forEach(b => {
       b.addEventListener('mouseenter', () => {
         if (library.activeCategory === b.dataset.cat) return;
         library.activeCategory = b.dataset.cat;

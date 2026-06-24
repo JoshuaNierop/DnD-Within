@@ -699,15 +699,14 @@ function bindPageEvents(route) {
         }
         if (target.matches('[data-action="edit-campaign-session"]') || target.closest('[data-action="edit-campaign-session"]')) {
             // Stop the card-wide enter-campaign click from also firing
-            ev.stopPropagation();
-            ev.preventDefault();
+            e.stopPropagation();
+            e.preventDefault();
             var btn = target.matches('[data-action="edit-campaign-session"]') ? target : target.closest('[data-action="edit-campaign-session"]');
             var cId = btn.dataset.campaignId;
             var camps = getCampaigns();
             var camp = camps[cId];
             if (!camp) return;
             var currentTitle = camp.name || '';
-            var currentDate = camp.nextSession || '';
             var currentWorld = camp.world || '';
             var currentDmId = camp.dm || '';
 
@@ -725,15 +724,29 @@ function bindPageEvents(route) {
                 dmOptions = '<option value="' + escapeAttr(currentDmId) + '">' + escapeHtml(currentDmId || '—') + '</option>';
             }
 
+            // Agenda: één bewerkbare rij per geplande sessie (datum + titel + notitie).
+            var agendaRowHtml = function (s) {
+                s = s || {};
+                return '<div class="agenda-edit-row">' +
+                    '<input type="datetime-local" class="edit-input agenda-dt" value="' + escapeAttr(s.datetime || '') + '">' +
+                    '<input type="text" class="edit-input agenda-title" placeholder="Title (optional)" value="' + escapeAttr(s.title || '') + '">' +
+                    '<input type="text" class="edit-input agenda-notes" placeholder="Notes (optional)" value="' + escapeAttr(s.notes || '') + '">' +
+                    '<button type="button" class="agenda-row-del" data-action="agenda-remove-row" title="Remove session" aria-label="Remove session">&times;</button>' +
+                '</div>';
+            };
+            var existingRows = (typeof campaignAgenda === 'function') ? campaignAgenda(camp) : [];
+            var rowsHtml = existingRows.length ? existingRows.map(agendaRowHtml).join('') : agendaRowHtml(null);
+
             var overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
             overlay.innerHTML =
-                '<div class="modal-card" onclick="event.stopPropagation();" style="max-width:480px;padding:1.5rem;">' +
+                '<div class="modal-card" onclick="event.stopPropagation();" style="max-width:560px;padding:1.5rem;">' +
                     '<div class="modal-header"><h2>Edit campaign</h2><button class="modal-close" data-action="close-session-modal">&times;</button></div>' +
                     '<label class="login-label" style="display:block;margin-block:0.75rem 0.25rem;">Title</label>' +
                     '<input type="text" class="edit-input" id="edit-camp-title" value="' + escapeAttr(currentTitle) + '" style="width:100%;">' +
-                    '<label class="login-label" style="display:block;margin-block:1rem 0.25rem;">Next Session</label>' +
-                    '<input type="datetime-local" class="edit-input" id="edit-session-date" value="' + escapeAttr(currentDate) + '" style="width:100%;">' +
+                    '<label class="login-label" style="display:block;margin-block:1rem 0.25rem;">Session agenda</label>' +
+                    '<div id="agenda-rows" class="agenda-edit-list">' + rowsHtml + '</div>' +
+                    '<button type="button" class="btn btn-ghost btn-sm agenda-add-btn" data-action="agenda-add-row" style="margin-top:0.5rem;">+ Add session</button>' +
                     '<label class="login-label" style="display:block;margin-block:1rem 0.25rem;">World name</label>' +
                     '<input type="text" class="edit-input" id="edit-camp-world" value="' + escapeAttr(currentWorld) + '" style="width:100%;">' +
                     '<label class="login-label" style="display:block;margin-block:1rem 0.25rem;">DM</label>' +
@@ -748,15 +761,47 @@ function bindPageEvents(route) {
                     overlay.remove();
                     return;
                 }
+                // Agenda: rij toevoegen
+                if (evt.target.closest('[data-action="agenda-add-row"]')) {
+                    var listEl = overlay.querySelector('#agenda-rows');
+                    if (listEl) {
+                        listEl.insertAdjacentHTML('beforeend', agendaRowHtml(null));
+                        var last = listEl.querySelector('.agenda-edit-row:last-child .agenda-dt');
+                        if (last) last.focus();
+                    }
+                    return;
+                }
+                // Agenda: rij verwijderen
+                if (evt.target.closest('[data-action="agenda-remove-row"]')) {
+                    var row = evt.target.closest('.agenda-edit-row');
+                    if (row) row.remove();
+                    return;
+                }
                 if (evt.target.matches('[data-action="confirm-edit-session"]') || evt.target.closest('[data-action="confirm-edit-session"]')) {
                     var titleEl = document.getElementById('edit-camp-title');
-                    var dateEl = document.getElementById('edit-session-date');
                     var worldEl = document.getElementById('edit-camp-world');
                     var dmEl = document.getElementById('edit-camp-dm');
+                    // Verzamel agenda-rijen (alleen rijen met een datum tellen mee).
+                    var agenda = [];
+                    overlay.querySelectorAll('.agenda-edit-row').forEach(function (r) {
+                        var dt = r.querySelector('.agenda-dt');
+                        if (!dt || !dt.value) return;
+                        var ti = r.querySelector('.agenda-title');
+                        var no = r.querySelector('.agenda-notes');
+                        agenda.push({
+                            id: 'sess' + Date.now() + Math.floor(Math.random() * 100000),
+                            datetime: dt.value,
+                            title: ti ? ti.value.trim() : '',
+                            notes: no ? no.value.trim() : ''
+                        });
+                    });
+                    agenda.sort(function (a, b) { return a.datetime < b.datetime ? -1 : (a.datetime > b.datetime ? 1 : 0); });
                     var c = getCampaigns();
                     if (c[cId]) {
                         if (titleEl && titleEl.value.trim()) c[cId].name = titleEl.value.trim();
-                        c[cId].nextSession = dateEl && dateEl.value ? dateEl.value : '';
+                        c[cId].agenda = agenda;
+                        // nextSession blijft afgeleid zodat bestaande weergaves kloppen.
+                        c[cId].nextSession = (typeof deriveNextSession === 'function') ? deriveNextSession(c[cId]) : (agenda[0] ? agenda[0].datetime : '');
                         c[cId].world = worldEl ? worldEl.value.trim() : '';
                         if (dmEl && dmEl.value) c[cId].dm = dmEl.value;
                         saveCampaigns(c);

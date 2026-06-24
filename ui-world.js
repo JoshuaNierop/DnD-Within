@@ -2842,7 +2842,11 @@ function renderMonsterEntryInfo(e) {
     var fields = loreFieldsFor('monsters');
     var dm = (typeof isDM === 'function') && isDM();
     var eid = e.id || '';
-    var html = '';
+    // #OvVUxz: korte statblock-velden (size/type/AC/HP/saves/abilities/…) in een
+    // multi-kolom container voor sneller overzicht; narratieve textarea-blokken
+    // (traits/actions/spellcasting/description) blijven full-width eronder.
+    var cols = '';
+    var blocks = '';
     for (var fi = 0; fi < fields.length; fi++) {
         var f = fields[fi];
         var vis = monsterFieldVis(e, f.key);
@@ -2851,11 +2855,11 @@ function renderMonsterEntryInfo(e) {
             var hasAb = ab && LORE_ABILITY_KEYS.some(function (k) { return ab[k] != null; });
             if (dm) {
                 if (!hasAb) continue;
-                html += '<div class="lore-ab-wrap' + (vis === 'private' ? ' is-private' : '') + '">' +
+                cols += '<div class="lore-ab-wrap' + (vis === 'private' ? ' is-private' : '') + '">' +
                     '<div class="lore-ab-head"><span class="lore-info-label">Ability Scores</span>' + monsterVisToggle(eid, 'abilities', vis) + '</div>' +
                     monsterAbilitiesGrid(ab) + '</div>';
             } else if (vis === 'public' && hasAb) {
-                html += monsterAbilitiesGrid(ab);
+                cols += monsterAbilitiesGrid(ab);
             }
             continue;
         }
@@ -2865,29 +2869,29 @@ function renderMonsterEntryInfo(e) {
         if (dm) {
             if (!hasVal) continue; // leeg veld: niets te tonen of te verbergen
             if (f.type === 'textarea') {
-                html += '<div class="lore-info-block' + (vis === 'private' ? ' is-private' : '') + '">' +
+                blocks += '<div class="lore-info-block' + (vis === 'private' ? ' is-private' : '') + '">' +
                     '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' + monsterVisToggle(eid, f.key, vis) +
                     '<div class="lore-info-text">' + renderRichText(val) + '</div></div>';
             } else {
-                html += '<div class="lore-info-row' + (vis === 'private' ? ' is-private' : '') + '">' +
+                cols += '<div class="lore-info-row' + (vis === 'private' ? ' is-private' : '') + '">' +
                     '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
                     '<span class="lore-info-val">' + escapeHtml(dispVal) + '</span>' + monsterVisToggle(eid, f.key, vis) + '</div>';
             }
         } else if (vis === 'public') {
             if (!hasVal) continue;
             if (f.type === 'textarea') {
-                html += '<div class="lore-info-block"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
+                blocks += '<div class="lore-info-block"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
                     '<div class="lore-info-text">' + renderRichText(val) + '</div></div>';
             } else {
-                html += '<div class="lore-info-row"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
+                cols += '<div class="lore-info-row"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
                     '<span class="lore-info-val">' + escapeHtml(dispVal) + '</span></div>';
             }
         } else {
             // Speler + privaat veld → gedeelde hypothese-input (geen textarea-hyp in v1).
-            if (f.type !== 'textarea') html += renderMonsterHypRow(f, eid);
+            if (f.type !== 'textarea') cols += renderMonsterHypRow(f, eid);
         }
     }
-    return html;
+    return (cols ? '<div class="monster-stat-cols">' + cols + '</div>' : '') + blocks;
 }
 
 function renderLoreEntryInfo(cat, e) {

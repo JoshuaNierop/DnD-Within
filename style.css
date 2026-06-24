@@ -6359,10 +6359,9 @@ body.modal-open {
     background-position: center center;
     background-repeat: no-repeat;
 
-    /* Bug -OvLhpp: gouden hairline gaf een "inverse" rand die met de foto
-       vecht. Rustiger = monochrome, neutrale hairline (geen tint) + één zachte
-       drop-shadow, geen inset-ringen. */
-    border-color: color-mix(in srgb, var(--text) 16%, transparent);
+    /* Bug -OvPn4: rand dezelfde kleur als de stat/level-kaarten (var(--border))
+       zodat de banner visueel aansluit op de info-kaarten eronder. */
+    border-color: var(--border);
     box-shadow: 0 12px 32px -16px color-mix(in srgb, var(--bg-dark) 90%, transparent);
 }
 @media (min-width: 700px) {
@@ -7642,6 +7641,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .lore-entry-card.expanded .lore-entry-info { display: block; }
 
 /* Info-field rendering (shared by hover + expanded) */
+/* #OvVUxz: korte statblock-velden in 2/3 kolommen voor sneller overzicht.
+   CSS columns houdt label/waarde-paren compact; brede items breken niet. */
+.monster-stat-cols { columns: 2; column-gap: 1.5rem; }
+@media (min-width: 760px) { .monster-stat-cols { columns: 3; } }
+.monster-stat-cols .lore-info-row,
+.monster-stat-cols .lore-ab-wrap { break-inside: avoid; -webkit-column-break-inside: avoid; }
+.monster-stat-cols .lore-info-label { min-width: 7em; }
 .lore-info-row { display: flex; gap: 0.5rem; padding: 0.1rem 0; line-height: 1.35; }
 .lore-info-label { color: var(--text-dim); font-weight: 600; flex: 0 0 auto; min-width: 8.5em; }
 .lore-entry-card:not(.expanded) .lore-info-label { color: rgba(255,255,255,0.65); }
@@ -9638,6 +9644,62 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     font-size: 0.85rem;
     color: var(--text-dim);
     margin-block-start: 0.75rem;
+}
+
+/* --- Session Agenda: read-only lijst op de campaign-card --- */
+.campaign-agenda-list {
+    margin-block-start: 0.5rem;
+    padding-block-start: 0.5rem;
+    border-block-start: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.campaign-agenda-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-block-end: 0.15rem;
+}
+.campaign-agenda-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    font-size: 0.8rem;
+}
+.campaign-agenda-dt { color: var(--text-main); white-space: nowrap; }
+.campaign-agenda-ttl { color: var(--text-dim); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.campaign-agenda-more { font-size: 0.72rem; color: var(--text-dim); font-style: italic; }
+
+/* --- Session Agenda: editor-rijen in de edit-modal --- */
+.agenda-edit-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.agenda-edit-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: 0.4rem;
+    align-items: center;
+}
+.agenda-edit-row .edit-input { width: 100%; min-width: 0; }
+.agenda-row-del {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.agenda-row-del:hover { color: #e06c6c; border-color: #e06c6c; }
+@media (max-width: 560px) {
+    .agenda-edit-row { grid-template-columns: 1fr auto; grid-auto-flow: row; }
+    .agenda-edit-row .agenda-dt { grid-column: 1; }
+    .agenda-edit-row .agenda-row-del { grid-column: 2; grid-row: 1; }
+    .agenda-edit-row .agenda-title,
+    .agenda-edit-row .agenda-notes { grid-column: 1 / -1; }
 }
 .campaign-active-badge {
     display: inline-block;

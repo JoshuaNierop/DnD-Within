@@ -575,8 +575,20 @@ function renderWizardStep1() {
         }
         html += '<p class="wizard-detail"><strong>Hit Die:</strong> d' + classData.hitDie + '</p>';
         html += '<p class="wizard-detail"><strong>Saving Throws:</strong> ' + classData.savingThrows.map(function(s) { return s.toUpperCase(); }).join(', ') + '</p>';
-        if (classData.cantripsKnown) {
-            html += '<p class="wizard-detail"><strong>Spellcasting:</strong> ' + t('generic.yes') + ' (cantrips: ' + classData.cantripsKnown[1] + ')</p>';
+        // #Ovv0gie: baseer Yes/No op een echte caster-predicate i.p.v. enkel
+        // cantripsKnown — half-casters (Paladin/Ranger) hebben geen L1-cantrips
+        // maar zijn wél spellcasters (vanaf hun spellcastingStart-level).
+        var isCaster = (typeof hasSpellcasting === 'function') && hasSpellcasting(wizardState.className);
+        if (isCaster) {
+            var startLvl = classData.spellcastingStart || 1;
+            var l1Cantrips = classData.cantripsKnown ? classData.cantripsKnown[1] : 0;
+            var scDetail;
+            if (startLvl > 1) {
+                scDetail = t('generic.yes') + ' (from level ' + startLvl + ')';
+            } else {
+                scDetail = t('generic.yes') + (l1Cantrips ? ' (cantrips: ' + l1Cantrips + ')' : '');
+            }
+            html += '<p class="wizard-detail"><strong>Spellcasting:</strong> ' + scDetail + '</p>';
         } else {
             html += '<p class="wizard-detail"><strong>Spellcasting:</strong> ' + t('generic.no') + '</p>';
         }
@@ -610,7 +622,10 @@ function renderWizardStep2() {
         html += '<p class="wizard-detail"><strong>Skills:</strong> ' + bg.skills.join(', ') + '</p>';
         html += '<p class="wizard-detail"><strong>Tool:</strong> ' + bg.tool + '</p>';
         html += '<p class="wizard-detail"><strong>Feat:</strong> ' + bg.feat + '</p>';
-        html += '<p class="wizard-detail"><strong>Ability Scores:</strong> ' + bg.abilityScores.join(', ') + ' (+2 en +1 verdeeld)</p>';
+        // #Ovv13Yv: dit is de read-only background-bonusinfo, NIET de score-editor.
+        // Herlabeld zodat het niet leest als "stel hier je scores in" (de echte
+        // editor — handmatig/array/point-buy — staat eronder via renderWizardAbilityScores).
+        html += '<p class="wizard-detail"><strong>Ability boosts:</strong> +2 / +1 to ' + bg.abilityScores.join(' / ') + ' (set your scores below)</p>';
 
         // Background bonus distribution
         html += '<div class="wizard-bg-bonus">';
@@ -1092,7 +1107,9 @@ function createCharacterFromWizard() {
         player: existing.player || currentUserId(),
         race: wizardState.race,
         className: wizardState.className,
-        subclass: wizardState.subclass || '',
+        // #OvVZiZ: onder het subclass-keuzelevel (5.5e L3, Cleric L1) ALTIJD leeg
+        // wegschrijven, zodat een stale wizardState.subclass niet terugkeert in Firebase.
+        subclass: ((wizardCharLevel() >= ((typeof subclassChoiceLevel === 'function') ? subclassChoiceLevel(wizardState.className) : 3)) ? (wizardState.subclass || '') : ''),
         background: wizardState.background ? (DATA.backgrounds[wizardState.background] ? DATA.backgrounds[wizardState.background].name : wizardState.background) : '',
         alignment: wizardState.alignment,
         age: wizardState.age || null,
@@ -1264,7 +1281,10 @@ function buildWizardStateFromConfig(charId) {
     wizardState.race = cfg.race || '';
     wizardState.species = speciesFromRaceKey(wizardState.race);
     wizardState.className = cfg.className || '';
-    wizardState.subclass = cfg.subclass || '';
+    // #OvVZiZ: laad de subclass alleen als het character het keuzelevel haalt;
+    // anders leeg, zodat een vóór-L3 opgeslagen waarde niet terug in de wizard lekt.
+    var _subGate = (typeof subclassChoiceLevel === 'function') ? subclassChoiceLevel(cfg.className) : 3;
+    wizardState.subclass = (wizardCharLevel() >= _subGate) ? (cfg.subclass || '') : '';
     wizardState.background = bgKeyFromConfig(cfg.background);
     wizardState.alignment = cfg.alignment || 'True Neutral';
     wizardState.age = (cfg.age != null) ? cfg.age : '';

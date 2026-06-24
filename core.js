@@ -210,6 +210,13 @@ function getCampaigns() {
             camps[cid].inviteCode = generateInviteCode();
             needsSave = true;
         }
+        // Agenda-feature: seed de agenda eenmalig uit het bestaande nextSession-veld.
+        if (!Array.isArray(camps[cid].agenda)) {
+            camps[cid].agenda = camps[cid].nextSession
+                ? [{ id: 'sess' + Date.now() + Math.floor(Math.random() * 1000), datetime: camps[cid].nextSession, title: '', notes: '' }]
+                : [];
+            needsSave = true;
+        }
     }
     // Ensure valoria has all 8 members
     if (camps.valoria && camps.valoria.members && camps.valoria.members.length < 8) {
@@ -238,6 +245,32 @@ function getCampaigns() {
 function saveCampaigns(campaigns) {
     localStorage.setItem('dw_campaigns', JSON.stringify(campaigns));
     if (typeof syncUpload === 'function') syncUpload('dw_campaigns');
+}
+
+// --- Session Agenda (per campaign) ----------------------------------------
+// camp.agenda = [{ id, datetime (datetime-local "YYYY-MM-DDTHH:mm"), title, notes }]
+// nextSession blijft afgeleid (vroegste toekomstige sessie) zodat bestaande
+// weergaves blijven werken. #Ovv3O3E / agenda-feature.
+function _nowLocalIso() {
+    var d = new Date();
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+// Alle agenda-items met een datum, chronologisch gesorteerd (oplopend).
+function campaignAgenda(camp) {
+    if (!camp || !Array.isArray(camp.agenda)) return [];
+    return camp.agenda.filter(function (s) { return s && s.datetime; })
+        .slice().sort(function (a, b) { return a.datetime < b.datetime ? -1 : (a.datetime > b.datetime ? 1 : 0); });
+}
+// Alleen toekomstige sessies (>= nu).
+function campaignUpcoming(camp) {
+    var now = _nowLocalIso();
+    return campaignAgenda(camp).filter(function (s) { return s.datetime >= now; });
+}
+// Afgeleide "volgende sessie" = vroegste toekomstige; leeg als alles in verleden.
+function deriveNextSession(camp) {
+    var up = campaignUpcoming(camp);
+    return up.length ? up[0].datetime : '';
 }
 
 function getUserCampaigns() {
@@ -951,6 +984,12 @@ function classDisplayName(className) {
         barbarian: 'Barbarian', bard: 'Bard', cleric: 'Cleric', monk: 'Monk'
     };
     return names[className] || capitalize(className);
+}
+
+// 2024 PHB: het level waarop een class zijn subclass kiest. Vrijwel alle classes
+// op level 3; Cleric is de uitzondering (Divine Order op level 1). #OvVZiZ
+function subclassChoiceLevel(className) {
+    return (className === 'cleric') ? 1 : 3;
 }
 
 function subclassDisplayName(subclass) {

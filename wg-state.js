@@ -70,7 +70,11 @@ function buildRowsFromSource(widget) {
       { key: 'background', label: 'Background', value: cfg.background ? capLocal(cfg.background) : dash },
       { key: 'age',        label: 'Age',        value: (cfg.age != null && cfg.age !== '') ? String(cfg.age) : dash },
     ];
-    if (cfg.subclass || lvl >= 3) {
+    // #OvVZiZ: archetype-rij alleen tonen vanaf het level waarop de subclass
+    // legaal gekozen wordt (5.5e: L3, Cleric L1). Een vóór-L3 opgeslagen waarde
+    // blijft verborgen zodat er geen "spook"-subclass terugkomt.
+    var subLvlGate = (typeof subclassChoiceLevel === 'function') ? subclassChoiceLevel(cfg.className) : 3;
+    if (lvl >= subLvlGate) {
       fields.push({ key: 'subclass', label: 'Archetype', value: cfg.subclass ? subTxt : dash });
     }
     d.columns = [

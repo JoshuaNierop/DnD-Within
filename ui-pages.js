@@ -301,6 +301,25 @@ function renderHome() {
         html += '</div>';
         html += '</dl>';
 
+        // Agenda: toon de eerstvolgende geplande sessies (na de "Next session")
+        // als beknopte read-only lijst. DM bewerkt via het potlood (edit-modal).
+        if (typeof campaignUpcoming === 'function') {
+            var upcoming = campaignUpcoming(camp);
+            if (upcoming.length > 1) {
+                html += '<div class="campaign-agenda-list">';
+                html += '<span class="campaign-agenda-label">' + t('home.upcoming') + '</span>';
+                for (var ai = 1; ai < Math.min(upcoming.length, 4); ai++) {
+                    var s = upcoming[ai];
+                    html += '<div class="campaign-agenda-item">' +
+                        '<span class="campaign-agenda-dt">' + escapeHtml(formatNextSession(s.datetime)) + '</span>' +
+                        (s.title ? '<span class="campaign-agenda-ttl">' + escapeHtml(s.title) + '</span>' : '') +
+                    '</div>';
+                }
+                if (upcoming.length > 4) html += '<div class="campaign-agenda-more">+' + (upcoming.length - 4) + ' ' + t('home.more') + '</div>';
+                html += '</div>';
+            }
+        }
+
         html += '<div class="campaign-home-stats">';
         html += '<span>' + memberCount + t('home.players') + '</span>';
         html += '<span>' + partyCount + t('home.inparty') + '</span>';
