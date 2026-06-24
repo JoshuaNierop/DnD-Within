@@ -61,6 +61,7 @@ function render() {
   normalizePositions();
   if (!dragHandle) {
     recomputeCombatWidgets(false);   // #NU-YZ6: combat-widgets fitten op zichtbare content
+    if (typeof recomputeInventoryWidgets === 'function') recomputeInventoryWidgets(false); // inventory-widget fit-om-content
     resolveCollisionsAll();
     normalizePositions();
     // V10: lege tussen-pagina's wegwerken (geen "page 2 leeg, page 3 vol").
@@ -399,6 +400,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
     if (kind === 'map') drawMapInWidget(widgetG, state.widget, x, contentY, w, contentH, widgetIdx);
     else if (kind === 'image') drawImageInWidget(widgetG, state.widget, x, contentY, w, contentH, widgetIdx);
     else if (kind === 'combat') drawCombatTable(widgetG, state.widget, x, contentY, w, contentH, widgetIdx);
+    else if (kind === 'inventory') { if (typeof drawInventoryGrid === 'function') drawInventoryGrid(widgetG, state.widget, x, contentY, w, contentH, widgetIdx); }
     else drawInfoBoxesInWidget(widgetG, x, y, barH);
   }
 

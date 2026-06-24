@@ -654,6 +654,7 @@ function compactSpanUnitsY(growOnly = false) {
   const w = state.widget;
   if (!w) return;
   if (widgetKind(w) === 'combat') { _fitCombatSpanY(growOnly); return; }
+  if (widgetKind(w) === 'inventory') { if (typeof _fitInventorySpanY === 'function') _fitInventorySpanY(growOnly); return; }
   if (widgetKind(w) !== 'infobox') return;             // map/image: vrije, onafhankelijke afmetingen
   const boxPxW = state.layout.boxPxW;
   const boxPxH = state.layout.boxPxH;

@@ -81,6 +81,22 @@ function bindInputs() {
       });
     });
   }
+
+  // Inventory weergave-variant (tekst | afbeelding) — per inventory-widget.
+  // Variant raakt de fit (image-box is hoger) → her-fit vóór render.
+  const invGroup = document.getElementById('invDisplay');
+  if (invGroup) {
+    invGroup.querySelectorAll('input[name="invDisplay"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const w = state.widget;
+        if (!r.checked || !w) return;
+        if (!w.cfg) w.cfg = {};
+        w.cfg.display = (r.value === 'image') ? 'image' : 'text';
+        if (typeof _fitInventorySpanY === 'function') withWidget(w, () => _fitInventorySpanY(false));
+        render();
+      });
+    });
+  }
 }
 
 // ----- Palettes -----
@@ -279,6 +295,10 @@ function syncWidgetPanel() {
   const _trans = !!(w.cfg && w.cfg.transpose);
   document.querySelectorAll('input[name="combatTranspose"]').forEach(r => {
     r.checked = (r.value === (_trans ? 'transpose' : 'normal'));
+  });
+  const _invDisp = (w.cfg && w.cfg.display === 'image') ? 'image' : 'text';
+  document.querySelectorAll('input[name="invDisplay"]').forEach(r => {
+    r.checked = (r.value === _invDisp);
   });
   updateStatus();
   renderWidgetColumnControls();

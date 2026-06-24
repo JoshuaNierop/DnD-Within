@@ -216,6 +216,12 @@ function wgBodyTemplate(context) {
             <label><input type="radio" name="combatTranspose" value="transpose"><span>Kolommen</span></label>
           </div>
         </div>
+        <div class="control" data-kind="inventory"><label>Weergave</label>
+          <div class="radio-group" id="invDisplay">
+            <label><input type="radio" name="invDisplay" value="text" checked><span>Tekst</span></label>
+            <label><input type="radio" name="invDisplay" value="image"><span>Afbeelding</span></label>
+          </div>
+        </div>
         <div class="control" data-kind="infobox"><label>Stacking</label>
           <div class="radio-group" id="stacking">
             <label><input type="radio" name="stacking" value="horizontal" checked><span>Horizontal</span></label>

@@ -1112,7 +1112,13 @@ function createCharacterFromWizard() {
     if (!isEdit) {
         config.weapons = [];
         config.quotes = [];
-        config.defaultItems = [];
+        // Background Choice A (themed equipment-pack) auto-toevoegen aan de
+        // inventory. invResolveStrings (wg-inventory.js) parset counts ("(x2)"),
+        // klapt starter-packs uit, en joint op DATA.itemDB. Geen A/B-picker nog →
+        // default Choice A; valt veilig terug op [] als er geen equipment is.
+        var bgEquip = bgData && bgData.equipment && bgData.equipment.A && bgData.equipment.A.items;
+        config.defaultItems = (bgEquip && typeof invResolveStrings === 'function')
+            ? invResolveStrings(bgEquip) : [];
         config.charTimeline = [];
         config.family = [];
     }

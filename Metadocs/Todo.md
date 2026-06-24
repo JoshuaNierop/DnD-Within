@@ -1,5 +1,18 @@
 # D&D Within — To Do
 
+## Inventory Widget (`wg-inventory.js`) — 2026-06-24
+Ontwerp via dnd-5.5e-mechanics (item-DB) + architect (render/fit). Custom
+`kind:'inventory'` à la combat (foreignObject HTML, geen kolom-tabel).
+- [x] P1 — Item-database: `DATA.itemDB` (flat, rijk: type/cost/damage/properties/armor-AC/mastery) + `DATA.itemPacks` (7 starter-packs) in `data.js`. Magere `DATA.items.*` arrays blijven ongebruikt staan.
+- [x] P1 — Widget: registratie + render (2 varianten tekst/afbeelding-met-glyph-fallback, toggle in settings), tooltips via data-tip-*, CSS-grid auto-fill reflow, `_fitInventorySpanY` fit-om-content, read-only v1.
+- [x] P1 — Naam-matching + pack-expansie (`invResolveStrings`): counts "(x2)"/"(20)", choice-strip, ammo-bundel, pack→losse items. Node-getest tegen echte backgrounds.
+- [x] P1 — Wizard-hook: nieuw character krijgt background Choice A equipment auto-uitgeklapt naar `defaultItems` (ui-modals.js).
+- [!] P1 — **Shortbow weapon-mastery conflict**: `DATA.items.weapons` zegt `slow`, itemDB zegt `vex` (dnd-agent). Eén is fout — verifieer tegen 2024 PHB.
+- [ ] P2 — **Browser-verificatie nodig** (code-niveau af, niet live getest): widget verschijnt in type-dropdown, boxen renderen, hover-tooltip, reflow bij resize, fit-hoogte (INV_FIT rij-px-constanten `textRowPx 62 / imageRowPx 92` evt. tunen), image-toggle.
+- [ ] P2 — Items zonder DB-entry (Bell, Robe, "Book (prayers)") tonen als custom (geen rijke tooltip) — DB aanvullen indien gewenst.
+- [ ] P3 — `_verify:true`-velden in itemDB/packs (pack-prijzen, rations/ball-bearings counts, container-capacity, tool-weights, armor don/doff) tegen 2024 PHB checken.
+- [ ] P3 — Fase 2: bewerkbaar maken (equipped-toggle, qty-stepper, items toevoegen/verwijderen) + A/B equipment-picker in wizard.
+
 ## Level-Up & Spell-Prepare (BG3-stijl, E5.5) — 2026-06-19
 Ontwerp: `Metadocs/LevelUp-SpellPrepare-Design.md`.
 - [x] P1 — Fase 1: Long/Short-rest widget (`wg-rest.js`) — state-reset + prepare-window hook; klikbaar geverifieerd (zelfde 'always'-mode pad als HP)
