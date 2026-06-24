@@ -294,7 +294,7 @@ function renderHome() {
         html += '<div class="campaign-session-row">';
         html += '<dt>' + t('home.nextsession') + '</dt>';
         if (camp.nextSession) {
-            html += '<dd>' + escapeHtml(formatNextSession(camp.nextSession)) + '</dd>';
+            html += '<dd><span class="campaign-next-hl">' + escapeHtml(formatNextSession(camp.nextSession)) + '</span></dd>';
         } else {
             html += '<dd class="text-dim">' + t('home.nosession') + '</dd>';
         }

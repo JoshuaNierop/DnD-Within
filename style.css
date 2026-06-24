@@ -9646,6 +9646,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     margin-block-start: 0.75rem;
 }
 
+/* Highlight de eerstvolgende sessie-datum zodat geplande sessies opvallen. */
+.campaign-next-hl {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 6px;
+    font-weight: 600;
+    color: var(--text-main);
+    background: color-mix(in srgb, var(--accent, var(--char-accent)) 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent, var(--char-accent)) 45%, transparent);
+}
+
 /* --- Session Agenda: read-only lijst op de campaign-card --- */
 .campaign-agenda-list {
     margin-block-start: 0.5rem;
@@ -9667,8 +9678,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     gap: 0.5rem;
     align-items: baseline;
     font-size: 0.8rem;
+    padding: 0.22rem 0.5rem;
+    border-radius: 6px;
+    border-inline-start: 3px solid var(--accent, var(--char-accent));
+    background: color-mix(in srgb, var(--accent, var(--char-accent)) 12%, transparent);
 }
-.campaign-agenda-dt { color: var(--text-main); white-space: nowrap; }
+.campaign-agenda-dt { color: var(--text-main); font-weight: 600; white-space: nowrap; }
 .campaign-agenda-ttl { color: var(--text-dim); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .campaign-agenda-more { font-size: 0.72rem; color: var(--text-dim); font-style: italic; }
 

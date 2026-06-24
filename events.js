@@ -740,7 +740,7 @@ function bindPageEvents(route) {
             var overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
             overlay.innerHTML =
-                '<div class="modal-card" onclick="event.stopPropagation();" style="max-width:560px;padding:1.5rem;">' +
+                '<div class="modal-card" style="max-width:560px;padding:1.5rem;">' +
                     '<div class="modal-header"><h2>Edit campaign</h2><button class="modal-close" data-action="close-session-modal">&times;</button></div>' +
                     '<label class="login-label" style="display:block;margin-block:0.75rem 0.25rem;">Title</label>' +
                     '<input type="text" class="edit-input" id="edit-camp-title" value="' + escapeAttr(currentTitle) + '" style="width:100%;">' +
@@ -753,7 +753,7 @@ function bindPageEvents(route) {
                     '<select class="edit-input" id="edit-camp-dm" style="width:100%;">' + dmOptions + '</select>' +
                     '<div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.25rem;">' +
                         '<button class="btn btn-ghost btn-sm" data-action="close-session-modal">' + t('generic.cancel') + '</button>' +
-                        '<button class="btn btn-primary btn-sm" data-action="confirm-edit-session" data-campaign-id="' + escapeAttr(cId) + '">' + t('quest.save') + '</button>' +
+                        '<button class="btn btn-primary btn-sm" data-action="confirm-edit-session" data-campaign-id="' + escapeAttr(cId) + '">Save</button>' +
                     '</div>' +
                 '</div>';
             overlay.addEventListener('click', function(evt) {
