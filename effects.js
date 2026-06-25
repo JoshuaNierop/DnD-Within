@@ -34,7 +34,7 @@ function autoGrowAll(root) {
 // === Quick Notes Panel ===
 // Small floating panel (mirror of DiceHand) — lets user drop a quick note from any page
 var QuickNotes = {
-    draft: { title: '', content: '' },
+    draft: { title: '', content: '', mentions: [] },
     justSaved: false,
 
     render: function() {
@@ -92,7 +92,15 @@ var QuickNotes = {
         var titleEl = document.getElementById('qnote-title');
         var contentEl = document.getElementById('qnote-content');
         if (titleEl) titleEl.addEventListener('input', function() { self.draft.title = this.value; });
-        if (contentEl) contentEl.addEventListener('input', function() { self.draft.content = this.value; });
+        if (contentEl) {
+            // Restore the @-mention id→name map so it survives panel re-renders;
+            // the mentions.js autocomplete reads/writes data-mentions on this field.
+            contentEl.dataset.mentions = JSON.stringify(self.draft.mentions || []);
+            contentEl.addEventListener('input', function() {
+                self.draft.content = this.value;
+                try { self.draft.mentions = JSON.parse(this.dataset.mentions || '[]'); } catch (_) {}
+            });
+        }
 
         if (this.justSaved) {
             this.justSaved = false;
@@ -107,9 +115,17 @@ var QuickNotes = {
         var titleEl = document.getElementById('qnote-title');
         var contentEl = document.getElementById('qnote-content');
         var title = titleEl ? titleEl.value.trim() : '';
-        var content = contentEl ? contentEl.value : '';
+        // Expand "@Name" mentions into canonical [[type:id|Name]] tokens so they
+        // render as clickable links on the notes page (renderRichText).
+        var content = contentEl
+            ? ((typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(contentEl) : contentEl.value)
+            : '';
         if (!title && !content.trim()) return;
-        if (!title) title = content.trim().split('\n')[0].slice(0, 40);
+        // Fallback title from the visible text (with "@Name", not raw tokens).
+        if (!title) {
+            var display = contentEl ? contentEl.value : content;
+            title = display.trim().split('\n')[0].slice(0, 40);
+        }
 
         if (typeof getNotesData !== 'function' || typeof saveNotesData !== 'function') return;
         var data = getNotesData();
@@ -130,7 +146,7 @@ var QuickNotes = {
         data.notes.push(note);
         saveNotesData(data);
 
-        this.draft = { title: '', content: '' };
+        this.draft = { title: '', content: '', mentions: [] };
         this.justSaved = true;
         this.render();
     }

@@ -7926,7 +7926,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .mention-popup {
     position: absolute;
-    z-index: 500;
+    z-index: 10060;
     background: var(--bg-elevated, var(--bg-card));
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);

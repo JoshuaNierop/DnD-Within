@@ -3141,7 +3141,8 @@ function renderNotes() {
                 if (note.checklist.length > 3) html += '<div class="note-card-check-more">+' + (note.checklist.length - 3) + ' ' + t('notes.more') + '</div>';
                 html += '</div>';
             } else {
-                html += '<p class="note-card-preview">' + escapeHtml((note.content || '').substring(0, 120)) + (note.content && note.content.length > 120 ? '...' : '') + '</p>';
+                var previewText = (typeof mentionsStripToName === 'function') ? mentionsStripToName(note.content || '') : (note.content || '');
+                html += '<p class="note-card-preview">' + escapeHtml(previewText.substring(0, 120)) + (previewText.length > 120 ? '...' : '') + '</p>';
             }
 
             html += '</div>';

@@ -18,7 +18,8 @@
     var queryAt = -1;   // index of the "@" in the textarea value
 
     function isMentionField(el) {
-        return el && el.tagName === 'TEXTAREA' && el.classList.contains('edit-textarea');
+        return el && el.tagName === 'TEXTAREA' &&
+            (el.classList.contains('edit-textarea') || el.classList.contains('qnotes-textarea'));
     }
 
     function closePopup() {
