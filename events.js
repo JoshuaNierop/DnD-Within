@@ -1286,7 +1286,7 @@ function bindPageEvents(route) {
         }
         if (target.matches('[data-action="delete-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]')) {
             var ldBtn = target.matches('[data-action="delete-lore-entry"]') ? target : target.closest('[data-action="delete-lore-entry"]');
-            if (confirm('Verwijderen?')) {
+            if (confirm('Delete?')) {
                 var leCat = ldBtn.dataset.cat;
                 var leIdx = parseInt(ldBtn.dataset.entryIdx, 10);
                 var lcData = getLoreCatsData();

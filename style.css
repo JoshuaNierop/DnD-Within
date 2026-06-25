@@ -661,6 +661,16 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
     justify-content: space-between;
 }
 
+/* #OvywGWk: Monsters-sectie binnen de NPC-tab. */
+.npc-monsters-section { margin-top: 2.5rem; }
+.npc-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+.npc-section-head .section-title { margin-bottom: 0; flex: 1; }
+
 .section-title .title-action {
     font-size: 0.78rem;
     color: var(--accent);

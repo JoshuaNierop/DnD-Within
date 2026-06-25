@@ -1848,10 +1848,10 @@ function renderNPCTracker() {
     factions.sort();
 
     var html = '<div class="npc-toolbar">';
-    html += '<input type="text" class="edit-input npc-search" id="npc-search" placeholder="Zoek NPCs…" value="' + escapeAttr(npcSearchQuery) + '">';
+    html += '<input type="text" class="edit-input npc-search" id="npc-search" placeholder="Search NPCs…" value="' + escapeAttr(npcSearchQuery) + '">';
     // Disposition-filter chips.
     html += '<div class="npc-filter-chips">';
-    var disps = [['all', 'Alle'], ['friendly', 'Friendly'], ['neutral', 'Neutral'], ['hostile', 'Hostile'], ['unknown', 'Unknown']];
+    var disps = [['all', 'All'], ['friendly', 'Friendly'], ['neutral', 'Neutral'], ['hostile', 'Hostile'], ['unknown', 'Unknown']];
     for (var di = 0; di < disps.length; di++) {
         var act = npcFilterDisp === disps[di][0] ? ' active' : '';
         html += '<button class="npc-chip' + act + '" data-action="npc-filter-disp" data-disp="' + disps[di][0] + '">' + disps[di][1] + '</button>';
@@ -1859,7 +1859,7 @@ function renderNPCTracker() {
     html += '</div>';
     if (factions.length) {
         html += '<select class="edit-input npc-faction-filter" data-action="npc-filter-faction">';
-        html += '<option value="all"' + (npcFilterFaction === 'all' ? ' selected' : '') + '>Alle facties</option>';
+        html += '<option value="all"' + (npcFilterFaction === 'all' ? ' selected' : '') + '>All factions</option>';
         for (var fj = 0; fj < factions.length; fj++) {
             html += '<option value="' + escapeAttr(factions[fj]) + '"' + (npcFilterFaction === factions[fj] ? ' selected' : '') + '>' + escapeHtml(factions[fj]) + '</option>';
         }
@@ -1867,13 +1867,25 @@ function renderNPCTracker() {
     }
     if (isDM()) {
         html += '<div class="npc-toolbar-dm">';
-        html += '<label class="npc-year-label">Huidig jaar <input type="number" class="edit-input npc-year-input" id="npc-current-year" value="' + escapeAttr(String(currentYear)) + '" placeholder="—"></label>';
+        html += '<label class="npc-year-label">Current year <input type="number" class="edit-input npc-year-input" id="npc-current-year" value="' + escapeAttr(String(currentYear)) + '" placeholder="—"></label>';
         html += '<button class="btn btn-primary btn-sm" data-action="add-npc">+ Add NPC</button>';
         html += '</div>';
     }
     html += '</div>';
 
     html += '<div class="npc-results" id="npc-results">' + renderNPCResultsInner() + '</div>';
+
+    // Monsters — toon de bestaande monster-entries in de NPC-tab (#OvywGWk,
+    // entity-merge stap 1: zichtbaarheid). Hergebruikt de lore-monster-kaarten;
+    // edit/delete/toggle/add werken via de bestaande gedelegeerde handlers.
+    html += '<div class="npc-monsters-section">';
+    html += '<div class="npc-section-head"><h2 class="section-title">Monsters</h2>';
+    if (isDM()) {
+        html += '<button class="btn btn-primary btn-sm" data-action="add-lore-entry" data-cat="monsters">+ Monster</button>';
+    }
+    html += '</div>';
+    html += '<div class="lore-entry-results" id="npc-monsters-results" data-cat="monsters">' + renderLoreResultsInner('monsters') + '</div>';
+    html += '</div>';
     return html;
 }
 
@@ -2974,7 +2986,7 @@ function renderLoreResultsInner(cat) {
     });
 
     if (!filtered.length) {
-        html += '<p class="text-dim">' + (q ? 'Geen resultaten voor "' + escapeHtml(loreCatSearch) + '".' : 'Nog niets in ' + escapeHtml(label) + '.') + '</p>';
+        html += '<p class="text-dim">' + (q ? 'No results for "' + escapeHtml(loreCatSearch) + '".' : 'Nothing in ' + escapeHtml(label) + ' yet.') + '</p>';
         return html;
     }
 
@@ -3002,7 +3014,7 @@ function renderLoreResultsInner(cat) {
             html += '<div class="lore-entry-img lore-entry-img-empty"><span>' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span></div>';
         }
         html += '<div class="lore-entry-body">';
-        html += '<h3 class="lore-entry-name">' + escapeHtml(e.name || '(naamloos)') + '</h3>';
+        html += '<h3 class="lore-entry-name">' + escapeHtml(e.name || '(unnamed)') + '</h3>';
         if (infoHtml) html += '<div class="lore-entry-info">' + infoHtml + '</div>';
         if (isDM()) {
             html += '<div class="lore-entry-actions">';
