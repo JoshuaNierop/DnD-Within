@@ -2615,7 +2615,7 @@ function renderLoreEntryModal(cat, idx) {
     var html = '<div class="modal-overlay lore-entry-modal-overlay">';
     html += '<div class="modal-card modal-lore">';
     html += '<div class="modal-header">';
-    html += '<h2>' + (isNew ? 'Nieuw: ' + escapeHtml(label) : escapeHtml(label) + ' bewerken') + '</h2>';
+    html += '<h2>' + (isNew ? 'New ' + escapeHtml(label) : 'Edit ' + escapeHtml(label)) + '</h2>';
     html += '<button class="modal-close" data-action="close-lore-entry-modal">&times;</button>';
     html += '</div>';
     html += '<div class="modal-body lore-entry-form" data-cat="' + cat + '" data-entry-idx="' + (isNew ? -1 : idx) + '">';
@@ -2642,9 +2642,9 @@ function renderLoreEntryModal(cat, idx) {
     html += '<div class="modal-footer">';
     if (multi) {
         html += '<div class="modal-footer-actions">';
-        html += '<button type="button" class="btn-page-prev" data-action="modal-page-prev" disabled aria-label="Vorige pagina">&larr;</button>';
+        html += '<button type="button" class="btn-page-prev" data-action="modal-page-prev" disabled aria-label="Previous page">&larr;</button>';
         html += '<span class="modal-page-indicator">1 / ' + pages.length + '</span>';
-        html += '<button type="button" class="btn-page-next" data-action="modal-page-next" aria-label="Volgende pagina">&rarr;</button>';
+        html += '<button type="button" class="btn-page-next" data-action="modal-page-next" aria-label="Next page">&rarr;</button>';
         html += '</div>';
     } else {
         html += '<span></span>';
