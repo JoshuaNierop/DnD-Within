@@ -1249,7 +1249,13 @@ function bindPageEvents(route) {
         // NPC filter: disposition chips
         if (target.matches('[data-action="npc-filter-disp"]')) {
             npcFilterDisp = target.dataset.disp || 'all';
-            renderApp();
+            // Chip-active-state bijwerken zonder volledige re-render → de grid
+            // animeert vloeiend (FLIP) i.p.v. een harde herteken (#OvywGWk).
+            var _chips = document.querySelectorAll('.npc-chip');
+            for (var _ci = 0; _ci < _chips.length; _ci++) {
+                _chips[_ci].classList.toggle('active', _chips[_ci].dataset.disp === npcFilterDisp);
+            }
+            updateSearchResults('npc-results', function () { return renderCreatureResultsInner(); });
             return;
         }
 
@@ -2683,7 +2689,7 @@ function bindPageEvents(route) {
         // NPC faction filter
         if (target.matches('[data-action="npc-filter-faction"]')) {
             npcFilterFaction = target.value;
-            renderApp();
+            updateSearchResults('npc-results', function () { return renderCreatureResultsInner(); });
             return;
         }
 

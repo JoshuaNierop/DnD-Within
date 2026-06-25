@@ -661,6 +661,15 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
     justify-content: space-between;
 }
 
+/* #OvywGWk: Isotope-achtige FLIP-animaties voor card-grids (creatures, lore,
+   items). De JS (flipUpdate in app.js) zet de transform; deze klassen leveren
+   de soepele timing. */
+.flip-move { transition: transform 0.42s cubic-bezier(0.2, 0.7, 0.2, 1); will-change: transform; }
+.flip-in   { transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); will-change: opacity, transform; }
+@media (prefers-reduced-motion: reduce) {
+    .flip-move, .flip-in { transition: none; }
+}
+
 /* #OvywGWk: Monsters-sectie binnen de NPC-tab. */
 .npc-monsters-section { margin-top: 2.5rem; }
 .npc-section-head {

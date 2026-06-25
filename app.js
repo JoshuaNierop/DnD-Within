@@ -155,7 +155,58 @@ function updateSearchResults(containerId, builderFn) {
     if (!c) { renderApp(); return; }   // container weg (bv. andere pagina) → val terug
     var html = builderFn(c);
     if (html == null || c.innerHTML === html) return;
-    c.innerHTML = html;
+    flipUpdate(c, html);
+}
+
+// #OvywGWk: Isotope-achtige vloeiende grid-update via FLIP (First-Last-Invert-
+// Play). Bestaande kaarten glijden naar hun nieuwe positie; nieuwe kaarten faden
+// in. Keyed op data-entry-id / data-npc-id. Respecteert prefers-reduced-motion.
+function flipUpdate(container, html) {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var SEL = '[data-entry-id],[data-npc-id]';
+    function keyOf(el) { return el.getAttribute('data-entry-id') || el.getAttribute('data-npc-id'); }
+    if (reduce) { container.innerHTML = html; return; }
+
+    // FIRST — posities van de huidige kaarten vastleggen.
+    var first = {};
+    Array.prototype.forEach.call(container.querySelectorAll(SEL), function (el) {
+        var k = keyOf(el); if (k) first[k] = el.getBoundingClientRect();
+    });
+
+    // MUTATE
+    container.innerHTML = html;
+
+    // LAST + INVERT + PLAY
+    Array.prototype.forEach.call(container.querySelectorAll(SEL), function (el) {
+        var k = keyOf(el);
+        var last = el.getBoundingClientRect();
+        var f = k ? first[k] : null;
+        if (f) {
+            var dx = f.left - last.left, dy = f.top - last.top;
+            if (!dx && !dy) return;
+            el.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+            el.style.transitionProperty = 'none';
+            // Force reflow zodat de invert-transform geldt vóór de play-stap.
+            void el.offsetWidth;
+            el.classList.add('flip-move');
+            el.style.transitionProperty = '';
+            el.style.transform = '';
+        } else {
+            // Nieuwe kaart → fade + lichte schaal-in.
+            el.style.opacity = '0';
+            el.style.transform = 'scale(0.92)';
+            void el.offsetWidth;
+            el.classList.add('flip-in');
+            el.style.opacity = '';
+            el.style.transform = '';
+        }
+        var cleanup = function () {
+            el.classList.remove('flip-move', 'flip-in');
+            el.style.transform = '';
+            el.removeEventListener('transitionend', cleanup);
+        };
+        el.addEventListener('transitionend', cleanup);
+    });
 }
 
 // Open + highlight the NPC / lore-entry card that a clicked @-mention link
