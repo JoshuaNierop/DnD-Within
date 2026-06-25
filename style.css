@@ -7062,6 +7062,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ============================================================
    Global Dice Roller
    ============================================================ */
+/* #Ovy59sT: op pagina's met de widget-grid onderbalk (character + DM dashboard)
+   leven de quick-actions in die balk; verberg de zwevende FABs + chat-launcher. */
+body:has(.wg-bottombar) .dice-fab,
+body:has(.wg-bottombar) .notes-fab,
+body:has(.wg-bottombar) .search-fab,
+body:has(.wg-bottombar) #scw-fab {
+    display: none !important;
+}
+
 .dice-fab {
     position: fixed;
     bottom: var(--fab-bottom);

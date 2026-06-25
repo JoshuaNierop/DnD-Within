@@ -114,19 +114,11 @@ function wgBodyTemplate(context) {
   const tabsHtml = tabs.map((tb, i) =>
     `<button class="dash-tab${i === 0 ? ' active' : ''}" data-situation="${tb[0]}">${tb[1]}</button>`
   ).join('\n    ');
-  // Character-only sidebar-sectie (character-dropdown) — niet in DM-modus.
-  const charSection = isDM ? '' : `
-    <div class="rs-char-section">
-      <div class="sidebar-section-label">Character</div>
-      <select id="characterSelect" class="character-select" aria-label="Character" title="Character"></select>
-    </div>`;
-  const charToggleBtn = isDM ? '' : `
-    <button class="rs-btn cat-item" id="rs-char-toggle" aria-label="Character wisselen" title="Character wisselen">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-      </svg>
-    </button>`;
+  // #Ovy59sT: rechter sidebar verwijderd; de dashboard-knoppen verhuizen naar
+  // de onderbalk. De #characterSelect blijft (verborgen) in de DOM voor
+  // binding-compat (wg-mount bindt 'm); de zichtbare character-switcher is weg.
+  const hiddenCharSelect = isDM ? '' :
+    `<select id="characterSelect" class="character-select" hidden aria-hidden="true"></select>`;
   return `
 <header class="app-topbar">
   <div class="topbar-spacer-left" aria-hidden="true"></div>
@@ -144,40 +136,6 @@ function wgBodyTemplate(context) {
     </div>
     <div class="sidebar-widgets" id="sidebarWidgets"></div>
   </div>
-</aside>
-<aside class="sidebar right-sidebar" id="rightSidebar" aria-label="Dashboard tools">
-  <div class="sidebar-panel">${charSection}
-  </div>
-  <nav class="sidebar-categories">
-    <button class="rs-btn cat-item" id="rs-tidy" aria-label="Tidy widgets" title="Tidy — repack widgets compactly">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="8" height="10" rx="1"/>
-        <rect x="13" y="3" width="8" height="6" rx="1"/>
-        <rect x="13" y="11" width="8" height="10" rx="1"/>
-        <rect x="3" y="15" width="8" height="6" rx="1"/>
-      </svg>
-    </button>
-    <button class="rs-btn cat-item" id="settingsToggle" aria-label="Open settings" aria-expanded="false" title="Settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-    </button>
-    ${charToggleBtn}
-    <button class="rs-btn cat-item" id="rs-edit-values" aria-label="Edit values" title="Edit values">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-      </svg>
-    </button>
-    <button class="rs-btn cat-item" id="rs-save" aria-label="Save dashboard" title="Save dashboard">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-        <polyline points="17 21 17 13 7 13 7 21"/>
-        <polyline points="7 3 7 8 15 8"/>
-      </svg>
-    </button>
-  </nav>
 </aside>
 <main class="app-main">
 
@@ -288,16 +246,69 @@ function wgBodyTemplate(context) {
 </aside>
 <div class="settings-overlay" id="settingsOverlay"></div>
 
+<div class="wg-main-scroll">
 <div class="canvas-wrap">
   <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
 </div>
-<div class="page-nav" id="pageNav" style="display:none;"></div>
 
 <div class="info show-on-toggle">
   <div class="info-box" id="dashInfo"><h3>Dashboard</h3></div>
   <div class="info-box" id="widgetInfo"><h3>Widget</h3></div>
   <div class="info-box" id="infoBoxInfo"><h3>Info boxes</h3></div>
 </div>
+</div>
+
+<!-- #Ovy59sT: onderbalk — links dashboard-knoppen, midden pagina-navigatie,
+     rechts de quick-action knoppen (notes/search/chat/dice). -->
+<div class="wg-bottombar">
+  <div class="wg-bottombar-left">
+    <button class="wg-barbtn" id="rs-tidy" aria-label="Tidy widgets" title="Tidy — repack widgets compactly">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="8" height="10" rx="1"/>
+        <rect x="13" y="3" width="8" height="6" rx="1"/>
+        <rect x="13" y="11" width="8" height="10" rx="1"/>
+        <rect x="3" y="15" width="8" height="6" rx="1"/>
+      </svg>
+    </button>
+    <button class="wg-barbtn" id="settingsToggle" aria-label="Open settings" aria-expanded="false" title="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+    <button class="wg-barbtn" id="rs-edit-values" aria-label="Edit values" title="Edit values">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+    </button>
+    <button class="wg-barbtn" id="rs-save" aria-label="Save dashboard" title="Save dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+        <polyline points="17 21 17 13 7 13 7 21"/>
+        <polyline points="7 3 7 8 15 8"/>
+      </svg>
+    </button>
+  </div>
+  <div class="wg-bottombar-mid">
+    <div class="page-nav" id="pageNav" style="display:none;"></div>
+  </div>
+  <div class="wg-bottombar-right">
+    <button class="wg-barbtn wg-barbtn-notes" data-action="toggle-notes-panel" aria-label="Notes" title="Notes">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="22" y="12" width="58" height="78" rx="4"/><line x1="32" y1="12" x2="32" y2="90"/><circle cx="32" cy="26" r="2.5" fill="currentColor" stroke="none"/><circle cx="32" cy="50" r="2.5" fill="currentColor" stroke="none"/><circle cx="32" cy="74" r="2.5" fill="currentColor" stroke="none"/><line x1="44" y1="32" x2="70" y2="32"/><line x1="44" y1="50" x2="70" y2="50"/><line x1="44" y1="68" x2="62" y2="68"/></svg>
+    </button>
+    <button class="wg-barbtn wg-barbtn-search" data-action="open-search" aria-label="Search" title="Search">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"><circle cx="44" cy="44" r="30"/><line x1="66" y1="66" x2="88" y2="88"/></svg>
+    </button>
+    <button class="wg-barbtn wg-barbtn-chat" data-action="open-chat-widget" aria-label="Chat" title="Chat">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 22h64a8 8 0 0 1 8 8v34a8 8 0 0 1-8 8H40L22 84V72h-4a8 8 0 0 1-8-8V30a8 8 0 0 1 8-8z"/></svg>
+    </button>
+    <button class="wg-barbtn wg-barbtn-dice" data-action="toggle-dice-panel" aria-label="Roll Dice" title="Roll Dice">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><polygon points="50,8 90,32 90,70 50,92 10,70 10,32"/><polygon points="50,30 72,44 64,66 36,66 28,44"/><line x1="50" y1="8" x2="50" y2="30"/><line x1="90" y1="32" x2="72" y2="44"/><line x1="90" y1="70" x2="64" y2="66"/><line x1="50" y1="92" x2="50" y2="66" opacity="0.7"/><line x1="10" y1="70" x2="36" y2="66"/><line x1="10" y1="32" x2="28" y2="44"/><text x="50" y="56" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="700" fill="currentColor" stroke="none">20</text></svg>
+    </button>
+  </div>
+</div>
+${hiddenCharSelect}
 
 </main>
 </div>

@@ -1589,6 +1589,14 @@ function bindPageEvents(route) {
             return;
         }
 
+        // #Ovy59sT: chat-knop in de dashboard-onderbalk opent de social
+        // chat-widget (die zijn eigen #scw-fab launcher heeft).
+        if (target.matches('[data-action="open-chat-widget"]') || target.closest('[data-action="open-chat-widget"]')) {
+            var scwFab = document.getElementById('scw-fab');
+            if (scwFab) scwFab.click();
+            return;
+        }
+
         // Dice hand: add die
         if (target.matches('[data-action="dice-add"]')) {
             if (typeof DiceHand !== 'undefined') DiceHand.add(parseInt(target.dataset.die));

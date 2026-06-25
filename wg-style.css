@@ -145,14 +145,21 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   main.app-main {
     flex: 1;
     min-width: 0;
-    padding: 12px;
-    /* FAB clearance: hou onderkant van het canvas vrij voor de dice/notes/
-       bug-report FABs zonder de sidebars in te korten. */
-    padding-block-end: 2.5rem;
+    min-height: 0;
+    /* #Ovy59sT: kolom-stack — scrollbare content boven, vaste onderbalk onder. */
+    display: flex;
+    flex-direction: column;
+  }
+  /* Scrollbare content-regio (canvas + dashboard-info). De onderbalk staat
+     hierbuiten en blijft altijd zichtbaar. */
+  .wg-main-scroll {
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    padding: 12px;
   }
   @media (max-width: 600px) {
-    main.app-main { padding: 6px; padding-block-end: 2.5rem; }
+    .wg-main-scroll { padding: 6px; }
   }
 
   /* ----- Left sidebar ----- */
@@ -252,79 +259,64 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   }
   .cat-icon { display: inline-flex; align-items: center; justify-content: center; }
   .cat-icon svg { width: 20px; height: 20px; flex-shrink: 0; }
-  /* ----- Right sidebar ----- */
-  aside.sidebar.right-sidebar {
-    border-right: none;
-    border-left: 1px solid var(--user-border, var(--border));
-    order: 3;
-  }
+  /* #Ovy59sT: rechter sidebar verwijderd; alleen de flex-orders blijven. */
   aside.sidebar#leftSidebar { order: 1; }
   main.app-main { order: 2; }
-  aside.sidebar.right-sidebar .sidebar-panel {
-    left: auto;
-    right: 100%;
-    border-right: none;
-    border-left: 1px solid var(--user-border, var(--border));
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.35);
-    transform: translateX(8px);
-  }
-  /* Rechter sidebar heeft GEEN uitklappend panel (per Joshua, 2026-05-29).
-     De .sidebar-panel binnen rightSidebar wordt volledig verborgen; het
-     `rs-char-toggle` knopje dat het panel zou openen ook. characterSelect
-     blijft in DOM voor binding-compat. */
-  aside.sidebar.right-sidebar .sidebar-panel,
-  aside.sidebar.right-sidebar:hover .sidebar-panel,
-  aside.sidebar.right-sidebar.pinned .sidebar-panel {
-    display: none !important;
-  }
-  aside.sidebar.right-sidebar #rs-char-toggle { display: none; }
-  /* Right-sidebar action buttons */
-  .rs-btn {
-    width: 100%;
+
+  /* ----- Bottom action bar ----- */
+  .wg-bottombar {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 12px 0;
-    background: transparent;
-    border: none;
+    gap: 8px;
+    padding: 6px 10px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--user-border, var(--border));
+    background: var(--user-bg-2, var(--panel));
+  }
+  .wg-bottombar-left,
+  .wg-bottombar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .wg-bottombar-mid { flex: 1; display: flex; justify-content: center; min-width: 0; }
+  .wg-bottombar-mid .page-nav { margin: 0; }
+
+  .wg-barbtn {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--user-bg-1, #1a1a2e);
+    border: 2px solid var(--user-border, var(--border));
+    border-radius: 50%;
     color: var(--user-text-regular, var(--muted));
     cursor: pointer;
-    font-size: 20px;
-    border-left: 2px solid transparent;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
   }
-  .rs-btn:hover:not(:disabled) {
-    background: rgba(255,255,255,0.10);
+  .wg-barbtn:hover:not(:disabled) {
     color: var(--user-text-highlight, var(--accent));
-    border-left-color: var(--user-text-highlight, var(--accent));
+    border-color: var(--user-text-highlight, var(--accent));
+    transform: translateY(-2px);
   }
-  .rs-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-  .rs-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-  /* Edit-values toggle — glow als de modus actief is */
+  .wg-barbtn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .wg-barbtn svg { width: 20px; height: 20px; flex-shrink: 0; }
+  /* Quick-action accenten — matchen de zwevende FAB-kleuren. */
+  .wg-barbtn-notes:hover  { color: #a78bfa; border-color: #a78bfa; }
+  .wg-barbtn-search:hover { color: #4ade80; border-color: #4ade80; }
+  .wg-barbtn-chat:hover   { color: #38bdf8; border-color: #38bdf8; }
+  .wg-barbtn-dice:hover   { color: #fbbf24; border-color: #fbbf24; }
+  /* Edit-values toggle — glow als de modus actief is. */
   #rs-edit-values.active {
     color: var(--user-text-highlight, var(--accent));
-    border-left-color: var(--user-text-highlight, var(--accent));
+    border-color: var(--user-text-highlight, var(--accent));
     background: rgba(255,255,255,0.06);
   }
   #rs-edit-values.active svg {
     filter: drop-shadow(0 0 6px var(--user-text-highlight, var(--accent)))
             drop-shadow(0 0 2px var(--user-text-highlight, var(--accent)));
   }
-  /* Character-select inside right sidebar panel */
-  .rs-char-section { padding: 8px 12px; }
-  .rs-char-section .sidebar-section-label { padding: 4px 0 8px; }
-  .rs-char-section select {
-    width: 100%;
-    background: var(--user-bg-1, var(--bg));
-    border: 1px solid var(--user-border, var(--border));
-    color: var(--user-text-regular, var(--text));
-    padding: 7px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-family: var(--info-font-body, inherit);
-    cursor: pointer;
+  @media (max-width: 600px) {
+    .wg-barbtn { width: 36px; height: 36px; }
+    .wg-bottombar { gap: 5px; padding-inline: 6px; }
+    .wg-bottombar-left, .wg-bottombar-right { gap: 5px; }
   }
-  .rs-char-section select:focus { outline: none; border-color: var(--user-text-highlight, var(--accent)); }
 
   /* ----- Edit-values mode (V11 Phase 3.2) ----- */
   body.edit-values-active svg.dashboard g.editable-cell { cursor: pointer; pointer-events: all; }
