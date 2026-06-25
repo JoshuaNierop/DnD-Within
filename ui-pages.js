@@ -831,7 +831,17 @@ function renderDashboard() {
     html += '<h2 class="section-title">' + t('dash.partyoverview') + '</h2>';
     html += '<div class="character-cards">';
 
-    var sortedCharIds = (typeof sortCharIdsByName === 'function') ? sortCharIdsByName(charIds) : charIds;
+    // Alleen main party tonen — guest players weglaten (#OvvKY4d).
+    var _homeCamp = (typeof getCampaigns === 'function') ? getCampaigns()[getActiveCampaign()] : null;
+    var _homeGuests = (_homeCamp && _homeCamp.guests) ? _homeCamp.guests : {};
+    var _homeCharToUid = {};
+    if (_homeCamp && _homeCamp.party) { for (var _hpu in _homeCamp.party) _homeCharToUid[_homeCamp.party[_hpu]] = _hpu; }
+    var mainCharIds = charIds.filter(function(cid) {
+        var ou = _homeCharToUid[cid];
+        return !(ou && _homeGuests[ou]);
+    });
+
+    var sortedCharIds = (typeof sortCharIdsByName === 'function') ? sortCharIdsByName(mainCharIds) : mainCharIds;
     for (var i = 0; i < sortedCharIds.length; i++) {
         var cid = sortedCharIds[i];
         var ccfg = loadCharConfig(cid);

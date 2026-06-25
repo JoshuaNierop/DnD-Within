@@ -530,13 +530,13 @@ function showPinEditPopover(widgetIdx, pinIdOrNull, pctOrNull, clientX, clientY)
     "<input id=" + JSON.stringify("mep-label") + " type=" + JSON.stringify("text") + " value=" + JSON.stringify(labelVal) + " placeholder=" + JSON.stringify("Pin label") + " autocomplete=" + JSON.stringify("off") + ">"+
     "</div>" +
     "<div class=" + JSON.stringify("mep-row") + ">" +
-    "<label>Doelkaart</label>" +
-    "<select id=" + JSON.stringify("mep-target") + "><option value=" + JSON.stringify("") + ">— geen —</option>" + mapOptions + "</select>" +
+    "<label>Target map</label>" +
+    "<select id=" + JSON.stringify("mep-target") + "><option value=" + JSON.stringify("") + ">— none —</option>" + mapOptions + "</select>" +
     "</div>" +
     "<div class=" + JSON.stringify("mep-row mep-btns") + ">" +
-    (!isNew ? "<button class=" + JSON.stringify("btn-delete") + " id=" + JSON.stringify("mep-del") + ">Verwijderen</button>" : "") +
-    "<button class=" + JSON.stringify("btn-cancel") + " id=" + JSON.stringify("mep-cancel") + ">Annuleer</button>" +
-    "<button class=" + JSON.stringify("btn-save") + "   id=" + JSON.stringify("mep-save") + ">Opslaan</button>" +
+    (!isNew ? "<button class=" + JSON.stringify("btn-delete") + " id=" + JSON.stringify("mep-del") + ">Delete</button>" : "") +
+    "<button class=" + JSON.stringify("btn-cancel") + " id=" + JSON.stringify("mep-cancel") + ">Cancel</button>" +
+    "<button class=" + JSON.stringify("btn-save") + "   id=" + JSON.stringify("mep-save") + ">Save</button>" +
     "</div>";
   document.body.appendChild(pop);
   _mapPopoverEl = pop;
@@ -685,7 +685,7 @@ async function deleteMapFromFirebase(widgetIdx) {
   const maps = dim.maps || [];
   const mapArrIdx = maps.findIndex(m => m.id === w.map.mapId || (!w.map.mapId && m.isRoot));
   if (mapArrIdx < 0) { showToast("Map niet gevonden", "error"); return; }
-  if (!confirm("Map verwijderen? Dit kan niet ongedaan worden gemaakt.")) return;
+  if (!confirm("Delete map? This cannot be undone.")) return;
   const oldImg = maps[mapArrIdx] && maps[mapArrIdx].image;
   const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + ".json";
   try {

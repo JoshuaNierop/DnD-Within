@@ -808,7 +808,7 @@ function renderInfo() {
 
   document.getElementById('dashInfo').innerHTML = `
     <h3>Dashboard</h3>
-    <div class="info-row"><span class="key">Tile-grootte</span><span class="val">${dt} px</span></div>
+    <div class="info-row"><span class="key">Tile size</span><span class="val">${dt} px</span></div>
     <div class="info-row"><span class="key">Min spacing</span><span class="val">${ds} px</span></div>
     <div class="info-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;"><span class="key">Horizontaal</span><span class="val">→</span></div>
     <div class="info-row"><span class="key">Breedte</span><span class="val highlight">${dW.toFixed(2)} px</span></div>

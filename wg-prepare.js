@@ -75,9 +75,9 @@ function wgxSpellTooltip(name, sp, stats) {
   if (wgxSpellIsRitual(sp)) line1 += ' · Ritual';
   const body =
     line1 + '\n' +
-    'Componenten: ' + (sp.comp || '—') + '\n\n' +
+    'Components: ' + (sp.comp || '—') + '\n\n' +
     (sp.desc || '—') + '\n\n' +
-    'Spell save DC ' + stats.dc + ' · Aanval +' + stats.atk;
+    'Spell save DC ' + stats.dc + ' · Attack +' + stats.atk;
   return { title: title, body: body };
 }
 

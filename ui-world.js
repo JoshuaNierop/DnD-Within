@@ -701,7 +701,7 @@ function renderMaps() {
         }
         html += '<span class="map-title">' + escapeHtml(map.name) + '</span>';
         if (isDM()) {
-            html += '<button class="btn btn-ghost btn-sm' + (editingPins ? ' is-active' : '') + '" data-action="toggle-edit-pins">' + (editingPins ? '&#128190; Pins opslaan' : '&#128205; Pin Area') + '</button>';
+            html += '<button class="btn btn-ghost btn-sm' + (editingPins ? ' is-active' : '') + '" data-action="toggle-edit-pins">' + (editingPins ? '&#128190; Save pins' : '&#128205; Pin Area') + '</button>';
             html += '<label class="btn btn-ghost btn-sm">' + t('maps.changeimage') + '<input type="file" accept="image/*" data-action="update-map-image" data-map-id="' + map.id + '" style="display:none"></label>';
             html += '<button class="btn btn-ghost btn-sm" data-action="rename-map" data-map-id="' + map.id + '">&#9998; Rename</button>';
             html += '<button class="btn btn-ghost btn-sm" data-action="delete-map" data-map-id="' + map.id + '" style="color:var(--danger);">&#128465; Delete map</button>';
@@ -834,7 +834,7 @@ function renderMaps() {
             html += '<button class="btn btn-ghost btn-sm" data-action="add-pin">&#43; Pin toevoegen</button>';
             html += '<button class="btn btn-ghost btn-sm" data-action="edit-pin-meta" data-pin-idx="' + (selPin ? selectedPinIdx : '') + '"' + (selPin ? '' : ' disabled') + '>&#9998; Label/link</button>';
             html += '<button class="btn btn-ghost btn-sm" data-action="delete-selected-pin" style="color:var(--danger);"' + (selPin ? '' : ' disabled') + '>&#128465; Verwijderen</button>';
-            html += '<button class="btn btn-primary btn-sm" data-action="toggle-edit-pins">&#128190; Pins opslaan</button>';
+            html += '<button class="btn btn-primary btn-sm" data-action="toggle-edit-pins">&#128190; Save pins</button>';
             html += '</div>';
             html += '</div>';
         }
@@ -2602,7 +2602,7 @@ function renderLoreEntryModal(cat, idx) {
             html += '<div class="lore-entry-header-row">';
             html += renderImageBox({ previewId: 'lore-entry-image-preview', hiddenId: 'lore-entry-f-image', fileAction: 'upload-lore-entry-image', value: e.image, name: e.name });
             html += '<div class="lore-form-grid lore-header-fields">';
-            html += '<div class="npc-form-field lore-field-full"><label class="login-label" for="lore-entry-f-name">Naam</label>';
+            html += '<div class="npc-form-field lore-field-full"><label class="login-label" for="lore-entry-f-name">Name</label>';
             html += '<input type="text" class="edit-input" id="lore-entry-f-name" value="' + escapeAttr(e.name || '') + '"></div>';
             html += '</div>';
             html += '</div>';

@@ -340,7 +340,7 @@ function bindWidgetPanelInputs() {
     typeSel.addEventListener('change', () => {
       const w = state.widget;
       if (!w) return;
-      if (!confirm('Type wisselen overschrijft de widget-grootte en data-source. Doorgaan?')) {
+      if (!confirm('Switching type overwrites the widget size and data source. Continue?')) {
         typeSel.value = w.type;
         return;
       }
@@ -525,7 +525,7 @@ function loadWidget(id) {
 
 function saveCurrentWidget() {
   const cfg = buildWidgetJson();
-  const name = prompt('Naam voor deze widget:', cfg.title || displayTitle(state.widget));
+  const name = prompt('Name for this widget:', cfg.title || displayTitle(state.widget));
   if (!name) return;
   const cat = prompt('Categorie (stats, combat, spells, inventory, social):', library.activeCategory || 'stats');
   if (!cat) return;
@@ -758,10 +758,10 @@ document.addEventListener('keydown', (e) => {
   // Multi-select: verwijder alle geselecteerde widgets in één keer.
   const sel = wgGetSelectedIdxs();
   if (sel.length > 1) {
-    if (confirm(`${sel.length} widgets verwijderen?`)) removeSelectedWidgets();
+    if (confirm(`Delete ${sel.length} widgets?`)) removeSelectedWidgets();
     return;
   }
-  if (confirm(`Widget "${displayTitle(state.widget)}" verwijderen?`)) {
+  if (confirm(`Delete widget "${displayTitle(state.widget)}"?`)) {
     removeWidget(state.activeWidgetIdx);
   }
 });
