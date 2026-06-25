@@ -1539,18 +1539,18 @@ function saveLoreData(data) {
 // eigen rijke implementatie; de overige zijn generieke entry-collecties
 // (naam + afbeelding + omschrijving + notities) via renderLoreCategory().
 var LORE_TABS = [
-    { id: 'npcs',      label: 'NPCs' },
+    { id: 'npcs',      label: 'Creatures' },   // #OvywGWk: NPC's + monsters samengevoegd
     { id: 'families',  label: 'Families' },
     { id: 'items',     label: 'Items' },
     { id: 'religions', label: 'Religions' },
     { id: 'factions',  label: 'Factions' },
     { id: 'places',    label: 'Places' },
-    { id: 'monsters',  label: 'Creatures' },
     { id: 'events',    label: 'Events' },
     { id: 'articles',  label: 'Articles' }
 ];
-// De generieke categorie-tabs (alles behalve party/npcs/articles).
-var LORE_CATEGORY_TABS = ['items', 'religions', 'factions', 'places', 'monsters', 'events'];
+// De generieke categorie-tabs (alles behalve party/npcs/articles). 'monsters' is
+// nu de Creature-store achter de 'npcs'-tab, geen losse tab meer (#OvywGWk).
+var LORE_CATEGORY_TABS = ['items', 'religions', 'factions', 'places', 'events'];
 
 function isLoreTab(id) {
     for (var i = 0; i < LORE_TABS.length; i++) if (LORE_TABS[i].id === id) return true;
@@ -1771,6 +1771,80 @@ function saveNPCData(data) {
     if (typeof syncUpload === 'function') syncUpload('dw_npcs');
 }
 
+// #OvywGWk — Entity-merge Fase B: migreer NPC's uit dw_npcs naar de gedeelde
+// Creature-store (lore_cats.monsters). VEILIG opgezet:
+//  - idempotent + guard-on-target: kopieert alleen NPC's waarvan de id nog niet
+//    in de creature-store zit; draait als no-op zodra alles gemigreerd is.
+//  - NIET-destructief: dw_npcs blijft volledig staan (rollback-net + family-link
+//    fallback via array-index blijft werken).
+//  - family-link remap: zet member.linkedCreatureId = npc.id zodat de nieuwe
+//    creature-kaarten hun familie via stabiele id vinden (oude index-link blijft).
+// Draait na de eerste Firebase-download (zie ensureEntityIds-call sites), nadat
+// ensureEntityIds de id's + firstName/lastName heeft gevuld.
+var _npcsMergedToCreatures = false;
+function migrateNpcsIntoCreatures(force) {
+    if (_npcsMergedToCreatures && !force) return;
+    try {
+        var nd = getNPCData();
+        var npcs = (nd && Array.isArray(nd.npcs)) ? nd.npcs : [];
+        var lc = getLoreCatsData();
+        if (!Array.isArray(lc.monsters)) lc.monsters = [];
+
+        // Index bestaande creature-id's zodat we niet dubbel kopiëren.
+        var haveIds = {};
+        for (var ci = 0; ci < lc.monsters.length; ci++) {
+            if (lc.monsters[ci] && lc.monsters[ci].id) haveIds[lc.monsters[ci].id] = true;
+        }
+
+        var fams = (typeof getFamiliesData === 'function') ? getFamiliesData() : null;
+        var famChanged = false;
+        var lcChanged = false;
+
+        for (var i = 0; i < npcs.length; i++) {
+            var n = npcs[i];
+            if (!n || !n.id) continue;
+            if (haveIds[n.id]) continue;            // al gemigreerd → overslaan
+
+            // Veilige kopie: alle NPC-velden passen 1:1 op het creature-schema.
+            var cre = {};
+            for (var k in n) { if (Object.prototype.hasOwnProperty.call(n, k)) cre[k] = n[k]; }
+            cre._fromNpc = true;                    // herkomst-merker (handig voor rollback/debug)
+            if (cre.alive == null) cre.alive = 'alive';
+            // NPC's waren voor spelers volledig zichtbaar → markeer de ingevulde
+            // velden als 'public' zodat de migratie geen info verbergt. De DM kan
+            // daarna velden expliciet op private zetten.
+            cre.visibility = cre.visibility || {};
+            ['race', 'npcClass', 'profession', 'faction', 'religion', 'location', 'relation',
+             'birthYear', 'disposition', 'alive', 'preferences', 'dislikes', 'pets', 'notes',
+             'hp', 'ac', 'abilities', 'size', 'mtype', 'cr', 'speed', 'senses', 'languages',
+             'description'].forEach(function (fk) {
+                var val = cre[fk];
+                var has = (fk === 'abilities') ? (val && Object.keys(val).length) : (val != null && val !== '');
+                if (has && cre.visibility[fk] == null) cre.visibility[fk] = 'public';
+            });
+            lc.monsters.push(cre);
+            haveIds[n.id] = true;
+            lcChanged = true;
+
+            // Family-link remap: array-index → stabiele id (oude key blijft staan).
+            if (fams && fams.members) {
+                for (var mid in fams.members) {
+                    var m = fams.members[mid];
+                    if (m && m.linkedNpcKey === String(i) && m.linkedCreatureId !== n.id) {
+                        m.linkedCreatureId = n.id;
+                        famChanged = true;
+                    }
+                }
+            }
+        }
+
+        if (lcChanged) { lc._npcsMerged = true; saveLoreCatsData(lc); }
+        else if (!lc._npcsMerged) { lc._npcsMerged = true; saveLoreCatsData(lc); }
+        if (famChanged && typeof saveFamiliesData === 'function') saveFamiliesData(fams);
+        _npcsMergedToCreatures = true;
+    } catch (e) { /* niet-fataal: bij fout blijft dw_npcs de bron */ }
+}
+
 // NPC-tab filter-state (module-level, zoals npcSearchQuery in ui-pages.js).
 var npcFilterDisp = 'all';
 var npcFilterFaction = 'all';
@@ -1831,24 +1905,28 @@ function renderNPCDetailRows(npc, currentYear) {
     return html;
 }
 
+// De "Creatures"-tab (intern tab-id 'npcs', store-key 'monsters'): één lijst met
+// alle creatures (gemigreerde NPC's + monsters), één editor (#OvywGWk).
 function renderNPCTracker() {
-    // Offline fallback: when Firebase isn't active the post-download id-backfill
-    // never fires, so ensure ids here (guarded → runs at most once).
-    if (typeof syncReady === 'undefined' || !syncReady) ensureEntityIds();
-    var data = getNPCData();
-    var npcs = data.npcs || [];
-    var currentYear = data.currentYear || '';
+    // Offline fallback: zonder Firebase draait de post-download backfill niet,
+    // dus hier id's + NPC→creature-migratie afdwingen (beide guarded).
+    if (typeof syncReady === 'undefined' || !syncReady) {
+        ensureEntityIds();
+        if (typeof migrateNpcsIntoCreatures === 'function') migrateNpcsIntoCreatures();
+    }
+    var currentYear = getNPCData().currentYear || '';
+    var creatures = getLoreCatEntries('monsters');
 
-    // Verzamel beschikbare facties voor de filter-dropdown.
+    // Facties uit de creature-store voor de filter-dropdown.
     var factions = [];
-    for (var fi = 0; fi < npcs.length; fi++) {
-        var fac = npcs[fi].faction;
+    for (var fi = 0; fi < creatures.length; fi++) {
+        var fac = creatures[fi].faction;
         if (fac && factions.indexOf(fac) === -1) factions.push(fac);
     }
     factions.sort();
 
     var html = '<div class="npc-toolbar">';
-    html += '<input type="text" class="edit-input npc-search" id="npc-search" placeholder="Search NPCs…" value="' + escapeAttr(npcSearchQuery) + '">';
+    html += '<input type="text" class="edit-input npc-search" id="npc-search" placeholder="Search creatures…" value="' + escapeAttr(npcSearchQuery) + '">';
     // Disposition-filter chips.
     html += '<div class="npc-filter-chips">';
     var disps = [['all', 'All'], ['friendly', 'Friendly'], ['neutral', 'Neutral'], ['hostile', 'Hostile'], ['unknown', 'Unknown']];
@@ -1868,24 +1946,68 @@ function renderNPCTracker() {
     if (isDM()) {
         html += '<div class="npc-toolbar-dm">';
         html += '<label class="npc-year-label">Current year <input type="number" class="edit-input npc-year-input" id="npc-current-year" value="' + escapeAttr(String(currentYear)) + '" placeholder="—"></label>';
-        html += '<button class="btn btn-primary btn-sm" data-action="add-npc">+ Add NPC</button>';
+        html += '<button class="btn btn-primary btn-sm" data-action="add-lore-entry" data-cat="monsters">+ Creature</button>';
         html += '</div>';
     }
     html += '</div>';
 
-    html += '<div class="npc-results" id="npc-results">' + renderNPCResultsInner() + '</div>';
+    html += '<div class="lore-entry-results" id="npc-results" data-cat="monsters">' + renderCreatureResultsInner() + '</div>';
+    return html;
+}
 
-    // Monsters — toon de bestaande monster-entries in de NPC-tab (#OvywGWk,
-    // entity-merge stap 1: zichtbaarheid). Hergebruikt de lore-monster-kaarten;
-    // edit/delete/toggle/add werken via de bestaande gedelegeerde handlers.
-    html += '<div class="npc-monsters-section">';
-    html += '<div class="npc-section-head"><h2 class="section-title">Creatures</h2>';
-    if (isDM()) {
-        html += '<button class="btn btn-primary btn-sm" data-action="add-lore-entry" data-cat="monsters">+ Creature</button>';
+// Filter + render van de Creature-lijst (creatures = lore_cats.monsters). Past de
+// NPC-toolbar filters toe (zoekterm, disposition, faction) en rendert dezelfde
+// lore-entry-kaarten als de generieke lijst — plus een family-diagram als de
+// creature aan een familie gekoppeld is (#OvywGWk).
+function renderCreatureResultsInner() {
+    var entries = getLoreCatEntries('monsters');
+    var q = (npcSearchQuery || '').toLowerCase();
+    var html = '<div class="lore-entry-grid lore-grid-monsters">';
+    var shown = 0;
+    for (var i = 0; i < entries.length; i++) {
+        var e = entries[i];
+        if (!e) continue;
+        // Filters
+        if (npcFilterDisp !== 'all' && (e.disposition || 'unknown') !== npcFilterDisp) continue;
+        if (npcFilterFaction !== 'all' && (e.faction || '') !== npcFilterFaction) continue;
+        if (q) {
+            var hay = [e.name, e.race, e.npcClass, e.profession, e.faction, e.religion, e.location, e.description, e.notes].join(' ').toLowerCase();
+            if (hay.indexOf(q) < 0) continue;
+        }
+        var entryHidden = e.hidden === true;
+        if (entryHidden && !isDM()) continue;
+        var realIdx = i;
+        var infoHtml = renderLoreEntryInfo('monsters', e);
+        var expCls = (e.id && loreExpandedIds[e.id]) ? ' expanded' : '';
+        html += '<div class="lore-entry-card' + expCls + (entryHidden ? ' is-private-entry' : '') + '" data-cat="monsters" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
+        if (isDM()) html += monsterEntryVisToggle(realIdx, entryHidden);
+        if (e.image) {
+            html += '<div class="lore-entry-img"><img src="' + escapeAttr(resolveImageSrc(e.image)) + '" alt=""></div>';
+        } else {
+            html += '<div class="lore-entry-img lore-entry-img-empty"><span>' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span></div>';
+        }
+        html += '<div class="lore-entry-body">';
+        html += '<h3 class="lore-entry-name">' + escapeHtml(e.name || '(unnamed)') + '</h3>';
+        if (infoHtml) html += '<div class="lore-entry-info">' + infoHtml + '</div>';
+        // Family-diagram als de creature aan een familie gekoppeld is.
+        var cFam = (typeof findPrimaryFamilyByCreatureId === 'function') ? findPrimaryFamilyByCreatureId(e.id) : null;
+        if (cFam && cFam.family && typeof renderFamilyDiagram === 'function') {
+            html += '<div class="npc-family-section">' + renderFamilyDiagram(cFam.family.id, false) + '</div>';
+        }
+        if (isDM()) {
+            html += '<div class="lore-entry-actions">';
+            html += '<button class="btn btn-ghost btn-sm" data-action="edit-lore-entry" data-cat="monsters" data-entry-idx="' + realIdx + '">' + t('generic.edit') + '</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="delete-lore-entry" data-cat="monsters" data-entry-idx="' + realIdx + '" style="color:var(--danger);">' + t('generic.delete') + '</button>';
+            html += '</div>';
+        }
+        html += '</div></div>';
+        shown++;
     }
     html += '</div>';
-    html += '<div class="lore-entry-results" id="npc-monsters-results" data-cat="monsters">' + renderLoreResultsInner('monsters') + '</div>';
-    html += '</div>';
+    if (!shown) {
+        var empty = (q || npcFilterDisp !== 'all' || npcFilterFaction !== 'all') ? 'No creatures match the filters.' : 'No creatures yet.';
+        return '<p class="text-dim" style="padding:1rem;">' + empty + '</p>';
+    }
     return html;
 }
 
@@ -2013,6 +2135,9 @@ function collectEntities() {
             for (var li = 0; li < LORE_TABS.length; li++) if (LORE_TABS[li].id === c) label = LORE_TABS[li].label;
             ld[c].forEach(function (e2) {
                 if (!e2 || !e2.id) return;
+                // #OvywGWk: gemigreerde NPC's staan in 'monsters' maar worden al
+                // door de NPC-tak hierboven als type:'npc' opgesomd → niet dubbel.
+                if (c === 'monsters' && e2._fromNpc) return;
                 list.push({ type: 'lore', cat: label, loreCat: c, id: e2.id, name: e2.name || '(unnamed)', image: e2.image || null, desc: e2.description || '', route: '/lore/' + c });
             });
         });

@@ -371,6 +371,16 @@ function resolveMemberLink(member) {
         var cfg = (typeof loadCharConfig === 'function') ? loadCharConfig(member.linkedCharId) : null;
         if (cfg) return { type: 'character', id: member.linkedCharId, name: cfg.name, race: cfg.race, color: cfg.accentColor };
     }
+    // #OvywGWk: voorkeur voor de stabiele Creature-id (na NPC→creature-migratie).
+    if (member.linkedCreatureId && typeof getLoreCatsData === 'function') {
+        var cats = getLoreCatsData();
+        var arr = (cats && Array.isArray(cats.monsters)) ? cats.monsters : [];
+        for (var ci = 0; ci < arr.length; ci++) {
+            if (arr[ci] && arr[ci].id === member.linkedCreatureId) {
+                return { type: 'npc', id: 'creature:' + arr[ci].id, name: arr[ci].name, race: arr[ci].race, color: 'var(--text-dim)' };
+            }
+        }
+    }
     if (member.linkedNpcKey) {
         var idx = parseInt(member.linkedNpcKey, 10);
         var npcs = (typeof getNPCData === 'function') ? (getNPCData().npcs || []) : [];
@@ -655,6 +665,19 @@ function findPrimaryFamilyByLink(linkedCharId, linkedNpcKey) {
         var m = data.members[ids[i]];
         if (linkedCharId && m.linkedCharId === linkedCharId) return { member: m, family: data.families[m.familyId] };
         if (linkedNpcKey && m.linkedNpcKey === linkedNpcKey) return { member: m, family: data.families[m.familyId] };
+    }
+    return null;
+}
+
+// #OvywGWk: vind de primaire familie van een creature via de stabiele id
+// (gezet door migrateNpcsIntoCreatures als member.linkedCreatureId).
+function findPrimaryFamilyByCreatureId(creatureId) {
+    if (!creatureId) return null;
+    var data = getFamiliesData();
+    var ids = Object.keys(data.members);
+    for (var i = 0; i < ids.length; i++) {
+        var m = data.members[ids[i]];
+        if (m.linkedCreatureId === creatureId) return { member: m, family: data.families[m.familyId] };
     }
     return null;
 }

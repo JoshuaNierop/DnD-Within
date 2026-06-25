@@ -2999,7 +2999,7 @@ function bindPageEvents(route) {
             npcSearchQuery = target.value;
             clearTimeout(target._searchTimer);
             target._searchTimer = setTimeout(function() {
-                updateSearchResults('npc-results', function() { return renderNPCResultsInner(); });
+                updateSearchResults('npc-results', function() { return renderCreatureResultsInner(); });
             }, 200);
             return;
         }

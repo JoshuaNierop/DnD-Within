@@ -240,6 +240,9 @@ function initFirebaseSync() {
                 if (typeof initMonsterHypotheses === 'function') initMonsterHypotheses();
                 // Backfill stable entity ids now that real data is present.
                 if (typeof ensureEntityIds === 'function') ensureEntityIds();
+                // #OvywGWk: migreer NPC's naar de gedeelde Creature-store (veilig,
+                // idempotent, niet-destructief) — ná ensureEntityIds zodat id's bestaan.
+                if (typeof migrateNpcsIntoCreatures === 'function') migrateNpcsIntoCreatures();
                 // Re-render alleen als Firebase nieuwe/andere data leverde dan de localStorage cache.
                 // Voorkomt dubbele intro-animatie op return-visits met up-to-date cache.
                 if (changed > 0 && typeof renderApp === 'function') renderApp();
