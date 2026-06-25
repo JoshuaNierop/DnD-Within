@@ -1545,7 +1545,7 @@ var LORE_TABS = [
     { id: 'religions', label: 'Religions' },
     { id: 'factions',  label: 'Factions' },
     { id: 'places',    label: 'Places' },
-    { id: 'monsters',  label: 'Monsters' },
+    { id: 'monsters',  label: 'Creatures' },
     { id: 'events',    label: 'Events' },
     { id: 'articles',  label: 'Articles' }
 ];
@@ -1879,9 +1879,9 @@ function renderNPCTracker() {
     // entity-merge stap 1: zichtbaarheid). Hergebruikt de lore-monster-kaarten;
     // edit/delete/toggle/add werken via de bestaande gedelegeerde handlers.
     html += '<div class="npc-monsters-section">';
-    html += '<div class="npc-section-head"><h2 class="section-title">Monsters</h2>';
+    html += '<div class="npc-section-head"><h2 class="section-title">Creatures</h2>';
     if (isDM()) {
-        html += '<button class="btn btn-primary btn-sm" data-action="add-lore-entry" data-cat="monsters">+ Monster</button>';
+        html += '<button class="btn btn-primary btn-sm" data-action="add-lore-entry" data-cat="monsters">+ Creature</button>';
     }
     html += '</div>';
     html += '<div class="lore-entry-results" id="npc-monsters-results" data-cat="monsters">' + renderLoreResultsInner('monsters') + '</div>';
@@ -2427,13 +2427,30 @@ async function saveNPCModal() {
 var LORE_ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 var LORE_CAT_FIELDS = {
     items: [
-        { key: 'description', label: 'Beschrijving', type: 'textarea' },
-        { key: 'effect',      label: 'Effect',       type: 'textarea' }
+        { key: 'description', label: 'Description', type: 'textarea' },
+        { key: 'effect',      label: 'Effect',      type: 'textarea' }
     ],
+    // #OvywGWk: "Creatures" = de gecombineerde NPC + monster categorie. Eén
+    // schema met zowel NPC-identiteit/sociale velden als de monster-statblock.
+    // firstName/lastName staan in de modal-header (niet in dit grid). Alle velden
+    // optioneel: een pure NPC laat de statblock leeg, een puur monster de sociale
+    // velden. (Interne store-key blijft 'monsters' om bestaande monster-data,
+    // -mentions en -hypotheses niet te breken; het UI-label is "Creatures".)
     monsters: [
+        // Identity / social (NPC-origin)
+        { key: 'race',          label: 'Race',                type: 'text' },
+        { key: 'npcClass',      label: 'Class',               type: 'text' },
+        { key: 'profession',    label: 'Profession',          type: 'text' },
+        { key: 'alive',         label: 'Status',              type: 'select', options: ['alive', 'dead'] },
+        { key: 'disposition',   label: 'Disposition',         type: 'select', options: ['unknown', 'friendly', 'neutral', 'hostile'] },
+        { key: 'faction',       label: 'Faction',             type: 'text' },
+        { key: 'religion',      label: 'Religion',            type: 'text' },
+        { key: 'location',      label: 'Location',            type: 'text' },
+        { key: 'birthYear',     label: 'Birth year',          type: 'number' },
+        { key: 'relation',      label: 'Relation',            type: 'text' },
+        // Stat block (monster-origin)
         { key: 'size',          label: 'Size',                type: 'text' },
         { key: 'mtype',         label: 'Type',                type: 'text' },
-        { key: 'disposition',   label: 'Disposition',         type: 'select', options: ['friendly', 'neutral', 'hostile'] },
         { key: 'cr',            label: 'CR',                  type: 'text' },
         { key: 'profBonus',     label: 'Prof. Bonus',         type: 'number' },
         { key: 'initiative',    label: 'Initiative',          type: 'number' },
@@ -2449,16 +2466,21 @@ var LORE_CAT_FIELDS = {
         { key: 'vulnerabilities',label:'Vulnerabilities',     type: 'text' },
         { key: 'senses',        label: 'Senses',              type: 'text' },
         { key: 'languages',     label: 'Languages',           type: 'text' },
+        // Narrative (textareas)
         { key: 'traits',        label: 'Traits',              type: 'textarea' },
         { key: 'actions',       label: 'Actions',             type: 'textarea' },
         { key: 'legendary',     label: 'Legendary Actions',   type: 'textarea' },
         { key: 'spellcasting',  label: 'Spellcasting',        type: 'textarea' },
-        { key: 'description',   label: 'Beschrijving',        type: 'textarea' }
+        { key: 'preferences',   label: 'Likes / Preferences', type: 'textarea' },
+        { key: 'dislikes',      label: 'Dislikes',            type: 'textarea' },
+        { key: 'pets',          label: 'Pets',                type: 'textarea' },
+        { key: 'description',   label: 'Description',         type: 'textarea' },
+        { key: 'notes',         label: 'Notes',               type: 'textarea' }
     ]
 };
 var LORE_CAT_FIELDS_DEFAULT = [
-    { key: 'description', label: 'Omschrijving', type: 'textarea' },
-    { key: 'notes',       label: 'Notities',     type: 'textarea' }
+    { key: 'description', label: 'Description', type: 'textarea' },
+    { key: 'notes',       label: 'Notes',       type: 'textarea' }
 ];
 function loreFieldsFor(cat) { return LORE_CAT_FIELDS[cat] || LORE_CAT_FIELDS_DEFAULT; }
 
@@ -2475,16 +2497,16 @@ function renderImageBox(cfg) {
     cfg = cfg || {};
     var val = cfg.value || '';
     var resolved = (typeof resolveImageSrc === 'function') ? resolveImageSrc(val) : val;
-    var html = '<div class="lore-image-box" data-action="toggle-img-menu" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" aria-label="Afbeelding instellen">';
+    var html = '<div class="lore-image-box" data-action="toggle-img-menu" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" aria-label="Set image">';
     html += '<div class="lore-image-preview" id="' + escapeAttr(cfg.previewId) + '">';
     if (resolved) html += '<img src="' + escapeAttr(resolved) + '" alt="">';
     else html += '<span class="npc-portrait-empty">' + escapeHtml((cfg.name || '?').charAt(0).toUpperCase()) + '</span>';
     html += '</div>';
-    html += '<span class="lore-image-hint">Afbeelding</span>';
+    html += '<span class="lore-image-hint">Image</span>';
     html += '<div class="lore-image-menu" role="menu">';
-    html += '<button type="button" data-action="img-pick-existing" role="menuitem">🖼️ Bestaande</button>';
-    html += '<button type="button" data-action="img-upload" role="menuitem">⬆️ Uploaden</button>';
-    html += '<button type="button" class="menu-remove" data-action="img-remove" role="menuitem"' + (resolved ? '' : ' style="display:none"') + '>🗑️ Verwijderen</button>';
+    html += '<button type="button" data-action="img-pick-existing" role="menuitem">🖼️ Existing</button>';
+    html += '<button type="button" data-action="img-upload" role="menuitem">⬆️ Upload</button>';
+    html += '<button type="button" class="menu-remove" data-action="img-remove" role="menuitem"' + (resolved ? '' : ' style="display:none"') + '>🗑️ Remove</button>';
     html += '</div>';
     html += '<input type="file" class="img-box-file" accept="image/*" data-action="' + escapeAttr(cfg.fileAction) + '" style="display:none">';
     html += '<input type="hidden" id="' + escapeAttr(cfg.hiddenId) + '" value="' + escapeAttr(val) + '">';
@@ -2531,13 +2553,17 @@ function renderLoreField(f, e) {
 // Pagina-indeling per categorie: velden die niet op 1 pagina passen (monsters)
 // worden over 2 pagina's verdeeld. Overige categorieën = 1 pagina (alle velden).
 var LORE_CAT_PAGES = {
+    // Creatures (key 'monsters') — 4 pagina's, vaste vensterhoogte dekt het
+    // formaatverschil af (#OvywGWk).
     monsters: [
-        // P1 — identiteit + stat-block-getallen + ability scores
-        ['size', 'mtype', 'disposition', 'cr', 'profBonus', 'initiative', 'ac', 'hp', 'speed', 'abilities'],
-        // P2 — defenses & senses (korte velden)
+        // P1 — identiteit & sociaal (NPC-origin)
+        ['race', 'npcClass', 'profession', 'alive', 'disposition', 'faction', 'religion', 'location', 'birthYear', 'relation'],
+        // P2 — stat-block-getallen + ability scores
+        ['size', 'mtype', 'cr', 'profBonus', 'initiative', 'ac', 'hp', 'speed', 'abilities'],
+        // P3 — defenses & senses (korte velden)
         ['saves', 'skills', 'senses', 'languages', 'resistances', 'immunities', 'condImmunities', 'vulnerabilities'],
-        // P3 — narratief (textareas)
-        ['traits', 'actions', 'legendary', 'spellcasting', 'description']
+        // P4 — narratief (textareas)
+        ['traits', 'actions', 'legendary', 'spellcasting', 'preferences', 'dislikes', 'pets', 'description', 'notes']
     ]
 };
 function lorePagesFor(cat) {
@@ -2626,8 +2652,18 @@ function renderLoreEntryModal(cat, idx) {
             html += '<div class="lore-entry-header-row">';
             html += renderImageBox({ previewId: 'lore-entry-image-preview', hiddenId: 'lore-entry-f-image', fileAction: 'upload-lore-entry-image', value: e.image, name: e.name });
             html += '<div class="lore-form-grid lore-header-fields">';
-            html += '<div class="npc-form-field lore-field-full"><label class="login-label" for="lore-entry-f-name">Name</label>';
-            html += '<input type="text" class="edit-input" id="lore-entry-f-name" value="' + escapeAttr(e.name || '') + '"></div>';
+            if (cat === 'monsters') {
+                // Creatures: voor- + achternaam (afgeleide `name` wordt bij save
+                // samengesteld). Split bestaande monster-`name` als fallback.
+                var cfl = (typeof npcFirstLast === 'function') ? npcFirstLast(e) : { firstName: e.name || '', lastName: '' };
+                html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-firstName">First name</label>';
+                html += '<input type="text" class="edit-input" id="lore-entry-f-firstName" value="' + escapeAttr(cfl.firstName || '') + '"></div>';
+                html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-lastName">Last name</label>';
+                html += '<input type="text" class="edit-input" id="lore-entry-f-lastName" value="' + escapeAttr(cfl.lastName || '') + '"></div>';
+            } else {
+                html += '<div class="npc-form-field lore-field-full"><label class="login-label" for="lore-entry-f-name">Name</label>';
+                html += '<input type="text" class="edit-input" id="lore-entry-f-name" value="' + escapeAttr(e.name || '') + '"></div>';
+            }
             html += '</div>';
             html += '</div>';
         }
@@ -2681,8 +2717,18 @@ async function saveLoreEntryModal() {
     var idx = parseInt(form.dataset.entryIdx, 10);
     var isNew = isNaN(idx) || idx === -1;
     function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-    var name = v('lore-entry-f-name');
-    if (!name) { var ne = document.getElementById('lore-entry-f-name'); if (ne) ne.focus(); return; }
+    // Creatures (monsters): naam = voornaam + achternaam; overige categorieën
+    // hebben één naam-veld (#OvywGWk).
+    var name, creFirst = '', creLast = '';
+    if (cat === 'monsters') {
+        creFirst = v('lore-entry-f-firstName');
+        creLast = v('lore-entry-f-lastName');
+        name = (creFirst + ' ' + creLast).trim();
+        if (!name) { var nf = document.getElementById('lore-entry-f-firstName'); if (nf) nf.focus(); return; }
+    } else {
+        name = v('lore-entry-f-name');
+        if (!name) { var ne = document.getElementById('lore-entry-f-name'); if (ne) ne.focus(); return; }
+    }
     var imgEl2 = document.getElementById('lore-entry-f-image');
     if (imgEl2 && imgEl2._uploadPromise) { try { await imgEl2._uploadPromise; } catch (e) {} }
 
@@ -2691,6 +2737,7 @@ async function saveLoreEntryModal() {
     var entry = isNew ? { id: 'le' + Date.now() } : (data[cat][idx] || { id: 'le' + Date.now() });
     var oldImage = entry.image || '';               // for cleanup-on-replace
     entry.name = name;
+    if (cat === 'monsters') { entry.firstName = creFirst; entry.lastName = creLast; }
     entry.image = v('lore-entry-f-image') || null;
 
     var fields = loreFieldsFor(cat);
