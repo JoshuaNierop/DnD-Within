@@ -1899,8 +1899,20 @@ function renderNPCResultsInner() {
         list.push({ npc: npc, idx: ni });
     }
 
+    // Sort by surname (last name), then first name — #OvyuSFL.
+    list.sort(function (a, b) {
+        var fa = npcFirstLast(a.npc), fb = npcFirstLast(b.npc);
+        var la = (fa.lastName || '').toLowerCase(), lb = (fb.lastName || '').toLowerCase();
+        // NPCs without a surname fall back to first name, sorted after named families.
+        if (!la && lb) return 1;
+        if (la && !lb) return -1;
+        var c = la.localeCompare(lb, undefined, { sensitivity: 'base' });
+        if (c !== 0) return c;
+        return (fa.firstName || '').toLowerCase().localeCompare((fb.firstName || '').toLowerCase(), undefined, { sensitivity: 'base' });
+    });
+
     if (list.length === 0) {
-        html += '<p class="text-dim">' + (npcs.length ? 'Geen NPCs matchen de filters.' : 'Nog geen NPCs.') + '</p>';
+        html += '<p class="text-dim">' + (npcs.length ? 'No NPCs match the filters.' : 'No NPCs yet.') + '</p>';
         return html;
     }
 
@@ -1918,7 +1930,7 @@ function renderNPCResultsInner() {
         else html += '<div class="npc-portrait-empty">' + escapeHtml((n.name || '?').charAt(0).toUpperCase()) + '</div>';
         if (n.disposition) html += '<span class="npc-disp-dot" title="' + escapeAttr(n.disposition) + '"></span>';
         html += '</div>';
-        html += '<div class="npc-card-name">' + escapeHtml(n.name || '(naamloos)') + '</div>';
+        html += '<div class="npc-card-name">' + escapeHtml(n.name || '(unnamed)') + '</div>';
         html += '</div>';
 
         // Inline-expanded detail (zichtbaar via .expanded; spant volle breedte).

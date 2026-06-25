@@ -2,6 +2,9 @@
 
 Interactive D&D 5.5e character sheet en campaign management SPA voor 8 spelers.
 
+## ⚠️ Taal — ALTIJD Engels (uitzondering op global rule)
+**Alle gebruiker-zichtbare UI-teksten in D&D Within zijn in het Engels** — knoppen, labels, placeholders, toasts, confirm/prompt/alert-dialogen, lege-staat-teksten. Dit overschrijft de global conventie "Nederlandse UI-teksten voor personal projecten". Denk hier altijd aan bij werk aan dit project, ook zonder dat Joshua het benoemt. Nieuwe strings: Engels, of via de i18n-laag (NL/EN). Code/comments blijven Engels zoals altijd. Bij twijfel of je een Nederlandse string tegenkomt → vertalen naar Engels.
+
 ## Tech Stack
 - Vanilla JavaScript + Firebase Realtime Database (REST API)
 - Clean-URL SPA router (History API: `navigate()`/`getRoute()`/`initRouter()` in `core.js`) — links zijn echte paden `/maps`, een document-level click-interceptor vangt interne `<a href="/...">`. `<base href="/">` in index.html zodat relatieve assets op diepe routes laden.
