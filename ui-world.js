@@ -1989,11 +1989,8 @@ function renderCreatureResultsInner() {
         html += '<div class="lore-entry-body">';
         html += '<h3 class="lore-entry-name">' + escapeHtml(e.name || '(unnamed)') + '</h3>';
         if (infoHtml) html += '<div class="lore-entry-info">' + infoHtml + '</div>';
-        // Family-diagram als de creature aan een familie gekoppeld is.
-        var cFam = (typeof findPrimaryFamilyByCreatureId === 'function') ? findPrimaryFamilyByCreatureId(e.id) : null;
-        if (cFam && cFam.family && typeof renderFamilyDiagram === 'function') {
-            html += '<div class="npc-family-section">' + renderFamilyDiagram(cFam.family.id, false) + '</div>';
-        }
+        // Geen family-diagram op de creature-kaarten/-pagina (Joshua, 2026-06-26);
+        // family trees horen alleen op de Families-tab.
         if (isDM()) {
             html += '<div class="lore-entry-actions">';
             html += '<button class="btn btn-ghost btn-sm" data-action="edit-lore-entry" data-cat="monsters" data-entry-idx="' + realIdx + '">' + t('generic.edit') + '</button>';
