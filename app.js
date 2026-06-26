@@ -255,26 +255,20 @@ function flipToggle(grid, mutate) {
             return;
         }
 
-        // Togglende card: box-scale + counter-scaled image + cross-fade body.
+        // Togglende card: box-scale FLIP (glide + grootte). Image + body
+        // veranderen van verhouding/indeling, dus die cross-faden we (CSS) i.p.v.
+        // geometrisch tweenen — voorkomt vervorming bij vierkante afbeeldingen.
         var sx = l.width ? (f.width / l.width) : 1;
         var sy = l.height ? (f.height / l.height) : 1;
         var tdx = f.left - l.left, tdy = f.top - l.top;
-        var img = c.querySelector('.lore-entry-img');
-        var body = c.querySelector('.lore-entry-body');
 
         c.style.transformOrigin = 'top left';
         c.style.transform = 'translate(' + tdx + 'px,' + tdy + 'px) scale(' + sx + ',' + sy + ')';
-        if (img) {
-            img.style.transformOrigin = 'top left';
-            img.style.transform = 'scale(' + (1 / sx) + ',' + (1 / sy) + ')';
-        }
-        if (body) void body.offsetWidth;
-        c.classList.add('flip-box', 'flip-box-start');   // start: body opacity 0
+        c.classList.add('flip-box', 'flip-box-start');   // start: image + body opacity 0
         void c.offsetWidth;                              // commit invert-frame
 
-        // PLAY → eindpositie, image naar identiteit, body fade-in.
+        // PLAY → eindpositie; image + body faden in op hun definitieve vorm.
         c.style.transform = '';
-        if (img) img.style.transform = '';
         c.classList.remove('flip-box-start');
         _flipOnEnd(c);
     });

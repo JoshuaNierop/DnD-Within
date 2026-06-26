@@ -670,8 +670,11 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
    oude naar nieuwe box, de image counter-schaalt (geen vervorming), de body
    cross-fade't in (herindeelt echt). */
 .flip-box { transition: transform 0.42s cubic-bezier(0.2, 0.7, 0.2, 1); will-change: transform; z-index: 5; }
-.flip-box .lore-entry-img { transition: transform 0.42s cubic-bezier(0.2, 0.7, 0.2, 1); will-change: transform; }
+/* Image + body cross-faden: ze veranderen van verhouding/indeling tussen collapsed
+   en expanded, dus geometrisch tweenen vervormt — fade levert een schone reveal. */
+.flip-box .lore-entry-img,
 .flip-box .lore-entry-body { transition: opacity 0.3s ease; }
+.flip-box.flip-box-start .lore-entry-img,
 .flip-box.flip-box-start .lore-entry-body { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
     .flip-move, .flip-in,
@@ -7657,11 +7660,19 @@ body:has(.wg-bottombar) #scw-fab {
     align-items: stretch;
 }
 .lore-entry-card.expanded .lore-entry-img {
+    /* Uitgeklapt: vaste breedte, maar de hoogte volgt de NATUURLIJKE verhouding
+       van de afbeelding (vierkant blijft vierkant, portret blijft portret) i.p.v.
+       een geforceerde 2:3 crop (Joshua, 2026-06-26). */
     flex: 0 0 auto;
     width: 220px;
-    aspect-ratio: 2 / 3;
+    aspect-ratio: auto;
     height: auto;
     align-self: flex-start;
+    overflow: visible;
+}
+.lore-entry-card.expanded .lore-entry-img img {
+    height: auto;          /* natuurlijke verhouding, geen crop */
+    object-fit: contain;
 }
 .lore-entry-card.expanded .lore-entry-body {
     position: static;
