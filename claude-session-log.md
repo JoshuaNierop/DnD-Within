@@ -614,3 +614,20 @@ Nieuwe `#/widget-demo` route toont elke widget in min/default/max naast elkaar m
 **Current state:** Twee commits gepusht naar master. In-browser getest (admin): tabs/NPC/lore-entry add+expand werken, geen console-errors, testdata uit live Firebase opgeruimd.
 **Next steps:** Bug #1 multi-client live-verificatie (open). Zie Todo.md "Open voor review" voor 5 review-punten.
 ---
+
+### Recap — 2026-06-26
+**What was done (entity-merge #OvywGWk + dashboard #Ovy59sT):**
+- Dashboard tools → bottom action bar; right sidebar removed (b00f27d)
+- Uniform editor window size across pages (356b6ac)
+- Monster editor → full Creature editor (NPC + statblock fields, firstName/lastName) (c04bfd0)
+- NPCs + monsters unified into one "Creatures" store/tab; safe non-destructive migration (dw_npcs kept) + family-link remap (3f8179f)
+- Isotope-style FLIP animations on card grids (filter/search) (34c8a5f)
+- Family trees removed from creature cards (21f9011)
+- Smooth FLIP expand/collapse transition (de797f8); expanded images keep natural ratio + cross-fade (78073fd)
+- Settings: D&D Within is now English-only (project CLAUDE.md + memory)
+- Earlier bug-hub sweep: 15 bugs fixed/marked, NPC surname sort, quicknotes @-mentions
+
+**Needs live verification (couldn't run app):** NPC→Creature migration correctness (no double/lost NPCs, mentions [[npc:id]] resolve, family diagrams on Families tab); FLIP expand on square vs portrait images; scroll-anchor jitter on partly-offscreen expand.
+**Rollback net:** dw_npcs preserved; migration idempotent.
+**Open/next:** dead code (old renderNPCModal/add-npc/edit-npc) to clean up; possible portrait-image "same size not just same ratio" tweak if requested.
+---
