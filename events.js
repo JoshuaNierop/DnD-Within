@@ -1363,25 +1363,31 @@ function bindPageEvents(route) {
             // klapt de vorige in (gevraagd 2026-06-14; keert #I1oOpc bewust om).
             var leCard = target.matches('[data-action="toggle-lore-entry"]') ? target : target.closest('[data-action="toggle-lore-entry"]');
             if (leCard) {
-                var willExpand = !leCard.classList.contains('expanded');
-                if (willExpand) {
-                    // Alle andere kaarten sluiten (DOM + persistente set leegmaken)
-                    // zodat een latere re-render er ook maar één open toont.
-                    document.querySelectorAll('.lore-entry-card.expanded').forEach(function (c) {
-                        c.classList.remove('expanded');
-                    });
-                    if (typeof loreExpandedIds !== 'undefined') {
-                        for (var k in loreExpandedIds) delete loreExpandedIds[k];
+                // #OvywGWk: vloeiende verplaatsing/grootte-overgang via FLIP rond
+                // de class-toggle (Isotope-stijl). De mutatie zelf blijft gelijk.
+                var leGrid = leCard.closest('.lore-entry-grid');
+                var runToggle = function () {
+                    var willExpand = !leCard.classList.contains('expanded');
+                    if (willExpand) {
+                        // Alle andere kaarten in dit grid sluiten (DOM + set leegmaken).
+                        var openCards = leGrid ? leGrid.querySelectorAll('.lore-entry-card.expanded')
+                                               : document.querySelectorAll('.lore-entry-card.expanded');
+                        openCards.forEach(function (c) { c.classList.remove('expanded'); });
+                        if (typeof loreExpandedIds !== 'undefined') {
+                            for (var k in loreExpandedIds) delete loreExpandedIds[k];
+                        }
                     }
-                }
-                leCard.classList.toggle('expanded', willExpand);
-                // Spiegel naar de persistente set zodat een latere re-render de
-                // uitgeklapte kaart niet inklapt (#LLD4YT/#3gKQ37).
-                var lid = leCard.getAttribute('data-entry-id');
-                if (lid && typeof loreExpandedIds !== 'undefined') {
-                    if (willExpand) loreExpandedIds[lid] = true;
-                    else delete loreExpandedIds[lid];
-                }
+                    leCard.classList.toggle('expanded', willExpand);
+                    // Spiegel naar de persistente set zodat een latere re-render de
+                    // uitgeklapte kaart niet inklapt (#LLD4YT/#3gKQ37).
+                    var lid = leCard.getAttribute('data-entry-id');
+                    if (lid && typeof loreExpandedIds !== 'undefined') {
+                        if (willExpand) loreExpandedIds[lid] = true;
+                        else delete loreExpandedIds[lid];
+                    }
+                };
+                if (typeof flipToggle === 'function') flipToggle(leGrid, runToggle);
+                else runToggle();
             }
             return;
         }

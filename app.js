@@ -209,6 +209,95 @@ function flipUpdate(container, html) {
     });
 }
 
+// #OvywGWk: FLIP voor de lore-card accordion (uitklappen/inklappen). Geen
+// re-render — we werken op de live nodes per referentie. Siblings schuiven puur
+// (translate); de togglende card doet een box-scale FLIP met een counter-scaled
+// image (geen vervorming) en een cross-fade body (die echt herindeelt). De
+// caller levert mutate() = de bestaande accordion-logica. Respecteert
+// prefers-reduced-motion.
+function flipToggle(grid, mutate) {
+    if (!grid) { mutate(); return; }
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { mutate(); return; }
+
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.lore-entry-card'));
+    // Snap eventuele lopende animatie naar rust zodat FIRST de echte posities meet.
+    cards.forEach(_flipToggleFinish);
+
+    // FIRST — posities + expanded-state vastleggen.
+    var first = new Map(), wasExp = new Map();
+    cards.forEach(function (c) {
+        first.set(c, c.getBoundingClientRect());
+        wasExp.set(c, c.classList.contains('expanded'));
+    });
+
+    // MUTATE — de bestaande accordion-logica; layout is hierna definitief.
+    mutate();
+
+    // LAST + INVERT + PLAY
+    cards.forEach(function (c) {
+        var f = first.get(c);
+        if (!f) return;
+        var l = c.getBoundingClientRect();
+        var stateChanged = wasExp.get(c) !== c.classList.contains('expanded');
+
+        if (!stateChanged) {
+            // Sibling: alleen verschuiven.
+            var dx = f.left - l.left, dy = f.top - l.top;
+            if (!dx && !dy) return;
+            c.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+            c.style.transitionProperty = 'none';
+            void c.offsetWidth;
+            c.classList.add('flip-move');
+            c.style.transitionProperty = '';
+            c.style.transform = '';
+            _flipOnEnd(c);
+            return;
+        }
+
+        // Togglende card: box-scale + counter-scaled image + cross-fade body.
+        var sx = l.width ? (f.width / l.width) : 1;
+        var sy = l.height ? (f.height / l.height) : 1;
+        var tdx = f.left - l.left, tdy = f.top - l.top;
+        var img = c.querySelector('.lore-entry-img');
+        var body = c.querySelector('.lore-entry-body');
+
+        c.style.transformOrigin = 'top left';
+        c.style.transform = 'translate(' + tdx + 'px,' + tdy + 'px) scale(' + sx + ',' + sy + ')';
+        if (img) {
+            img.style.transformOrigin = 'top left';
+            img.style.transform = 'scale(' + (1 / sx) + ',' + (1 / sy) + ')';
+        }
+        if (body) void body.offsetWidth;
+        c.classList.add('flip-box', 'flip-box-start');   // start: body opacity 0
+        void c.offsetWidth;                              // commit invert-frame
+
+        // PLAY → eindpositie, image naar identiteit, body fade-in.
+        c.style.transform = '';
+        if (img) img.style.transform = '';
+        c.classList.remove('flip-box-start');
+        _flipOnEnd(c);
+    });
+}
+
+function _flipOnEnd(el) {
+    var cb = function (e) { if (e.target === el) { _flipToggleFinish(el); el.removeEventListener('transitionend', cb); } };
+    el.addEventListener('transitionend', cb);
+    // Fallback als transitionend gemist wordt (interruptie / geen transition).
+    clearTimeout(el._flipT);
+    el._flipT = setTimeout(function () { _flipToggleFinish(el); }, 520);
+}
+
+function _flipToggleFinish(el) {
+    clearTimeout(el._flipT);
+    el.classList.remove('flip-move', 'flip-box', 'flip-box-start');
+    el.style.transform = '';
+    el.style.transitionProperty = '';
+    el.style.transformOrigin = '';
+    var img = el.querySelector('.lore-entry-img');
+    if (img) { img.style.transform = ''; img.style.transformOrigin = ''; }
+}
+
 // Open + highlight the NPC / lore-entry card that a clicked @-mention link
 // targeted (window._dwEntityFocus = {type, id}). Mirrors the timeline
 // session-focus flow. Safe no-op when nothing is pending or the card is absent.

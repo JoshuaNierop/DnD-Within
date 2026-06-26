@@ -666,8 +666,16 @@ p, .desc, .feat-desc, .spell-desc, .quote-text, .blockquote { text-wrap: pretty;
    de soepele timing. */
 .flip-move { transition: transform 0.42s cubic-bezier(0.2, 0.7, 0.2, 1); will-change: transform; }
 .flip-in   { transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); will-change: opacity, transform; }
+/* Box-scale FLIP voor de uit-/inklappende lore-card: de card schaalt soepel van
+   oude naar nieuwe box, de image counter-schaalt (geen vervorming), de body
+   cross-fade't in (herindeelt echt). */
+.flip-box { transition: transform 0.42s cubic-bezier(0.2, 0.7, 0.2, 1); will-change: transform; z-index: 5; }
+.flip-box .lore-entry-img { transition: transform 0.42s cubic-bezier(0.2, 0.7, 0.2, 1); will-change: transform; }
+.flip-box .lore-entry-body { transition: opacity 0.3s ease; }
+.flip-box.flip-box-start .lore-entry-body { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
-    .flip-move, .flip-in { transition: none; }
+    .flip-move, .flip-in,
+    .flip-box, .flip-box .lore-entry-img, .flip-box .lore-entry-body { transition: none; }
 }
 
 /* #OvywGWk: Monsters-sectie binnen de NPC-tab. */
