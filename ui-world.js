@@ -2637,12 +2637,21 @@ function renderImageBox(cfg) {
 }
 
 // Render één lore-veld (gedeeld door modal-grid). Textarea/abilities = full-width.
-function renderLoreField(f, e) {
+// cat: bij 'monsters' + DM krijgt dit veld een per-veld visibility-toggle naast
+// het label, óók als het veld nog leeg is (Requirement 5, #OvywGWk). Andere
+// categorieën / niet-DM-gebruikers krijgen de ongewijzigde plain-label markup.
+function renderLoreField(f, e, cat) {
     var full = (f.type === 'textarea' || f.type === 'abilities');
     var rows = f.rows || 3;
+    var showVis = (cat === 'monsters') && (typeof isDM === 'function') && isDM();
+    function fieldLabel(text, forId) {
+        var lbl = '<label class="login-label"' + (forId ? ' for="' + forId + '"' : '') + '>' + text + '</label>';
+        if (!showVis) return lbl;
+        return '<div class="lore-field-label-row">' + lbl + loreVisToggleDraft(f.key, monsterFieldVis(e, f.key)) + '</div>';
+    }
     var html = '<div class="npc-form-field' + (full ? ' lore-field-full' : '') + '">';
     if (f.type === 'abilities') {
-        html += '<label class="login-label">' + escapeHtml(f.label) + '</label><div class="lore-ab-edit">';
+        html += fieldLabel(escapeHtml(f.label)) + '<div class="lore-ab-edit">';
         var ab = e.abilities || {};
         for (var ai = 0; ai < LORE_ABILITY_KEYS.length; ai++) {
             var ak = LORE_ABILITY_KEYS[ai];
@@ -2651,10 +2660,10 @@ function renderLoreField(f, e) {
         }
         html += '</div>';
     } else if (f.type === 'textarea') {
-        html += '<label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
+        html += fieldLabel(escapeHtml(f.label), 'lore-entry-f-' + f.key);
         html += '<textarea class="edit-textarea" id="lore-entry-f-' + f.key + '" rows="' + rows + '"' + mentionFieldAttr(e[f.key]) + '>' + mentionFieldVal(e[f.key]) + '</textarea>';
     } else if (f.type === 'select') {
-        html += '<label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
+        html += fieldLabel(escapeHtml(f.label), 'lore-entry-f-' + f.key);
         html += '<select class="edit-input" id="lore-entry-f-' + f.key + '">';
         var cur = e[f.key] || '';
         html += '<option value=""' + (cur ? '' : ' selected') + '>—</option>';
@@ -2665,7 +2674,7 @@ function renderLoreField(f, e) {
         }
         html += '</select>';
     } else {
-        html += '<label class="login-label" for="lore-entry-f-' + f.key + '">' + escapeHtml(f.label) + '</label>';
+        html += fieldLabel(escapeHtml(f.label), 'lore-entry-f-' + f.key);
         html += '<input type="' + (f.type === 'number' ? 'number' : 'text') + '" class="edit-input" id="lore-entry-f-' + f.key + '" value="' + escapeAttr(e[f.key] != null ? e[f.key] : '') + '">';
     }
     html += '</div>';
@@ -2771,14 +2780,22 @@ function renderLoreEntryModal(cat, idx) {
     for (var p = 0; p < pages.length; p++) {
         html += '<div class="modal-page' + (p === 0 ? ' page-active' : '') + '" data-page="' + (p + 1) + '">';
         if (p === 0) {
+            // Requirement 5 (#OvywGWk): image + name hebben geen entry in
+            // LORE_CAT_FIELDS, dus krijgen hun toggle hier expliciet i.p.v. via
+            // renderLoreField. Zelfde showVis-gate (monsters + DM) als daar.
+            var showHdrVis = (cat === 'monsters') && (typeof isDM === 'function') && isDM();
             html += '<div class="lore-entry-header-row">';
+            if (showHdrVis) html += '<div class="lore-image-box-wrap">';
             html += renderImageBox({ previewId: 'lore-entry-image-preview', hiddenId: 'lore-entry-f-image', fileAction: 'upload-lore-entry-image', value: e.image, name: e.name });
+            if (showHdrVis) { html += loreVisToggleDraft('image', monsterFieldVis(e, 'image')); html += '</div>'; }
             html += '<div class="lore-form-grid lore-header-fields">';
             if (cat === 'monsters') {
                 // Creatures: voor- + achternaam (afgeleide `name` wordt bij save
                 // samengesteld). Split bestaande monster-`name` als fallback.
                 var cfl = (typeof npcFirstLast === 'function') ? npcFirstLast(e) : { firstName: e.name || '', lastName: '' };
-                html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-firstName">First name</label>';
+                html += '<div class="npc-form-field">';
+                html += '<div class="lore-field-label-row"><label class="login-label" for="lore-entry-f-firstName">First name</label>' +
+                    (showHdrVis ? loreVisToggleDraft('name', monsterFieldVis(e, 'name')) : '') + '</div>';
                 html += '<input type="text" class="edit-input" id="lore-entry-f-firstName" value="' + escapeAttr(cfl.firstName || '') + '"></div>';
                 html += '<div class="npc-form-field"><label class="login-label" for="lore-entry-f-lastName">Last name</label>';
                 html += '<input type="text" class="edit-input" id="lore-entry-f-lastName" value="' + escapeAttr(cfl.lastName || '') + '"></div>';
@@ -2790,7 +2807,7 @@ function renderLoreEntryModal(cat, idx) {
             html += '</div>';
         }
         html += '<div class="lore-form-grid">';
-        for (var fi = 0; fi < pages[p].length; fi++) html += renderLoreField(pages[p][fi], e);
+        for (var fi = 0; fi < pages[p].length; fi++) html += renderLoreField(pages[p][fi], e, cat);
         html += '</div>';
         html += '</div>';
     }
@@ -2884,6 +2901,23 @@ async function saveLoreEntryModal() {
             entry[f.key] = v('lore-entry-f-' + f.key);
         }
     }
+    // Requirement 5 (#OvywGWk): de per-veld visibility-toggles leven nu ook in
+    // de editor (loreVisToggleDraft, naast élk veld + image/name). Ze muteren
+    // tijdens het editen alléén hun eigen data-vis-attribuut — pas hier, bij
+    // Save, herbouwen we entry.visibility volledig uit de huidige toggle-state.
+    // De toggles worden alleen gerenderd voor DM + Creatures (showVis-gate in
+    // renderLoreField/renderLoreEntryModal); staan ze er niet (geen DM), dan
+    // laten we entry.visibility ongemoeid i.p.v. het te legen.
+    if (cat === 'monsters') {
+        var visBtns = form.querySelectorAll('[data-action="toggle-field-vis-draft"]');
+        if (visBtns.length) {
+            var newVis = {};
+            for (var vbi = 0; vbi < visBtns.length; vbi++) {
+                newVis[visBtns[vbi].dataset.field] = (visBtns[vbi].dataset.vis === 'private') ? 'private' : 'public';
+            }
+            entry.visibility = newVis;
+        }
+    }
     // Nieuwe monsters staan standaard op privé (alleen DM); de DM geeft ze
     // expliciet vrij met de entry-toggle op de kaart.
     if (isNew && cat === 'monsters') entry.hidden = true;
@@ -2974,7 +3008,10 @@ var loreExpandedIds = {};
 // Monster "fog of war" (#0C4rMb): per-veld public/private (DM-bezit, op e.visibility)
 // + gedeelde speler-hypotheses (apart Firebase-pad, realtime). Default-public alleen
 // voor velden die een speler sowieso waarneemt; rest private.
-var MONSTER_PUBLIC_DEFAULTS = { size: true, mtype: true, speed: true, description: true };
+// 'image' en 'name' zijn geen entries in LORE_CAT_FIELDS.monsters (ze leven in
+// de modal-header / kaart-header), maar delen dezelfde visibility-store en
+// dezelfde default-fallback-logica (Requirement 5, #OvywGWk).
+var MONSTER_PUBLIC_DEFAULTS = { size: true, mtype: true, speed: true, description: true, image: true, name: true };
 function monsterFieldVis(e, key) {
     if (e.visibility && e.visibility[key]) return e.visibility[key];
     return MONSTER_PUBLIC_DEFAULTS[key] ? 'public' : 'private';
@@ -2984,8 +3021,26 @@ function monsterVisToggle(eid, key, vis) {
     var priv = vis === 'private';
     return '<button class="lore-vis-toggle" data-action="toggle-field-vis" data-entry="' + escapeAttr(eid) +
         '" data-field="' + key + '" aria-pressed="' + (priv ? 'true' : 'false') +
-        '" aria-label="Zichtbaarheid voor spelers" title="' +
-        (priv ? 'Verborgen voor spelers — klik om te tonen' : 'Zichtbaar voor spelers — klik om te verbergen') +
+        '" aria-label="Visibility to players" title="' +
+        (priv ? 'Hidden from players — click to make public' : 'Visible to players — click to make private') +
+        '">' + (priv ? '🔒' : '👁') + '</button>';
+}
+// Editor-scoped twin of monsterVisToggle (Requirement 5, #OvywGWk): renders
+// next to EVERY field label in the Creatures editor modal (including empty
+// fields, and the image/name header fields — see renderLoreEntryModal). Unlike
+// the read-card toggle it does NOT write to storage or need a saved entry id;
+// a click only flips this button's own data-vis attribute + icon (handled by
+// the 'toggle-field-vis-draft' click handler in ui-modals.js — the modal is
+// appended to document.body, outside #app, so it must live in the
+// document-level click delegate rather than events.js's app.onclick). The real
+// entry.visibility object is rebuilt from all these buttons' data-vis at Save
+// time (saveLoreEntryModal), so nothing is persisted until the user saves.
+function loreVisToggleDraft(key, vis) {
+    var priv = vis === 'private';
+    return '<button type="button" class="lore-vis-toggle" data-action="toggle-field-vis-draft" data-field="' + escapeAttr(key) +
+        '" data-vis="' + (priv ? 'private' : 'public') + '" aria-pressed="' + (priv ? 'true' : 'false') +
+        '" aria-label="Visibility to players" title="' +
+        (priv ? 'Hidden from players — click to make public' : 'Visible to players — click to make private') +
         '">' + (priv ? '🔒' : '👁') + '</button>';
 }
 // Monochrome SVG-iconen (currentColor → erven de witte kleur van de knop).
@@ -2999,7 +3054,7 @@ var DW_ICON_EYEOFF = '<svg viewBox="0 0 24 24" width="10" height="10" fill="none
 function monsterEntryVisToggle(idx, hidden) {
     return '<button class="lore-entry-vis' + (hidden ? ' is-private' : '') + '" data-action="toggle-entry-vis" data-entry-idx="' + idx +
         '" aria-pressed="' + (hidden ? 'true' : 'false') + '" title="' +
-        (hidden ? 'Privé — alleen de DM ziet dit monster. Klik om vrij te geven.' : 'Publiek — spelers zien dit monster. Klik om te verbergen.') +
+        (hidden ? 'Private — only the DM sees this creature. Click to reveal to players.' : 'Public — players see this creature. Click to hide.') +
         '">' + (hidden ? DW_ICON_EYEOFF : DW_ICON_EYE) + '</button>';
 }
 function monsterAbilitiesGrid(ab) {

@@ -1869,6 +1869,23 @@ document.addEventListener('click', function(e) {
         if (typeof closeLoreEntryModal === 'function') closeLoreEntryModal();
         return;
     }
+    // Editor-scoped per-field visibility toggle (Requirement 5, #OvywGWk):
+    // twin of events.js's 'toggle-field-vis' (read-card), but for loreVisToggleDraft
+    // buttons rendered next to every field in the Creatures editor (incl. empty
+    // fields, and the image/name header fields). Unlike the read-card version
+    // this does NOT look up a saved entry or write to storage — it only flips
+    // this button's own data-vis attribute + icon. saveLoreEntryModal reads
+    // every such button's data-field/data-vis at Save time to build
+    // entry.visibility, so nothing persists (no Firebase write) until Save.
+    if (target.closest('[data-action="toggle-field-vis-draft"]')) {
+        var draftBtn = target.closest('[data-action="toggle-field-vis-draft"]');
+        var draftPriv = draftBtn.dataset.vis !== 'private'; // flip current state
+        draftBtn.dataset.vis = draftPriv ? 'private' : 'public';
+        draftBtn.setAttribute('aria-pressed', draftPriv ? 'true' : 'false');
+        draftBtn.textContent = draftPriv ? '🔒' : '👁';
+        draftBtn.title = draftPriv ? 'Hidden from players — click to make public' : 'Visible to players — click to make private';
+        return;
+    }
 
     // ----- Maps: dimensions-manager + add-map window (hangen aan <body>) -----
     if (target.matches('.maps-modal-overlay') || target.closest('[data-action="close-maps-modal"]')) {

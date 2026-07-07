@@ -1327,12 +1327,17 @@ function bindPageEvents(route) {
                 var priv = newVis === 'private';
                 visBtn.setAttribute('aria-pressed', priv ? 'true' : 'false');
                 visBtn.textContent = priv ? '🔒' : '👁';
-                visBtn.title = priv ? 'Verborgen voor spelers — klik om te tonen' : 'Zichtbaar voor spelers — klik om te verbergen';
+                visBtn.title = priv ? 'Hidden from players — click to make public' : 'Visible to players — click to make private';
                 var rowEl = visBtn.closest('.lore-info-row') || visBtn.closest('.lore-info-block') || visBtn.closest('.lore-ab-wrap');
                 if (rowEl) rowEl.classList.toggle('is-private', priv);
             }
             return;
         }
+
+        // NB: the editor-modal twin of this toggle (loreVisToggleDraft /
+        // 'toggle-field-vis-draft') is handled in ui-modals.js, not here — the
+        // lore-entry modal is appended to document.body (outside #app), so
+        // this app.onclick delegate never sees clicks inside it.
 
         // DM zet een heel monster op privé/publiek (entry-niveau). Vóór de
         // card-toggle zodat de kaart niet in/uitklapt bij de klik.
@@ -1349,7 +1354,7 @@ function bindPageEvents(route) {
                 evBtn.setAttribute('aria-pressed', hid ? 'true' : 'false');
                 evBtn.classList.toggle('is-private', hid);
                 evBtn.innerHTML = hid ? DW_ICON_EYEOFF : DW_ICON_EYE;
-                evBtn.title = hid ? 'Privé — alleen de DM ziet dit monster. Klik om vrij te geven.' : 'Publiek — spelers zien dit monster. Klik om te verbergen.';
+                evBtn.title = hid ? 'Private — only the DM sees this creature. Click to reveal to players.' : 'Public — players see this creature. Click to hide.';
                 var evCard = evBtn.closest('.lore-entry-card');
                 if (evCard) evCard.classList.toggle('is-private-entry', hid);
             }

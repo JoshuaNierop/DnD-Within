@@ -7717,6 +7717,11 @@ body:has(.wg-bottombar) #scw-fab {
 }
 .lore-vis-toggle:hover { background: var(--bg-hover); border-color: var(--border); opacity: 1; }
 .lore-vis-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* Editor-modal per-veld toggle (Requirement 5, #OvywGWk): label + toggle op één
+   regel; toggle staat na het label (i.p.v. de read-card order:-1) omdat er in
+   de editor geen waarde vóór het label staat om naast te positioneren. */
+.lore-field-label-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.lore-field-label-row .lore-vis-toggle { order: 0; }
 /* DM-view: privé velden subtiel getint zodat je in één blik ziet wat verborgen is */
 .lore-info-row.is-private, .lore-info-block.is-private, .lore-ab-wrap.is-private {
     background: color-mix(in srgb, var(--accent-warm) 9%, transparent);
@@ -8085,6 +8090,15 @@ body:has(.wg-bottombar) #scw-fab {
 
 /* Image-box — klik → keuze-menu (Bestaande / Uploaden / Verwijderen) */
 .lore-image-box { position: relative; width: 100px; flex-shrink: 0; cursor: pointer; outline: none; }
+/* Image-visibility toggle (Requirement 5, #OvywGWk): rendered as a sibling of
+   .lore-image-box (not a descendant) so a click doesn't bubble into the box's
+   own [data-action="toggle-img-menu"] handler and pop the image menu open. */
+.lore-image-box-wrap { position: relative; flex-shrink: 0; }
+.lore-image-box-wrap .lore-vis-toggle {
+    position: absolute; top: 0.3rem; right: 0.3rem; z-index: 5;
+    background: rgba(20,20,24,0.55); color: #fff; border-color: transparent;
+}
+.lore-image-box-wrap .lore-vis-toggle:hover { background: rgba(20,20,24,0.75); }
 .lore-image-preview {
     width: 100px; height: 134px; background: var(--bg-block, var(--bg-hover));
     border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
