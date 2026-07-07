@@ -1,5 +1,11 @@
 # D&D Within — To Do
 
+## Content-audit 2026-07-07 (data.js) — commit c900140
+- [x] P1 — 13 ontbrekende 2024 general feats toegevoegd (`feats[]`): Keen Mind, Piercer, Slasher, Crusher, Chef, Skill Expert, Telekinetic, Telepathic, Metamagic Adept, Grappler, Poisoner, Heavily/Moderately Armored. **Bewust weggelaten:** Gunner/Fighting Initiate/Martial Adept = 2014-only, niet in 2024 PHB.
+- [x] P2 — `Magic Circle` (3rd level) toegevoegd aan spellPool; verdwaalde `Daylight`-duplicaat verwijderd (canonical staat in 3RD LEVEL sectie).
+- [~] P2 — **Testresults verouderd — verifiëren + bijwerken:** §2.3 spell-gaps (Cleric 2nd/Druid 1st/Bard 1st/etc.) bestaan grotendeels AL in spellPool; §2.5 Fighting-Style-feats bestaan al (`category:"fighting"`); §2.6 item 24 weaponMasteryProperties bestaat al als `weaponMasteryDesc` (data.js:2643). Alleen `Magic Circle` ontbrak echt.
+- [ ] P2 — **Review-punten nieuwe feats** (dnd-5.5e-agent / fysieke PHB checken): Heavily/Moderately Armored hebben armor-training-prereq die niet in `meetsPrereq()` bestaat → prereq nu `null` + eis in desc (feat altijd selecteerbaar). Chef/Poisoner/Skill Expert prereq `null` (2024 heeft geen ability-prereq). Choice-feats (+STR of DEX etc.) hebben geen `abilityBonus` → auto-bonus vuurt niet (bestaande engine-limitatie #9).
+
 ## Hub-bugs 2026-06-25 (8 nieuwe reports) — architect + dnd-5.5e geraadpleegd
 - [x] P2 — #OvvFjE (dm) **Quick-notes knoppen NL→EN** (Titel/Schrijf iets/Opslaan/Alle notities/Opgeslagen/Zonder titel). `effects.js`.
 - [x] P1 — #OvvJdjg (ren) **Crop-editor veld-vorm**: vierkant → portret (3:4). `aspect`-optie in `openCropEditor` (`ui-modals.js`), beide callers (`wg-events.js`, `ui-modals.js`) geven 3/4 mee. Crop-UI ook volledig Engels.
