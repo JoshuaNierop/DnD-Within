@@ -2083,6 +2083,19 @@ const DATA = {
         { name: "Skulker", category: "general", desc: "+1 DEX (max 20). Je kunt je verbergen als je lightly obscured bent. Missen met ranged attack onthult je positie niet. Dim light geeft geen disadvantage op Perception.", prereq: { dex: 13 }, abilityBonus: { dex: 1 } },
         { name: "War Caster", category: "general", desc: "+1 INT, WIS of CHA (max 20). Advantage op concentration saves. Somatic components met volle handen. Reaction: cast een cantrip i.p.v. opportunity attack.", prereq: { spellcasting: true } },
         { name: "Weapon Master", category: "general", desc: "+1 STR of DEX (max 20). Proficiency met 4 wapens naar keuze. Bij elke long rest: wissel 1 weapon mastery property.", prereq: { strOrDex: 13 } },
+        { name: "Keen Mind", category: "general", desc: "+1 INT (max 20). Je kunt de Study action als bonus action nemen. Je weet altijd welke kant het noorden is en hoeveel uur er nog resten tot de volgende zonsopgang of zonsondergang.", prereq: { int: 13 }, abilityBonus: { int: 1 } },
+        { name: "Piercer", category: "general", desc: "+1 STR of DEX (max 20). Eén keer per beurt als je piercing damage rolt, mag je één damage die herrollen. Bij een critical hit met een piercing-wapen: rol één extra damage die.", prereq: { strOrDex: 13 } },
+        { name: "Slasher", category: "general", desc: "+1 STR of DEX (max 20). Eén keer per beurt bij slashing damage: verlaag target's speed met 10ft tot begin volgende beurt. Bij een critical hit: target heeft disadvantage op attacks tot jouw volgende beurt.", prereq: { strOrDex: 13 } },
+        { name: "Crusher", category: "general", desc: "+1 STR of DEX (max 20). Eén keer per beurt bij bludgeoning damage: duw target 5ft weg. Bij een critical hit: attackers hebben advantage tegen het target tot jouw volgende beurt.", prereq: { strOrDex: 13 } },
+        { name: "Chef", category: "general", desc: "+1 CON of WIS (max 20). Proficiency met cook's utensils. Tijdens een short rest kun je eten koken dat extra HP herstelt; na een long rest kun je treats maken die temporary HP geven.", prereq: null },
+        { name: "Skill Expert", category: "general", desc: "+1 op een ability score naar keuze (max 20). Proficiency in één skill naar keuze. Expertise in één skill waarin je al proficient bent.", prereq: null },
+        { name: "Telekinetic", category: "general", desc: "+1 INT, WIS of CHA (max 20). Leer de Mage Hand cantrip (onzichtbare hand). Als bonus action: telekinetisch een creature 5ft duwen of trekken (STR save).", prereq: { intWisOrCha: 13 } },
+        { name: "Telepathic", category: "general", desc: "+1 INT, WIS of CHA (max 20). Telepathie tot 60ft met creatures die een taal spreken. Cast Detect Thoughts 1x gratis/long rest of met spell slots.", prereq: { intWisOrCha: 13 } },
+        { name: "Metamagic Adept", category: "general", desc: "Leer 2 Metamagic-opties naar keuze. Je krijgt 2 Sorcery Points om ze te gebruiken (hersteld na long rest). Herhaalbaar (nieuwe opties + 2 extra points).", prereq: { spellcasting: true }, repeatable: true },
+        { name: "Grappler", category: "general", desc: "+1 STR of DEX (max 20). Advantage op attacks tegen een creature die je grappled. Als bonus action mag je een grappled target verplaatsen (jouw speed / 2).", prereq: { strOrDex: 13 } },
+        { name: "Poisoner", category: "general", desc: "Negeer poison-resistance. Als action: coat een wapen/ammunition met poison (CON save DC 8 + prof + DEX of 2d8 poison + poisoned). Proficiency met poisoner's kit; maak poison-doses tijdens een rest.", prereq: null },
+        { name: "Heavily Armored", category: "general", desc: "+1 STR (max 20). Je krijgt training met heavy armor. (Vereist: al training met medium armor.)", prereq: null, abilityBonus: { str: 1 } },
+        { name: "Moderately Armored", category: "general", desc: "+1 STR of DEX (max 20). Je krijgt training met medium armor en shields. (Vereist: al training met light armor.)", prereq: null },
 
         // --- EPIC BOONS (level 19+) ---
         { name: "Boon of Combat Prowess", category: "epic", desc: "+1 STR of DEX (max 30). Als je mist met een melee attack, kun je het veranderen in een hit. 1x per long rest.", prereq: null },
@@ -3047,6 +3060,7 @@ DATA.spellPool = {
     "Zone of Truth": { level: 2, time: "1 action", range: "60ft", comp: "V, S", dur: "10 min", desc: "15ft radius. CHA save of creature kan niet liegen. Je weet of save geslaagd is." },
 
     // ===== 3RD LEVEL =====
+    "Magic Circle": { level: 3, time: "1 minute", range: "10ft", comp: "V, S, M (heilig water of gepoederd zilver/ijzer ter waarde van 100gp, verbruikt)", dur: "1 uur", desc: "Cilinder van 10ft radius / 20ft hoog. Kies een creature-type (celestials/elementals/fey/fiends/undead): die kunnen de cilinder niet vrijwillig binnen, hebben disadvantage op attacks tegen wezens binnenin, en kunnen ze niet charmen/frighten/possessen. Kan omgekeerd worden om ze juist binnen te houden. Verleng met hogere slots (+1 uur per level)." },
     "Animate Dead": { level: 3, time: "1 minute", range: "10ft", comp: "V, S, M (bloed en botsplinter)", dur: "Instant", desc: "Animeer een skelet of zombie uit een lijk. Gehoorzaamt jouw commando's. Hercast om controle te behouden." },
     "Aura of Vitality": { level: 3, time: "1 action", range: "Self (30ft)", comp: "V", dur: "Concentration, 1 min", desc: "Bonus action elke beurt: herstel 2d6 HP bij een creature binnen 30ft." },
     "Beacon of Hope": { level: 3, time: "1 action", range: "30ft", comp: "V, S", dur: "Concentration, 1 min", desc: "Gekozen creatures: advantage op WIS saves en death saves, en healing spells geven max HP." },
@@ -3251,8 +3265,7 @@ DATA.spellPool = {
     "Aura of Purity": { level: 4, time: "1 action", range: "Self (30ft aura)", comp: "V", dur: "Concentration, 10 min", desc: "30ft aura. Allies hebben resistance tegen poison, advantage op saves tegen conditions en kunnen niet ziek worden." },
     "Summon Celestial": { level: 5, time: "1 action", range: "90ft", comp: "V, S, M (reliekwieën ter waarde van 500gp)", dur: "Concentration, 1 uur", desc: "Roep een Celestial Spirit op (Defender of Avenger). Volgt bevelen. Stats schalen met spell slot level." },
     "Summon Beast": { level: 2, time: "1 action", range: "90ft", comp: "V, S, M (een feyconnection ter waarde van 200gp)", dur: "Concentration, 1 uur", desc: "Roep een Bestial Spirit op (Air/Land/Water). Volgt bevelen. Stats schalen met spell slot level." },
-    "Find Steed": { level: 2, time: "10 minutes", range: "30ft", comp: "V, S", dur: "Instant", desc: "Roep een trouw paardachtig wezen op (warhorse, pony, camel, elk, mastiff). Telepathische band. Deelt spells op touch." },
-    "Daylight": { level: 3, time: "1 action", range: "60ft", comp: "V, S", dur: "1 uur", desc: "60ft bol van bright light (plus 60ft dim light) rond een object/punt. Verdrijft magische duisternis van lvl 3 of lager." }
+    "Find Steed": { level: 2, time: "10 minutes", range: "30ft", comp: "V, S", dur: "Instant", desc: "Roep een trouw paardachtig wezen op (warhorse, pony, camel, elk, mastiff). Telepathische band. Deelt spells op touch." }
 };
 
 // ===== SPELLS (class lists with name strings) =====
