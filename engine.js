@@ -16,10 +16,13 @@ function getAbilityScore(config, state, ability) {
     if (state.customAbilities && state.customAbilities[ability] !== undefined && state.customAbilities[ability] !== null) {
         return state.customAbilities[ability];
     }
-    let score = config.baseAbilities[ability] || 10;
+    // Firebase drops empty objects — characters without ASI picks miss
+    // state.asiChoices entirely; never let that crash a derived stat.
+    let score = (config.baseAbilities || {})[ability] || 10;
+    const asiChoices = state.asiChoices || {};
     // Add ASI bonuses from all levels up to current
     for (let lvl = 1; lvl <= state.level; lvl++) {
-        const choice = state.asiChoices[lvl];
+        const choice = asiChoices[lvl];
         if (!choice) continue;
         if (choice.type === 'asi' && choice.abilities) {
             score += (choice.abilities[ability] || 0);
@@ -41,9 +44,10 @@ function getAbilityScore(config, state, ability) {
 
 // Get the calculated (non-override) score for tooltip breakdown
 function getCalculatedAbilityScore(config, state, ability) {
-    let score = config.baseAbilities[ability] || 10;
+    let score = (config.baseAbilities || {})[ability] || 10;
+    const asiChoices = state.asiChoices || {};
     for (let lvl = 1; lvl <= state.level; lvl++) {
-        const choice = state.asiChoices[lvl];
+        const choice = asiChoices[lvl];
         if (!choice) continue;
         if (choice.type === 'asi' && choice.abilities) {
             score += (choice.abilities[ability] || 0);
