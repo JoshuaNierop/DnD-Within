@@ -1451,6 +1451,9 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
    ============================================================ */
 @scope (.character-page) {
   /* Level Up / Level Down tiles */
+  /* Row 0: current-level display — plain cell, no action tint, no hover */
+  svg .info-box-cell.wgx-lu-levelrow { fill-opacity: 0.04; }
+  svg g.editable-cell:hover .info-box-cell.wgx-lu-levelrow { fill-opacity: 0.04; cursor: default; }
   svg .info-box-cell.wgx-act-levelup   { fill: var(--info-amber, #e0a106); fill-opacity: 0.22; }
   svg .info-box-cell.wgx-act-leveldown { fill: var(--user-border-soft, #888); fill-opacity: 0.14; }
   svg g.editable-cell:hover .info-box-cell.wgx-act-levelup   { fill-opacity: 0.36; }

@@ -18,7 +18,7 @@ var WG_INFOBOX_CLICK_HANDLERS = (typeof WG_INFOBOX_CLICK_HANDLERS !== 'undefined
 Object.assign(WG_WIDGET_TYPES, {
   levelUp: {
     label: 'Level Up', kind: 'infobox', source: 'levelup',
-    spanUnits: 4, spanUnitsY: 2,
+    spanUnits: 4, spanUnitsY: 3,
     cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 0 },
   },
 });
@@ -41,6 +41,9 @@ function wgxBuildLevelUp(widget) {
   d.columns = [{ key: 'cell', label: 'Level' }];
   var behind = wgxPartyLevel() > lvl;
   var rows = [], rowCls = [];
+  // Row 0: current level, plain display cell (not clickable).
+  rows.push(['Level ' + lvl]);
+  rowCls.push('wgx-lu-levelrow');
   rows.push(['⬆ Level Up (' + lvl + ' → ' + (lvl + 1) + ')']);
   rowCls.push('wgx-act-levelup' + (behind ? ' wgx-act-levelup-glow' : ''));
   rows.push(['⬇ Level Down']);
@@ -307,8 +310,9 @@ async function wgxLevelDown(charId) {
 WG_INFOBOX_CLICK_HANDLERS.levelup = async function (ctx) {
   var raw = ctx.raw || {};
   var lvl = ((raw.state || {}).level) || 1;
-  if (ctx.rowIdx === 0) { wgxOpenLevelUpModal(ctx.charId); return; }
-  if (ctx.rowIdx === 1) {
+  if (ctx.rowIdx === 0) return; // level display row — not an action
+  if (ctx.rowIdx === 1) { wgxOpenLevelUpModal(ctx.charId); return; }
+  if (ctx.rowIdx === 2) {
     if (lvl <= 1) return;
     await wgxLevelDown(ctx.charId);
   }
