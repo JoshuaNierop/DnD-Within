@@ -219,7 +219,8 @@ async function wgxConfirmLevelUp() {
 // ============================================================
 async function wgxLevelDown(charId) {
   var raw = WG_CHAR_CACHE[charId] || {};
-  var cfg = raw.config || {}, st = raw.state || {};
+  var cfg = raw.config || {}, st = Object.assign({ asiChoices: {} }, raw.state || {});
+  if (!st.asiChoices) st.asiChoices = {};
   var lvl = st.level || 1;
   if (lvl <= 1) { showToast('Already at level 1', 'error'); return; }
   var choices = (st.levelChoices || {})[lvl] || {};

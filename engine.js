@@ -325,6 +325,10 @@ function getClassResources(config, state) {
 // Everything that changes when going from state.level to toLevel (single-class,
 // combines class + subclass + species). Pure — no writes.
 function getLevelUpDelta(config, state, toLevel) {
+    // Older characters miss asiChoices in Firebase (empty objects are dropped)
+    // — normalize so getAbilityScore/getHP never throw.
+    state = Object.assign({ asiChoices: {} }, state);
+    if (!state.asiChoices) state.asiChoices = {};
     var from = state.level || 1;
     var cn = config.className;
     var classData = DATA[cn] || {};
