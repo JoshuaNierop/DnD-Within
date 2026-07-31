@@ -631,3 +631,17 @@ Nieuwe `#/widget-demo` route toont elke widget in min/default/max naast elkaar m
 **Rollback net:** dw_npcs preserved; migration idempotent.
 **Open/next:** dead code (old renderNPCModal/add-npc/edit-npc) to clean up; possible portrait-image "same size not just same ratio" tweak if requested.
 ---
+
+### Recap — 2026-08-01 01:35
+**What was done (Leveling Up fase F — Sorcerer):**
+- Metamagic-picker in level-up modal (count-gated, known options grijs); picks → state.metamagic + levelChoices; Level Down verwijdert ze
+- Innate Sorcery als classResource (2×/LR, data-correctie: was "PB per LR"); rests resetten nu alle classResource-tellers; Short Rest-knop voor elke class met short-one resources
+- Modal-knoppen gefixt (inline stopPropagation blokkeerde alles) + restyle naar warm-goud identiteit (stepper, staplabel, feature-cards, choice-cards)
+- Level Up-tegel klik-fix: 'always'-cellen starten geen select-gesture meer (render-race detachte click-target)
+- Level-widget toont nu "Level N" als rustige infobox-rij (3 rijen, klik-indices verschoven)
+- Max-HP-fix: getAbilityScore crashte op ontbrekende asiChoices → fallback-max die niet meegroeide; engine defaults nu naar {}
+- CLAUDE.md: Engels-only regel verbreed naar alle content/data
+**Verified:** node-smoketest Sorcerer L1→3 groen (17 checks); live browser-test op wegwerp-char: 8/8 → level-up → 14/14, metamagic in Firebase. Testchar verwijderd.
+**Commits:** 465d4ef, 4bb847a, 9f65475, d7f5792, 32b84a0 — alles gepusht.
+**Next:** fase F rest (invocations/fightingStyle/spell-pickers), fase D2 rest (level-down + resources/rest live), review-lijst: Innate Sorcery 2×/LR spot-check PHB, Draconic Resilience HP, swaps bij level-up.
+---
