@@ -108,7 +108,7 @@ function wgxRenderLUStep() {
   var card = document.querySelector('.wgx-lu-card');
   if (!card || !wgxLU) return;
   var d = wgxLU.delta, step = wgxLU.steps[wgxLU.stepIdx];
-  var cfg = wgxLU.raw.config || {};
+  var cfg = wgxLU.raw.config || {}, st = wgxLU.raw.state || {};
   var html = '<div class="modal-header"><h2>Level Up — ' + d.from + ' → ' + d.to + '</h2>' +
     '<button class="modal-close" data-wgx-lu="cancel">&times;</button></div>';
   // Stepper dots
@@ -156,9 +156,26 @@ function wgxRenderLUStep() {
       html += '</div>';
     }
     html += '</div>';
+  } else if (step.kind === 'choice' && step.choice.id === 'metamagic') {
+    var need = step.choice.count || 1;
+    var have = (st.metamagic || []).slice(); // already-known options (higher levels)
+    var picked = wgxLU.picked.metamagic || [];
+    html += '<h3>Choose ' + need + ' Metamagic option' + (need > 1 ? 's' : '') + '</h3>' +
+      '<p class="wgx-lu-note">Selected ' + picked.length + ' / ' + need + '</p><div class="wgx-lu-subgrid">';
+    var opts = DATA.metamagic || [];
+    for (var m = 0; m < opts.length; m++) {
+      var op = opts[m];
+      var known = have.indexOf(op.name) !== -1;
+      var isSel = picked.indexOf(op.name) !== -1;
+      html += '<div class="wgx-lu-subcard' + (isSel ? ' selected' : '') + (known ? ' wgx-lu-known' : '') + '"' +
+        (known ? '' : ' data-wgx-lu="pick-meta" data-meta="' + wgxEsc(op.name) + '"') + '>' +
+        '<h4>' + wgxEsc(op.name) + ' <span class="wgx-lu-cost">' + wgxEsc(String(op.cost)) + ' SP</span>' + (known ? ' · known' : '') + '</h4>' +
+        '<p>' + wgxEsc(wgxLUFeatureDesc(op.desc)) + '</p></div>';
+    }
+    html += '</div>';
   } else if (step.kind === 'choice') {
     // Generic fallback for choice types without a dedicated renderer yet
-    // (metamagic, invocations, fighting style, …): informational, never blocks.
+    // (invocations, fighting style, …): informational, never blocks.
     html += '<h3>Choice: ' + wgxEsc(step.choice.id) + (step.choice.count ? ' (× ' + step.choice.count + ')' : '') + '</h3>' +
       '<p class="wgx-lu-note">This choice type does not have an in-app picker yet. Continue and record your pick with your DM; it can be added to your sheet later.</p>';
   } else if (step.kind === 'confirm') {
@@ -167,13 +184,19 @@ function wgxRenderLUStep() {
       var sname = (DATA[cfg.className].subclasses[wgxLU.picked.subclass] || {}).name || wgxLU.picked.subclass;
       html += ' · Subclass: <b>' + wgxEsc(sname) + '</b>';
     }
+    if (wgxLU.picked.metamagic && wgxLU.picked.metamagic.length) {
+      html += ' · Metamagic: <b>' + wgxEsc(wgxLU.picked.metamagic.join(', ')) + '</b>';
+    }
     html += '</p><p class="wgx-lu-note">You can undo this later with Level Down.</p>';
   }
 
   html += '</div><div class="wgx-lu-nav">';
   html += '<button class="wgx-lu-btn" data-wgx-lu="' + (wgxLU.stepIdx === 0 ? 'cancel' : 'prev') + '">' + (wgxLU.stepIdx === 0 ? 'Cancel' : 'Back') + '</button>';
   var isLast = wgxLU.stepIdx === wgxLU.steps.length - 1;
-  var needsPick = step.kind === 'choice' && step.choice.id === 'subclass' && !wgxLU.picked.subclass;
+  var needsPick = step.kind === 'choice' && (
+    (step.choice.id === 'subclass' && !wgxLU.picked.subclass) ||
+    (step.choice.id === 'metamagic' && (wgxLU.picked.metamagic || []).length !== (step.choice.count || 1))
+  );
   html += '<button class="wgx-lu-btn wgx-lu-primary" data-wgx-lu="' + (isLast ? 'confirm' : 'next') + '"' + (needsPick ? ' disabled' : '') + '>' + (isLast ? 'Level Up!' : 'Next') + '</button>';
   html += '</div>';
   card.innerHTML = html;
@@ -187,6 +210,15 @@ function wgxLUClick(e) {
   if (act === 'prev') { wgxLU.stepIdx = Math.max(0, wgxLU.stepIdx - 1); wgxRenderLUStep(); return; }
   if (act === 'next') { wgxLU.stepIdx = Math.min(wgxLU.steps.length - 1, wgxLU.stepIdx + 1); wgxRenderLUStep(); return; }
   if (act === 'pick-sub') { wgxLU.picked.subclass = t.getAttribute('data-sub'); wgxRenderLUStep(); return; }
+  if (act === 'pick-meta') {
+    var name = t.getAttribute('data-meta');
+    var arr = wgxLU.picked.metamagic = wgxLU.picked.metamagic || [];
+    var idx = arr.indexOf(name);
+    var step = wgxLU.steps[wgxLU.stepIdx], cap = (step.choice && step.choice.count) || 1;
+    if (idx !== -1) arr.splice(idx, 1);
+    else if (arr.length < cap) arr.push(name);
+    wgxRenderLUStep(); return;
+  }
   if (act === 'confirm') { wgxConfirmLevelUp(); return; }
 }
 
@@ -197,8 +229,12 @@ async function wgxConfirmLevelUp() {
     // Record choices keyed by the new level → level-down knows what to remove.
     var choiceRec = {};
     if (lu.picked.subclass) choiceRec.subclass = lu.picked.subclass;
+    if (lu.picked.metamagic && lu.picked.metamagic.length) choiceRec.metamagic = lu.picked.metamagic;
     var patch = { level: d.to };
     patch['levelChoices/' + d.to] = choiceRec;
+    if (choiceRec.metamagic) {
+      patch.metamagic = (st.metamagic || []).concat(choiceRec.metamagic);
+    }
     // HP: raise current by the gain (max is derived; manual override bumps too).
     var curHp = (st.hp && typeof st.hp.current === 'number') ? st.hp.current : d.newMaxHp - d.hpGain;
     patch['hp/current'] = Math.min(curHp + d.hpGain, d.newMaxHp);
@@ -224,8 +260,11 @@ async function wgxLevelDown(charId) {
   var lvl = st.level || 1;
   if (lvl <= 1) { showToast('Already at level 1', 'error'); return; }
   var choices = (st.levelChoices || {})[lvl] || {};
+  var lost = [];
+  if (choices.subclass) lost.push('your subclass choice');
+  if (choices.metamagic && choices.metamagic.length) lost.push('Metamagic: ' + choices.metamagic.join(', '));
   var msg = 'Are you sure? This removes everything gained at level ' + lvl +
-    (choices.subclass ? ' (including your subclass choice)' : '') + '.';
+    (lost.length ? ' (including ' + lost.join(' and ') + ')' : '') + '.';
   if (!window.confirm(msg)) return;
   try {
     var newLevel = lvl - 1;
@@ -233,6 +272,9 @@ async function wgxLevelDown(charId) {
     var newMax = getMaxHP(cfg, stNew);
     var patch = { level: newLevel };
     patch['levelChoices/' + lvl] = null;
+    if (choices.metamagic && choices.metamagic.length) {
+      patch.metamagic = (st.metamagic || []).filter(function (n) { return choices.metamagic.indexOf(n) === -1; });
+    }
     var curHp = (st.hp && typeof st.hp.current === 'number') ? st.hp.current : newMax;
     patch['hp/current'] = Math.min(curHp, newMax);
     if (choices.subclass) await wgxPatchConfig(charId, { subclass: null });

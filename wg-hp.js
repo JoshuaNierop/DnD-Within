@@ -127,7 +127,7 @@ async function wgxApplyMode(charId, mode, amt) {
   try {
     const next = await wgxHpMutate(charId, hp => mode === 'heal' ? wgxApplyHeal(hp, amt) : wgxApplyDamage(hp, amt));
     wgxHpToast(next, mode);
-  } catch (err) { showToast('Save faalde · ' + err.message, 'error'); }
+  } catch (err) { showToast('Save failed · ' + err.message, 'error'); }
 }
 
 // ===== hpBase — infobox-builder (1-koloms tile-stack) =====

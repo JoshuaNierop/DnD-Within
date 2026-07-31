@@ -190,15 +190,15 @@ const DATA = {
 
         features: {
             1: [
-                { name: "Spellcasting", desc: "Cast sorcerer spells met CHA als spellcasting ability. Je bereidt spells voor uit de volledige Sorcerer spell list. Aantal = CHA mod + level." },
-                { name: "Innate Sorcery", desc: "Bonus action: activeer voor 1 minuut. Je spell save DC stijgt met 1, je hebt advantage op attack rolls van sorcerer spells. Aantal keer = proficiency bonus per long rest." }
+                { name: "Spellcasting", desc: { nl: "Cast sorcerer spells met CHA als spellcasting ability. Je bereidt spells voor uit de volledige Sorcerer spell list.", en: "Cast sorcerer spells with CHA as your spellcasting ability. You prepare spells from the full Sorcerer spell list." } },
+                { name: "Innate Sorcery", desc: { nl: "Bonus action: activeer voor 1 minuut. Je spell save DC stijgt met 1 en je hebt advantage op attack rolls van sorcerer spells. 2 uses, alle terug na een Long Rest.", en: "Bonus Action: activate for 1 minute. Your spell save DC increases by 1 and you have advantage on attack rolls of sorcerer spells. 2 uses, all restored on a Long Rest." } }
             ],
             2: [
-                { name: "Font of Magic", desc: "Je krijgt sorcery points die je kunt omzetten in spell slots of gebruiken voor Metamagic." },
-                { name: "Metamagic", desc: "Kies 2 Metamagic opties. Hiermee pas je spells aan door sorcery points te besteden." }
+                { name: "Font of Magic", desc: { nl: "Je krijgt sorcery points die je kunt omzetten in spell slots of gebruiken voor Metamagic.", en: "You gain sorcery points that you can convert into spell slots or spend on Metamagic." } },
+                { name: "Metamagic", desc: { nl: "Kies 2 Metamagic opties. Hiermee pas je spells aan door sorcery points te besteden.", en: "Choose 2 Metamagic options. They let you modify spells by spending sorcery points." } }
             ],
             3: [
-                { name: "Sorcerer Subclass", desc: "Kies je magische oorsprong. Dit bepaalt je subclass features." }
+                { name: "Sorcerer Subclass", desc: { nl: "Kies je magische oorsprong. Dit bepaalt je subclass features.", en: "Choose your magical origin. It determines your subclass features." } }
             ],
             4: [
                 { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
@@ -232,8 +232,8 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Wild Magic Surge", desc: "Direct na het casten van een sorcerer spell van 1st level of hoger kan de DM je laten rollen op de Wild Magic Surge tabel." },
-                        { name: "Tides of Chaos", desc: "Eén keer per long rest: geef jezelf advantage op een attack roll, ability check of saving throw." }
+                        { name: "Wild Magic Surge", desc: { nl: "Direct na het casten van een sorcerer spell van 1st level of hoger kan de DM je laten rollen op de Wild Magic Surge tabel.", en: "Right after you cast a sorcerer spell of 1st level or higher, the DM can have you roll on the Wild Magic Surge table." } },
+                        { name: "Tides of Chaos", desc: { nl: "Eén keer per long rest: geef jezelf advantage op een attack roll, ability check of saving throw.", en: "Once per Long Rest: give yourself advantage on an attack roll, ability check or saving throw." } }
                     ],
                     6: [
                         { name: "Bend Luck", desc: "Reaction, 2 sorcery points: voeg 1d4 toe of trek 1d4 af van een attack roll, ability check of saving throw van een creature dat je kunt zien." }
@@ -251,8 +251,8 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Draconic Resilience", desc: "Max HP +1 per sorcerer level. Zonder armor: AC = 13 + DEX mod." },
-                        { name: "Draconic Ancestry", desc: "Kies een drakentype. Je leert bijbehorende spells en krijgt resistance tegen dat element op hogere levels." }
+                        { name: "Draconic Resilience", desc: { nl: "Max HP +1 per sorcerer level. Zonder armor: AC = 13 + DEX mod.", en: "Max HP +1 per sorcerer level. Without armor: AC = 13 + DEX mod." } },
+                        { name: "Draconic Ancestry", desc: { nl: "Kies een drakentype. Je leert bijbehorende spells en krijgt resistance tegen dat element op hogere levels.", en: "Choose a dragon type. You learn associated spells and gain resistance to that element at higher levels." } }
                     ],
                     6: [
                         { name: "Elemental Affinity", desc: "Als je een spell cast die damage doet van je draconic element: +CHA mod damage. Besteed 1 sorcery point voor resistance tegen dat element gedurende 1 uur." }
@@ -270,8 +270,8 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Clockwork Magic", desc: "Extra spells altijd prepared: Alarm, Protection from Evil and Good (1st), Aid, Lesser Restoration (3rd), Dispel Magic, Protection from Energy (5th)." },
-                        { name: "Restore Balance", desc: "Reaction: als een creature binnen 60ft advantage of disadvantage heeft, neem het weg. Uses = prof bonus per long rest." }
+                        { name: "Clockwork Magic", desc: { nl: "Extra spells altijd prepared: Alarm, Protection from Evil and Good (1st), Aid, Lesser Restoration (3rd), Dispel Magic, Protection from Energy (5th).", en: "Extra spells always prepared: Alarm, Protection from Evil and Good (1st), Aid, Lesser Restoration (3rd), Dispel Magic, Protection from Energy (5th)." } },
+                        { name: "Restore Balance", desc: { nl: "Reaction: als een creature binnen 60ft advantage of disadvantage heeft, neem het weg. Uses = prof bonus per long rest.", en: "Reaction: when a creature within 60ft has advantage or disadvantage, remove it. Uses = prof bonus per Long Rest." } }
                     ],
                     6: [
                         { name: "Bastion of Law", desc: "Besteed 1-5 sorcery points: maak een Ward op een creature. Het absorbeert damage gelijk aan het aantal bestede d8's. Ward vervalt na long rest." }
@@ -289,8 +289,8 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Psionic Spells", desc: "Extra spells altijd prepared: Arms of Hadar, Dissonant Whispers (1st), Calm Emotions, Detect Thoughts (3rd), Hunger of Hadar, Sending (5th)." },
-                        { name: "Telepathic Speech", desc: "Als bonus action, maak telepathisch contact met een creature binnen 30ft. Duurt een aantal minuten = sorcerer level. Geen taal nodig." }
+                        { name: "Psionic Spells", desc: { nl: "Extra spells altijd prepared: Arms of Hadar, Dissonant Whispers (1st), Calm Emotions, Detect Thoughts (3rd), Hunger of Hadar, Sending (5th).", en: "Extra spells always prepared: Arms of Hadar, Dissonant Whispers (1st), Calm Emotions, Detect Thoughts (3rd), Hunger of Hadar, Sending (5th)." } },
+                        { name: "Telepathic Speech", desc: { nl: "Als bonus action, maak telepathisch contact met een creature binnen 30ft. Duurt een aantal minuten = sorcerer level. Geen taal nodig.", en: "As a Bonus Action, make telepathic contact with a creature within 30ft. Lasts a number of minutes = sorcerer level. No shared language needed." } }
                     ],
                     6: [
                         { name: "Psionic Sorcery", desc: "Cast sorcerer spells met sorcery points i.p.v. spell slots (kosten = spell level). Als je zo cast, heb je geen verbal/somatic components nodig." }
@@ -2033,14 +2033,14 @@ const DATA = {
 
     // ===== METAMAGIC OPTIONS =====
     metamagic: [
-        { name: "Careful Spell", cost: 1, desc: "Kies een aantal creatures gelijk aan je CHA modifier (min 1). Ze slagen automatisch op de saving throw van je spell." },
-        { name: "Distant Spell", cost: 1, desc: "Verdubbel de range van een spell met range 5ft+. Spells met touch krijgen range 30ft." },
-        { name: "Empowered Spell", cost: 1, desc: "Rol opnieuw tot je CHA modifier (min 1) damage dice. Combineerbaar met andere Metamagic." },
-        { name: "Extended Spell", cost: 1, desc: "Verdubbel de duur van een spell (max 24 uur)." },
-        { name: "Heightened Spell", cost: 3, desc: "Kies één target van de spell. Dat target heeft disadvantage op de eerste saving throw tegen de spell." },
-        { name: "Quickened Spell", cost: 2, desc: "Cast een spell met casting time 1 action als bonus action." },
-        { name: "Subtle Spell", cost: 1, desc: "Cast een spell zonder verbal of somatic components. Ideaal tegen Counterspell." },
-        { name: "Twinned Spell", cost: "spell level (1 min)", desc: "Target een tweede creature met een single-target spell. Kost sorcery points gelijk aan het spell level (1 voor cantrips)." }
+        { name: "Careful Spell", cost: 1, desc: { nl: "Kies een aantal creatures gelijk aan je CHA modifier (min 1). Ze slagen automatisch op de saving throw van je spell.", en: "Choose a number of creatures equal to your CHA modifier (min 1). They automatically succeed on the spell's saving throw." } },
+        { name: "Distant Spell", cost: 1, desc: { nl: "Verdubbel de range van een spell met range 5ft+. Spells met touch krijgen range 30ft.", en: "Double the range of a spell with a range of 5ft+. Touch spells get a range of 30ft." } },
+        { name: "Empowered Spell", cost: 1, desc: { nl: "Rol opnieuw tot je CHA modifier (min 1) damage dice. Combineerbaar met andere Metamagic.", en: "Reroll up to your CHA modifier (min 1) damage dice. Can be combined with other Metamagic." } },
+        { name: "Extended Spell", cost: 1, desc: { nl: "Verdubbel de duur van een spell (max 24 uur).", en: "Double the duration of a spell (max 24 hours)." } },
+        { name: "Heightened Spell", cost: 3, desc: { nl: "Kies één target van de spell. Dat target heeft disadvantage op de eerste saving throw tegen de spell.", en: "Choose one target of the spell. That target has disadvantage on its first saving throw against the spell." } },
+        { name: "Quickened Spell", cost: 2, desc: { nl: "Cast een spell met casting time 1 action als bonus action.", en: "Cast a spell with a casting time of 1 action as a bonus action." } },
+        { name: "Subtle Spell", cost: 1, desc: { nl: "Cast een spell zonder verbal of somatic components. Ideaal tegen Counterspell.", en: "Cast a spell without verbal or somatic components. Ideal against Counterspell." } },
+        { name: "Twinned Spell", cost: "spell level (1 min)", desc: { nl: "Target een tweede creature met een single-target spell. Kost sorcery points gelijk aan het spell level (1 voor cantrips).", en: "Target a second creature with a single-target spell. Costs sorcery points equal to the spell level (1 for cantrips)." } }
     ],
 
     // ===== FEATS (5.5e / 2024 PHB) =====
@@ -3424,6 +3424,13 @@ DATA.classResources = [
         die: function (st) { var l = st.level || 1; return l >= 17 ? 'd12' : l >= 11 ? 'd10' : l >= 5 ? 'd8' : 'd6'; },
         stateKey: 'psionicDiceUsed', recharge: 'long',
         desc: "Fuel for Soulknife powers. Psi-Bolstered Knack: after failing a check with a proficient skill/tool, roll a die and add it (die only spent if it turns the failure into a success). Psychic Whispers: telepathy with up to prof-bonus willing creatures for die-roll hours (first use per Long Rest is free). All dice return on a Long Rest."
+    },
+    {
+        id: 'innateSorcery', label: 'Innate Sorcery',
+        appliesTo: { className: 'sorcerer', minLevel: 1 },
+        max: function (cfg, st) { return 2; },
+        stateKey: 'innateSorceryUsed', recharge: 'long',
+        desc: "Bonus Action: unleash your magic for 1 minute. Spell save DC +1 and advantage on attack rolls of sorcerer spells. Two uses; all return on a Long Rest."
     },
     {
         id: 'sorceryPoints', label: 'Sorcery Points',

@@ -25,14 +25,14 @@ var WG_INFOBOX_CLICK_HANDLERS = (typeof WG_INFOBOX_CLICK_HANDLERS !== 'undefined
 // ===== Widget-type + edit-config =====
 Object.assign(WG_WIDGET_TYPES, {
   longRest: {
-    label: 'Rust', kind: 'infobox', source: 'rest',
+    label: 'Rest', kind: 'infobox', source: 'rest',
     spanUnits: 4, spanUnitsY: 2,
     cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 0 },
   },
 });
 // mode 'always' = klik zonder edit-toggle (rust hoort tijdens spel klikbaar).
 WG_EDIT_CONFIG.rest = { mode: 'always', editColumnIdx: 0 };
-if (typeof WG_SOURCE_LABELS !== 'undefined') WG_SOURCE_LABELS.rest = 'Rust';
+if (typeof WG_SOURCE_LABELS !== 'undefined') WG_SOURCE_LABELS.rest = 'Rest';
 
 // ===== Caster-detectie (bepaalt of na long rest de prepare-window opent) =====
 function wgxIsCaster(raw) {
@@ -76,18 +76,31 @@ async function wgxLongRest(charId) {
   const hp = wgxDefaultHp(raw);                       // hergebruikt uit wg-hp.js
   const restore = Math.max(1, Math.floor(level / 2)); // helft van je hit dice, min 1
   const newHitDiceUsed = Math.max(0, (st.hitDiceUsed || 0) - restore);
-  await wgxPatchState(charId, {
+  const patch = {
     spellSlotsUsed: {},      // Firebase verwijdert lege node → "geen slots gebruikt"
     pactSlotsUsed: 0,        // Warlock
     hitDiceUsed: newHitDiceUsed,
     hp: { current: hp.max, temp: 0, deathSaves: { successes: 0, failures: 0 }, stable: false, dead: false },
-  });
+  };
+  // All class/subclass/species resources recharge fully on a Long Rest.
+  const resources = (typeof getClassResources === 'function') ? getClassResources(raw.config || {}, st) : [];
+  for (const r of resources) patch[r.stateKey] = 0;
+  await wgxPatchState(charId, patch);
   return { max: hp.max, restoredHitDice: restore };
 }
 
-// ===== Short rest (Warlock Pact Magic) =====
+// ===== Short rest (Warlock Pact Magic + short-one resources) =====
 async function wgxShortRest(charId) {
-  await wgxPatchState(charId, { pactSlotsUsed: 0 });
+  const raw = WG_CHAR_CACHE[charId] || {};
+  const st = raw.state || {};
+  const patch = { pactSlotsUsed: 0 };
+  // 'short-one' resources (Second Wind, Channel Divinity, Wild Shape, …)
+  // regain one use on a Short Rest.
+  const resources = (typeof getClassResources === 'function') ? getClassResources(raw.config || {}, st) : [];
+  for (const r of resources) {
+    if (r.recharge === 'short-one' && (st[r.stateKey] || 0) > 0) patch[r.stateKey] = (st[r.stateKey] || 0) - 1;
+  }
+  await wgxPatchState(charId, patch);
 }
 
 // ===== Infobox-builder (1-koloms tile-stack) =====
@@ -96,10 +109,13 @@ function wgxBuildRest(widget) {
   const cn = (raw.config || {}).className;
   const d = widget.data, L = widget.layout;
   d.tooltips = null;
-  d.columns = [{ key: 'cell', label: 'Rust' }];
+  d.columns = [{ key: 'cell', label: 'Rest' }];
   const rows = [], rowCls = [];
   rows.push(['🌙 Long Rest']); rowCls.push('wgx-act-rest-long');
-  if (cn === 'warlock') { rows.push(['☀️ Short Rest']); rowCls.push('wgx-act-rest-short'); }
+  // Short Rest matters for Pact Magic and for any 'short-one' resource.
+  const res = (typeof getClassResources === 'function') ? getClassResources(raw.config || {}, raw.state || {}) : [];
+  const hasShort = cn === 'warlock' || res.some(r => r.recharge === 'short-one');
+  if (hasShort) { rows.push(['☀️ Short Rest']); rowCls.push('wgx-act-rest-short'); }
   d.rows = rows;
   L.columnHighlight = [false];
   L.columnAlign = ['center'];
@@ -115,20 +131,19 @@ WG_EXTRA_INFOBOX_BUILDERS.rest = wgxBuildRest;
 
 // ===== Click-handler (infobox, source 'rest') =====
 WG_INFOBOX_CLICK_HANDLERS.rest = async ({ charId, rowIdx, raw }) => {
-  const cn = ((raw && raw.config) || {}).className;
-  const isShort = (cn === 'warlock' && rowIdx === 1);
+  const isShort = rowIdx === 1; // row 1 only exists when short rest applies
   if (isShort) {
-    if (!window.confirm('Short rest? Dit herstelt je Pact Magic spell slots.')) return;
-    try { await wgxShortRest(charId); showToast('☀️ Short rest — Pact slots hersteld'); }
-    catch (err) { showToast('Rust faalde · ' + err.message, 'error'); }
+    if (!window.confirm('Short rest? Restores Pact Magic slots and one use of short-rest resources.')) return;
+    try { await wgxShortRest(charId); showToast('☀️ Short rest complete'); }
+    catch (err) { showToast('Rest failed · ' + err.message, 'error'); }
     return;
   }
-  if (!window.confirm('Long rest? Herstelt HP, alle spell slots en de helft van je hit dice; reset death saves.')) return;
+  if (!window.confirm('Long rest? Restores HP, all spell slots, class resources and half your hit dice; resets death saves.')) return;
   try {
     const r = await wgxLongRest(charId);
     showToast(`🌙 Long rest — HP ${r.max}/${r.max}, +${r.restoredHitDice} hit dice`);
     // Forward-compat: fase 2 (wg-prepare.js) definieert wgxOpenPrepareWindow en
     // de prepare-window opent dan automatisch voor casters. Tot dan: no-op.
     if (typeof wgxOpenPrepareWindow === 'function' && wgxIsCaster(raw)) wgxOpenPrepareWindow(charId);
-  } catch (err) { showToast('Rust faalde · ' + err.message, 'error'); }
+  } catch (err) { showToast('Rest failed · ' + err.message, 'error'); }
 };

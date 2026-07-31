@@ -42,6 +42,17 @@ function wgxCollectFeatures(cfg, st) {
   var race = DATA[cfg.race] || {};
   var rfl = race.features || [];
   for (var r = 0; r < rfl.length; r++) out.push({ src: 'R', name: rfl[r].name, desc: rfl[r].desc, level: 1 });
+  // Known Metamagic options (picked via the level-up menu, stored in state)
+  var mm = st.metamagic || [];
+  var mmLevel = function (name) {
+    var lc = st.levelChoices || {};
+    for (var k in lc) if (((lc[k] || {}).metamagic || []).indexOf(name) !== -1) return parseInt(k, 10);
+    return 2;
+  };
+  for (var m = 0; m < mm.length; m++) {
+    var op = (DATA.metamagic || []).filter(function (o) { return o.name === mm[m]; })[0];
+    if (op) out.push({ src: 'M', name: op.name + ' (' + op.cost + ' SP)', desc: op.desc, level: mmLevel(op.name) });
+  }
   return out;
 }
 
@@ -57,7 +68,7 @@ function wgxBuildFeatures(widget) {
     rows.push(['', 'No features', '']);
     tips.push(null);
   } else {
-    var srcLabel = { C: 'Class', S: 'Subclass', R: 'Species' };
+    var srcLabel = { C: 'Class', S: 'Subclass', R: 'Species', M: 'Metamagic' };
     for (var i = 0; i < feats.length; i++) {
       var f = feats[i];
       rows.push([String(f.level), f.name, f.src]);
