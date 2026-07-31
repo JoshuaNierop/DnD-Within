@@ -1445,3 +1445,53 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   .inv-summary-weight { font-weight: 600; color: var(--user-text-regular, var(--text)); }
 
 } /* end @scope (.character-page) */
+
+/* ============================================================
+   Leveling Up subproject (wg-levelup.js / wg-resource.js)
+   ============================================================ */
+@scope (.character-page) {
+  /* Level Up / Level Down tiles */
+  svg .info-box-cell.wgx-act-levelup   { fill: var(--info-amber, #e0a106); fill-opacity: 0.22; }
+  svg .info-box-cell.wgx-act-leveldown { fill: var(--user-border-soft, #888); fill-opacity: 0.14; }
+  svg g.editable-cell:hover .info-box-cell.wgx-act-levelup   { fill-opacity: 0.36; }
+  svg g.editable-cell:hover .info-box-cell.wgx-act-leveldown { fill-opacity: 0.26; }
+  svg .info-box-cell.wgx-act-disabled { fill-opacity: 0.06; }
+  /* Glow when character level < party level */
+  svg .info-box-cell.wgx-act-levelup-glow {
+    animation: wgx-levelup-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes wgx-levelup-pulse {
+    0%, 100% { fill-opacity: 0.22; }
+    50%      { fill-opacity: 0.5; }
+  }
+}
+
+/* Level-up modal lives on document.body → OUTSIDE .character-page, no @scope.
+   Reuses the app's .modal-overlay/.modal-card base styles from style.css. */
+.wgx-lu-card { max-width: 640px; width: min(92vw, 640px); max-height: 86vh; display: flex; flex-direction: column; }
+.wgx-lu-body { overflow-y: auto; flex: 1; padding: 4px 2px; }
+.wgx-lu-steps { display: flex; gap: 8px; justify-content: center; padding: 6px 0 10px; }
+.wgx-lu-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border, #555); }
+.wgx-lu-dot.active { background: var(--accent, #e0a106); transform: scale(1.2); }
+.wgx-lu-dot.done { background: var(--accent, #e0a106); opacity: 0.5; }
+.wgx-lu-gains { margin: 4px 0 12px; padding-left: 20px; line-height: 1.6; }
+.wgx-lu-feature { margin: 8px 0; padding: 8px 10px; border: 1px solid var(--border, #444); border-radius: 8px; }
+.wgx-lu-feature p { margin: 4px 0 0; opacity: 0.85; font-size: 0.9em; line-height: 1.45; }
+.wgx-lu-badge { display: inline-block; font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.05em;
+  border-radius: 4px; padding: 1px 6px; margin-right: 8px; vertical-align: middle; }
+.wgx-lu-badge-class    { background: rgba(108, 92, 231, 0.25); }
+.wgx-lu-badge-subclass { background: rgba(224, 161, 6, 0.25); }
+.wgx-lu-badge-species  { background: rgba(92, 184, 92, 0.25); }
+.wgx-lu-subgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.wgx-lu-subcard { border: 1px solid var(--border, #444); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
+.wgx-lu-subcard:hover { border-color: var(--accent, #e0a106); }
+.wgx-lu-subcard.selected { border-color: var(--accent, #e0a106); box-shadow: 0 0 0 1px var(--accent, #e0a106) inset; }
+.wgx-lu-subcard h4 { margin: 0 0 6px; }
+.wgx-lu-subcard p { margin: 4px 0; font-size: 0.85em; opacity: 0.85; line-height: 1.4; }
+.wgx-lu-note { opacity: 0.7; font-style: italic; }
+.wgx-lu-nav { display: flex; justify-content: space-between; gap: 10px; padding-top: 12px; }
+.wgx-lu-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border, #555);
+  background: transparent; color: inherit; cursor: pointer; font: inherit; }
+.wgx-lu-btn:hover { border-color: var(--accent, #e0a106); }
+.wgx-lu-primary { background: var(--accent, #e0a106); color: #1a1a1a; border-color: var(--accent, #e0a106); font-weight: 600; }
+.wgx-lu-primary:disabled { opacity: 0.4; cursor: not-allowed; }

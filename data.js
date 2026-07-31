@@ -54,7 +54,7 @@ const DATA = {
         features: [
             { name: "Celestial Resistance", desc: { nl: "Je hebt resistance tegen necrotic en radiant damage.", en: "You have resistance to necrotic and radiant damage." } },
             { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
-            { name: "Healing Hands", desc: { nl: "Als action, raak een creature aan om HP te herstellen gelijk aan je proficiency bonus. 1x per long rest.", en: "As an action, touch a creature to restore HP equal to your proficiency bonus. Once per long rest." } },
+            { name: "Healing Hands", desc: { nl: "Magic action: raak een creature aan; het herstelt HP gelijk aan je proficiency bonus × d4. 1x per long rest.", en: "Magic action: touch a creature; it regains HP equal to your proficiency bonus × d4. Once per long rest." } },
             { name: "Light Bearer", desc: { nl: "Je kent de Light cantrip.", en: "You know the Light cantrip." } },
             { name: "Celestial Revelation", desc: { nl: "Vanaf level 3: kies Heavenly Wings (vliegende speed), Inner Radiance (extra radiant damage in een aura), of Necrotic Shroud (frightened aura + extra necrotic damage).", en: "From level 3: choose Heavenly Wings (flying speed), Inner Radiance (extra radiant damage in an aura), or Necrotic Shroud (frightened aura + extra necrotic damage)." } }
         ]
@@ -334,7 +334,8 @@ const DATA = {
                 { name: "Cunning Action", desc: "Bonus action om te Dash, Disengage of Hide." }
             ],
             3: [
-                { name: "Roguish Archetype", desc: "Kies je subclass. Dit bepaalt je specialisatie als rogue." }
+                { name: "Roguish Archetype", desc: "Kies je subclass. Dit bepaalt je specialisatie als rogue." },
+                { name: "Steady Aim", desc: "Bonus action: advantage op je volgende attack roll deze beurt. Alleen als je nog niet bewogen hebt; je speed is 0 tot het einde van je beurt." }
             ],
             4: [
                 { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
@@ -3364,3 +3365,106 @@ DATA.spells = {
         9: ["Astral Projection","Foresight","Imprisonment","Power Word Kill","True Polymorph"]
     }
 };
+
+// ============================================================
+// LEVELING UP subproject (Metadocs/LevelingUp/) — 2024 PHB
+// ============================================================
+
+// 2024 prepared-spells maximum: FIXED table per class level (replaces the 2014
+// ability-mod + level formula). Index = character level; verified L1-3 only —
+// levels beyond the array length fall back to the legacy formula in
+// getMaxPrepared() until fase F extends these.
+DATA.preparedTable = {
+    wizard:   [0, 4, 5, 6],
+    sorcerer: [0, 2, 4, 6],
+    druid:    [0, 4, 5, 6],
+    warlock:  [0, 2, 3, 4],
+    paladin:  [0, 0, 2, 3],
+    ranger:   [0, 0, 3, 4]
+};
+
+// Choices the player must make when REACHING a given class level (level-up menu
+// steps). Creation-time (L1) choices are owned by the creation wizard, not here.
+// id → renderer in wg-levelup.js; unsupported ids render as an informational
+// step so a level-up never blocks.
+DATA.levelUpChoices = {
+    rogue:    { 3: [{ id: 'subclass' }] },
+    paladin:  { 2: [{ id: 'fightingStyle' }], 3: [{ id: 'subclass' }] },
+    sorcerer: { 2: [{ id: 'metamagic', count: 2 }], 3: [{ id: 'subclass' }] },
+    wizard:   { 2: [{ id: 'scholar' }], 3: [{ id: 'subclass' }] },
+    fighter:  { 3: [{ id: 'subclass' }] },
+    druid:    { 2: [{ id: 'wildShapeForms', count: 4 }], 3: [{ id: 'subclass' }] },
+    warlock:  { 2: [{ id: 'invocations', count: 2 }], 3: [{ id: 'subclass' }] },
+    ranger:   { 2: [{ id: 'expertise', count: 1 }, { id: 'fightingStyle' }], 3: [{ id: 'subclass' }] }
+};
+
+// Species features that unlock at character levels > 1 (2024). Shown in the
+// level-up menu next to class features, badged as "Species".
+DATA.speciesProgression = {
+    aasimar: {
+        3: [{ name: "Celestial Revelation", desc: "Bonus Action: transform for 1 minute, once per Long Rest. Choose the form EACH time you transform: Heavenly Wings (fly speed = speed), Inner Radiance (10ft light aura; creatures within 10ft take radiant damage = prof bonus at the end of your turn), or Necrotic Shroud (CHA-save or Frightened). While transformed: once per turn, one attack deals extra damage = prof bonus (radiant, or necrotic for Necrotic Shroud)." }]
+    },
+    highElf: {
+        3: [{ name: "Elf Lineage: Detect Magic", desc: "You always have Detect Magic prepared. Cast it once per Long Rest without a spell slot (or with slots as normal). (Level 5: Misty Step.)" }]
+    },
+    tiefling: {
+        3: [{ name: "Fiendish Legacy Spell", desc: "You gain your legacy's level-3 spell, castable once per Long Rest without a spell slot: Abyssal = Ray of Sickness, Chthonic = False Life, Infernal = Hellish Rebuke." }]
+    },
+    human: {}
+};
+
+// Generic class/subclass resource registry — drives the classResource widget
+// (wg-resource.js). appliesTo gates visibility; max/die are functions of
+// (config, state); stateKey tracks USED count in character state.
+DATA.classResources = [
+    {
+        id: 'psionicDice', label: 'Psionic Energy Dice',
+        appliesTo: { className: 'rogue', subclass: 'soulknife', minLevel: 3 },
+        max: function (cfg, st) { return 2 * getProfBonus(st.level || 1); },
+        die: function (st) { var l = st.level || 1; return l >= 17 ? 'd12' : l >= 11 ? 'd10' : l >= 5 ? 'd8' : 'd6'; },
+        stateKey: 'psionicDiceUsed', recharge: 'long',
+        desc: "Fuel for Soulknife powers. Psi-Bolstered Knack: after failing a check with a proficient skill/tool, roll a die and add it (die only spent if it turns the failure into a success). Psychic Whispers: telepathy with up to prof-bonus willing creatures for die-roll hours (first use per Long Rest is free). All dice return on a Long Rest."
+    },
+    {
+        id: 'sorceryPoints', label: 'Sorcery Points',
+        appliesTo: { className: 'sorcerer', minLevel: 2 },
+        max: function (cfg, st) { return st.level || 1; },
+        stateKey: 'sorceryPointsUsed', recharge: 'long',
+        desc: "Font of Magic. Bonus Action: convert points into spell slots (level-1 slot = 2 points) or slots into points (points = slot level). Fuels Metamagic. All points return on a Long Rest."
+    },
+    {
+        id: 'secondWind', label: 'Second Wind',
+        appliesTo: { className: 'fighter', minLevel: 1 },
+        max: function (cfg, st) { return 2; },
+        stateKey: 'secondWindUsed', recharge: 'short-one',
+        desc: "Bonus Action: regain 1d10 + Fighter level HP. Two uses; regain one on a Short Rest, all on a Long Rest. From level 2, Tactical Mind lets you spend a use to add 1d10 to a failed ability check (use not spent if it still fails)."
+    },
+    {
+        id: 'channelDivinity', label: 'Channel Divinity',
+        appliesTo: { className: 'paladin', minLevel: 3 },
+        max: function (cfg, st) { return 2; },
+        stateKey: 'channelDivinityUsed', recharge: 'short-one',
+        desc: "Channel divine energy. Baseline: Divine Sense (Bonus Action, 10 min: detect Celestials, Fiends and Undead within 60ft). Your oath adds an option. Two uses; regain one on a Short Rest, all on a Long Rest."
+    },
+    {
+        id: 'wildShape', label: 'Wild Shape',
+        appliesTo: { className: 'druid', minLevel: 2 },
+        max: function (cfg, st) { return 2; },
+        stateKey: 'wildShapeUsed', recharge: 'short-one',
+        desc: "Bonus Action: transform into a known Beast form (levels 2-3: max CR 1/4, no fly speed). You keep INT/WIS/CHA. Two uses; regain one on a Short Rest, all on a Long Rest."
+    },
+    {
+        id: 'healingHands', label: 'Healing Hands',
+        appliesTo: { race: 'aasimar', minLevel: 1 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'healingHandsUsed', recharge: 'long',
+        desc: "Magic action: touch a creature; it regains HP equal to prof-bonus × d4. Once per Long Rest."
+    },
+    {
+        id: 'celestialRevelation', label: 'Celestial Revelation',
+        appliesTo: { race: 'aasimar', minLevel: 3 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'celestialRevelationUsed', recharge: 'long',
+        desc: "Bonus Action: transform for 1 minute (choose Heavenly Wings, Inner Radiance or Necrotic Shroud each time). Once per Long Rest."
+    }
+];

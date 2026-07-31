@@ -233,6 +233,10 @@ function hasFeat(state, featName) {
 
 function getMaxPrepared(state, abilityMod, className) {
     if (!className) className = 'sorcerer';
+    // 2024 PHB: fixed table per class level (Leveling Up subproject). Falls
+    // through to the legacy 2014-style formula for levels beyond the table.
+    var tbl = DATA.preparedTable && DATA.preparedTable[className];
+    if (tbl && typeof tbl[state.level] === 'number') return tbl[state.level];
     // Full prepared casters: ability mod + class level
     if (className === 'sorcerer' || className === 'wizard' || className === 'druid' || className === 'cleric') {
         return Math.max(1, abilityMod + state.level);
@@ -297,4 +301,82 @@ function getSpellSlots(className, level, subclass) {
 
 function formatMod(mod) {
     return mod >= 0 ? `+${mod}` : `${mod}`;
+}
+
+// ============================================================
+// LEVELING UP (Metadocs/LevelingUp/) — level-up/down engine
+// ============================================================
+
+// All class/subclass resources that apply to this character right now.
+function getClassResources(config, state) {
+    var out = [];
+    var list = DATA.classResources || [];
+    for (var i = 0; i < list.length; i++) {
+        var r = list[i], a = r.appliesTo || {};
+        if (a.className && a.className !== config.className) continue;
+        if (a.race && a.race !== config.race) continue;
+        if (a.subclass && a.subclass !== config.subclass) continue;
+        if (a.minLevel && (state.level || 1) < a.minLevel) continue;
+        out.push(r);
+    }
+    return out;
+}
+
+// Everything that changes when going from state.level to toLevel (single-class,
+// combines class + subclass + species). Pure — no writes.
+function getLevelUpDelta(config, state, toLevel) {
+    var from = state.level || 1;
+    var cn = config.className;
+    var classData = DATA[cn] || {};
+    var conMod = getMod(getAbilityScore(config, state, 'con'));
+    var hitDie = classData.hitDie || 8;
+    var levels = [];
+    for (var l = from + 1; l <= toLevel; l++) levels.push(l);
+
+    var features = [];   // { source: 'class'|'subclass'|'species', name, desc, level }
+    var choices = [];    // { id, count?, level, source }
+    for (var i = 0; i < levels.length; i++) {
+        var lvl = levels[i];
+        var fl = (classData.features || {})[lvl] || [];
+        for (var f = 0; f < fl.length; f++) features.push({ source: 'class', name: fl[f].name, desc: fl[f].desc, level: lvl });
+        // Subclass features (only when a subclass is already set — the L3 choice itself is in `choices`)
+        var sub = config.subclass && classData.subclasses && classData.subclasses[config.subclass];
+        var sfl = sub && sub.features && sub.features[lvl] || [];
+        for (var s = 0; s < sfl.length; s++) features.push({ source: 'subclass', name: sfl[s].name, desc: sfl[s].desc, level: lvl });
+        // Species
+        var spl = (DATA.speciesProgression && DATA.speciesProgression[config.race] || {})[lvl] || [];
+        for (var p = 0; p < spl.length; p++) features.push({ source: 'species', name: spl[p].name, desc: spl[p].desc, level: lvl });
+        // Choices
+        var chl = (DATA.levelUpChoices && DATA.levelUpChoices[cn] || {})[lvl] || [];
+        for (var c = 0; c < chl.length; c++) choices.push(Object.assign({ level: lvl, source: 'class' }, chl[c]));
+    }
+
+    // Spellcasting deltas (uses a state clone at each level to query pure fns)
+    var stFrom = Object.assign({}, state, { level: from });
+    var stTo = Object.assign({}, state, { level: toLevel });
+    var ability = getSpellcastingAbility(cn, config.subclass);
+    var mod = getMod(getAbilityScore(config, state, ability));
+    var delta = {
+        from: from, to: toLevel,
+        hpGain: (Math.floor(hitDie / 2) + 1 + conMod) * levels.length + (config.race === 'dwarf' ? levels.length : 0),
+        newMaxHp: getHP(config, stTo),
+        profBonus: { old: getProfBonus(from), new: getProfBonus(toLevel) },
+        features: features,
+        choices: choices,
+        slots: { old: getSpellSlots(cn, from, config.subclass), new: getSpellSlots(cn, toLevel, config.subclass) },
+        prepared: { old: getMaxPrepared(stFrom, mod, cn), new: getMaxPrepared(stTo, mod, cn) },
+        cantrips: { old: getMaxCantrips(from, cn), new: getMaxCantrips(toLevel, cn) },
+        spellbookAdds: (cn === 'wizard') ? 2 * levels.length : 0,
+        sneakAttack: classData.sneakAttack ? { old: classData.sneakAttack[from], new: classData.sneakAttack[toLevel] } : null,
+        // Class/subclass/species resources that newly unlock in this level range
+        newResources: (DATA.classResources || []).filter(function (r) {
+            var a = r.appliesTo || {};
+            if (a.className && a.className !== cn) return false;
+            if (a.race && a.race !== config.race) return false;
+            if (a.subclass && a.subclass !== config.subclass) return false;
+            var min = a.minLevel || 1;
+            return min > from && min <= toLevel;
+        })
+    };
+    return delta;
 }

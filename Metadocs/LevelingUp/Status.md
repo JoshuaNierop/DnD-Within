@@ -9,12 +9,15 @@ _Laatst bijgewerkt: 2026-07-31_
 - [x] P0 — Fase B: `Design.md` (levelChoices-datamodel, getLevelUpDelta, wizard-menu, generieke resource-widget)
 
 ## Open
-- [ ] P0 — Fase C: progression-data in `data.js` + `getLevelUpDelta` + `getMaxPrepared`→2024-tabel in `engine.js`
-- [ ] P0 — Fase D: `wg-levelup.js` — Level Up knop (glow bij < party level) + BG3-stapmenu + Level Down met confirm — Aasimar Rogue eerst
-- [ ] P1 — Fase E: `wg-resource.js` (generiek; Psionic Dice voor Soulknife) + `wg-features.js` (feature-uitleg)
-- [ ] P1 — Fase F: overige classes/races end-to-end + Engelse strings `wg-rest.js`
+- [x] P0 — Fase C: `DATA.preparedTable/levelUpChoices/speciesProgression/classResources` + `getLevelUpDelta`/`getClassResources` + `getMaxPrepared`→2024-tabel (fallback naar oude formule boven L3)
+- [x] P0 — Fase D: `wg-levelup.js` — Level Up-tegel (glow bij < party level) + stapmenu (overview → choices → confirm) + Level Down met Are-you-sure — node-smoke-test groen voor Aasimar Rogue L1→2→3
+- [x] P1 — Fase E: `wg-resource.js` (generiek; toont Psionic Dice alléén voor Soulknife L3+) + `wg-features.js` (alle features + tooltip-uitleg)
+- [ ] P1 — Fase D2: browser-test van de widgets + modal op een echt character
+- [ ] P1 — Fase F: overige classes/races end-to-end (choice-renderers: metamagic/invocations/fightingStyle/spell-keuze) + Engelse strings `wg-rest.js`
 
 ## Review-lijst (Joshua / fysieke PHB)
+0. Resource-widget interactie: klik = 1 use verbruiken, klik-bij-leeg = alles herstellen — simpel maar onconventioneel; akkoord of liever ± knoppen?
+0b. Choice-types zonder picker (metamagic, invocations, fighting style, spell-keuze) tonen nu een informatieve stap ("record with your DM") — bewust niet blokkerend; pickers volgen in fase F.
 1. Prepared-tabel L1–3 is single-source geverifieerd (aidedd.org) — spot-check tegen fysieke 2024 PHB gewenst.
 2. Soulknife: Bonus-Action-die-regain op L3 wél/niet (verifier: pas hoger level; aangenomen Long Rest only).
 3. Fighting Style opties-aantal (~10) en Battle Master maneuvers op L3 (3 vs 4) — pas relevant bij fase F.
