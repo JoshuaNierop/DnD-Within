@@ -13,7 +13,7 @@ _Laatst bijgewerkt: 2026-08-01_
 - [x] P0 — Fase D: `wg-levelup.js` — Level Up-tegel (glow bij < party level) + stapmenu (overview → choices → confirm) + Level Down met Are-you-sure — node-smoke-test groen voor Aasimar Rogue L1→2→3
 - [x] P1 — Fase E: `wg-resource.js` (generiek; toont Psionic Dice alléén voor Soulknife L3+) + `wg-features.js` (alle features + tooltip-uitleg)
 - [x] P1 — Fase F/Sorcerer: metamagic-picker in level-up modal (count-gated, toont known options grijs), keuzes → `state.metamagic` + `levelChoices`, Level Down verwijdert ze weer; Innate Sorcery als classResource (2×/LR); rests resetten nu álle classResource-tellers (long = alles, short = 1 use voor short-one) + Short Rest-knop voor elke class met short-one resources; metamagic zichtbaar in features-widget (badge M); sorcerer L1–3 + subclass-L3 descs nu {nl,en}; `wg-rest.js`/`wg-hp.js` strings Engels — node-smoke-test groen (Sorcerer L1→2→3, 17 checks)
-- [ ] P1 — Fase D2: browser-test van de widgets + modal op een echt character (nu incl. metamagic-picker + rest-resets)
+- [~] P1 — Fase D2: browser-test — level-up modal live geverifieerd op Saya (open → overview → metamagic-picker 2/2 → confirm-stap, alle knoppen werken; NIET door-bevestigd i.v.m. live data); nog open: confirm-flow + level-down + resources/rest-widgets live testen
 - [ ] P1 — Fase F (rest): Warlock invocations-picker, fightingStyle-picker (Paladin/Ranger), Druid wildShapeForms, Ranger expertise, Wizard scholar, spell-keuze bij level-up
 
 ## Review-lijst (Joshua / fysieke PHB)

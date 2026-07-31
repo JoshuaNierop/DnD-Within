@@ -1467,34 +1467,81 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
 }
 
 /* Level-up modal lives on document.body → OUTSIDE .character-page, no @scope.
-   Reuses the app's .modal-overlay/.modal-card base styles from style.css. */
-.wgx-lu-card { max-width: 640px; width: min(92vw, 640px); max-height: 86vh; display: flex; flex-direction: column; }
-.wgx-lu-body { overflow-y: auto; flex: 1; padding: 4px 2px; }
-.wgx-lu-steps { display: flex; gap: 8px; justify-content: center; padding: 6px 0 10px; }
-.wgx-lu-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border, #555); }
-.wgx-lu-dot.active { background: var(--accent, #e0a106); transform: scale(1.2); }
-.wgx-lu-dot.done { background: var(--accent, #e0a106); opacity: 0.5; }
-.wgx-lu-gains { margin: 4px 0 12px; padding-left: 20px; line-height: 1.6; }
-.wgx-lu-feature { margin: 8px 0; padding: 8px 10px; border: 1px solid var(--border, #444); border-radius: 8px; }
-.wgx-lu-feature p { margin: 4px 0 0; opacity: 0.85; font-size: 0.9em; line-height: 1.45; }
-.wgx-lu-badge { display: inline-block; font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.05em;
-  border-radius: 4px; padding: 1px 6px; margin-right: 8px; vertical-align: middle; }
-.wgx-lu-badge-class    { background: rgba(108, 92, 231, 0.25); }
-.wgx-lu-badge-subclass { background: rgba(224, 161, 6, 0.25); }
-.wgx-lu-badge-species  { background: rgba(92, 184, 92, 0.25); }
-.wgx-lu-subgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
-.wgx-lu-subcard { border: 1px solid var(--border, #444); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
-.wgx-lu-subcard:hover { border-color: var(--accent, #e0a106); }
-.wgx-lu-subcard.selected { border-color: var(--accent, #e0a106); box-shadow: 0 0 0 1px var(--accent, #e0a106) inset; }
-.wgx-lu-subcard h4 { margin: 0 0 6px; }
-.wgx-lu-subcard p { margin: 4px 0; font-size: 0.85em; opacity: 0.85; line-height: 1.4; }
-.wgx-lu-note { opacity: 0.7; font-style: italic; }
-.wgx-lu-cost { font-size: 0.72em; font-weight: 400; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.04em; }
-.wgx-lu-known { opacity: 0.45; cursor: default; }
-.wgx-lu-known:hover { border-color: var(--border, #444); }
-.wgx-lu-nav { display: flex; justify-content: space-between; gap: 10px; padding-top: 12px; }
-.wgx-lu-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border, #555);
-  background: transparent; color: inherit; cursor: pointer; font: inherit; }
-.wgx-lu-btn:hover { border-color: var(--accent, #e0a106); }
-.wgx-lu-primary { background: var(--accent, #e0a106); color: #1a1a1a; border-color: var(--accent, #e0a106); font-weight: 600; }
-.wgx-lu-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+   Reuses the app's .modal-overlay/.modal-card base styles from style.css and
+   the warm-gold identity tokens (--accent-warm, --gold, --font-display). */
+.wgx-lu-card { max-width: 680px; width: min(94vw, 680px); max-height: 88vh; display: flex; flex-direction: column; }
+
+/* Stepper — connected dots with the current step glowing gold */
+.wgx-lu-steps { display: flex; gap: 0; align-items: center; justify-content: center; padding: 14px 1.5rem 4px; }
+.wgx-lu-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--bg-elevated, #221d19);
+  border: 1px solid var(--border, #2c2520); flex: none; transition: background 0.2s, box-shadow 0.2s; }
+.wgx-lu-dot + .wgx-lu-dot { margin-left: 34px; position: relative; }
+.wgx-lu-dot + .wgx-lu-dot::before { content: ''; position: absolute; right: 100%; top: 50%;
+  width: 34px; height: 1px; background: var(--border, #2c2520); }
+.wgx-lu-dot.active { background: var(--accent-warm, #c9a961); border-color: var(--accent-warm, #c9a961);
+  box-shadow: 0 0 8px 2px oklch(from var(--accent-warm, #c9a961) l c h / 0.35); transform: scale(1.25); }
+.wgx-lu-dot.done { background: var(--accent-warm, #c9a961); border-color: var(--accent-warm, #c9a961); opacity: 0.45; }
+.wgx-lu-dot.done + .wgx-lu-dot::before, .wgx-lu-dot.active::before { background: var(--accent-warm, #c9a961); opacity: 0.45; }
+.wgx-lu-steplabel { text-align: center; font-family: var(--font-display, serif); font-size: 0.72rem;
+  text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-dim, #9a8e7e); padding: 6px 0 2px; }
+
+/* Body + section headers */
+.wgx-lu-body { overflow-y: auto; flex: 1; }
+.wgx-lu-body h3 { font-family: var(--font-display, serif); font-size: 0.85rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-warm, #c9a961);
+  margin: 0.25rem 0 0.1rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--hairline-gold, rgba(201,169,97,0.25)); }
+
+/* Overview gains — clean rows instead of a bullet list */
+.wgx-lu-gains { list-style: none; margin: 0; padding: 0; }
+.wgx-lu-gains li { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline;
+  padding: 0.45rem 0.25rem; border-bottom: 1px solid var(--border, #2c2520); line-height: 1.45; }
+.wgx-lu-gains li:last-child { border-bottom: none; }
+.wgx-lu-gains b { color: var(--text-bright, #f5efe2); font-weight: 600; }
+
+/* Feature / resource cards — left accent bar tinted per source */
+.wgx-lu-feature { margin: 0; padding: 0.6rem 0.8rem; background: var(--bg-block, #1c1815);
+  border: 1px solid var(--border, #2c2520); border-left: 3px solid var(--accent-warm, #c9a961); border-radius: 8px; }
+.wgx-lu-feature + .wgx-lu-feature { margin-top: 0.5rem; }
+.wgx-lu-feature b { color: var(--text-bright, #f5efe2); }
+.wgx-lu-feature p { margin: 4px 0 0; color: var(--text-dim, #9a8e7e); font-size: 0.86em; line-height: 1.5; }
+.wgx-lu-feature:has(.wgx-lu-badge-class)    { border-left-color: #8b7cf0; }
+.wgx-lu-feature:has(.wgx-lu-badge-subclass) { border-left-color: var(--gold, #d4b97a); }
+.wgx-lu-feature:has(.wgx-lu-badge-species)  { border-left-color: #6fbf6f; }
+.wgx-lu-badge { display: inline-block; font-size: 0.66em; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; border-radius: 4px; padding: 2px 7px; margin-right: 8px; vertical-align: middle; }
+.wgx-lu-badge-class    { background: rgba(139, 124, 240, 0.18); color: #b3a8f5; }
+.wgx-lu-badge-subclass { background: rgba(212, 185, 122, 0.16); color: var(--gold, #d4b97a); }
+.wgx-lu-badge-species  { background: rgba(111, 191, 111, 0.16); color: #8fd08f; }
+
+/* Choice cards (subclass / metamagic) — lift on hover, gold glow when picked */
+.wgx-lu-subgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.7rem; margin-top: 0.35rem; }
+.wgx-lu-subcard { position: relative; background: var(--bg-block, #1c1815); border: 1px solid var(--border, #2c2520);
+  border-radius: 10px; padding: 0.7rem 0.85rem; cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s; }
+.wgx-lu-subcard:hover { border-color: var(--accent-warm-soft, rgba(201,169,97,0.6));
+  transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35); }
+.wgx-lu-subcard.selected { border-color: var(--accent-warm, #c9a961);
+  box-shadow: 0 0 0 1px var(--accent-warm, #c9a961) inset, 0 0 14px oklch(from var(--accent-warm, #c9a961) l c h / 0.18); }
+.wgx-lu-subcard.selected::after { content: '✓'; position: absolute; top: 0.5rem; right: 0.65rem;
+  color: var(--accent-warm, #c9a961); font-weight: 700; }
+.wgx-lu-subcard h4 { margin: 0 0 0.4rem; font-family: var(--font-display, serif); font-size: 0.95rem;
+  letter-spacing: 0.03em; color: var(--text-bright, #f5efe2); }
+.wgx-lu-subcard p { margin: 0.3rem 0 0; font-size: 0.82em; color: var(--text-dim, #9a8e7e); line-height: 1.45; }
+.wgx-lu-subcard p b { color: var(--text-main, #e8e2d6); }
+.wgx-lu-cost { font-size: 0.68em; font-weight: 500; color: var(--text-dim, #9a8e7e);
+  text-transform: uppercase; letter-spacing: 0.06em; }
+.wgx-lu-known { opacity: 0.4; cursor: default; }
+.wgx-lu-known:hover { border-color: var(--border, #2c2520); transform: none; box-shadow: none; }
+.wgx-lu-note { color: var(--text-dim, #9a8e7e); font-style: italic; font-size: 0.88em; margin: 0.3rem 0 0; }
+
+/* Footer nav */
+.wgx-lu-nav { display: flex; justify-content: space-between; gap: 10px;
+  padding: 0.9rem 1.5rem; border-top: 1px solid var(--hairline-gold, rgba(201,169,97,0.25)); }
+.wgx-lu-btn { padding: 0.55rem 1.4rem; border-radius: 8px; border: 1px solid var(--border, #2c2520);
+  background: transparent; color: var(--text-main, #e8e2d6); cursor: pointer; font: inherit; font-size: 0.9rem;
+  transition: border-color 0.15s, background 0.15s, color 0.15s; }
+.wgx-lu-btn:hover { border-color: var(--accent-warm-soft, rgba(201,169,97,0.6)); color: var(--text-bright, #f5efe2); }
+.wgx-lu-primary { background: var(--accent-warm, #c9a961); color: #14100c; border-color: var(--accent-warm, #c9a961);
+  font-weight: 700; letter-spacing: 0.02em; }
+.wgx-lu-primary:hover:not(:disabled) { background: var(--gold, #d4b97a); border-color: var(--gold, #d4b97a); color: #14100c; }
+.wgx-lu-primary:disabled { opacity: 0.35; cursor: not-allowed; }

@@ -78,7 +78,10 @@ function wgxOpenLevelUpModal(charId) {
   wgxLU = { charId: charId, raw: raw, delta: delta, steps: wgxLevelUpSteps(delta), stepIdx: 0, picked: {} };
   var host = document.createElement('div');
   host.className = 'wgx-levelup-modal-active';
-  host.innerHTML = '<div class="modal-overlay" data-wgx-lu="cancel"><div class="modal-card wgx-lu-card" onclick="event.stopPropagation();"></div></div>';
+  // NB: no stopPropagation on the card — the delegated host listener must
+  // receive clicks from inside it. Overlay-click-to-close is handled in
+  // wgxLUClick by checking the actual event target.
+  host.innerHTML = '<div class="modal-overlay"><div class="modal-card wgx-lu-card"></div></div>';
   document.body.appendChild(host);
   host.addEventListener('click', wgxLUClick);
   wgxRenderLUStep();
@@ -111,19 +114,25 @@ function wgxRenderLUStep() {
   var cfg = wgxLU.raw.config || {}, st = wgxLU.raw.state || {};
   var html = '<div class="modal-header"><h2>Level Up — ' + d.from + ' → ' + d.to + '</h2>' +
     '<button class="modal-close" data-wgx-lu="cancel">&times;</button></div>';
-  // Stepper dots
+  // Stepper dots + current-step label
   html += '<div class="wgx-lu-steps">';
   for (var i = 0; i < wgxLU.steps.length; i++) {
     html += '<span class="wgx-lu-dot' + (i === wgxLU.stepIdx ? ' active' : (i < wgxLU.stepIdx ? ' done' : '')) + '"></span>';
   }
-  html += '</div><div class="modal-body wgx-lu-body">';
+  var stepLabel = step.kind === 'overview' ? 'Overview'
+    : step.kind === 'confirm' ? 'Confirm'
+    : (step.choice.id === 'subclass' ? 'Choose Subclass'
+      : step.choice.id.charAt(0).toUpperCase() + step.choice.id.slice(1).replace(/([A-Z])/g, ' $1'));
+  html += '</div><div class="wgx-lu-steplabel">' + wgxEsc(stepLabel) + '</div>';
+  html += '<div class="modal-body wgx-lu-body">';
 
   if (step.kind === 'overview') {
     html += '<h3>What you gain</h3><ul class="wgx-lu-gains">';
     html += '<li><b>Hit Points</b> +' + d.hpGain + ' (new max ' + d.newMaxHp + ')</li>';
     if (d.profBonus.old !== d.profBonus.new) html += '<li><b>Proficiency bonus</b> +' + d.profBonus.old + ' → +' + d.profBonus.new + '</li>';
     if (d.sneakAttack && d.sneakAttack.old !== d.sneakAttack.new) html += '<li><b>Sneak Attack</b> ' + d.sneakAttack.old + ' → ' + d.sneakAttack.new + '</li>';
-    if (JSON.stringify(d.slots.old) !== JSON.stringify(d.slots.new)) html += '<li><b>Spell slots</b> ' + (d.slots.old.join('/') || '—') + ' → ' + d.slots.new.join('/') + '</li>';
+    var fmtSlots = function (a) { a = (a || []).slice(); while (a.length && !a[a.length - 1]) a.pop(); return a.join('/') || '—'; };
+    if (JSON.stringify(d.slots.old) !== JSON.stringify(d.slots.new)) html += '<li><b>Spell slots</b> ' + fmtSlots(d.slots.old) + ' → ' + fmtSlots(d.slots.new) + '</li>';
     if (d.prepared.old !== d.prepared.new && d.prepared.new > 0) html += '<li><b>Prepared spells</b> ' + d.prepared.old + ' → ' + d.prepared.new + '</li>';
     if (d.cantrips.old !== d.cantrips.new) html += '<li><b>Cantrips</b> ' + d.cantrips.old + ' → ' + d.cantrips.new + '</li>';
     if (d.spellbookAdds) html += '<li><b>Spellbook</b> +' + d.spellbookAdds + ' new spells</li>';
@@ -179,7 +188,7 @@ function wgxRenderLUStep() {
     html += '<h3>Choice: ' + wgxEsc(step.choice.id) + (step.choice.count ? ' (× ' + step.choice.count + ')' : '') + '</h3>' +
       '<p class="wgx-lu-note">This choice type does not have an in-app picker yet. Continue and record your pick with your DM; it can be added to your sheet later.</p>';
   } else if (step.kind === 'confirm') {
-    html += '<h3>Confirm</h3><p>Level ' + d.from + ' → <b>' + d.to + '</b> · +' + d.hpGain + ' HP';
+    html += '<h3>Summary</h3><p>Level ' + d.from + ' → <b>' + d.to + '</b> · +' + d.hpGain + ' HP';
     if (wgxLU.picked.subclass) {
       var sname = (DATA[cfg.className].subclasses[wgxLU.picked.subclass] || {}).name || wgxLU.picked.subclass;
       html += ' · Subclass: <b>' + wgxEsc(sname) + '</b>';
@@ -203,8 +212,11 @@ function wgxRenderLUStep() {
 }
 
 function wgxLUClick(e) {
+  if (!wgxLU) return;
+  // Click on the dimmed backdrop itself (not something inside the card) → close.
+  if (e.target.classList && e.target.classList.contains('modal-overlay')) { wgxCloseLevelUpModal(); return; }
   var t = e.target.closest('[data-wgx-lu]');
-  if (!t || !wgxLU) return;
+  if (!t) return;
   var act = t.getAttribute('data-wgx-lu');
   if (act === 'cancel') { wgxCloseLevelUpModal(); return; }
   if (act === 'prev') { wgxLU.stepIdx = Math.max(0, wgxLU.stepIdx - 1); wgxRenderLUStep(); return; }
