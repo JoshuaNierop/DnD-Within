@@ -80,6 +80,19 @@ function onPointerDown(evt) {
     return;
   }
 
+  // Action cells with mode 'always' (HP damage/heal, Level Up/Down, resources,
+  // rest) belong to the cell, not to widget selection. Starting a select
+  // gesture here would re-render the SVG on pointerup, detaching the click
+  // target before the native click fires — the document click listener then
+  // never sees the cell. No gesture at all: the DOM stays intact, the click
+  // listener handles the action, and the widget is not selected.
+  if (!hasHandle) {
+    const cellG = evt.target.closest && evt.target.closest('g.editable-cell');
+    const cellSrc = cellG && cellG.dataset.source;
+    const cellCfg = cellSrc && (typeof WG_EDIT_CONFIG !== 'undefined') ? WG_EDIT_CONFIG[cellSrc] : null;
+    if (cellCfg && cellCfg.mode === 'always') return;
+  }
+
   if (!hasHandle) {
     // Geen handle: widget-body → selecteer-op-pointerup; lege ruimte → swipe/deselect.
     if (!Number.isNaN(wIdx)) {

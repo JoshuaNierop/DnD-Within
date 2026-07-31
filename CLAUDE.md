@@ -3,7 +3,11 @@
 Interactive D&D 5.5e character sheet en campaign management SPA voor 8 spelers.
 
 ## ⚠️ Taal — ALTIJD Engels (uitzondering op global rule)
-**Alle gebruiker-zichtbare UI-teksten in D&D Within zijn in het Engels** — knoppen, labels, placeholders, toasts, confirm/prompt/alert-dialogen, lege-staat-teksten. Dit overschrijft de global conventie "Nederlandse UI-teksten voor personal projecten". Denk hier altijd aan bij werk aan dit project, ook zonder dat Joshua het benoemt. Nieuwe strings: Engels, of via de i18n-laag (NL/EN). Code/comments blijven Engels zoals altijd. Bij twijfel of je een Nederlandse string tegenkomt → vertalen naar Engels.
+**Alle gebruiker-zichtbare UI-teksten én content in D&D Within zijn in het Engels** — knoppen, labels, placeholders, toasts, confirm/prompt/alert-dialogen, lege-staat-teksten, én game-content/data: feature-descriptions, spell-teksten, tooltips, metamagic/feats/subclass-uitleg in `data.js`. Dit overschrijft de global conventie "Nederlandse UI-teksten voor personal projecten". Denk hier altijd aan bij werk aan dit project, ook zonder dat Joshua het benoemt.
+- Nieuwe strings: Engels, of via de i18n-laag (NL/EN); bij `{nl, en}`-objecten is `en` verplicht en leidend (widgets renderen `desc.en` eerst).
+- Nieuwe `data.js`-entries: descriptions in het Engels (dual `{nl, en}` mag, Engels-only volstaat).
+- Code/comments blijven Engels zoals altijd.
+- Bij twijfel of je een Nederlandse string/description tegenkomt → vertalen naar Engels.
 
 ## Tech Stack
 - Vanilla JavaScript + Firebase Realtime Database (REST API)
