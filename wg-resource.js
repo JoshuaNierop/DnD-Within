@@ -47,7 +47,8 @@ function wgxBuildResources(widget) {
       var die = r.die ? (' ' + r.die(st)) : '';
       rows.push([r.label + die, wgxResourcePips(used, max)]);
       var rechargeTxt = r.recharge === 'long' ? 'Recharges on a Long Rest.' : 'Regain one on a Short Rest, all on a Long Rest.';
-      var tip = { title: r.label + ' · ' + (max - used) + '/' + max + die, body: r.desc + '\n\n' + rechargeTxt + '\n\nClick: spend 1. When empty, click restores all.' };
+      var extra = (typeof r.extraDesc === 'function') ? r.extraDesc(cfg, st) : '';
+      var tip = { title: r.label + ' · ' + (max - used) + '/' + max + die, body: r.desc + (extra ? '\n\n' + extra : '') + '\n\n' + rechargeTxt + '\n\nClick: spend 1. When empty, click restores all.' };
       tips.push([tip, tip]);
     }
   }

@@ -645,3 +645,15 @@ Nieuwe `#/widget-demo` route toont elke widget in min/default/max naast elkaar m
 **Commits:** 465d4ef, 4bb847a, 9f65475, d7f5792, 32b84a0 — alles gepusht.
 **Next:** fase F rest (invocations/fightingStyle/spell-pickers), fase D2 rest (level-down + resources/rest live), review-lijst: Innate Sorcery 2×/LR spot-check PHB, Draconic Resilience HP, swaps bij level-up.
 ---
+
+### Recap — 2026-08-04 01:35 (Leveling Up fase F-rest — alle pickers + spell-keuze)
+**What was done:**
+- Alle resterende level-up pickers: Warlock invocations (14× 2024, `total:3` self-heal), Fighting Style (10 feats EN/2024-wording + Blessed/Druidic Warrior met dynamische cantrip-vervolgstap), Druid Wild Shape forms (20 CR≤1/4 no-fly, `total:4`), Ranger expertise, Wizard Scholar (beide → config.expertSkills), spell/cantrip-keuze (aantal = 2024-tabel − bekend → self-healt lira/ancha/barius zonder vastgelegde creation-picks)
+- Confirm + level-down gerefactord naar pure builders; level-down rolt nu álle nieuwe pick-types terug en benoemt ze in de confirm-dialoog
+- wg-features.js: badges I/F voor invocations/fighting styles; Wild Shape-tooltip toont known forms (extraDesc-hook)
+- 2024-datafixes: druid cantripsKnown 4→2, preparedTable paladin/ranger [_,2,3,4], halfCasterSlots[1]=2×1st, spellcastingStart 2→1 (creation-wizard toont nu L1-spell-keuze voor half-casters)
+**Verified:** node-smoketest 77/77 (alle party-classes L1→2→3 + rollback + data-integriteit); live browser wegwerp-ranger: volledige modal-flow → Firebase ✓, Level Down volledige rollback ✓, 0 console-errors. Testchar verwijderd.
+**Files modified:** data.js, wg-levelup.js (herschreven), wg-features.js, wg-resource.js, Metadocs (LevelingUp/Status.md, Progression-Reference.md, Todo.md)
+**Current state:** Fase F compleet voor L1–3. Open: D2-rest (resources/rest-widgets live), review-lijst 0f–0k (o.a. PHB-spot-checks, io's 4 cantrips, spellPool NL-debt).
+**Next steps:** review-lijst met fysieke PHB; D2-rest browsertest; fase F+ pas richting L4.
+---

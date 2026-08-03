@@ -108,15 +108,20 @@ Algemeen L1–3: prof bonus **+2** op alle levels 1–3 · **subclass-keuze op L
 **L2:** **Deft Explorer** (CHOICE: Expertise 1 skill + 2 talen) · **Fighting Style** (CHOICE: style-feat of Druidic Warrior = 2 druid cantrips WIS) · prepared 3.
 **L3:** **Subclass** (CHOICE 4: Beast Master, Fey Wanderer, Gloom Stalker, Hunter) · prepared 4, slots 3×1st.
 
-## Prepared-spells tabel L1–3 ✅ (web-geverifieerd, single-source aidedd.org — spot-check tegen fysieke PHB gewenst)
+## Prepared-spells tabel L1–3 (spot-check tegen fysieke PHB gewenst)
 | Class | L1 | L2 | L3 |
 |---|---|---|---|
 | Wizard | 4 | 5 | 6 |
 | Sorcerer | 2 | 4 | 6 |
 | Druid | 4 | 5 | 6 |
 | Warlock | 2 | 3 | 4 |
-| Paladin | — | 2 | 3 |
-| Ranger | — | 3 | 4 |
+| Paladin | 2 | 3 | 4 |
+| Ranger | 2 | 3 | 4 |
+
+> ⚠️ Correctie 2026-08-04: de aidedd-versie van deze tabel had Paladin `—/2/3` en
+> Ranger `—/3/4` (2014-layout: casten pas vanaf L2). Dat sprak de eigen class-secties
+> hierboven tegen (beide: "Spellcasting v.a. L1 (2024), 2 prepared, slots 2×1st",
+> daarna 3 en 4). `data.js` volgt nu de class-secties — zie Status.md review-punt 0f.
 
 2024 = **vaste tabel**, niet ability-mod+level → `engine.js getMaxPrepared()` moet om (bestaande blocker, nu gedeblokkeerd).
 ⚠️ Soulknife "Bonus Action om 1 die terug te krijgen per Short Rest": verifier zegt dat die recharge pas op hoger level komt — op L3 alleen Long Rest. Aanhouden: Long Rest only.

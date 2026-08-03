@@ -42,16 +42,39 @@ function wgxCollectFeatures(cfg, st) {
   var race = DATA[cfg.race] || {};
   var rfl = race.features || [];
   for (var r = 0; r < rfl.length; r++) out.push({ src: 'R', name: rfl[r].name, desc: rfl[r].desc, level: 1 });
-  // Known Metamagic options (picked via the level-up menu, stored in state)
-  var mm = st.metamagic || [];
-  var mmLevel = function (name) {
+  // Picked options stored in state (level-up menu): the level a pick was made
+  // at is recoverable from levelChoices[N].<recKey>.
+  var pickLevel = function (recKey, name, fallback) {
     var lc = st.levelChoices || {};
-    for (var k in lc) if (((lc[k] || {}).metamagic || []).indexOf(name) !== -1) return parseInt(k, 10);
-    return 2;
+    for (var k in lc) {
+      var v = (lc[k] || {})[recKey];
+      if (Array.isArray(v) ? v.indexOf(name) !== -1 : v === name) return parseInt(k, 10);
+    }
+    return fallback;
   };
+  // Known Metamagic options
+  var mm = st.metamagic || [];
   for (var m = 0; m < mm.length; m++) {
     var op = (DATA.metamagic || []).filter(function (o) { return o.name === mm[m]; })[0];
-    if (op) out.push({ src: 'M', name: op.name + ' (' + op.cost + ' SP)', desc: op.desc, level: mmLevel(op.name) });
+    if (op) out.push({ src: 'M', name: op.name + ' (' + op.cost + ' SP)', desc: op.desc, level: pickLevel('metamagic', op.name, 2) });
+  }
+  // Known Eldritch Invocations
+  var inv = st.invocations || [];
+  for (var iv = 0; iv < inv.length; iv++) {
+    var io = (DATA.invocations || []).filter(function (o) { return o.name === inv[iv]; })[0];
+    out.push({ src: 'I', name: inv[iv], desc: io ? io.desc : '', level: pickLevel('invocations', inv[iv], 1) });
+  }
+  // Fighting Styles (feat list + class options like Blessed/Druidic Warrior)
+  var fs = st.fightingStyles || [];
+  var fsDesc = function (name) {
+    var ft = (DATA.feats || []).filter(function (o) { return o.category === 'fighting' && o.name === name; })[0];
+    if (ft) return ft.desc;
+    var extras = (DATA.classFightingBonus || {})[cfg.className] || [];
+    var ex = extras.filter(function (o) { return o.name === name; })[0];
+    return ex ? ex.desc : '';
+  };
+  for (var fi = 0; fi < fs.length; fi++) {
+    out.push({ src: 'F', name: fs[fi], desc: fsDesc(fs[fi]), level: pickLevel('fightingStyle', fs[fi], 2) });
   }
   return out;
 }
@@ -68,7 +91,7 @@ function wgxBuildFeatures(widget) {
     rows.push(['', 'No features', '']);
     tips.push(null);
   } else {
-    var srcLabel = { C: 'Class', S: 'Subclass', R: 'Species', M: 'Metamagic' };
+    var srcLabel = { C: 'Class', S: 'Subclass', R: 'Species', M: 'Metamagic', I: 'Invocation', F: 'Fighting Style' };
     for (var i = 0; i < feats.length; i++) {
       var f = feats[i];
       rows.push([String(f.level), f.name, f.src]);

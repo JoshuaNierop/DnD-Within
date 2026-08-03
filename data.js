@@ -509,6 +509,9 @@ const DATA = {
 
     // ===== HALF-CASTER SPELL SLOTS =====
     halfCasterSlots: {
+        // 2024 PHB: Paladin/Ranger cast from level 1 (2x 1st-level slots).
+        // 2014 had no L1 row — added for Leveling Up fase F; spot-check PHB.
+        1:  [2,0,0,0,0],
         2:  [2,0,0,0,0],
         3:  [3,0,0,0,0],
         4:  [3,0,0,0,0],
@@ -538,9 +541,10 @@ const DATA = {
         skillCount: 3,
         asiLevels: [4, 8, 12, 16, 19],
 
-        // Half caster: uses DATA.halfCasterSlots, starts at level 2
+        // Half caster: uses DATA.halfCasterSlots. 2024: casts from level 1
+        // (2 prepared, 2x 1st-level slots) — was 2 in the 2014 layout.
         spellcasting: "half",
-        spellcastingStart: 2,
+        spellcastingStart: 1,
 
         features: {
             1: [
@@ -830,9 +834,10 @@ const DATA = {
         skillCount: 2,
         asiLevels: [4, 8, 12, 16, 19],
 
-        // Half caster: uses DATA.halfCasterSlots, starts at level 2
+        // Half caster: uses DATA.halfCasterSlots. 2024: casts from level 1
+        // (2 prepared, 2x 1st-level slots) — was 2 in the 2014 layout.
         spellcasting: "half",
-        spellcastingStart: 2,
+        spellcastingStart: 1,
 
         features: {
             1: [
@@ -1001,7 +1006,9 @@ const DATA = {
             20: [4,3,3,3,3,2,2,1,1]
         },
 
-        cantripsKnown: { 1:4, 2:4, 3:4, 4:5, 5:5, 6:5, 7:5, 8:5, 9:5, 10:6, 11:6, 12:6, 13:6, 14:6, 15:6, 16:6, 17:6, 18:6, 19:6, 20:6 },
+        // 2024 PHB Druid cantrip column: 2 at L1, 3 at L4, 4 at L10 (was wrongly
+        // a copy of the sorcerer table — Leveling Up fase F fix, spot-check PHB).
+        cantripsKnown: { 1:2, 2:2, 3:2, 4:3, 5:3, 6:3, 7:3, 8:3, 9:3, 10:4, 11:4, 12:4, 13:4, 14:4, 15:4, 16:4, 17:4, 18:4, 19:4, 20:4 },
         maxSpellLevel: { 1:1, 2:1, 3:2, 4:2, 5:3, 6:3, 7:4, 8:4, 9:5, 10:5, 11:6, 12:6, 13:7, 14:7, 15:8, 16:8, 17:9, 18:9, 19:9, 20:9 },
 
         features: {
@@ -2113,16 +2120,18 @@ const DATA = {
         { name: "Boon of Truesight", category: "epic", desc: "+1 INT, WIS of CHA (max 30). Truesight 60ft.", prereq: null },
 
         // --- FIGHTING STYLE FEATS (class feature, kies via Fighter/Paladin/Ranger) ---
-        { name: "Archery", category: "fighting", desc: "+2 attack bonus op ranged weapon attacks.", prereq: null },
-        { name: "Blind Fighting", category: "fighting", desc: "Blindsight 10ft. Je kunt unseen creatures in die range zien.", prereq: null },
-        { name: "Defense", category: "fighting", desc: "+1 AC terwijl je armor draagt.", prereq: null },
-        { name: "Dueling", category: "fighting", desc: "+2 damage bij melee weapon met één hand en geen ander wapen.", prereq: null },
-        { name: "Great Weapon Fighting", category: "fighting", desc: "Herrol 1'en en 2'en op damage dice van two-handed melee weapons. Gebruik tweede resultaat.", prereq: null },
-        { name: "Interception", category: "fighting", desc: "Reaction: verminder damage tegen ally binnen 5ft met 1d10 + prof bonus (vereist shield of martial weapon).", prereq: null },
-        { name: "Protection", category: "fighting", desc: "Reaction: disadvantage op attack tegen ally binnen 5ft als je een shield draagt.", prereq: null },
-        { name: "Thrown Weapon Fighting", category: "fighting", desc: "Trek thrown weapon als onderdeel van attack. +2 damage met thrown weapons.", prereq: null },
-        { name: "Two-Weapon Fighting", category: "fighting", desc: "Voeg ability modifier toe aan damage van off-hand weapon attack.", prereq: null },
-        { name: "Unarmed Fighting", category: "fighting", desc: "Unarmed strikes doen 1d6 bludgeoning (1d8 als beide handen vrij). Bij grapple: 1d4 damage per beurt.", prereq: null }
+        // 2024 PHB Fighting Style feats — English + 2024 wording (fase F; the old
+        // Dutch texts partly used 2014 rules: GWF reroll, TWF off-hand, Thrown draw).
+        { name: "Archery", category: "fighting", desc: "You gain a +2 bonus to attack rolls you make with Ranged weapons.", prereq: null },
+        { name: "Blind Fighting", category: "fighting", desc: "You have Blindsight with a range of 10 feet: within that range you can see anything that isn't behind Total Cover, even in darkness or when facing an Invisible creature.", prereq: null },
+        { name: "Defense", category: "fighting", desc: "While you're wearing Light, Medium, or Heavy armor, you gain a +1 bonus to Armor Class.", prereq: null },
+        { name: "Dueling", category: "fighting", desc: "When you're holding a Melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon. A Shield is allowed.", prereq: null },
+        { name: "Great Weapon Fighting", category: "fighting", desc: "When you roll damage for an attack with a Melee weapon you're holding with two hands (Two-Handed, or Versatile used two-handed), treat any 1 or 2 on a damage die as a 3.", prereq: null },
+        { name: "Interception", category: "fighting", desc: "Reaction when a creature you can see hits another creature within 5 feet of you: reduce the damage dealt by 1d10 + your Proficiency Bonus. You must be holding a Shield or a Simple or Martial weapon.", prereq: null },
+        { name: "Protection", category: "fighting", desc: "Reaction when a creature you can see attacks a target other than you within 5 feet of you, while you're holding a Shield: interpose your Shield to impose Disadvantage on that attack roll.", prereq: null },
+        { name: "Thrown Weapon Fighting", category: "fighting", desc: "You gain a +2 bonus to damage rolls with weapons that have the Thrown property when you make ranged attacks with them.", prereq: null },
+        { name: "Two-Weapon Fighting", category: "fighting", desc: "When you make the extra attack granted by the Light weapon property, you can add your ability modifier to that attack's damage.", prereq: null },
+        { name: "Unarmed Fighting", category: "fighting", desc: "Your Unarmed Strikes deal 1d6 + STR bludgeoning damage (1d8 if you aren't holding weapons or a Shield). At the start of each of your turns, you can deal 1d4 bludgeoning damage to one creature Grappled by you.", prereq: null }
     ],
 
     // ===== ALL 18 SKILLS =====
@@ -3379,23 +3388,84 @@ DATA.preparedTable = {
     sorcerer: [0, 2, 4, 6],
     druid:    [0, 4, 5, 6],
     warlock:  [0, 2, 3, 4],
-    paladin:  [0, 0, 2, 3],
-    ranger:   [0, 0, 3, 4]
+    // 2024 PHB: half-casters cast from L1 (2 prepared), then 3/4. The earlier
+    // aidedd-sourced values ([-,2,3] / [-,3,4]) matched the 2014 start-at-L2
+    // layout and contradicted the verified class research — spot-check PHB.
+    paladin:  [0, 2, 3, 4],
+    ranger:   [0, 2, 3, 4]
 };
 
 // Choices the player must make when REACHING a given class level (level-up menu
 // steps). Creation-time (L1) choices are owned by the creation wizard, not here.
 // id → renderer in wg-levelup.js; unsupported ids render as an informational
 // step so a level-up never blocks.
+// `count` = pick exactly N new options at this level. `total` = the character
+// should KNOW N options after this level; the picker asks for (total − known),
+// which self-heals characters whose earlier (creation-time) picks were never
+// recorded — e.g. a Warlock without an L1 invocation picks 3 at L2.
 DATA.levelUpChoices = {
     rogue:    { 3: [{ id: 'subclass' }] },
     paladin:  { 2: [{ id: 'fightingStyle' }], 3: [{ id: 'subclass' }] },
     sorcerer: { 2: [{ id: 'metamagic', count: 2 }], 3: [{ id: 'subclass' }] },
     wizard:   { 2: [{ id: 'scholar' }], 3: [{ id: 'subclass' }] },
     fighter:  { 3: [{ id: 'subclass' }] },
-    druid:    { 2: [{ id: 'wildShapeForms', count: 4 }], 3: [{ id: 'subclass' }] },
-    warlock:  { 2: [{ id: 'invocations', count: 2 }], 3: [{ id: 'subclass' }] },
+    druid:    { 2: [{ id: 'wildShapeForms', total: 4 }], 3: [{ id: 'subclass' }] },
+    warlock:  { 2: [{ id: 'invocations', total: 3 }], 3: [{ id: 'subclass' }] },
     ranger:   { 2: [{ id: 'expertise', count: 1 }, { id: 'fightingStyle' }], 3: [{ id: 'subclass' }] }
+};
+
+// 2024 PHB Eldritch Invocations selectable at warlock level <= 3 (scope batch 1;
+// level 5+ invocations follow with the higher-level batch). minLevel gates the
+// picker; prereq is display-only. ⚠ texts unverified against physical PHB.
+DATA.invocations = [
+    { name: "Agonizing Blast", minLevel: 2, prereq: "a Warlock cantrip that deals damage", desc: "Choose one of your known Warlock cantrips that deals damage. Add your Charisma modifier to that cantrip's damage rolls. You can take this invocation more than once, each time for a different cantrip." },
+    { name: "Armor of Shadows", minLevel: 1, prereq: null, desc: "You can cast Mage Armor on yourself at will, without expending a spell slot." },
+    { name: "Devil's Sight", minLevel: 2, prereq: null, desc: "You can see normally in Dim Light and Darkness — magical or not — within 120 feet of yourself." },
+    { name: "Eldritch Mind", minLevel: 1, prereq: null, desc: "You have Advantage on Constitution saving throws that you make to maintain Concentration." },
+    { name: "Eldritch Spear", minLevel: 2, prereq: "a Warlock cantrip that deals damage", desc: "Choose one of your known Warlock cantrips that deals damage. Its range increases by a number of feet equal to 30 x your Warlock level. Repeatable for different cantrips." },
+    { name: "Fiendish Vigor", minLevel: 2, prereq: null, desc: "You can cast False Life on yourself at will, without expending a spell slot. When you cast it this way, you don't roll the die — you gain the maximum Temporary Hit Points." },
+    { name: "Lessons of the First Ones", minLevel: 2, prereq: null, desc: "You gain one Origin feat of your choice. You can take this invocation more than once, each time for a different Origin feat." },
+    { name: "Mask of Many Faces", minLevel: 2, prereq: null, desc: "You can cast Disguise Self at will, without expending a spell slot." },
+    { name: "Misty Visions", minLevel: 2, prereq: null, desc: "You can cast Silent Image at will, without expending a spell slot." },
+    { name: "Otherworldly Leap", minLevel: 2, prereq: null, desc: "You can cast Jump on yourself at will, without expending a spell slot." },
+    { name: "Pact of the Blade", minLevel: 1, prereq: null, desc: "Bonus Action: conjure a pact weapon in your hand or bond with a weapon you touch. You can attack with it using Charisma instead of Strength or Dexterity, and its damage can be Necrotic, Psychic, Radiant, or its normal type." },
+    { name: "Pact of the Chain", minLevel: 1, prereq: null, desc: "You learn Find Familiar (always prepared; once per Long Rest without a slot). Your familiar can take special forms such as Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake, and can attack when you take the Attack action (forgo one of your own attacks)." },
+    { name: "Pact of the Tome", minLevel: 1, prereq: null, desc: "You gain a Book of Shadows with three cantrips of your choice from any class's spell list (always prepared) and two level-1 spells with the Ritual tag, which you can cast as Rituals from the book." },
+    { name: "Repelling Blast", minLevel: 2, prereq: "a Warlock cantrip that deals damage via an attack roll", desc: "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with it, you can push the creature up to 10 feet straight away from you. Repeatable for different cantrips." }
+];
+
+// Beast forms legal for Wild Shape at druid levels 2-3 (2024: max CR 1/4, no
+// Fly Speed). Curated iconic picks; the DM supplies full stat blocks. ⚠ speeds/
+// traits summarised from the 2025 Monster Manual — spot-check when it matters.
+DATA.wildShapeForms = [
+    { name: "Cat", cr: "0", desc: "Speed 40 ft., Climb 30 ft. Tiny, stealthy scout with keen smell." },
+    { name: "Rat", cr: "0", desc: "Speed 20 ft., Climb 20 ft. Tiny sneak — squeeze through small spaces." },
+    { name: "Spider", cr: "0", desc: "Speed 20 ft., Climb 20 ft. Tiny; Spider Climb (walls and ceilings) and web sense." },
+    { name: "Frog", cr: "0", desc: "Speed 20 ft., Swim 20 ft. Tiny amphibian with a strong standing leap." },
+    { name: "Badger", cr: "0", desc: "Speed 20 ft., Burrow 5 ft. Tiny digger with keen smell." },
+    { name: "Crab", cr: "0", desc: "Speed 20 ft., Swim 20 ft. Tiny amphibious scuttler." },
+    { name: "Weasel", cr: "0", desc: "Speed 30 ft., Climb 30 ft. Tiny; keen hearing and smell." },
+    { name: "Giant Rat", cr: "1/8", desc: "Speed 30 ft., Climb 30 ft. Small; Pack Tactics with allies nearby." },
+    { name: "Mastiff", cr: "1/8", desc: "Speed 40 ft. Loyal hound; bite can knock a target Prone." },
+    { name: "Poisonous Snake", cr: "1/8", desc: "Speed 30 ft., Swim 30 ft. Venomous bite (CON save)." },
+    { name: "Mule", cr: "1/8", desc: "Speed 40 ft. Sure-footed beast of burden — carry heavy loads." },
+    { name: "Boar", cr: "1/4", desc: "Speed 40 ft. Charge attack; Relentless — drops to 1 HP instead of 0 once per rest." },
+    { name: "Constrictor Snake", cr: "1/4", desc: "Speed 30 ft., Swim 30 ft. Constrict: grapple and squeeze." },
+    { name: "Riding Horse", cr: "1/4", desc: "Speed 60 ft. Fast overland travel." },
+    { name: "Elk", cr: "1/4", desc: "Speed 50 ft. Charge with ram attack; hooves against Prone targets." },
+    { name: "Giant Badger", cr: "1/4", desc: "Speed 30 ft., Burrow 10 ft. Digs tunnels; bite and claws." },
+    { name: "Giant Frog", cr: "1/4", desc: "Speed 30 ft., Swim 30 ft. Standing leap; can swallow Tiny prey whole." },
+    { name: "Giant Lizard", cr: "1/4", desc: "Speed 30 ft., Climb 30 ft. Wall-crawling mount-sized reptile." },
+    { name: "Panther", cr: "1/4", desc: "Speed 50 ft., Climb 40 ft. Stealthy; pounce can knock a target Prone." },
+    { name: "Wolf", cr: "1/4", desc: "Speed 40 ft. Pack Tactics; bite can knock a target Prone." }
+];
+
+// Class-specific alternatives to a Fighting Style feat (2024 PHB). Picking one
+// grants cantrips from another class's list — the level-up wizard adds a
+// follow-up cantrip step (cantripList/cantripCount below drive that).
+DATA.classFightingBonus = {
+    paladin: [{ name: "Blessed Warrior", desc: "Instead of a Fighting Style feat: you learn two Cleric cantrips of your choice. Charisma is your spellcasting ability for them, and you can replace one when you gain a Paladin level.", cantripList: "cleric", cantripCount: 2 }],
+    ranger:  [{ name: "Druidic Warrior", desc: "Instead of a Fighting Style feat: you learn two Druid cantrips of your choice. Wisdom is your spellcasting ability for them, and you can replace one when you gain a Ranger level.", cantripList: "druid", cantripCount: 2 }]
 };
 
 // Species features that unlock at character levels > 1 (2024). Shown in the
@@ -3458,7 +3528,12 @@ DATA.classResources = [
         appliesTo: { className: 'druid', minLevel: 2 },
         max: function (cfg, st) { return 2; },
         stateKey: 'wildShapeUsed', recharge: 'short-one',
-        desc: "Bonus Action: transform into a known Beast form (levels 2-3: max CR 1/4, no fly speed). You keep INT/WIS/CHA. Two uses; regain one on a Short Rest, all on a Long Rest."
+        desc: "Bonus Action: transform into a known Beast form (levels 2-3: max CR 1/4, no fly speed). You keep INT/WIS/CHA. Two uses; regain one on a Short Rest, all on a Long Rest.",
+        // Known forms (picked via level-up) appended to the widget tooltip.
+        extraDesc: function (cfg, st) {
+            var forms = st.wildShapeForms || [];
+            return forms.length ? 'Known forms: ' + forms.join(', ') + '. You can swap one on each Long Rest.' : '';
+        }
     },
     {
         id: 'healingHands', label: 'Healing Hands',

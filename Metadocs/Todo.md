@@ -57,13 +57,13 @@ Ontwerp: `Metadocs/LevelUp-SpellPrepare-Design.md`.
 - [x] P1 — Fase 1: Long/Short-rest widget (`wg-rest.js`) — state-reset + prepare-window hook; klikbaar geverifieerd (zelfde 'always'-mode pad als HP)
 - [x] P1 — Prepared Spells display-widget (`wg-prepare.js`) — skills-stijl infoboxen, per-rij hover-tooltip (D&D 5.5e-agent indeling), auto-rescale, fit om inhoud
 - [ ] P2 — Spell-data verbeterpunt: expliciet `ritual: true` veld i.p.v. regex-afleiding uit desc (onbetrouwbaar); evt. `school` toevoegen
-- [!] P0 — Fase 0 vóór fase 2/3: verifieer 2024 prepared-max (vaste tabel vs ability-mod+level) tegen fysieke PHB — blokkerend
-- [ ] P1 — Fase 0: `getMaxPrepared()` formule→tabel + `casterCategory`/`preparedSpells` per class in data.js
-- [ ] P1 — Fase 0: 2014-resten fixen (Druid cantrips 3→2, Bard Magical Secrets, Wizard "Memorize na short rest", subclass-levels→L3)
-- [ ] P1 — Fase 2: spell-prepare window (`wg-prepare.js`) — 5 caster-categorieën, opent vanuit long rest
-- [ ] P1 — Fase 3: level-up widget (`wg-levelup.js`) — glow bij char-level < party-level, BG3-stap-window, `getLevelUpDelta`
+- [~] P0 — ~~Fase 0 vóór fase 2/3: verifieer 2024 prepared-max~~ → tabel L1–3 gebouwd + in gebruik (`DATA.preparedTable`); fysieke-PHB spot-check blijft open, incl. paladin/ranger-correctie → zie `LevelingUp/Status.md` review 0f
+- [x] P1 — Fase 0: `getMaxPrepared()` formule→tabel (L1–3; legacy-fallback erboven) — LevelingUp fase C
+- [~] P1 — Fase 0: 2014-resten fixen — ✅ Druid cantrips →2, paladin/ranger `spellcastingStart`→1 + L1-slots (2026-08-04); nog open: Bard Magical Secrets, Wizard "Memorize na short rest", subclass-levels→L3
+- [ ] P1 — Fase 2: spell-prepare window (`wg-prepare.js`) — 5 caster-categorieën, opent vanuit long rest (spell-keuze bij level-up bestaat al in het level-up-menu)
+- [x] P1 — Fase 3: level-up widget (`wg-levelup.js`) — gebouwd + uitgebouwd in LevelingUp fase C–F (glow, BG3-stapmenu, alle pickers, level-down); zie `Metadocs/LevelingUp/Status.md`
 - [ ] P2 — Fase 4: multiclass aggregator wire-up + config-model (`getCombinedCasterLevel`)
-- [ ] P2 — Beslissen: HP bij level-up vast-gemiddelde vs rollen; EK/AT spell-lijst eigen vs gefilterd-Wizard
+- [ ] P2 — Beslissen: ~~HP bij level-up vast-gemiddelde vs rollen~~ (v1 = vast gemiddelde, gebouwd); EK/AT spell-lijst eigen vs gefilterd-Wizard (fase F+)
 
 ## Inlogsysteem & Auth (2026-06-18)
 - [x] P0 — Echt inlogsysteem via Firebase Authentication (e-mail + wachtwoord) — `auth.js`, login-handler, reset-flow. Dual-login transitie (oude username blijft werken zolang `dw/config/legacyOpen !== false`).
