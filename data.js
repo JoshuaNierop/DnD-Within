@@ -3419,10 +3419,18 @@ DATA.levelUpChoices = {
     paladin:  { 2: [{ id: 'fightingStyle' }], 3: [{ id: 'subclass' }] },
     sorcerer: { 2: [{ id: 'metamagic', count: 2 }], 3: [{ id: 'subclass' }] },
     wizard:   { 2: [{ id: 'scholar' }], 3: [{ id: 'subclass' }] },
-    fighter:  { 3: [{ id: 'subclass' }] },
+    fighter:  { 2: [{ id: 'fightingStyle' }], 3: [{ id: 'subclass' }] },  // L1 style self-heals at L2 if never recorded
     druid:    { 2: [{ id: 'wildShapeForms', total: 4 }], 3: [{ id: 'subclass' }] },
     warlock:  { 2: [{ id: 'invocations', total: 3 }], 3: [{ id: 'subclass' }] },
-    ranger:   { 2: [{ id: 'expertise', count: 1 }, { id: 'fightingStyle' }], 3: [{ id: 'subclass' }] }
+    ranger:   { 2: [{ id: 'expertise', count: 1 }, { id: 'fightingStyle' }], 3: [{ id: 'subclass' }] },
+    // Non-party classes — subclass step at L3 so the menu is complete for all
+    // twelve. Bard L2 also picks Expertise (2 skills). Fighter's fightingStyle
+    // entry self-heals: the step only appears when no style was recorded at
+    // creation (needed = 0 otherwise).
+    bard:      { 2: [{ id: 'expertise', count: 2 }], 3: [{ id: 'subclass' }] },
+    cleric:    { 3: [{ id: 'subclass' }] },
+    monk:      { 3: [{ id: 'subclass' }] },
+    barbarian: { 3: [{ id: 'subclass' }] }
 };
 
 // 2024 PHB Eldritch Invocations selectable at warlock level <= 3 (scope batch 1;
@@ -3526,7 +3534,7 @@ DATA.classResources = [
     {
         id: 'secondWind', label: 'Second Wind',
         appliesTo: { className: 'fighter', minLevel: 1 },
-        max: function (cfg, st) { return 2; },
+        max: function (cfg, st) { var l = st.level || 1; return l >= 10 ? 4 : l >= 4 ? 3 : 2; },
         stateKey: 'secondWindUsed', recharge: 'short-one', featureNames: ['Second Wind', 'Tactical Mind'],
         desc: "Bonus Action: regain 1d10 + Fighter level HP. Two uses; regain one on a Short Rest, all on a Long Rest. From level 2, Tactical Mind lets you spend a use to add 1d10 to a failed ability check (use not spent if it still fails)."
     },

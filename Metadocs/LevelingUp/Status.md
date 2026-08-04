@@ -1,6 +1,22 @@
 # Leveling Up — Status
 
-_Laatst bijgewerkt: 2026-08-04 (2e sessie: widgets + cast-flow)_
+_Laatst bijgewerkt: 2026-08-04 (3e sessie: Engels-pass + E5.0-jacht + compleetheidsaudit)_
+
+## Compleetheidsaudit L1–3 (2026-08-04) — per class
+| Class | L1 (creation) | L2 | L3 | Resources | Status |
+|---|---|---|---|---|---|
+| Rogue | expertise/skills (wizard) | — | subclass-picker ✓, Soulknife→Psionic Dice ✓ | ✓ | **Compleet** (AT-spells = F+) |
+| Paladin | L1-spells ✓ (na fix) | Fighting Style + Blessed Warrior ✓, Paladin's Smite ✓ | subclass ✓, Channel Divinity ✓ | LoH/Smite/CD ✓ | **Compleet** |
+| Sorcerer | cantrips/spells (wizard) | Metamagic ✓, SP ✓ | subclass ✓ | Innate Sorcery/SP ✓ | **Compleet** (swaps=0e, Draconic HP=0d) |
+| Wizard | spellbook=informatief | Scholar ✓ | subclass ✓ | Arcane Recovery ✓ | **Compleet** |
+| Fighter | style self-healt op L2 | Tactical Mind→Second Wind ✓ | subclass ✓ | Second Wind 2/3/4 ✓ | **Compleet** (BM-maneuvers = F+, informatieve stap) |
+| Druid | Primal Order = feature-info (geen creation-keuze-opslag) | Wild Shape forms ✓ | subclass ✓ | Wild Shape ✓ | **Compleet** |
+| Warlock | invocation self-healt op L2 (total 3) | Magical Cunning ✓ | subclass ✓, pact→lvl2 ✓ | ✓ | **Compleet** |
+| Ranger | L1-spells ✓ (na fix) | Expertise + Fighting Style + Druidic Warrior ✓ | subclass ✓ | Favored Enemy ✓ | **Compleet** |
+| Bard/Cleric/Monk/Barbarian | — | Bard: Expertise ×2 ✓ | subclass ✓ (toegevoegd 3e sessie) | — | **Menu-compleet** (geen party-leden; resources t.z.t.) |
+
+Species: Aasimar (Healing Hands + Celestial Revelation) ✓ · Tiefling (L3 legacy-spell) ✓ · High Elf (L3 Detect Magic) ✓ · Human (front-loaded) ✓.
+Bekende gaten → fase F+: Battle Master maneuvers-picker, Arcane Trickster/Eldritch Knight spell-keuze, L4+ (ASI/feat-stap), sorcerer/warlock swaps (0e), wizard-spellbook-store.
 
 ## Sessie 2026-08-04-b — Spells/Features-widgets + cast-flow (op Joshua's verzoek)
 - [x] **Cast-flow**: Prepared Spells-widget klikbaar → cast-window per spell (meta-balk time/range/components/duration + ◆Concentration/(R)Ritual, beschrijving, DC/attack) met opties: Cast (cantrip, at will) · Cast/Upcast per beschikbaar slot-level (x/y left, disabled bij 0) · Warlock Pact-slot · Cast as Ritual (best-effort ritual-tag) · **Cast without a slot** via gekoppelde resource (Favored Enemy→Hunter's Mark, Paladin's Smite→Divine Smite, species-spells). Cast schrijft `spellSlotsUsed[lvl]` / `pactSlotsUsed` / resource-teller.

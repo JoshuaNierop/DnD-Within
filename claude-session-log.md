@@ -669,3 +669,16 @@ Nieuwe `#/widget-demo` route toont elke widget in min/default/max naast elkaar m
 **Files:** data.js, wg-prepare.js (herschreven), wg-features.js (herschreven), wg-ui.js, wg-resource.js, core.js, wg-style.css, Metadocs
 **Next:** bulk spellPool-vertaling (~230 descs); D2-rest live-test resources/rest-widgets in echte dashboards
 ---
+
+### Recap — 2026-08-04 04:30 (Engels-pass + E5.0-jacht + Bastion + compleetheid)
+**What was done:**
+- Bastion Ember hersteld als canonieke naam (DB: config/initiative/family/9 scenes; code: core.js; docs) — "Bastian" overal weg
+- E5.0-jacht: subclassChoiceLevel cleric 1→3, Shortbow mastery slow→vex (legacy array), Keen Senses = keuze uit 3 skills, wizard-subclassnamen → Evoker/Abjurer/Diviner/Illusionist, druid +Primal Order (L1), warlock Eldritch Invocations op L1, barbarian +Primal Knowledge (L3), monk +Uncanny Metabolism (L2), preparedTable → L1-5 + cleric/bard, Second Wind 2/3/4 uses
+- Volledige Engels-pass systeem-content: ~75 UI-strings (10 js-files incl. social), alle 12 class-blokken (~380 descs), 60 feats, taglines/backgrounds/weaponMastery/itemDB/classInfo, hele spellPool (~300 descs + component-teksten). Restant-NL = alleen de nl-kant van {nl,en}-duals (by design)
+- levelUpChoices compleet voor alle 12 classes (bard/cleric/monk/barbarian subclass L3, bard L2 expertise ×2, fighter style self-heal L2)
+- DB-scan beide databases: alle NL daar is user-content (Ren/Saya-lore, speler-notes, bug-reports) — geen systeem-teksten
+- Compleetheidsaudit L1-3 in Status.md (tabel per class; bekende gaten → F+)
+**Verified:** node-smoketest 103/103 na elke batch; 5 tussentijdse commits gepusht
+**Files:** data.js (groot), core.js, events/familyDiagram/ui-modals/ui-pages/ui-settings/ui-world/wg-events/wg-firebase/wg-render/sync/social×2, Metadocs
+**Next:** review-lijst 0c-0k (PHB-checks), D2-rest (resources/rest live), F+ bij L4
+---
