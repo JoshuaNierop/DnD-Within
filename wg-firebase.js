@@ -104,7 +104,7 @@ async function fetchCharacterList() {
       .sort((a, b) => a.name.localeCompare(b.name));
     renderCharacterSelect();
   } catch (e) {
-    console.warn('character-lijst kon niet geladen worden', e);
+    console.warn('character list could not be loaded', e);
   }
 }
 
@@ -271,10 +271,10 @@ async function saveDashboards() {
   const charId = state.characterId;
   let url;
   if (isDM) {
-    if (!state.dmCampaignId) { showToast('Geen campaign actief', 'error'); return; }
+    if (!state.dmCampaignId) { showToast('No active campaign', 'error'); return; }
     url = FIREBASE_DB + '/dw/dmDashboards/' + encodeURIComponent(state.dmCampaignId) + '/' + state.device + '.json';
   } else {
-    if (!charId) { showToast('Geen character geselecteerd', 'error'); return; }
+    if (!charId) { showToast('No character selected', 'error'); return; }
     url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/dashboards/' + state.device + '.json';
   }
   const payload = buildSavePayload();
@@ -314,7 +314,7 @@ async function loadDashboards(charId) {
     tree = await res.json();
   } catch (err) {
     console.warn('[loadDashboards] fetch failed:', err);
-    showToast('Kon dashboards niet laden', 'error');
+    showToast('Could not load dashboards', 'error');
     pulseSidebar();
     return;
   }

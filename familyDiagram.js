@@ -9,14 +9,14 @@
 
 function renderFamilyDiagram(familyId, editable) {
     var view = (typeof getFamilyView === 'function') ? getFamilyView(familyId) : null;
-    if (!view) return '<p class="text-dim">Family niet gevonden.</p>';
+    if (!view) return '<p class="text-dim">Family not found.</p>';
 
     var fam = view.family;
     var layout = layoutFamilyDiagram(view);
 
     var html = '<div class="famdiag-wrap" data-family-id="' + escapeAttr(familyId) + '">';
     html += '<div class="famdiag-header">';
-    html += '<h3 class="famdiag-title">' + escapeHtml(fam.surname || '(geen achternaam)') + '</h3>';
+    html += '<h3 class="famdiag-title">' + escapeHtml(fam.surname || '(no surname)') + '</h3>';
     if (editable) {
         html += '<div class="famdiag-header-actions">';
         html += '<div class="famdiag-zoom" data-family-id="' + escapeAttr(familyId) + '">';
@@ -32,7 +32,7 @@ function renderFamilyDiagram(familyId, editable) {
     html += '</div>';
 
     if (Object.keys(layout.nodes).length === 0) {
-        html += '<p class="text-dim" style="padding:1rem;">Nog geen leden in deze familie.</p>';
+        html += '<p class="text-dim" style="padding:1rem;">No members in this family yet.</p>';
         if (editable) {
             html += '<div class="famdiag-empty-add">';
             html += '<button class="btn btn-primary btn-sm" data-action="famdiag-add-root" data-family-id="' + escapeAttr(familyId) + '">+ Eerste lid toevoegen</button>';
@@ -65,7 +65,7 @@ function renderFamilyDiagram(familyId, editable) {
             html += '<button class="famdiag-dot famdiag-dot-childadd" ';
             html += 'style="left:' + (upos.x - 9) + 'px;top:' + (upos.y - 9) + 'px;" ';
             html += 'data-action="famdiag-add-child" data-union-id="' + escapeAttr(uid) + '" data-family-id="' + escapeAttr(familyId) + '" ';
-            html += 'title="Voeg kind toe">+</button>';
+            html += 'title="Add child">+</button>';
         }
     }
 

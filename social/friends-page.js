@@ -121,7 +121,7 @@ export function renderFriendsPage(host, adapter) {
                 }
                 const target = await adapter.findUserByEmail(email);
                 if (!target) {
-                    throw new Error('Geen gebruiker gevonden met dit emailadres. Vraag of ze eerst inloggen.');
+                    throw new Error('No user found with this e-mail address. Ask them to sign in first.');
                 }
                 await adapter.sendFriendRequest(target.uid, target);
                 input.value = '';

@@ -67,7 +67,7 @@ const DATA = {
         features: [
             { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
             { name: "Fey Ancestry", desc: { nl: "Advantage op saving throws tegen de charmed condition. Je bent immuun voor magische slaap.", en: "Advantage on saving throws against the charmed condition. You are immune to magical sleep." } },
-            { name: "Keen Senses", desc: { nl: "Proficiency in de Perception skill.", en: "Proficiency in the Perception skill." } },
+            { name: "Keen Senses", desc: { nl: "Proficiency in Insight, Perception of Survival (keuze).", en: "Proficiency in Insight, Perception, or Survival (your choice)." } },
             { name: "Trance", desc: { nl: "Je hoeft niet te slapen. In plaats daarvan mediteer je 4 uur per long rest.", en: "You do not need to sleep. Instead, you meditate for 4 hours per long rest." } },
             { name: "Elf Lineage: Wood Elf", desc: { nl: "Walking speed 35ft. Level 3: Longstrider (1x/long rest gratis). Level 5: Pass Without Trace (1x/long rest gratis).", en: "Walking speed 35ft. Level 3: Longstrider (free, 1x/long rest). Level 5: Pass Without Trace (free, 1x/long rest)." } }
         ]
@@ -80,7 +80,7 @@ const DATA = {
         features: [
             { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
             { name: "Fey Ancestry", desc: { nl: "Advantage op saving throws tegen de charmed condition. Je bent immuun voor magische slaap.", en: "Advantage on saving throws against the charmed condition. You are immune to magical sleep." } },
-            { name: "Keen Senses", desc: { nl: "Proficiency in de Perception skill.", en: "Proficiency in the Perception skill." } },
+            { name: "Keen Senses", desc: { nl: "Proficiency in Insight, Perception of Survival (keuze).", en: "Proficiency in Insight, Perception, or Survival (your choice)." } },
             { name: "Trance", desc: { nl: "Je hoeft niet te slapen. In plaats daarvan mediteer je 4 uur per long rest.", en: "You do not need to sleep. Instead, you meditate for 4 hours per long rest." } },
             { name: "Elf Lineage: High Elf", desc: { nl: "Leer 1 wizard cantrip (INT). Level 3: Detect Magic (1x/long rest gratis). Level 5: Misty Step (1x/long rest gratis). Bij long rest: wissel cantrip optioneel.", en: "Learn 1 wizard cantrip (INT). Level 3: Detect Magic (free, 1x/long rest). Level 5: Misty Step (free, 1x/long rest). On a long rest: optionally swap the cantrip." } }
         ]
@@ -93,7 +93,7 @@ const DATA = {
         features: [
             { name: "Superior Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 120ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 120ft, and in darkness as if it were dim light." } },
             { name: "Fey Ancestry", desc: { nl: "Advantage op saving throws tegen de charmed condition. Je bent immuun voor magische slaap.", en: "Advantage on saving throws against the charmed condition. You are immune to magical sleep." } },
-            { name: "Keen Senses", desc: { nl: "Proficiency in de Perception skill.", en: "Proficiency in the Perception skill." } },
+            { name: "Keen Senses", desc: { nl: "Proficiency in Insight, Perception of Survival (keuze).", en: "Proficiency in Insight, Perception, or Survival (your choice)." } },
             { name: "Trance", desc: { nl: "Je hoeft niet te slapen. In plaats daarvan mediteer je 4 uur per long rest.", en: "You do not need to sleep. Instead, you meditate for 4 hours per long rest." } },
             { name: "Elf Lineage: Drow", desc: { nl: "Leer Dancing Lights cantrip (CHA). Level 3: Faerie Fire (1x/long rest gratis). Level 5: Darkness (1x/long rest gratis).", en: "Learn the Dancing Lights cantrip (CHA). Level 3: Faerie Fire (free, 1x/long rest). Level 5: Darkness (free, 1x/long rest)." } }
         ]
@@ -201,28 +201,28 @@ const DATA = {
                 { name: "Sorcerer Subclass", desc: { nl: "Kies je magische oorsprong. Dit bepaalt je subclass features.", en: "Choose your magical origin. It determines your subclass features." } }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             10: [
-                { name: "Additional Metamagic", desc: "Kies nog 1 extra Metamagic optie." }
+                { name: "Additional Metamagic", desc: "Learn 1 additional Metamagic option." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             17: [
-                { name: "Additional Metamagic", desc: "Kies nog 1 extra Metamagic optie." }
+                { name: "Additional Metamagic", desc: "Learn 1 additional Metamagic option." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Arcane Apotheosis", desc: "Terwijl Innate Sorcery actief is, kun je 1x per beurt Metamagic gebruiken zonder sorcery points te besteden." }
+                { name: "Arcane Apotheosis", desc: "While Innate Sorcery is active, you can use one Metamagic option per turn without spending sorcery points." }
             ]
         },
 
@@ -236,13 +236,13 @@ const DATA = {
                         { name: "Tides of Chaos", desc: { nl: "Eén keer per long rest: geef jezelf advantage op een attack roll, ability check of saving throw.", en: "Once per Long Rest: give yourself advantage on an attack roll, ability check or saving throw." } }
                     ],
                     6: [
-                        { name: "Bend Luck", desc: "Reaction, 2 sorcery points: voeg 1d4 toe of trek 1d4 af van een attack roll, ability check of saving throw van een creature dat je kunt zien." }
+                        { name: "Bend Luck", desc: "Reaction, 2 sorcery points: add or subtract 1d4 from an attack roll, ability check, or saving throw of a creature you can see." }
                     ],
                     14: [
-                        { name: "Controlled Chaos", desc: "Als je rolt op de Wild Magic Surge tabel, rol je twee keer en kies je welk effect plaatsvindt." }
+                        { name: "Controlled Chaos", desc: "Whenever you roll on the Wild Magic Surge table, roll twice and choose which effect occurs." }
                     ],
                     18: [
-                        { name: "Spell Bombardment", desc: "Als je damage rolt voor een spell en een of meer dobbelstenen het maximale getal tonen, kies er één en rol die opnieuw. Voeg het resultaat toe aan de damage." }
+                        { name: "Spell Bombardment", desc: "When you roll damage for a spell and one or more dice show their maximum, choose one of those dice, roll it again, and add the result to the damage." }
                     ]
                 }
             },
@@ -255,13 +255,13 @@ const DATA = {
                         { name: "Draconic Ancestry", desc: { nl: "Kies een drakentype. Je leert bijbehorende spells en krijgt resistance tegen dat element op hogere levels.", en: "Choose a dragon type. You learn associated spells and gain resistance to that element at higher levels." } }
                     ],
                     6: [
-                        { name: "Elemental Affinity", desc: "Als je een spell cast die damage doet van je draconic element: +CHA mod damage. Besteed 1 sorcery point voor resistance tegen dat element gedurende 1 uur." }
+                        { name: "Elemental Affinity", desc: "When you cast a spell that deals damage of your draconic element: +CHA mod damage. Spend 1 sorcery point to gain resistance to that element for 1 hour." }
                     ],
                     14: [
-                        { name: "Dragon Wings", desc: "Als bonus action laat je drakenachtige vleugels groeien. Fly speed gelijk aan walking speed. Duren tot je ze herroept." }
+                        { name: "Dragon Wings", desc: "As a Bonus Action you sprout draconic wings, gaining a fly speed equal to your walking speed. They last until you dismiss them." }
                     ],
                     18: [
-                        { name: "Draconic Presence", desc: "5 sorcery points: 60ft aura van vrees of ontzag. WIS save of creatures zijn charmed/frightened voor 1 minuut." }
+                        { name: "Draconic Presence", desc: "5 sorcery points: a 60ft aura of awe or dread. WIS save or creatures are Charmed/Frightened for 1 minute." }
                     ]
                 }
             },
@@ -274,13 +274,13 @@ const DATA = {
                         { name: "Restore Balance", desc: { nl: "Reaction: als een creature binnen 60ft advantage of disadvantage heeft, neem het weg. Uses = prof bonus per long rest.", en: "Reaction: when a creature within 60ft has advantage or disadvantage, remove it. Uses = prof bonus per Long Rest." } }
                     ],
                     6: [
-                        { name: "Bastion of Law", desc: "Besteed 1-5 sorcery points: maak een Ward op een creature. Het absorbeert damage gelijk aan het aantal bestede d8's. Ward vervalt na long rest." }
+                        { name: "Bastion of Law", desc: "Spend 1-5 sorcery points: place a Ward on a creature. It absorbs damage equal to a number of d8s spent. The Ward fades after a Long Rest." }
                     ],
                     14: [
-                        { name: "Trance of Order", desc: "Bonus action: behandel elke d20 roll onder 10 als een 10 voor 1 minuut. 1x per long rest of 7 sorcery points." }
+                        { name: "Trance of Order", desc: "Bonus Action: for 1 minute, treat every d20 roll below 10 as a 10. Once per Long Rest, or by spending 7 sorcery points." }
                     ],
                     18: [
-                        { name: "Clockwork Cavalcade", desc: "Besteed 7 sorcery points: herstel 100 HP verdeeld over creatures in 30ft, repareer beschadigde objecten, beëindig spells van 6th level of lager." }
+                        { name: "Clockwork Cavalcade", desc: "Spend 7 sorcery points: restore 100 HP divided among creatures within 30ft, repair damaged objects, and end spells of 6th level or lower." }
                     ]
                 }
             },
@@ -293,13 +293,13 @@ const DATA = {
                         { name: "Telepathic Speech", desc: { nl: "Als bonus action, maak telepathisch contact met een creature binnen 30ft. Duurt een aantal minuten = sorcerer level. Geen taal nodig.", en: "As a Bonus Action, make telepathic contact with a creature within 30ft. Lasts a number of minutes = sorcerer level. No shared language needed." } }
                     ],
                     6: [
-                        { name: "Psionic Sorcery", desc: "Cast sorcerer spells met sorcery points i.p.v. spell slots (kosten = spell level). Als je zo cast, heb je geen verbal/somatic components nodig." }
+                        { name: "Psionic Sorcery", desc: "Cast sorcerer spells with sorcery points instead of spell slots (cost = spell level). Cast this way, spells need no verbal or somatic components." }
                     ],
                     14: [
-                        { name: "Psychic Defenses", desc: "Resistance tegen psychic damage. Advantage op saving throws tegen charmed en frightened." }
+                        { name: "Psychic Defenses", desc: "Resistance to psychic damage. Advantage on saving throws against the Charmed and Frightened conditions." }
                     ],
                     18: [
-                        { name: "Warping Implosion", desc: "Teleporteer tot 120ft. Elke creature in 30ft van je vorige positie: STR save of 3d10 force damage en naar je oude positie getrokken. 1x per long rest of 5 sorcery points." }
+                        { name: "Warping Implosion", desc: "Teleport up to 120ft. Each creature within 30ft of the space you left: STR save or 3d10 force damage and pulled toward your old position. Once per Long Rest, or for 5 sorcery points." }
                     ]
                 }
             }
@@ -325,61 +325,61 @@ const DATA = {
 
         features: {
             1: [
-                { name: "Expertise", desc: "Kies 2 skills met proficiency (of thieves' tools). Je proficiency bonus wordt verdubbeld voor die checks." },
-                { name: "Sneak Attack", desc: "Eén keer per beurt extra schade als je advantage hebt of een ally binnen 5ft van het doelwit staat. Finesse of ranged weapon vereist." },
-                { name: "Thieves' Cant", desc: "Geheime dieventaal. Je kunt verborgen berichten achterlaten en begrijpen in gesprekken." },
-                { name: "Weapon Mastery", desc: "Je beheerst 2 weapon mastery properties. Kies 2 finesse of light wapens waarmee je de mastery property activeert." }
+                { name: "Expertise", desc: "Choose 2 skills you're proficient in (or Thieves' Tools). Your proficiency bonus is doubled for those checks." },
+                { name: "Sneak Attack", desc: "Once per turn, deal extra damage when you have advantage or an ally is within 5ft of the target. Requires a finesse or ranged weapon." },
+                { name: "Thieves' Cant", desc: "The secret language of thieves. You can leave and understand hidden messages in conversation." },
+                { name: "Weapon Mastery", desc: "You can use the mastery property of 2 weapons. Choose 2 finesse or light weapons to activate it with." }
             ],
             2: [
                 { name: "Cunning Action", desc: "Bonus action om te Dash, Disengage of Hide." }
             ],
             3: [
-                { name: "Roguish Archetype", desc: "Kies je subclass. Dit bepaalt je specialisatie als rogue." },
-                { name: "Steady Aim", desc: "Bonus action: advantage op je volgende attack roll deze beurt. Alleen als je nog niet bewogen hebt; je speed is 0 tot het einde van je beurt." }
+                { name: "Roguish Archetype", desc: "Choose your subclass. It defines your specialisation as a rogue." },
+                { name: "Steady Aim", desc: "Bonus Action: advantage on your next attack roll this turn. Only if you haven't moved yet; your speed becomes 0 until the end of your turn." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             5: [
-                { name: "Uncanny Dodge", desc: "Reaction: als een attacker die je kunt zien je raakt, halveer de damage van die aanval." },
-                { name: "Cunning Strike", desc: "Offer Sneak Attack dice op voor extra effecten: Disarm (1d6), Poison (1d6, CON save of poisoned), Trip (1d6, DEX save of prone), Withdraw (1d6, geen opportunity attack)." }
+                { name: "Uncanny Dodge", desc: "Reaction: when an attacker you can see hits you, halve that attack's damage." },
+                { name: "Cunning Strike", desc: "Trade Sneak Attack dice for extra effects: Disarm (1d6), Poison (1d6, CON save or Poisoned), Trip (1d6, DEX save or Prone), Withdraw (1d6, no opportunity attacks)." }
             ],
             6: [
-                { name: "Expertise", desc: "Kies nog 2 extra skills (of thieves' tools) voor verdubbelde proficiency bonus." }
+                { name: "Expertise", desc: "Choose 2 more skills (or Thieves' Tools) to gain doubled proficiency bonus with." }
             ],
             7: [
-                { name: "Evasion", desc: "Bij een DEX saving throw voor halve damage: neem 0 damage bij succes, halve damage bij falen." }
+                { name: "Evasion", desc: "When you make a DEX saving throw for half damage: take no damage on a success and half damage on a failure." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             10: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             11: [
-                { name: "Reliable Talent", desc: "Als je een ability check maakt waar je proficiency hebt, wordt elke d20 roll van 9 of lager behandeld als een 10." }
+                { name: "Reliable Talent", desc: "When you make an ability check you're proficient in, treat any d20 roll of 9 or lower as a 10." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             14: [
-                { name: "Blindsense", desc: "Als je kunt horen, weet je de locatie van verborgen of onzichtbare creatures binnen 10ft." },
-                { name: "Devious Strikes", desc: "Extra Cunning Strike opties: Daze (2d6, CON save of disadvantage op attacks), Knock Out (6d6, CON save of unconscious 1 min), Obscure (3d6, target blinded tot einde volgende beurt)." }
+                { name: "Blindsense", desc: "As long as you can hear, you know the location of hidden or invisible creatures within 10ft." },
+                { name: "Devious Strikes", desc: "Extra Cunning Strike options: Daze (2d6, CON save or disadvantage on attacks), Knock Out (6d6, CON save or Unconscious 1 min), Obscure (3d6, target Blinded until the end of its next turn)." }
             ],
             15: [
-                { name: "Slippery Mind", desc: "Je krijgt proficiency in Wisdom saving throws." }
+                { name: "Slippery Mind", desc: "You gain proficiency in Wisdom saving throws." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             18: [
-                { name: "Elusive", desc: "Geen attack roll heeft advantage tegen jou, zolang je niet incapacitated bent." }
+                { name: "Elusive", desc: "No attack roll has advantage against you while you aren't Incapacitated." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Stroke of Luck", desc: "Als je een aanval mist, verander het in een hit. Of bij een failed ability check, behandel de d20 als een 20. Eén keer per short/long rest." }
+                { name: "Stroke of Luck", desc: "Turn a missed attack into a hit, or treat the d20 of a failed ability check as a 20. Once per Short or Long Rest." }
             ]
         },
 
@@ -391,17 +391,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Skirmisher", desc: "Reaction: als een vijand binnen 5ft van je eindigt, kun je tot de helft van je speed wegbewegen zonder opportunity attacks." },
-                        { name: "Survivalist", desc: "Je krijgt proficiency in Nature en Survival. Je expertise in deze skills wordt verdubbeld." }
+                        { name: "Skirmisher", desc: "Reaction: when an enemy ends its turn within 5ft of you, move up to half your speed away without provoking opportunity attacks." },
+                        { name: "Survivalist", desc: "You gain proficiency in Nature and Survival, and gain Expertise in those skills." }
                     ],
                     9: [
-                        { name: "Superior Mobility", desc: "Je walking speed stijgt met 10ft. Dit geldt ook voor climb en swim speed als je die hebt." }
+                        { name: "Superior Mobility", desc: "Your walking speed increases by 10ft. This also applies to your climb and swim speeds if you have them." }
                     ],
                     13: [
-                        { name: "Ambush Master", desc: "Advantage op initiative rolls. De eerste creature die je raakt in de eerste ronde van combat krijgt alle allies advantage op attacks tegen dat doelwit tot het begin van je volgende beurt." }
+                        { name: "Ambush Master", desc: "Advantage on initiative rolls. The first creature you hit in the first round of combat grants all allies advantage on attacks against it until the start of your next turn." }
                     ],
                     17: [
-                        { name: "Sudden Strike", desc: "Als je de Attack action neemt, kun je een extra aanval doen als bonus action. Je kunt Sneak Attack op beide aanvallen toepassen, maar niet op hetzelfde doelwit." }
+                        { name: "Sudden Strike", desc: "When you take the Attack action, you can make an extra attack as a Bonus Action. You can apply Sneak Attack to both attacks, but not against the same target." }
                     ]
                 }
             },
@@ -410,17 +410,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Fast Hands", desc: "Bonus action: Sleight of Hand check, Thieves' Tools, of gebruik een object (Use an Object action)." },
-                        { name: "Second-Story Work", desc: "Climbing kost geen extra movement. Running jump afstand stijgt met DEX mod in feet." }
+                        { name: "Fast Hands", desc: "Bonus Action: make a Sleight of Hand check, use Thieves' Tools, or take the Use an Object action." },
+                        { name: "Second-Story Work", desc: "Climbing costs no extra movement. Your running jump distance increases by your DEX mod in feet." }
                     ],
                     9: [
-                        { name: "Supreme Sneak", desc: "Advantage op Stealth checks als je niet meer dan de helft van je speed beweegt deze beurt." }
+                        { name: "Supreme Sneak", desc: "Advantage on Stealth checks if you move no more than half your speed this turn." }
                     ],
                     13: [
-                        { name: "Use Magic Device", desc: "Je kunt elk magic item gebruiken, ongeacht class, race of level vereisten." }
+                        { name: "Use Magic Device", desc: "You can use any magic item, ignoring class, race, and level requirements." }
                     ],
                     17: [
-                        { name: "Thief's Reflexes", desc: "Je krijgt een extra beurt in de eerste ronde van combat (op je initiative -10)." }
+                        { name: "Thief's Reflexes", desc: "You get an extra turn in the first round of combat (at your initiative minus 10)." }
                     ]
                 }
             },
@@ -429,17 +429,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Assassinate", desc: "Advantage op attack rolls tegen creatures die nog niet hebben gehandeld in combat. Hits tegen surprised creatures zijn automatisch critical hits." },
-                        { name: "Bonus Proficiencies", desc: "Proficiency met Disguise Kit en Poisoner's Kit." }
+                        { name: "Assassinate", desc: "Advantage on attack rolls against creatures that haven't acted yet in combat. Hits against surprised creatures are automatic critical hits." },
+                        { name: "Bonus Proficiencies", desc: "Proficiency with the Disguise Kit and Poisoner's Kit." }
                     ],
                     9: [
-                        { name: "Infiltration Expertise", desc: "Besteed 25 gp en 7 dagen: creëer een valse identiteit met documenten, bekende geschiedenis en vermomming." }
+                        { name: "Infiltration Expertise", desc: "Spend 25 gp and 7 days to create a false identity with documents, an established history, and a disguise." }
                     ],
                     13: [
-                        { name: "Envenom Weapons", desc: "Besteed 1 minuut om vergif te bereiden. Eerstvolgende hit: extra 2d6 + proficiency bonus poison damage (CON save voor half). Uses = prof bonus per long rest." }
+                        { name: "Envenom Weapons", desc: "Spend 1 minute preparing poison. Your next hit deals an extra 2d6 + proficiency bonus poison damage (CON save for half). Uses = prof bonus per Long Rest." }
                     ],
                     17: [
-                        { name: "Death Strike", desc: "Als je een surprised creature raakt: CON save (DC 8 + DEX mod + prof) of de damage wordt verdubbeld." }
+                        { name: "Death Strike", desc: "When you hit a surprised creature: CON save (DC 8 + DEX mod + prof) or the damage is doubled." }
                     ]
                 }
             },
@@ -448,17 +448,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Spellcasting", desc: "Cast wizard spells (enchantment/illusion + vrije keuze) met INT. Third caster spell slots." },
-                        { name: "Mage Hand Legerdemain", desc: "Je Mage Hand is onzichtbaar. Bonus action: stuur het, gebruik Sleight of Hand op afstand, plant/haal objecten op." }
+                        { name: "Spellcasting", desc: "Cast wizard spells (enchantment/illusion plus free picks) using INT. Third-caster spell slots." },
+                        { name: "Mage Hand Legerdemain", desc: "Your Mage Hand is invisible. Bonus Action: direct it, use Sleight of Hand at range, or plant/retrieve objects." }
                     ],
                     9: [
-                        { name: "Magical Ambush", desc: "Als je verborgen bent en een spell cast: targets hebben disadvantage op de saving throw." }
+                        { name: "Magical Ambush", desc: "When you're hidden and cast a spell: targets have disadvantage on the saving throw." }
                     ],
                     13: [
-                        { name: "Versatile Trickster", desc: "Bonus action: gebruik Mage Hand om een creature te afleiden. Je hebt advantage op attacks tegen dat creature tot einde beurt." }
+                        { name: "Versatile Trickster", desc: "Bonus Action: use Mage Hand to distract a creature. You have advantage on attacks against it until the end of your turn." }
                     ],
                     17: [
-                        { name: "Spell Thief", desc: "Reaction: als een creature binnen 30ft een spell op jou cast, maak een Arcana check (DC 10 + spell level). Bij succes: de spell faalt en jij leert hem voor 8 uur. 1x per long rest." }
+                        { name: "Spell Thief", desc: "Reaction: when a creature within 30ft casts a spell at you, make an Arcana check (DC 10 + spell level). On a success the spell fails and you know it for 8 hours. Once per Long Rest." }
                     ]
                 }
             },
@@ -467,17 +467,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Psionic Power", desc: "Je hebt Psionic Energy dice (d6, stijgt). Aantal = 2x prof bonus. Gebruik voor Psi-Bolstered Knack (+die aan failed skill check) of Psychic Whispers (telepathie met creatures)." },
-                        { name: "Psychic Blades", desc: "Als je de Attack action neemt: manifesteer een psychic blade (1d6 psychic, finesse, thrown 60ft). Bonus action: tweede blade (1d4)." }
+                        { name: "Psionic Power", desc: "You have Psionic Energy dice (d6, growing later). Amount = 2x prof bonus. Spend them on Psi-Bolstered Knack (add a die to a failed skill check) or Psychic Whispers (telepathy with creatures)." },
+                        { name: "Psychic Blades", desc: "When you take the Attack action: manifest a psychic blade (1d6 psychic, finesse, thrown 60ft). Bonus Action: a second blade (1d4)." }
                     ],
                     9: [
-                        { name: "Soul Blades", desc: "Homing Strikes: als Psychic Blade mist, besteed Psionic Energy die om te herrolling (+ die to attack). Psychic Teleportation: besteed die om tot 10x result in ft te teleporteren." }
+                        { name: "Soul Blades", desc: "Homing Strikes: when a Psychic Blade misses, spend a Psionic Energy die to add it to the attack roll. Psychic Teleportation: spend a die to teleport up to 10x the result in feet." }
                     ],
                     13: [
-                        { name: "Psychic Veil", desc: "Als bonus action word je onzichtbaar voor 1 uur (of tot je aanvalt/een spell cast). 1x per long rest of besteed Psionic Energy die." }
+                        { name: "Psychic Veil", desc: "Bonus Action: become invisible for 1 hour (or until you attack or cast a spell). Once per Long Rest, or by spending a Psionic Energy die." }
                     ],
                     17: [
-                        { name: "Rend Mind", desc: "Bij Sneak Attack met Psychic Blades: target maakt WIS save of stunned voor 1 minuut (save einde beurt). 1x per long rest of 3 Psionic Energy dice." }
+                        { name: "Rend Mind", desc: "On a Sneak Attack with your Psychic Blades: the target makes a WIS save or is Stunned for 1 minute (repeat save at end of turns). Once per Long Rest, or for 3 Psionic Energy dice." }
                     ]
                 }
             }
@@ -561,35 +561,35 @@ const DATA = {
                 { name: "Ranger Subclass", desc: "Choose your Ranger subclass: Beast Master, Fey Wanderer, Gloom Stalker or Hunter." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             5: [
-                { name: "Extra Attack", desc: "Je kunt twee keer aanvallen in plaats van één keer als je de Attack action neemt." }
+                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." }
             ],
             6: [
-                { name: "Roving", desc: "Je walking speed stijgt met 5ft. Je krijgt een climbing speed en swimming speed gelijk aan je walking speed." }
+                { name: "Roving", desc: "Your walking speed increases by 5ft, and you gain a climbing and swimming speed equal to your walking speed." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             10: [
-                { name: "Nature's Veil", desc: "Als bonus action word je onzichtbaar tot het begin van je volgende beurt. Aantal keer per long rest = proficiency bonus." },
-                { name: "Tireless", desc: "Als action, krijg temporary HP gelijk aan 1d8 + WIS modifier. Aantal keer per long rest = proficiency bonus. Bij een short rest verminder je 1 level of exhaustion." }
+                { name: "Nature's Veil", desc: "Bonus Action: become invisible until the start of your next turn. Uses per Long Rest = proficiency bonus." },
+                { name: "Tireless", desc: "As an action, gain temporary HP equal to 1d8 + WIS modifier. Uses per Long Rest = proficiency bonus. On a Short Rest you also reduce your exhaustion by 1 level." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             18: [
-                { name: "Feral Senses", desc: "Je hebt blindsight 30ft. Onzichtbare creatures krijgen geen advantage op attacks tegen jou." }
+                { name: "Feral Senses", desc: "You have Blindsight 30ft. Invisible creatures gain no advantage on attacks against you." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Foe Slayer", desc: "Eén keer per beurt voeg je WIS modifier toe aan een attack roll of damage roll." }
+                { name: "Foe Slayer", desc: "Once per turn, add your WIS modifier to an attack roll or damage roll." }
             ]
         },
 
@@ -599,17 +599,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Hunter's Prey", desc: "Kies één optie: Colossus Slayer (+1d8 damage 1x/beurt tegen gewonde targets), Giant Killer (reaction aanval tegen Large+ creatures die je missen), of Horde Breaker (1 extra aanval per beurt tegen een ander target binnen 5ft)." },
-                        { name: "Hunter's Lore", desc: "Je kunt als actie een creature bestuderen. Je leert of het immuniteiten, resistances, of vulnerabilities heeft." }
+                        { name: "Hunter's Prey", desc: "Choose one option: Colossus Slayer (+1d8 damage once per turn against wounded targets), Giant Killer (reaction attack against Large+ creatures that miss you), or Horde Breaker (one extra attack per turn against a different target within 5ft)." },
+                        { name: "Hunter's Lore", desc: "As an action, study a creature to learn whether it has immunities, resistances, or vulnerabilities." }
                     ],
                     7: [
-                        { name: "Defensive Tactics", desc: "Kies één optie: Escape the Horde (opportunity attacks tegen jou hebben disadvantage), Multiattack Defense (+4 AC na eerste hit van een creature), of Steel Will (advantage op saves tegen frightened)." }
+                        { name: "Defensive Tactics", desc: "Choose one option: Escape the Horde (opportunity attacks against you have disadvantage), Multiattack Defense (+4 AC after a creature's first hit), or Steel Will (advantage on saves against Frightened)." }
                     ],
                     11: [
-                        { name: "Multiattack", desc: "Kies één optie: Volley (ranged attack tegen elk creature binnen 10ft van een punt, 1 ammo per target) of Whirlwind Attack (melee attack tegen elk creature binnen 5ft)." }
+                        { name: "Multiattack", desc: "Choose one option: Volley (ranged attack against every creature within 10ft of a point, 1 piece of ammo per target) or Whirlwind Attack (melee attack against every creature within 5ft)." }
                     ],
                     15: [
-                        { name: "Superior Hunter's Defense", desc: "Kies één optie: Evasion (0 damage bij DEX save succes), Stand Against the Tide (redirect missed melee attack naar ander creature), of Uncanny Dodge (halveer damage van een aanval als reaction)." }
+                        { name: "Superior Hunter's Defense", desc: "Choose one option: Evasion (no damage on a successful DEX save), Stand Against the Tide (redirect a missed melee attack to another creature), or Uncanny Dodge (halve an attack's damage as a reaction)." }
                     ]
                 }
             },
@@ -618,16 +618,16 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Primal Companion", desc: "Je roept een Primal Companion op: kies Beast of the Land, Sea of Sky. Elk heeft een eigen stat block. Het beast valt aan op jouw commando (jouw bonus action). Temp HP = 5x ranger level." }
+                        { name: "Primal Companion", desc: "Summon a Primal Companion: choose Beast of the Land, Sea, or Sky, each with its own stat block. The beast attacks on your command (your Bonus Action). Temp HP = 5x ranger level." }
                     ],
                     7: [
-                        { name: "Exceptional Training", desc: "Als bonus action kun je je beast commanderen om Dash, Dodge of Help te gebruiken." }
+                        { name: "Exceptional Training", desc: "Bonus Action: command your beast to Dash, Dodge, or Help." }
                     ],
                     11: [
-                        { name: "Bestial Fury", desc: "Je beast kan twee keer aanvallen als het de Attack action neemt." }
+                        { name: "Bestial Fury", desc: "Your beast can attack twice when it takes the Attack action." }
                     ],
                     15: [
-                        { name: "Share Spells", desc: "Spells die je op jezelf cast en een range van Self hebben, beïnvloeden ook je beast als het binnen 30ft is." }
+                        { name: "Share Spells", desc: "Spells you cast on yourself with a range of Self also affect your beast if it's within 30ft." }
                     ]
                 }
             },
@@ -636,18 +636,18 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Dreadful Strikes", desc: "1x per beurt als je een creature raakt met een weapon attack: +1d4 psychic damage." },
+                        { name: "Dreadful Strikes", desc: "Once per turn when you hit a creature with a weapon attack: +1d4 psychic damage." },
                         { name: "Fey Wanderer Magic", desc: "Bonus spells altijd prepared: Charm Person (3rd), Misty Step (5th), Dispel Magic (9th), Dimension Door (13th), Mislead (17th)." },
-                        { name: "Otherworldly Glamour", desc: "Voeg je WIS modifier toe aan CHA checks. Je krijgt proficiency in Deception, Performance of Persuasion." }
+                        { name: "Otherworldly Glamour", desc: "Add your WIS modifier to CHA checks. You gain proficiency in Deception, Performance, or Persuasion." }
                     ],
                     7: [
-                        { name: "Beguiling Twist", desc: "Als een creature binnen 120ft slaagt op een save tegen charmed of frightened: redirect het effect als reaction naar een ander creature binnen 120ft (WIS save)." }
+                        { name: "Beguiling Twist", desc: "When a creature within 120ft succeeds on a save against Charmed or Frightened: as a reaction, redirect the effect to another creature within 120ft (WIS save)." }
                     ],
                     11: [
-                        { name: "Fey Reinforcements", desc: "Cast Summon Fey 1x per long rest zonder spell slot. Je kunt het ook casten met spell slots." }
+                        { name: "Fey Reinforcements", desc: "Cast Summon Fey once per Long Rest without a spell slot. You can also cast it with spell slots." }
                     ],
                     15: [
-                        { name: "Misty Wanderer", desc: "Cast Misty Step gratis een aantal keer gelijk aan je proficiency bonus per long rest. Als je Misty Step cast, kun je 1 willing creature binnen 5ft meenemen." }
+                        { name: "Misty Wanderer", desc: "Cast Misty Step for free a number of times equal to your proficiency bonus per Long Rest. When you cast Misty Step, you can bring along 1 willing creature within 5ft." }
                     ]
                 }
             },
@@ -656,17 +656,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Dread Ambusher", desc: "Voeg WIS modifier toe aan initiative rolls. In de eerste ronde van combat: +10ft walking speed en een extra attack die +1d8 damage doet." },
-                        { name: "Umbral Sight", desc: "Je krijgt darkvision 60ft (of +30ft als je al darkvision hebt). Je bent onzichtbaar voor creatures die op darkvision vertrouwen om jou te zien." }
+                        { name: "Dread Ambusher", desc: "Add your WIS modifier to initiative rolls. In the first round of combat: +10ft walking speed and one extra attack dealing +1d8 damage." },
+                        { name: "Umbral Sight", desc: "You gain Darkvision 60ft (or +30ft if you already have it). You are invisible to creatures that rely on darkvision to see you." }
                     ],
                     7: [
-                        { name: "Iron Mind", desc: "Je krijgt proficiency in WIS saving throws. Als je dat al hebt, kies INT of CHA saves." }
+                        { name: "Iron Mind", desc: "You gain proficiency in WIS saving throws. If you already have it, choose INT or CHA saves instead." }
                     ],
                     11: [
-                        { name: "Stalker's Flurry", desc: "Als je mist met een attack, kun je direct een extra attack maken tegen hetzelfde target." }
+                        { name: "Stalker's Flurry", desc: "When you miss with an attack, you can immediately make an extra attack against the same target." }
                     ],
                     15: [
-                        { name: "Shadowy Dodge", desc: "Reaction: als een creature een attack roll maakt tegen jou, leg disadvantage op die attack roll." }
+                        { name: "Shadowy Dodge", desc: "Reaction: when a creature makes an attack roll against you, impose disadvantage on that attack roll." }
                     ]
                 }
             }
@@ -711,116 +711,116 @@ const DATA = {
 
         features: {
             1: [
-                { name: "Spellcasting", desc: "Cast wizard spells met INT als spellcasting ability. Je bereidt spells voor uit je spellbook: INT mod + wizard level." },
-                { name: "Ritual Adept", desc: "Je kunt elke spell in je spellbook als ritual casten als die spell de ritual tag heeft. De spell hoeft niet voorbereid te zijn." },
-                { name: "Arcane Recovery", desc: "Eén keer per dag na een short rest: herstel spell slots met een totaal level gelijk aan de helft van je wizard level (afgerond naar boven)." }
+                { name: "Spellcasting", desc: "Cast Wizard spells with Intelligence as your spellcasting ability. You prepare a fixed number of spells (4 at level 1) and can change your entire prepared list when you finish a Long Rest." },
+                { name: "Ritual Adept", desc: "You can cast any spell in your spellbook as a Ritual if it has the Ritual tag. The spell doesn't need to be prepared." },
+                { name: "Arcane Recovery", desc: "Once per day when you finish a Short Rest: recover spell slots with a combined level equal to half your Wizard level (round up)." }
             ],
             2: [
-                { name: "Scholar", desc: "Je krijgt expertise in een van de volgende skills: Arcana, History, Investigation, Medicine, Nature, of Religion." }
+                { name: "Scholar", desc: "You gain Expertise in one of the following skills you're proficient in: Arcana, History, Investigation, Medicine, Nature, or Religion." }
             ],
             3: [
-                { name: "Arcane Tradition", desc: "Kies je subclass: een school of magic waarin je specialiseert." }
+                { name: "Arcane Tradition", desc: "Choose your subclass: the school of magic you specialise in." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             5: [
-                { name: "Memorize Spell", desc: "Na een short rest kun je 1 prepared spell wisselen voor een andere spell uit je spellbook." }
+                { name: "Memorize Spell", desc: "When you finish a Short Rest, you can swap 1 prepared spell for another spell from your spellbook." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             18: [
-                { name: "Spell Mastery", desc: "Kies een 1st-level en een 2nd-level wizard spell. Je kunt ze casten op hun laagste level zonder een spell slot te gebruiken." }
+                { name: "Spell Mastery", desc: "Choose a 1st-level and a 2nd-level wizard spell. You can cast them at their lowest level without expending a spell slot." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Signature Spells", desc: "Kies twee 3rd-level wizard spells. Ze zijn altijd voorbereid en je kunt elk eens per short/long rest casten zonder spell slot." }
+                { name: "Signature Spells", desc: "Choose two 3rd-level wizard spells. They are always prepared and you can cast each once per Short or Long Rest without a spell slot." }
             ]
         },
 
         subclasses: {
             evocation: {
-                name: "School of Evocation",
+                name: "Evoker",
                 level: 3,
                 features: {
                     3: [
-                        { name: "Evocation Savant", desc: "Evocation spells kopiëren naar je spellbook kost half zoveel tijd en goud." },
-                        { name: "Sculpt Spells", desc: "Als je een evocation spell cast die andere creatures raakt, kun je tot 1 + spell level creatures kiezen die automatisch slagen op hun save en geen damage nemen." }
+                        { name: "Evocation Savant", desc: "Copying evocation spells into your spellbook takes half the usual time and gold." },
+                        { name: "Sculpt Spells", desc: "When you cast an evocation spell that affects other creatures, you can choose up to 1 + spell level creatures that automatically succeed on their save and take no damage." }
                     ],
                     6: [
-                        { name: "Potent Cantrip", desc: "Als een creature slaagt op een saving throw tegen je cantrip, neemt het nog steeds de helft van de damage." }
+                        { name: "Potent Cantrip", desc: "When a creature succeeds on a saving throw against your cantrip, it still takes half the damage." }
                     ],
                     10: [
-                        { name: "Empowered Evocation", desc: "Voeg je INT modifier toe aan de damage van elke evocation spell die je cast." }
+                        { name: "Empowered Evocation", desc: "Add your INT modifier to the damage of any evocation spell you cast." }
                     ],
                     14: [
-                        { name: "Overchannel", desc: "Als je een wizard spell van 5th level of lager cast, deal maximum damage. Na het eerste gebruik per long rest neem je 2d12 necrotic damage per spell level (stijgt bij herhaald gebruik)." }
+                        { name: "Overchannel", desc: "When you cast a wizard spell of 5th level or lower, deal maximum damage. After the first use per Long Rest you take 2d12 necrotic damage per spell level (rising with repeated use)." }
                     ]
                 }
             },
             abjuration: {
-                name: "School of Abjuration",
+                name: "Abjurer",
                 level: 3,
                 features: {
                     3: [
-                        { name: "Abjuration Savant", desc: "Abjuration spells kopiëren naar je spellbook kost half zoveel tijd en goud." },
-                        { name: "Arcane Ward", desc: "Als je een abjuration spell van 1st level+ cast, creëer je een magisch schild met HP = 2x wizard level + INT modifier. Als je meer abjuration spells cast, wordt het schild aangevuld met 2x spell level HP." }
+                        { name: "Abjuration Savant", desc: "Copying abjuration spells into your spellbook takes half the usual time and gold." },
+                        { name: "Arcane Ward", desc: "When you cast an abjuration spell of 1st level or higher, you create a magical ward with HP = 2x wizard level + INT modifier. Casting more abjuration spells replenishes the ward by 2x spell level HP." }
                     ],
                     6: [
-                        { name: "Projected Ward", desc: "Als een creature binnen 30ft damage neemt, kun je als reaction je Arcane Ward gebruiken om de damage te absorberen." }
+                        { name: "Projected Ward", desc: "When a creature within 30ft takes damage, you can use your reaction to let your Arcane Ward absorb that damage." }
                     ],
                     10: [
-                        { name: "Improved Abjuration", desc: "Voeg je proficiency bonus toe aan ability checks voor Counterspell en Dispel Magic." }
+                        { name: "Improved Abjuration", desc: "Add your proficiency bonus to ability checks for Counterspell and Dispel Magic." }
                     ],
                     14: [
-                        { name: "Spell Resistance", desc: "Je hebt advantage op saving throws tegen spells. Je hebt resistance tegen damage van spells." }
+                        { name: "Spell Resistance", desc: "You have advantage on saving throws against spells, and resistance to damage from spells." }
                     ]
                 }
             },
             divination: {
-                name: "School of Divination",
+                name: "Diviner",
                 level: 3,
                 features: {
                     3: [
-                        { name: "Divination Savant", desc: "Divination spells kopiëren naar je spellbook kost half zoveel tijd en goud." },
-                        { name: "Portent", desc: "Na een long rest: rol 2d20 en noteer de resultaten. Je kunt een opgeslagen roll gebruiken om elke attack roll, saving throw of ability check te vervangen (voor de roll)." }
+                        { name: "Divination Savant", desc: "Copying divination spells into your spellbook takes half the usual time and gold." },
+                        { name: "Portent", desc: "After a Long Rest: roll 2d20 and record the results. You can replace any attack roll, saving throw, or ability check with a stored roll (before the roll is made)." }
                     ],
                     6: [
-                        { name: "Expert Divination", desc: "Als je een divination spell van 2nd level+ cast, herstel je een spell slot van een lager level dan de gecastte spell." }
+                        { name: "Expert Divination", desc: "When you cast a divination spell of 2nd level or higher, you regain a spell slot of a lower level than the spell cast." }
                     ],
                     10: [
-                        { name: "The Third Eye", desc: "Als action, kies één optie (duurt tot je een short/long rest neemt): darkvision 120ft, ethereal sight 60ft, see invisibility 10ft, of lees elke taal." }
+                        { name: "The Third Eye", desc: "As an action, choose one option (lasting until you take a Short or Long Rest): darkvision 120ft, ethereal sight 60ft, see invisibility 10ft, or read any language." }
                     ],
                     14: [
-                        { name: "Greater Portent", desc: "Je rolt 3d20 voor Portent in plaats van 2d20." }
+                        { name: "Greater Portent", desc: "You roll 3d20 for Portent instead of 2d20." }
                     ]
                 }
             },
             illusion: {
-                name: "School of Illusion",
+                name: "Illusionist",
                 level: 3,
                 features: {
                     3: [
-                        { name: "Illusion Savant", desc: "Illusion spells kopiëren naar je spellbook kost half zoveel tijd en goud." },
-                        { name: "Improved Minor Illusion", desc: "Je leert de Minor Illusion cantrip. Je kunt zowel geluid als beeld tegelijk creëren." }
+                        { name: "Illusion Savant", desc: "Copying illusion spells into your spellbook takes half the usual time and gold." },
+                        { name: "Improved Minor Illusion", desc: "You learn the Minor Illusion cantrip and can create both a sound and an image with a single casting." }
                     ],
                     6: [
-                        { name: "Malleable Illusions", desc: "Als action kun je de aard van een illusie die je hebt gecreëerd veranderen (binnen de beperkingen van de spell)." }
+                        { name: "Malleable Illusions", desc: "As an action, you can change the nature of an illusion you created (within the spell's limits)." }
                     ],
                     10: [
-                        { name: "Illusory Self", desc: "Reaction: als een creature een attack roll tegen je maakt, creëer een illusoire dubbelganger. De aanval mist automatisch. 1x per short/long rest." }
+                        { name: "Illusory Self", desc: "Reaction: when a creature makes an attack roll against you, create an illusory duplicate of yourself. The attack automatically misses. Once per Short or Long Rest." }
                     ],
                     14: [
-                        { name: "Illusory Reality", desc: "Als je een illusion spell van 1st level+ cast, kun je één element van de illusie echt maken voor 1 minuut. Het object kan niet direct damage doen." }
+                        { name: "Illusory Reality", desc: "When you cast an illusion spell of 1st level or higher, you can make one element of the illusion real for 1 minute. The object can't deal damage directly." }
                     ]
                 }
             }
@@ -857,38 +857,38 @@ const DATA = {
                 { name: "Channel Divinity", desc: "Channel divine energy: Divine Sense (Bonus Action, 10 min: sense Celestials, Fiends and Undead within 60ft) plus your oath's option. Two uses (three at level 11); regain one on a Short Rest, all on a Long Rest." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             5: [
-                { name: "Extra Attack", desc: "Je kunt twee keer aanvallen in plaats van één keer als je de Attack action neemt." },
-                { name: "Faithful Steed", desc: "Find Steed is altijd prepared en je kunt het 1x gratis per long rest casten zonder spell slot." }
+                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." },
+                { name: "Faithful Steed", desc: "Find Steed is always prepared and you can cast it once per Long Rest without a spell slot." }
             ],
             6: [
-                { name: "Aura of Protection", desc: "Jij en friendly creatures binnen 10ft krijgen een bonus op saving throws gelijk aan je CHA modifier (min +1). Op level 18 wordt dit 30ft." }
+                { name: "Aura of Protection", desc: "You and friendly creatures within 10ft gain a bonus to saving throws equal to your CHA modifier (min +1). At level 18 this grows to 30ft." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             9: [
-                { name: "Abjure Foes", desc: "Channel Divinity: creatures naar keuze binnen 60ft maken WIS save of zijn frightened voor 1 minuut. Speed 0 terwijl frightened." }
+                { name: "Abjure Foes", desc: "Channel Divinity: creatures of your choice within 60ft make a WIS save or are Frightened for 1 minute, with speed 0 while Frightened." }
             ],
             10: [
-                { name: "Aura of Courage", desc: "Jij en friendly creatures binnen 10ft kunnen niet frightened zijn terwijl je bij bewustzijn bent. Op level 18 wordt dit 30ft." }
+                { name: "Aura of Courage", desc: "You and friendly creatures within 10ft can't be Frightened while you are conscious. At level 18 this grows to 30ft." }
             ],
             11: [
-                { name: "Radiant Strikes", desc: "Al je melee weapon attacks doen een extra 1d8 radiant damage." }
+                { name: "Radiant Strikes", desc: "All your melee weapon attacks deal an extra 1d8 radiant damage." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             14: [
-                { name: "Restoring Touch", desc: "Als action via Lay on Hands: beëindig een condition (blinded, charmed, deafened, frightened, paralyzed, stunned) door 5 HP uit je pool te besteden." }
+                { name: "Restoring Touch", desc: "As an action via Lay On Hands: end one condition (Blinded, Charmed, Deafened, Frightened, Paralyzed, or Stunned) by spending 5 HP from your pool." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ]
         },
 
@@ -898,17 +898,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Sacred Weapon", desc: "Channel Divinity: Als action, voeg CHA modifier toe aan attack rolls met één wapen voor 1 minuut. Het wapen geeft ook bright light in 20ft." },
-                        { name: "Turn the Unholy", desc: "Channel Divinity: Elk fiend en undead binnen 30ft moet een WIS save doen of is 1 minuut turned." }
+                        { name: "Sacred Weapon", desc: "Channel Divinity: as an action, add your CHA modifier to attack rolls with one weapon for 1 minute. The weapon also sheds bright light in 20ft." },
+                        { name: "Turn the Unholy", desc: "Channel Divinity: every fiend and undead within 30ft makes a WIS save or is Turned for 1 minute." }
                     ],
                     7: [
-                        { name: "Aura of Devotion", desc: "Jij en vriendelijke creatures binnen 10ft kunnen niet charmed worden. Op level 18 wordt dit 30ft." }
+                        { name: "Aura of Devotion", desc: "You and friendly creatures within 10ft can't be Charmed. At level 18 this grows to 30ft." }
                     ],
                     15: [
-                        { name: "Purity of Spirit", desc: "Je bent altijd onder het effect van Protection from Evil and Good." }
+                        { name: "Purity of Spirit", desc: "You are always under the effect of Protection from Evil and Good." }
                     ],
                     20: [
-                        { name: "Holy Nimbus", desc: "Als action: 1 minuut lang 30ft bright light, vijanden in 10ft nemen 10 radiant damage per beurt. Advantage op saves tegen fiend en undead spells. 1x per long rest." }
+                        { name: "Holy Nimbus", desc: "As an action: for 1 minute you shed bright light in 30ft, and enemies within 10ft take 10 radiant damage each turn. Advantage on saves against spells of fiends and undead. Once per Long Rest." }
                     ]
                 }
             },
@@ -917,18 +917,18 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Nature's Wrath", desc: "Channel Divinity: een creature naar keuze binnen 10ft moet een STR of DEX save (hun keuze) doen of wordt restrained door spectrale wijnranken tot het slaagt of de spell eindigt." },
-                        { name: "Turn the Faithless", desc: "Channel Divinity: elk fey en fiend binnen 30ft moet een WIS save doen of is 1 minuut turned." },
+                        { name: "Nature's Wrath", desc: "Channel Divinity: a creature of your choice within 10ft makes a STR or DEX save (its choice) or is Restrained by spectral vines until it succeeds or the effect ends." },
+                        { name: "Turn the Faithless", desc: "Channel Divinity: every fey and fiend within 30ft makes a WIS save or is Turned for 1 minute." },
                         { name: "Oath Spells", desc: "Altijd prepared: Ensnaring Strike, Speak with Animals (3rd), Moonbeam, Misty Step (5th), Plant Growth, Protection from Energy (9th), Ice Storm, Stoneskin (13th), Commune with Nature, Tree Stride (17th)." }
                     ],
                     7: [
-                        { name: "Aura of Warding", desc: "Jij en friendly creatures binnen 10ft hebben resistance tegen damage van spells. Op level 18 wordt dit 30ft." }
+                        { name: "Aura of Warding", desc: "You and friendly creatures within 10ft have resistance to damage from spells. At level 18 this grows to 30ft." }
                     ],
                     15: [
-                        { name: "Undying Sentinel", desc: "Als je naar 0 HP zou gaan, ga je in plaats daarvan naar 1 HP. 1x per long rest. Je lijdt ook niet onder de nadelen van ouderdom en kunt niet magisch verouderd worden." }
+                        { name: "Undying Sentinel", desc: "When you would drop to 0 HP, you drop to 1 HP instead. Once per Long Rest. You also suffer none of the drawbacks of old age and can't be aged magically." }
                     ],
                     20: [
-                        { name: "Elder Champion", desc: "Als action, transformeer voor 1 minuut: herstel 10 HP aan het begin van elke beurt, paladin spells met casting time 1 action worden bonus action, vijanden binnen 10ft hebben disadvantage op saves tegen jouw spells en Channel Divinity. 1x per long rest." }
+                        { name: "Elder Champion", desc: "As an action, transform for 1 minute: regain 10 HP at the start of each of your turns, paladin spells with a casting time of 1 action become a Bonus Action, and enemies within 10ft have disadvantage on saves against your spells and Channel Divinity. Once per Long Rest." }
                     ]
                 }
             },
@@ -937,18 +937,18 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Peerless Athlete", desc: "Channel Divinity: als bonus action, +10ft jump distance, advantage op Athletics en Acrobatics checks voor 10 minuten." },
-                        { name: "Inspiring Smite", desc: "Channel Divinity: direct na een Divine Smite, verdeel temp HP gelijk aan 2d8 + paladin level over creatures naar keuze binnen 30ft." },
+                        { name: "Peerless Athlete", desc: "Channel Divinity: as a Bonus Action, +10ft jump distance and advantage on Athletics and Acrobatics checks for 10 minutes." },
+                        { name: "Inspiring Smite", desc: "Channel Divinity: immediately after a Divine Smite, distribute temp HP equal to 2d8 + paladin level among creatures of your choice within 30ft." },
                         { name: "Oath Spells", desc: "Altijd prepared: Guiding Bolt, Heroism (3rd), Enhance Ability, Magic Weapon (5th), Haste, Protection from Energy (9th), Compulsion, Freedom of Movement (13th), Commune, Flame Strike (17th)." }
                     ],
                     7: [
-                        { name: "Aura of Alacrity", desc: "Jij en friendly creatures binnen 10ft krijgen +10ft walking speed. Op level 18 wordt dit 30ft." }
+                        { name: "Aura of Alacrity", desc: "You and friendly creatures within 10ft gain +10ft walking speed. At level 18 this grows to 30ft." }
                     ],
                     15: [
-                        { name: "Glorious Defense", desc: "Reaction: als een creature binnen 10ft geraakt wordt door een attack, voeg je CHA modifier toe aan de AC van het target. Als de attack daardoor mist, mag je een weapon attack maken tegen de aanvaller." }
+                        { name: "Glorious Defense", desc: "Reaction: when a creature within 10ft is hit by an attack, add your CHA modifier to the target's AC. If that makes the attack miss, you can make a weapon attack against the attacker." }
                     ],
                     20: [
-                        { name: "Living Legend", desc: "Als bonus action voor 1 minuut: advantage op CHA checks, een gemiste weapon attack wordt 1x per beurt een hit, advantage op saving throws tegen spells. 1x per long rest." }
+                        { name: "Living Legend", desc: "As a Bonus Action, for 1 minute: advantage on CHA checks, one missed weapon attack per turn becomes a hit, and advantage on saving throws against spells. Once per Long Rest." }
                     ]
                 }
             },
@@ -957,18 +957,18 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Abjure Enemy", desc: "Channel Divinity: kies een creature binnen 60ft, WIS save of frightened voor 1 minuut met speed 0. Fiends en undead hebben disadvantage op de save." },
-                        { name: "Vow of Enmity", desc: "Channel Divinity: als bonus action, kies een creature binnen 10ft. Je hebt advantage op attack rolls tegen dat creature voor 1 minuut." },
+                        { name: "Abjure Enemy", desc: "Channel Divinity: choose a creature within 60ft; WIS save or Frightened for 1 minute with speed 0. Fiends and undead have disadvantage on the save." },
+                        { name: "Vow of Enmity", desc: "Channel Divinity: as a Bonus Action, choose a creature within 10ft. You have advantage on attack rolls against it for 1 minute." },
                         { name: "Oath Spells", desc: "Altijd prepared: Bane, Hunter's Mark (3rd), Hold Person, Misty Step (5th), Haste, Protection from Energy (9th), Banishment, Dimension Door (13th), Hold Monster, Scrying (17th)." }
                     ],
                     7: [
-                        { name: "Relentless Avenger", desc: "Als je een creature raakt met een opportunity attack, kun je daarna tot de helft van je speed bewegen als onderdeel van dezelfde reaction." }
+                        { name: "Relentless Avenger", desc: "When you hit a creature with an opportunity attack, you can then move up to half your speed as part of the same reaction." }
                     ],
                     15: [
-                        { name: "Soul of Vengeance", desc: "Als een creature waarop je Vow of Enmity actief is een attack maakt, kun je als reaction een melee weapon attack maken tegen dat creature." }
+                        { name: "Soul of Vengeance", desc: "When the creature under your Vow of Enmity makes an attack, you can use your reaction to make a melee weapon attack against it." }
                     ],
                     20: [
-                        { name: "Avenging Angel", desc: "Als action, transformeer voor 1 uur: je krijgt vleugels (fly speed 60ft) en een 30ft aura. Vijanden die de aura voor het eerst betreden of hun beurt erin beginnen: WIS save of frightened voor 1 minuut. 1x per long rest." }
+                        { name: "Avenging Angel", desc: "As an action, transform for 1 hour: you gain wings (fly speed 60ft) and a 30ft aura. Enemies that enter the aura for the first time or start their turn there: WIS save or Frightened for 1 minute. Once per Long Rest." }
                     ]
                 }
             }
@@ -1015,36 +1015,37 @@ const DATA = {
 
         features: {
             1: [
-                { name: "Druidic", desc: "Je kent Druidic, de geheime taal van druids. Je kunt verborgen berichten achterlaten die alleen andere druids begrijpen." },
-                { name: "Spellcasting", desc: "Cast druid spells met WIS als spellcasting ability. Voorbereiden: WIS mod + druid level." }
+                { name: "Druidic", desc: "You know Druidic, the secret language of Druids, and can leave hidden messages only other Druids understand. Because of it you always have Speak with Animals prepared." },
+                { name: "Spellcasting", desc: "Cast Druid spells with Wisdom as your spellcasting ability. You prepare a fixed number of spells (4 at level 1) and can change your entire prepared list when you finish a Long Rest." },
+                { name: "Primal Order", desc: "Choose your order (level-1 choice): Magician — you know one extra Druid cantrip and add your Wisdom modifier to Intelligence (Arcana or Nature) checks; or Warden — proficiency with Martial weapons and training with Medium armor." }
             ],
             2: [
                 { name: "Wild Shape", desc: "Bonus Action: transform into a known Beast form (levels 2-3: max CR 1/4, no Fly Speed). You can speak in beast form and keep INT/WIS/CHA. Two uses; regain one on a Short Rest, all on a Long Rest. You know 4 forms and can swap one whenever you finish a Long Rest." },
                 { name: "Wild Companion", desc: "Spend a use of Wild Shape (or a spell slot) to cast Find Familiar without material components." }
             ],
             3: [
-                { name: "Druid Subclass", desc: "Kies je Druid Circle, je subclass die bepaalt hoe je de natuur benadert." }
+                { name: "Druid Subclass", desc: "Choose your Druid Circle: the subclass that shapes how you approach nature." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             5: [
-                { name: "Wild Resurgence", desc: "Besteed 1 gebruik van Wild Shape om een expended spell slot te herstellen (max 3rd level). 1x per long rest." }
+                { name: "Wild Resurgence", desc: "Spend 1 use of Wild Shape to recover an expended spell slot (max 3rd level). Once per Long Rest." }
             ],
             7: [
-                { name: "Elemental Fury", desc: "Eén keer per beurt als je een melee attack raakt in Wild Shape of met een weapon: voeg 1d6 extra damage toe van een gekozen element." }
+                { name: "Elemental Fury", desc: "Once per turn when you hit with a melee attack in Wild Shape or with a weapon: add 1d6 extra damage of a chosen element." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ]
         },
 
@@ -1054,17 +1055,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Bonus Cantrip", desc: "Je leert één extra druid cantrip naar keuze." },
-                        { name: "Natural Recovery", desc: "Tijdens een short rest kun je spell slots herstellen. Het totale level van de slots mag niet hoger zijn dan de helft van je druid level (afgerond naar boven), en geen slots van 6th level of hoger." }
+                        { name: "Bonus Cantrip", desc: "You learn one extra Druid cantrip of your choice." },
+                        { name: "Natural Recovery", desc: "During a Short Rest you can recover spell slots with a combined level of up to half your Druid level (round up), with no slot of 6th level or higher." }
                     ],
                     6: [
-                        { name: "Land's Stride", desc: "Bewegen door nonmagical difficult terrain kost geen extra movement. Je kunt ook door nonmagical plants bewegen zonder vertraagd te worden of damage te nemen." }
+                        { name: "Land's Stride", desc: "Moving through nonmagical difficult terrain costs no extra movement, and you can pass through nonmagical plants without being slowed or taking damage." }
                     ],
                     10: [
-                        { name: "Nature's Ward", desc: "Je bent immuun voor poison en disease. Je kunt niet charmed of frightened worden door elementals of fey." }
+                        { name: "Nature's Ward", desc: "You are immune to poison and disease, and can't be Charmed or Frightened by elementals or fey." }
                     ],
                     14: [
-                        { name: "Nature's Sanctuary", desc: "Creatures van het elemental of fey type die jou aanvallen moeten een WIS save doen. Bij een fail moeten ze een ander target kiezen of de aanval mist automatisch." }
+                        { name: "Nature's Sanctuary", desc: "Elemental and fey creatures that attack you must make a WIS save. On a failure they must choose another target, or the attack automatically misses." }
                     ]
                 }
             },
@@ -1073,17 +1074,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Combat Wild Shape", desc: "Wild Shape als bonus action in plaats van action. Als je transformeert, herstel 1d8 x proficiency bonus HP." },
-                        { name: "Circle Forms", desc: "Je kunt transformeren in beasts met hogere CR dan normaal (CR = druid level / 3, afgerond naar beneden). Op hogere levels kun je ook elementals worden." }
+                        { name: "Combat Wild Shape", desc: "Use Wild Shape as a Bonus Action instead of an action. When you transform, regain 1d8 x proficiency bonus HP." },
+                        { name: "Circle Forms", desc: "You can transform into beasts of a higher CR than normal (CR = druid level / 3, round down). At higher levels you can also become elementals." }
                     ],
                     6: [
-                        { name: "Primal Strike", desc: "Je aanvallen in Wild Shape tellen als magical voor het overwinnen van resistance en immunity." }
+                        { name: "Primal Strike", desc: "Your attacks in Wild Shape count as magical for overcoming resistance and immunity." }
                     ],
                     10: [
-                        { name: "Elemental Wild Shape", desc: "Besteed 2 Wild Shape uses om te transformeren in een Earth, Water, Fire of Air Elemental." }
+                        { name: "Elemental Wild Shape", desc: "Spend 2 Wild Shape uses to transform into an Earth, Water, Fire, or Air Elemental." }
                     ],
                     14: [
-                        { name: "Thousand Forms", desc: "Cast Alter Self at will, zonder spell slot." }
+                        { name: "Thousand Forms", desc: "Cast Alter Self at will, without a spell slot." }
                     ]
                 }
             },
@@ -1092,17 +1093,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Wrath of the Sea", desc: "Na het casten van een spell: push een creature binnen 5ft 5ft weg, of geef een ally binnen 5ft temp HP gelijk aan je WIS modifier." },
-                        { name: "Ocean's Gift", desc: "Je krijgt een swim speed van 30ft en kunt onder water ademen." }
+                        { name: "Wrath of the Sea", desc: "After casting a spell: push a creature within 5ft away by 5ft, or give an ally within 5ft temp HP equal to your WIS modifier." },
+                        { name: "Ocean's Gift", desc: "You gain a swim speed of 30ft and can breathe underwater." }
                     ],
                     6: [
-                        { name: "Aquatic Adaptation", desc: "Resistance tegen cold damage. Je kunt zee-creatures oproepen met conjuration spells." }
+                        { name: "Aquatic Adaptation", desc: "Resistance to cold damage. You can summon sea creatures with conjuration spells." }
                     ],
                     10: [
-                        { name: "Stormborn", desc: "Je krijgt fly speed tijdens regen of onderwater combat. Je kunt bliksem aanroepen als aanvullende aanval." }
+                        { name: "Stormborn", desc: "You gain a fly speed during rain or underwater combat, and can call down lightning as an additional attack." }
                     ],
                     14: [
-                        { name: "Oceanic Form", desc: "Als bonus action: beweeg door creatures en objecten alsof het difficult terrain is." }
+                        { name: "Oceanic Form", desc: "Bonus Action: move through creatures and objects as if they were difficult terrain." }
                     ]
                 }
             },
@@ -1111,17 +1112,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Star Map", desc: "Je krijgt Guiding Bolt als bonus spell. Je kunt het gratis casten een aantal keer gelijk aan je proficiency bonus per long rest." },
-                        { name: "Starry Form", desc: "Als bonus action (of bij Wild Shape): activeer een sterrenbeeld. Archer: bonus action ranged attack +1d8 radiant (60ft). Chalice: als je een healing spell cast, heal een creature binnen 30ft voor 1d8 + WIS mod. Dragon: behandel rolls van 9 of lager als 10 op concentration saves." }
+                        { name: "Star Map", desc: "You gain Guiding Bolt as a bonus spell and can cast it for free a number of times equal to your proficiency bonus per Long Rest." },
+                        { name: "Starry Form", desc: "As a Bonus Action (or when using Wild Shape): assume a starry constellation. Archer: Bonus Action ranged attack for +1d8 radiant (60ft). Chalice: when you cast a healing spell, also heal a creature within 30ft for 1d8 + WIS mod. Dragon: treat rolls of 9 or lower as a 10 on concentration saves." }
                     ],
                     6: [
-                        { name: "Cosmic Omen", desc: "Na een long rest: rol een d6. Even = Weal (reaction: voeg 1d6 toe aan een roll van een creature binnen 30ft). Oneven = Woe (reaction: trek 1d6 af van een roll van een vijand binnen 30ft). Uses = proficiency bonus per long rest." }
+                        { name: "Cosmic Omen", desc: "After a Long Rest: roll a d6. Even = Weal (reaction: add 1d6 to a roll of a creature within 30ft). Odd = Woe (reaction: subtract 1d6 from a roll of an enemy within 30ft). Uses = proficiency bonus per Long Rest." }
                     ],
                     10: [
-                        { name: "Twinkling Constellations", desc: "Je kunt aan het begin van elke beurt wisselen van Starry Form. Archer en Chalice worden 2d8 in plaats van 1d8." }
+                        { name: "Twinkling Constellations", desc: "You can switch Starry Form at the start of each of your turns. Archer and Chalice become 2d8 instead of 1d8." }
                     ],
                     14: [
-                        { name: "Full of Stars", desc: "Terwijl je in Starry Form bent: resistance tegen bludgeoning, piercing en slashing damage." }
+                        { name: "Full of Stars", desc: "While in your Starry Form: resistance to bludgeoning, piercing, and slashing damage." }
                     ]
                 }
             }
@@ -1141,54 +1142,54 @@ const DATA = {
 
         features: {
             1: [
-                { name: "Fighting Style", desc: "Kies een fighting style: Archery, Defense, Dueling, Great Weapon Fighting, Protection, Two-Weapon Fighting, etc." },
+                { name: "Fighting Style", desc: "Choose a Fighting Style feat: Archery, Defense, Dueling, Great Weapon Fighting, Protection, Two-Weapon Fighting, and more." },
                 { name: "Second Wind", desc: "Bonus Action: regain 1d10 + Fighter level HP. Two uses (three at level 4, four at level 10); regain one on a Short Rest, all on a Long Rest." },
-                { name: "Weapon Mastery", desc: "Je beheerst 3 weapon mastery properties. Kies 3 wapens waarmee je de mastery property activeert. Wissel na een long rest." }
+                { name: "Weapon Mastery", desc: "You can use the mastery property of 3 weapons of your choice. Swap one on a Long Rest." }
             ],
             2: [
-                { name: "Action Surge", desc: "Eén keer per short/long rest neem je een extra action bovenop je normale action. Op level 17 krijg je twee gebruiken." },
-                { name: "Tactical Mind", desc: "Als je faalt op een ability check, voeg je Second Wind die toe aan het resultaat (verbruikt 1 gebruik)." }
+                { name: "Action Surge", desc: "Once per Short or Long Rest, take one extra action on top of your normal action. At level 17 you get two uses." },
+                { name: "Tactical Mind", desc: "When you fail an ability check, add a Second Wind roll (1d10) to the result. This spends one use of Second Wind (the use isn't spent if you still fail)." }
             ],
             3: [
-                { name: "Martial Archetype", desc: "Kies je subclass: dit bepaalt je vechtspecialisatie." }
+                { name: "Martial Archetype", desc: "Choose your subclass: it defines your martial specialisation." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             5: [
-                { name: "Extra Attack", desc: "Je kunt twee keer aanvallen in plaats van één keer als je de Attack action neemt." },
-                { name: "Tactical Shift", desc: "Als je Second Wind gebruikt, kun je de helft van je speed bewegen zonder opportunity attacks uit te lokken." }
+                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." },
+                { name: "Tactical Shift", desc: "When you use Second Wind, you can move up to half your speed without provoking opportunity attacks." }
             ],
             6: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             9: [
-                { name: "Indomitable", desc: "Herrol een gefaalde saving throw en neem het hogere resultaat. Eén keer per long rest. Op level 13: twee keer, level 17: drie keer." },
-                { name: "Tactical Master", desc: "Je kunt de weapon mastery property van een wapen verwisselen met een andere property van een wapen dat je beheerst (1x per beurt)." }
+                { name: "Indomitable", desc: "Reroll a failed saving throw and take the higher result. Once per Long Rest. At level 13: twice, level 17: three times." },
+                { name: "Tactical Master", desc: "You can swap a weapon's mastery property for another property from a weapon you've mastered (once per turn)." }
             ],
             11: [
-                { name: "Extra Attack (2)", desc: "Je kunt drie keer aanvallen in plaats van twee keer als je de Attack action neemt." }
+                { name: "Extra Attack (2)", desc: "You can attack three times, instead of twice, whenever you take the Attack action." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             13: [
-                { name: "Studied Attacks", desc: "Als je een attack mist, heb je advantage op je volgende attack tegen hetzelfde target voor het einde van je volgende beurt." }
+                { name: "Studied Attacks", desc: "When you miss with an attack, you have advantage on your next attack against the same target before the end of your next turn." }
             ],
             14: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Extra Attack (3)", desc: "Je kunt vier keer aanvallen in plaats van drie keer als je de Attack action neemt." }
+                { name: "Extra Attack (3)", desc: "You can attack four times, instead of three, whenever you take the Attack action." }
             ]
         },
 
@@ -1198,19 +1199,19 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Improved Critical", desc: "Je scoort een critical hit op een roll van 19 of 20." }
+                        { name: "Improved Critical", desc: "You score a critical hit on a roll of 19 or 20." }
                     ],
                     7: [
-                        { name: "Remarkable Athlete", desc: "Voeg de helft van je proficiency bonus (afgerond naar boven) toe aan STR, DEX, en CON checks waar je nog geen proficiency hebt. Je running long jump afstand stijgt met je STR modifier in feet." }
+                        { name: "Remarkable Athlete", desc: "Add half your proficiency bonus (round up) to STR, DEX, and CON checks that don't already use it. Your running long jump distance increases by your STR modifier in feet." }
                     ],
                     10: [
-                        { name: "Additional Fighting Style", desc: "Kies een tweede Fighting Style." }
+                        { name: "Additional Fighting Style", desc: "Choose a second Fighting Style." }
                     ],
                     15: [
-                        { name: "Superior Critical", desc: "Je scoort een critical hit op een roll van 18, 19 of 20." }
+                        { name: "Superior Critical", desc: "You score a critical hit on a roll of 18, 19, or 20." }
                     ],
                     18: [
-                        { name: "Survivor", desc: "Aan het begin van elk van je beurten, als je minder dan de helft van je max HP hebt maar meer dan 0, herstel je 5 + CON modifier HP." }
+                        { name: "Survivor", desc: "At the start of each of your turns, if you have less than half your max HP but more than 0, you regain 5 + CON modifier HP." }
                     ]
                 }
             },
@@ -1219,20 +1220,20 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Combat Superiority", desc: "Je krijgt 4 superiority dice (d8). Leer 3 maneuvers uit: Commander's Strike, Disarming Attack, Distracting Strike, Evasive Footwork, Feinting Attack, Goading Attack, Lunging Attack, Maneuvering Attack, Menacing Attack, Parry, Precision Attack, Pushing Attack, Rally, Riposte, Sweeping Attack, Trip Attack. Dice herstellen na een short/long rest." },
-                        { name: "Student of War", desc: "Je krijgt proficiency met een type artisan's tools naar keuze." }
+                        { name: "Combat Superiority", desc: "You gain 4 superiority dice (d8) and learn 3 maneuvers from: Commander's Strike, Disarming Attack, Distracting Strike, Evasive Footwork, Feinting Attack, Goading Attack, Lunging Attack, Maneuvering Attack, Menacing Attack, Parry, Precision Attack, Pushing Attack, Rally, Riposte, Sweeping Attack, Trip Attack. Dice return on a Short or Long Rest." },
+                        { name: "Student of War", desc: "You gain proficiency with one type of artisan's tools of your choice." }
                     ],
                     7: [
-                        { name: "Know Your Enemy", desc: "Bestudeer een creature voor 1 minuut. Je leert of het gelijk, superieur of inferieur aan jou is in twee eigenschappen naar keuze (STR, DEX, CON, AC, huidige HP, totale class levels, fighter levels)." }
+                        { name: "Know Your Enemy", desc: "Study a creature for 1 minute to learn whether it is your equal, superior, or inferior in two characteristics of your choice (STR, DEX, CON, AC, current HP, total class levels, fighter levels)." }
                     ],
                     10: [
-                        { name: "Improved Combat Superiority", desc: "Je superiority dice worden d10." }
+                        { name: "Improved Combat Superiority", desc: "Your superiority dice become d10s." }
                     ],
                     15: [
-                        { name: "Relentless", desc: "Als je rolt voor initiative en geen superiority dice over hebt, krijg je er 1 terug." }
+                        { name: "Relentless", desc: "When you roll initiative and have no superiority dice left, you regain 1." }
                     ],
                     18: [
-                        { name: "Ultimate Combat Superiority", desc: "Je superiority dice worden d12." }
+                        { name: "Ultimate Combat Superiority", desc: "Your superiority dice become d12s." }
                     ]
                 }
             },
@@ -1241,20 +1242,20 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Spellcasting", desc: "Je kunt wizard spells casten (abjuration/evocation focus) met INT als spellcasting ability. Third caster: langzamere spell slot progressie." },
-                        { name: "War Bond", desc: "Bond met een wapen via een 1-uur ritueel. Je kunt niet ontwapend worden en kunt het als bonus action naar je hand teleporteren. Je kunt met maximaal 2 wapens gebonden zijn." }
+                        { name: "Spellcasting", desc: "You can cast wizard spells (abjuration/evocation focus) with INT as your spellcasting ability. Third caster: slower spell slot progression." },
+                        { name: "War Bond", desc: "Bond with a weapon through a 1-hour ritual. You can't be disarmed of it and can summon it to your hand as a Bonus Action. You can be bonded with up to 2 weapons." }
                     ],
                     7: [
-                        { name: "War Magic", desc: "Als je een cantrip cast, kun je als bonus action één weapon attack maken." }
+                        { name: "War Magic", desc: "When you cast a cantrip, you can make one weapon attack as a Bonus Action." }
                     ],
                     10: [
-                        { name: "Eldritch Strike", desc: "Als je een creature raakt met een weapon attack, heeft dat creature disadvantage op de volgende saving throw tegen een spell die je cast voor het einde van je volgende beurt." }
+                        { name: "Eldritch Strike", desc: "When you hit a creature with a weapon attack, it has disadvantage on the next saving throw against a spell you cast before the end of your next turn." }
                     ],
                     15: [
-                        { name: "Arcane Charge", desc: "Als je Action Surge gebruikt, kun je teleporteren tot 30ft naar een onbezette ruimte die je kunt zien (voor of na de extra action)." }
+                        { name: "Arcane Charge", desc: "When you use Action Surge, you can teleport up to 30ft to an unoccupied space you can see (before or after the extra action)." }
                     ],
                     18: [
-                        { name: "Improved War Magic", desc: "Als je een spell van 1st of 2nd level cast, kun je als bonus action één weapon attack maken." }
+                        { name: "Improved War Magic", desc: "When you cast a spell of 1st or 2nd level, you can make one weapon attack as a Bonus Action." }
                     ]
                 }
             },
@@ -1263,19 +1264,19 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Psionic Power", desc: "Je krijgt Psionic Energy dice (d6, 2x proficiency bonus uses per long rest). Besteed ze voor: Protective Field (reaction: verminder damage aan jezelf of ally binnen 30ft met die + INT mod), Psionic Strike (1x/beurt bij hit: +die force damage), Telekinetic Movement (action: beweeg een Large of kleiner object of willing creature tot 30ft)." }
+                        { name: "Psionic Power", desc: "You gain Psionic Energy dice (d6, 2x proficiency bonus per Long Rest). Spend them on: Protective Field (reaction: reduce damage to yourself or an ally within 30ft by die + INT mod), Psionic Strike (once per turn on a hit: +die force damage), Telekinetic Movement (action: move a Large or smaller object or willing creature up to 30ft)." }
                     ],
                     7: [
-                        { name: "Telekinetic Adept", desc: "Telekinetic Thrust: als je Psionic Strike damage doet, kun je het target forceren een STR save te doen of het wordt 10ft gepusht en knocked prone." }
+                        { name: "Telekinetic Adept", desc: "Telekinetic Thrust: when you deal Psionic Strike damage, you can force the target to make a STR save or be pushed 10ft and knocked Prone." }
                     ],
                     10: [
-                        { name: "Guarded Mind", desc: "Resistance tegen psychic damage. Besteed een Psionic Energy die om charmed of frightened condition te beëindigen op jezelf." }
+                        { name: "Guarded Mind", desc: "Resistance to psychic damage. Spend a Psionic Energy die to end the Charmed or Frightened condition on yourself." }
                     ],
                     15: [
-                        { name: "Bulwark of Force", desc: "Bonus action: een aantal creatures gelijk aan je proficiency bonus binnen 30ft krijgen half cover (+2 AC en DEX saves) voor 1 minuut of tot je incapacitated bent." }
+                        { name: "Bulwark of Force", desc: "Bonus Action: a number of creatures equal to your proficiency bonus within 30ft gain half cover (+2 AC and DEX saves) for 1 minute or until you're Incapacitated." }
                     ],
                     18: [
-                        { name: "Telekinetic Master", desc: "Cast Telekinesis 1x per long rest zonder spell slot (INT is je spellcasting ability)." }
+                        { name: "Telekinetic Master", desc: "Cast Telekinesis once per Long Rest without a spell slot (INT is your spellcasting ability)." }
                     ]
                 }
             }
@@ -1300,48 +1301,49 @@ const DATA = {
 
         features: {
             1: [
-                { name: "Pact Magic", desc: "Cast warlock spells met CHA als spellcasting ability. Je spell slots zijn altijd van hetzelfde level en herstellen na een short rest." }
+                { name: "Pact Magic", desc: "Cast Warlock spells with Charisma as your spellcasting ability. Your spell slots are all of the same level and return on a Short or Long Rest." },
+                { name: "Eldritch Invocations", desc: "Pieces of forbidden knowledge that enhance your powers (pact boons are invocations too). You know 1 invocation at level 1 and 3 at level 2, and can replace one whenever you gain a Warlock level." }
             ],
             2: [
-                { name: "Eldritch Invocations", desc: "Kies 2 Eldritch Invocations: speciale magische vaardigheden die je cantrips en abilities verbeteren. Je leert meer op hogere levels." },
-                { name: "Magical Cunning", desc: "Besteed 1 minuut om de helft van je expended Pact Magic spell slots te herstellen (afgerond naar boven). 1x per long rest." }
+                { name: "Eldritch Invocations", desc: "Your invocations grow to 3 total — pick the new ones in the level-up menu." },
+                { name: "Magical Cunning", desc: "Spend 1 minute in an esoteric rite: regain expended Pact Magic slots equal to half your maximum (round up). Once per Long Rest." }
             ],
             3: [
-                { name: "Warlock Subclass", desc: "Kies je Otherworldly Patron. Dit bepaalt je subclass features." },
-                { name: "Pact Magic Improvement", desc: "Pact Boons zijn nu beschikbaar als Eldritch Invocations (Pact of the Blade, Chain, Tome). Kies via je invocations." }
+                { name: "Warlock Subclass", desc: "Choose your Otherworldly Patron. It grants your subclass features." },
+                { name: "Pact Magic Improvement", desc: "Your Pact Magic slots become level 2." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             9: [
-                { name: "Contact Patron", desc: "Cast Contact Other Plane 1x per long rest gratis om je patron te raadplegen. Je faalt automatisch niet op de INT save." }
+                { name: "Contact Patron", desc: "Cast Contact Other Plane once per Long Rest for free to consult your patron. You automatically succeed on the INT save." }
             ],
             11: [
-                { name: "Mystic Arcanum (6th)", desc: "Kies een 6th-level warlock spell. Je kunt die eens per long rest casten zonder een spell slot. Op hogere levels krijg je 7th, 8th en 9th level Arcanum." }
+                { name: "Mystic Arcanum (6th)", desc: "Choose a 6th-level warlock spell. You can cast it once per Long Rest without a spell slot. At higher levels you gain 7th-, 8th-, and 9th-level Arcanum." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             13: [
-                { name: "Mystic Arcanum (7th)", desc: "Kies een 7th-level warlock spell. Je kunt die eens per long rest casten zonder een spell slot." }
+                { name: "Mystic Arcanum (7th)", desc: "Choose a 7th-level warlock spell. You can cast it once per Long Rest without a spell slot." }
             ],
             15: [
-                { name: "Mystic Arcanum (8th)", desc: "Kies een 8th-level warlock spell. Je kunt die eens per long rest casten zonder een spell slot." }
+                { name: "Mystic Arcanum (8th)", desc: "Choose an 8th-level warlock spell. You can cast it once per Long Rest without a spell slot." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             17: [
-                { name: "Mystic Arcanum (9th)", desc: "Kies een 9th-level warlock spell. Je kunt die eens per long rest casten zonder een spell slot." }
+                { name: "Mystic Arcanum (9th)", desc: "Choose a 9th-level warlock spell. You can cast it once per Long Rest without a spell slot." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Eldritch Master", desc: "Eén keer per long rest kun je 1 minuut besteden om alle Pact Magic spell slots te herstellen." }
+                { name: "Eldritch Master", desc: "Once per Long Rest you can spend 1 minute to restore all your Pact Magic spell slots." }
             ]
         },
 
@@ -1351,16 +1353,16 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Dark One's Blessing", desc: "Als je een hostile creature naar 0 HP brengt, krijg je CHA modifier + warlock level temporary HP." }
+                        { name: "Dark One's Blessing", desc: "When you reduce a hostile creature to 0 HP, you gain temporary HP equal to your CHA modifier + warlock level." }
                     ],
                     6: [
-                        { name: "Dark One's Own Luck", desc: "Eén keer per short/long rest: voeg 1d10 toe aan een ability check of saving throw." }
+                        { name: "Dark One's Own Luck", desc: "Once per Short or Long Rest: add 1d10 to an ability check or saving throw." }
                     ],
                     10: [
-                        { name: "Fiendish Resilience", desc: "Na een short/long rest: kies één damage type. Je hebt resistance tegen dat type tot je een ander type kiest. Dit werkt niet tegen magical of silver weapons." }
+                        { name: "Fiendish Resilience", desc: "After a Short or Long Rest: choose one damage type. You have resistance to it until you choose another. This doesn't work against magical or silvered weapons." }
                     ],
                     14: [
-                        { name: "Hurl Through Hell", desc: "Als je een creature raakt met een aanval, kun je het teleporteren door de Lower Planes. Het verdwijnt tot het einde van je volgende beurt en neemt 10d10 psychic damage. 1x per long rest." }
+                        { name: "Hurl Through Hell", desc: "When you hit a creature with an attack, you can hurl it through the Lower Planes. It vanishes until the end of your next turn and takes 10d10 psychic damage. Once per Long Rest." }
                     ]
                 }
             },
@@ -1369,16 +1371,16 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Fey Presence", desc: "Als action: elk creature in een 10ft kubus vanuit jou moet een WIS save doen of is charmed of frightened (jouw keuze) tot het einde van je volgende beurt. 1x per short/long rest." }
+                        { name: "Fey Presence", desc: "As an action: every creature in a 10ft cube from you makes a WIS save or is Charmed or Frightened (your choice) until the end of your next turn. Once per Short or Long Rest." }
                     ],
                     6: [
-                        { name: "Misty Escape", desc: "Reaction als je damage neemt: word onzichtbaar en teleporteer tot 60ft. Je bent onzichtbaar tot het begin van je volgende beurt of tot je aanvalt/een spell cast. 1x per short/long rest." }
+                        { name: "Misty Escape", desc: "Reaction when you take damage: turn invisible and teleport up to 60ft. You stay invisible until the start of your next turn or until you attack or cast a spell. Once per Short or Long Rest." }
                     ],
                     10: [
-                        { name: "Beguiling Defenses", desc: "Je bent immuun voor de charmed condition. Reaction: als iemand probeert je te charmen, charm dat creature voor 1 minuut (WIS save beëindigt)." }
+                        { name: "Beguiling Defenses", desc: "You are immune to the Charmed condition. Reaction: when someone tries to charm you, charm that creature for 1 minute instead (WIS save ends it)." }
                     ],
                     14: [
-                        { name: "Dark Delirium", desc: "Als action: een creature binnen 60ft moet een WIS save doen of is charmed of frightened (jouw keuze) in een illusoir rijk voor 1 minuut. Het creature kan elke beurt opnieuw saven. 1x per short/long rest." }
+                        { name: "Dark Delirium", desc: "As an action: a creature within 60ft makes a WIS save or is Charmed or Frightened (your choice) inside an illusory realm for 1 minute. It can repeat the save each turn. Once per Short or Long Rest." }
                     ]
                 }
             },
@@ -1387,18 +1389,18 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Healing Light", desc: "Bonus action: je hebt een pool van d6s (1 + warlock level). Heal een creature binnen 60ft door 1-5 dice uit de pool te besteden. Pool herstelt na een long rest." },
-                        { name: "Bonus Cantrips", desc: "Je leert Light en Sacred Flame cantrips. Ze tellen niet mee voor je cantrips known." },
+                        { name: "Healing Light", desc: "Bonus Action: you have a pool of d6s (1 + warlock level). Heal a creature within 60ft by spending 1-5 dice from the pool. The pool refills on a Long Rest." },
+                        { name: "Bonus Cantrips", desc: "You learn the Light and Sacred Flame cantrips. They don't count against your cantrips known." },
                         { name: "Celestial Spells", desc: "Expanded spell list: Cure Wounds, Guiding Bolt (1st), Flaming Sphere, Lesser Restoration (2nd), Daylight, Revivify (3rd), Guardian of Faith, Wall of Fire (4th), Flame Strike, Greater Restoration (5th)." }
                     ],
                     6: [
-                        { name: "Radiant Soul", desc: "Resistance tegen radiant damage. Als je fire of radiant damage doet met een spell, voeg je CHA modifier toe aan één damage roll." }
+                        { name: "Radiant Soul", desc: "Resistance to radiant damage. When you deal fire or radiant damage with a spell, add your CHA modifier to one damage roll." }
                     ],
                     10: [
-                        { name: "Celestial Resilience", desc: "Bij het voltooien van een short of long rest: jij krijgt temp HP gelijk aan warlock level + CHA modifier, en tot 5 andere creatures naar keuze krijgen de helft daarvan." }
+                        { name: "Celestial Resilience", desc: "When you finish a Short or Long Rest: you gain temp HP equal to warlock level + CHA modifier, and up to 5 other creatures of your choice gain half that." }
                     ],
                     14: [
-                        { name: "Searing Vengeance", desc: "Aan het begin van je beurt terwijl je op 0 HP bent: sta op met de helft van je max HP. Creatures naar keuze binnen 30ft nemen 2d8 + CHA modifier radiant damage en zijn blinded tot het einde van je huidige beurt. 1x per long rest." }
+                        { name: "Searing Vengeance", desc: "At the start of your turn while at 0 HP: rise with half your max HP. Creatures of your choice within 30ft take 2d8 + CHA modifier radiant damage and are Blinded until the end of your current turn. Once per Long Rest." }
                     ]
                 }
             },
@@ -1407,17 +1409,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Awakened Mind", desc: "Je kunt telepathisch communiceren met elk creature binnen 30ft dat je kunt zien. Je hoeft geen gemeenschappelijke taal te delen." },
+                        { name: "Awakened Mind", desc: "You can communicate telepathically with any creature you can see within 30ft. You don't need to share a language." },
                         { name: "Psychic Spells", desc: "Expanded spell list: Dissonant Whispers, Tasha's Hideous Laughter (1st), Detect Thoughts, Phantasmal Force (2nd), Clairvoyance, Sending (3rd), Dominate Beast, Evard's Black Tentacles (4th), Dominate Person, Telekinesis (5th)." }
                     ],
                     6: [
-                        { name: "Entropic Ward", desc: "Reaction: als een creature een attack roll tegen je maakt, leg disadvantage op de roll. Als de aanval mist, heb je advantage op je volgende attack roll tegen dat creature voor het einde van je volgende beurt. 1x per short/long rest." }
+                        { name: "Entropic Ward", desc: "Reaction: when a creature makes an attack roll against you, impose disadvantage on the roll. If the attack misses, you have advantage on your next attack roll against that creature before the end of your next turn. Once per Short or Long Rest." }
                     ],
                     10: [
-                        { name: "Thought Shield", desc: "Resistance tegen psychic damage. Als een creature je psychic damage doet, neemt het evenveel damage. Je gedachten kunnen niet gelezen worden door telepathie tenzij je het toestaat." }
+                        { name: "Thought Shield", desc: "Resistance to psychic damage. When a creature deals psychic damage to you, it takes the same amount. Your thoughts can't be read by telepathy unless you allow it." }
                     ],
                     14: [
-                        { name: "Create Thrall", desc: "Raak een incapacitated humanoid aan: het is indefinitely charmed door jou. Je hebt een telepathische band met het creature zolang jullie op hetzelfde vlak zijn." }
+                        { name: "Create Thrall", desc: "Touch an incapacitated humanoid: it is Charmed by you indefinitely. You have a telepathic bond with it while you're on the same plane." }
                     ]
                 }
             }
@@ -1447,20 +1449,21 @@ const DATA = {
                 { name: "Reckless Attack", desc: "Bij je eerste attack van je beurt: kies advantage op alle STR melee attacks deze beurt. Aanvallen tegen jou hebben ook advantage tot je volgende beurt." }
             ],
             3: [
-                { name: "Primal Path", desc: "Kies je subclass: dit bepaalt hoe je rage zich manifesteert." }
+                { name: "Primal Path", desc: "Choose your Barbarian subclass: it shapes how your Rage manifests." },
+                { name: "Primal Knowledge", desc: "You gain proficiency in one more Barbarian skill. While your Rage is active, Acrobatics, Intimidation, Perception, Stealth and Survival checks you make count as Strength-based (you channel primal power)." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             5: [
-                { name: "Extra Attack", desc: "Je kunt twee keer aanvallen in plaats van één keer als je de Attack action neemt." },
+                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." },
                 { name: "Fast Movement", desc: "+10ft speed als je geen heavy armor draagt." }
             ],
             7: [
                 { name: "Feral Instinct", desc: "Advantage op initiative rolls. Als je surprised bent en rage begint, handel je normaal." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             9: [
                 { name: "Brutal Strike", desc: "Vervang Reckless Attack advantage voor extra effecten: Forceful Blow (1d10 extra + push 15ft), Hamstring Blow (1d10 extra + -15ft speed)." }
@@ -1469,19 +1472,19 @@ const DATA = {
                 { name: "Relentless Rage", desc: "Als je op 0 HP gaat terwijl je raging, maak een CON save (DC 10, stijgt +5 per gebruik) om naar 1 HP te gaan." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             15: [
                 { name: "Persistent Rage", desc: "Je rage eindigt alleen als je onbewust bent of ervoor kiest om te stoppen." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             18: [
                 { name: "Indomitable Might", desc: "Als je STR check lager is dan je STR score, gebruik je STR score in plaats van de roll." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
                 { name: "Primal Champion", desc: "STR en CON stijgen elk met 4. Maximum wordt 25." }
@@ -1613,7 +1616,7 @@ const DATA = {
                 { name: "Bard Subclass", desc: "Kies je Bard College. Dit bepaalt je subclass features." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             5: [
                 { name: "Font of Inspiration", desc: "Je Bardic Inspiration herstelt nu na een short rest (in plaats van alleen long rest)." }
@@ -1622,7 +1625,7 @@ const DATA = {
                 { name: "Countercharm", desc: "Als action, begin een performance. Jij en allies binnen 30ft krijgen advantage op saves tegen frightened en charmed. Duurt tot einde van je volgende beurt." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             9: [
                 { name: "Expertise", desc: "Kies nog 2 extra skills voor verdubbelde proficiency bonus." }
@@ -1631,19 +1634,19 @@ const DATA = {
                 { name: "Magical Secrets", desc: "Leer 2 spells van de Bard, Cleric, Druid of Wizard spell list. Ze tellen als bard spells voor jou." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             14: [
                 { name: "Magical Secrets", desc: "Leer nog 2 extra spells van elke class spell list." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             18: [
                 { name: "Superior Inspiration", desc: "Als je geen Bardic Inspiration uses hebt bij initiative, krijg je er 1 terug." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
                 { name: "Words of Creation", desc: "Cast Power Word Heal of Power Word Kill 1x gratis per long rest. Het effect raakt 2 creatures in plaats van 1." }
@@ -1707,7 +1710,7 @@ const DATA = {
                         { name: "Bonus Proficiencies", desc: "Proficiency met medium armor, shields en martial weapons." }
                     ],
                     6: [
-                        { name: "Extra Attack", desc: "Je kunt twee keer aanvallen in plaats van één keer als je de Attack action neemt." }
+                        { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." }
                     ],
                     14: [
                         { name: "Battle Magic", desc: "Als je een bard spell cast, kun je als bonus action één weapon attack maken." }
@@ -1764,7 +1767,7 @@ const DATA = {
                 { name: "Cleric Subclass", desc: "Kies je Divine Domain. Dit bepaalt je subclass features en bonus spells." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             5: [
                 { name: "Sear Undead", desc: "Bij een gefaalde Turn Undead save: het undead creature neemt WIS modifier x d8 radiant damage." },
@@ -1774,22 +1777,22 @@ const DATA = {
                 { name: "Blessed Strikes", desc: "Kies: Divine Strike (+1d8 melee damage 1x/beurt) of Potent Spellcasting (+WIS mod damage op cleric cantrips)." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             10: [
                 { name: "Divine Intervention", desc: "Als action: cast een cleric spell van 5th level of lager zonder spell slot of materiaalcomponenten. 1x per long rest." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             14: [
                 { name: "Improved Blessed Strikes", desc: "Je Divine Strike stijgt naar 2d8, of je Potent Spellcasting voegt 2x WIS mod toe." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
                 { name: "Greater Divine Intervention", desc: "Je Divine Intervention kan nu spells tot 9th level casten, of Wish 1x." }
@@ -1907,28 +1910,29 @@ const DATA = {
             ],
             2: [
                 { name: "Focus Points", desc: "Je krijgt Focus Points (voorheen Ki). Besteed ze voor: Flurry of Blows (2 bonus unarmed strikes), Patient Defense (Dodge als bonus action), Step of the Wind (Dash of Disengage als bonus action + dubbele jump)." },
-                { name: "Unarmored Movement", desc: "+10ft speed zonder armor. Stijgt op hogere levels (+15ft lvl 6, +20ft lvl 10, +25ft lvl 14, +30ft lvl 18)." }
+                { name: "Unarmored Movement", desc: "+10ft speed zonder armor. Stijgt op hogere levels (+15ft lvl 6, +20ft lvl 10, +25ft lvl 14, +30ft lvl 18)." },
+                { name: "Uncanny Metabolism", desc: "Once per Long Rest when you roll Initiative: regain all expended Focus Points and regain HP equal to your Monk level + one roll of your Martial Arts die." }
             ],
             3: [
                 { name: "Monk Subclass", desc: "Kies je Monastic Tradition. Dit bepaalt hoe je je martial arts toepast." },
                 { name: "Deflect Attacks", desc: "Reaction: verminder damage van een melee of ranged attack met 1d10 + DEX mod + monk level. Als damage naar 0 gaat, maak een ranged counterattack (20/60ft)." }
             ],
             4: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." },
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." },
                 { name: "Slow Fall", desc: "Reaction: verminder fall damage met 5x monk level." }
             ],
             5: [
-                { name: "Extra Attack", desc: "Je kunt twee keer aanvallen in plaats van één keer als je de Attack action neemt." },
+                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." },
                 { name: "Stunning Strike", desc: "1 Focus Point: bij een hit moet target CON save doen of is Stunned tot einde van je volgende beurt." }
             ],
             6: [
                 { name: "Empowered Strikes", desc: "Je unarmed strikes doen Force damage (bypass common resistances)." }
             ],
             7: [
-                { name: "Evasion", desc: "Bij een DEX saving throw voor halve damage: neem 0 damage bij succes, halve damage bij falen." }
+                { name: "Evasion", desc: "When you make a DEX saving throw for half damage: take no damage on a success and half damage on a failure." }
             ],
             8: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             9: [
                 { name: "Acrobatic Movement", desc: "Je kunt over verticale oppervlakken en water lopen (als je niet stopt aan het einde van je beurt)." }
@@ -1938,7 +1942,7 @@ const DATA = {
                 { name: "Self-Restoration", desc: "Beëindig charmed of frightened condition op jezelf (1x per beurt, gratis)." }
             ],
             12: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             13: [
                 { name: "Deflect Energy", desc: "Je Deflect Attacks werkt nu ook tegen spell attacks en energy damage." }
@@ -1950,13 +1954,13 @@ const DATA = {
                 { name: "Perfect Focus", desc: "Als je rolt voor initiative en minder dan 4 Focus Points hebt, worden ze aangevuld tot 4." }
             ],
             16: [
-                { name: "Ability Score Improvement", desc: "Verhoog één ability score met 2, of twee scores met 1. Of kies een feat." }
+                { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
             ],
             18: [
                 { name: "Superior Defense", desc: "Tijdens Dodge (via Patient Defense): resistance tegen alle damage behalve force." }
             ],
             19: [
-                { name: "Epic Boon", desc: "Kies een Epic Boon feat. Je ability scores kunnen nu tot 30 stijgen." }
+                { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
                 { name: "Body and Mind", desc: "+4 DEX en +4 WIS (max 25 voor beide)." }
@@ -2678,7 +2682,7 @@ const DATA = {
         weapons: [
             { name: "Dagger", weight: 1, mastery: "nick" },
             { name: "Shortsword", weight: 2, mastery: "vex" },
-            { name: "Shortbow", weight: 2, mastery: "slow" },
+            { name: "Shortbow", weight: 2, mastery: "vex" },   // 2024 PHB: Vex (itemDB had it right)
             { name: "Arrows (20)", weight: 1 },
             { name: "Light crossbow", weight: 5, mastery: "slow" },
             { name: "Bolts (20)", weight: 1.5 },
@@ -3386,15 +3390,20 @@ DATA.spells = {
 // levels beyond the array length fall back to the legacy formula in
 // getMaxPrepared() until fase F extends these.
 DATA.preparedTable = {
-    wizard:   [0, 4, 5, 6],
-    sorcerer: [0, 2, 4, 6],
-    druid:    [0, 4, 5, 6],
-    warlock:  [0, 2, 3, 4],
-    // 2024 PHB: half-casters cast from L1 (2 prepared), then 3/4. The earlier
-    // aidedd-sourced values ([-,2,3] / [-,3,4]) matched the 2014 start-at-L2
-    // layout and contradicted the verified class research — spot-check PHB.
-    paladin:  [0, 2, 3, 4],
-    ranger:   [0, 2, 3, 4]
+    // 2024 PHB fixed prepared-spells columns. L1-3 verified via class research;
+    // L4-5 added 2026-08-04 from the 2024 tables (spot-check PHB). Levels beyond
+    // the array fall back to the legacy formula in getMaxPrepared().
+    wizard:   [0, 4, 5, 6, 7, 9],
+    sorcerer: [0, 2, 4, 6, 7, 9],
+    druid:    [0, 4, 5, 6, 7, 9],
+    cleric:   [0, 4, 5, 6, 7, 9],
+    bard:     [0, 4, 5, 6, 7, 9],
+    warlock:  [0, 2, 3, 4, 5, 6],
+    // 2024 PHB: half-casters cast from L1 (2 prepared). The earlier aidedd
+    // values ([-,2,3] / [-,3,4]) matched the 2014 start-at-L2 layout and
+    // contradicted the verified class research — spot-check PHB.
+    paladin:  [0, 2, 3, 4, 5, 6],
+    ranger:   [0, 2, 3, 4, 5, 6]
 };
 
 // Choices the player must make when REACHING a given class level (level-up menu

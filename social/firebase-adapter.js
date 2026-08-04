@@ -153,7 +153,7 @@ export function createFirebaseAdapter({
         if (!me?.uid) throw new Error('Niet ingelogd');
 
         const incoming = await dbGet(`users/${me.uid}/incoming/${fromUid}`);
-        if (!incoming) throw new Error('Geen verzoek gevonden');
+        if (!incoming) throw new Error('No request found');
 
         const since = Date.now();
         // Op mijn kant: voeg toe als accepted, verwijder incoming

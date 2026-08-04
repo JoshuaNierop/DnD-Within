@@ -600,10 +600,10 @@ async function savePinsToFirebase(widgetIdx, newPins) {
   if (!w || !w.map) return;
   const dimIdx = w.map.dimIdx;
   const dim = (WG_MAPS_CACHE && WG_MAPS_CACHE.dimensions) ? WG_MAPS_CACHE.dimensions[dimIdx] : null;
-  if (!dim) { showToast("Dimensie niet gevonden", "error"); return; }
+  if (!dim) { showToast("Dimension not found", "error"); return; }
   const maps = dim.maps || [];
   const mapArrIdx = maps.findIndex(m => m.id === w.map.mapId || (!w.map.mapId && m.isRoot));
-  if (mapArrIdx < 0) { showToast("Map niet gevonden", "error"); return; }
+  if (mapArrIdx < 0) { showToast("Map not found", "error"); return; }
   const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + "/pins.json";
   try {
     const res = await fetch(url, {
@@ -661,10 +661,10 @@ async function uploadMapImage(widgetIdx, file) {
   if (!w || !w.map) return;
   const dimIdx = w.map.dimIdx;
   const dim = (WG_MAPS_CACHE && WG_MAPS_CACHE.dimensions) ? WG_MAPS_CACHE.dimensions[dimIdx] : null;
-  if (!dim) { showToast("Dimensie niet gevonden", "error"); return; }
+  if (!dim) { showToast("Dimension not found", "error"); return; }
   const maps = dim.maps || [];
   const mapArrIdx = maps.findIndex(m => m.id === w.map.mapId || (!w.map.mapId && m.isRoot));
-  if (mapArrIdx < 0) { showToast("Map niet gevonden", "error"); return; }
+  if (mapArrIdx < 0) { showToast("Map not found", "error"); return; }
   showToast("Afbeelding laden...");
   // Downscale + JPEG-encode before upload (smaller payload).
   const dataUrl = await wgFileToJpeg(file, 1200, 0.8);
@@ -694,10 +694,10 @@ async function deleteMapFromFirebase(widgetIdx) {
   if (!w || !w.map) return;
   const dimIdx = w.map.dimIdx;
   const dim = (WG_MAPS_CACHE && WG_MAPS_CACHE.dimensions) ? WG_MAPS_CACHE.dimensions[dimIdx] : null;
-  if (!dim) { showToast("Dimensie niet gevonden", "error"); return; }
+  if (!dim) { showToast("Dimension not found", "error"); return; }
   const maps = dim.maps || [];
   const mapArrIdx = maps.findIndex(m => m.id === w.map.mapId || (!w.map.mapId && m.isRoot));
-  if (mapArrIdx < 0) { showToast("Map niet gevonden", "error"); return; }
+  if (mapArrIdx < 0) { showToast("Map not found", "error"); return; }
   if (!confirm("Delete map? This cannot be undone.")) return;
   const oldImg = maps[mapArrIdx] && maps[mapArrIdx].image;
   const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + ".json";
@@ -765,12 +765,12 @@ function handleMapAction(action, widgetIdx) {
 // op onder /dw/characters/{id}/images/portraitCrop (sibling van portrait).
 function cropWidgetPortrait(widgetIdx) {
   const charId = state.characterId;
-  if (!charId) { showToast("Geen actieve character", "error"); return; }
+  if (!charId) { showToast("No active character", "error"); return; }
   const raw = WG_CHAR_CACHE[charId];
   const src = raw && raw.images && raw.images.portrait;
-  if (!src) { showToast("Geen portret om bij te snijden", "error"); return; }
+  if (!src) { showToast("No portrait to crop", "error"); return; }
   const crop = (raw.images && raw.images.portraitCrop) || null;
-  if (typeof openCropEditor !== "function") { showToast("Crop-editor niet geladen", "error"); return; }
+  if (typeof openCropEditor !== "function") { showToast("Crop editor not loaded", "error"); return; }
   openCropEditor({
     src: src,
     crop: crop,
@@ -788,7 +788,7 @@ function cropWidgetPortrait(widgetIdx) {
 // V11 Phase 3.4: upload portret naar /dw/characters/{id}/images/portrait.json
 async function uploadPortrait(widgetIdx, file) {
   const charId = state.characterId;
-  if (!charId) { showToast("Geen actieve character", "error"); return; }
+  if (!charId) { showToast("No active character", "error"); return; }
   showToast("Afbeelding laden...");
   // Capture the existing portrait URL so we can clean up the old Cloudinary
   // asset after the replacement lands (no-op until the delete-worker is live).

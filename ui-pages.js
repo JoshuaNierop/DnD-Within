@@ -10,7 +10,7 @@ function renderCharacterSheet(charId) {
         return '<div class="page-placeholder"><h2>' + t('char.notfound') + '</h2></div>';
     }
     var accent = config.accentColor || 'var(--accent)';
-    return '<a class="char-back-btn" href="/home" aria-label="Terug naar campaign" title="Terug naar campaign">'
+    return '<a class="char-back-btn" href="/home" aria-label="Back to campaign" title="Back to campaign">'
          +   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
          +     '<path d="M19 12H5M12 19l-7-7 7-7"/>'
          +   '</svg>'
@@ -816,7 +816,7 @@ function renderDashboard() {
             html += '<span class="quest-icon">&#10003;</span>';
             html += '<span style="text-decoration:line-through;color:var(--text-dim);flex:1;">' + escapeHtml(questData.completed[qc].title) + '</span>';
             html += '<div class="quest-actions">';
-            html += '<button class="btn btn-ghost btn-sm" data-action="uncomplete-quest" data-quest-idx="' + qc + '" title="Terug naar actief">&#8634;</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="uncomplete-quest" data-quest-idx="' + qc + '" title="Back to active">&#8634;</button>';
             html += '<button class="btn btn-ghost btn-sm" data-action="delete-quest" data-completed="1" data-quest-idx="' + qc + '" style="color:var(--danger);" title="Verwijder">&times;</button>';
             html += '</div>';
             html += '</div>';
@@ -877,7 +877,7 @@ function renderDMPage(subpage) {
     // Exploring / Combat / Ambient). Mount gebeurt in app.js (postRender) op
     // deze lege host. `.character-page` is vereist: wg-style.css is @scope
     // (.character-page). Widgets komen later — zie memory dnd_within_dm_dashboard.
-    return '<a class="char-back-btn" href="/party" aria-label="Terug naar party" title="Terug naar party">'
+    return '<a class="char-back-btn" href="/party" aria-label="Back to party" title="Back to party">'
          +   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
          +     '<path d="M19 12H5M12 19l-7-7 7-7"/>'
          +   '</svg>'
@@ -1278,12 +1278,12 @@ function renderDMFamilies() {
 
     // Search + add new
     html += '<div class="famdiag-toolbar">';
-    html += '<input type="text" class="edit-input famdiag-search" id="famdiag-search-input" placeholder="Zoek op familienaam..." value="' + escapeAttr(familiesSearchQuery) + '" />';
-    html += '<button class="btn btn-primary btn-sm" data-action="famdiag-create-family">+ Nieuwe familie</button>';
+    html += '<input type="text" class="edit-input famdiag-search" id="famdiag-search-input" placeholder="Search by family name..." value="' + escapeAttr(familiesSearchQuery) + '" />';
+    html += '<button class="btn btn-primary btn-sm" data-action="famdiag-create-family">+ New family</button>';
     html += '</div>';
 
     if (families.length === 0) {
-        html += '<p class="text-dim">Nog geen families. Klik "+ Nieuwe familie" of voeg leden toe via de characters/NPCs.</p>';
+        html += '<p class="text-dim">No families yet. Click "+ New family" or add members via the characters/NPCs.</p>';
         html += '</div>';
         return html;
     }
@@ -1304,7 +1304,7 @@ function renderDMFamilies() {
         html += '</button>';
     }
     if (filtered.length === 0) {
-        html += '<span class="text-dim">Geen families gevonden voor "' + escapeHtml(query) + '"</span>';
+        html += '<span class="text-dim">No families found for "' + escapeHtml(query) + '"</span>';
     }
     html += '</div>';
 

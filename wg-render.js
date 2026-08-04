@@ -600,7 +600,7 @@ function drawMapInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   };
   if (!WG_MAPS_CACHE) { drawStatus('Kaarten laden…'); return; }
   const mapObj = resolveWidgetMap(widget);
-  if (!mapObj) { drawStatus('Geen kaart'); return; }
+  if (!mapObj) { drawStatus('No map'); return; }
   if (mw <= 0 || mh <= 0) return;
 
   // Clip op het (met widgetPadding ingesnoerde) map-rect.

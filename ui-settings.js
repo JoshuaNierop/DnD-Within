@@ -86,7 +86,7 @@ function renderSettings() {
         html += '<section class="settings-section">';
         html += '<div class="settings-card">';
         html += '<h3 class="settings-subtitle">E-mail koppelen aan accounts</h3>';
-        html += '<p class="settings-hint">Koppel per account een e-mailadres. De speler logt daarna in met e-mail + zelfgekozen wachtwoord (eerste keer = wachtwoord instellen). Username-login blijft werken tot de cutover hieronder.</p>';
+        html += '<p class="settings-hint">Link an e-mail address to each account. The player then signs in with e-mail + a self-chosen password (first time = set password). Username login keeps working until the cutover below.</p>';
         var uids = Object.keys(allUsers).filter(function (k) { return k !== '__config'; }).sort();
         for (var aui = 0; aui < uids.length; aui++) {
             var auId = uids[aui];
@@ -98,8 +98,8 @@ function renderSettings() {
             html += '<span class="admin-user-id">' + escapeAttr(auId) + (auData.role === 'admin' ? ' · admin' : '') + '</span>';
             html += '</div>';
             html += '<input type="email" class="settings-input admin-email-input" data-uid="' + escapeAttr(auId) + '" value="' + escapeAttr(auData.email || '') + '" placeholder="naam@voorbeeld.nl" autocomplete="off">';
-            html += '<span class="admin-link-badge ' + (linked ? 'is-linked' : '') + '" title="' + (linked ? 'Heeft al ingelogd via e-mail' : 'Nog niet via e-mail ingelogd') + '">' + (linked ? '&#10003; gekoppeld' : '&#9711; open') + '</span>';
-            html += '<button class="btn btn-small" data-action="admin-save-email" data-uid="' + escapeAttr(auId) + '">Opslaan</button>';
+            html += '<span class="admin-link-badge ' + (linked ? 'is-linked' : '') + '" title="' + (linked ? 'Has signed in via e-mail' : 'Not signed in via e-mail yet') + '">' + (linked ? '&#10003; linked' : '&#9711; open') + '</span>';
+            html += '<button class="btn btn-small" data-action="admin-save-email" data-uid="' + escapeAttr(auId) + '">Save</button>';
             html += '</div>';
         }
         html += '</div></section>';
@@ -110,7 +110,7 @@ function renderSettings() {
         html += '<div class="settings-card">';
         html += '<div class="settings-field settings-toggle-field">';
         html += '<div><label class="settings-label">Username-login toestaan (transitie)</label>';
-        html += '<p class="settings-hint">Aan = oude username-login werkt nog én de database staat open. Uit (cutover) = alleen ingelogde e-mailaccounts hebben toegang. Zet pas uit als iedereen minstens één keer via e-mail heeft ingelogd (&#10003; gekoppeld).</p></div>';
+        html += '<p class="settings-hint">On = the old username login still works and the database stays open. Off (cutover) = only signed-in e-mail accounts have access. Only switch off once everyone has signed in via e-mail at least once (&#10003; linked).</p></div>';
         html += '<label class="toggle-switch"><input type="checkbox" id="admin-legacy-toggle"' + (legacyOpenNow ? ' checked' : '') + ' data-action="admin-toggle-legacy"><span class="toggle-slider"></span></label>';
         html += '</div>';
         html += '</div></section>';
@@ -221,7 +221,7 @@ function handleAdminSaveEmail(userId) {
 function handleAdminToggleLegacy(enabled) {
     if (typeof isAdmin !== 'function' || !isAdmin()) return;
     if (typeof syncReady === 'undefined' || !syncReady || !syncDb) {
-        showToast('Firebase nog niet verbonden — probeer opnieuw.', 'error');
+        showToast('Firebase not connected yet — try again.', 'error');
         return;
     }
     // Cutover-guard: uitzetten sluit iedereen buiten die niet via e-mail is
@@ -242,14 +242,14 @@ function handleAdminToggleLegacy(enabled) {
         var adminId = currentUserId();
         var adminU = allUsers[adminId] || getUserData(adminId) || {};
         if (!adminU.authUid) {
-            showToast('Log éérst zelf via e-mail in (admin moet in authMap staan) — anders kun je de cutover niet terugdraaien.', 'error');
+            showToast('Sign in via e-mail yourself first (admin must be in authMap) — otherwise you cannot undo the cutover.', 'error');
             resetToggle();
             return;
         }
         if (noEmail.length || notLinked.length) {
             var msg = 'Cutover geblokkeerd. ';
-            if (noEmail.length) msg += 'Geen e-mail gekoppeld: ' + noEmail.join(', ') + '. ';
-            if (notLinked.length) msg += 'Nog niet via e-mail ingelogd: ' + notLinked.join(', ') + '.';
+            if (noEmail.length) msg += 'No e-mail linked: ' + noEmail.join(', ') + '. ';
+            if (notLinked.length) msg += 'Not signed in via e-mail yet: ' + notLinked.join(', ') + '.';
             showToast(msg, 'error');
             resetToggle();
             return;
@@ -258,7 +258,7 @@ function handleAdminToggleLegacy(enabled) {
     syncDb.ref('dw/config/legacyOpen').set(!!enabled);
     if (typeof window !== 'undefined') { window.dwConfig = window.dwConfig || {}; window.dwConfig.legacyOpen = !!enabled; }
     if (typeof dwConfig !== 'undefined') dwConfig.legacyOpen = !!enabled;
-    showToast(enabled ? 'Username-login AAN (transitie)' : 'Cutover: alleen e-mail-login', enabled ? 'success' : 'info');
+    showToast(enabled ? 'Username login ON (transition)' : 'Cutover: e-mail login only', enabled ? 'success' : 'info');
 }
 
 // ============================================================

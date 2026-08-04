@@ -915,14 +915,14 @@ function bindPageEvents(route) {
 
             var fcHtml = '<div class="modal-overlay" id="famdiag-create-modal">';
             fcHtml += '<div class="modal-box famdiag-edit-box">';
-            fcHtml += '<div class="modal-header"><h3>Nieuwe familie</h3>';
+            fcHtml += '<div class="modal-header"><h3>New family</h3>';
             fcHtml += '<button class="modal-close" data-fc-action="cancel" aria-label="Sluiten">&times;</button></div>';
             fcHtml += '<div class="famdiag-edit-grid" style="grid-template-columns:1fr;">';
             fcHtml += '<label class="famdiag-edit-field"><span>Familienaam (achternaam)</span><input type="text" class="edit-input" id="fc-surname" autofocus placeholder="bv. Stormwind"></label>';
             fcHtml += '<label class="famdiag-edit-field"><span>Notities (optioneel)</span><textarea class="edit-input" id="fc-notes" rows="3" placeholder="Korte beschrijving, oorsprong, etc."></textarea></label>';
             fcHtml += '</div>';
             fcHtml += '<div class="modal-actions">';
-            fcHtml += '<button class="btn btn-ghost" data-fc-action="cancel">Annuleren</button>';
+            fcHtml += '<button class="btn btn-ghost" data-fc-action="cancel">Cancel</button>';
             fcHtml += '<button class="btn btn-primary" data-fc-action="save">Aanmaken</button>';
             fcHtml += '</div></div></div>';
 
@@ -963,7 +963,7 @@ function bindPageEvents(route) {
             var rfid = rbtn.dataset.familyId;
             var rfam = getFamily(rfid);
             if (!rfam) return;
-            var rnew = prompt('Nieuwe familienaam:', rfam.surname || '');
+            var rnew = prompt('New family name:', rfam.surname || '');
             if (rnew !== null) { renameFamily(rfid, rnew.trim()); renderApp(); }
             return;
         }
@@ -1006,7 +1006,7 @@ function bindPageEvents(route) {
             arHtml += '</select></label>';
             arHtml += '</div>';
             arHtml += '<div class="modal-actions">';
-            arHtml += '<button class="btn btn-ghost" data-ar-action="cancel">Annuleren</button>';
+            arHtml += '<button class="btn btn-ghost" data-ar-action="cancel">Cancel</button>';
             arHtml += '<button class="btn btn-primary" data-ar-action="save">Toevoegen</button>';
             arHtml += '</div></div></div>';
 
@@ -1054,7 +1054,7 @@ function bindPageEvents(route) {
             if (!apMem) return;
             // Check if already partnered in own family — if so, ask if user wants 2nd marriage (skip for v1, just block)
             var existingP = findUnionsAsPartner(apMid).filter(function(u) { return u.partnerIds.length >= 2; });
-            if (existingP.length > 0) { alert('Deze persoon heeft al een partner. Multi-partner ondersteuning komt later.'); return; }
+            if (existingP.length > 0) { alert('This person already has a partner. Multi-partner support is coming later.'); return; }
             var apName = prompt('Voornaam van de partner:');
             if (!apName) return;
             var apLast = prompt('Achternaam van de partner (leeg = zelfde familie):', apMem.lastName || '') || '';
@@ -1107,7 +1107,7 @@ function bindPageEvents(route) {
             var acFid = acbtn.dataset.familyId;
             var acUni = getUnion(acUid);
             if (!acUni) return;
-            var acName = prompt('Voornaam van het kind:');
+            var acName = prompt("Child's first name:");
             if (!acName) return;
             // Default child surname = surname of family currently being viewed
             var acFam = getFamily(acFid);
@@ -1152,8 +1152,8 @@ function bindPageEvents(route) {
             fmHtml += '</select></label>';
             fmHtml += '</div>';
             fmHtml += '<div class="modal-actions">';
-            fmHtml += '<button class="btn btn-ghost" data-fam-action="cancel">Annuleren</button>';
-            fmHtml += '<button class="btn btn-primary" data-fam-action="save">Opslaan</button>';
+            fmHtml += '<button class="btn btn-ghost" data-fam-action="cancel">Cancel</button>';
+            fmHtml += '<button class="btn btn-primary" data-fam-action="save">Save</button>';
             fmHtml += '</div></div></div>';
 
             document.body.insertAdjacentHTML('beforeend', fmHtml);
@@ -1942,7 +1942,7 @@ function bindPageEvents(route) {
                 if (sec) {
                     sec.innerHTML = '<div class="scene-image-preview"><img src="' + escapeAttr(url) + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + sIdx + '">' + (t('generic.delete') || 'Delete') + '</button></div>' +
                         (typeof sceneSizePickerHtml === 'function' ? sceneSizePickerHtml(psSize, sIdx) : '') +
-                        '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + sIdx + '">Kies bestaande</button>';
+                        '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + sIdx + '">Pick existing</button>';
                 }
                 var scId = psBlock.dataset.sceneId || ('sc' + Date.now() + Math.random().toString(36).slice(2, 7));
                 psBlock.dataset.sceneId = scId;
@@ -2016,7 +2016,7 @@ function bindPageEvents(route) {
                     saveScene(sceneId, data);
                 } catch (e) {
                     console.error('[scene] commit failed', e);
-                    if (typeof showToast === 'function') showToast('Scene niet opgeslagen — ' + (e.message || 'error'), 'error');
+                    if (typeof showToast === 'function') showToast('Scene not saved — ' + (e.message || 'error'), 'error');
                 }
             }
             return sceneId;
@@ -2126,8 +2126,8 @@ function bindPageEvents(route) {
             var idx2 = block2.dataset.sceneIdx;
             delete block2.dataset.imageRef;   // dropping the image also drops any live ref
             if (imgSec2) {
-                imgSec2.innerHTML = '<label class="note-image-upload"><span>' + (t('notes.addimage') || 'Voeg afbeelding toe') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + idx2 + '" style="display:none"></label>' +
-                    '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + idx2 + '">Kies bestaande</button>';
+                imgSec2.innerHTML = '<label class="note-image-upload"><span>' + (t('notes.addimage') || 'Add image') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + idx2 + '" style="display:none"></label>' +
+                    '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + idx2 + '">Pick existing</button>';
             }
             var sId2 = block2.dataset.sceneId;
             if (sId2 && typeof saveScene === 'function') {
@@ -2414,7 +2414,7 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="delete-selected-pin"]') || target.closest('[data-action="delete-selected-pin"]')) {
             e.stopPropagation();
             if (selectedPinIdx === null) return;
-            if (!confirm('Verwijder deze pin-area?')) return;
+            if (!confirm('Delete this pin area?')) return;
             var dsData = getMapsData();
             var dsDim = dsData.dimensions[activeDimension];
             for (var dsi = 0; dsi < dsDim.maps.length; dsi++) {
@@ -2568,7 +2568,7 @@ function bindPageEvents(route) {
             e.stopPropagation();
             var dpBtn = target.closest('[data-action="delete-pin"]') || target;
             var delPinIdx = parseInt(dpBtn.dataset.pinIdx);
-            if (!confirm('Verwijder deze pin?')) return;
+            if (!confirm('Delete this pin?')) return;
             var mData = getMapsData();
             var mDim = mData.dimensions[activeDimension];
             for (var dmi = 0; dmi < mDim.maps.length; dmi++) {
@@ -2601,7 +2601,7 @@ function bindPageEvents(route) {
             epModalHtml += '<h3>Pin bewerken</h3>';
             epModalHtml += '<div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">';
             epModalHtml += '<input type="text" class="edit-input" id="pin-meta-label" placeholder="Label" value="' + escapeAttr(epPin.label || '') + '">';
-            epModalHtml += '<label style="font-size:0.8rem;color:var(--text-dim);">Link naar map</label>';
+            epModalHtml += '<label style="font-size:0.8rem;color:var(--text-dim);">Link to map</label>';
             epModalHtml += '<select class="edit-input" id="pin-meta-link" style="padding:0.5rem;">';
             epModalHtml += '<option value="">' + t('maps.addpin.nolink') + '</option>';
             for (var epdi = 0; epdi < epData.dimensions.length; epdi++) {
@@ -2812,7 +2812,7 @@ function bindPageEvents(route) {
                         if (imgSec3) {
                             imgSec3.innerHTML = '<div class="scene-image-preview"><img src="' + dataUrl + '" alt=""><button type="button" class="btn btn-ghost btn-sm" data-action="remove-scene-image" data-scene-idx="' + idx3 + '">' + (t('generic.delete') || 'Delete') + '</button></div>' +
                                 (typeof sceneSizePickerHtml === 'function' ? sceneSizePickerHtml(upSize, idx3) : '') +
-                                '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + idx3 + '">Kies bestaande</button>';
+                                '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + idx3 + '">Pick existing</button>';
                         }
                         // Per-scene save: only this scene's blob goes over the wire.
                         try {
@@ -2946,7 +2946,7 @@ function bindPageEvents(route) {
                         if (noteSection) {
                             delete noteSection.dataset.imageRef;   // uploading overrides any live ref
                             noteSection.innerHTML = '<div class="note-image-preview"><img src="' + noteBase64 + '" alt=""><button class="btn btn-ghost btn-sm" data-action="remove-note-image">' + t('generic.delete') + '</button></div>' +
-                                '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-note-image">Kies bestaande</button>';
+                                '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-note-image">Pick existing</button>';
                         }
                     };
                     nimg.src = ev.target.result;

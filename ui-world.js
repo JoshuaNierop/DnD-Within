@@ -819,8 +819,8 @@ function renderMaps() {
             var selIsPolygon = selPin && (selPin.shape.kind === 'polygon' || (selPin.shape.nodes && selPin.shape.nodes.length >= 3));
             var roundPct = selPin ? Math.round(pinRoundness(selPin) * 100) : 60;
             var hint = selPin
-                ? 'Sleep de area om te verplaatsen · klik op de rand om een hoekpunt toe te voegen · sleep hoekpunten om te kneden · tik een hoekpunt om het te verwijderen.'
-                : 'Klik op een area om hem te selecteren, of voeg een nieuwe pin-area toe.';
+                ? 'Drag the area to move it · click the edge to add a corner point · drag corner points to shape it · tap a corner point to remove it.'
+                : 'Click an area to select it, or add a new pin area.';
 
             html += '<div class="pin-add-overlay pin-edit-overlay">';
             html += '<p class="pin-edit-hint">' + hint + '</p>';
@@ -973,13 +973,13 @@ function _saveSceneBlob(sceneId, scene) {
                     if (typeof showToast === 'function') showToast('Scene opgeslagen met sterkere image-compressie', 'success');
                 } catch (e3) {
                     console.error('[timeline] scene save still failing after shrink', e3);
-                    if (typeof showToast === 'function') showToast('Scene niet opgeslagen \u2014 storage vol. Verwijder oude scenes/sessies of upload een kleinere afbeelding.', 'error');
+                    if (typeof showToast === 'function') showToast('Scene not saved \u2014 storage full. Delete old scenes/sessions or upload a smaller image.', 'error');
                 }
             });
             return;
         }
         console.error('[timeline] scene save failed (storage full?)', e);
-        if (typeof showToast === 'function') showToast('Scene niet opgeslagen \u2014 storage vol: ' + (e.message || ''), 'error');
+        if (typeof showToast === 'function') showToast('Scene not saved \u2014 storage full: ' + (e.message || ''), 'error');
     }
 }
 
@@ -1148,7 +1148,7 @@ function getTimelineData() {
                     scenes: [{
                         id: 'seed',
                         layout: 'text',
-                        text: 'De avonturiers ontmoeten elkaar bij een kruispunt. Een verweerd bord wijst in vier richtingen \u2014 maar iets trekt hen allemaal dezelfde kant op.',
+                        text: 'The adventurers meet at a crossroads. A weathered signpost points in four directions \u2014 yet something pulls them all the same way.',
                         image: null
                     }]
                 }]
@@ -1314,7 +1314,7 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
         } else {
             html += '<label class="note-image-upload"><span>' + t('notes.addimage') + '</span><input type="file" accept="image/*" data-action="upload-scene-image" data-scene-idx="' + sceneIdx + '" style="display:none"></label>';
         }
-        html += '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + sceneIdx + '">Kies bestaande</button>';
+        html += '<button type="button" class="btn btn-ghost btn-sm scene-pick-existing" data-action="pick-scene-image" data-scene-idx="' + sceneIdx + '">Pick existing</button>';
         html += '</div>';
         html += '<div class="scene-text-section" style="display:' + (needsText ? 'block' : 'none') + '">';
         var sText = s.text || '';
@@ -1591,7 +1591,7 @@ function renderLore(subpage) {
     if (activeTab === 'npcs') {
         html += renderNPCTracker();
     } else if (activeTab === 'families') {
-        html += (typeof renderDMFamilies === 'function') ? renderDMFamilies() : '<p class="text-dim">Families niet beschikbaar.</p>';
+        html += (typeof renderDMFamilies === 'function') ? renderDMFamilies() : '<p class="text-dim">Families not available.</p>';
     } else if (activeTab === 'articles') {
         html += renderLoreArticlesInner();
     } else {
@@ -1613,7 +1613,7 @@ function renderLoreArticlesInner() {
     html += '</div>';
 
     if (!data.articles.length) {
-        html += '<p class="text-dim">' + (isDM() ? 'Nog geen artikelen. Klik "' + t('lore.addarticle') + '".' : 'Nog geen artikelen.') + '</p>';
+        html += '<p class="text-dim">' + (isDM() ? 'No articles yet. Click "' + t('lore.addarticle') + '".' : 'No articles yet.') + '</p>';
         return html;
     }
     html += '<div class="lore-grid">';
@@ -2254,13 +2254,13 @@ function renderImagePicker() {
 
     var html = '<div class="modal-overlay img-picker-overlay">';
     html += '<div class="modal-card modal-img-picker">';
-    html += '<div class="modal-header"><h2>Kies bestaande afbeelding</h2>';
+    html += '<div class="modal-header"><h2>Pick an existing image</h2>';
     html += '<button class="modal-close" data-action="close-img-picker">&times;</button></div>';
     html += '<div class="modal-body">';
-    html += '<input type="text" class="edit-input" id="img-picker-search" placeholder="Zoek op naam…" value="' + escapeAttr(imgPickerSearch) + '">';
+    html += '<input type="text" class="edit-input" id="img-picker-search" placeholder="Search by name…" value="' + escapeAttr(imgPickerSearch) + '">';
 
     if (!ents.length) {
-        html += '<p class="text-dim" style="margin-top:1rem;">' + (q ? 'Geen resultaten.' : 'Nog geen afbeeldingen beschikbaar.') + '</p>';
+        html += '<p class="text-dim" style="margin-top:1rem;">' + (q ? 'No results.' : 'No images available yet.') + '</p>';
     } else {
         // Groepeer per categorie.
         var groups = {};
@@ -2331,14 +2331,14 @@ function searchResults() {
 function renderSearchOverlay() {
     var html = '<div class="modal-overlay search-overlay">';
     html += '<div class="search-panel">';
-    html += '<div class="search-bar"><input type="text" id="global-search-input" class="edit-input" placeholder="Zoek characters, NPCs, places, items…" value="' + escapeAttr(searchQuery) + '">';
+    html += '<div class="search-bar"><input type="text" id="global-search-input" class="edit-input" placeholder="Search characters, NPCs, places, items…" value="' + escapeAttr(searchQuery) + '">';
     html += '<button class="modal-close" data-action="close-search">&times;</button></div>';
 
     var res = searchResults();
     if (!searchQuery.trim()) {
         html += '<div class="search-hint text-dim">Typ om te zoeken. Klik een resultaat om er naartoe te gaan.</div>';
     } else if (!res.length) {
-        html += '<div class="search-hint text-dim">Geen resultaten voor "' + escapeHtml(searchQuery.trim()) + '".</div>';
+        html += '<div class="search-hint text-dim">No results for "' + escapeHtml(searchQuery.trim()) + '".</div>';
     } else if (!searchShowAll) {
         // Compacte referentielijst (zoals de @-popup): top 8, klikbaar.
         var top = res.slice(0, 8);
@@ -2388,7 +2388,7 @@ function renderNPCModal(idx) {
     var html = '<div class="modal-overlay npc-modal-overlay">';
     html += '<div class="modal-card modal-lore">';
     html += '<div class="modal-header">';
-    html += '<h2>' + (isNew ? 'Nieuwe NPC' : 'NPC bewerken') + '</h2>';
+    html += '<h2>' + (isNew ? 'New NPC' : 'Edit NPC') + '</h2>';
     html += '<button class="modal-close" data-action="close-npc-modal">&times;</button>';
     html += '</div>';
     html += '<div class="modal-body npc-form" data-npc-idx="' + (isNew ? -1 : idx) + '">';
@@ -3184,7 +3184,7 @@ function renderLoreCategory(cat) {
     for (var t2 = 0; t2 < LORE_TABS.length; t2++) if (LORE_TABS[t2].id === cat) label = LORE_TABS[t2].label;
 
     var html = '<div class="lore-cat-toolbar">';
-    html += '<input type="text" class="edit-input lore-cat-search" id="lore-cat-search" placeholder="Zoek in ' + escapeAttr(label) + '\u2026" value="' + escapeAttr(loreCatSearch) + '">';
+    html += '<input type="text" class="edit-input lore-cat-search" id="lore-cat-search" placeholder="Search in ' + escapeAttr(label) + '\u2026" value="' + escapeAttr(loreCatSearch) + '">';
     if (isDM()) {
         html += '<button class="btn btn-primary btn-sm" data-action="add-lore-entry" data-cat="' + cat + '">+ ' + escapeHtml(label.replace(/s$/, '')) + '</button>';
     }
@@ -3462,7 +3462,7 @@ function renderNoteEditor(noteId) {
     } else {
         html += '<label class="note-image-upload"><span>' + t('notes.addimage') + '</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
     }
-    html += '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-note-image">Kies bestaande</button>';
+    html += '<button type="button" class="btn btn-ghost btn-sm" data-action="pick-note-image">Pick existing</button>';
     html += '</div>';
 
     // Gallery upload (multi-image)

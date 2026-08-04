@@ -736,7 +736,7 @@ var SEED_DATA = {
     },
 
     barius: {
-        id: "barius", name: "Bastian Ember", player: "barius",
+        id: "barius", name: "Bastion Ember", player: "barius",
         race: "tiefling", className: "paladin", subclass: "devotion",
         background: "Soldier", alignment: "Lawful Good", age: 28,
         accentColor: "#fbbf24",
@@ -989,7 +989,9 @@ function classDisplayName(className) {
 // 2024 PHB: het level waarop een class zijn subclass kiest. Vrijwel alle classes
 // op level 3; Cleric is de uitzondering (Divine Order op level 1). #OvVZiZ
 function subclassChoiceLevel(className) {
-    return (className === 'cleric') ? 1 : 3;
+    // 2024 PHB: every class picks its subclass at level 3 (the 2014 cleric
+    // L1-choice no longer exists).
+    return 3;
 }
 
 function subclassDisplayName(subclass) {

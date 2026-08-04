@@ -194,13 +194,13 @@ function firebasePathToLocalKey(path) {
 
 function initFirebaseSync() {
     if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.databaseURL) {
-        console.log('[Sync] Firebase niet geconfigureerd.');
+        console.log('[Sync] Firebase not configured.');
         return;
     }
 
     try {
         if (typeof firebase === 'undefined') {
-            console.warn('[Sync] Firebase SDK niet geladen.');
+            console.warn('[Sync] Firebase SDK not loaded.');
             return;
         }
 
@@ -472,7 +472,7 @@ function syncStartListeners() {
 
 function syncUploadAll() {
     if (!syncReady || !syncDb) {
-        console.warn('[Sync] Firebase niet klaar.');
+        console.warn('[Sync] Firebase not ready.');
         return;
     }
 
@@ -484,7 +484,7 @@ function syncUploadAll() {
             count++;
         }
     }
-    console.log('[Sync] ' + count + ' items geupload naar Firebase.');
+    console.log('[Sync] ' + count + ' items uploaded to Firebase.');
 }
 
 // ===== Seed campaign data to Firebase =====
@@ -492,12 +492,12 @@ function syncUploadAll() {
 
 function syncSeedCampaign() {
     if (!syncReady || !syncDb) {
-        console.warn('[Sync] Firebase niet klaar.');
+        console.warn('[Sync] Firebase not ready.');
         return;
     }
 
     if (typeof SEED_DATA === 'undefined') {
-        console.warn('[Sync] Geen SEED_DATA gevonden.');
+        console.warn('[Sync] No SEED_DATA found.');
         return;
     }
 
@@ -710,7 +710,7 @@ function syncListenUsers() {
 
 function seedUsers() {
     if (!syncReady || !syncDb) {
-        console.warn('[Sync] Firebase niet klaar voor user seeding.');
+        console.warn('[Sync] Firebase not ready for user seeding.');
         return;
     }
     if (typeof DEFAULT_USERS === 'undefined') return;

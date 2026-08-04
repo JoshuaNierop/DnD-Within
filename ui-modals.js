@@ -22,8 +22,8 @@ function renderProfileModal() {
     html += '<input type="text" class="login-input" value="' + escapeAttr(uid) + '" disabled style="opacity:0.5;">';
     html += '</div>';
     html += '<div class="login-field">';
-    html += '<label class="login-label">Weergavenaam</label>';
-    html += '<input type="text" class="login-input" id="profile-display-name" value="' + escapeAttr(u.name) + '" placeholder="Weergavenaam">';
+    html += '<label class="login-label">Display name</label>';
+    html += '<input type="text" class="login-input" id="profile-display-name" value="' + escapeAttr(u.name) + '" placeholder="Display name">';
     html += '</div>';
     html += '<div class="login-field">';
     html += '<label class="login-label">Huidig wachtwoord</label>';
@@ -44,7 +44,7 @@ function renderProfileModal() {
     html += '</div>';
     html += '<p class="login-error" id="profile-error" style="display:none;"></p>';
     html += '<p class="profile-success" id="profile-success" style="display:none;">Opgeslagen!</p>';
-    html += '<button class="login-submit" data-action="save-profile">Opslaan</button>';
+    html += '<button class="login-submit" data-action="save-profile">Save</button>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
@@ -89,13 +89,13 @@ function handleSaveProfile() {
     if (successEl) { successEl.style.display = 'none'; }
 
     if (!newName) {
-        if (errorEl) { errorEl.textContent = 'Weergavenaam mag niet leeg zijn.'; errorEl.style.display = 'block'; }
+        if (errorEl) { errorEl.textContent = 'Display name cannot be empty.'; errorEl.style.display = 'block'; }
         return;
     }
 
     if (newPass) {
         if (!currentPass) {
-            if (errorEl) { errorEl.textContent = 'Voer je huidige wachtwoord in om je wachtwoord te wijzigen.'; errorEl.style.display = 'block'; }
+            if (errorEl) { errorEl.textContent = 'Enter your current password to change your password.'; errorEl.style.display = 'block'; }
             return;
         }
         if (u.password !== currentPass) {
@@ -103,7 +103,7 @@ function handleSaveProfile() {
             return;
         }
         if (newPass !== confirmPass) {
-            if (errorEl) { errorEl.textContent = 'Wachtwoorden komen niet overeen.'; errorEl.style.display = 'block'; }
+            if (errorEl) { errorEl.textContent = 'Passwords do not match.'; errorEl.style.display = 'block'; }
             return;
         }
     }
@@ -723,7 +723,7 @@ function renderWizardStep3() {
     html += '<input type="number" class="wizard-input wizard-input-sm" id="wizard-hp-temp" value="' + (wizardState.hpTemp !== '' ? wizardState.hpTemp : '') + '" min="0" max="999" placeholder="0">';
     html += '</div>';
     html += '</div>';
-    html += '<p class="wizard-hint">Max wordt automatisch berekend uit klasse, CON en level. Vul Override alleen in voor gerolde/homebrew HP. Current/Temp leeg = volledig.</p>';
+    html += '<p class="wizard-hint">Max is calculated automatically from class, CON and level. Only use Override for rolled/homebrew HP. Leave Current/Temp empty for full HP.</p>';
     html += '</div>';
 
     // Accent Color verwijderd uit de wizard (#YAJBUH): per-character kleur hoort niet
@@ -1324,7 +1324,7 @@ function buildWizardStateFromConfig(charId) {
 // Open de creation-wizard in edit-modus met een bestaand character voorgevuld.
 function openWizardForEdit(charId) {
     if (!buildWizardStateFromConfig(charId)) {
-        showToast('Character niet gevonden', 'error');
+        showToast('Character not found', 'error');
         return;
     }
     var div = document.createElement('div');
@@ -1340,7 +1340,7 @@ function openWizardForEdit(charId) {
 // gaat. Case-insensitive, na trim.
 function openDeleteCharacterModal(charId) {
     var cfg = loadCharConfig(charId);
-    if (!cfg) { showToast('Character niet gevonden', 'error'); return; }
+    if (!cfg) { showToast('Character not found', 'error'); return; }
     var existing = document.querySelector('.char-delete-modal-wrap');
     if (existing) existing.remove();
 
@@ -1523,7 +1523,7 @@ function bindWizardEvents() {
     _wzBindOnce(cropBtn, 'click', function(e) {
         e.stopPropagation();
         if (!wizardState || !wizardState.portrait) return;
-        if (typeof openCropEditor !== 'function') { showToast('Crop-editor niet geladen', 'error'); return; }
+        if (typeof openCropEditor !== 'function') { showToast('Crop editor not loaded', 'error'); return; }
         openCropEditor({
             src: wizardState.portrait,
             crop: wizardState.portraitCrop,
