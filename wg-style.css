@@ -1548,3 +1548,44 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   font-weight: 700; letter-spacing: 0.02em; }
 .wgx-lu-primary:hover:not(:disabled) { background: var(--gold, #d4b97a); border-color: var(--gold, #d4b97a); color: #14100c; }
 .wgx-lu-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ===== Styled confirm dialog (wgxConfirmModal — widget delete, e.a.) ===== */
+.wgx-confirm-card { max-width: 440px; width: min(92vw, 440px); }
+.wgx-confirm-card .modal-header h2 { font-family: var(--font-display, serif); }
+.wgx-confirm-msg { margin: 0.4rem 0 0.8rem; line-height: 1.5; color: var(--text-main, #e8e2d6); }
+.wgx-confirm-skip { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82em;
+  color: var(--text-dim, #9a8e7e); cursor: pointer; user-select: none; padding: 0.1rem 0 0.3rem; }
+.wgx-confirm-skip input { accent-color: var(--accent-warm, #c9a961); width: 14px; height: 14px; cursor: pointer; }
+.wgx-confirm-skip:hover { color: var(--text-main, #e8e2d6); }
+
+/* ===== Features widget: Active/Passive sections ===== */
+svg .info-box-cell.wgx-feat-header { fill: var(--accent-warm, #c9a961); fill-opacity: 0.10; }
+svg g.editable-cell:hover .info-box-cell.wgx-feat-header { fill-opacity: 0.10; cursor: default; }
+svg .info-box-cell.wgx-feat-active { fill: var(--info-amber, #e0a106); fill-opacity: 0.10; }
+svg g.editable-cell:hover .info-box-cell.wgx-feat-active { fill-opacity: 0.26; }
+svg g.editable-cell:hover .info-box-cell.wgx-feat-passive { cursor: default; }
+
+/* ===== Cast-window (wg-prepare.js) ===== */
+.wgx-cast-card { max-width: 560px; width: min(94vw, 560px); max-height: 86vh; display: flex; flex-direction: column; }
+.wgx-cast-card .modal-header h2 { font-family: var(--font-display, serif); display: flex; align-items: baseline; gap: 0.6rem; }
+.wgx-cast-lvl { font-size: 0.62em; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-warm, #c9a961); font-family: var(--font-display, serif); }
+.wgx-cast-body { overflow-y: auto; flex: 1; }
+.wgx-cast-meta { display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; padding: 0.5rem 0.6rem; margin: 0.3rem 0 0.6rem;
+  background: var(--bg-block, #1c1815); border: 1px solid var(--border, #2c2520); border-radius: 8px; font-size: 0.82em; }
+.wgx-cast-meta b { color: var(--accent-warm, #c9a961); font-weight: 600; margin-right: 0.3rem; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.06em; }
+.wgx-cast-meta .wgx-cast-flag { color: var(--accent-warm, #c9a961); font-weight: 600; }
+.wgx-cast-desc { margin: 0.4rem 0; line-height: 1.5; color: var(--text-main, #e8e2d6); font-size: 0.9em; }
+.wgx-cast-stats { margin: 0.3rem 0 0.6rem; font-size: 0.85em; color: var(--text-dim, #9a8e7e); }
+.wgx-cast-stats b { color: var(--text-main, #e8e2d6); }
+.wgx-cast-h3 { font-family: var(--font-display, serif); font-size: 0.85rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-warm, #c9a961);
+  margin: 0.5rem 0 0.35rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--hairline-gold, rgba(201,169,97,0.25)); }
+.wgx-cast-opts { display: flex; flex-direction: column; gap: 0.5rem; padding-bottom: 0.4rem; }
+.wgx-cast-opt { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; width: 100%;
+  text-align: left; padding: 0.6rem 0.8rem; background: var(--bg-block, #1c1815);
+  border: 1px solid var(--border, #2c2520); border-radius: 8px; color: var(--text-main, #e8e2d6);
+  cursor: pointer; font: inherit; transition: border-color 0.15s, background 0.15s, transform 0.1s; }
+.wgx-cast-opt:hover:not([disabled]) { border-color: var(--accent-warm, #c9a961); transform: translateY(-1px); }
+.wgx-cast-opt b { color: var(--accent-warm, #c9a961); font-family: var(--font-display, serif); }
+.wgx-cast-opt span { font-size: 0.8em; color: var(--text-dim, #9a8e7e); }
+.wgx-cast-opt[disabled] { opacity: 0.38; cursor: default; }

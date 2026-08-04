@@ -657,3 +657,15 @@ Nieuwe `#/widget-demo` route toont elke widget in min/default/max naast elkaar m
 **Current state:** Fase F compleet voor L1–3. Open: D2-rest (resources/rest-widgets live), review-lijst 0f–0k (o.a. PHB-spot-checks, io's 4 cantrips, spellPool NL-debt).
 **Next steps:** review-lijst met fysieke PHB; D2-rest browsertest; fase F+ pas richting L4.
 ---
+
+### Recap — 2026-08-04 02:20 (Spells/Features-widgets + cast-flow + naam-sweep)
+**What was done:**
+- Cast-flow: spell-rij klikbaar → cast-window (volledige meta + desc + DC/attack) met Cast/Upcast per slot-level, Pact-slot (Warlock), Cast as Ritual, gratis casts via resources (Paladin's Smite, Favored Enemy, species-spells); schrijft spellSlotsUsed/pactSlotsUsed/resource-tellers
+- Nieuwe Spell Slots-widget (pips per level; Warlock pact-rij); Features-widget gesplitst ACTIVE (klikbare use-counters) / PASSIVE; resource-registry +7 entries (Lay On Hands, Paladin's Smite, Favored Enemy, Arcane Recovery, Magical Cunning, Fiendish Legacy, High Elf Detect Magic) met featureNames/spellNames-koppeling
+- Widget-delete: eigen modal met "Don't ask again this session" (wgxConfirmModal, herbruikbaar)
+- 2024-fixes: paladin/ranger feature-blokken (Spellcasting→L1, Deft Explorer→L2, Divine Sense→CD, Paladin's Smite L2), Wild Shape/Second Wind/CD-descs; 23 party-spell-descs + alle dur/time-velden → EN
+- Data: io cantrips 4→2 (Guidance+Produce Flame); Barius/Bastion→Bastian (config, initiative, family, 9 scenes, core.js; id barius blijft)
+**Verified:** node 103/103; live: upcast, cantrip, free-cast+disable, slots-spend, features-klik, confirm-modal+session-skip; 0 console-errors; testchars weg
+**Files:** data.js, wg-prepare.js (herschreven), wg-features.js (herschreven), wg-ui.js, wg-resource.js, core.js, wg-style.css, Metadocs
+**Next:** bulk spellPool-vertaling (~230 descs); D2-rest live-test resources/rest-widgets in echte dashboards
+---

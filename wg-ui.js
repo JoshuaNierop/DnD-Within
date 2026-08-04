@@ -748,6 +748,57 @@ if (_settingsToggle) {
 }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSettings(); });
 
+// ===== Styled confirm dialog (replaces the native window.confirm) =====
+// Returns a Promise<boolean>. When `sessionKey` is set, the dialog shows a
+// "Don't ask again this session" checkbox; once checked-and-confirmed, later
+// calls with the same key resolve true immediately (sessionStorage-backed).
+function wgxConfirmModal(opts) {
+  return new Promise((resolve) => {
+    if (opts.sessionKey && sessionStorage.getItem(opts.sessionKey) === '1') { resolve(true); return; }
+    const host = document.createElement('div');
+    host.className = 'wgx-confirm-host';
+    host.innerHTML =
+      '<div class="modal-overlay"><div class="modal-card wgx-confirm-card">' +
+      '<div class="modal-header"><h2></h2></div>' +
+      '<div class="modal-body"><p class="wgx-confirm-msg"></p>' +
+      (opts.sessionKey ? '<label class="wgx-confirm-skip"><input type="checkbox"> Don\'t ask again this session</label>' : '') +
+      '</div><div class="wgx-lu-nav">' +
+      '<button class="wgx-lu-btn" data-act="cancel"></button>' +
+      '<button class="wgx-lu-btn wgx-lu-primary" data-act="ok"></button>' +
+      '</div></div></div>';
+    host.querySelector('h2').textContent = opts.title || 'Are you sure?';
+    host.querySelector('.wgx-confirm-msg').textContent = opts.message || '';
+    host.querySelector('[data-act="cancel"]').textContent = opts.cancelLabel || 'Cancel';
+    host.querySelector('[data-act="ok"]').textContent = opts.confirmLabel || 'Confirm';
+    const done = (ok) => {
+      if (ok && opts.sessionKey) {
+        const cb = host.querySelector('.wgx-confirm-skip input');
+        if (cb && cb.checked) sessionStorage.setItem(opts.sessionKey, '1');
+      }
+      document.removeEventListener('keydown', onKey, true);
+      host.remove();
+      resolve(ok);
+    };
+    // Capture-phase zodat Enter/Escape/Delete niet doorlekken naar de
+    // dashboard-shortcuts terwijl de dialog open is.
+    const onKey = (e) => {
+      e.stopPropagation();
+      if (e.key === 'Escape') { e.preventDefault(); done(false); }
+      else if (e.key === 'Enter') { e.preventDefault(); done(true); }
+    };
+    host.addEventListener('click', (e) => {
+      if (e.target.classList && e.target.classList.contains('modal-overlay')) { done(false); return; }
+      const b = e.target.closest('[data-act]');
+      if (b) done(b.getAttribute('data-act') === 'ok');
+    });
+    document.addEventListener('keydown', onKey, true);
+    document.body.appendChild(host);
+    const okBtn = host.querySelector('[data-act="ok"]');
+    if (okBtn) okBtn.focus();
+  });
+}
+const WGX_SKIP_WIDGET_DELETE = 'dw_skipWidgetDeleteConfirm';
+
 // V9: Delete/Backspace verwijdert de geselecteerde widget (niet wanneer een
 // invoerveld focus heeft).
 document.addEventListener('keydown', (e) => {
@@ -755,18 +806,26 @@ document.addEventListener('keydown', (e) => {
   const ae = document.activeElement;
   if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' ||
              ae.tagName === 'SELECT' || ae.isContentEditable)) return;
+  if (document.querySelector('.wgx-confirm-host')) return; // dialog already open
   if (state.activeWidgetIdx < 0 || !state.widget) return;
   // V11: allow removing last widget (tab can be empty)
   e.preventDefault();
   // Multi-select: verwijder alle geselecteerde widgets in één keer.
   const sel = wgGetSelectedIdxs();
   if (sel.length > 1) {
-    if (confirm(`Delete ${sel.length} widgets?`)) removeSelectedWidgets();
+    wgxConfirmModal({
+      title: 'Delete widgets',
+      message: 'Delete ' + sel.length + ' widgets? This cannot be undone.',
+      confirmLabel: 'Delete', sessionKey: WGX_SKIP_WIDGET_DELETE,
+    }).then((ok) => { if (ok) removeSelectedWidgets(); });
     return;
   }
-  if (confirm(`Delete widget "${displayTitle(state.widget)}"?`)) {
-    removeWidget(state.activeWidgetIdx);
-  }
+  const idx = state.activeWidgetIdx;
+  wgxConfirmModal({
+    title: 'Delete widget',
+    message: 'Delete widget "' + displayTitle(state.widget) + '"? This cannot be undone.',
+    confirmLabel: 'Delete', sessionKey: WGX_SKIP_WIDGET_DELETE,
+  }).then((ok) => { if (ok) removeWidget(idx); });
 });
 
 // Widget-clipboard: Ctrl/Cmd+C kopieert de geselecteerde widget(s),

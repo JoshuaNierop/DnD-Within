@@ -736,7 +736,7 @@ var SEED_DATA = {
     },
 
     barius: {
-        id: "barius", name: "Barius Ember", player: "barius",
+        id: "barius", name: "Bastian Ember", player: "barius",
         race: "tiefling", className: "paladin", subclass: "devotion",
         background: "Soldier", alignment: "Lawful Good", age: 28,
         accentColor: "#fbbf24",

@@ -1,6 +1,17 @@
 # Leveling Up — Status
 
-_Laatst bijgewerkt: 2026-08-04_
+_Laatst bijgewerkt: 2026-08-04 (2e sessie: widgets + cast-flow)_
+
+## Sessie 2026-08-04-b — Spells/Features-widgets + cast-flow (op Joshua's verzoek)
+- [x] **Cast-flow**: Prepared Spells-widget klikbaar → cast-window per spell (meta-balk time/range/components/duration + ◆Concentration/(R)Ritual, beschrijving, DC/attack) met opties: Cast (cantrip, at will) · Cast/Upcast per beschikbaar slot-level (x/y left, disabled bij 0) · Warlock Pact-slot · Cast as Ritual (best-effort ritual-tag) · **Cast without a slot** via gekoppelde resource (Favored Enemy→Hunter's Mark, Paladin's Smite→Divine Smite, species-spells). Cast schrijft `spellSlotsUsed[lvl]` / `pactSlotsUsed` / resource-teller.
+- [x] **Spell Slots-widget** (nieuw): rij per slot-level met pips; Warlock = één Pact Magic-rij (toont slot-level); klik = 1 slot handmatig verbruiken, klik-bij-leeg = herstel (correctie); long/short rest reset zoals altijd.
+- [x] **Features-widget**: gesplitst in **ACTIVE** (features met use-counter; pips of x/y in eigen kolom; klik op de teller = 1 use verbruiken, zelfde semantiek als Resources-widget) en **PASSIVE**; volledige tooltips incl. uses/recharge/klik-uitleg.
+- [x] **Resource-registry uitgebreid** (featureNames/spellNames-koppeling): + Lay On Hands (pool 5×level), Paladin's Smite (1×/LR), Favored Enemy (2×/LR, schaalt), Arcane Recovery, Magical Cunning, Fiendish Legacy Spell (tiefling L3), Detect Magic (high elf L3). Rest-resets pakken ze automatisch mee (generiek).
+- [x] **Widget-delete**: native confirm() vervangen door gestylede modal met "Don't ask again this session" (sessionStorage; `wgxConfirmModal` is generiek herbruikbaar).
+- [x] **2024-fixes**: paladin features herschikt (Spellcasting→L1, Divine Sense weg als losse L1-feature → zit in Channel Divinity L3, L2=Paladin's Smite), ranger (Spellcasting→L1, Deft Explorer L1→L2), Wild Shape/Second Wind/Channel Divinity-descs (waren "PB uses" = 2014) → 2024-aantallen, EN.
+- [x] **Vertaald**: 23 party-zichtbare spell-descs (alle prepared/cantrips van de 8 chars + Divine Smite/Hunter's Mark) + álle dur/time-velden in spellPool → Engels. Rest van de desc-bodies (~230) = 0k-debt.
+- [x] **Data-fixes op verzoek**: io's cantrips 4→2 (Guidance uit haar creation-record + Produce Flame als damage-optie — wisselen kan altijd); "Barius"/"Bastion" → **Bastian** in config-naam, DM-initiative, family-member, 9 timeline-scenes + core.js-fallback. Technische id `barius` (chat-keys, refs, URL) bewust ongemoeid; 2 Cloudinary-image-URLs bevatten "Barius" in de bestandsnaam — hernoemen zou de afbeeldingen breken.
+- **Verified**: node-smoketest 103/103; live browser: cast lvl-1 + upcast lvl-2 (sorcerer), cantrip-cast, free-cast Divine Smite via Paladin's Smite (knop disabled na gebruik), slots-widget spend, features active/passive-model + Lay On Hands-klik (15-punts pool), confirm-modal incl. session-skip. Testchars verwijderd, 0 console-errors.
 
 ## Gedaan
 - [x] P1 — Fase A: codebase-verkenning (widget-systeem, wizard-modal, tooltips, Firebase-patroon; conclusie: nul bestaande level-up-mechaniek)
@@ -36,9 +47,9 @@ _Laatst bijgewerkt: 2026-08-04_
 0f. **NIEUW 2026-08-04:** `preparedTable` paladin/ranger van `[-,2,3]`/`[-,3,4]` naar `[2,3,4]` + `halfCasterSlots[1]=2×1st` + `spellcastingStart` 2→1. De eerdere aidedd-tabel volgde de 2014-start-op-L2-layout en sprak de geverifieerde class-research in dit document tegen (Paladin/Ranger L1: "Spellcasting v.a. L1, 2 prepared, slots 2×1st"). **Spot-check fysieke 2024 PHB gewenst** — dit raakt barius (L3-cap 3→4) en ancha.
 0g. **NIEUW:** druid `cantripsKnown` L1–3 van 4 naar 2 (2024-tabel; was een sorcerer-kopie). **io heeft 4 cantrips in state** — bewust NIET gestript; DM-besluit welke 2 blijven (of laten zoals het is).
 0h. **NIEUW:** `DATA.invocations` (14, L≤3) en `DATA.wildShapeForms` (20) teksten zijn agent-kennis 2024 PHB / 2025 MM — spot-check namen/regels (m.n. Eldritch Spear range ×30/level, Fiendish Vigor max-temp-HP, Pact of the Chain vormen; wild-shape speeds).
-0i. **NIEUW:** barius (Paladin L3) heeft géén prepared spells vastgelegd; de self-heal biedt pas picks bij de vólgende level-up. Workaround als je het nu wil vullen: Level Down → Level Up (vraagt dan 4 spells + fighting style). Boven L3 valt de prepared-tabel terug op de legacy-formule → discontinuïteit mogelijk bij L3→4 (fase F+).
+0i. **NIEUW:** Bastian (id `barius`, Paladin L3) heeft géén prepared spells vastgelegd; de self-heal biedt pas picks bij de vólgende level-up. Workaround als je het nu wil vullen: Level Down → Level Up (vraagt dan 4 spells + fighting style). Boven L3 valt de prepared-tabel terug op de legacy-formule → discontinuïteit mogelijk bij L3→4 (fase F+).
 0j. **NIEUW (pre-existing, gesignaleerd):** skills-data-dualiteit: widgets/pickers gebruiken `config.defaultSkills`/`config.expertSkills` (camelCase keys), maar legacy state heeft óók `state.skills`/`state.expertise` — en ren's config bevat `'sleight of hand'` (spaties) die nooit matcht met WG_SKILLS-key `sleightOfHand`. Opruimactie nodig (aparte fix).
-0k. **NIEUW (data-debt):** `spellPool`-descriptions zijn grotendeels NL — zichtbaar in de nieuwe spell-picker-cards én bestaande prepared-tooltips. Engels-regel zegt vertalen; ~250 entries = aparte sessie.
+0k. **Data-debt (deels gedaan):** `spellPool`: dur/time-velden + 23 party-zichtbare descs zijn nu Engels; **~230 desc-bodies nog NL** (zichtbaar in level-up spell-pickers voor niet-geprepairde spells). Bulk-vertaalslag = aparte sessie. Ook nog NL: material-component-teksten in `comp` ("een beetje fosforus") en veel class-feature-descs buiten paladin/ranger/druid/fighter-geraakte.
 1. Prepared-tabel L1–3: wizard/sorcerer/druid/warlock-kolommen single-source geverifieerd; paladin/ranger nu per 0f. Spot-check fysieke 2024 PHB gewenst.
 2. Soulknife: Bonus-Action-die-regain op L3 wél/niet (verifier: pas hoger level; aangenomen Long Rest only).
 3. Fighting Style opties-aantal (10 feats + class-optie) en Battle Master maneuvers op L3 (3 vs 4) — maneuvers pas relevant bij fase F+.

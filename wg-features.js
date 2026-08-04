@@ -1,13 +1,16 @@
-// wg-features.js — generic Features widget: every class + subclass + species
-// feature the character has at its current level, one row each, with the full
-// rules text in the shared hover/long-press tooltip. Leveling Up subproject.
+// wg-features.js — Features widget: every class + subclass + species feature
+// the character has at its current level, split into an ACTIVE section
+// (features backed by a use-counter from DATA.classResources — click the uses
+// cell to spend one; click when empty to restore all, same semantics as the
+// Resources widget) and a PASSIVE section (rules text only). Full rules text
+// in the shared hover/long-press tooltip, plus uses/recharge info for active
+// features. Leveling Up subproject.
 //
-// Generally applicable to any character; also the "explain spells/feats/
-// features somewhere" surface for things gained via the level-up menu.
-//
-// Load order: NA wg-state.js. Display-only.
+// Load order: NA wg-state.js, NA wg-rest.js (wgxPatchState) en NA
+// wg-resource.js (wgxResourcePips).
 
 var WG_EXTRA_INFOBOX_BUILDERS = (typeof WG_EXTRA_INFOBOX_BUILDERS !== 'undefined') ? WG_EXTRA_INFOBOX_BUILDERS : {};
+var WG_INFOBOX_CLICK_HANDLERS = (typeof WG_INFOBOX_CLICK_HANDLERS !== 'undefined') ? WG_INFOBOX_CLICK_HANDLERS : {};
 
 Object.assign(WG_WIDGET_TYPES, {
   featureList: {
@@ -16,6 +19,7 @@ Object.assign(WG_WIDGET_TYPES, {
     cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 2 },
   },
 });
+WG_EDIT_CONFIG.features = { mode: 'always', editColumnIdx: 2 }; // uses-kolom klikbaar
 if (typeof WG_SOURCE_LABELS !== 'undefined') WG_SOURCE_LABELS.features = 'Features';
 
 function wgxFeatureText(desc) {
@@ -23,7 +27,7 @@ function wgxFeatureText(desc) {
   return String(desc || '');
 }
 
-// All features up to the current level: [{src:'C'|'S'|'R', name, desc, level}]
+// All features up to the current level: [{src:'C'|'S'|'R'|'M'|'I'|'F', name, desc, level}]
 function wgxCollectFeatures(cfg, st) {
   var lvl = st.level || 1;
   var out = [];
@@ -79,34 +83,114 @@ function wgxCollectFeatures(cfg, st) {
   return out;
 }
 
+// Feature-name (lowercased) → applicable classResource entry.
+function wgxFeatureResourceMap(cfg, st) {
+  var map = {};
+  var list = (typeof getClassResources === 'function') ? getClassResources(cfg, st) : [];
+  for (var i = 0; i < list.length; i++) {
+    var names = list[i].featureNames || [];
+    for (var n = 0; n < names.length; n++) map[names[n].toLowerCase()] = list[i];
+  }
+  return map;
+}
+
+// Row model shared by builder and click-handler (1:1 with rendered rows).
+// Entries: { header: 'Active'|'Passive' } or { feat, res|null }.
+function wgxFeatureRowModel(cfg, st) {
+  var feats = wgxCollectFeatures(cfg, st);
+  feats.sort(function (a, b) { return (a.level - b.level) || a.name.localeCompare(b.name); });
+  var resMap = wgxFeatureResourceMap(cfg, st);
+  var active = [], passive = [];
+  for (var i = 0; i < feats.length; i++) {
+    var res = resMap[feats[i].name.toLowerCase()] || null;
+    (res ? active : passive).push({ feat: feats[i], res: res });
+  }
+  if (!active.length) return passive; // flat list, no section headers needed
+  var rows = [{ header: 'Active' }].concat(active);
+  if (passive.length) rows = rows.concat([{ header: 'Passive' }], passive);
+  return rows;
+}
+
+function wgxFeatureUsesCell(res, cfg, st) {
+  var max = res.max(cfg, st);
+  var used = Math.min(st[res.stateKey] || 0, max);
+  if (max <= 6 && typeof wgxResourcePips === 'function') return wgxResourcePips(used, max);
+  return (max - used) + '/' + max;
+}
+
 function wgxBuildFeatures(widget) {
   var raw = WG_CHAR_CACHE[state.characterId] || {};
   var cfg = raw.config || {}, st = raw.state || {};
   var d = widget.data, L = widget.layout;
-  d.columns = [{ key: 'lvl', label: 'Lvl' }, { key: 'name', label: 'Feature' }, { key: 'src', label: '' }];
-  var feats = wgxCollectFeatures(cfg, st);
-  feats.sort(function (a, b) { return (a.level - b.level) || a.name.localeCompare(b.name); });
-  var rows = [], tips = [];
-  if (!feats.length) {
-    rows.push(['', 'No features', '']);
-    tips.push(null);
+  d.columns = [
+    { key: 'lvl', label: 'Lvl' }, { key: 'name', label: 'Feature' },
+    { key: 'uses', label: '' }, { key: 'src', label: '' },
+  ];
+  var model = wgxFeatureRowModel(cfg, st);
+  var rows = [], tips = [], rowCls = [];
+  if (!model.length) {
+    rows.push(['', 'No features', '', '']);
+    tips.push(null); rowCls.push(null);
   } else {
     var srcLabel = { C: 'Class', S: 'Subclass', R: 'Species', M: 'Metamagic', I: 'Invocation', F: 'Fighting Style' };
-    for (var i = 0; i < feats.length; i++) {
-      var f = feats[i];
-      rows.push([String(f.level), f.name, f.src]);
-      var tip = { title: f.name + ' · ' + srcLabel[f.src] + ' (level ' + f.level + ')', body: wgxFeatureText(f.desc) };
-      tips.push([tip, tip, tip]);
+    for (var i = 0; i < model.length; i++) {
+      var row = model[i];
+      if (row.header) {
+        rows.push(['', row.header.toUpperCase(), '', '']);
+        tips.push(null);
+        rowCls.push('wgx-feat-header');
+        continue;
+      }
+      var f = row.feat, res = row.res;
+      var usesCell = res ? wgxFeatureUsesCell(res, cfg, st) : '';
+      rows.push([String(f.level), f.name, usesCell, f.src]);
+      var body = wgxFeatureText(f.desc);
+      if (res) {
+        var max = res.max(cfg, st);
+        var used = Math.min(st[res.stateKey] || 0, max);
+        var unit = res.unit === 'points' ? 'points' : 'uses';
+        var die = res.die ? (' (' + res.die(st) + ')') : '';
+        var rechargeTxt = res.recharge === 'long' ? 'All return on a Long Rest.' : 'Regain one on a Short Rest, all on a Long Rest.';
+        var extra = (typeof res.extraDesc === 'function') ? res.extraDesc(cfg, st) : '';
+        body += (extra ? '\n\n' + extra : '') +
+          '\n\n' + (max - used) + '/' + max + ' ' + unit + die + ' left. ' + rechargeTxt +
+          '\n\nClick the counter to spend 1' + (res.unit === 'points' ? ' point' : ' use') + '; click when empty to restore all.';
+      }
+      var tip = { title: f.name + ' · ' + srcLabel[f.src] + ' (level ' + f.level + ')', body: body };
+      tips.push([tip, tip, tip, tip]);
+      rowCls.push(res ? 'wgx-feat-active' : 'wgx-feat-passive');
     }
   }
   d.rows = rows; d.tooltips = tips;
-  L.columnHighlight = [false, false, false];
-  L.columnAlign = ['center', 'left', 'right'];
-  L.columnMaxChars = [null, 20, null];
-  L.columnAllCaps = [false, false, false];
-  L.columnExtraClass = ['is-prof-col', null, null];
-  L.columnMinWidthPx = [20, null, 16];
-  L.columnFontScale = [1.15, 1, 0.9];
+  L.columnHighlight = [false, false, true, false];
+  L.columnAlign = ['center', 'left', 'right', 'right'];
+  L.columnMaxChars = [null, 18, null, null];
+  L.columnAllCaps = [false, false, false, false];
+  L.columnExtraClass = ['is-prof-col', null, null, null];
+  L.columnMinWidthPx = [20, null, 34, 16];
+  L.columnFontScale = [1.15, 1, 0.95, 0.9];
+  L.rowExtraClass = rowCls;
   L.stacking = 'horizontal';
 }
 WG_EXTRA_INFOBOX_BUILDERS.features = wgxBuildFeatures;
+
+// Klik op de uses-cel van een active feature = 1 use verbruiken; bij leeg =
+// alles herstellen (zelfde semantiek als de Resources-widget).
+WG_INFOBOX_CLICK_HANDLERS.features = async function (ctx) {
+  var raw = ctx.raw || {};
+  var cfg = raw.config || {}, st = raw.state || {};
+  var model = wgxFeatureRowModel(cfg, st);
+  var row = model[ctx.rowIdx];
+  if (!row || row.header || !row.res) return;
+  var r = row.res;
+  var max = r.max(cfg, st);
+  var used = Math.min(st[r.stateKey] || 0, max);
+  var next = (used >= max) ? 0 : used + 1;
+  try {
+    var patch = {}; patch[r.stateKey] = next;
+    await wgxPatchState(ctx.charId, patch);
+    showToast(r.label + ': ' + (max - next) + '/' + max + (next === 0 ? ' (restored)' : ''));
+  } catch (err) {
+    showToast('Update failed · ' + err.message, 'error');
+  }
+};
