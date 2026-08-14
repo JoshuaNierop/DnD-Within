@@ -1,6 +1,15 @@
 # Leveling Up — Status
 
-_Laatst bijgewerkt: 2026-08-04 (3e sessie: Engels-pass + E5.0-jacht + compleetheidsaudit)_
+_Laatst bijgewerkt: 2026-08-14 (combo-smoketest: 12 classes × 4 species, committed)_
+
+## Combo-smoketest (2026-08-14) — `Metadocs/LevelingUp/combo-smoke.mjs`
+Gecommitteerde vervanging van de eerdere scratchpad-smoketest (die verloren ging).
+Run: `node Metadocs/LevelingUp/combo-smoke.mjs` vanuit de project-root.
+- **Matrix: alle 12 classes × {tiefling, aasimar, highElf, human}** = 48 combinaties (gevraagd: paladin/druid/sorcerer/wizard/rogue/warlock × tiefling/aasimar; de rest kost niets extra) — **801/801 checks groen**
+- Per combo: verse L1-char → auto-picked level-up L1→2→3 via de échte pure builders (`wgxLevelUpSteps`/`wgxBuildLevelUpPatch`) → checks → level-down 3→2→1 met **exacte snapshot-rollback-vergelijking**
+- Checks per level: level/levelChoices/hp.current=newMax, prepared-count = 2024-tabel, cantrip-count (incl. Blessed/Druidic Warrior bonus-cantrips), class-totalen (2 metamagic, 3 invocations, 4 wild-shape-forms, scholar-expertise), subclass gezet op L3, species-feature + species-resource in L3-delta (human = negatieve controle), actieve resources per class op L3
+- Firebase-semantiek nagebootst in `applyPatch`: deep paths (`a/b`), null én lege containers = delete (RTDB slaat `{}`/`[]` nooit op) — nodig voor exacte rollback-vergelijking
+- Mutatie-getest: data-fout (wildShapeForms total 4→99) → 4 combo-failures met duidelijke melding; herstel → groen
 
 ## Compleetheidsaudit L1–3 (2026-08-04) — per class
 | Class | L1 (creation) | L2 | L3 | Resources | Status |
