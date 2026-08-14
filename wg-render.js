@@ -402,6 +402,17 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
     else if (kind === 'combat') drawCombatTable(widgetG, state.widget, x, contentY, w, contentH, widgetIdx);
     else if (kind === 'inventory') { if (typeof drawInventoryGrid === 'function') drawInventoryGrid(widgetG, state.widget, x, contentY, w, contentH, widgetIdx); }
     else drawInfoBoxesInWidget(widgetG, x, y, barH);
+    // Alert state: the widget has rows but is too small to fit even one info
+    // box — without a hint it looks like an empty/broken widget.
+    if (isAlert && contentH >= 24) {
+      const hint = el('text', {
+        x: x + w / 2, y: contentY + contentH / 2,
+        class: 'widget-alert-hint', 'text-anchor': 'middle',
+        'dominant-baseline': 'central', 'font-size': Math.min(10, w / 14).toFixed(1),
+      });
+      hint.textContent = 'Enlarge widget to show content';
+      widgetG.appendChild(hint);
+    }
   }
 
   // Topbar — alleen TL+TR rond, BL+BR scherp

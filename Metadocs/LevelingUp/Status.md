@@ -59,8 +59,13 @@ Bekende gaten → fase F+: Battle Master maneuvers-picker, Arcane Trickster/Eldr
   - **2024-datafixes**: druid `cantripsKnown` 4→2 (L1–3); `preparedTable` paladin/ranger → `[_,2,3,4]`; `halfCasterSlots[1] = 2×1st`; `spellcastingStart` paladin/ranger 2→1 (creation-wizard toont nu "Yes" + L1-spell-keuze)
   - Node-smoketest **77/77 groen** (alle party-classes L1→2→3 + level-down rollback + data-integriteit); live browser-test op wegwerp-ranger: volledige flow expertise→Druidic Warrior→cantrips→spells→confirm→Firebase ✓, Level Down rolt alles terug ✓, 0 console-errors
 
+## Sessie 2026-08-14 — D2-rest live-test + widget-fixes + spellPool EN
+- [x] **D2-rest live geverifieerd** (wegwerp-paladin/aasimar L3, admin, localhost): Resources-widget klik op pips-kolom = 1 use spend (Firebase ✓, live re-render ✓), klik-bij-leeg = restore ✓; Features ACTIVE-teller klik = spend ✓ (Lay On Hands 15/15 → 14/15). **Short Rest**: short-one resources +1 (Channel Divinity 2→1 used), long-rest resources onaangetast, HP/slots ongemoeid ✓. **Long Rest**: álle tellers → 0 (incl. species Healing Hands/Celestial Revelation), spellSlotsUsed reset, HP → derived max ✓. 0 console-errors; testchar + server opgeruimd.
+- [x] **Fix — lege "alert"-widget zonder uitleg**: een infobox-widget die te klein is voor zijn content (bv. Resources met Lay On Hands = 15 pips) rendert als lege oranje glow-box. Nu met hint-tekst "Enlarge widget to show content" (`wg-render.js` + `.widget-alert-hint` in `wg-style.css`). ⚠ Bastion (paladin) kan dit op zijn echte dashboard raken — resource-content is breder dan ren's (soulknife) formaat.
+- [x] **Fix — Celestial Revelation dubbel in Features**: aasimar base-features bevatten "Celestial Revelation" ("from level 3: …") én speciesProgression L3 voegt de echte toe → stond 2× in ACTIVE op L3+. `wgxCollectFeatures` dedupet base-features nu op naam tegen progression-entries (progression wint).
+
 ## Open
-- [~] P1 — Fase D2: browser-test — level-up **confirm-flow + level-down nu live geverifieerd** (wegwerp-ranger, 2026-08-04); nog open: resources/rest-widgets live testen (klik-interactie + rest-resets in de browser)
+- [x] P1 — Fase D2: browser-test — level-up confirm-flow + level-down live geverifieerd (2026-08-04); resources/rest-widgets klik-interactie + rest-resets live geverifieerd (2026-08-14, zie hierboven)
 - [ ] P2 — Fase F+: hogere levels (L4+): ASI/feat-stap in het menu, preparedTable/invocations/metamagic uitbreiden boven L3, Battle Master maneuvers, Arcane Trickster/EK spells
 
 ## Review-lijst (Joshua / fysieke PHB)

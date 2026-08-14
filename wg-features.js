@@ -42,10 +42,18 @@ function wgxCollectFeatures(cfg, st) {
     var spl = ((DATA.speciesProgression || {})[cfg.race] || {})[l] || [];
     for (var p = 0; p < spl.length; p++) out.push({ src: 'R', name: spl[p].name, desc: spl[p].desc, level: l });
   }
-  // Species base features (level 1, flat array on the race entry)
+  // Species base features (level 1, flat array on the race entry). Skip names
+  // already added by speciesProgression — e.g. Aasimar list "Celestial
+  // Revelation" as a base feature ("from level 3: …") AND as the real L3
+  // progression entry; from L3 on only the progression version should show.
   var race = DATA[cfg.race] || {};
   var rfl = race.features || [];
-  for (var r = 0; r < rfl.length; r++) out.push({ src: 'R', name: rfl[r].name, desc: rfl[r].desc, level: 1 });
+  var seen = {};
+  for (var o = 0; o < out.length; o++) seen[out[o].name.toLowerCase()] = true;
+  for (var r = 0; r < rfl.length; r++) {
+    if (seen[rfl[r].name.toLowerCase()]) continue;
+    out.push({ src: 'R', name: rfl[r].name, desc: rfl[r].desc, level: 1 });
+  }
   // Picked options stored in state (level-up menu): the level a pick was made
   // at is recoverable from levelChoices[N].<recKey>.
   var pickLevel = function (recKey, name, fallback) {

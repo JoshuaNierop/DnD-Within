@@ -858,6 +858,14 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
     stroke: var(--alert);
   }
   svg .widget-title { fill: var(--bg); font-family: system-ui, sans-serif; font-weight: 600; pointer-events: none; user-select: none; }
+  svg .widget-alert-hint {
+    fill: var(--alert);
+    fill-opacity: 0.9;
+    font-family: system-ui, sans-serif;
+    font-style: italic;
+    pointer-events: none;
+    user-select: none;
+  }
   svg .widget-content-area { fill: var(--tile-widget); fill-opacity: 0.08; pointer-events: none; }
   /* ------- Default styling = palette-driven (Positive Gold etc) -------
      Edit-mode en Dev-view zijn aparte toggles via svg.is-editing /
