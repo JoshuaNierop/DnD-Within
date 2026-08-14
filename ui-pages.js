@@ -1432,18 +1432,23 @@ function renderDMDiceRoller() {
 
 function renderCharCard(cid, cfg, state, isOwn) {
     var portrait = loadImage(cid, 'portrait');
+    var portrait2 = loadImage(cid, 'portrait2');
     var banner = loadImage(cid, 'banner');
     var imgSrc = portrait || banner || '';
 
     var isOnline = typeof isUserOnline === 'function' && isUserOnline(cfg.player || cid);
     var html = '<a class="char-card" href="/characters/' + cid + '" style="--card-accent:' + cfg.accentColor + '">';
     html += '<div class="presence-dot' + (isOnline ? ' online' : '') + '" data-user-id="' + (cfg.player || cid) + '"></div>';
-    html += '<div class="char-card-img">';
+    // data-hover-portrait: hydrateCharCardPortraits appends the hover image
+    // async when it only exists in Firebase (uploaded on another device).
+    html += '<div class="char-card-img"' + (imgSrc && !portrait2 ? ' data-hover-portrait="' + cid + '"' : '') + '>';
     if (imgSrc) {
         // Profielfoto-uitsnede consistent met dashboard/wizard toepassen (#fATDUg).
         var ccStyle = (portrait && typeof portraitCropStyle === 'function')
             ? portraitCropStyle(loadPortraitCrop(cid)) : '';
         html += '<img src="' + imgSrc + '" alt=""' + (ccStyle ? ' style="' + ccStyle + '"' : '') + '>';
+        // Second portrait: cross-fades in while hovering the card.
+        if (portrait2) html += '<img class="img-hover-swap" src="' + portrait2 + '" alt="">';
     } else {
         // No local image — e.g. localStorage quota skipped the base64 blob, or
         // the portrait was uploaded from another device/widget. Mark it for
@@ -1481,7 +1486,6 @@ function renderCharCard(cid, cfg, state, isOwn) {
 function hydrateCharCardPortraits() {
     if (typeof document === 'undefined') return;
     var nodes = document.querySelectorAll('[data-hydrate-portrait]');
-    if (!nodes.length) return;
     var base = (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.databaseURL)
         ? FIREBASE_CONFIG.databaseURL
         : 'https://dnd-within-firebase-default-rtdb.firebaseio.com';
@@ -1517,6 +1521,27 @@ function hydrateCharCardPortraits() {
                     .catch(function () {});
             })
             .catch(function () { delete node.dataset.hydrating; });
+    });
+    // Hover-portret (portrait2) async bijladen als hij niet lokaal stond:
+    // alleen kaarten met een hoofd-afbeelding maar zonder lokale portrait2
+    // dragen data-hover-portrait (zie renderCharCard).
+    var hoverNodes = document.querySelectorAll('[data-hover-portrait]');
+    Array.prototype.forEach.call(hoverNodes, function (wrap) {
+        var cid = wrap.getAttribute('data-hover-portrait');
+        if (!cid || wrap.dataset.hoverHydrating) return;
+        wrap.dataset.hoverHydrating = '1';
+        fetch(base + '/dw/characters/' + encodeURIComponent(cid) + '/images/portrait2.json')
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (val) {
+                if (!val || typeof val !== 'string') return;
+                if (wrap.querySelector('.img-hover-swap')) return;
+                var img = document.createElement('img');
+                img.className = 'img-hover-swap';
+                img.alt = '';
+                img.src = val;
+                wrap.appendChild(img);
+            })
+            .catch(function () {});
     });
 }
 

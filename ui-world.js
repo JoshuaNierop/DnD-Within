@@ -1955,6 +1955,18 @@ function renderNPCTracker() {
     return html;
 }
 
+// Card image (2:3 portrait) or initial-placeholder. entry.image2 (creatures)
+// renders as a second stacked <img> that cross-fades in on card hover.
+function loreEntryImgHtml(e) {
+    var main = e.image || e.image2;
+    if (!main) {
+        return '<div class="lore-entry-img lore-entry-img-empty"><span>' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span></div>';
+    }
+    var html = '<div class="lore-entry-img"><img src="' + escapeAttr(resolveImageSrc(main)) + '" alt="">';
+    if (e.image && e.image2) html += '<img class="img-hover-swap" src="' + escapeAttr(resolveImageSrc(e.image2)) + '" alt="">';
+    return html + '</div>';
+}
+
 // Filter + render van de Creature-lijst (creatures = lore_cats.monsters). Past de
 // NPC-toolbar filters toe (zoekterm, disposition, faction) en rendert dezelfde
 // lore-entry-kaarten als de generieke lijst — plus een family-diagram als de
@@ -1981,11 +1993,7 @@ function renderCreatureResultsInner() {
         var expCls = (e.id && loreExpandedIds[e.id]) ? ' expanded' : '';
         html += '<div class="lore-entry-card' + expCls + (entryHidden ? ' is-private-entry' : '') + '" data-cat="monsters" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
         if (isDM()) html += monsterEntryVisToggle(realIdx, entryHidden);
-        if (e.image) {
-            html += '<div class="lore-entry-img"><img src="' + escapeAttr(resolveImageSrc(e.image)) + '" alt=""></div>';
-        } else {
-            html += '<div class="lore-entry-img lore-entry-img-empty"><span>' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span></div>';
-        }
+        html += loreEntryImgHtml(e);
         html += '<div class="lore-entry-body">';
         html += '<h3 class="lore-entry-name">' + escapeHtml(e.name || '(unnamed)') + '</h3>';
         if (infoHtml) html += '<div class="lore-entry-info">' + infoHtml + '</div>';
@@ -2624,7 +2632,7 @@ function renderImageBox(cfg) {
     if (resolved) html += '<img src="' + escapeAttr(resolved) + '" alt="">';
     else html += '<span class="npc-portrait-empty">' + escapeHtml((cfg.name || '?').charAt(0).toUpperCase()) + '</span>';
     html += '</div>';
-    html += '<span class="lore-image-hint">Image</span>';
+    html += '<span class="lore-image-hint">' + escapeHtml(cfg.hint || 'Image') + '</span>';
     html += '<div class="lore-image-menu" role="menu">';
     html += '<button type="button" data-action="img-pick-existing" role="menuitem">🖼️ Existing</button>';
     html += '<button type="button" data-action="img-upload" role="menuitem">⬆️ Upload</button>';
@@ -2788,6 +2796,11 @@ function renderLoreEntryModal(cat, idx) {
             if (showHdrVis) html += '<div class="lore-image-box-wrap">';
             html += renderImageBox({ previewId: 'lore-entry-image-preview', hiddenId: 'lore-entry-f-image', fileAction: 'upload-lore-entry-image', value: e.image, name: e.name });
             if (showHdrVis) { html += loreVisToggleDraft('image', monsterFieldVis(e, 'image')); html += '</div>'; }
+            // Creatures: optional second image, shown on card hover (cross-fade).
+            // Follows the main image's visibility toggle.
+            if (cat === 'monsters') {
+                html += renderImageBox({ previewId: 'lore-entry-image2-preview', hiddenId: 'lore-entry-f-image2', fileAction: 'upload-lore-entry-image2', value: e.image2, name: e.name, hint: 'Hover image' });
+            }
             html += '<div class="lore-form-grid lore-header-fields">';
             if (cat === 'monsters') {
                 // Creatures: voor- + achternaam (afgeleide `name` wordt bij save
@@ -2870,14 +2883,18 @@ async function saveLoreEntryModal() {
     }
     var imgEl2 = document.getElementById('lore-entry-f-image');
     if (imgEl2 && imgEl2._uploadPromise) { try { await imgEl2._uploadPromise; } catch (e) {} }
+    var imgElH = document.getElementById('lore-entry-f-image2');
+    if (imgElH && imgElH._uploadPromise) { try { await imgElH._uploadPromise; } catch (e) {} }
 
     var data = getLoreCatsData();
     if (!Array.isArray(data[cat])) data[cat] = [];
     var entry = isNew ? { id: 'le' + Date.now() } : (data[cat][idx] || { id: 'le' + Date.now() });
     var oldImage = entry.image || '';               // for cleanup-on-replace
+    var oldImage2 = entry.image2 || '';
     entry.name = name;
     if (cat === 'monsters') { entry.firstName = creFirst; entry.lastName = creLast; }
     entry.image = v('lore-entry-f-image') || null;
+    if (imgElH) entry.image2 = v('lore-entry-f-image2') || null;
 
     var fields = loreFieldsFor(cat);
     for (var fi = 0; fi < fields.length; fi++) {
@@ -2926,6 +2943,9 @@ async function saveLoreEntryModal() {
     saveLoreCatsData(data);
     if (window.DWImages && oldImage && oldImage !== entry.image && DWImages.isHttpUrl(oldImage)) {
         try { DWImages.del(oldImage); } catch (e) {}
+    }
+    if (window.DWImages && oldImage2 && oldImage2 !== entry.image2 && DWImages.isHttpUrl(oldImage2)) {
+        try { DWImages.del(oldImage2); } catch (e) {}
     }
     closeLoreEntryModal();
     renderApp();
@@ -3232,11 +3252,7 @@ function renderLoreResultsInner(cat) {
             html += monsterEntryVisToggle(realIdx, e.hidden === true);
         }
         // Image (2:3 portrait) or initial-placeholder — always visible.
-        if (e.image) {
-            html += '<div class="lore-entry-img"><img src="' + escapeAttr(resolveImageSrc(e.image)) + '" alt=""></div>';
-        } else {
-            html += '<div class="lore-entry-img lore-entry-img-empty"><span>' + escapeHtml((e.name || '?').charAt(0).toUpperCase()) + '</span></div>';
-        }
+        html += loreEntryImgHtml(e);
         html += '<div class="lore-entry-body">';
         html += '<h3 class="lore-entry-name">' + escapeHtml(e.name || '(unnamed)') + '</h3>';
         if (infoHtml) html += '<div class="lore-entry-info">' + infoHtml + '</div>';

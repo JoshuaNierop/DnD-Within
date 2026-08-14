@@ -155,6 +155,7 @@ function initWizardState() {
         age: '',
         accentColor: '#22d3ee',
         portrait: '',
+        portrait2: '',
         portraitCrop: null,
         skills: [],
         cantrips: [],
@@ -441,6 +442,22 @@ function renderWizardModal() {
     // zodat een klik niet de file-picker triggert.
     if (wizardState.portrait) {
         html += '<button type="button" class="portrait-crop-btn" data-action="crop-wizard-portrait" title="Crop" aria-label="Crop portrait"><svg viewBox="0 0 24 24"><path d="M7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7V7z M17 15h2V7c0-1.1-.9-2-2-2H9v2h8z"/></svg></button>';
+    }
+    // Second portrait: cross-fades in when hovering the character card.
+    // Only offered once a main portrait exists.
+    if (wizardState.portrait) {
+        html += '<label class="wizard-sidebar-portrait wizard-portrait2" title="Hover image — shown when hovering your character card">';
+        if (wizardState.portrait2) {
+            html += '<img class="wizard-portrait-img" src="' + escapeAttr(wizardState.portrait2) + '" alt="">';
+        } else {
+            html += '<span class="wizard-portrait-placeholder wizard-portrait2-placeholder">+</span>';
+        }
+        html += '<input type="file" accept="image/*" class="wizard-portrait-input" aria-label="Upload hover image" data-action="upload-wizard-portrait2">';
+        html += '</label>';
+        if (wizardState.portrait2) {
+            html += '<button type="button" class="portrait-crop-btn wizard-portrait2-remove" data-action="remove-wizard-portrait2" title="Remove hover image" aria-label="Remove hover image">&times;</button>';
+        }
+        html += '<span class="wizard-portrait2-hint">Hover</span>';
     }
     html += '</div>';
     html += '<div class="wizard-sidebar-name" style="color:' + sidebarColor + '">' + escapeHtml(wizardState.name || '???') + '</div>';
@@ -1160,6 +1177,17 @@ function createCharacterFromWizard() {
     if (wizardState.portrait && wizardState.portrait.indexOf('data:') === 0) {
         saveImage(charId, 'portrait', wizardState.portrait);
     }
+    // Hover-portret: nieuwe upload opslaan; leeggemaakt → lokaal + Firebase wissen.
+    if (wizardState.portrait2 && wizardState.portrait2.indexOf('data:') === 0) {
+        saveImage(charId, 'portrait2', wizardState.portrait2);
+    } else if (!wizardState.portrait2 && loadImage(charId, 'portrait2')) {
+        try { localStorage.removeItem('dw_img_' + charId + '_portrait2'); } catch (_) {}
+        try {
+            if (typeof FIREBASE_DB !== 'undefined') {
+                fetch(FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/images/portrait2.json', { method: 'DELETE' });
+            }
+        } catch (_) {}
+    }
     // Portret-uitsnede (#fATDUg) meeslaan zodat dashboard-widget + sheet hem oppikken.
     if (typeof savePortraitCrop === 'function') {
         savePortraitCrop(charId, wizardState.portraitCrop || null);
@@ -1304,6 +1332,7 @@ function buildWizardStateFromConfig(charId) {
     wizardState.prepared = (cfg.defaultPrepared || []).slice();
     wizardState.appearance = (cfg.appearance && cfg.appearance[0]) ? cfg.appearance[0] : '';
     wizardState.portrait = (typeof loadImage === 'function') ? (loadImage(charId, 'portrait') || '') : '';
+    wizardState.portrait2 = (typeof loadImage === 'function') ? (loadImage(charId, 'portrait2') || '') : '';
     wizardState.portraitCrop = loadPortraitCrop(charId);
     wizardState.personality = Object.assign({ traits:'', ideal:'', bond:'', flaw:'' }, cfg.personality || {});
     wizardState.backstory = cfg.backstory || '';
@@ -1534,6 +1563,15 @@ function bindWizardEvents() {
                 hydrateWizardPortraitCrop();
             }
         });
+    });
+
+    // Hover-portret verwijderen (leeg = bij save ook uit storage gewist).
+    var p2RmBtn = container.querySelector('[data-action="remove-wizard-portrait2"]');
+    _wzBindOnce(p2RmBtn, 'click', function (e) {
+        e.stopPropagation();
+        if (!wizardState) return;
+        wizardState.portrait2 = '';
+        refreshWizard();
     });
 
     // Pas een eventuele uitsnede toe op de sidebar-preview.
@@ -2052,6 +2090,17 @@ document.addEventListener('change', function(e) {
         }
         return;
     }
+    if (target.matches('[data-action="upload-wizard-portrait2"]')) {
+        var wp2File = target.files && target.files[0];
+        if (wp2File && typeof _compressImageFile === 'function' && wizardState) {
+            _compressImageFile(wp2File, 600, 0.8, function (dataUrl) {
+                wizardState.portrait2 = dataUrl;
+                if (typeof refreshWizard === 'function') refreshWizard();
+            });
+            try { target.value = ''; } catch (_) {}
+        }
+        return;
+    }
     if (target.matches('[data-action="upload-npc-image"]')) {
         var npcFile = target.files && target.files[0];
         if (npcFile && typeof _compressImageFile === 'function') {
@@ -2116,18 +2165,19 @@ document.addEventListener('change', function(e) {
         return;
     }
 
-    if (target.matches('[data-action="upload-lore-entry-image"]')) {
+    if (target.matches('[data-action="upload-lore-entry-image"]') || target.matches('[data-action="upload-lore-entry-image2"]')) {
+        var leIsHover = target.matches('[data-action="upload-lore-entry-image2"]');
         var leFile = target.files && target.files[0];
         var leForm = target.closest('.lore-entry-form');
         var leCat = leForm ? (leForm.dataset.cat || 'other') : 'other';
         if (leFile && typeof _compressImageFile === 'function') {
             // Folder = Campains/<camp>/<MappedCat>/<entryName>.
-            var leNameEl = document.getElementById('lore-entry-f-name');
-            var leName = (leNameEl && leNameEl.value.trim()) || ('le' + Date.now());
+            var leNameEl = document.getElementById('lore-entry-f-name') || document.getElementById('lore-entry-f-firstName');
+            var leName = ((leNameEl && leNameEl.value.trim()) || ('le' + Date.now())) + (leIsHover ? ' hover' : '');
             _compressImageFile(leFile, 800, 0.8, function(dataUrl) {
-                var prev = document.getElementById('lore-entry-image-preview');
+                var prev = document.getElementById(leIsHover ? 'lore-entry-image2-preview' : 'lore-entry-image-preview');
                 if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
-                var hid = document.getElementById('lore-entry-f-image');
+                var hid = document.getElementById(leIsHover ? 'lore-entry-f-image2' : 'lore-entry-f-image');
                 if (!hid) return;
                 var _rmBoxL = hid.closest('.lore-image-box');
                 if (_rmBoxL) { var _rmL = _rmBoxL.querySelector('.menu-remove'); if (_rmL) _rmL.style.display = ''; }

@@ -9288,6 +9288,61 @@ body:has(.wg-bottombar) #scw-fab {
 .portrait-crop-btn:active { transform: scale(0.96); }
 .portrait-crop-btn svg { width: 15px; height: 15px; fill: currentColor; }
 
+/* Second portrait (hover image): small circle next to the main portrait */
+.wizard-portrait2 {
+    position: absolute;
+    left: -14px;
+    bottom: 2px;
+    width: 52px;
+    height: 52px;
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0;
+    box-shadow: 0 0 0 3px var(--bg-card), 0 0 0 4px var(--hairline-gold);
+}
+.wizard-portrait2::before { display: none; }
+.wizard-portrait2-placeholder { font-size: 1.4rem; }
+.wizard-portrait2-remove {
+    left: -22px;
+    right: auto;
+    bottom: 44px;
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+    line-height: 1;
+}
+.wizard-portrait2-hint {
+    position: absolute;
+    left: -14px;
+    bottom: -14px;
+    width: 52px;
+    text-align: center;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    pointer-events: none;
+}
+
+/* Hover-swap image (creature cards + character cards): second image stacked
+   on top of the first, revealed by hovering the card. */
+.lore-entry-img { position: relative; }
+.img-hover-swap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+}
+@media (hover: hover) {
+    .lore-entry-card:hover .img-hover-swap,
+    .char-card:hover .img-hover-swap { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .img-hover-swap { transition: none; } }
+
 /* #fATDUg — crop-editor modal */
 .crop-editor-overlay { z-index: 10050; }
 .crop-card {
