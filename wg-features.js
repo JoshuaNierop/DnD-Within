@@ -18,9 +18,27 @@ Object.assign(WG_WIDGET_TYPES, {
     spanUnits: 5, spanUnitsY: 5,
     cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 2 },
   },
+  // Split-varianten: Active = features die je actief inzet (use-counters,
+  // metamagic, invocations); Passive = always-on rules text. Zelfde databron,
+  // los te plaatsen als twee widgets.
+  featuresActive: {
+    label: 'Active Features', kind: 'infobox', source: 'featuresActive',
+    spanUnits: 5, spanUnitsY: 5,
+    cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 2 },
+  },
+  featuresPassive: {
+    label: 'Passive Features', kind: 'infobox', source: 'featuresPassive',
+    spanUnits: 5, spanUnitsY: 5,
+    cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 2 },
+  },
 });
-WG_EDIT_CONFIG.features = { mode: 'always', editColumnIdx: 2 }; // uses-kolom klikbaar
-if (typeof WG_SOURCE_LABELS !== 'undefined') WG_SOURCE_LABELS.features = 'Features';
+WG_EDIT_CONFIG.features = { mode: 'always', editColumnIdx: 2 };        // uses-kolom klikbaar
+WG_EDIT_CONFIG.featuresActive = { mode: 'always', editColumnIdx: 2 };  // idem
+if (typeof WG_SOURCE_LABELS !== 'undefined') {
+  WG_SOURCE_LABELS.features = 'Features';
+  WG_SOURCE_LABELS.featuresActive = 'Active Features';
+  WG_SOURCE_LABELS.featuresPassive = 'Passive Features';
+}
 
 function wgxFeatureText(desc) {
   if (desc && typeof desc === 'object') return desc.en || desc.nl || '';
@@ -102,17 +120,27 @@ function wgxFeatureResourceMap(cfg, st) {
   return map;
 }
 
+// Actief = je zet het bewust in: use-counter (resource-backed), metamagic
+// (kost sorcery points) of invocation (verleent casts/actieve opties).
+// Fighting styles en overige rules-text zijn passief.
+function wgxFeatureIsActive(entry) {
+  return !!entry.res || entry.feat.src === 'M' || entry.feat.src === 'I';
+}
+
 // Row model shared by builder and click-handler (1:1 with rendered rows).
 // Entries: { header: 'Active'|'Passive' } or { feat, res|null }.
-function wgxFeatureRowModel(cfg, st) {
+// filter: null (gecombineerd, met section-headers) | 'active' | 'passive'.
+function wgxFeatureRowModel(cfg, st, filter) {
   var feats = wgxCollectFeatures(cfg, st);
   feats.sort(function (a, b) { return (a.level - b.level) || a.name.localeCompare(b.name); });
   var resMap = wgxFeatureResourceMap(cfg, st);
   var active = [], passive = [];
   for (var i = 0; i < feats.length; i++) {
-    var res = resMap[feats[i].name.toLowerCase()] || null;
-    (res ? active : passive).push({ feat: feats[i], res: res });
+    var entry = { feat: feats[i], res: resMap[feats[i].name.toLowerCase()] || null };
+    (wgxFeatureIsActive(entry) ? active : passive).push(entry);
   }
+  if (filter === 'active') return active;
+  if (filter === 'passive') return passive;
   if (!active.length) return passive; // flat list, no section headers needed
   var rows = [{ header: 'Active' }].concat(active);
   if (passive.length) rows = rows.concat([{ header: 'Passive' }], passive);
@@ -126,7 +154,7 @@ function wgxFeatureUsesCell(res, cfg, st) {
   return (max - used) + '/' + max;
 }
 
-function wgxBuildFeatures(widget) {
+function wgxBuildFeatures(widget, filter) {
   var raw = WG_CHAR_CACHE[state.characterId] || {};
   var cfg = raw.config || {}, st = raw.state || {};
   var d = widget.data, L = widget.layout;
@@ -134,10 +162,10 @@ function wgxBuildFeatures(widget) {
     { key: 'lvl', label: 'Lvl' }, { key: 'name', label: 'Feature' },
     { key: 'uses', label: '' }, { key: 'src', label: '' },
   ];
-  var model = wgxFeatureRowModel(cfg, st);
+  var model = wgxFeatureRowModel(cfg, st, filter || null);
   var rows = [], tips = [], rowCls = [];
   if (!model.length) {
-    rows.push(['', 'No features', '', '']);
+    rows.push(['', filter ? ('No ' + filter + ' features') : 'No features', '', '']);
     tips.push(null); rowCls.push(null);
   } else {
     var srcLabel = { C: 'Class', S: 'Subclass', R: 'Species', M: 'Metamagic', I: 'Invocation', F: 'Fighting Style' };
@@ -180,14 +208,16 @@ function wgxBuildFeatures(widget) {
   L.rowExtraClass = rowCls;
   L.stacking = 'horizontal';
 }
-WG_EXTRA_INFOBOX_BUILDERS.features = wgxBuildFeatures;
+WG_EXTRA_INFOBOX_BUILDERS.features = function (widget) { wgxBuildFeatures(widget, null); };
+WG_EXTRA_INFOBOX_BUILDERS.featuresActive  = function (widget) { wgxBuildFeatures(widget, 'active'); };
+WG_EXTRA_INFOBOX_BUILDERS.featuresPassive = function (widget) { wgxBuildFeatures(widget, 'passive'); };
 
 // Klik op de uses-cel van een active feature = 1 use verbruiken; bij leeg =
 // alles herstellen (zelfde semantiek als de Resources-widget).
-WG_INFOBOX_CLICK_HANDLERS.features = async function (ctx) {
+function wgxFeatureClickHandler(filter) { return async function (ctx) {
   var raw = ctx.raw || {};
   var cfg = raw.config || {}, st = raw.state || {};
-  var model = wgxFeatureRowModel(cfg, st);
+  var model = wgxFeatureRowModel(cfg, st, filter || null);
   var row = model[ctx.rowIdx];
   if (!row || row.header || !row.res) return;
   var r = row.res;
@@ -201,4 +231,6 @@ WG_INFOBOX_CLICK_HANDLERS.features = async function (ctx) {
   } catch (err) {
     showToast('Update failed · ' + err.message, 'error');
   }
-};
+}; }
+WG_INFOBOX_CLICK_HANDLERS.features = wgxFeatureClickHandler(null);
+WG_INFOBOX_CLICK_HANDLERS.featuresActive = wgxFeatureClickHandler('active');

@@ -130,27 +130,64 @@ async function wgxApplyMode(charId, mode, amt) {
   } catch (err) { showToast('Save failed · ' + err.message, 'error'); }
 }
 
+// ===== AC — expected value per class-default loadout (engine getAC) =====
+// Per-class uitleg van waar de default-AC vandaan komt (matcht engine.js getAC).
+const WGX_AC_RULE = {
+  rogue:     'Studded leather (12) + Dex modifier',
+  bard:      'Studded leather (12) + Dex modifier',
+  sorcerer:  'Unarmored (10) + Dex modifier; 13 + Dex with Mage Armor prepared',
+  wizard:    'Unarmored (10) + Dex modifier; 13 + Dex with Mage Armor prepared',
+  warlock:   'Unarmored (10) + Dex modifier; 13 + Dex with Armor of Agathys prepared',
+  fighter:   'Chain mail (16, no Dex) unless other armor is equipped',
+  paladin:   'Chain mail (16, no Dex) unless other armor is equipped',
+  cleric:    'Scale mail (14) + Dex modifier (max 2)',
+  ranger:    'Studded leather (12) + Dex modifier',
+  druid:     'Leather armor (11) + Dex modifier',
+  barbarian: 'Unarmored Defense: 10 + Dex modifier + Con modifier',
+  monk:      'Unarmored Defense: 10 + Dex modifier + Wis modifier',
+};
+function wgxComputeAC(raw) {
+  const cfg = (raw && raw.config) || {};
+  const st  = (raw && raw.state)  || {};
+  if (typeof getAC === 'function') {
+    try { const v = getAC(cfg, st); if (typeof v === 'number') return v; } catch (e) {}
+  }
+  const dex = (cfg.baseAbilities && cfg.baseAbilities.dex) ?? 10;
+  return 10 + Math.floor((dex - 10) / 2);
+}
+function wgxAcTip(raw) {
+  const cfg = (raw && raw.config) || {};
+  const st  = (raw && raw.state)  || {};
+  const rule = WGX_AC_RULE[cfg.className] || 'Unarmored: 10 + Dex modifier';
+  let body = 'Armor Class — how hard you are to hit. An attack roll must equal or exceed this number.\n\n' + rule + '.';
+  if (st.equippedShield) body += '\n+2 from your shield.';
+  return { title: 'Armor Class ' + wgxComputeAC(raw), body };
+}
+
 // ===== hpBase — infobox-builder (1-koloms tile-stack) =====
 function wgxBuildHpBase(widget) {
-  const t = wgxDefaultHp(WG_CHAR_CACHE[state.characterId]);
+  const raw = WG_CHAR_CACHE[state.characterId];
+  const t = wgxDefaultHp(raw);
   const d = widget.data, L = widget.layout;
-  d.tooltips = null;
   d.columns = [{ key: 'cell', label: 'HP' }];
   const rows = [];
   const rowCls = [];
-  rows.push([`♥ ${t.current} / ${t.max}`]); rowCls.push(null);
-  rows.push([t.temp > 0 ? `Temp +${t.temp}` : 'Temp 0']); rowCls.push('wgx-act-temp');
-  rows.push(['Damage']); rowCls.push('wgx-act-dmg');
-  rows.push(['Heal']);   rowCls.push('wgx-act-heal');
+  const tips = [];
+  rows.push([`🛡 AC ${wgxComputeAC(raw)}`]); rowCls.push(null); tips.push([wgxAcTip(raw)]);
+  rows.push([`♥ ${t.current} / ${t.max}`]); rowCls.push(null); tips.push(null);
+  rows.push([t.temp > 0 ? `Temp +${t.temp}` : 'Temp 0']); rowCls.push('wgx-act-temp'); tips.push(null);
+  rows.push(['Damage']); rowCls.push('wgx-act-dmg'); tips.push(null);
+  rows.push(['Heal']);   rowCls.push('wgx-act-heal'); tips.push(null);
   if (t.current === 0) {
-    if (t.dead) { rows.push(['💀 Dood']); rowCls.push(null); }
-    else if (t.stable) { rows.push(['Stabiel']); rowCls.push(null); }
+    if (t.dead) { rows.push(['💀 Dood']); rowCls.push(null); tips.push(null); }
+    else if (t.stable) { rows.push(['Stabiel']); rowCls.push(null); tips.push(null); }
     else {
-      rows.push([`Saves ${'●'.repeat(t.deathSaves.successes)}${'○'.repeat(3 - t.deathSaves.successes)}`]); rowCls.push(null);
-      rows.push([`Fails ${'●'.repeat(t.deathSaves.failures)}${'○'.repeat(3 - t.deathSaves.failures)}`]); rowCls.push(null);
+      rows.push([`Saves ${'●'.repeat(t.deathSaves.successes)}${'○'.repeat(3 - t.deathSaves.successes)}`]); rowCls.push(null); tips.push(null);
+      rows.push([`Fails ${'●'.repeat(t.deathSaves.failures)}${'○'.repeat(3 - t.deathSaves.failures)}`]); rowCls.push(null); tips.push(null);
     }
   }
   d.rows = rows;
+  d.tooltips = tips;
   L.columnHighlight = [false];
   L.columnAlign = ['center'];
   L.columnAllCaps = [false];
@@ -165,10 +202,11 @@ WG_EXTRA_INFOBOX_BUILDERS.hp = wgxBuildHpBase;
 
 // Welke actie hoort bij rij rowIdx (deterministisch uit de HP-state).
 function wgxHpBaseAction(rowIdx, t) {
-  const base = ['current', 'temp', 'damage', 'heal'];
-  if (rowIdx < 4) return base[rowIdx];
+  // rij 0 = AC (read-only); daarna current/temp/damage/heal; dan death saves.
+  const base = ['none', 'current', 'temp', 'damage', 'heal'];
+  if (rowIdx < 5) return base[rowIdx];
   if (t.current !== 0 || t.dead || t.stable) return 'none';
-  return rowIdx === 4 ? 'ds-success' : 'ds-failure';
+  return rowIdx === 5 ? 'ds-success' : 'ds-failure';
 }
 
 // ===== Number-prompt overlay (inline op de geklikte cel) =====

@@ -1,5 +1,11 @@
 # D&D Within — To Do
 
+## Widget-uitbreidingen 2026-08-15 (AC + features-split + attacks)
+- [x] P1 — **AC in Hit Points-widget**: rij 0 `🛡 AC n` via engine `getAC` (verwachte waarden per class-default loadout; live geverifieerd: ren 15, saya 11, ancha 15, barius 16, io 12, lira 11, nero 15). Hover-tooltip met per-class AC-opbouw. `wg-hp.js`.
+- [x] P1 — **Features gesplitst in Active/Passive**: nieuwe widget-types `featuresActive`/`featuresPassive` (zelfde databron, los plaatsbaar); actief = use-counter, metamagic of invocation. Gecombineerde `featureList` blijft bestaan voor opgeslagen dashboards (sidebar-library toont nu de split-variant). `wg-features.js`/`wg-ui.js`.
+- [x] P1 — **Attacks-widget** (`wg-attack.js`, nieuw): attack-opties uit inventory-weapons (⋈ itemDB: to-hit = finesse/ranged-mod + prof, damage, mastery/range/properties in tooltip) + Soulknife Psychic Blades + rogue Sneak Attack-rider. Ren live geverifieerd: Psychic Blade/Shortsword/Shortbow +5 1d6+3, Dagger +5 1d4+3, Sneak Attack 2d6. Read-only v1.
+- [ ] P2 — **Review (Joshua)**: (1) klassificatie "actief" voor metamagic/invocations — nu bewust onder Active, fighting styles onder Passive; (2) Attacks-widget toont Unarmed Strike-fallback bij characters zonder weapons in `state.items` (alleen ren/saya hebben items); (3) AC-tooltip beschrijft class-default armor, niet gedragen armor uit inventory (engine-limitatie).
+
 ## Content-audit 2026-07-07 (data.js) — commit c900140
 - [x] P1 — 13 ontbrekende 2024 general feats toegevoegd (`feats[]`): Keen Mind, Piercer, Slasher, Crusher, Chef, Skill Expert, Telekinetic, Telepathic, Metamagic Adept, Grappler, Poisoner, Heavily/Moderately Armored. **Bewust weggelaten:** Gunner/Fighting Initiate/Martial Adept = 2014-only, niet in 2024 PHB.
 - [x] P2 — `Magic Circle` (3rd level) toegevoegd aan spellPool; verdwaalde `Daylight`-duplicaat verwijderd (canonical staat in 3RD LEVEL sectie).

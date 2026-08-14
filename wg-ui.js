@@ -446,11 +446,13 @@ function seedDefaultWidgets() {
     { id: 'preparedSpells', name: 'Prepared Spells', category: 'stats',     config: { type: 'preparedSpells' } },
     { id: 'levelUp',        name: 'Level Up',        category: 'stats',     config: { type: 'levelUp' } },
     { id: 'classResource',  name: 'Resources',       category: 'stats',     config: { type: 'classResource' } },
-    { id: 'featureList',    name: 'Features',        category: 'stats',     config: { type: 'featureList' } },
+    { id: 'featuresActive',  name: 'Active Features',  category: 'stats',    config: { type: 'featuresActive' } },
+    { id: 'featuresPassive', name: 'Passive Features', category: 'stats',    config: { type: 'featuresPassive' } },
     { id: 'profilePicture', name: 'Profile picture', category: 'character', config: { type: 'profilePicture' } },
     { id: 'characterInfo',  name: 'Character Info',  category: 'character', config: { type: 'basicInfo' } },
     { id: 'campaignMap',    name: 'Campagne-kaart',  category: 'exploring', config: { type: 'map' } },
     { id: 'initiativeTracker', name: 'Initiative Tracker', category: 'combat', config: { type: 'initiativeTracker' } },
+    { id: 'attacks',        name: 'Attacks',         category: 'combat',    config: { type: 'attacks' } },
     { id: 'inventory',      name: 'Inventory',       category: 'inventory', config: { type: 'inventory' } },
   ];
   library.activeWidgetId = 'abilityScores';
