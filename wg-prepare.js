@@ -466,9 +466,12 @@ function wgxPrepMaxSpellLevel(raw) {
   return m;
 }
 
-// 2024 rules-note per class. Not hard-enforced: the window always allows a
-// full re-pick; the note tells the player what RAW says (DM's call beyond it).
-function wgxPrepRulesNote(cn) {
+// 2024 rules-note per class (web-verified 2026-08-15: aidedd/roll20/wikidot).
+// Not hard-enforced: the window always allows a full re-pick; the note tells
+// the player what RAW says (DM's call beyond it). House rule: a character with
+// no prepared spells recorded yet may always fill their full list.
+function wgxPrepRulesNote(cn, startedEmpty) {
+  if (startedEmpty) return 'No prepared spells recorded yet — pick your full list.';
   if (cn === 'wizard') return 'RAW: you can change your entire prepared list whenever you finish a Long Rest. You prepare from your spellbook — the app shows the full wizard list, so check your spellbook with your DM.';
   if (cn === 'cleric' || cn === 'druid') return 'RAW: you can change your entire prepared list whenever you finish a Long Rest.';
   if (cn === 'paladin' || cn === 'ranger') return 'RAW: on a Long Rest you can replace one prepared spell. Bigger changes are the DM’s call.';
@@ -507,7 +510,7 @@ function wgxOpenPrepareWindow(charId) {
     ? ((typeof getMod === 'function') ? getMod(score) : Math.floor((score - 10) / 2)) : 0;
   const max = (typeof getMaxPrepared === 'function') ? getMaxPrepared(st, mod, cn) : current.length;
 
-  wgxPrep = { charId: charId, pool: pool, selected: current, max: max };
+  wgxPrep = { charId: charId, pool: pool, selected: current, max: max, startedEmpty: current.length === 0 };
   const host = document.createElement('div');
   host.className = 'wgx-prep-modal-active';
   host.innerHTML = '<div class="modal-overlay"><div class="modal-card wgx-lu-card"></div></div>';
@@ -537,7 +540,7 @@ function wgxRenderPrepModal() {
     html += '<p class="wgx-lu-note">No spell list is available for this class in the app yet. Record your prepared spells with your DM.</p>';
   } else {
     html += '<h3>Choose your prepared spells</h3>';
-    const note = wgxPrepRulesNote(cn);
+    const note = wgxPrepRulesNote(cn, wgxPrep.startedEmpty);
     if (note) html += '<p class="wgx-lu-note">' + wgxCastEsc(note) + '</p>';
     html += '<p class="wgx-lu-note">Prepared ' + sel.length + ' / ' + wgxPrep.max + ' · cantrips are not affected.</p>';
     html += '<div class="wgx-lu-subgrid">';
