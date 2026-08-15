@@ -66,7 +66,7 @@ Ontwerp: `Metadocs/LevelUp-SpellPrepare-Design.md`.
 - [~] P0 — ~~Fase 0 vóór fase 2/3: verifieer 2024 prepared-max~~ → tabel L1–3 gebouwd + in gebruik (`DATA.preparedTable`); fysieke-PHB spot-check blijft open, incl. paladin/ranger-correctie → zie `LevelingUp/Status.md` review 0f
 - [x] P1 — Fase 0: `getMaxPrepared()` formule→tabel (L1–3; legacy-fallback erboven) — LevelingUp fase C
 - [~] P1 — Fase 0: 2014-resten fixen — ✅ Druid cantrips →2, paladin/ranger `spellcastingStart`→1 + L1-slots (2026-08-04); nog open: Bard Magical Secrets, Wizard "Memorize na short rest", subclass-levels→L3
-- [ ] P1 — Fase 2: spell-prepare window (`wg-prepare.js`) — 5 caster-categorieën, opent vanuit long rest (spell-keuze bij level-up bestaat al in het level-up-menu)
+- [x] P1 — Fase 2: spell-prepare window (`wg-prepare.js`) — opent na Long Rest (bestaande hook) + handmatig via "⚙ Change spells"-rij in de Prepared Spells-widget; volledige herpick tot `getMaxPrepared`, per-class RAW-note (niet hard-enforced), gebouwd 2026-08-15
 - [x] P1 — Fase 3: level-up widget (`wg-levelup.js`) — gebouwd + uitgebouwd in LevelingUp fase C–F (glow, BG3-stapmenu, alle pickers, level-down); zie `Metadocs/LevelingUp/Status.md`
 - [ ] P2 — Fase 4: multiclass aggregator wire-up + config-model (`getCombinedCasterLevel`)
 - [ ] P2 — Beslissen: ~~HP bij level-up vast-gemiddelde vs rollen~~ (v1 = vast gemiddelde, gebouwd); EK/AT spell-lijst eigen vs gefilterd-Wizard (fase F+)

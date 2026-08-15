@@ -142,8 +142,7 @@ WG_INFOBOX_CLICK_HANDLERS.rest = async ({ charId, rowIdx, raw }) => {
   try {
     const r = await wgxLongRest(charId);
     showToast(`🌙 Long rest — HP ${r.max}/${r.max}, +${r.restoredHitDice} hit dice`);
-    // Forward-compat: fase 2 (wg-prepare.js) definieert wgxOpenPrepareWindow en
-    // de prepare-window opent dan automatisch voor casters. Tot dan: no-op.
+    // Fase 2 (wg-prepare.js): prepare-window opent automatisch voor casters.
     if (typeof wgxOpenPrepareWindow === 'function' && wgxIsCaster(raw)) wgxOpenPrepareWindow(charId);
   } catch (err) { showToast('Rest failed · ' + err.message, 'error'); }
 };

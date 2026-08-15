@@ -1,5 +1,5 @@
-// wg-prepare.js — Prepared Spells widget + cast flow + Spell Slots widget
-// (E5.5/2024).
+// wg-prepare.js — Prepared Spells widget + cast flow + Spell Slots widget +
+// prepare-window (E5.5/2024).
 //
 // Prepared Spells: cantrips + prepared spells als info-box-lijst, 3 kolommen
 // [level-badge | naam | micro-icons], per-rij hover/long-press-tooltip met
@@ -174,6 +174,12 @@ function wgxBuildPrepared(widget) {
       tips.push([tip, tip, tip]);   // zelfde tip op alle 3 cellen → hover overal op de rij
     }
   }
+  // Laatste rij = ingang naar de prepare-window (ook zonder Long Rest bruikbaar).
+  if (wgxIsCaster(raw)) {
+    rows.push(['', '⚙ Change spells', '']);
+    const prepTip = { title: 'Change prepared spells', body: 'Open the prepare window to change which spells you have prepared. This also opens automatically after a Long Rest.' };
+    tips.push([prepTip, prepTip, prepTip]);
+  }
 
   d.rows = rows;
   d.tooltips = tips;
@@ -188,12 +194,12 @@ function wgxBuildPrepared(widget) {
 }
 WG_EXTRA_INFOBOX_BUILDERS.prepared = wgxBuildPrepared;
 
-// Klik op een spell-rij → cast-window.
+// Klik op een spell-rij → cast-window; klik op de laatste rij → prepare-window.
 WG_INFOBOX_CLICK_HANDLERS.prepared = function (ctx) {
   const raw = ctx.raw || {};
   const entries = wgxPreparedEntries(raw.state || {});
   const e = entries[ctx.rowIdx];
-  if (!e) return;
+  if (!e) { wgxOpenPrepareWindow(ctx.charId); return; }
   wgxOpenCastModal(ctx.charId, e.name);
 };
 
@@ -439,5 +445,157 @@ async function wgxDoCast(act, t) {
     showToast('✨ ' + cast.name + ' cast (' + detail + ')' + conc);
   } catch (err) {
     showToast('Cast failed · ' + err.message, 'error');
+  }
+}
+
+// ============================================================
+// Prepare-window (fase 2) — change prepared spells.
+// Opens automatically after a Long Rest for casters (hook in wg-rest.js),
+// and manually via the "⚙ Change spells" row in the Prepared Spells widget.
+// Reuses the level-up modal shell + card-grid CSS (wgx-lu-*).
+// ============================================================
+var wgxPrep = null; // { charId, pool: [{nm,lvl,sp}], selected: [names], max }
+
+// Highest spell level this character can currently cast (slots, not level-up delta).
+function wgxPrepMaxSpellLevel(raw) {
+  const sm = wgxSlotModel(raw);
+  if (sm.kind === 'pact') return sm.slotLevel;
+  if (sm.kind !== 'std') return 0;
+  let m = 0;
+  for (let i = 0; i < sm.totals.length; i++) if (sm.totals[i] > 0) m = i + 1;
+  return m;
+}
+
+// 2024 rules-note per class. Not hard-enforced: the window always allows a
+// full re-pick; the note tells the player what RAW says (DM's call beyond it).
+function wgxPrepRulesNote(cn) {
+  if (cn === 'wizard') return 'RAW: you can change your entire prepared list whenever you finish a Long Rest. You prepare from your spellbook — the app shows the full wizard list, so check your spellbook with your DM.';
+  if (cn === 'cleric' || cn === 'druid') return 'RAW: you can change your entire prepared list whenever you finish a Long Rest.';
+  if (cn === 'paladin' || cn === 'ranger') return 'RAW: on a Long Rest you can replace one prepared spell. Bigger changes are the DM’s call.';
+  if (cn === 'bard' || cn === 'sorcerer' || cn === 'warlock') return 'RAW: you swap a spell when you gain a level, not on a Long Rest. Treat changes here as the DM’s call.';
+  return '';
+}
+
+function wgxOpenPrepareWindow(charId) {
+  const raw = WG_CHAR_CACHE[charId] || {};
+  const cfg = raw.config || {}, st = raw.state || {};
+  const cn = cfg.className;
+  const spellData = (typeof DATA !== 'undefined' && DATA.spellPool) || {};
+  // Pool = class list up to the highest castable spell level.
+  const maxLvl = wgxPrepMaxSpellLevel(raw);
+  const pool = [];
+  const inPool = new Set();
+  for (let sl = 1; sl <= maxLvl; sl++) {
+    const list = ((DATA.spells || {})[cn] || {})[sl] || [];
+    for (const nm of list) { pool.push({ nm: nm, lvl: sl, sp: spellData[nm] || null }); inPool.add(nm); }
+  }
+  // Currently prepared spells outside the class list (DM grants, always-prepared
+  // subclass spells, legacy data) stay visible so they never silently vanish.
+  const current = Array.isArray(st.prepared) ? st.prepared.slice() : [];
+  for (const nm of current) {
+    if (inPool.has(nm)) continue;
+    const sp = spellData[nm] || null;
+    pool.push({ nm: nm, lvl: sp ? (sp.level || 0) : 0, sp: sp, extra: true });
+    inPool.add(nm);
+  }
+  pool.sort((a, b) => (a.lvl - b.lvl) || a.nm.localeCompare(b.nm));
+
+  // Max prepared = 2024 table (fallback formula) op spellcasting-ability mod.
+  const stats = wgxSpellStats(raw);
+  const score = (cfg.baseAbilities || {})[stats.ability];
+  const mod = (typeof score === 'number')
+    ? ((typeof getMod === 'function') ? getMod(score) : Math.floor((score - 10) / 2)) : 0;
+  const max = (typeof getMaxPrepared === 'function') ? getMaxPrepared(st, mod, cn) : current.length;
+
+  wgxPrep = { charId: charId, pool: pool, selected: current, max: max };
+  const host = document.createElement('div');
+  host.className = 'wgx-prep-modal-active';
+  host.innerHTML = '<div class="modal-overlay"><div class="modal-card wgx-lu-card"></div></div>';
+  document.body.appendChild(host);
+  host.addEventListener('click', wgxPrepClick);
+  wgxRenderPrepModal();
+}
+
+function wgxClosePrepareWindow() {
+  const el = document.querySelector('.wgx-prep-modal-active');
+  if (el) el.remove();
+  wgxPrep = null;
+}
+
+function wgxRenderPrepModal() {
+  const card = document.querySelector('.wgx-prep-modal-active .wgx-lu-card');
+  if (!card || !wgxPrep) return;
+  const raw = WG_CHAR_CACHE[wgxPrep.charId] || {};
+  const cn = (raw.config || {}).className;
+  const sel = wgxPrep.selected;
+
+  let html = '<div class="modal-header"><h2>Prepare Spells</h2>' +
+    '<button class="modal-close" data-wgx-prep="cancel">&times;</button></div>';
+  html += '<div class="modal-body wgx-lu-body">';
+
+  if (!wgxPrep.pool.length) {
+    html += '<p class="wgx-lu-note">No spell list is available for this class in the app yet. Record your prepared spells with your DM.</p>';
+  } else {
+    html += '<h3>Choose your prepared spells</h3>';
+    const note = wgxPrepRulesNote(cn);
+    if (note) html += '<p class="wgx-lu-note">' + wgxCastEsc(note) + '</p>';
+    html += '<p class="wgx-lu-note">Prepared ' + sel.length + ' / ' + wgxPrep.max + ' · cantrips are not affected.</p>';
+    html += '<div class="wgx-lu-subgrid">';
+    for (let i = 0; i < wgxPrep.pool.length; i++) {
+      const e = wgxPrep.pool[i];
+      const isSel = sel.indexOf(e.nm) !== -1;
+      const sub = 'Lvl ' + e.lvl +
+        (e.sp && e.sp.time ? ' · ' + e.sp.time : '') +
+        (e.sp && e.sp.range ? ' · ' + e.sp.range : '') +
+        (e.extra ? ' · not on class list' : '');
+      const desc = e.sp ? wgxTrunc(e.sp.desc || '', 110) : '';
+      html += '<div class="wgx-lu-subcard' + (isSel ? ' selected' : '') + '" data-wgx-prep="toggle" data-val="' + wgxCastEsc(e.nm) + '">' +
+        '<h4>' + wgxCastEsc(e.nm) + ' <span class="wgx-lu-cost">' + wgxCastEsc(sub) + '</span></h4>' +
+        (desc ? '<p>' + wgxCastEsc(desc) + '</p>' : '') + '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+
+  const over = sel.length > wgxPrep.max;
+  html += '<div class="wgx-lu-nav">' +
+    '<button class="wgx-lu-btn" data-wgx-prep="cancel">Cancel</button>' +
+    '<button class="wgx-lu-btn wgx-lu-primary" data-wgx-prep="confirm"' + ((over || !wgxPrep.pool.length) ? ' disabled' : '') + '>Save</button>' +
+    '</div>';
+  card.innerHTML = html;
+}
+
+function wgxPrepClick(e) {
+  if (!wgxPrep) return;
+  if (e.target.classList && e.target.classList.contains('modal-overlay')) { wgxClosePrepareWindow(); return; }
+  const t = e.target.closest('[data-wgx-prep]');
+  if (!t || t.disabled) return;
+  const act = t.getAttribute('data-wgx-prep');
+  if (act === 'cancel') { wgxClosePrepareWindow(); return; }
+  if (act === 'toggle') {
+    const nm = t.getAttribute('data-val');
+    const idx = wgxPrep.selected.indexOf(nm);
+    if (idx !== -1) wgxPrep.selected.splice(idx, 1);
+    else if (wgxPrep.selected.length < wgxPrep.max) wgxPrep.selected.push(nm);
+    else { showToast('Maximum reached (' + wgxPrep.max + ') — deselect a spell first'); return; }
+    wgxRenderPrepModal();
+    return;
+  }
+  if (act === 'confirm') wgxConfirmPrepare();
+}
+
+async function wgxConfirmPrepare() {
+  if (!wgxPrep) return;
+  const p = wgxPrep;
+  // Sorteer zoals de widget: level oplopend, alfabetisch binnen level.
+  const lvlOf = {};
+  for (const e of p.pool) lvlOf[e.nm] = e.lvl;
+  const list = p.selected.slice().sort((a, b) => ((lvlOf[a] || 0) - (lvlOf[b] || 0)) || a.localeCompare(b));
+  try {
+    await wgxPatchState(p.charId, { prepared: list });
+    wgxClosePrepareWindow();
+    showToast('📖 Prepared spells updated (' + list.length + '/' + p.max + ')');
+  } catch (err) {
+    showToast('Save failed · ' + err.message, 'error');
   }
 }

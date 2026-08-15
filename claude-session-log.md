@@ -682,3 +682,27 @@ Nieuwe `#/widget-demo` route toont elke widget in min/default/max naast elkaar m
 **Files:** data.js (groot), core.js, events/familyDiagram/ui-modals/ui-pages/ui-settings/ui-world/wg-events/wg-firebase/wg-render/sync/social×2, Metadocs
 **Next:** review-lijst 0c-0k (PHB-checks), D2-rest (resources/rest live), F+ bij L4
 ---
+
+### Recap — 2026-08-14 (combo-smoketest + spellPool EN + D2-rest live + widget-fixes)
+**What was done:**
+- **Combo-smoketest gecommit** (`Metadocs/LevelingUp/combo-smoke.mjs`, vervangt verloren scratchpad-test): 12 classes × {tiefling, aasimar, highElf, human} = 48 combos, L1→2→3 via echte pure builders + exacte level-down rollback (Firebase empty-container-delete semantiek in applyPatch). 801/801 groen; mutatie-getest.
+- **spellPool volledig Engels**: laatste ~95 NL descs/comps vertaald (0k-debt afgerond); `_test.mjs` gerepareerd (eval-hack → vm sandbox, was al kapot op HEAD).
+- **D2-rest live-test** (wegwerp-paladin/aasimar L3): resource/feature klik-spend + klik-restore ✓, Short Rest short-one (+1 CD, rest onaangetast) ✓, Long Rest volledige reset (incl. species-resources, slots, HP→max) ✓, 0 console-errors.
+- **Widget-fix 1**: te-kleine infobox-widget toonde lege oranje alert-box zonder uitleg → nu hint "Enlarge widget to show content" (wg-render.js + wg-style.css).
+- **Widget-fix 2**: Celestial Revelation stond dubbel in Features (aasimar base-feature + L3 progression) → dedupe in wgxCollectFeatures.
+**Files modified:** data.js, _test.mjs, wg-features.js, wg-render.js, wg-style.css, index.html (?v-bump), Metadocs/LevelingUp/{combo-smoke.mjs,Status.md}
+**Current state:** commits 869f3d2, 1dfa473, fb91a6d gepusht. Testchar wegwerp-fable + lokale server opgeruimd.
+**Next steps:** check Bastions echte dashboard op de te-kleine-widget alert-staat (paladin-resources zijn breed); review-lijst 0c–0j met fysieke PHB; F+ bij L4.
+---
+
+### Recap — 2026-08-14 (hover-afbeeldingen creatures + characters)
+**What was done:**
+- Creature-editor (Lore→Creatures): tweede image-box "Hover image" (`entry.image2`), zelfde Existing/Upload/Remove-menu; save wacht op upload-promise en ruimt vervangen Cloudinary-images op
+- Creature-kaarten: `loreEntryImgHtml()` helper (gedeeld door creature-grid + generieke lore-grid) stapelt image2 als `.img-hover-swap`; cross-fade (0.35s) bij hover op de kaart
+- Character-wizard: klein tweede portret-slot naast het hoofdportret (verschijnt pas mét hoofdportret), met ×-remove; opslag als `images/portrait2` via bestaand `saveImage`/`dw_img_`-sync-kanaal; verwijderen wist lokaal + Firebase
+- Character-kaarten (party/characters): portrait2 cross-fade op hover; `hydrateCharCardPortraits` laadt hem async uit Firebase als hij niet lokaal staat (early-return-bug daarbij gefixt)
+- CSS: `.img-hover-swap` generiek (hover:hover-gated, prefers-reduced-motion-vriendelijk), wizard-slot-styling
+**Verified (live, admin, localhost):** editor toont beide boxes; save→card met beide imgs; echte hover → opacity 0→1; edit-reopen laadt image2; wizard-slot verschijnt/verwijdert correct (screenshot-check); party-kaarten: swap bij lokale portrait2 + hydration-tagging voor de rest; testdata opgeruimd, 0 console-errors
+**Files:** ui-world.js, ui-modals.js, ui-pages.js, style.css, index.html (?v-bump)
+**Note:** hover-only feature — op touch-devices (hover:none) blijft de eerste afbeelding staan
+---
