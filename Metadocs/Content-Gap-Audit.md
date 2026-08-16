@@ -1,5 +1,15 @@
 # Content-Gap-Audit — D&D Within vs 2024 PHB (E5.5)
 
+> **STATUS 2026-08-16: spells-deel UITGEVOERD** — 88 nieuwe spellPool-entries + 339
+> lijst-toevoegingen (volledige PHB-parity, alle 8 classes, alle levels), renames toegepast
+> (Shining Smite, Befuddlement, Mordenkainen's Magnificent Mansion), Summon Beast-fout
+> (ranger L4) gefixt. FR "Heroes of Faerûn" + SCAG/Tasha's blade-cantrips bewust
+> overgeslagen. Validatie: elke lijst-naam bestaat in de pool, levels matchen, geen dupes.
+> Access-check: alle pickers (creation/level-up/prepare) filteren op `DATA.spells[className]`;
+> spellPool is nergens direct browsebaar. **Nog open: feats + invocations (fase 1).**
+> Spot-check-flags voor fysieke PHB: Mordenkainen's Private Sanctum upcast-clausule,
+> Phantom Steed L5/L7-upgrades, Tasha's Bubbling Cauldron zonder concentration.
+
 > 2026-08-16. Referentie: campagne-wiki `nilsvmulekom.github.io/dnd` (spiegelt 2024 PHB
 > voor hun 5 classes + feats + spells, plus supplement-content), gecross-checkt tegen
 > internet-bronnen. Diff-methode: site-lijsten vs `DATA.spells`/`DATA.spellPool`/

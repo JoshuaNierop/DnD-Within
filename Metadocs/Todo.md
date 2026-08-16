@@ -68,9 +68,7 @@ Ontwerp: `Metadocs/LevelUp-SpellPrepare-Design.md`.
 - [~] P1 — Fase 0: 2014-resten fixen — ✅ Druid cantrips →2, paladin/ranger `spellcastingStart`→1 + L1-slots (2026-08-04); nog open: Bard Magical Secrets, Wizard "Memorize na short rest", subclass-levels→L3
 ## Content-Gap-Audit — 2026-08-16 (zie Metadocs/Content-Gap-Audit.md)
 - [ ] P1 — Gap-fase 1: renames (Mobile→Speedy, Branding→Shining Smite, Magnificent Mansion→Mordenkainen's, BlindnessDeafness-typo) + 7 general feats + 14 invocations L5+ in data.js
-- [ ] P1 — Gap-fase 2: PHB-spell-gaten L0–L3 voor de 6 party-caster-classes (~90 entries, ~45 nieuwe spellPool-authoring)
-- [!] P2 — Gap-scoping: volledige 2024-PHB-parity (283 nieuwe spellPool-entries) of curated subset? + FR "Heroes of Faerûn" wel/niet — wacht op Joshua's keuze
-- [ ] P3 — Gap-fase 3: spells L4+ per class (koppelen aan fase F+), bard/cleric-lijsten voor Magic Initiate
+- [x] P1 — Gap-fase 2+3: SPELLS DONE 2026-08-16 — volledige 2024-PHB-parity: 88 nieuwe spellPool-entries (agent-authored, geverifieerd tegen 5etools XPHB/wikidot), 339 lijst-toevoegingen over alle 8 classes/alle levels; renames Branding→Shining Smite, Feeblemind→Befuddlement, Magnificent Mansion→Mordenkainen's; Summon Beast van ranger L4→weg (staat op L2). FR "Heroes of Faerûn" bewust overgeslagen (28 spells + Conjure Constructs); SCAG/Tasha's blade-cantrips (GFB/Lightning Lure/Sword Burst) niet toegevoegd — Booming Blade blijft als bestaande holdover
 
 - [x] P1 — Fase 2: spell-prepare window (`wg-prepare.js`) — opent na Long Rest (bestaande hook) + handmatig via "⚙ Change spells"-rij in de Prepared Spells-widget; volledige herpick tot `getMaxPrepared`, per-class RAW-note (niet hard-enforced), gebouwd 2026-08-15
 - [x] P1 — Fase 3: level-up widget (`wg-levelup.js`) — gebouwd + uitgebouwd in LevelingUp fase C–F (glow, BG3-stapmenu, alle pickers, level-down); zie `Metadocs/LevelingUp/Status.md`
