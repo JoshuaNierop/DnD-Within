@@ -153,7 +153,15 @@ function wgxLevelUpSteps(delta, cfg, st, picked) {
   // New cantrips / prepared spells (2024 fixed tables). (total − known) instead
   // of (new − old): heals characters whose creation picks were never recorded.
   var cNeed = Math.max(0, (delta.cantrips['new'] || 0) - (st.cantrips || []).length);
-  var list0 = (DATA.spells[cfg.className] || {})[0] || [];
+  // Verplichte subclass-cantrips (AT: Mage Hand) tellen mee voor het maximum,
+  // dus ze gaan van het aantal vrije keuzes af.
+  ((DATA.thirdCasterFixedCantrips || {})[cfg.subclass] || []).forEach(function (nm) {
+    if ((st.cantrips || []).indexOf(nm) === -1) cNeed = Math.max(0, cNeed - 1);
+  });
+  // #P0hwaBZ: third casters (EK/AT) kiezen uit de wizard-lijst.
+  var spellCn = (typeof getSpellListClass === 'function')
+    ? getSpellListClass(cfg.className, cfg.subclass) : cfg.className;
+  var list0 = (DATA.spells[spellCn] || {})[0] || [];
   cNeed = Math.min(cNeed, Math.max(0, list0.length - (st.cantrips || []).length));
   if (cNeed > 0) steps.push({ kind: 'choice', choice: { id: 'cantrips', count: cNeed }, needed: cNeed });
   var pNeed = Math.max(0, (delta.prepared['new'] || 0) - (st.prepared || []).length);
@@ -199,6 +207,13 @@ function wgxBuildLevelUpPatch(cfg, st, delta, picked) {
   var newCantrips = [];
   if (picked.cantrips && picked.cantrips.length) { rec.cantripsAdded = picked.cantrips; newCantrips = newCantrips.concat(picked.cantrips); }
   if (picked.styleCantrips && picked.styleCantrips.length) { rec.styleCantrips = picked.styleCantrips; newCantrips = newCantrips.concat(picked.styleCantrips); }
+  // #P0hwaBZ: Arcane Trickster krijgt Mage Hand verplicht bij zijn cantrips —
+  // die telt mee voor het maximum en is niet inwisselbaar, dus we zetten hem er
+  // zelf bij zodra de subclass spellcasting krijgt.
+  var fixedCantrips = (DATA.thirdCasterFixedCantrips || {})[cfg.subclass] || [];
+  fixedCantrips.forEach(function (nm) {
+    if ((st.cantrips || []).indexOf(nm) === -1 && newCantrips.indexOf(nm) === -1) newCantrips.push(nm);
+  });
   if (newCantrips.length) statePatch.cantrips = (st.cantrips || []).concat(newCantrips);
 
   statePatch['levelChoices/' + delta.to] = rec;
@@ -353,6 +368,9 @@ function wgxRenderLUStep() {
   var d = wgxLU.delta, step = wgxLU.steps[wgxLU.stepIdx], picked = wgxLU.picked;
   var cfg = wgxLU.raw.config || {}, st = wgxLU.raw.state || {};
   var cn = cfg.className;
+  // Klasselijst waaruit spells gekozen worden — voor EK/AT is dat wizard.
+  var spellCn = (typeof getSpellListClass === 'function')
+    ? getSpellListClass(cn, cfg.subclass) : cn;
   var html = '<div class="modal-header"><h2>Level Up — ' + d.from + ' → ' + d.to + '</h2>' +
     '<button class="modal-close" data-wgx-lu="cancel">&times;</button></div>';
   // Stepper dots + current-step label
@@ -478,11 +496,11 @@ function wgxRenderLUStep() {
     var knownList = isCantrip ? (st.cantrips || []) : (st.prepared || []);
     var pool = [];
     if (isCantrip) {
-      pool = ((DATA.spells[cn] || {})[0] || []).map(function (nm) { return { nm: nm, lvl: 0 }; });
+      pool = ((DATA.spells[spellCn] || {})[0] || []).map(function (nm) { return { nm: nm, lvl: 0 }; });
     } else {
       var maxLvl = wgxMaxSpellLevel(cn, d);
       for (var sl = 1; sl <= maxLvl; sl++) {
-        pool = pool.concat(((DATA.spells[cn] || {})[sl] || []).map(function (nm) { return { nm: nm, lvl: sl }; }));
+        pool = pool.concat(((DATA.spells[spellCn] || {})[sl] || []).map(function (nm) { return { nm: nm, lvl: sl }; }));
       }
     }
     html += '<h3>Choose ' + spNeed + ' new ' + (isCantrip ? 'cantrip' : 'spell') + (spNeed > 1 ? 's' : '') + '</h3>';

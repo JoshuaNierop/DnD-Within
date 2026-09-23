@@ -437,13 +437,53 @@ function saveCharConfigField(charId, field, value) {
     saveCharConfig(charId, config);
 }
 
+var ABILITY_BONUS_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+
+// #P0hvu6q — Canonieke afspraak: config.baseAbilities BEVAT de background-bonus.
+// De legacy characters in SEED_DATA staan zo opgeslagen (Ren: array 15 + Criminal
+// +2 = dex 17) en engine.js rekent er ook zo mee. De wizard-editor werkt met de
+// kale scores; deze twee helpers vertalen heen en weer.
+function applyBgBonusesToAbilities(abilities, bonuses) {
+    var out = Object.assign({}, abilities || {});
+    var bb = bonuses || {};
+    ABILITY_BONUS_KEYS.forEach(function (ab) {
+        out[ab] = (out[ab] || 0) + (bb[ab] || 0);
+    });
+    return out;
+}
+
+function stripBgBonusesFromAbilities(abilities, bonuses) {
+    var out = Object.assign({}, abilities || {});
+    var bb = bonuses || {};
+    ABILITY_BONUS_KEYS.forEach(function (ab) {
+        out[ab] = (out[ab] || 0) - (bb[ab] || 0);
+    });
+    return out;
+}
+
+// Eenmalige reparatie van characters die vóór de fix door de wizard zijn gemaakt:
+// die schreven de KALE scores weg, waardoor de +2/+1 van het background nergens
+// meer meetelde. Discriminator: `abilityMethod` wordt uitsluitend door de wizard
+// geschreven (SEED_DATA heeft het veld niet), `abilityBonusApplied` zet de wizard
+// sinds de fix. Beide condities samen = precies de kapotte groep.
+function migrateCharConfigAbilities(charId, config) {
+    if (!config || config.abilityBonusApplied) return config;
+    if (!config.abilityMethod) return config;      // legacy/seed: bonus zit er al in
+    var bb = config.backgroundBonuses;
+    if (!bb) { config.abilityBonusApplied = true; return config; }
+    config.baseAbilities = applyBgBonusesToAbilities(config.baseAbilities, bb);
+    config.abilityBonusApplied = true;
+    if (charId) saveCharConfig(charId, config);
+    return config;
+}
+
 function loadCharConfig(charId) {
     var saved = localStorage.getItem('dw_charconfig_' + charId);
     if (saved) {
         try {
             var config = JSON.parse(saved);
             if (!config.name) config.name = t('char.newcharacter');
-            return config;
+            return migrateCharConfigAbilities(charId, config);
         } catch (e) { /* ignore */ }
     }
     // Fallback to SEED_DATA for first-time use (before Firebase sync)
@@ -1039,8 +1079,20 @@ function subclassKeyFromName(name) {
         ['scout','wildMagic','thief','hunter','evocation','devotion','land','champion','fiend'], name);
 }
 
-function hasSpellcasting(className) {
+function hasSpellcasting(className, subclass) {
+    // #P0hwaBZ: fighter/rogue zijn geen casters, MAAR Eldritch Knight en Arcane
+    // Trickster wel (vanaf level 3). Zonder de subclass-check bleef de hele
+    // spell-UI verborgen voor die twee.
+    if (typeof isThirdCaster === 'function' && isThirdCaster(className, subclass)) return true;
     return ['sorcerer', 'wizard', 'druid', 'ranger', 'paladin', 'warlock', 'bard', 'cleric'].indexOf(className) !== -1;
+}
+
+// Vanaf welk class-level begint de spellcasting? Third casters krijgen hun
+// subclass (en daarmee spells) op level 3; de rest staat in data.js.
+function getSpellcastingStart(className, subclass) {
+    if (typeof isThirdCaster === 'function' && isThirdCaster(className, subclass)) return 3;
+    var cd = DATA[className];
+    return (cd && cd.spellcastingStart) || 1;
 }
 
 // Resolve spell list for a class+level. Supports both formats:

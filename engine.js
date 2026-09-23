@@ -235,8 +235,15 @@ function hasFeat(state, featName) {
     return false;
 }
 
-function getMaxPrepared(state, abilityMod, className) {
+function getMaxPrepared(state, abilityMod, className, subclass) {
     if (!className) className = 'sorcerer';
+    // #P0hwaBZ — Third casters vóór de class-check: fighter/rogue vallen anders
+    // in de non-caster-tak hieronder en kregen altijd 0. De 2024-kolom is vast
+    // (geen ability-mod) en identiek voor Eldritch Knight en Arcane Trickster.
+    if (isThirdCaster(className, subclass)) {
+        var tc = DATA.thirdCasterPrepared || [];
+        return tc[state.level] || 0;
+    }
     // 2024 PHB: fixed table per class level (Leveling Up subproject). Falls
     // through to the legacy 2014-style formula for levels beyond the table.
     var tbl = DATA.preparedTable && DATA.preparedTable[className];
@@ -268,13 +275,28 @@ function getMaxPrepared(state, abilityMod, className) {
     return Math.max(1, abilityMod + state.level);
 }
 
-function getMaxCantrips(level, className) {
+function getMaxCantrips(level, className, subclass) {
     if (!className) className = 'sorcerer';
+    // Third casters hebben geen cantripsKnown op de class zelf — die hangt aan
+    // de subclass (EK 2→3, AT 3→4, beide met de sprong op level 10).
+    if (isThirdCaster(className, subclass)) {
+        var tbl = (DATA.thirdCasterCantrips || {})[subclass] || [];
+        return tbl[level] || 0;
+    }
     var classData = DATA[className];
     if (classData && classData.cantripsKnown) {
         return classData.cantripsKnown[level] || 0;
     }
     return 0;
+}
+
+// Uit welke klasselijst kiest dit character zijn spells? Eldritch Knight en
+// Arcane Trickster bereiden uit de WIZARD-lijst voor. In 2024 is de oude
+// schoolbeperking (abjuration/evocation resp. enchantment/illusion) vervallen,
+// dus de volledige wizard-lijst is de juiste bron — geen filter.
+function getSpellListClass(className, subclass) {
+    if (isThirdCaster(className, subclass)) return 'wizard';
+    return className;
 }
 
 function getSpellcastingAbility(className, subclass) {
@@ -372,8 +394,8 @@ function getLevelUpDelta(config, state, toLevel) {
         features: features,
         choices: choices,
         slots: { old: getSpellSlots(cn, from, config.subclass), new: getSpellSlots(cn, toLevel, config.subclass) },
-        prepared: { old: getMaxPrepared(stFrom, mod, cn), new: getMaxPrepared(stTo, mod, cn) },
-        cantrips: { old: getMaxCantrips(from, cn), new: getMaxCantrips(toLevel, cn) },
+        prepared: { old: getMaxPrepared(stFrom, mod, cn, config.subclass), new: getMaxPrepared(stTo, mod, cn, config.subclass) },
+        cantrips: { old: getMaxCantrips(from, cn, config.subclass), new: getMaxCantrips(toLevel, cn, config.subclass) },
         spellbookAdds: (cn === 'wizard') ? 2 * levels.length : 0,
         sneakAttack: classData.sneakAttack ? { old: classData.sneakAttack[from], new: classData.sneakAttack[toLevel] } : null,
         // Class/subclass/species resources that newly unlock in this level range

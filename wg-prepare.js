@@ -470,8 +470,11 @@ function wgxPrepMaxSpellLevel(raw) {
 // Not hard-enforced: the window always allows a full re-pick; the note tells
 // the player what RAW says (DM's call beyond it). House rule: a character with
 // no prepared spells recorded yet may always fill their full list.
-function wgxPrepRulesNote(cn, startedEmpty) {
+function wgxPrepRulesNote(cn, startedEmpty, subclass) {
   if (startedEmpty) return 'No prepared spells recorded yet — pick your full list.';
+  if (subclass === 'eldritchKnight' || subclass === 'arcaneTrickster') {
+    return 'RAW: you prepare from the Wizard list and swap one prepared spell when you gain a level, not on a Long Rest. The 2024 rules dropped the old school restriction, so any Wizard spell of a level you have slots for is fair game.';
+  }
   if (cn === 'wizard') return 'RAW: you can change your entire prepared list whenever you finish a Long Rest. You prepare from your spellbook — the app shows the full wizard list, so check your spellbook with your DM.';
   if (cn === 'cleric' || cn === 'druid') return 'RAW: you can change your entire prepared list whenever you finish a Long Rest.';
   if (cn === 'paladin' || cn === 'ranger') return 'RAW: on a Long Rest you can replace one prepared spell. Bigger changes are the DM’s call.';
@@ -482,7 +485,10 @@ function wgxPrepRulesNote(cn, startedEmpty) {
 function wgxOpenPrepareWindow(charId) {
   const raw = WG_CHAR_CACHE[charId] || {};
   const cfg = raw.config || {}, st = raw.state || {};
-  const cn = cfg.className;
+  // #P0hwaBZ: Eldritch Knight / Arcane Trickster bereiden uit de WIZARD-lijst
+  // voor, niet uit die van fighter/rogue (die bestaat niet).
+  const cn = (typeof getSpellListClass === 'function')
+    ? getSpellListClass(cfg.className, cfg.subclass) : cfg.className;
   const spellData = (typeof DATA !== 'undefined' && DATA.spellPool) || {};
   // Pool = class list up to the highest castable spell level.
   const maxLvl = wgxPrepMaxSpellLevel(raw);
@@ -508,7 +514,8 @@ function wgxOpenPrepareWindow(charId) {
   const score = (cfg.baseAbilities || {})[stats.ability];
   const mod = (typeof score === 'number')
     ? ((typeof getMod === 'function') ? getMod(score) : Math.floor((score - 10) / 2)) : 0;
-  const max = (typeof getMaxPrepared === 'function') ? getMaxPrepared(st, mod, cn) : current.length;
+  const max = (typeof getMaxPrepared === 'function')
+    ? getMaxPrepared(st, mod, cfg.className, cfg.subclass) : current.length;
 
   wgxPrep = { charId: charId, pool: pool, selected: current, max: max, startedEmpty: current.length === 0 };
   const host = document.createElement('div');
@@ -530,6 +537,7 @@ function wgxRenderPrepModal() {
   if (!card || !wgxPrep) return;
   const raw = WG_CHAR_CACHE[wgxPrep.charId] || {};
   const cn = (raw.config || {}).className;
+  const sub = (raw.config || {}).subclass;
   const sel = wgxPrep.selected;
 
   let html = '<div class="modal-header"><h2>Prepare Spells</h2>' +
@@ -540,7 +548,7 @@ function wgxRenderPrepModal() {
     html += '<p class="wgx-lu-note">No spell list is available for this class in the app yet. Record your prepared spells with your DM.</p>';
   } else {
     html += '<h3>Choose your prepared spells</h3>';
-    const note = wgxPrepRulesNote(cn, wgxPrep.startedEmpty);
+    const note = wgxPrepRulesNote(cn, wgxPrep.startedEmpty, sub);
     if (note) html += '<p class="wgx-lu-note">' + wgxCastEsc(note) + '</p>';
     html += '<p class="wgx-lu-note">Prepared ' + sel.length + ' / ' + wgxPrep.max + ' · cantrips are not affected.</p>';
     html += '<div class="wgx-lu-subgrid">';

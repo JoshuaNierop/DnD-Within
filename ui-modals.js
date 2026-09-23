@@ -595,9 +595,11 @@ function renderWizardStep1() {
         // #Ovv0gie: baseer Yes/No op een echte caster-predicate i.p.v. enkel
         // cantripsKnown — half-casters (Paladin/Ranger) hebben geen L1-cantrips
         // maar zijn wél spellcasters (vanaf hun spellcastingStart-level).
-        var isCaster = (typeof hasSpellcasting === 'function') && hasSpellcasting(wizardState.className);
+        var isCaster = (typeof hasSpellcasting === 'function') && hasSpellcasting(wizardState.className, wizardState.subclass);
         if (isCaster) {
-            var startLvl = classData.spellcastingStart || 1;
+            var startLvl = (typeof getSpellcastingStart === 'function')
+                ? getSpellcastingStart(wizardState.className, wizardState.subclass)
+                : (classData.spellcastingStart || 1);
             var l1Cantrips = classData.cantripsKnown ? classData.cantripsKnown[1] : 0;
             var scDetail;
             if (startLvl > 1) {
@@ -819,7 +821,8 @@ function renderWizardStep4() {
     // Cantrips for spellcasters
     if (classData.cantripsKnown && classData.cantripsKnown[1] > 0) {
         var cantripsCount = classData.cantripsKnown[1];
-        var spellData = getSpellsForLevel(wizardState.className, 0);
+        var spellData = getSpellsForLevel((typeof getSpellListClass === 'function')
+            ? getSpellListClass(wizardState.className, wizardState.subclass) : wizardState.className, 0);
         if (spellData && spellData.length > 0) {
             html += '<div class="wizard-field">';
             html += '<label class="wizard-label">Choose ' + cantripsCount + ' cantrips:</label>';
@@ -842,15 +845,19 @@ function renderWizardStep4() {
     // their list; count = spellcasting-ability mod + level (zie getMaxPrepared, zodat
     // de wizard exact matcht met het spell-prep scherm). Half casters (paladin/ranger)
     // krijgen pas spells vanaf level 2 → overslaan. Geen L1-spell-data → overslaan.
-    var spellLevel1 = getSpellsForLevel(wizardState.className, 1);
-    var startsLater = (classData.spellcastingStart || 1) > 1;
+    var listClass = (typeof getSpellListClass === 'function')
+        ? getSpellListClass(wizardState.className, wizardState.subclass) : wizardState.className;
+    var spellLevel1 = getSpellsForLevel(listClass, 1);
+    var startsLater = ((typeof getSpellcastingStart === 'function')
+        ? getSpellcastingStart(wizardState.className, wizardState.subclass)
+        : (classData.spellcastingStart || 1)) > 1;
     if (!startsLater && spellLevel1 && spellLevel1.length > 0) {
         var castAbil = (typeof getSpellcastingAbility === 'function')
             ? getSpellcastingAbility(wizardState.className, wizardState.subclass) : 'cha';
         var totalAbil = (wizardState.baseAbilities[castAbil] || 10) + (calcBgBonuses()[castAbil] || 0);
         var castMod = Math.floor((totalAbil - 10) / 2);
         var spellCount = (typeof getMaxPrepared === 'function')
-            ? getMaxPrepared({ level: 1 }, castMod, wizardState.className)
+            ? getMaxPrepared({ level: 1 }, castMod, wizardState.className, wizardState.subclass)
             : Math.max(1, castMod + 1);
         if (spellCount > 0) {
             html += '<div class="wizard-field">';
@@ -1131,9 +1138,14 @@ function createCharacterFromWizard() {
         alignment: wizardState.alignment,
         age: wizardState.age || null,
         accentColor: wizardState.accentColor,
-        baseAbilities: Object.assign({}, wizardState.baseAbilities),
+        // #P0hvu6q: de wizard bewerkt de KALE scores (array/point-buy/manual), maar
+        // de engine (getAbilityScore/getAbilityBreakdown) verwacht dat baseAbilities
+        // de background-bonus AL bevat — zo staan de legacy characters in SEED_DATA
+        // ook opgeslagen. Zonder deze optelling verdween de +2/+1 volledig.
+        baseAbilities: applyBgBonusesToAbilities(wizardState.baseAbilities, bgBonuses),
         abilityMethod: wizardState.abilityMethod || 'manual',
         backgroundBonuses: bgBonuses,
+        abilityBonusApplied: true,
         originFeat: bgFeat,
         defaultSkills: mergedSkills,
         defaultCantrips: wizardState.cantrips.slice(),
@@ -1327,6 +1339,10 @@ function buildWizardStateFromConfig(charId) {
         else if (bb[ab] === 1) plus1 = ab;
     });
     wizardState.bgBonusChoice = { plus2: plus2, plus1: plus1 };
+    // #P0hvu6q: config.baseAbilities bevat de bonus al (zie opslaan hieronder) —
+    // de wizard-editor werkt met de kale scores, dus hier weer eraf halen. Zonder
+    // dit zou elke edit-ronde de bonus opnieuw optellen (15 → 17 → 19 → …).
+    wizardState.baseAbilities = stripBgBonusesFromAbilities(wizardState.baseAbilities, bb);
     wizardState.skills = (cfg.defaultSkills || []).slice();
     wizardState.cantrips = (cfg.defaultCantrips || []).slice();
     wizardState.prepared = (cfg.defaultPrepared || []).slice();

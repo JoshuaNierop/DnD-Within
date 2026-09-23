@@ -1241,7 +1241,8 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
        Compromis: bug #9 verwijderde de harde 110px-floor; latere DM-bug vroeg
        toch weer een minimumbreedte → 96px geeft een ondergrens zónder de kolom
        opnieuw rigide te maken (1.4fr blijft groeien). */
-    grid-template-columns: 34px minmax(96px,1.4fr) 84px 120px 52px 40px 28px;
+    /* portrait | name | init | hp | ac | conc | vis | del */
+    grid-template-columns: 34px minmax(96px,1.4fr) 84px 120px 52px minmax(72px,.9fr) 40px 28px;
     align-items: center; gap: 6px;
     background: var(--user-bg-1, var(--bg));
     border: 1px solid var(--user-border, var(--border));
@@ -1288,6 +1289,22 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   .combat-kind-pc { color: #6fb3ff; }
   .combat-kind-npc { color: #c9a961; }
   .combat-kind-monster { color: #f08a8a; }
+  .combat-kind-familiar { color: #8fd9a8; }
+  /* De badge is voor niet-PC's een knop die de soort cyclet (#P0huIQ1). */
+  button.combat-kind-badge {
+    background: transparent; border: none; cursor: pointer; text-align: left;
+    font: inherit; font-size: 9px; text-transform: uppercase; letter-spacing: .04em;
+  }
+  button.combat-kind-badge:hover { text-decoration: underline; }
+
+  /* Concentration-kolom (#P0ihGxA) */
+  .combat-conc-input {
+    width: 100%; min-width: 0; background: transparent; border: none;
+    color: var(--user-text-muted, var(--muted));
+    font-size: 11px; font-style: italic; padding: 1px 3px; border-radius: 3px;
+  }
+  .combat-conc-input.active { color: var(--user-text-highlight, var(--accent)); font-style: normal; }
+  .combat-conc-input:focus { outline: none; background: var(--user-bg-2, var(--panel)); font-style: normal; }
 
   .combat-stepper { display: inline-flex; align-items: center; gap: 2px; }
   .combat-step-btn {
@@ -1351,6 +1368,35 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   .combat-init-item.masked .combat-portrait { filter: grayscale(1) brightness(.5); }
   .combat-init-name { font-size: 14px; font-weight: 600; }
   .combat-init-item.masked .combat-init-name { color: var(--user-text-muted, var(--muted)); letter-spacing: .1em; }
+
+  /* Speler-tracker kreeg dezelfde informatie-dichtheid als de DM-tabel (#P0ihGxA):
+     initiatief, soort-badge, HP-status en concentratie. Een silhouet blijft
+     gemaskeerd — daar verschijnt alleen '??'. */
+  .combat-init-order {
+    flex: 0 0 auto; min-width: 22px; text-align: center;
+    font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+    color: var(--user-text-muted, var(--muted));
+  }
+  .combat-init-id { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; gap: 1px; }
+  .combat-init-id .combat-init-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .combat-init-hp {
+    flex: 0 0 auto; font-size: 11px; font-weight: 700; padding: 1px 6px;
+    border-radius: 999px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .combat-init-hp.hp-ok { color: #6fce8f; }
+  .combat-init-hp.hp-warn { color: #e0a94a; }
+  .combat-init-hp.hp-crit { color: #f08a8a; }
+  .combat-init-hp.hp-ko { color: var(--user-text-muted, var(--muted)); }
+  .combat-init-conc {
+    flex: 0 0 auto; font-size: 11px; max-width: 120px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; color: var(--user-text-highlight, var(--accent));
+  }
+  .combat-init-item.ko-monster { opacity: .45; filter: saturate(.5); }
+  .combat-init-item.ko-ally { border-color: #f04a4a; box-shadow: 0 0 0 1px #f04a4a inset; }
+  /* Horizontaal (transposed): stapel de onderdelen zodat een smalle kolom niet
+     horizontaal gaat scrollen. */
+  .combat-initiative.horizontal .combat-init-id { align-items: center; }
+  .combat-initiative.horizontal .combat-init-conc { max-width: 100%; }
 
   /* Add-deelnemer paneel */
   .combat-add-panel { min-width: 280px; max-width: 320px; }

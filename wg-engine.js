@@ -687,7 +687,14 @@ function compactSpanUnitsY(growOnly = false) {
 // LET OP: de rij-/header-px-constanten zijn schattingen en moeten aan tafel
 // fijngesteld worden (zie Todo #NU-YZ6). Bewust iets royaal → liever één tegel
 // te veel dan content die net wegvalt.
-const COMBAT_FIT = { headerPx: 30, bodyPadPx: 12, rowPx: 40, rowGapPx: 5, dmHeadPx: 18, transposeRows: 7, minSpanY: 2 };
+// transposeRows = aantal veld-rijen in de getransponeerde DM-tabel. Afgeleid uit
+// WG_COMBAT_FIELDS zodat een nieuw veld (zoals 'conc') de fit niet stilzwijgend
+// een rij te kort maakt; de 8 is alleen de fallback als wg-combat nog niet laadde.
+const COMBAT_FIT = { headerPx: 30, bodyPadPx: 12, rowPx: 40, rowGapPx: 5, dmHeadPx: 18, transposeRows: 8, minSpanY: 2 };
+function combatFieldCount() {
+  return (typeof WG_COMBAT_FIELDS !== 'undefined' && WG_COMBAT_FIELDS.length)
+    ? WG_COMBAT_FIELDS.length : COMBAT_FIT.transposeRows;
+}
 function _fitCombatSpanY(growOnly) {
   const w = state.widget;
   if (!w) return;
@@ -703,7 +710,8 @@ function _fitCombatSpanY(growOnly) {
   let pxNeeded;
   if (transpose) {
     // Getransponeerd: vaste rij-set (één rij per veld), groeit niet met entities.
-    pxNeeded = C.headerPx + C.bodyPadPx + C.transposeRows * C.rowPx + (C.transposeRows - 1) * C.rowGapPx;
+    const tRows = combatFieldCount();
+    pxNeeded = C.headerPx + C.bodyPadPx + tRows * C.rowPx + (tRows - 1) * C.rowGapPx;
   } else {
     const rows = Math.max(n, 1);
     const headExtra = (mode === 'dm') ? (C.dmHeadPx + C.rowGapPx) : 0;

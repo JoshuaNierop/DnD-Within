@@ -448,17 +448,17 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Spellcasting", desc: "Cast wizard spells (enchantment/illusion plus free picks) using INT. Third-caster spell slots." },
-                        { name: "Mage Hand Legerdemain", desc: "Your Mage Hand is invisible. Bonus Action: direct it, use Sleight of Hand at range, or plant/retrieve objects." }
+                        { name: "Spellcasting", desc: "You can prepare and cast Wizard spells using INT, on the third-caster slot progression. The 2024 rules dropped the old Enchantment/Illusion restriction: any Wizard spell of a level you have slots for is fair game. Mage Hand is always one of your cantrips." },
+                        { name: "Mage Hand Legerdemain", desc: "You can cast Mage Hand as a Bonus Action, make the hand Invisible, and control it as a Bonus Action. You can make Dexterity (Sleight of Hand) checks through the hand." }
                     ],
                     9: [
-                        { name: "Magical Ambush", desc: "When you're hidden and cast a spell: targets have disadvantage on the saving throw." }
+                        { name: "Magical Ambush", desc: "If you have the Invisible condition when you cast a spell on a creature, that creature has Disadvantage on any saving throw it makes against the spell on the same turn." }
                     ],
                     13: [
-                        { name: "Versatile Trickster", desc: "Bonus Action: use Mage Hand to distract a creature. You have advantage on attacks against it until the end of your turn." }
+                        { name: "Versatile Trickster", desc: "When you use the Trip option of Cunning Strike on a creature, you can also apply that option to another creature within 5 feet of the spectral hand." }
                     ],
                     17: [
-                        { name: "Spell Thief", desc: "Reaction: when a creature within 30ft casts a spell at you, make an Arcana check (DC 10 + spell level). On a success the spell fails and you know it for 8 hours. Once per Long Rest." }
+                        { name: "Spell Thief", desc: "Reaction, right after a creature casts a spell that targets you or includes you in its area: it makes an Intelligence saving throw against your spell save DC. On a failure you negate the spell's effect against you, and if the spell is level 1+ and of a level you can cast, you have it prepared for 8 hours while the caster can't cast it. Recharges on a Long Rest." }
                     ]
                 }
             },
@@ -1242,11 +1242,11 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Spellcasting", desc: "You can cast wizard spells (abjuration/evocation focus) with INT as your spellcasting ability. Third caster: slower spell slot progression." },
+                        { name: "Spellcasting", desc: "You can prepare and cast Wizard spells using INT, on the third-caster slot progression. The 2024 rules dropped the old Abjuration/Evocation restriction: any Wizard spell of a level you have slots for is fair game." },
                         { name: "War Bond", desc: "Bond with a weapon through a 1-hour ritual. You can't be disarmed of it and can summon it to your hand as a Bonus Action. You can be bonded with up to 2 weapons." }
                     ],
                     7: [
-                        { name: "War Magic", desc: "When you cast a cantrip, you can make one weapon attack as a Bonus Action." }
+                        { name: "War Magic", desc: "When you take the Attack action, you can replace one of the attacks with a casting of a Wizard cantrip that has a casting time of an action." }
                     ],
                     10: [
                         { name: "Eldritch Strike", desc: "When you hit a creature with a weapon attack, it has disadvantage on the next saving throw against a spell you cast before the end of your next turn." }
@@ -1255,7 +1255,7 @@ const DATA = {
                         { name: "Arcane Charge", desc: "When you use Action Surge, you can teleport up to 30ft to an unoccupied space you can see (before or after the extra action)." }
                     ],
                     18: [
-                        { name: "Improved War Magic", desc: "When you cast a spell of 1st or 2nd level, you can make one weapon attack as a Bonus Action." }
+                        { name: "Improved War Magic", desc: "When you take the Attack action, you can replace two of the attacks with a casting of a level 1 or level 2 Wizard spell that has a casting time of an action." }
                     ]
                 }
             },
@@ -3495,6 +3495,23 @@ DATA.preparedTable = {
     paladin:  [0, 2, 3, 4, 5, 6],
     ranger:   [0, 2, 3, 4, 5, 6]
 };
+
+// #P0hwaBZ — Third casters (Eldritch Knight / Arcane Trickster). 2024 PHB geeft
+// ze een VASTE prepared-kolom die NIET op de ability-mod leunt; de tabel is voor
+// beide subclasses identiek en loopt van level 3 t/m 20. Bron: dnd2024.wikidot
+// subclass-pagina's (transcriptie van de 2024 PHB) — fysieke-PHB-spotcheck open.
+DATA.thirdCasterPrepared = [0, 0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13];
+
+// Cantrips known per class level. EK krijgt er 2 op L3 en een 3e op L10; AT
+// krijgt er 3 op L3 (waarvan Mage Hand verplicht is) en een 4e op L10.
+DATA.thirdCasterCantrips = {
+    eldritchKnight:  [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    arcaneTrickster: [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+};
+
+// Arcane Trickster heeft Mage Hand verplicht in zijn cantrip-lijst (telt mee
+// voor het maximum en is niet inwisselbaar).
+DATA.thirdCasterFixedCantrips = { arcaneTrickster: ['Mage Hand'] };
 
 // Choices the player must make when REACHING a given class level (level-up menu
 // steps). Creation-time (L1) choices are owned by the creation wizard, not here.

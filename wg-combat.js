@@ -88,8 +88,20 @@ function dexModFromAbilities(ab) {
 // Initiative-sort: hoog→laag; null (nog niet gerold) ONDERAAN; tiebreak dexMod
 // desc → kind (pc<npc<monster) → stabiel op id. JS sort is stabiel → null-groep
 // behoudt invoeg-volgorde.
+// #P0huIQ1: 'familiar' is een volwaardige vierde soort naast pc/npc/monster.
+// Familiars horen bij de partij → ze sorteren bij de bondgenoten, zijn standaard
+// zichtbaar voor spelers en krijgen de ally-KO-stijl (niet de dim-stijl).
+const WG_COMBAT_KINDS = ['pc', 'familiar', 'npc', 'monster'];
+// Kind-cyclus op de badge — 'pc' zit er bewust niet in: die hangt aan een echt
+// character-record (ent.ref) en mag niet per ongeluk een monster worden.
+const WG_KIND_CYCLE = ['familiar', 'npc', 'monster'];
+function combatIsAlly(ent) { return !ent || ent.kind !== 'monster'; }
+
 function combatSortEntities(list) {
-  const kindOrder = (k) => (k === 'pc' ? 0 : k === 'npc' ? 1 : 2);
+  const kindOrder = (k) => {
+    const i = WG_COMBAT_KINDS.indexOf(k);
+    return i === -1 ? WG_COMBAT_KINDS.length : i;
+  };
   return list.slice().sort((a, b) => {
     const an = (a.initiative == null), bn = (b.initiative == null);
     if (an && bn) return 0;
@@ -132,12 +144,16 @@ function combatEntityFromNpc(npc) {
     currentHP: hp, maxHP: hp, tempHP: 0, ac: parseLeadingInt(npc.ac, 10), visibility: 'hidden',
   };
 }
-function combatEntityFromMonster(m) {
+// kind: 'monster' (default) of 'familiar' — dezelfde statblok-bron, maar een
+// familiar is een bondgenoot: die begint zichtbaar i.p.v. verborgen.
+function combatEntityFromMonster(m, kind) {
   const hp = parseLeadingInt(m.hp, 1);
+  const k = (kind === 'familiar') ? 'familiar' : 'monster';
   return {
-    id: combatNewId(), kind: 'monster', ref: m.id || null, name: m.name || 'Monster',
+    id: combatNewId(), kind: k, ref: m.id || null, name: m.name || (k === 'familiar' ? 'Familiar' : 'Monster'),
     portrait: m.image || null, initiative: null, dexMod: dexModFromAbilities(m.abilities),
-    currentHP: hp, maxHP: hp, tempHP: 0, ac: parseLeadingInt(m.ac, 10), visibility: 'hidden',
+    currentHP: hp, maxHP: hp, tempHP: 0, ac: parseLeadingInt(m.ac, 10),
+    visibility: (k === 'familiar') ? 'revealed' : 'hidden',
   };
 }
 
@@ -199,10 +215,17 @@ function combatApplyHpDelta(ent, delta) {
   } else {
     ent.currentHP = Math.min(ent.maxHP, ent.currentHP + delta);
   }
+  combatSyncConcentration(ent);
 }
 function combatSetHp(ent, val) {
   if (typeof val !== 'number' || isNaN(val)) return;
   ent.currentHP = Math.max(0, Math.min(ent.maxHP, Math.round(val)));
+  combatSyncConcentration(ent);
+}
+// RAW: op 0 HP raak je Unconscious en daarmee verlies je concentratie. De
+// tracker ruimt het veld daarom zelf op zodra iemand omvalt.
+function combatSyncConcentration(ent) {
+  if (ent && ent.concentration && ent.currentHP <= 0) ent.concentration = '';
 }
 // HP-tier op basis van (current + temp) / max. Bepaalt de kleur van de HP-box:
 //   ok  : >50%  (groen)
@@ -297,8 +320,47 @@ function combatCell(field, ent, widgetIdx) {
       const v = inp.value.trim();
       if (v && v !== ent.name) mutateEncounter((enc) => { const t = enc.entities.find(x => x.id === ent.id); if (t) t.name = v; });
     });
-    const kind = hEl('span', 'combat-kind-badge combat-kind-' + ent.kind, combatKindLabel(ent.kind) || '');
+    // #P0huIQ1: de badge is voor alles behalve een PC een knop die door de
+    // soorten cyclet (familiar → npc → monster). Zo maak je een toegevoegd
+    // monster alsnog tot familiar zonder het opnieuw te moeten toevoegen.
+    const cycles = (ent.kind !== 'pc');
+    const kind = hEl(cycles ? 'button' : 'span', 'combat-kind-badge combat-kind-' + ent.kind + (cycles ? ' is-cycle' : ''), combatKindLabel(ent.kind) || '');
+    if (cycles) {
+      kind.title = ct('combat.kind.cycle');
+      kind.addEventListener('pointerdown', (e) => e.stopPropagation());
+      kind.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mutateEncounter((enc) => {
+          const t = enc.entities.find(x => x.id === ent.id); if (!t) return;
+          const i = WG_KIND_CYCLE.indexOf(t.kind);
+          t.kind = WG_KIND_CYCLE[(i + 1) % WG_KIND_CYCLE.length];
+          // Een familiar hoort bij de partij → standaard zichtbaar maken.
+          if (t.kind === 'familiar' && t.visibility === 'hidden') t.visibility = 'revealed';
+        });
+      });
+    }
     c.appendChild(inp); c.appendChild(kind);
+    return c;
+  }
+  // #P0ihGxA: concentration — vrije tekst met de spell waarop geconcentreerd
+  // wordt. Leeg = geen concentratie. De speler-tracker toont het badge-only,
+  // zodat de tafel ziet wie iets in de lucht houdt (en wat) zonder DM-rechten.
+  if (field === 'conc') {
+    const c = hEl('div', 'combat-cell combat-cell-conc');
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'combat-conc-input' + (ent.concentration ? ' active' : '');
+    inp.value = ent.concentration || '';
+    inp.placeholder = ct('combat.conc.placeholder');
+    inp.title = ent.concentration ? (ct('combat.conc.on') + ': ' + ent.concentration) : ct('combat.conc.none');
+    inp.addEventListener('pointerdown', (e) => e.stopPropagation());
+    inp.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') inp.blur(); });
+    inp.addEventListener('blur', () => {
+      const v = inp.value.trim();
+      if (v === (ent.concentration || '')) return;
+      mutateEncounter((enc) => { const t = enc.entities.find(x => x.id === ent.id); if (t) t.concentration = v; });
+    });
+    c.appendChild(inp);
     return c;
   }
   if (field === 'init') {
@@ -384,7 +446,7 @@ function combatCell(field, ent, widgetIdx) {
   return hEl('div', 'combat-cell');
 }
 
-const WG_COMBAT_FIELDS = ['portrait', 'name', 'init', 'hp', 'ac', 'vis', 'del'];
+const WG_COMBAT_FIELDS = ['portrait', 'name', 'init', 'hp', 'ac', 'conc', 'vis', 'del'];
 
 // DM-tabel (volledige tracker).
 function combatBuildDmTable(root, enc, widgetIdx, transpose) {
@@ -403,7 +465,7 @@ function combatBuildDmTable(root, enc, widgetIdx, transpose) {
       // KO (0 HP): monster-rij dimt (KO = goed nieuws voor de DM); pc/npc-rij
       // valt juist op (KO van een bondgenoot is doorgaans slecht) — zónder amber.
       const ko = ent.currentHP <= 0;
-      const koCls = ko ? (ent.kind === 'monster' ? ' combat-row-ko-monster' : ' combat-row-ko-ally') : '';
+      const koCls = ko ? (combatIsAlly(ent) ? ' combat-row-ko-ally' : ' combat-row-ko-monster') : '';
       const row = hEl('div', 'combat-row' + (enc.running && enc.activeId === ent.id ? ' is-active' : '') + koCls);
       WG_COMBAT_FIELDS.forEach(f => row.appendChild(combatCell(f, ent, widgetIdx)));
       table.appendChild(row);
@@ -435,9 +497,42 @@ function combatBuildPlayerList(root, enc, transpose) {
   }
   visible.forEach(ent => {
     const masked = ent.visibility === 'silhouette';
-    const item = hEl('div', 'combat-init-item' + (enc.running && enc.activeId === ent.id ? ' is-active' : '') + (masked ? ' masked' : ''));
+    const ko = ent.currentHP <= 0;
+    const item = hEl('div', 'combat-init-item'
+      + (enc.running && enc.activeId === ent.id ? ' is-active' : '')
+      + (masked ? ' masked' : '')
+      + (ko && !masked ? (combatIsAlly(ent) ? ' ko-ally' : ' ko-monster') : ''));
+
+    // #P0ihGxA: de speler-tracker gaf alleen portret + naam terwijl de DM-tabel
+    // alles toont. Nu: initiatief, naam + soort, HP-status en concentratie.
+    // Een silhouet blijft volledig gemaskeerd — dat is de hele fog-of-war-functie.
+    item.appendChild(hEl('span', 'combat-init-order', ent.initiative == null ? '—' : String(ent.initiative)));
     item.appendChild(combatPortraitNode(ent, masked));
-    item.appendChild(hEl('span', 'combat-init-name', masked ? '??' : combatDisplayName(ent)));
+
+    const idBlock = hEl('div', 'combat-init-id');
+    idBlock.appendChild(hEl('span', 'combat-init-name', masked ? '??' : combatDisplayName(ent)));
+    if (!masked) idBlock.appendChild(hEl('span', 'combat-kind-badge combat-kind-' + ent.kind, combatKindLabel(ent.kind) || ''));
+    item.appendChild(idBlock);
+
+    if (!masked) {
+      // HP: exacte cijfers alleen voor bondgenoten (die staan toch al op de
+      // character sheets van de tafel). Een monster geeft alleen zijn tier prijs,
+      // zodat de DM geen statblock weggeeft via de speler-widget.
+      const tier = combatHpTier(ent);
+      const hpBox = hEl('span', 'combat-init-hp hp-' + tier);
+      if (ent.kind === 'pc' || ent.kind === 'familiar') {
+        hpBox.textContent = ent.currentHP + '/' + ent.maxHP + (ent.tempHP > 0 ? ' +' + ent.tempHP : '');
+      } else {
+        hpBox.textContent = ct('combat.tier.' + tier);
+      }
+      item.appendChild(hpBox);
+
+      if (ent.concentration) {
+        const conc = hEl('span', 'combat-init-conc', '◎ ' + ent.concentration);
+        conc.title = ct('combat.conc.on') + ': ' + ent.concentration;
+        item.appendChild(conc);
+      }
+    }
     list.appendChild(item);
   });
   root.appendChild(list);
@@ -590,15 +685,18 @@ function combatAddSources(tab) {
       make: () => combatEntityFromNpc(n),
     }));
   }
-  // monsters
+  // monsters + familiars: zelfde statblok-bron (lore-categorie 'monsters'),
+  // alleen een ander `kind` op de resulterende entity. Zo kun je een Owl of
+  // Imp als familiar aan het initiatief toevoegen zonder aparte data-invoer.
+  const asFamiliar = (tab === 'familiars');
   let mons = [];
   try { if (typeof getLoreCatEntries === 'function') mons = getLoreCatEntries('monsters') || []; } catch (e) {}
   return mons.map(m => ({
     key: m.id || m.name,
-    name: m.name || 'Monster',
+    name: m.name || (asFamiliar ? 'Familiar' : 'Monster'),
     portrait: m.image || null,
     meta: m.cr ? ('CR ' + m.cr) : '',
-    make: () => combatEntityFromMonster(m),
+    make: () => combatEntityFromMonster(m, asFamiliar ? 'familiar' : 'monster'),
   }));
 }
 function showCombatAddPanel(clientX, clientY) {
@@ -609,9 +707,12 @@ function showCombatAddPanel(clientX, clientY) {
   pop.style.top = (clientY + 8) + 'px';
 
   const tabs = hEl('div', 'combat-add-tabs');
-  [['party', ct('combat.tab.party')], ['npcs', ct('combat.tab.npcs')], ['monsters', ct('combat.tab.monsters')]].forEach(([id, label]) => {
+  [['party', ct('combat.tab.party')], ['familiars', ct('combat.tab.familiars')], ['npcs', ct('combat.tab.npcs')], ['monsters', ct('combat.tab.monsters')]].forEach(([id, label]) => {
     const b = hEl('button', 'combat-add-tab' + (_combatAddTab === id ? ' active' : ''), label);
-    b.addEventListener('click', (e) => { e.stopPropagation(); _combatAddTab = id; renderList(); pop.querySelectorAll('.combat-add-tab').forEach(t => t.classList.toggle('active', t.textContent === label)); });
+    b.dataset.tab = id;
+    // Actief-markering op de tab-id, niet op het label: twee tabs kunnen in een
+    // vertaling dezelfde tekst krijgen en dan zou de vergelijking omvallen.
+    b.addEventListener('click', (e) => { e.stopPropagation(); _combatAddTab = id; renderList(); pop.querySelectorAll('.combat-add-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id)); });
     tabs.appendChild(b);
   });
   pop.appendChild(tabs);
