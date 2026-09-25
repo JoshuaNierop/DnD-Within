@@ -2555,7 +2555,21 @@ async function saveNPCModal() {
 // categorieën (religions/factions/places/events) houden Omschrijving + Notities.
 // type: 'text' | 'number' | 'textarea' (mentions) | 'abilities' (6-cel STR..CHA grid)
 var LORE_ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+// Planes of existence a place can be in. A place without one is on the
+// Material Plane, which is where every place was before dimensions existed.
+var PLACE_DIMENSIONS = [
+    'Material Plane', 'Feywild', 'Shadowfell', 'Ethereal Plane', 'Astral Plane',
+    'Elemental Plane of Air', 'Elemental Plane of Earth', 'Elemental Plane of Fire', 'Elemental Plane of Water',
+    'Nine Hells', 'Abyss', 'Mount Celestia', 'Other'
+];
+function placeDimension(e) { return (e && e.dimension) || PLACE_DIMENSIONS[0]; }
+
 var LORE_CAT_FIELDS = {
+    places: [
+        { key: 'dimension',   label: 'Dimension',   type: 'select', options: PLACE_DIMENSIONS, defaultValue: 'Material Plane' },
+        { key: 'description', label: 'Description', type: 'textarea' },
+        { key: 'notes',       label: 'Notes',       type: 'textarea' }
+    ],
     items: [
         { key: 'description', label: 'Description', type: 'textarea' },
         { key: 'effect',      label: 'Effect',      type: 'textarea' }
@@ -2673,8 +2687,8 @@ function renderLoreField(f, e, cat) {
     } else if (f.type === 'select') {
         html += fieldLabel(escapeHtml(f.label), 'lore-entry-f-' + f.key);
         html += '<select class="edit-input" id="lore-entry-f-' + f.key + '">';
-        var cur = e[f.key] || '';
-        html += '<option value=""' + (cur ? '' : ' selected') + '>—</option>';
+        var cur = e[f.key] || f.defaultValue || '';
+        if (!f.defaultValue) html += '<option value=""' + (cur ? '' : ' selected') + '>—</option>';
         var opts = f.options || [];
         for (var oi = 0; oi < opts.length; oi++) {
             var ov = opts[oi];
@@ -3234,9 +3248,21 @@ function renderLoreResultsInner(cat) {
         return html;
     }
 
+    // Places are grouped by the dimension they are in, in the listed order.
+    if (cat === 'places') {
+        filtered = filtered.slice().sort(function (a, b) {
+            var da = PLACE_DIMENSIONS.indexOf(placeDimension(a)), db = PLACE_DIMENSIONS.indexOf(placeDimension(b));
+            return (da < 0 ? 99 : da) - (db < 0 ? 99 : db);
+        });
+    }
+    var lastDim = null;
     html += '<div class="lore-entry-grid lore-grid-' + cat + '">';
     for (var i = 0; i < filtered.length; i++) {
         var e = filtered[i];
+        if (cat === 'places' && placeDimension(e) !== lastDim) {
+            lastDim = placeDimension(e);
+            html += '<h3 class="lore-dim-head" style="grid-column:1/-1;margin:.75rem 0 .1rem;font-size:.95rem;color:var(--text-dim);">' + escapeHtml(lastDim) + '</h3>';
+        }
         // Entry-niveau zichtbaarheid (monsters): een privé monster is volledig
         // verborgen voor spelers (analoog aan per-veld fog-of-war, maar voor de
         // hele kaart). DM ziet 'm altijd, met een markering + toggle.
