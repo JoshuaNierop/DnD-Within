@@ -1947,31 +1947,13 @@ document.addEventListener('click', function(e) {
         closeAllImageMenus();   // klik buiten een box → sluit open keuze-menu
     }
 
-    // ----- Modal-paginatie (lore + NPC) -----
+    // ----- Modal-paginatie (lore) -----
     if (target.closest('[data-action="modal-page-prev"]')) {
         if (typeof goModalPage === 'function') goModalPage(_modalPage - 1);
         return;
     }
     if (target.closest('[data-action="modal-page-next"]')) {
         if (typeof goModalPage === 'function') goModalPage(_modalPage + 1);
-        return;
-    }
-
-    // ----- NPC editor-modal (op document-niveau; modal hangt aan body) -----
-    // Sluiten: klik op de overlay-achtergrond, of op een close/cancel-knop.
-    if (target.matches('.npc-modal-overlay') || target.closest('[data-action="close-npc-modal"]')) {
-        if (typeof closeNPCModal === 'function') closeNPCModal();
-        return;
-    }
-    if (target.closest('[data-action="save-npc-modal"]')) {
-        if (typeof saveNPCModal === 'function') saveNPCModal();
-        return;
-    }
-    if (target.closest('[data-action="remove-npc-image"]')) {
-        var npcHid = document.getElementById('npc-f-image');
-        if (npcHid) npcHid.value = '';
-        var npcPrev = document.getElementById('npc-image-preview');
-        if (npcPrev) npcPrev.innerHTML = '<span class="npc-portrait-empty">?</span>';
         return;
     }
 
@@ -2169,35 +2151,6 @@ document.addEventListener('change', function(e) {
             _compressImageFile(wp2File, 600, 0.8, function (dataUrl) {
                 wizardState.portrait2 = dataUrl;
                 if (typeof refreshWizard === 'function') refreshWizard();
-            });
-            try { target.value = ''; } catch (_) {}
-        }
-        return;
-    }
-    if (target.matches('[data-action="upload-npc-image"]')) {
-        var npcFile = target.files && target.files[0];
-        if (npcFile && typeof _compressImageFile === 'function') {
-            // Folder = NPC name (Campains/<camp>/NPCs/<name>). Falls back to a
-            // timestamp if the name field is still empty at upload time.
-            var npcFirstEl = document.getElementById('npc-f-firstName');
-            var npcLastEl = document.getElementById('npc-f-lastName');
-            var npcName = (((npcFirstEl && npcFirstEl.value.trim()) || '') + ' ' + ((npcLastEl && npcLastEl.value.trim()) || '')).trim() || ('npc' + Date.now());
-            _compressImageFile(npcFile, 800, 0.8, function(dataUrl) {
-                var prev = document.getElementById('npc-image-preview');
-                if (prev) prev.innerHTML = '<img src="' + dataUrl + '" alt="">';
-                var hid = document.getElementById('npc-f-image');
-                if (!hid) return;
-                var _rmBox = hid.closest('.lore-image-box');
-                if (_rmBox) { var _rm = _rmBox.querySelector('.menu-remove'); if (_rm) _rm.style.display = ''; }
-                // Set the base64 immediately so an early Save never loses the
-                // image (race-proof); the Cloudinary URL replaces it when ready.
-                hid.value = dataUrl;
-                if (window.DWImages && DWImages.save) {
-                    hid._uploadPromise = DWImages.save('npc', npcName, dataUrl).then(function(imgVal) {
-                        if (imgVal) hid.value = imgVal;
-                        hid._uploadPromise = null;
-                    }).catch(function() { hid._uploadPromise = null; });
-                }
             });
             try { target.value = ''; } catch (_) {}
         }

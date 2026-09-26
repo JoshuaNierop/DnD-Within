@@ -546,7 +546,7 @@ function renderAddMapModal() {
         html += '<option value="" disabled>' + escapeHtml(t('maps.map.fromplaces.none')) + '</option>';
     }
     for (var p = 0; p < places.length; p++) {
-        html += '<option value="' + escapeAttr(places[p].id) + '">' + escapeHtml(places[p].name || '(naamloos)') + '</option>';
+        html += '<option value="' + escapeAttr(places[p].id) + '">' + escapeHtml(places[p].name || '(unnamed)') + '</option>';
     }
     html += '</select>';
 
@@ -1574,6 +1574,10 @@ function renderLore(subpage) {
         return renderLoreEditor();
     }
 
+    // /lore/monsters is the old route of the creature store; it now lives on
+    // the Creatures tab (id 'npcs'), so old links land there (#OvywGWk).
+    if (subpage === 'monsters') subpage = 'npcs';
+
     // A non-tab subpage that isn't 'new' is treated as an article id.
     if (subpage && subpage !== 'new' && !isLoreTab(subpage)) {
         return renderLoreArticle(subpage);
@@ -1849,62 +1853,6 @@ function migrateNpcsIntoCreatures(force) {
 var npcFilterDisp = 'all';
 var npcFilterFaction = 'all';
 
-// onerror fallback: replace a broken portrait <img> with its initial so a dead
-// URL degrades gracefully instead of showing the browser's broken-image icon.
-function dwImgFallback(img) {
-    try {
-        var letter = (img.getAttribute('data-fb') || '?');
-        var span = document.createElement('span');
-        span.className = 'npc-portrait-empty';
-        span.textContent = letter;
-        if (img.parentNode) img.parentNode.replaceChild(span, img);
-    } catch (e) { if (img) img.style.visibility = 'hidden'; }
-}
-
-function npcDispColor(disp) {
-    return disp === 'friendly' ? 'var(--success)' :
-           disp === 'hostile'  ? 'var(--danger)'  :
-           disp === 'neutral'  ? 'var(--warning)' : 'var(--text-dim)';
-}
-
-// Age uit geboortejaar + campagne-jaar (data.currentYear). Geeft '' als
-// een van beide ontbreekt.
-function npcAge(npc, currentYear) {
-    var by = parseInt(npc.birthYear, 10);
-    var cy = parseInt(currentYear, 10);
-    if (isNaN(by) || isNaN(cy)) return '';
-    var age = cy - by;
-    return (age >= 0 && age < 100000) ? String(age) : '';
-}
-
-function renderNPCDetailRows(npc, currentYear) {
-    var rows = [];
-    var age = npcAge(npc, currentYear);
-    if (npc.birthYear) rows.push(['Born', escapeHtml(String(npc.birthYear)) + (age ? ' (age ' + age + ')' : '')]);
-    if (npc.race) rows.push(['Race', escapeHtml(npc.race)]);
-    if (npc.npcClass) rows.push(['Class', escapeHtml(npc.npcClass)]);
-    if (npc.profession) rows.push(['Profession', escapeHtml(npc.profession)]);
-    if (npc.relation) rows.push(['Relation', escapeHtml(npc.relation)]);
-    var npcFam = npcFirstLast(npc).lastName;
-    if (npcFam) rows.push(['Family', escapeHtml(npcFam)]);
-    if (npc.faction) rows.push(['Faction', escapeHtml(npc.faction)]);
-    if (npc.religion) rows.push(['Religion', escapeHtml(npc.religion)]);
-    if (npc.location) rows.push(['Location', escapeHtml(npc.location)]);
-    if (npc.preferences) rows.push(['Likes', escapeHtml(npc.preferences)]);
-    if (npc.dislikes) rows.push(['Dislikes', escapeHtml(npc.dislikes)]);
-    if (npc.pets) rows.push(['Pets', escapeHtml(npc.pets)]);
-    var html = '';
-    if (rows.length) {
-        html += '<dl class="npc-detail-grid">';
-        for (var i = 0; i < rows.length; i++) {
-            html += '<dt>' + rows[i][0] + '</dt><dd>' + rows[i][1] + '</dd>';
-        }
-        html += '</dl>';
-    }
-    if (npc.notes) html += '<div class="npc-detail-notes"><strong>Notes</strong><p>' + renderRichText(npc.notes) + '</p></div>';
-    return html;
-}
-
 // De "Creatures"-tab (intern tab-id 'npcs', store-key 'monsters'): één lijst met
 // alle creatures (gemigreerde NPC's + monsters), één editor (#OvywGWk).
 function renderNPCTracker() {
@@ -2016,94 +1964,6 @@ function renderCreatureResultsInner() {
     return html;
 }
 
-// Query-/filter-afhankelijke NPC-resultaten (grid of lege-staat). Apart zodat de
-// search-handler alleen dit deel ververst i.p.v. de hele pagina te herladen.
-// Leest filter-state uit de module-vars (npcSearchQuery/npcFilterDisp/Faction).
-function renderNPCResultsInner() {
-    var data = getNPCData();
-    var npcs = data.npcs || [];
-    var currentYear = data.currentYear || '';
-    var html = '';
-    // Filteren: zoekterm + disposition + faction.
-    var q = npcSearchQuery.toLowerCase();
-    var list = [];
-    for (var ni = 0; ni < npcs.length; ni++) {
-        var npc = npcs[ni];
-        if (npcFilterDisp !== 'all' && (npc.disposition || 'unknown') !== npcFilterDisp) continue;
-        if (npcFilterFaction !== 'all' && (npc.faction || '') !== npcFilterFaction) continue;
-        if (q) {
-            var hay = [npc.name, npc.race, npc.npcClass, npc.profession, npc.faction, npc.religion, npc.location, npc.notes].join(' ').toLowerCase();
-            if (hay.indexOf(q) < 0) continue;
-        }
-        list.push({ npc: npc, idx: ni });
-    }
-
-    // Sort by surname (last name), then first name — #OvyuSFL.
-    list.sort(function (a, b) {
-        var fa = npcFirstLast(a.npc), fb = npcFirstLast(b.npc);
-        var la = (fa.lastName || '').toLowerCase(), lb = (fb.lastName || '').toLowerCase();
-        // NPCs without a surname fall back to first name, sorted after named families.
-        if (!la && lb) return 1;
-        if (la && !lb) return -1;
-        var c = la.localeCompare(lb, undefined, { sensitivity: 'base' });
-        if (c !== 0) return c;
-        return (fa.firstName || '').toLowerCase().localeCompare((fb.firstName || '').toLowerCase(), undefined, { sensitivity: 'base' });
-    });
-
-    if (list.length === 0) {
-        html += '<p class="text-dim">' + (npcs.length ? 'No NPCs match the filters.' : 'No NPCs yet.') + '</p>';
-        return html;
-    }
-
-    html += '<div class="npc-grid">';
-    for (var li = 0; li < list.length; li++) {
-        var n = list[li].npc;
-        var realIdx = list[li].idx;
-        var dispColor = npcDispColor(n.disposition);
-        html += '<div class="npc-card" data-npc-idx="' + realIdx + '" data-npc-id="' + escapeAttr(n.id || '') + '" style="--npc-disp:' + dispColor + '">';
-
-        // Compacte kaart-face: portret + naam.
-        html += '<div class="npc-card-face" data-action="toggle-npc-card">';
-        html += '<div class="npc-portrait">';
-        if (n.image) html += '<img src="' + escapeAttr(resolveImageSrc(n.image)) + '" alt="" data-fb="' + escapeAttr((n.name || '?').charAt(0).toUpperCase()) + '" onerror="dwImgFallback(this)">';
-        else html += '<div class="npc-portrait-empty">' + escapeHtml((n.name || '?').charAt(0).toUpperCase()) + '</div>';
-        if (n.disposition) html += '<span class="npc-disp-dot" title="' + escapeAttr(n.disposition) + '"></span>';
-        html += '</div>';
-        html += '<div class="npc-card-name">' + escapeHtml(n.name || '(unnamed)') + '</div>';
-        html += '</div>';
-
-        // Inline-expanded detail (zichtbaar via .expanded; spant volle breedte).
-        html += '<div class="npc-expanded">';
-        html += '<button class="npc-expanded-close" data-action="toggle-npc-card" title="Sluiten">&times;</button>';
-        html += '<div class="npc-expanded-grid">';
-        html += '<div class="npc-expanded-portrait">';
-        if (n.image) html += '<img src="' + escapeAttr(resolveImageSrc(n.image)) + '" alt="" data-fb="' + escapeAttr((n.name || '?').charAt(0).toUpperCase()) + '" onerror="dwImgFallback(this)">';
-        else html += '<div class="npc-portrait-empty">' + escapeHtml((n.name || '?').charAt(0).toUpperCase()) + '</div>';
-        html += '</div>';
-        html += '<div class="npc-expanded-info">';
-        html += '<h3>' + escapeHtml(n.name || '(naamloos)');
-        if (n.disposition) html += ' <span class="npc-disposition" style="color:' + dispColor + '">' + escapeHtml(n.disposition) + '</span>';
-        html += '</h3>';
-        html += renderNPCDetailRows(n, currentYear);
-        var npcPrimaryFam = (typeof findPrimaryFamilyByLink === 'function') ? findPrimaryFamilyByLink(null, String(realIdx)) : null;
-        if (npcPrimaryFam && npcPrimaryFam.family && typeof renderFamilyDiagram === 'function') {
-            html += '<div class="npc-family-section">' + renderFamilyDiagram(npcPrimaryFam.family.id, false) + '</div>';
-        }
-        if (isDM()) {
-            html += '<div class="npc-actions">';
-            html += '<button class="btn btn-ghost btn-sm" data-action="edit-npc" data-npc-idx="' + realIdx + '">' + t('generic.edit') + '</button>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="delete-npc" data-npc-idx="' + realIdx + '" style="color:var(--danger);">' + t('generic.delete') + '</button>';
-            html += '</div>';
-        }
-        html += '</div>'; // npc-expanded-info
-        html += '</div>'; // npc-expanded-grid
-        html += '</div>'; // npc-expanded
-        html += '</div>'; // npc-card
-    }
-    html += '</div>';
-    return html;
-}
-
 // ===== Gedeelde entiteit-registry (voedt @-mention links + afbeelding-picker) =====
 // Geeft een platte lijst {type, cat, id, name, image, route} over alle stores
 // met een stabiele id. `image` is null als de entiteit geen afbeelding heeft.
@@ -2121,17 +1981,10 @@ function collectEntities() {
             list.push({ type: 'character', cat: 'Characters', id: ids[i], name: cfg.name || ids[i], image: cimg || null, desc: cdesc.trim(), route: '/characters/' + ids[i] });
         }
     } catch (e) { /* ignore */ }
-    // NPCs — Lore-tab, inline-focus.
-    try {
-        var npcs = (getNPCData().npcs) || [];
-        for (var ni = 0; ni < npcs.length; ni++) {
-            var n = npcs[ni];
-            if (!n || !n.id) continue;
-            var ndesc = [n.race, n.npcClass, n.faction].filter(Boolean).join(' · ') || (n.notes || '');
-            list.push({ type: 'npc', cat: 'NPCs', id: n.id, name: n.name || '(unnamed)', image: n.image || null, desc: ndesc, route: '/lore/npcs' });
-        }
-    } catch (e) { /* ignore */ }
-    // Lore-cat entries.
+    // Lore-cat entries. Creatures (store 'monsters') are listed once, from the
+    // creature store, and open on the Creatures tab. Migrated NPCs (_fromNpc)
+    // keep type 'npc' so existing [[npc:id|Name]] tokens still resolve; the
+    // other creatures keep type 'lore' (#OvywGWk).
     try {
         var ld = getLoreCatsData();
         Object.keys(ld).forEach(function (c) {
@@ -2140,9 +1993,11 @@ function collectEntities() {
             for (var li = 0; li < LORE_TABS.length; li++) if (LORE_TABS[li].id === c) label = LORE_TABS[li].label;
             ld[c].forEach(function (e2) {
                 if (!e2 || !e2.id) return;
-                // #OvywGWk: gemigreerde NPC's staan in 'monsters' maar worden al
-                // door de NPC-tak hierboven als type:'npc' opgesomd → niet dubbel.
-                if (c === 'monsters' && e2._fromNpc) return;
+                if (c === 'monsters') {
+                    var cdesc2 = [e2.race, e2.npcClass, e2.faction].filter(Boolean).join(' · ') || e2.description || e2.notes || '';
+                    list.push({ type: e2._fromNpc ? 'npc' : 'lore', cat: 'Creatures', loreCat: 'monsters', id: e2.id, name: e2.name || '(unnamed)', image: e2.image || null, desc: cdesc2, route: '/lore/npcs' });
+                    return;
+                }
                 list.push({ type: 'lore', cat: label, loreCat: c, id: e2.id, name: e2.name || '(unnamed)', image: e2.image || null, desc: e2.description || '', route: '/lore/' + c });
             });
         });
@@ -2170,9 +2025,14 @@ function entityTypeLabel(e) {
 // LIVE name of a mention link, so renaming an entity updates every reference).
 function entityById(type, id) {
     var ents = collectEntities();
+    var creature = null;
     for (var i = 0; i < ents.length; i++) {
         if (ents[i].type === type && ents[i].id === id) return ents[i];
+        if (ents[i].loreCat === 'monsters' && ents[i].id === id) creature = ents[i];
     }
+    // npc: and lore: both point into the creature store now; accept either
+    // namespace so a token keeps resolving whatever it was written as.
+    if (creature && (type === 'npc' || type === 'lore')) return creature;
     return null;
 }
 
@@ -2247,7 +2107,7 @@ function closeImagePicker() {
     if (el) el.remove();
     // Laat de onderliggende modal de body-scroll-lock houden; alleen unlocken
     // als er geen andere modal meer open is.
-    if (typeof unlockBodyScroll === 'function' && !document.querySelector('.npc-modal-active, .lore-entry-modal-active, .profile-modal-active')) {
+    if (typeof unlockBodyScroll === 'function' && !document.querySelector('.lore-entry-modal-active, .profile-modal-active')) {
         unlockBodyScroll();
     }
 }
@@ -2339,12 +2199,12 @@ function searchResults() {
 function renderSearchOverlay() {
     var html = '<div class="modal-overlay search-overlay">';
     html += '<div class="search-panel">';
-    html += '<div class="search-bar"><input type="text" id="global-search-input" class="edit-input" placeholder="Search characters, NPCs, places, items…" value="' + escapeAttr(searchQuery) + '">';
+    html += '<div class="search-bar"><input type="text" id="global-search-input" class="edit-input" placeholder="Search characters, creatures, places, items…" value="' + escapeAttr(searchQuery) + '">';
     html += '<button class="modal-close" data-action="close-search">&times;</button></div>';
 
     var res = searchResults();
     if (!searchQuery.trim()) {
-        html += '<div class="search-hint text-dim">Typ om te zoeken. Klik een resultaat om er naartoe te gaan.</div>';
+        html += '<div class="search-hint text-dim">Type to search. Click a result to go there.</div>';
     } else if (!res.length) {
         html += '<div class="search-hint text-dim">No results for "' + escapeHtml(searchQuery.trim()) + '".</div>';
     } else if (!searchShowAll) {
@@ -2354,7 +2214,7 @@ function renderSearchOverlay() {
         top.forEach(function (e) { html += searchRow(e, false); });
         html += '</div>';
         if (res.length > 8) {
-            html += '<button class="btn btn-ghost btn-sm search-showall" data-action="search-show-all">Toon alle ' + res.length + ' resultaten</button>';
+            html += '<button class="btn btn-ghost btn-sm search-showall" data-action="search-show-all">Show all ' + res.length + ' results</button>';
         }
     } else {
         // Volledig overzicht: alle resultaten met meer info.
@@ -2375,177 +2235,6 @@ function searchRow(e, full) {
     html += '<span class="search-badge">' + escapeHtml(entityTypeLabel(e)) + '</span>';
     html += '</a>';
     return html;
-}
-
-// ===== NPC editor-modal (vervangt de oude prompt()-keten) =====
-function npcModalFieldInner(id, label, value, type) {
-    return '<label class="login-label" for="' + id + '">' + label + '</label>' +
-        '<input type="' + (type || 'text') + '" class="edit-input" id="' + id + '" value="' + escapeAttr(value == null ? '' : String(value)) + '">';
-}
-function npcModalField(id, label, value, type) {
-    return '<div class="npc-form-field">' + npcModalFieldInner(id, label, value, type) + '</div>';
-}
-
-function renderNPCModal(idx) {
-    var data = getNPCData();
-    var isNew = (idx === -1 || idx == null);
-    var n = isNew ? {} : (data.npcs[idx] || {});
-
-    var nfl = npcFirstLast(n);
-
-    var html = '<div class="modal-overlay npc-modal-overlay">';
-    html += '<div class="modal-card modal-lore">';
-    html += '<div class="modal-header">';
-    html += '<h2>' + (isNew ? 'New NPC' : 'Edit NPC') + '</h2>';
-    html += '<button class="modal-close" data-action="close-npc-modal">&times;</button>';
-    html += '</div>';
-    html += '<div class="modal-body npc-form" data-npc-idx="' + (isNew ? -1 : idx) + '">';
-
-    // ---- Pagina 1 — Identiteit ----
-    html += '<div class="modal-page page-active" data-page="1">';
-    html += '<div class="lore-entry-header-row">';
-    html += renderImageBox({ previewId: 'npc-image-preview', hiddenId: 'npc-f-image', fileAction: 'upload-npc-image', value: n.image, name: n.name });
-    html += '<div class="lore-form-grid lore-header-fields">';
-    html += npcModalField('npc-f-firstName', 'Voornaam', nfl.firstName);
-    html += npcModalField('npc-f-lastName', 'Achternaam', nfl.lastName);
-    html += '</div></div>';
-
-    html += '<div class="lore-form-grid">';
-    html += npcModalField('npc-f-race', 'Race', n.race);
-    html += npcModalField('npc-f-class', 'Class', n.npcClass);
-    html += npcModalField('npc-f-profession', 'Profession', n.profession);
-    html += npcModalField('npc-f-birthYear', 'Geboortejaar', n.birthYear, 'number');
-    // Disposition select.
-    html += '<div class="npc-form-field"><label class="login-label" for="npc-f-disposition">Disposition</label>';
-    html += '<select class="edit-input" id="npc-f-disposition">';
-    var dops = ['unknown', 'friendly', 'neutral', 'hostile'];
-    for (var i = 0; i < dops.length; i++) {
-        html += '<option value="' + dops[i] + '"' + ((n.disposition || 'unknown') === dops[i] ? ' selected' : '') + '>' + dops[i] + '</option>';
-    }
-    html += '</select></div>';
-    html += npcModalField('npc-f-faction', 'Faction', n.faction);
-    html += npcModalField('npc-f-religion', 'Religion', n.religion);
-    html += npcModalField('npc-f-location', 'Location', n.location);
-    html += '<div class="npc-form-field lore-field-full">' + npcModalFieldInner('npc-f-relation', 'Relation', n.relation) + '</div>';
-    html += '</div>'; // grid
-    html += '</div>'; // page 1
-
-    // ---- Pagina 2 — Combat stats, details & notities ----
-    html += '<div class="modal-page" data-page="2">';
-    var nab = n.abilities || {};
-    html += '<div class="lore-form-grid">';
-    html += npcModalField('npc-f-hp', 'HP', n.hp, 'number');
-    html += npcModalField('npc-f-ac', 'AC', n.ac, 'number');
-    html += '</div>';
-    html += '<div class="lore-form-grid npc-ability-grid">';
-    html += npcModalField('npc-f-str', 'STR', nab.str, 'number');
-    html += npcModalField('npc-f-dex', 'DEX', nab.dex, 'number');
-    html += npcModalField('npc-f-con', 'CON', nab.con, 'number');
-    html += npcModalField('npc-f-int', 'INT', nab.int, 'number');
-    html += npcModalField('npc-f-wis', 'WIS', nab.wis, 'number');
-    html += npcModalField('npc-f-cha', 'CHA', nab.cha, 'number');
-    html += '</div>';
-    html += '<div class="lore-form-grid">';
-    html += npcModalField('npc-f-preferences', 'Likes / Preferences', n.preferences);
-    html += npcModalField('npc-f-dislikes', 'Dislikes', n.dislikes);
-    html += '<div class="npc-form-field lore-field-full">' + npcModalFieldInner('npc-f-pets', 'Pets', n.pets) + '</div>';
-    html += '<div class="npc-form-field lore-field-full"><label class="login-label" for="npc-f-notes">Notes</label>';
-    html += '<textarea class="edit-textarea" id="npc-f-notes" rows="5"' + mentionFieldAttr(n.notes) + '>' + mentionFieldVal(n.notes) + '</textarea></div>';
-    html += '</div>';
-    html += '</div>'; // page 2
-
-    html += '</div>'; // modal-body
-
-    html += '<div class="modal-footer">';
-    html += '<div class="modal-footer-actions">';
-    html += '<button type="button" class="btn-page-prev" data-action="modal-page-prev" disabled aria-label="Vorige pagina">&larr;</button>';
-    html += '<span class="modal-page-indicator">1 / 2</span>';
-    html += '<button type="button" class="btn-page-next" data-action="modal-page-next" aria-label="Volgende pagina">&rarr;</button>';
-    html += '</div>';
-    html += '<div class="modal-footer-actions">';
-    html += '<button class="edit-save" data-action="save-npc-modal">' + t('generic.save') + '</button>';
-    html += '<button class="edit-cancel" data-action="close-npc-modal">' + t('generic.cancel') + '</button>';
-    html += '</div>';
-    html += '</div>'; // footer
-
-    html += '</div>'; // modal-card
-    html += '</div>'; // modal-overlay
-    return html;
-}
-
-function openNPCModal(idx) {
-    closeNPCModal();
-    _modalPage = 1;
-    var div = document.createElement('div');
-    div.className = 'npc-modal-active';
-    div.innerHTML = renderNPCModal(idx == null ? -1 : idx);
-    document.body.appendChild(div);
-    if (typeof lockBodyScroll === 'function') lockBodyScroll();
-    if (typeof autoGrowAll === 'function') autoGrowAll(div);
-}
-function closeNPCModal() {
-    var el = document.querySelector('.npc-modal-active');
-    if (el) el.remove();
-    if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
-}
-
-async function saveNPCModal() {
-    var form = document.querySelector('.npc-modal-active .npc-form');
-    if (!form) return;
-    var idx = parseInt(form.dataset.npcIdx, 10);
-    var isNew = isNaN(idx) || idx === -1;
-    function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-    var firstName = v('npc-f-firstName');
-    var lastName = v('npc-f-lastName');
-    var name = (firstName + ' ' + lastName).trim();
-    if (!name) { var ne = document.getElementById('npc-f-firstName'); if (ne) ne.focus(); return; }
-    // Wait for any in-flight Cloudinary upload so we store the URL, not base64.
-    var imgEl = document.getElementById('npc-f-image');
-    if (imgEl && imgEl._uploadPromise) { try { await imgEl._uploadPromise; } catch (e) {} }
-
-    var data = getNPCData();
-    var npc = isNew ? { id: 'npc' + Date.now() } : (data.npcs[idx] || { id: 'npc' + Date.now() });
-    var oldImage = npc.image || '';                 // for cleanup-on-replace
-    npc.firstName = firstName;
-    npc.lastName = lastName;                         // achternaam = familienaam
-    npc.name = name;                                 // afgeleide weergavenaam
-    npc.image = v('npc-f-image') || null;
-    npc.birthYear = v('npc-f-birthYear');
-    npc.race = v('npc-f-race');
-    npc.npcClass = v('npc-f-class');
-    npc.profession = v('npc-f-profession');
-    npc.relation = v('npc-f-relation');
-    if (typeof npc.family === 'string') delete npc.family; // achternaam vervangt het oude family-veld
-    npc.faction = v('npc-f-faction');
-    npc.religion = v('npc-f-religion');
-    npc.location = v('npc-f-location');
-    npc.disposition = v('npc-f-disposition') || 'unknown';
-    // Combat stats (voor de Combat Tracker). Leeg → veld weglaten.
-    function vnum(id) { var s = v(id); if (s === '') return null; var nmb = parseInt(s, 10); return isNaN(nmb) ? null : nmb; }
-    var _hp = vnum('npc-f-hp'); if (_hp != null) npc.hp = _hp; else delete npc.hp;
-    var _ac = vnum('npc-f-ac'); if (_ac != null) npc.ac = _ac; else delete npc.ac;
-    var _ab = { str: vnum('npc-f-str'), dex: vnum('npc-f-dex'), con: vnum('npc-f-con'), int: vnum('npc-f-int'), wis: vnum('npc-f-wis'), cha: vnum('npc-f-cha') };
-    var _hasAb = Object.keys(_ab).some(function (k) { return _ab[k] != null; });
-    if (_hasAb) { Object.keys(_ab).forEach(function (k) { if (_ab[k] == null) delete _ab[k]; }); npc.abilities = _ab; } else delete npc.abilities;
-    npc.preferences = v('npc-f-preferences');
-    npc.dislikes = v('npc-f-dislikes');
-    npc.pets = v('npc-f-pets');
-    npc.notes = (typeof mentionsFieldToTokens === 'function') ? mentionsFieldToTokens(document.getElementById('npc-f-notes')) : v('npc-f-notes');
-
-    if (isNew) {
-        if (!Array.isArray(data.npcs)) data.npcs = [];
-        data.npcs.push(npc);
-    } else {
-        data.npcs[idx] = npc;
-    }
-    saveNPCData(data);
-    // Clean up the replaced original (safe: refs resolve to the entity). Skip
-    // refs/base64; no-op until the delete-worker is configured.
-    if (window.DWImages && oldImage && oldImage !== npc.image && DWImages.isHttpUrl(oldImage)) {
-        try { DWImages.del(oldImage); } catch (e) {}
-    }
-    closeNPCModal();
-    renderApp();
 }
 
 // ===== Lore-entry editor-modal (generieke categorieën) =====
@@ -2756,7 +2445,7 @@ function lorePagesFor(cat) {
 // ===== Modal-paginatie (gedeeld door lore- en NPC-modal) =====
 var _modalPage = 1;
 function goModalPage(n) {
-    var card = document.querySelector('.lore-entry-modal-active .modal-card, .npc-modal-active .modal-card');
+    var card = document.querySelector('.lore-entry-modal-active .modal-card');
     if (!card) return;
     var pages = card.querySelectorAll('.modal-page');
     if (!pages.length || n < 1 || n > pages.length) return;
@@ -3129,11 +2818,11 @@ function renderMonsterHypRow(f, eid) {
     var cur = (typeof getMonsterHypothesis === 'function') ? getMonsterHypothesis(eid, f.key) : null;
     var curVal = (cur && cur.value != null) ? String(cur.value) : '';
     var numeric = monsterNumericField(f.key);
-    var ph = numeric ? 'gok bv. 15 of 14-16' : 'vul een gok in';
+    var ph = numeric ? 'guess, e.g. 15 or 14-16' : 'enter a guess';
     var meta = '';
     if (cur && cur.by) {
         var byName = (typeof getUserData === 'function' && getUserData(cur.by)) ? getUserData(cur.by).name : '';
-        meta = '<span class="lore-hyp-meta">groepsgok' + (byName ? ' · ' + escapeHtml(byName) : '') + '</span>';
+        meta = '<span class="lore-hyp-meta">group guess' + (byName ? ' · ' + escapeHtml(byName) : '') + '</span>';
     }
     return '<div class="lore-info-row is-hypothesis' + (curVal ? '' : ' is-empty-hyp') + '" data-hyp-field="' + f.key + '">' +
         '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +

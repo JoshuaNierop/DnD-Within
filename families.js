@@ -5,7 +5,7 @@
 // Datamodel:
 //   family = { id, surname, notes, members:[memberId], unions:[unionId] }
 //   member = { id, familyId, firstName, lastName, birth, death, race, gender,
-//              linkedCharId, linkedNpcKey, notes }
+//              linkedCharId, linkedNpcKey (legacy dw_npcs-index), linkedCreatureId, notes }
 //   union  = { id, familyId, partnerIds:[memberId,memberId?], childIds:[memberId] }
 //
 // Een member behoort tot één primary family (zijn surname-family).
@@ -372,20 +372,29 @@ function resolveMemberLink(member) {
         if (cfg) return { type: 'character', id: member.linkedCharId, name: cfg.name, race: cfg.race, color: cfg.accentColor };
     }
     // #OvywGWk: voorkeur voor de stabiele Creature-id (na NPC→creature-migratie).
-    if (member.linkedCreatureId && typeof getLoreCatsData === 'function') {
-        var cats = getLoreCatsData();
-        var arr = (cats && Array.isArray(cats.monsters)) ? cats.monsters : [];
-        for (var ci = 0; ci < arr.length; ci++) {
-            if (arr[ci] && arr[ci].id === member.linkedCreatureId) {
-                return { type: 'npc', id: 'creature:' + arr[ci].id, name: arr[ci].name, race: arr[ci].race, color: 'var(--text-dim)' };
-            }
-        }
+    if (member.linkedCreatureId) {
+        var linked = _creatureById(member.linkedCreatureId);
+        if (linked) return { type: 'npc', id: 'creature:' + linked.id, name: linked.name, race: linked.race, color: 'var(--text-dim)' };
     }
+    // Legacy read-fallback: oude links wijzen via array-index naar dw_npcs (alleen
+    // lezen). Die NPC's staan met dezelfde id in de creature-store, dus toon het
+    // creature-record als dat er is; anders de bevroren legacy-waarden.
     if (member.linkedNpcKey) {
         var idx = parseInt(member.linkedNpcKey, 10);
         var npcs = (typeof getNPCData === 'function') ? (getNPCData().npcs || []) : [];
-        if (!isNaN(idx) && npcs[idx]) return { type: 'npc', id: 'npc:' + idx, name: npcs[idx].name, race: npcs[idx].race, color: 'var(--text-dim)' };
+        if (!isNaN(idx) && npcs[idx]) {
+            var cre = _creatureById(npcs[idx].id);
+            if (cre) return { type: 'npc', id: 'creature:' + cre.id, name: cre.name, race: cre.race, color: 'var(--text-dim)' };
+            return { type: 'npc', id: 'npc:' + idx, name: npcs[idx].name, race: npcs[idx].race, color: 'var(--text-dim)' };
+        }
     }
+    return null;
+}
+
+function _creatureById(id) {
+    if (!id || typeof getLoreCatEntries !== 'function') return null;
+    var arr = getLoreCatEntries('monsters') || [];
+    for (var i = 0; i < arr.length; i++) if (arr[i] && arr[i].id === id) return arr[i];
     return null;
 }
 
@@ -410,12 +419,13 @@ function _guessTier(fm) {
     return 'sibling';
 }
 
-function _findMemberIn(data, familyId, firstName, lastName, linkedCharId, linkedNpcKey) {
+function _findMemberIn(data, familyId, firstName, lastName, linkedCharId, linkedNpcKey, linkedCreatureId) {
     var ids = Object.keys(data.members);
     for (var i = 0; i < ids.length; i++) {
         var m = data.members[ids[i]];
         if (linkedCharId && m.linkedCharId === linkedCharId) return m;
         if (linkedNpcKey && m.linkedNpcKey === linkedNpcKey) return m;
+        if (linkedCreatureId && m.linkedCreatureId === linkedCreatureId) return m;
     }
     var fam = data.families[familyId];
     if (!fam) return null;
@@ -477,7 +487,7 @@ function migrateFamilies(force) {
 
     function ensureMember(familyId, firstName, lastName, extras) {
         extras = extras || {};
-        var existing = _findMemberIn(data, familyId, firstName, lastName, extras.linkedCharId, extras.linkedNpcKey);
+        var existing = _findMemberIn(data, familyId, firstName, lastName, extras.linkedCharId, extras.linkedNpcKey, extras.linkedCreatureId);
         if (existing) {
             // If existing is in different family but linked, leave it. If primaryFamily mismatches and we have a stronger surname signal, ignore (be conservative).
             return existing;
@@ -496,6 +506,7 @@ function migrateFamilies(force) {
             linkedNpcKey: extras.linkedNpcKey || '',
             notes: extras.notes || ''
         };
+        if (extras.linkedCreatureId) m.linkedCreatureId = extras.linkedCreatureId;
         data.members[id] = m;
         if (data.families[familyId]) data.families[familyId].members.push(id);
         stats.members++;
@@ -527,10 +538,14 @@ function migrateFamilies(force) {
             egos.push({ kind: 'char', id: charIds[ci], cfg: cfg, name: cfg.name || '', race: cfg.race || '', family: cfg.family || [] });
         }
     }
-    if (typeof getNPCData === 'function') {
-        var npcs = (getNPCData().npcs || []);
-        for (var ni = 0; ni < npcs.length; ni++) {
-            egos.push({ kind: 'npc', id: ni, cfg: npcs[ni], name: npcs[ni].name || '', race: npcs[ni].race || '', family: npcs[ni].family || [] });
+    // #OvywGWk: NPC-egos uit de creature-store (de gemigreerde NPC's), gelinkt
+    // via hun stabiele creature-id i.p.v. een dw_npcs-array-index.
+    if (typeof getLoreCatEntries === 'function') {
+        var creatures = getLoreCatEntries('monsters') || [];
+        for (var ni = 0; ni < creatures.length; ni++) {
+            var cr = creatures[ni];
+            if (!cr || !cr.id || !cr._fromNpc) continue;
+            egos.push({ kind: 'npc', id: cr.id, cfg: cr, name: cr.name || '', race: cr.race || '', family: cr.family || [] });
         }
     }
 
@@ -543,7 +558,7 @@ function migrateFamilies(force) {
         var fam = ensureFamily(split.lastName);
         var extras = { race: ego.race };
         if (ego.kind === 'char') extras.linkedCharId = ego.id;
-        else extras.linkedNpcKey = String(ego.id);
+        else extras.linkedCreatureId = ego.id;
         var m = ensureMember(fam.id, split.firstName, split.lastName, extras);
         egoMembers[ego.kind + ':' + ego.id] = m;
     }

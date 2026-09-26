@@ -300,16 +300,16 @@ function applyEntityFocus() {
     if (!ef) return;
     window._dwEntityFocus = null;
     try {
-        var sel = null;
-        if (ef.type === 'npc') sel = '.npc-card[data-npc-id="' + ef.id + '"]';
-        else if (ef.type === 'lore') sel = '.lore-entry-card[data-entry-id="' + ef.id + '"]';
-        if (!sel) return;
-        var card = document.querySelector(sel);
+        // npc: and lore: creatures both render as lore-entry cards (#OvywGWk).
+        if (ef.type !== 'npc' && ef.type !== 'lore') return;
+        var card = document.querySelector('.lore-entry-card[data-entry-id="' + ef.id + '"]');
         if (!card) return;
         // Collapse siblings (accordion) then open the target.
-        if (card.classList.contains('npc-card')) {
-            var grid = card.closest('.npc-grid');
-            if (grid) grid.querySelectorAll('.npc-card.expanded').forEach(function (c) { c.classList.remove('expanded'); });
+        var grid = card.closest('.lore-entry-grid');
+        if (grid) grid.querySelectorAll('.lore-entry-card.expanded').forEach(function (c) { c.classList.remove('expanded'); });
+        if (typeof loreExpandedIds !== 'undefined') {
+            for (var k in loreExpandedIds) delete loreExpandedIds[k];
+            loreExpandedIds[ef.id] = true;
         }
         card.classList.add('expanded');
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });

@@ -438,110 +438,6 @@ function bindPageEvents(route) {
             return;
         }
 
-        // --- NPC Family Tree handlers (DM page) ---
-        if (isDM() && (target.matches('[data-action="add-family"]') || target.closest('[data-action="add-family"]'))) {
-            var btn = target.matches('[data-action="add-family"]') ? target : target.closest('[data-action="add-family"]');
-            var form = document.getElementById('ftree-add-form');
-            var tierInput = document.getElementById('fam-tier');
-            if (form && tierInput) {
-                tierInput.value = btn.dataset.tier || 'sibling';
-                form.style.display = form.style.display === 'none' ? 'block' : 'none';
-                var nameEl = document.getElementById('fam-name');
-                if (nameEl) nameEl.value = '';
-                var relEl = document.getElementById('fam-relation');
-                if (relEl) relEl.value = '';
-                var notesEl = document.getElementById('fam-notes');
-                if (notesEl) notesEl.value = '';
-            }
-            return;
-        }
-        if (isDM() && target.matches('[data-action="save-family"]')) {
-            // Find which NPC card this form belongs to
-            var npcCard = target.closest('.npc-card');
-            if (!npcCard) return;
-            var npcIdx = -1;
-            var npcCards = document.querySelectorAll('.npc-card');
-            for (var nc = 0; nc < npcCards.length; nc++) {
-                if (npcCards[nc] === npcCard) { npcIdx = nc; break; }
-            }
-            if (npcIdx < 0) return;
-            var sourceEl = document.getElementById('fam-source');
-            var nameEl = document.getElementById('fam-name');
-            var relEl = document.getElementById('fam-relation');
-            var statusEl = document.getElementById('fam-status');
-            var notesEl = document.getElementById('fam-notes');
-            var tierEl = document.getElementById('fam-tier');
-            var source = sourceEl ? sourceEl.value : 'custom';
-            var entry = {
-                name: nameEl ? nameEl.value.trim() : '',
-                relation: relEl ? relEl.value.trim() : '',
-                status: statusEl ? statusEl.value : 'Alive',
-                notes: notesEl ? notesEl.value.trim() : '',
-                tier: tierEl ? tierEl.value : 'sibling'
-            };
-            if (source.indexOf('char:') === 0) {
-                var srcCharId = source.substring(5);
-                var srcCfg = loadCharConfig(srcCharId);
-                if (srcCfg) { if (!entry.name) entry.name = srcCfg.name; entry.linkedChar = srcCharId; }
-            }
-            if (!entry.name) return;
-            var npcData = getNPCData();
-            if (!npcData.npcs[npcIdx].family) npcData.npcs[npcIdx].family = [];
-            npcData.npcs[npcIdx].family.push(entry);
-            saveNPCData(npcData);
-            renderApp();
-            return;
-        }
-        if (isDM() && target.matches('[data-action="cancel-family"]')) {
-            var form = document.getElementById('ftree-add-form');
-            if (form) form.style.display = 'none';
-            return;
-        }
-        if (isDM() && target.matches('[data-action="remove-family"]')) {
-            var famIdx = parseInt(target.dataset.idx);
-            if (isNaN(famIdx)) return;
-            var ctxId = target.dataset.contextId || '';
-            // NPC context: contextId === "npc:<idx>"
-            if (ctxId.indexOf('npc:') === 0) {
-                var npcIdx = parseInt(ctxId.slice(4));
-                if (isNaN(npcIdx)) return;
-                var npcData = getNPCData();
-                if (!npcData.npcs[npcIdx]) return;
-                var fam = (npcData.npcs[npcIdx].family || []).slice();
-                fam.splice(famIdx, 1);
-                npcData.npcs[npcIdx].family = fam;
-                saveNPCData(npcData);
-                renderApp();
-                return;
-            }
-            // Character context: contextId is the charId (covers DM families panel)
-            if (ctxId) {
-                var cfg = loadCharConfig(ctxId);
-                if (!cfg) return;
-                var cFam = (cfg.family || []).slice();
-                cFam.splice(famIdx, 1);
-                saveCharConfigField(ctxId, 'family', cFam);
-                renderApp();
-                return;
-            }
-            // Legacy fallback: derive npcIdx from .npc-card position
-            var npcCard = target.closest('.npc-card');
-            if (!npcCard) return;
-            var fbIdx = -1;
-            var npcCards = document.querySelectorAll('.npc-card');
-            for (var nc = 0; nc < npcCards.length; nc++) {
-                if (npcCards[nc] === npcCard) { fbIdx = nc; break; }
-            }
-            if (fbIdx < 0) return;
-            var fbData = getNPCData();
-            var fbFam = (fbData.npcs[fbIdx].family || []).slice();
-            fbFam.splice(famIdx, 1);
-            fbData.npcs[fbIdx].family = fbFam;
-            saveNPCData(fbData);
-            renderApp();
-            return;
-        }
-
         // --- Home: enter campaign ---
         if (target.matches('[data-action="enter-campaign"]') || target.closest('[data-action="enter-campaign"]')) {
             // Don't navigate when the click originated on a per-card action button (edit, delete, etc.)
@@ -1208,11 +1104,15 @@ function bindPageEvents(route) {
             var lt = olbtn.dataset.linkType;
             var lid = olbtn.dataset.linkId;
             if (lt === 'character') navigate('/characters/' + lid);
-            else if (lt === 'npc') navigate('/lore/npcs');
+            else if (lt === 'npc') {
+                // Creature link ("creature:<id>") → open that card on the Creatures tab.
+                if (lid && lid.indexOf('creature:') === 0) window._dwEntityFocus = { type: 'npc', id: lid.slice(9) };
+                navigate('/lore/npcs');
+            }
             return;
         }
 
-        // --- NPC card expand/collapse ---
+        // --- Entity links ---
         // @-mention link → open the target entity (set focus + navigate). For
         // characters the href route is enough; for npc/lore we also flag the
         // card to open via applyEntityFocus() after render.
@@ -1232,20 +1132,6 @@ function bindPageEvents(route) {
             return;
         }
 
-        if (target.matches('[data-action="toggle-npc-card"]') || target.closest('[data-action="toggle-npc-card"]')) {
-            var card = target.closest('.npc-card');
-            if (!card) return;
-            var wasExpanded = card.classList.contains('expanded');
-            // Accordion: sluit andere open kaarten zodat het grid netjes herschikt.
-            var grid = card.closest('.npc-grid');
-            if (grid) {
-                var open = grid.querySelectorAll('.npc-card.expanded');
-                for (var oi = 0; oi < open.length; oi++) open[oi].classList.remove('expanded');
-            }
-            if (!wasExpanded) card.classList.add('expanded');
-            return;
-        }
-
         // NPC filter: disposition chips
         if (target.matches('[data-action="npc-filter-disp"]')) {
             npcFilterDisp = target.dataset.disp || 'all';
@@ -1256,27 +1142,6 @@ function bindPageEvents(route) {
                 _chips[_ci].classList.toggle('active', _chips[_ci].dataset.disp === npcFilterDisp);
             }
             updateSearchResults('npc-results', function () { return renderCreatureResultsInner(); });
-            return;
-        }
-
-        // --- NPC handlers (modal-based) ---
-        if (target.matches('[data-action="add-npc"]')) {
-            if (typeof openNPCModal === 'function') openNPCModal(-1);
-            return;
-        }
-        if (target.matches('[data-action="edit-npc"]')) {
-            var npcIdx = parseInt(target.dataset.npcIdx, 10);
-            if (typeof openNPCModal === 'function') openNPCModal(npcIdx);
-            return;
-        }
-        if (target.matches('[data-action="delete-npc"]')) {
-            if (confirm('Delete this NPC?')) {
-                var delIdx = parseInt(target.dataset.npcIdx, 10);
-                var npcData = getNPCData();
-                npcData.npcs.splice(delIdx, 1);
-                saveNPCData(npcData);
-                renderApp();
-            }
             return;
         }
 
@@ -1538,8 +1403,6 @@ function bindPageEvents(route) {
             renderApp();
             return;
         }
-
-        // (delete-npc handler moved earlier in chain)
 
         // Next turn
         if (target.matches('[data-action="next-turn"]')) {
@@ -2733,25 +2596,6 @@ function bindPageEvents(route) {
             return;
         }
 
-
-        // Family source picker — auto-fill name from selected character/NPC
-        if (target.matches('#fam-source')) {
-            var nameEl = document.getElementById('fam-name');
-            if (!nameEl) return;
-            var val = target.value;
-            if (val.indexOf('char:') === 0) {
-                var cid = val.substring(5);
-                var cfg = loadCharConfig(cid);
-                if (cfg) nameEl.value = cfg.name;
-            } else if (val.indexOf('npc:') === 0) {
-                var nIdx = parseInt(val.substring(4));
-                var nList = getNPCData().npcs || [];
-                if (nList[nIdx]) nameEl.value = nList[nIdx].name;
-            } else {
-                nameEl.value = '';
-            }
-            return;
-        }
 
         // Show custom NPC name when "custom" selected in initiative
         if (target.matches('#init-char')) {

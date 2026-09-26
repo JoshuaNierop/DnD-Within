@@ -1194,69 +1194,6 @@ function initInitiativeDragDrop() {
 
 var npcSearchQuery = '';
 
-function renderDMNPCs() {
-    var data = getNPCData();
-    var npcs = data.npcs || [];
-    var html = '<div class="dm-tool-card">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:0.5rem;flex-wrap:wrap;">';
-    html += '<h3>NPCs (' + npcs.length + ')</h3>';
-    html += '<div style="display:flex;gap:0.5rem;align-items:center;flex:1;min-width:150px;max-width:300px;">';
-    html += '<input type="text" class="edit-input npc-search" id="npc-search" placeholder="Search NPCs..." value="' + escapeAttr(npcSearchQuery) + '" style="flex:1;font-size:0.8rem;">';
-    html += '</div>';
-    html += '<button class="btn btn-primary btn-sm" data-action="add-npc">+ Add NPC</button>';
-    html += '</div>';
-
-    // Filter NPCs by search query
-    var query = npcSearchQuery.toLowerCase();
-    var filteredNpcs = [];
-    for (var fi = 0; fi < npcs.length; fi++) {
-        if (!query || (npcs[fi].name && npcs[fi].name.toLowerCase().indexOf(query) >= 0) ||
-            (npcs[fi].location && npcs[fi].location.toLowerCase().indexOf(query) >= 0) ||
-            (npcs[fi].disposition && npcs[fi].disposition.toLowerCase().indexOf(query) >= 0) ||
-            (npcs[fi].notes && npcs[fi].notes.toLowerCase().indexOf(query) >= 0)) {
-            filteredNpcs.push({ npc: npcs[fi], idx: fi });
-        }
-    }
-
-    if (filteredNpcs.length === 0) {
-        html += '<p class="text-dim">' + (query ? 'No NPCs matching "' + escapeHtml(query) + '".' : 'No NPCs yet.') + '</p>';
-    } else {
-        html += '<div class="npc-grid">';
-        for (var ni = 0; ni < filteredNpcs.length; ni++) {
-            var npc = filteredNpcs[ni].npc;
-            var realIdx = filteredNpcs[ni].idx;
-            var dispColor = npc.disposition === 'friendly' ? 'var(--success)' : npc.disposition === 'hostile' ? 'var(--danger)' : npc.disposition === 'neutral' ? 'var(--warning)' : 'var(--text-dim)';
-            html += '<div class="npc-card" style="border-left-color:' + dispColor + '" data-npc-idx="' + realIdx + '">';
-            html += '<div class="npc-header" data-action="toggle-npc-card">';
-            html += '<div class="npc-header-info">';
-            html += '<strong>' + escapeHtml(npc.name) + '</strong>';
-            if (npc.disposition) html += '<span class="npc-disposition" style="color:' + dispColor + '">' + escapeHtml(npc.disposition) + '</span>';
-            if (npc.location) html += '<span class="npc-location-inline">&#128205; ' + escapeHtml(npc.location) + '</span>';
-            html += '</div>';
-            html += '<span class="npc-expand-icon">&#9660;</span>';
-            html += '</div>';
-            html += '<div class="npc-details">';
-            if (npc.notes) html += '<p class="npc-notes">' + escapeHtml(npc.notes) + '</p>';
-            var npcPrimaryFam = (typeof findPrimaryFamilyByLink === 'function') ? findPrimaryFamilyByLink(null, String(realIdx)) : null;
-            if (npcPrimaryFam && npcPrimaryFam.family) {
-                html += '<div class="npc-family-section">';
-                html += renderFamilyDiagram(npcPrimaryFam.family.id, false);
-                html += '</div>';
-            }
-            html += '<div class="npc-actions">';
-            html += '<button class="btn btn-ghost btn-sm" data-action="edit-npc" data-npc-idx="' + realIdx + '">Edit</button>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="delete-npc" data-npc-idx="' + realIdx + '" style="color:var(--danger);">Delete</button>';
-            html += '</div>';
-            html += '</div>';
-            html += '</div>';
-        }
-        html += '</div>';
-    }
-
-    html += '</div>';
-    return html;
-}
-
 var familiesExpandedId = null;       // family ID being viewed
 var familiesSearchQuery = '';
 

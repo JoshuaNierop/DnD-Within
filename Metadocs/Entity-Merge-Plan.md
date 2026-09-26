@@ -1,6 +1,8 @@
 # NPC + Monster → één Creature-entity (#OvywGWk)
 
-**Status: fase 1 en 2 zijn al gebouwd en gepusht (juni 2026), maar nooit live geverifieerd.**
+**Status (2026-09-26): fase 1, 2 en 3 zijn gebouwd en gepusht. Fase 3 is offline tegen een
+verse dump gecontroleerd, maar nog niet live in de app met login geverifieerd.** Zie §7
+voor wat er in fase 3 veranderd is.
 Dit document beschrijft daarom waar het nu staat en wat er nog moet gebeuren, niet
 een groenveld-ontwerp. Opgesteld 2026-09-23 door de architect-agent op basis van
 code-lezing; alles wat niet in de code te verifiëren was, is als zodanig gemarkeerd.
@@ -46,7 +48,7 @@ Accessors: `getNPCData()` / `saveNPCData()` (`ui-world.js:1701`, `:1769`),
 - **Family-links** — `resolveMemberLink` (`families.js:368-390`) probeert eerst
   `member.linkedCreatureId` en valt terug op de legacy `linkedNpcKey` (array-index).
 
-### 1.3 Wat nog aan de oude NPC-store hangt
+### 1.3 Wat nog aan de oude NPC-store hing (vóór fase 3 — zie §7 voor de huidige stand)
 
 | Plek | Regel | Situatie |
 |---|---|---|
@@ -124,7 +126,7 @@ Geen app-code: één script plus één dump.
 ### Fase 2 — Unified editor — GEBOUWD
 `ui-world.js`, `ui-modals.js`, `style.css`.
 
-### Fase 3 — Consumenten omzetten naar de creature-store
+### Fase 3 — Consumenten omzetten naar de creature-store — GEBOUWD 2026-09-26
 1. `collectEntities()` uit `lore_cats.monsters` laten lezen, met behoud van
    `type: 'npc'` als mention-namespace; `_fromNpc`-skip weg; dedupe op id.
 2. Combat-picker naar één creature-bron; `kind` afleiden uit `disposition`/`alive`
@@ -160,7 +162,10 @@ gate rood is.
 6. **Onverifieerd**: of de migratie in de live app daadwerkelijk correct gedraaid
    heeft. Alle uitspraken hierboven komen uit code-lezing, niet uit observatie.
 
-## 6. Beslissingen die Joshua moet nemen vóór fase 3
+## 6. Open beslissingen voor Joshua
+
+Fase 3 is gebouwd zonder O1, O2, O3, O5 en O6 te beslissen; die staan nog open. O4 is
+door Joshua's opdracht ingevuld (één Creatures-bron in de combat-picker).
 
 - **O1** — Blijft het mention-label "NPC" voor alle creatures, of wordt het
   "CREATURE"? (Of afleiden uit disposition/CR.) Tokens blijven hoe dan ook `npc:`.
@@ -173,3 +178,55 @@ gate rood is.
   alleen een bevestiging?
 - **O6** — Mag `dw_npcs` uiteindelijk uit de sync-whitelist, en na hoeveel
   bewezen-stabiele sessies?
+
+## 7. Fase 3 — wat er veranderd is (2026-09-26)
+
+**Uitgangspunt:** alleen lezers (en de schrijvers van family/UI-acties) verplaatst naar de
+creature-store. `dw_npcs` is niet aangeraakt: niet beschreven, niet geleegd, niet uit de
+sync-whitelist. `migrateNpcsIntoCreatures()` en `ensureEntityIds()` zijn ongewijzigd.
+Geen nieuw codepad schrijft de hele creature-array, behalve het bestaande
+console-script `DWImages.migrateImagesToTree` dat al via `saveLoreCatsData` liep.
+
+### Omgezet
+| Plek | Nu |
+|---|---|
+| `collectEntities()` (`ui-world.js`) | Elke creature één keer uit `lore_cats.monsters`. `_fromNpc` → `type:'npc'` (bestaande `[[npc:id]]`-tokens blijven werken), overige → `type:'lore', loreCat:'monsters'`. Beide met `cat:'Creatures'` en route `/lore/npcs`. De `_fromNpc`-skip is weg. |
+| `entityById()` | Accepteert voor een creature zowel `npc:` als `lore:`, zodat een token blijft resolven ongeacht de namespace waarin hij geschreven is. |
+| Route `/lore/monsters` | Wordt in `renderLore` naar de Creatures-tab (`npcs`) gestuurd; was een "not found". |
+| `applyEntityFocus()` (`app.js`) | `npc:`- en `lore:`-creatures openen de `.lore-entry-card` (de oude `.npc-card`-selector matchte niets meer). |
+| Combat-picker (`wg-combat.js`) | Eén tab "Creatures" uit de creature-store i.p.v. "NPCs" + "Monsters". Default kind: `hostile` → monster, anders npc (badge wisselt nog). Familiars-tab ongewijzigd. i18n-key `combat.tab.creatures`. |
+| `resolveMemberLink()` (`families.js`) | `linkedCreatureId` eerst. Legacy `linkedNpcKey` (array-index) leest nog `dw_npcs` (read-only) maar toont het creature-record met dezelfde id als dat bestaat. |
+| `migrateFamilies()` | Ego's uit creatures met `_fromNpc`; nieuwe leden krijgen `linkedCreatureId` i.p.v. een array-index. Draait alleen bij een lege families-store. |
+| `famdiag-open-link` (`events.js`) | Klik op een gelinkt creature-lid opent de juiste creature-kaart. |
+| `migrateImagesToTree` (`storage.js`) | Creature-afbeeldingen worden in de lore-store herschreven, niet meer in `dw_npcs`. |
+| Hypothese-rij | Teksten Engels ("guess, e.g. 15 or 14-16", "enter a guess", "group guess"). |
+
+### Verwijderd (geen callers, gecontroleerd incl. `index.html` en inline strings)
+`renderNPCResultsInner`, `renderNPCDetailRows`, `npcAge`, `npcDispColor`, `dwImgFallback`,
+`renderNPCModal`/`openNPCModal`/`closeNPCModal`/`saveNPCModal`/`npcModalField(Inner)`,
+`renderDMNPCs`; handlers `add-npc`/`edit-npc`/`delete-npc` (die laatste gebruikte `confirm()`),
+`toggle-npc-card`, `add-family`/`save-family`/`cancel-family`/`remove-family`, `#fam-source`,
+`close-npc-modal`/`save-npc-modal`/`remove-npc-image`/`upload-npc-image`; bijbehorende CSS
+(`.npc-grid`, `.npc-card*`, `.npc-expanded*`, `.npc-detail-*`, `.npc-form-grid`, `.modal-npc`,
+`.npc-family-section`, `.npc-section-head`, …). `.npc-portrait-empty`, `.npc-form-field` en
+`.npc-form-image-preview` blijven (worden door maps/lore gebruikt).
+
+### Bewust nog op `dw_npcs`
+- `ensureEntityIds()` / `migrateNpcsIntoCreatures()` — migratie, ongewijzigd.
+- `resolveMemberLink()` legacy fallback — alleen lezen, voor oude index-links.
+- `currentYear` — veld op de Creatures-tab schrijft nog naar `dw_npcs.currentYear`. Wordt op dit
+  moment nergens getoond (leeftijden stonden alleen op de verwijderde NPC-kaart).
+
+### Controle
+`node --check` op alle gewijzigde JS. Offline check tegen de dump van 2026-09-26: 35 creatures
+→ 35 entities met unieke id's (8 `npc`, 27 `lore`); alle 8 legacy NPC-id's resolven exact één
+keer; alle `[[npc:]]`/`[[lore:]]`-tokens in de dump resolven; 6/6 `linkedCreatureId`- en 6/6
+`linkedNpcKey`-links resolven naar het creature-record; combat-picker geeft 35 unieke items.
+Niet geverifieerd: de live app met login (rendering, klik-navigatie, combat-panel).
+
+### Over voor fase 4-5
+- Fase 4: save-knop per hypothese (O5), alive/dead op de kaart, hypotheses op vrije-tekstvelden (O2).
+- Privé creatures (`hidden`/privé naam) staan nog in Search en de `@`-popup voor spelers — checken.
+- `currentYear` een zichtbaar doel geven of weghalen.
+- Family-diagram: nog `prompt()`/`confirm()` en Nederlandse teksten in de famdiag-handlers.
+- Fase 5: `dw_npcs` read-only/uit de whitelist (O6), labels + image-mapnamen harmoniseren.

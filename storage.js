@@ -369,10 +369,10 @@
         console.log('[images→tree] ' + jobs.length + ' image(s) to re-home.');
         if (dryRun) { console.log('[images→tree] DRY RUN — no changes. Plan:', summary.plan); return Promise.resolve(summary); }
 
-        // Apply sequentially; batch the npc/lore store writes at the end.
-        var npcData = (typeof getNPCData === 'function') ? getNPCData() : null;
+        // Apply sequentially; batch the lore store write at the end. Creatures
+        // (type 'npc' and 'lore') both live in the lore store (#OvywGWk).
         var loreData = (typeof getLoreCatsData === 'function') ? getLoreCatsData() : null;
-        var npcDirty = false, loreDirty = false;
+        var loreDirty = false;
         var chain = Promise.resolve();
         jobs.forEach(function (job) {
             chain = chain.then(function () {
@@ -382,9 +382,7 @@
                         var key = 'dw_img_' + e.id + '_portrait';
                         localStorage.setItem(key, newUrl);
                         if (typeof syncUpload === 'function') syncUpload(key);
-                    } else if (e.type === 'npc' && npcData) {
-                        for (var i = 0; i < (npcData.npcs || []).length; i++) if (npcData.npcs[i].id === e.id) { npcData.npcs[i].image = newUrl; npcDirty = true; break; }
-                    } else if (e.type === 'lore' && loreData && Array.isArray(loreData[e.loreCat])) {
+                    } else if ((e.type === 'npc' || e.type === 'lore') && loreData && Array.isArray(loreData[e.loreCat])) {
                         for (var j = 0; j < loreData[e.loreCat].length; j++) if (loreData[e.loreCat][j].id === e.id) { loreData[e.loreCat][j].image = newUrl; loreDirty = true; break; }
                     }
                     summary.migrated++;
@@ -397,7 +395,6 @@
             });
         });
         return chain.then(function () {
-            if (npcDirty && typeof saveNPCData === 'function') saveNPCData(npcData);
             if (loreDirty && typeof saveLoreCatsData === 'function') saveLoreCatsData(loreData);
             console.log('[images→tree] done.', summary);
             return summary;

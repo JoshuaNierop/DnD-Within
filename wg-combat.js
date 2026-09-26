@@ -674,24 +674,24 @@ function combatAddSources(tab) {
       };
     });
   }
-  if (tab === 'npcs') {
-    let npcs = [];
-    try { if (typeof getNPCData === 'function') npcs = (getNPCData().npcs) || []; } catch (e) {}
-    return npcs.map(n => ({
-      key: n.id || n.name,
-      name: n.name || 'NPC',
-      portrait: n.image || null,
-      meta: (n.disposition && n.disposition !== 'unknown') ? n.disposition : '',
-      make: () => combatEntityFromNpc(n),
-    }));
-  }
-  // monsters + familiars: zelfde statblok-bron (lore-categorie 'monsters'),
-  // alleen een ander `kind` op de resulterende entity. Zo kun je een Owl of
-  // Imp als familiar aan het initiatief toevoegen zonder aparte data-invoer.
-  const asFamiliar = (tab === 'familiars');
   let mons = [];
   try { if (typeof getLoreCatEntries === 'function') mons = getLoreCatEntries('monsters') || []; } catch (e) {}
-  return mons.map(m => ({
+  // #OvywGWk: één Creatures-bron (lore-categorie 'monsters', incl. gemigreerde
+  // NPC's) i.p.v. aparte NPC- en monster-lijsten → geen dubbele namen meer.
+  // Default kind: vijandig = monster, anders npc; de DM kan 'm via de badge wisselen.
+  if (tab === 'creatures') {
+    return mons.filter(Boolean).map(m => ({
+      key: m.id || m.name,
+      name: m.name || 'Creature',
+      portrait: m.image || null,
+      meta: [m.cr ? ('CR ' + m.cr) : '', (m.disposition && m.disposition !== 'unknown') ? m.disposition : ''].filter(Boolean).join(' · '),
+      make: () => (m.disposition === 'hostile') ? combatEntityFromMonster(m, 'monster') : combatEntityFromNpc(m),
+    }));
+  }
+  // familiars: zelfde statblok-bron, alleen kind 'familiar'. Zo kun je een Owl
+  // of Imp als familiar aan het initiatief toevoegen zonder aparte data-invoer.
+  const asFamiliar = (tab === 'familiars');
+  return mons.filter(Boolean).map(m => ({
     key: m.id || m.name,
     name: m.name || (asFamiliar ? 'Familiar' : 'Monster'),
     portrait: m.image || null,
@@ -707,7 +707,7 @@ function showCombatAddPanel(clientX, clientY) {
   pop.style.top = (clientY + 8) + 'px';
 
   const tabs = hEl('div', 'combat-add-tabs');
-  [['party', ct('combat.tab.party')], ['familiars', ct('combat.tab.familiars')], ['npcs', ct('combat.tab.npcs')], ['monsters', ct('combat.tab.monsters')]].forEach(([id, label]) => {
+  [['party', ct('combat.tab.party')], ['familiars', ct('combat.tab.familiars')], ['creatures', ct('combat.tab.creatures')]].forEach(([id, label]) => {
     const b = hEl('button', 'combat-add-tab' + (_combatAddTab === id ? ' active' : ''), label);
     b.dataset.tab = id;
     // Actief-markering op de tab-id, niet op het label: twee tabs kunnen in een
