@@ -2563,10 +2563,33 @@ var PLACE_DIMENSIONS = [
     'Nine Hells', 'Abyss', 'Mount Celestia', 'Other'
 ];
 function placeDimension(e) { return (e && e.dimension) || PLACE_DIMENSIONS[0]; }
+// The DM's own dimensions, kept in the lore store as an object (not an array)
+// so the loops over entry lists pass them by.
+function customPlaceDimensions() {
+    var d = getLoreCatsData()._customDimensions;
+    return (d && Array.isArray(d.names)) ? d.names : [];
+}
+// Every dimension a place can be in: the standard ones, the DM's own, then Other.
+function placeDimensions() {
+    var std = PLACE_DIMENSIONS.filter(function (n) { return n !== 'Other'; });
+    return std.concat(customPlaceDimensions(), ['Other']);
+}
+function addPlaceDimension(name) {
+    name = String(name || '').trim();
+    if (!name) return false;
+    var all = placeDimensions();
+    for (var i = 0; i < all.length; i++) if (all[i].toLowerCase() === name.toLowerCase()) return false;
+    var data = getLoreCatsData();
+    var names = customPlaceDimensions().slice();
+    names.push(name);
+    data._customDimensions = { names: names };
+    saveLoreCatsData(data);
+    return true;
+}
 
 var LORE_CAT_FIELDS = {
     places: [
-        { key: 'dimension',   label: 'Dimension',   type: 'select', options: PLACE_DIMENSIONS, defaultValue: 'Material Plane' },
+        { key: 'dimension',   label: 'Dimension',   type: 'select', options: placeDimensions, defaultValue: 'Material Plane' },
         { key: 'description', label: 'Description', type: 'textarea' },
         { key: 'notes',       label: 'Notes',       type: 'textarea' }
     ],
@@ -2689,7 +2712,7 @@ function renderLoreField(f, e, cat) {
         html += '<select class="edit-input" id="lore-entry-f-' + f.key + '">';
         var cur = e[f.key] || f.defaultValue || '';
         if (!f.defaultValue) html += '<option value=""' + (cur ? '' : ' selected') + '>—</option>';
-        var opts = f.options || [];
+        var opts = typeof f.options === 'function' ? f.options() : (f.options || []);
         for (var oi = 0; oi < opts.length; oi++) {
             var ov = opts[oi];
             html += '<option value="' + escapeAttr(ov) + '"' + (cur === ov ? ' selected' : '') + '>' + escapeHtml(capitalize(ov)) + '</option>';
@@ -3221,6 +3244,7 @@ function renderLoreCategory(cat) {
     html += '<input type="text" class="edit-input lore-cat-search" id="lore-cat-search" placeholder="Search in ' + escapeAttr(label) + '\u2026" value="' + escapeAttr(loreCatSearch) + '">';
     if (isDM()) {
         html += '<button class="btn btn-primary btn-sm" data-action="add-lore-entry" data-cat="' + cat + '">+ ' + escapeHtml(label.replace(/s$/, '')) + '</button>';
+        if (cat === 'places') html += '<button class="btn btn-sm" data-action="add-place-dimension">+ Dimension</button>';
     }
     html += '</div>';
 
@@ -3250,8 +3274,9 @@ function renderLoreResultsInner(cat) {
 
     // Places are grouped by the dimension they are in, in the listed order.
     if (cat === 'places') {
+        var dimOrder = placeDimensions();
         filtered = filtered.slice().sort(function (a, b) {
-            var da = PLACE_DIMENSIONS.indexOf(placeDimension(a)), db = PLACE_DIMENSIONS.indexOf(placeDimension(b));
+            var da = dimOrder.indexOf(placeDimension(a)), db = dimOrder.indexOf(placeDimension(b));
             return (da < 0 ? 99 : da) - (db < 0 ? 99 : db);
         });
     }

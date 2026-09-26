@@ -11,14 +11,14 @@ function renderProfileModal() {
     if (!u) return '';
 
     var html = '<div class="modal-overlay" data-action="close-profile-modal">';
-    html += '<div class="modal-card modal-profile" onclick="event.stopPropagation();">';
+    html += '<div class="modal-card modal-profile">';
     html += '<div class="modal-header">';
-    html += '<h2>Profiel Instellingen</h2>';
+    html += '<h2>Profile Settings</h2>';
     html += '<button class="modal-close" data-action="close-profile-modal">&times;</button>';
     html += '</div>';
     html += '<div class="modal-body">';
     html += '<div class="login-field">';
-    html += '<label class="login-label">Gebruikersnaam</label>';
+    html += '<label class="login-label">Username</label>';
     html += '<input type="text" class="login-input" value="' + escapeAttr(uid) + '" disabled style="opacity:0.5;">';
     html += '</div>';
     html += '<div class="login-field">';
@@ -26,24 +26,24 @@ function renderProfileModal() {
     html += '<input type="text" class="login-input" id="profile-display-name" value="' + escapeAttr(u.name) + '" placeholder="Display name">';
     html += '</div>';
     html += '<div class="login-field">';
-    html += '<label class="login-label">Huidig wachtwoord</label>';
-    html += '<input type="password" class="login-input" id="profile-current-password" placeholder="Vereist bij wachtwoord wijziging">';
+    html += '<label class="login-label">Current password</label>';
+    html += '<input type="password" class="login-input" id="profile-current-password" placeholder="Required to change your password">';
     html += '</div>';
     html += '<div class="login-field">';
-    html += '<label class="login-label">Nieuw wachtwoord</label>';
-    html += '<input type="password" class="login-input" id="profile-new-password" placeholder="Laat leeg om niet te wijzigen">';
+    html += '<label class="login-label">New password</label>';
+    html += '<input type="password" class="login-input" id="profile-new-password" placeholder="Leave empty to keep it">';
     html += '</div>';
     html += '<div class="login-field">';
-    html += '<label class="login-label">Bevestig wachtwoord</label>';
-    html += '<input type="password" class="login-input" id="profile-confirm-password" placeholder="Bevestig nieuw wachtwoord">';
+    html += '<label class="login-label">Confirm password</label>';
+    html += '<input type="password" class="login-input" id="profile-confirm-password" placeholder="Confirm new password">';
     html += '</div>';
     html += '<div class="login-field bug-debug-toggle">';
     html += '<label class="login-label">Debug Mode</label>';
     html += '<label class="toggle-switch"><input type="checkbox" id="profile-debug-mode"' + (isDebugMode() ? ' checked' : '') + '><span class="toggle-slider"></span></label>';
-    html += '<small class="bug-debug-hint">Toont de bug reporter knop</small>';
+    html += '<small class="bug-debug-hint">Shows the bug reporter button</small>';
     html += '</div>';
     html += '<p class="login-error" id="profile-error" style="display:none;"></p>';
-    html += '<p class="profile-success" id="profile-success" style="display:none;">Opgeslagen!</p>';
+    html += '<p class="profile-success" id="profile-success" style="display:none;">Saved!</p>';
     html += '<button class="login-submit" data-action="save-profile">Save</button>';
     html += '</div>';
     html += '</div>';
@@ -99,7 +99,7 @@ function handleSaveProfile() {
             return;
         }
         if (u.password !== currentPass) {
-            if (errorEl) { errorEl.textContent = 'Huidig wachtwoord is onjuist.'; errorEl.style.display = 'block'; }
+            if (errorEl) { errorEl.textContent = 'Current password is incorrect.'; errorEl.style.display = 'block'; }
             return;
         }
         if (newPass !== confirmPass) {

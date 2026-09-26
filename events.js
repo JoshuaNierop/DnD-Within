@@ -1281,6 +1281,14 @@ function bindPageEvents(route) {
         }
 
         // --- Lore-entry handlers (generieke categorieën) ---
+        if (target.matches('[data-action="add-place-dimension"]')) {
+            var dimName = prompt('Name of the new dimension:');
+            if (dimName && dimName.trim()) {
+                if (addPlaceDimension(dimName)) renderApp();
+                else alert('That dimension already exists.');
+            }
+            return;
+        }
         if (target.matches('[data-action="add-lore-entry"]')) {
             if (typeof openLoreEntryModal === 'function') openLoreEntryModal(target.dataset.cat, -1);
             return;
