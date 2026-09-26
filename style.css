@@ -8463,6 +8463,14 @@ body:has(.wg-bottombar) #scw-fab {
 
 .modal-card.modal-sm { max-width: 400px; }
 
+/* Site dialogs (dwDialog: prompt / confirm / alert) */
+.dw-dialog { z-index: 10050; }
+.dw-dialog-body { gap: 0.6rem; }
+.dw-dialog-msg { margin: 0; color: var(--text-main); line-height: 1.5; }
+.dw-dialog-error { margin: 0; text-align: left; }
+.dw-dialog-error[hidden] { display: none; }
+.dw-dialog-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
+
 /* Maps: dimensions-manager + add-map window */
 .dim-manage-list { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
 .dim-manage-item { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0.75rem; background: var(--bg-elev, rgba(255,255,255,0.03)); border: 1px solid var(--border); border-radius: var(--radius); }

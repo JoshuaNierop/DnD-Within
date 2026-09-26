@@ -2,6 +2,71 @@
 // Requires: core.js
 
 // ============================================================
+// Site dialogs — use these instead of the browser's prompt/confirm/alert.
+// Each returns a Promise: prompt → string or null, confirm → true/false,
+// alert → undefined. Styled like the other modals, keyboard: Enter / Esc.
+// ============================================================
+
+function dwDialog(opts) {
+    opts = opts || {};
+    return new Promise(function (resolve) {
+        var kind = opts.kind || 'alert';
+        var overlay = document.createElement('div');
+        overlay.className = 'modal-overlay dw-dialog';
+        var card = document.createElement('div');
+        card.className = 'modal-card modal-sm';
+        card.setAttribute('role', 'dialog');
+        card.setAttribute('aria-modal', 'true');
+        var html = '<div class="modal-header"><h2>' + escapeHtml(opts.title || (kind === 'confirm' ? 'Are you sure?' : kind === 'prompt' ? 'Enter a value' : 'Notice')) + '</h2>' +
+            '<button type="button" class="modal-close" data-dlg="cancel" aria-label="Close">&times;</button></div>';
+        html += '<form class="modal-body dw-dialog-body" novalidate>';
+        if (opts.message) html += '<p class="dw-dialog-msg">' + escapeHtml(opts.message) + '</p>';
+        if (kind === 'prompt') {
+            html += '<label class="login-label" for="dw-dialog-input">' + escapeHtml(opts.label || 'Name') + '</label>' +
+                '<input id="dw-dialog-input" class="login-input" type="text" maxlength="' + (opts.maxLength || 80) + '" autocomplete="off"' +
+                ' placeholder="' + escapeAttr(opts.placeholder || '') + '" value="' + escapeAttr(opts.value || '') + '">';
+        }
+        html += '<p class="login-error dw-dialog-error" hidden></p>';
+        html += '<div class="dw-dialog-actions">';
+        if (kind !== 'alert') html += '<button type="button" class="btn" data-dlg="cancel">' + escapeHtml(opts.cancelLabel || 'Cancel') + '</button>';
+        html += '<button type="submit" class="btn ' + (opts.danger ? 'btn-danger' : 'btn-primary') + '">' +
+            escapeHtml(opts.confirmLabel || (kind === 'prompt' ? 'Add' : kind === 'confirm' ? 'Yes' : 'OK')) + '</button>';
+        html += '</div></form>';
+        card.innerHTML = html;
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+
+        var input = card.querySelector('#dw-dialog-input');
+        var err = card.querySelector('.dw-dialog-error');
+        var done = false;
+        function finish(val) {
+            if (done) return;
+            done = true;
+            document.removeEventListener('keydown', onKey, true);
+            overlay.remove();
+            resolve(val);
+        }
+        var cancelValue = kind === 'prompt' ? null : kind === 'confirm' ? false : undefined;
+        function onKey(e) { if (e.key === 'Escape') { e.stopPropagation(); finish(cancelValue); } }
+        document.addEventListener('keydown', onKey, true);
+        overlay.addEventListener('click', function (e) { if (e.target === overlay) finish(cancelValue); });
+        card.querySelectorAll('[data-dlg="cancel"]').forEach(function (b) { b.addEventListener('click', function () { finish(cancelValue); }); });
+        card.querySelector('form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (kind !== 'prompt') { finish(kind === 'confirm' ? true : undefined); return; }
+            var val = input.value.trim();
+            var problem = !val && !opts.allowEmpty ? 'Please fill this in.' : (typeof opts.validate === 'function' ? opts.validate(val) : null);
+            if (problem) { err.textContent = problem; err.hidden = false; input.focus(); return; }
+            finish(val);
+        });
+        setTimeout(function () { (input || card.querySelector('button[type="submit"]')).focus(); if (input) input.select(); }, 0);
+    });
+}
+function showPromptModal(opts) { return dwDialog(Object.assign({}, opts, { kind: 'prompt' })); }
+function showConfirmModal(opts) { return dwDialog(Object.assign({}, opts, { kind: 'confirm' })); }
+function showAlertModal(opts) { return dwDialog(Object.assign({}, opts, { kind: 'alert' })); }
+
+// ============================================================
 // Section 32a: Profile / Credentials Modal
 // ============================================================
 

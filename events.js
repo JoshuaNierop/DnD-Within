@@ -1282,11 +1282,21 @@ function bindPageEvents(route) {
 
         // --- Lore-entry handlers (generieke categorieën) ---
         if (target.matches('[data-action="add-place-dimension"]')) {
-            var dimName = prompt('Name of the new dimension:');
-            if (dimName && dimName.trim()) {
-                if (addPlaceDimension(dimName)) renderApp();
-                else alert('That dimension already exists.');
-            }
+            showPromptModal({
+                title: 'New dimension',
+                label: 'Name',
+                placeholder: 'e.g. The Far Realm',
+                confirmLabel: 'Add dimension',
+                validate: function (name) {
+                    var taken = placeDimensions().some(function (d) { return d.toLowerCase() === name.toLowerCase(); });
+                    return taken ? 'That dimension already exists.' : null;
+                }
+            }).then(function (name) {
+                if (name && addPlaceDimension(name)) {
+                    renderApp();
+                    showToast('Dimension "' + name + '" added', 'success');
+                }
+            });
             return;
         }
         if (target.matches('[data-action="add-lore-entry"]')) {
