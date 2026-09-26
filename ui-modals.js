@@ -1848,14 +1848,6 @@ document.addEventListener('click', function(e) {
         startBugSelector();
         return;
     }
-    if (target.matches('[data-action="close-bug-modal"]')) {
-        closeBugReportModal();
-        return;
-    }
-    if (target.matches('[data-action="submit-bug"]') || target.closest('[data-action="submit-bug"]')) {
-        submitBugReport();
-        return;
-    }
 
     // ----- Image-box (gedeeld door NPC/Lore-modals): klik in box → keuze-menu -----
     var _imgPickBtn = target.closest('[data-action="img-pick-existing"]');

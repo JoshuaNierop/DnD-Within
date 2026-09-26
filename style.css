@@ -24,6 +24,7 @@
     /* Interactive accent — kept (cyan) but de-emphasized; warm-gold is the new identity color */
     --accent: #22d3ee;
     --accent-rgb: 34, 211, 238;
+    --br-on-accent: var(--bg-dark);   /* text on accent buttons in the report window/changelog */
     --accent-glow: rgba(34, 211, 238, 0.15);
     --accent-dark: #0891b2;
     --accent-secondary: #0891b2;
@@ -10382,97 +10383,10 @@ body.bug-selecting { cursor: crosshair !important; }
 body.bug-selecting * { cursor: crosshair !important; }
 body.bug-selecting .bug-fab { cursor: pointer !important; }
 
-.bug-highlight-overlay {
-    position: fixed;
-    pointer-events: none;
-    border: 2px solid #f87171;
-    background: rgba(248, 113, 113, 0.12);
-    border-radius: 4px;
-    z-index: 99999;
-    transition: top 0.08s, left 0.08s, width 0.08s, height 0.08s;
-    display: none;
-}
-
-/* Bug report modal */
-.bug-report-modal-wrap { position: fixed; inset: 0; z-index: 10002; }
-.bug-report-modal {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    max-width: 460px;
-    width: 90vw;
-    margin: 10vh auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-}
-.bug-report-modal .modal-header {
-    padding: 1rem 1.2rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.bug-report-modal .modal-header h2 { margin: 0; font-size: 1.1rem; }
-.bug-report-modal .modal-body { padding: 1.2rem; }
-
-.bug-field { margin-bottom: 1rem; }
-.bug-label {
-    display: block;
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    margin-bottom: 0.3rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-.bug-element-info code {
-    background: rgba(255,255,255,0.06);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    color: var(--accent);
-    display: inline-block;
-}
-.bug-element-path small {
-    color: var(--text-dim);
-    font-size: 0.75rem;
-    margin-top: 0.2rem;
-    display: block;
-}
-.bug-type-toggle { display: flex; gap: 0.5rem; }
-.bug-type-option { cursor: pointer; }
-.bug-type-option input { display: none; }
-.bug-type-chip {
-    display: inline-flex; align-items: center; gap: 0.4rem;
-    padding: 0.45rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;
-    border: 1.5px solid var(--border); color: var(--text-dim);
-    background: transparent; transition: all 0.2s;
-}
-.bug-type-option input:checked + .bug-type-bug {
-    border-color: #f87171; color: #f87171; background: rgba(248,113,113,0.1);
-}
-.bug-type-option input:checked + .bug-type-feature {
-    border-color: var(--accent); color: var(--accent); background: rgba(129,140,248,0.1);
-}
-.bug-type-option input:checked + .bug-type-design {
-    border-color: #f0b454; color: #f0b454; background: rgba(240,180,84,0.12);
-}
-
-.bug-textarea {
-    width: 100%;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    padding: 0.7rem;
-    font-size: 0.9rem;
-    font-family: inherit;
-    resize: vertical;
-    min-height: 80px;
-}
-.bug-textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-}
+/* Report window + changelog come from bugreport/ (shared module v2); they use the
+   site tokens (--bg-card, --text-main, --text-dim, --border, --accent) automatically.
+   The Changelog button (reviewer only) sits right above the bug FAB. */
+.cv-btn { right: var(--fab-slot-3); bottom: calc(var(--fab-bottom) + var(--fab-size) + 10px); }
 
 /* Debug toggle in profile */
 .bug-debug-toggle {

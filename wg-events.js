@@ -28,7 +28,7 @@ function onPointerDown(evt) {
   // native click landt, dus de element-picker selecteert niets. Vroeg uitstappen
   // (geen pendingGesture) laat pointerup een no-op zijn → de click bereikt het
   // intacte sub-div → picker kan delen van widgets selecteren.
-  if (typeof bugReporterActive !== 'undefined' && bugReporterActive) return;
+  if (document.body.classList.contains('br-selecting')) return;
   // Map-action buttons (upload-portrait, etc.) moeten SYNCHROON afgehandeld
   // worden in pointerdown. Anders triggert pointerup een setActiveWidget+
   // render() die de SVG-target vervangt vóór de click event fires, en gaat

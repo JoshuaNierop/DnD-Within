@@ -265,9 +265,6 @@ function handleAdminToggleLegacy(enabled) {
 // Section 33b: Bug Reporter
 // ============================================================
 
-var bugReporterActive = false;
-var bugSelectedElement = null;
-var bugHighlightOverlay = null;
 
 function isDebugMode() {
     // Default on: only disabled when explicitly set to 'false'.
@@ -276,207 +273,22 @@ function isDebugMode() {
 
 function setDebugMode(enabled) {
     localStorage.setItem('dw_debug', enabled ? 'true' : 'false');
+    if (window.BugReportDevMode && window.BugReportDevMode.reporter) window.BugReportDevMode.reporter.setDevMode(!!enabled);
     renderApp();
 }
 
-function getElementDescriptor(el) {
-    if (!el || el === document.body || el === document.documentElement) return 'Page';
-
-    // Check for data-action (most specific for JS-rendered elements)
-    if (el.dataset && el.dataset.action) return el.dataset.action;
-
-    // Check closest meaningful section
-    var section = el.closest('[data-action]');
-    var tag = el.tagName.toLowerCase();
-
-    // Named components
-    if (el.id) return tag + '#' + el.id;
-
-    // Meaningful class names
-    var knownComponents = ['sheet-block', 'char-banner', 'char-portrait', 'tab-btn', 'spell-card',
-        'feature-card', 'ability-card', 'combat-stat', 'item-row', 'char-card', 'campaign-home-card',
-        'dash-stat-card', 'quest-card', 'timeline-event', 'note-card', 'navbar', 'dice-fab',
-        'settings-card', 'settings-tab', 'nav-link', 'modal', 'wizard', 'lore-page'];
-    for (var i = 0; i < knownComponents.length; i++) {
-        var comp = el.closest('.' + knownComponents[i]);
-        if (comp) {
-            var text = (el.textContent || '').trim().substring(0, 30);
-            return knownComponents[i] + (text ? ' "' + text + '"' : '');
-        }
-    }
-
-    // Fallback: class + text
-    var parts = [];
-    if (el.className && typeof el.className === 'string') {
-        var cls = el.className.split(/\s+/).filter(function(c) {
-            return c && c.indexOf('bug-') !== 0;
-        }).slice(0, 3).join('.');
-        if (cls) parts.push(tag + '.' + cls);
-        else parts.push(tag);
-    } else {
-        parts.push(tag);
-    }
-    var text2 = (el.textContent || '').trim().substring(0, 40);
-    if (text2) parts.push('"' + text2 + (el.textContent.trim().length > 40 ? '...' : '') + '"');
-    return parts.join(' ') || (section ? section.dataset.action : tag);
-}
-
-function getElementPath(el) {
-    var path = [];
-    var cur = el;
-    while (cur && cur !== document.body && path.length < 4) {
-        var tag = cur.tagName.toLowerCase();
-        if (cur.className && typeof cur.className === 'string') {
-            var cls = cur.className.split(/\s+/).filter(function(c) {
-                return c && c.indexOf('bug-') !== 0 && c.indexOf('page-') !== 0;
-            }).slice(0, 2).join('.');
-            path.unshift(cls ? tag + '.' + cls : tag);
-        } else {
-            path.unshift(tag);
-        }
-        cur = cur.parentElement;
-    }
-    return path.join(' > ');
-}
-
+// The selector, report window, changelog and hub submit live in the shared
+// module (bugreport/init.js → window.BugReportDevMode). The FAB below stays in
+// the FAB row with its own colours; clicking it starts the module's selector.
 function startBugSelector() {
-    if (bugReporterActive) { stopBugSelector(); return; }
-    bugReporterActive = true;
-    document.body.classList.add('bug-selecting');
-
-    // Create highlight overlay
-    bugHighlightOverlay = document.createElement('div');
-    bugHighlightOverlay.className = 'bug-highlight-overlay';
-    document.body.appendChild(bugHighlightOverlay);
-
-    document.addEventListener('mousemove', bugSelectorMove, true);
-    document.addEventListener('click', bugSelectorClick, true);
-    document.addEventListener('keydown', bugSelectorEsc, true);
-    showToast(t('bug.start.toast'), 'info');
-}
-
-function stopBugSelector() {
-    bugReporterActive = false;
-    document.body.classList.remove('bug-selecting');
-    if (bugHighlightOverlay) { bugHighlightOverlay.remove(); bugHighlightOverlay = null; }
-    document.removeEventListener('mousemove', bugSelectorMove, true);
-    document.removeEventListener('click', bugSelectorClick, true);
-    document.removeEventListener('keydown', bugSelectorEsc, true);
-}
-
-function bugSelectorMove(e) {
-    var el = e.target;
-    if (!el || el.classList.contains('bug-highlight-overlay') || el.classList.contains('bug-fab') ||
-        el.closest('.bug-report-modal') || el.closest('.bug-fab')) return;
-    var rect = el.getBoundingClientRect();
-    if (bugHighlightOverlay) {
-        bugHighlightOverlay.style.top = rect.top + 'px';
-        bugHighlightOverlay.style.left = rect.left + 'px';
-        bugHighlightOverlay.style.width = rect.width + 'px';
-        bugHighlightOverlay.style.height = rect.height + 'px';
-        bugHighlightOverlay.style.display = 'block';
-    }
-}
-
-function bugSelectorClick(e) {
-    var el = e.target;
-    if (el.classList.contains('bug-fab') || el.closest('.bug-fab') ||
-        el.classList.contains('bug-highlight-overlay')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    bugSelectedElement = {
-        descriptor: getElementDescriptor(el),
-        path: getElementPath(el),
-        route: window.location.pathname || '/'
-    };
-    stopBugSelector();
-    openBugReportModal();
-}
-
-function bugSelectorEsc(e) {
-    if (e.key === 'Escape') { stopBugSelector(); }
-}
-
-function openBugReportModal() {
-    var existing = document.querySelector('.bug-report-modal-wrap');
-    if (existing) existing.remove();
-
-    var info = bugSelectedElement || { descriptor: 'Algemeen', path: '', route: window.location.pathname || '/' };
-    var html = '<div class="bug-report-modal-wrap">';
-    html += '<div class="modal-overlay" data-action="close-bug-modal">';
-    html += '<div class="bug-report-modal">';
-    html += '<div class="modal-header"><h2>🪲 ' + t('bug.title') + '</h2><button class="modal-close" data-action="close-bug-modal">&times;</button></div>';
-    html += '<div class="modal-body">';
-    html += '<div class="bug-field"><label class="bug-label">' + t('bug.element') + '</label>';
-    html += '<div class="bug-element-info"><code>' + escapeHtml(info.descriptor) + '</code></div>';
-    html += '<div class="bug-element-path"><small>' + escapeHtml(info.path) + '</small></div></div>';
-    html += '<div class="bug-field"><label class="bug-label">' + t('bug.page') + '</label>';
-    html += '<div class="bug-element-info"><code>' + escapeHtml(info.route) + '</code></div></div>';
-    html += '<div class="bug-field"><label class="bug-label">' + t('bug.description') + '</label>';
-    html += '<textarea class="bug-textarea" id="bug-description" rows="4" placeholder="' + t('bug.plh') + '"></textarea></div>';
-    html += '<button class="login-submit" data-action="submit-bug">' + t('bug.submit') + '</button>';
-    html += '</div></div></div></div>';
-
-    var wrap = document.createElement('div');
-    wrap.innerHTML = html;
-    document.body.appendChild(wrap.firstChild);
-    lockBodyScroll();
-
-    // Direct event listeners (modal is outside #app, delegation unreliable)
-    var modalWrap = document.querySelector('.bug-report-modal-wrap');
-    if (modalWrap) {
-        var submitBtn = modalWrap.querySelector('[data-action="submit-bug"]');
-        if (submitBtn) submitBtn.addEventListener('click', function(e) { e.stopPropagation(); submitBugReport(); });
-        var closeBtns = modalWrap.querySelectorAll('[data-action="close-bug-modal"]');
-        for (var i = 0; i < closeBtns.length; i++) {
-            closeBtns[i].addEventListener('click', function(e) { if (e.target === this) closeBugReportModal(); });
-        }
-    }
-
-    var ta = document.getElementById('bug-description');
-    if (ta) ta.focus();
-}
-
-function closeBugReportModal() {
-    var el = document.querySelector('.bug-report-modal-wrap');
-    if (el) el.remove();
-    unlockBodyScroll();
-    bugSelectedElement = null;
-}
-
-function submitBugReport() {
-    var desc = document.getElementById('bug-description');
-    if (!desc || !desc.value.trim()) {
-        showToast(t('bug.error.nodesc'), 'error');
-        return;
-    }
-
-    var info = bugSelectedElement || { descriptor: 'General', path: '', route: window.location.pathname || '/' };
-
-    // #OvvK9a3: geen types meer — elke melding is gewoon een bug.
-    var bug = {
-        type: 'bug',
-        element: info.descriptor,
-        elementPath: info.path,
-        route: info.route,
-        description: desc.value.trim(),
-        reporter: currentUserId() || 'anonymous',
-        timestamp: Date.now(),
-        status: 'open'
-    };
-
-    submitBugToHub(bug).then(function(res) {
-        closeBugReportModal();
-        showToast('Bug ' + t('bug.reported'), 'success');
-    }).catch(function(err) {
-        console.error('[Bug] submit failed', err);
-        showToast('Submit failed: ' + err.message, 'error');
-    });
+    var br = window.BugReportDevMode;
+    if (br && br.reporter) { br.reporter.startSelector(); return; }
+    window.addEventListener('bugreport:ready', function () { window.BugReportDevMode.reporter.startSelector(); }, { once: true });
 }
 
 function renderBugFab() {
     if (!isDebugMode()) return '';
-    return '<div class="bug-fab" data-action="start-bug-selector" title="Developer">' +
+    return '<div class="bug-fab" data-action="start-bug-selector" data-br-trigger title="Send a report">' +
         '<svg class="bug-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M8 2l1.5 3M16 2l-1.5 3"/>' +
         '<path d="M3 10h2M19 10h2M3 14h2M19 14h2"/>' +
