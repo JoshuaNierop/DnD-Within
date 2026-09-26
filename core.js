@@ -829,7 +829,7 @@ var SEED_DATA = {
     },
 
     lira: {
-        id: "lira", name: "Lira", player: "lira",
+        id: "lira", name: "Lyra", player: "lira",
         race: "tiefling", className: "fighter", subclass: "champion",
         background: "Soldier", alignment: "Chaotic Neutral", age: 22,
         accentColor: "#f87171",
