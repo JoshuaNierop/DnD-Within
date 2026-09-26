@@ -20,7 +20,7 @@
  *   --br-bg --br-text --br-muted --br-border --br-accent --br-on-accent --br-danger --br-ok
  */
 
-export const VERSION = '2.0.0';
+export const VERSION = '2.1.0';
 
 const CSS = `
 :where(.br-fab,.br-hud,.br-overlay,.br-modal-wrap,.br-toast,.cv-btn,.cv-backdrop,.br-pulse){
@@ -93,6 +93,10 @@ body.br-selecting .br-fab { cursor: pointer !important; }
 }
 .br-textarea { resize: vertical; min-height: 80px; }
 .br-textarea:focus, .br-input:focus { outline: none; border-color: var(--_br-accent); }
+.br-draft { display: flex; align-items: center; gap: .6rem; margin-bottom: .45rem; padding: .45rem .6rem; border-radius: 8px;
+  border: 1px dashed var(--_br-accent); background: color-mix(in srgb, var(--_br-accent) 8%, transparent); font-size: .8rem; color: var(--_br-muted); }
+.br-draft span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.br-draft button { flex-shrink: 0; background: var(--_br-accent); color: var(--_br-on-accent); border: 0; border-radius: 6px; padding: .3rem .6rem; font: 600 .75rem/1.2 inherit; font-family: inherit; cursor: pointer; }
 .br-submit {
   width: 100%; padding: .7rem; border: none; border-radius: 8px;
   background: var(--_br-accent); color: var(--_br-on-accent); font-size: .9rem; font-weight: 600; cursor: pointer;
@@ -117,6 +121,7 @@ const BUG_SVG = `<svg viewBox="0 0 24 24"><path d="M8 2l1.5 3M16 2l-1.5 3"/><pat
 
 const DEVICE_KEY = 'br_device_name';
 const HIGHLIGHT_KEY = 'br_highlight';
+const DRAFT_KEY = 'br_draft';
 
 // ---------------------------------------------------------------- metadata
 
@@ -177,6 +182,26 @@ function detectTheme() {
         return (0.299 * r + 0.587 * g + 0.114 * b) < 128 ? 'dark' : 'light';
     }
     return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function readDraft() {
+    try { const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); return d && d.text ? d : null; } catch (e) { return null; }
+}
+
+function writeDraft(draft) {
+    try {
+        if (draft) localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        else localStorage.removeItem(DRAFT_KEY);
+    } catch (e) { /* storage blocked: no draft */ }
+}
+
+function draftAge(at) {
+    const min = Math.round((Date.now() - (at || 0)) / 60000);
+    if (min < 1) return 'just now';
+    if (min < 60) return min + ' min ago';
+    const h = Math.round(min / 60);
+    if (h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago');
+    return new Date(at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
 function readDeviceName() {
@@ -527,6 +552,7 @@ export class BugReporter {
         const info = this._selectionInfo();
         const hasChain = this._chain.length > 1;
         const deviceName = readDeviceName() || (this._device ? deviceLabel(this._device) : '');
+        const draft = readDraft();
         const wrap = document.createElement('div');
         wrap.className = 'br-modal-wrap';
         wrap.innerHTML = `
@@ -553,6 +579,7 @@ export class BugReporter {
                     </div>
                     <div class="br-field">
                         <label class="br-label" for="br-description">What should change?</label>
+                        ${draft ? `<div class="br-draft" data-br="draft"><span>Unsent report from ${this.esc(draftAge(draft.at))}: “${this.esc(draft.text.replace(/\s+/g, ' ').slice(0, 60))}${draft.text.length > 60 ? '…' : ''}”</span><button type="button" data-br="restore">Restore last report</button></div>` : ''}
                         <textarea class="br-textarea" id="br-description" rows="4" placeholder="Describe the problem, question or wish..."></textarea>
                     </div>
                     <div class="br-field">
@@ -568,8 +595,17 @@ export class BugReporter {
         document.body.appendChild(wrap);
         document.body.style.overflow = 'hidden';
 
+        // Only ×, Esc or Send close the window — a click beside it does not.
         wrap.querySelector('[data-br="close"]').addEventListener('click', () => this._closeModal());
-        wrap.addEventListener('click', (e) => { if (e.target === wrap) this._closeModal(); });
+        wrap.querySelector('[data-br="restore"]')?.addEventListener('click', () => {
+            const ta = wrap.querySelector('#br-description');
+            ta.value = draft.text;
+            wrap.querySelector('[data-br="draft"]')?.remove();
+            ta.focus();
+            ta.setSelectionRange(ta.value.length, ta.value.length);
+        });
+        this._onModalKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); this._closeModal(); } };
+        document.addEventListener('keydown', this._onModalKey, true);
         wrap.querySelector('[data-br="submit"]').addEventListener('click', () => this._submit());
         wrap.querySelector('[data-br="level"]')?.addEventListener('input', (e) => this._setLevel(+e.target.value));
         wrap.querySelectorAll('[data-br-link]').forEach(b => b.addEventListener('click', () => {
@@ -582,8 +618,15 @@ export class BugReporter {
         this._render();
     }
 
-    _closeModal() {
+    /** sent=false keeps typed text as a draft that the next report window offers to restore. */
+    _closeModal(sent = false) {
         const el = document.querySelector('.br-modal-wrap');
+        if (sent) writeDraft(null);
+        else {
+            const text = (el?.querySelector('#br-description')?.value || '').trim();
+            if (text) writeDraft({ text, at: Date.now() });
+        }
+        if (this._onModalKey) { document.removeEventListener('keydown', this._onModalKey, true); this._onModalKey = null; }
         if (el) el.remove();
         document.body.style.overflow = '';
         window.removeEventListener('resize', this._onReposition);
@@ -653,7 +696,7 @@ export class BugReporter {
 
         try {
             await this.onSubmit(report);
-            this._closeModal();
+            this._closeModal(true);
             this._toast('Report sent — thank you!', 'success');
         } catch (err) {
             if (btn) btn.disabled = false;
