@@ -31,6 +31,11 @@ subclass and species at level 1–4 without making a character.
   silent gap.
 - Granted spells appear in **Prepared Spells** with a ★, their own DC and a free-cast
   button; Short Rest now restores what recharges on a Short Rest.
+- Level-up now asks for the extra skills some features give: Primal Knowledge
+  (Barbarian), Bonus Proficiencies (College of Lore), Student of War (Battle Master) and
+  Otherworldly Glamour (Fey Wanderer); Warrior of Mercy gets Insight and Medicine
+  automatically. The Fighter, Rogue and Wizard skill lists now match the 2024 rules.
+- After picking a subclass during a level-up you can go back and change it again.
 
 ## 2026-09-23 — Eldritch Knight spells, familiars and a fuller initiative tracker
 

@@ -133,6 +133,37 @@ function wgxEffCasting(cfg, st, delta, picked) {
   };
 }
 
+// Skill option list for a { id: 'skills' } choice as WG_SKILLS keys
+// ('class' = the class's skill list; absent = every skill).
+function wgxSkillOptionKeys(opts, className) {
+  if (opts === 'class') opts = ((DATA[className] || {}).skillOptions || []).filter(function (o) { return o !== 'any'; });
+  if (!opts || !opts.length) return null;
+  var all = (typeof WG_SKILLS !== 'undefined') ? WG_SKILLS : [];
+  return all.filter(function (s) { return opts.some(function (o) { return wgxSkillNorm(o) === wgxSkillNorm(s.key); }); }).map(function (s) { return s.key; });
+}
+
+// Subclass choices (subclass.choices[level]) for the levels this level-up
+// covers — the subclass may be picked in this same level-up, so use eff.
+function wgxSubclassChoices(eff, delta) {
+  var cd = DATA[eff.className] || {};
+  var sub = eff.subclass && cd.subclasses && cd.subclasses[eff.subclass];
+  var out = [];
+  if (!sub || !sub.choices) return out;
+  for (var L = delta.from + 1; L <= delta.to; L++) (sub.choices[L] || []).forEach(function (c) { out.push(Object.assign({ level: L, source: 'subclass' }, c)); });
+  return out;
+}
+
+// A { id: 'skills' } choice as a featSkills step (null when nothing is left to pick).
+function wgxSkillChoiceStep(c, owner, eff) {
+  if (c.fixed) return null;
+  var opts = wgxSkillOptionKeys(c.options, eff.className);
+  var all = (typeof WG_SKILLS !== 'undefined') ? WG_SKILLS.map(function (s) { return s.key; }) : [];
+  var free = (opts || all).filter(function (k) { return !wgxHasSkill(eff.defaultSkills, k); }).length;
+  var need = Math.min(c.count || 1, free);
+  if (!need) return null;
+  return { kind: 'choice', choice: { id: 'featSkills', owner: owner, count: need, options: opts, mode: 'proficiency', featName: c.featName, note: c.note || '' }, needed: need };
+}
+
 // Highest spell level pickable after this level-up (warlock = pact magic).
 // delta.slots may predate a subclass picked in this level-up — pass slots
 // (wgxEffCasting) to override.
@@ -279,6 +310,11 @@ function wgxLevelUpSteps(delta, cfg, st, picked) {
       });
       continue;
     }
+    if (c.id === 'skills') {
+      var sks = wgxSkillChoiceStep(c, 'clsSkills', eff);
+      if (sks) steps.push(sks);
+      continue;
+    }
     if (c.id === 'asi') {
       steps.push({ kind: 'choice', choice: c, needed: 1 });
       var a = picked.asi;
@@ -288,7 +324,9 @@ function wgxLevelUpSteps(delta, cfg, st, picked) {
       }
       continue;
     }
-    var needed = wgxChoiceNeeded(c, eff, st, picked);
+    // raw cfg: a subclass picked in this level-up must keep its step (to change it);
+    // wgxChoiceNeeded applies the picks itself where they matter (totals).
+    var needed = wgxChoiceNeeded(c, cfg, st, picked);
     // Skip what is already settled (subclass pre-set at creation, known style,
     // counted options already at total) — but keep zero-eligible expertise/
     // scholar steps visible so the player sees why nothing is asked.
@@ -316,6 +354,12 @@ function wgxLevelUpSteps(delta, cfg, st, picked) {
       }
     }
   }
+  // Subclass skill choices (Bonus Proficiencies, Student of War, Otherworldly Glamour).
+  wgxSubclassChoices(eff, delta).forEach(function (c) {
+    if (c.id !== 'skills') return;
+    var sst = wgxSkillChoiceStep(c, 'subSkills', eff);
+    if (sst) steps.push(sst);
+  });
   // Replacement cantrip for a feature cantrip you already know (Improved Illusions).
   if (typeof getGrantedSpells === 'function') {
     getGrantedSpells(eff, Object.assign({}, st, { level: delta.to, cantrips: (st.cantrips || []).concat(picked.cantrips || []) })).forEach(function (g) {
@@ -507,6 +551,14 @@ function wgxBuildLevelUpPatch(cfg, st, delta, picked) {
       newProf = newProf.concat(ag.prof); newExpert = newExpert.concat(ag.expert);
     }
   }
+  // Class/subclass skill proficiencies (picked, or fixed like Implements of Mercy).
+  var clsProf = [];
+  ['clsSkills', 'subSkills'].forEach(function (o) { clsProf = clsProf.concat((picked[o] && picked[o].skills) || []); });
+  (delta.choices || []).concat(wgxSubclassChoices(wgxEffCfg(cfg, picked), delta)).forEach(function (c) {
+    if (c.id === 'skills' && c.fixed) clsProf = clsProf.concat(c.fixed);
+  });
+  clsProf = clsProf.filter(function (k, i, a) { return a.indexOf(k) === i && !wgxHasSkill(cfg.defaultSkills, k) && !wgxHasSkill(newProf, k); });
+  if (clsProf.length) { rec.classProf = clsProf; newProf = newProf.concat(clsProf); }
   if (newProf.length) addCfg('defaultSkills', (cfg.defaultSkills || []).concat(newProf.filter(function (k) { return !wgxHasSkill(cfg.defaultSkills, k); })));
   if (rec.expertise || rec.scholar || rec.featExpert || newExpert.length) {
     var xp = (cfg.expertSkills || []).concat(newExpert.filter(function (k) { return !wgxHasSkill(cfg.expertSkills, k); }));
@@ -628,8 +680,10 @@ function wgxBuildLevelDownPatch(cfg, stRaw) {
     addCfg('expertSkills', (cfg.expertSkills || []).filter(function (k) { return !dropExpert.some(function (d) { return wgxSkillNorm(d) === wgxSkillNorm(k); }); }));
     lost.push('Expertise: ' + dropExpert.join(', '));
   }
-  if (choices.featProf && choices.featProf.length) {
-    addCfg('defaultSkills', (cfg.defaultSkills || []).filter(function (k) { return !choices.featProf.some(function (d) { return wgxSkillNorm(d) === wgxSkillNorm(k); }); }));
+  var dropProf = (choices.featProf || []).concat(choices.classProf || []);
+  if (dropProf.length) {
+    addCfg('defaultSkills', (cfg.defaultSkills || []).filter(function (k) { return !dropProf.some(function (d) { return wgxSkillNorm(d) === wgxSkillNorm(k); }); }));
+    if (choices.classProf && choices.classProf.length) lost.push('Skill proficiency: ' + choices.classProf.join(', '));
   }
   if (choices.asi) {
     var a = numMap(st.asiChoices)[lvl] || {};
@@ -812,6 +866,7 @@ function wgxRenderLUStep() {
   };
   var stepLabel = step.kind === 'overview' ? 'Overview'
     : step.kind === 'confirm' ? 'Confirm'
+    : (step.choice.id === 'featSkills' && /^(cls|sub)Skills$/.test(step.choice.owner || '')) ? step.choice.featName
     : (labels[step.choice.id] || step.choice.id.charAt(0).toUpperCase() + step.choice.id.slice(1).replace(/([A-Z])/g, ' $1'));
   html += '</div><div class="wgx-lu-steplabel">' + wgxEsc(stepLabel) + '</div>';
   html += '<div class="modal-body wgx-lu-body">';
@@ -974,8 +1029,9 @@ function wgxRenderLUStep() {
       var sub = step.choice.mode === 'profOrExpertise' && isProf ? '→ Expertise' : (isExp ? 'Expertise' : 'Proficiency');
       return { val: s.key, title: s.label, sub: sub, known: known, knownLabel: label };
     });
-    html += '<h3>' + wgxEsc(fr2.feat || 'Feat') + ': ' + (isExp ? 'choose Expertise' : 'choose ' + step.needed + ' skill' + (step.needed > 1 ? 's' : '')) + '</h3>' + wgxLUCountNote(wgxPGet(sPath), step.needed);
+    html += '<h3>' + wgxEsc(fr2.feat || step.choice.featName || 'Feat') + ': ' + (isExp ? 'choose Expertise' : 'choose ' + step.needed + ' skill' + (step.needed > 1 ? 's' : '')) + '</h3>' + wgxLUCountNote(wgxPGet(sPath), step.needed);
     if (fr2.feat === 'Skilled') html += '<p class="wgx-lu-note">Skilled also allows tools instead of skills — record tools with your DM.</p>';
+    if (step.choice.note) html += '<p class="wgx-lu-note">' + wgxEsc(step.choice.note) + '</p>';
     html += wgxLUGrid(skItems, sPath, false, wgxPGet(sPath));
   } else if (step.kind === 'choice' && step.choice.id === 'featElement') {
     var ePath = wgxOwnerPath(step.choice.owner, 'element');

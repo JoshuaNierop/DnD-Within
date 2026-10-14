@@ -110,6 +110,10 @@ for (const cls of CLASSES) {
           if (per[cls] != null) check(combo + ': ' + id + ' = ' + per[cls], (st[id] || []).length === per[cls], String((st[id] || []).length));
         }
         if (cfg.subclass === 'battleMaster') check(combo + ': 3 maneuvers', (st.maneuvers || []).length === 3);
+        // L3 skill proficiencies: Primal Knowledge, Bonus Proficiencies, Student of War, Otherworldly Glamour, Implements of Mercy
+        const skillL3 = (cls === 'barbarian' ? 1 : 0) + ({ lore: 3, battleMaster: 1, feyWanderer: 1, mercy: 2 }[sub] || 0);
+        const gotL3 = snaps[3].__defaultSkills.length - snaps[2].__defaultSkills.length;
+        check(combo + ': L3 skill proficiencies +' + skillL3, gotL3 === skillL3, String(gotL3));
         // build profile
         const prof = E.getBuildProfile(cfg, st);
         const gNames = prof.granted.map((g) => g.name);

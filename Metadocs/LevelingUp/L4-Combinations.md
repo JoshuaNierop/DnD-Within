@@ -8,8 +8,8 @@
 
 | Class — Subclass | Aasimar | Dragonborn | Dwarf | Elf | Gnome | Goliath | Halfling | Human | Orc | Tiefling | Reviewed |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Berserker (barbarian) | ⚑ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
-| Wild Heart (barbarian) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
+| Berserker (barbarian) | ⚑ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 1 |
+| Wild Heart (barbarian) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 1 |
 | World Tree (barbarian) | ⚑ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Zealot (barbarian) | ⚑ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Lore (bard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
@@ -175,13 +175,16 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Class features L1–4: Rage [Bonus Action], Unarmored Defense, Weapon Mastery, Danger Sense, Reckless Attack [On a hit / Attack action], Barbarian Subclass, Primal Knowledge, Ability Score Improvement
 - Uses: Rage 3/1 per Short Rest, all on a Long Rest
-- Choose (level 1–4): skills / class options at creation; Choose 3 more Weapon Mastery weapon(s) (3 known at level 4)
+- Choose:
+  - At creation: 2 skills (Animal Handling, Athletics, Intimidation, Nature, Perception, Survival); 2 Weapon Mastery weapons
+  - Level 3: your subclass; Primal Knowledge: 1 skill — the Barbarian list
+  - Level 4: +1 Weapon Mastery weapon (3 total); Ability Score Improvement or a feat
 - Swap: One Weapon Mastery choice (on a Long Rest)
 
 #### Path of the Berserker
 
 - Features (L3): Frenzy [On a hit / Attack action]
-- Actions (no spells): Bonus Action: Rage · On a hit / Attack action: Reckless Attack, Frenzy · No action: Resourceful
+- Actions (no spells): Bonus Action: Rage · On a hit / Attack action: Reckless Attack, Frenzy
 - Combination notes:
   - Aasimar: While raging you can't cast spells or keep Concentration — spells you get only work outside your Rage.
   - Elf: While raging you can't cast spells or keep Concentration — spells you get only work outside your Rage. · You have no spell slots, so granted spells can only be cast with their free uses.
@@ -192,7 +195,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Animal Speaker, Rage of the Wilds
 - Spells: Beast Sense (L2, ritual only); Speak with Animals (L1, ritual only)
-- Actions (no spells): Bonus Action: Rage · On a hit / Attack action: Reckless Attack · No action: Resourceful
+- Actions (no spells): Bonus Action: Rage · On a hit / Attack action: Reckless Attack
 - Swap: Rage of the Wilds option (Bear, Eagle or Wolf) (each time you use it)
 - Good to know: While raging you can't cast spells or keep Concentration — spells you get only work outside your Rage.
 - Combination notes:
@@ -203,7 +206,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Path of the World Tree
 
 - Features (L3): Vitality of the Tree
-- Actions (no spells): Bonus Action: Rage · On a hit / Attack action: Reckless Attack · No action: Resourceful
+- Actions (no spells): Bonus Action: Rage · On a hit / Attack action: Reckless Attack
 - Combination notes:
   - Aasimar: While raging you can't cast spells or keep Concentration — spells you get only work outside your Rage.
   - Elf: While raging you can't cast spells or keep Concentration — spells you get only work outside your Rage. · You have no spell slots, so granted spells can only be cast with their free uses.
@@ -213,8 +216,8 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Path of the Zealot
 
 - Features (L3): Divine Fury [On a hit / Attack action], Warrior of the Gods [Bonus Action]
-- Uses: Warrior of the Gods 4/Long Rest
-- Actions (no spells): Bonus Action: Rage, Warrior of the Gods · On a hit / Attack action: Reckless Attack, Divine Fury · No action: Resourceful
+- Uses: Warrior of the Gods 4×d12/Long Rest
+- Actions (no spells): Bonus Action: Rage, Warrior of the Gods · On a hit / Attack action: Reckless Attack, Divine Fury
 - Combination notes:
   - Aasimar: While raging you can't cast spells or keep Concentration — spells you get only work outside your Rage.
   - Elf: While raging you can't cast spells or keep Concentration — spells you get only work outside your Rage. · You have no spell slots, so granted spells can only be cast with their free uses.
@@ -226,51 +229,59 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Class features L1–4: Bardic Inspiration [Bonus Action], Spellcasting, Expertise, Jack of All Trades, Bard Subclass, Ability Score Improvement
 - Spellcasting at L4: CHA, 3 cantrips, 7 prepared (level ≤ 2), slots 4×L1, 3×L2
 - Uses: Bardic Inspiration 3×d6/Long Rest
-- Choose (level 1–4): skills / class options at creation; Choose 3 more cantrip(s) from the Bard list; Prepare 7 more spell(s) (level 2 or lower)
+- Choose:
+  - At creation: 3 skills (any); 3 musical instruments
+  - Level 2: Expertise in 2 skills
+  - Level 3: your subclass
+  - Level 4: Ability Score Improvement or a feat
 - Swap: One prepared spell (when you gain a level); One cantrip (when you gain a level)
 
 #### College of Lore
 
 - Features (L3): Bonus Proficiencies, Cutting Words [Reaction]
-- Actions (no spells): Bonus Action: Bardic Inspiration · Reaction: Cutting Words · No action: Resourceful
+- Choose: Bonus Proficiencies (L3): 3 skills — any skill
+- Actions (no spells): Bonus Action: Bardic Inspiration · Reaction: Cutting Words
 
 #### College of Dance
 
 - Features (L3): Dazzling Footwork, Agile Strikes [Bonus Action]
-- Actions (no spells): Bonus Action: Bardic Inspiration, Agile Strikes · No action: Resourceful
+- Actions (no spells): Bonus Action: Bardic Inspiration, Agile Strikes
 
 #### College of Glamour
 
 - Features (L3): Beguiling Magic [No action], Mantle of Inspiration [Bonus Action]
 - Spells: Charm Person (L1, always prepared); Mirror Image (L2, always prepared)
 - Uses: Beguiling Magic 1/Long Rest
-- Actions (no spells): Bonus Action: Bardic Inspiration, Mantle of Inspiration · No action: Beguiling Magic, Resourceful
+- Actions (no spells): Bonus Action: Bardic Inspiration, Mantle of Inspiration · No action: Beguiling Magic
 
 #### College of Valor
 
 - Features (L3): Combat Inspiration, Martial Training
-- Actions (no spells): Bonus Action: Bardic Inspiration · No action: Resourceful
+- Actions (no spells): Bonus Action: Bardic Inspiration
 
 ### Cleric (d8)
 
 - Class features L1–4: Divine Order, Spellcasting, Channel Divinity, Divine Spark [Action], Turn Undead [Action], Cleric Subclass, Ability Score Improvement
 - Spellcasting at L4: WIS, 4 cantrips, 7 prepared (level ≤ 2), slots 4×L1, 3×L2
 - Uses: Channel Divinity 2/1 per Short Rest, all on a Long Rest
-- Choose (level 1–4): skills / class options at creation; Choose 4 more cantrip(s) from the Cleric list; Prepare 7 more spell(s) (level 2 or lower)
+- Choose:
+  - At creation: 2 skills (History, Insight, Medicine, Persuasion, Religion); Divine Order (Protector or Thaumaturge)
+  - Level 3: your subclass
+  - Level 4: Ability Score Improvement or a feat
 - Swap: Your whole list of prepared spells (on a Long Rest); One cantrip (when you gain a level)
 
 #### Life Domain
 
 - Features (L3): Disciple of Life, Preserve Life [Action], Life Domain Spells
 - Spells: Aid (L2, always prepared); Bless (L1, always prepared); Cure Wounds (L1, always prepared); Lesser Restoration (L2, always prepared)
-- Actions (no spells): Action: Divine Spark, Turn Undead, Preserve Life · No action: Resourceful
+- Actions (no spells): Action: Divine Spark, Turn Undead, Preserve Life
 
 #### Light Domain
 
 - Features (L3): Radiance of the Dawn [Action], Warding Flare [Reaction], Light Domain Spells
 - Spells: Burning Hands (L1, always prepared); Faerie Fire (L1, always prepared); Scorching Ray (L2, always prepared); See Invisibility (L2, always prepared)
 - Uses: Warding Flare 3/Long Rest
-- Actions (no spells): Action: Divine Spark, Turn Undead, Radiance of the Dawn · Reaction: Warding Flare · No action: Resourceful
+- Actions (no spells): Action: Divine Spark, Turn Undead, Radiance of the Dawn · Reaction: Warding Flare
 - Combination notes:
   - Elf: Drow: Faerie Fire comes from Light Domain and Elf (Drow) — you only need it once; free casts from each source still apply.
 
@@ -278,28 +289,32 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Blessing of the Trickster [Action], Invoke Duplicity [Bonus Action], Trickery Domain Spells
 - Spells: Charm Person (L1, always prepared); Disguise Self (L1, always prepared); Invisibility (L2, always prepared); Pass Without Trace (L2, always prepared)
-- Actions (no spells): Action: Divine Spark, Turn Undead, Blessing of the Trickster · Bonus Action: Invoke Duplicity · No action: Resourceful
+- Actions (no spells): Action: Divine Spark, Turn Undead, Blessing of the Trickster · Bonus Action: Invoke Duplicity
 
 #### War Domain
 
 - Features (L3): Guided Strike [No action], War Priest [Bonus Action], War Domain Spells
 - Spells: Guiding Bolt (L1, always prepared); Magic Weapon (L2, always prepared); Shield of Faith (L1, always prepared); Spiritual Weapon (L2, always prepared)
 - Uses: War Priest 3/Short or Long Rest
-- Actions (no spells): Action: Divine Spark, Turn Undead · Bonus Action: War Priest · No action: Guided Strike, Resourceful
+- Actions (no spells): Action: Divine Spark, Turn Undead · Bonus Action: War Priest · No action: Guided Strike
 
 ### Druid (d8)
 
 - Class features L1–4: Druidic, Primal Order, Spellcasting, Wild Shape [Bonus Action], Wild Companion [Action], Druid Subclass, Ability Score Improvement
 - Spellcasting at L4: WIS, 3 cantrips, 7 prepared (level ≤ 2), slots 4×L1, 3×L2
 - Uses: Wild Shape 2/1 per Short Rest, all on a Long Rest
-- Choose (level 1–4): skills / class options at creation; Choose 3 more cantrip(s) from the Druid list; Prepare 7 more spell(s) (level 2 or lower); Choose 6 more Wild Shape form(s) (6 known at level 4)
-- Swap: Your whole list of prepared spells (on a Long Rest); One known Wild Shape form (on a Long Rest); Land type for your Circle Spells (on a Long Rest); One cantrip (when you gain a level)
+- Choose:
+  - At creation: 2 skills (Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, Survival); Primal Order (Magician or Warden)
+  - Level 2: 4 Wild Shape forms
+  - Level 3: your subclass
+  - Level 4: +2 Wild Shape forms (6 total); Ability Score Improvement or a feat
+- Swap: Your whole list of prepared spells (on a Long Rest); One known Wild Shape form (on a Long Rest); One cantrip (when you gain a level)
 
 #### Circle of the Land
 
 - Features (L3): Circle of the Land Spells, Land's Aid [Action]
 - Spells: Blur (L2, always prepared); Burning Hands (L1, always prepared); Fire Bolt (C, cantrip) — Arid shown; Polar/Temperate/Tropical on other Long Rests
-- Actions (no spells): Action: Wild Companion, Land's Aid · Bonus Action: Wild Shape · No action: Resourceful
+- Actions (no spells): Action: Wild Companion, Land's Aid · Bonus Action: Wild Shape
 - Swap: Land type for your Circle Spells (on a Long Rest)
 - Good to know: In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
 - Combination notes:
@@ -310,7 +325,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Circle Forms, Circle of the Moon Spells
 - Spells: Cure Wounds (L1, always prepared); Moonbeam (L2, always prepared); Starry Wisp (C, cantrip)
-- Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape · No action: Resourceful
+- Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape
 - Good to know: In Wild Shape you can cast only your Circle of the Moon spells.
 - Combination notes:
   - Gnome: Forest Gnome: Speak with Animals comes from Druid and Gnome (Forest Gnome) — you only need it once; free casts from each source still apply.
@@ -319,7 +334,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Circle of the Sea Spells, Wrath of the Sea [Bonus Action]
 - Spells: Fog Cloud (L1, always prepared); Gust of Wind (L2, always prepared); Ray of Frost (C, cantrip); Shatter (L2, always prepared); Thunderwave (L1, always prepared)
-- Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape, Wrath of the Sea · No action: Resourceful
+- Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape, Wrath of the Sea
 - Good to know: In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
 - Combination notes:
   - Gnome: Forest Gnome: Speak with Animals comes from Druid and Gnome (Forest Gnome) — you only need it once; free casts from each source still apply.
@@ -329,7 +344,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Features (L3): Star Map, Starry Form [Bonus Action]
 - Spells: Guidance (C, cantrip); Guiding Bolt (L1, 3×/Long Rest free + slots)
 - Uses: Guiding Bolt 3/Long Rest
-- Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape, Starry Form · No action: Resourceful
+- Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape, Starry Form
 - Swap: Starry Form constellation (each time you use it)
 - Good to know: In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
 - Combination notes:
@@ -339,13 +354,16 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Class features L1–4: Fighting Style, Second Wind [Bonus Action], Weapon Mastery, Action Surge [No action], Tactical Mind [No action], Fighter Subclass, Ability Score Improvement
 - Uses: Second Wind 3/1 per Short Rest, all on a Long Rest; Action Surge 1/Short or Long Rest
-- Choose (level 1–4): skills / class options at creation; Choose 4 more Weapon Mastery weapon(s) (4 known at level 4)
+- Choose:
+  - At creation: 2 skills (Acrobatics, Animal Handling, Athletics, History, Insight, Intimidation, Persuasion, Perception, Survival); a Fighting Style feat; 3 Weapon Mastery weapons
+  - Level 3: your subclass
+  - Level 4: +1 Weapon Mastery weapon (4 total); Ability Score Improvement or a feat
 - Swap: One Weapon Mastery choice (on a Long Rest); Your Fighting Style feat (when you gain a level)
 
 #### Champion
 
 - Features (L3): Improved Critical, Remarkable Athlete
-- Actions (no spells): Bonus Action: Second Wind · No action: Action Surge, Tactical Mind, Resourceful
+- Actions (no spells): Bonus Action: Second Wind · No action: Action Surge, Tactical Mind
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -354,8 +372,9 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Battle Master
 
 - Features (L3): Combat Superiority, Student of War
+- Choose: Student of War (L3): 1 skill — the Fighter list. Also choose one type of Artisan's Tools — record it with your DM.
 - Uses: Superiority Dice 4×d8/Short or Long Rest
-- Actions (no spells): Bonus Action: Second Wind · No action: Action Surge, Tactical Mind, Resourceful
+- Actions (no spells): Bonus Action: Second Wind · No action: Action Surge, Tactical Mind
 - Swap: One maneuver (only when you learn new ones: levels 7, 10, 15) (when you gain a level)
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -365,14 +384,14 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Eldritch Knight
 
 - Features (L3): Spellcasting, War Bond [Bonus Action]
-- Actions (no spells): Bonus Action: Second Wind, War Bond · No action: Action Surge, Tactical Mind, Resourceful
+- Actions (no spells): Bonus Action: Second Wind, War Bond · No action: Action Surge, Tactical Mind
 - Swap: One prepared spell (when you gain a level); One cantrip (an Arcane Trickster keeps Mage Hand) (when you gain a level)
 
 #### Psi Warrior
 
 - Features (L3): Psionic Power, Protective Field [Reaction], Psionic Strike [On a hit / Attack action], Telekinetic Movement [Action]
 - Uses: Psionic Energy Dice 4×d6/1 per Short Rest, all on a Long Rest; Telekinetic Movement 1/Short or Long Rest
-- Actions (no spells): Action: Telekinetic Movement · Bonus Action: Second Wind · Reaction: Protective Field · On a hit / Attack action: Psionic Strike · No action: Action Surge, Tactical Mind, Resourceful
+- Actions (no spells): Action: Telekinetic Movement · Bonus Action: Second Wind · Reaction: Protective Field · On a hit / Attack action: Psionic Strike · No action: Action Surge, Tactical Mind
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -382,12 +401,15 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Class features L1–4: Martial Arts [Bonus Action], Unarmored Defense, Monk's Focus, Flurry of Blows [Bonus Action], Patient Defense [Bonus Action], Step of the Wind [Bonus Action], Unarmored Movement, Uncanny Metabolism [No action], Deflect Attacks [Reaction], Monk Subclass, Ability Score Improvement, Slow Fall [Reaction]
 - Uses: Focus Points 4/Short or Long Rest; Uncanny Metabolism 1/Long Rest
-- Choose (level 1–4): skills / class options at creation
+- Choose:
+  - At creation: 2 skills (Acrobatics, Athletics, History, Insight, Religion, Stealth); one type of Artisan's Tools or a musical instrument
+  - Level 3: your subclass
+  - Level 4: Ability Score Improvement or a feat
 
 #### Warrior of the Open Hand
 
 - Features (L3): Open Hand Technique [On a hit / Attack action]
-- Actions (no spells): Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · On a hit / Attack action: Open Hand Technique · No action: Uncanny Metabolism, Resourceful
+- Actions (no spells): Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · On a hit / Attack action: Open Hand Technique · No action: Uncanny Metabolism
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -396,7 +418,8 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Warrior of Mercy
 
 - Features (L3): Hand of Harm [On a hit / Attack action], Hand of Healing [Action], Implements of Mercy
-- Actions (no spells): Action: Hand of Healing · Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · On a hit / Attack action: Hand of Harm · No action: Uncanny Metabolism, Resourceful
+- Choose: Implements of Mercy (L3): proficiency in Insight and Medicine
+- Actions (no spells): Action: Hand of Healing · Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · On a hit / Attack action: Hand of Harm · No action: Uncanny Metabolism
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -406,7 +429,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Shadow Arts
 - Spells: Minor Illusion (C, cantrip); Darkness (L2, 1 Focus Point)
-- Actions (no spells): Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · No action: Uncanny Metabolism, Resourceful
+- Actions (no spells): Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · No action: Uncanny Metabolism
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: Minor Illusion comes from Warrior of Shadow and Gnome (Forest Gnome) — you only need it once; consider replacing the duplicate cantrip. · Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -416,7 +439,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Elemental Attunement [No action], Manipulate Elements
 - Spells: Elementalism (C, cantrip)
-- Actions (no spells): Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · No action: Uncanny Metabolism, Elemental Attunement, Resourceful
+- Actions (no spells): Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · No action: Uncanny Metabolism, Elemental Attunement
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -426,21 +449,25 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Class features L1–4: Lay on Hands [Bonus Action], Spellcasting, Weapon Mastery, Fighting Style, Paladin's Smite, Channel Divinity, Divine Sense [Bonus Action], Paladin Subclass, Ability Score Improvement
 - Spellcasting at L4: CHA, 0 cantrips, 5 prepared (level ≤ 1), slots 3×L1
-- Uses: Lay on Hands 20/Long Rest; Paladin's Smite 1/Long Rest; Channel Divinity 2/1 per Short Rest, all on a Long Rest
-- Choose (level 1–4): skills / class options at creation; Prepare 5 more spell(s) (level 1 or lower); Choose 2 more Weapon Mastery weapon(s) (2 known at level 4)
+- Uses: Lay on Hands 20×points/Long Rest; Paladin's Smite 1/Long Rest; Channel Divinity 2/1 per Short Rest, all on a Long Rest
+- Choose:
+  - At creation: 2 skills (Athletics, Insight, Intimidation, Medicine, Persuasion, Religion); 2 Weapon Mastery weapons
+  - Level 2: a Fighting Style feat or Blessed Warrior (2 Cleric cantrips)
+  - Level 3: your subclass
+  - Level 4: Ability Score Improvement or a feat
 - Swap: One prepared spell (on a Long Rest); Your Weapon Mastery choices (on a Long Rest)
 
 #### Oath of Devotion
 
 - Features (L3): Sacred Weapon [On a hit / Attack action], Oath of Devotion Spells
 - Spells: Protection from Evil and Good (L1, always prepared); Shield of Faith (L1, always prepared)
-- Actions (no spells): Bonus Action: Lay on Hands, Divine Sense · On a hit / Attack action: Sacred Weapon · No action: Resourceful
+- Actions (no spells): Bonus Action: Lay on Hands, Divine Sense · On a hit / Attack action: Sacred Weapon
 
 #### Oath of the Ancients
 
 - Features (L3): Nature's Wrath [Action], Oath of the Ancients Spells
 - Spells: Ensnaring Strike (L1, always prepared); Speak with Animals (L1, always prepared)
-- Actions (no spells): Action: Nature's Wrath · Bonus Action: Lay on Hands, Divine Sense · No action: Resourceful
+- Actions (no spells): Action: Nature's Wrath · Bonus Action: Lay on Hands, Divine Sense
 - Combination notes:
   - Gnome: Forest Gnome: Speak with Animals comes from Oath of the Ancients and Gnome (Forest Gnome) — you only need it once; free casts from each source still apply.
 
@@ -448,57 +475,65 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Inspiring Smite [No action], Peerless Athlete [Bonus Action], Oath of Glory Spells
 - Spells: Guiding Bolt (L1, always prepared); Heroism (L1, always prepared)
-- Actions (no spells): Bonus Action: Lay on Hands, Divine Sense, Peerless Athlete · No action: Inspiring Smite, Resourceful
+- Actions (no spells): Bonus Action: Lay on Hands, Divine Sense, Peerless Athlete · No action: Inspiring Smite
 
 #### Oath of Vengeance
 
 - Features (L3): Vow of Enmity [On a hit / Attack action], Oath of Vengeance Spells
 - Spells: Bane (L1, always prepared); Hunter's Mark (L1, always prepared)
-- Actions (no spells): Bonus Action: Lay on Hands, Divine Sense · On a hit / Attack action: Vow of Enmity · No action: Resourceful
+- Actions (no spells): Bonus Action: Lay on Hands, Divine Sense · On a hit / Attack action: Vow of Enmity
 
 ### Ranger (d10)
 
 - Class features L1–4: Favored Enemy, Spellcasting, Weapon Mastery, Deft Explorer, Fighting Style, Ranger Subclass, Ability Score Improvement
 - Spellcasting at L4: WIS, 0 cantrips, 5 prepared (level ≤ 1), slots 3×L1
 - Uses: Favored Enemy 2/Long Rest
-- Choose (level 1–4): skills / class options at creation; Prepare 5 more spell(s) (level 1 or lower); Choose 2 more Weapon Mastery weapon(s) (2 known at level 4)
-- Swap: One prepared spell (on a Long Rest); Your Weapon Mastery choices (on a Long Rest); Hunter's Prey option (on a Short Rest)
+- Choose:
+  - At creation: 3 skills (Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, Survival); 2 Weapon Mastery weapons
+  - Level 2: Expertise in 1 skill; a Fighting Style feat or Druidic Warrior (2 Druid cantrips); 2 languages (Deft Explorer)
+  - Level 3: your subclass
+  - Level 4: Ability Score Improvement or a feat
+- Swap: One prepared spell (on a Long Rest); Your Weapon Mastery choices (on a Long Rest)
 
 #### Hunter
 
 - Features (L3): Hunter's Lore, Hunter's Prey [On a hit / Attack action]
-- Actions (no spells): On a hit / Attack action: Hunter's Prey · No action: Resourceful
-- Swap: Hunter's Prey option (on a Short Rest)
+- Actions (no spells): On a hit / Attack action: Hunter's Prey
+- Swap: Hunter's Prey option (on a Short or Long Rest)
 
 #### Beast Master
 
 - Features (L3): Primal Companion [Bonus Action]
-- Actions (no spells): Bonus Action: Primal Companion · No action: Resourceful
+- Actions (no spells): Bonus Action: Primal Companion
 - Swap: Your Primal Companion (stat block) (on a Long Rest)
 
 #### Fey Wanderer
 
 - Features (L3): Dreadful Strikes [On a hit / Attack action], Otherworldly Glamour, Fey Wanderer Spells
+- Choose: Otherworldly Glamour (L3): 1 skill — Deception, Performance, Persuasion
 - Spells: Charm Person (L1, always prepared)
-- Actions (no spells): On a hit / Attack action: Dreadful Strikes · No action: Resourceful
+- Actions (no spells): On a hit / Attack action: Dreadful Strikes
 
 #### Gloom Stalker
 
 - Features (L3): Dread Ambusher [On a hit / Attack action], Umbral Sight, Gloom Stalker Spells
 - Spells: Disguise Self (L1, always prepared)
 - Uses: Dreadful Strike 1/Long Rest
-- Actions (no spells): On a hit / Attack action: Dread Ambusher · No action: Resourceful
+- Actions (no spells): On a hit / Attack action: Dread Ambusher
 
 ### Rogue (d8)
 
 - Class features L1–4: Expertise, Sneak Attack [On a hit / Attack action], Thieves' Cant, Weapon Mastery, Cunning Action [Bonus Action], Steady Aim [Bonus Action], Rogue Subclass, Ability Score Improvement
-- Choose (level 1–4): skills / class options at creation; Choose 2 more Weapon Mastery weapon(s) (2 known at level 4)
+- Choose:
+  - At creation: 4 skills (Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Persuasion, Sleight of Hand, Stealth); Expertise in 2 skills, 1 language besides Thieves' Cant; 2 Weapon Mastery weapons
+  - Level 3: your subclass
+  - Level 4: Ability Score Improvement or a feat
 - Swap: Your Weapon Mastery choices (on a Long Rest)
 
 #### Thief
 
 - Features (L3): Fast Hands [Bonus Action], Second-Story Work
-- Actions (no spells): Bonus Action: Cunning Action, Steady Aim, Fast Hands · On a hit / Attack action: Sneak Attack · No action: Resourceful
+- Actions (no spells): Bonus Action: Cunning Action, Steady Aim, Fast Hands · On a hit / Attack action: Sneak Attack
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -507,7 +542,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Assassin
 
 - Features (L3): Assassinate [On a hit / Attack action], Assassin's Tools
-- Actions (no spells): Bonus Action: Cunning Action, Steady Aim · On a hit / Attack action: Sneak Attack, Assassinate · No action: Resourceful
+- Actions (no spells): Bonus Action: Cunning Action, Steady Aim · On a hit / Attack action: Sneak Attack, Assassinate
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -516,14 +551,14 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Arcane Trickster
 
 - Features (L3): Spellcasting, Mage Hand Legerdemain [Bonus Action]
-- Actions (no spells): Bonus Action: Cunning Action, Steady Aim, Mage Hand Legerdemain · On a hit / Attack action: Sneak Attack · No action: Resourceful
+- Actions (no spells): Bonus Action: Cunning Action, Steady Aim, Mage Hand Legerdemain · On a hit / Attack action: Sneak Attack
 - Swap: One prepared spell (when you gain a level); One cantrip (an Arcane Trickster keeps Mage Hand) (when you gain a level)
 
 #### Soulknife
 
 - Features (L3): Psionic Power [No action], Psychic Blades [On a hit / Attack action]
 - Uses: Psionic Energy Dice 4×d6/1 per Short Rest, all on a Long Rest
-- Actions (no spells): Bonus Action: Cunning Action, Steady Aim · On a hit / Attack action: Sneak Attack, Psychic Blades · No action: Psionic Power, Resourceful
+- Actions (no spells): Bonus Action: Cunning Action, Steady Aim · On a hit / Attack action: Sneak Attack, Psychic Blades · No action: Psionic Power
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
@@ -534,54 +569,62 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Class features L1–4: Innate Sorcery [Bonus Action], Spellcasting, Font of Magic [Bonus Action], Metamagic, Sorcerer Subclass, Ability Score Improvement
 - Spellcasting at L4: CHA, 5 cantrips, 7 prepared (level ≤ 2), slots 4×L1, 3×L2
 - Uses: Innate Sorcery 2/Long Rest; Sorcery Points 4/Long Rest
-- Choose (level 1–4): skills / class options at creation; Choose 5 more cantrip(s) from the Sorcerer list; Prepare 7 more spell(s) (level 2 or lower); Choose 2 more Metamagic option(s) (2 known at level 4)
+- Choose:
+  - At creation: 2 skills (Arcana, Deception, Insight, Intimidation, Persuasion, Religion)
+  - Level 2: 2 Metamagic options
+  - Level 3: your subclass
+  - Level 4: Ability Score Improvement or a feat
 - Swap: One prepared spell (when you gain a level); One cantrip (when you gain a level); One Metamagic option (when you gain a level)
 
 #### Wild Magic Sorcery
 
 - Features (L3): Wild Magic Surge, Tides of Chaos [No action]
 - Uses: Tides of Chaos 1/Long Rest
-- Actions (no spells): Bonus Action: Innate Sorcery, Font of Magic · No action: Tides of Chaos, Resourceful
+- Actions (no spells): Bonus Action: Innate Sorcery, Font of Magic · No action: Tides of Chaos
 
 #### Draconic Sorcery
 
 - Features (L3): Draconic Resilience, Draconic Spells
 - Spells: Alter Self (L2, always prepared); Chromatic Orb (L1, always prepared); Command (L1, always prepared); Dragon's Breath (L2, always prepared)
-- Actions (no spells): Bonus Action: Innate Sorcery, Font of Magic · No action: Resourceful
+- Actions (no spells): Bonus Action: Innate Sorcery, Font of Magic
 
 #### Clockwork Sorcery
 
 - Features (L3): Clockwork Spells, Restore Balance [Reaction]
 - Spells: Aid (L2, always prepared); Alarm (L1, always prepared); Lesser Restoration (L2, always prepared); Protection from Evil and Good (L1, always prepared)
 - Uses: Restore Balance 3/Long Rest
-- Actions (no spells): Bonus Action: Innate Sorcery, Font of Magic · Reaction: Restore Balance · No action: Resourceful
+- Actions (no spells): Bonus Action: Innate Sorcery, Font of Magic · Reaction: Restore Balance
 
 #### Aberrant Sorcery
 
 - Features (L3): Psionic Spells, Telepathic Speech [Bonus Action]
 - Spells: Arms of Hadar (L1, always prepared); Calm Emotions (L2, always prepared); Detect Thoughts (L2, always prepared); Dissonant Whispers (L1, always prepared); Mind Sliver (C, cantrip)
-- Actions (no spells): Bonus Action: Innate Sorcery, Font of Magic, Telepathic Speech · No action: Resourceful
+- Actions (no spells): Bonus Action: Innate Sorcery, Font of Magic, Telepathic Speech
 
 ### Warlock (d8)
 
 - Class features L1–4: Eldritch Invocations, Pact Magic, Magical Cunning, Warlock Subclass, Ability Score Improvement
 - Spellcasting at L4: CHA, 3 cantrips, 5 prepared (level ≤ 2), 2 Pact slots of level 2 (Short Rest)
 - Uses: Magical Cunning 1/Long Rest
-- Choose (level 1–4): skills / class options at creation; Choose 3 more cantrip(s) from the Warlock list; Prepare 5 more spell(s) (level 2 or lower); Choose 3 more Eldritch Invocation(s) (3 known at level 4)
+- Choose:
+  - At creation: 2 skills (Arcana, Deception, History, Intimidation, Investigation, Nature, Religion); 1 Eldritch Invocation
+  - Level 2: +2 Eldritch Invocations (3 total)
+  - Level 3: your subclass
+  - Level 4: Ability Score Improvement or a feat
 - Swap: One prepared spell (when you gain a level); One cantrip (when you gain a level); One Eldritch Invocation (when you gain a level)
 
 #### Fiend Patron
 
 - Features (L3): Dark One's Blessing, Fiend Spells
 - Spells: Burning Hands (L1, always prepared); Command (L1, always prepared); Scorching Ray (L2, always prepared); Suggestion (L2, always prepared)
-- Actions (no spells): No action: Resourceful
+- Actions (no spells): 
 
 #### Archfey Patron
 
 - Features (L3): Archfey Spells, Steps of the Fey [Bonus Action]
 - Spells: Calm Emotions (L2, always prepared); Faerie Fire (L1, always prepared); Misty Step (L2, 3×/Long Rest free + slots); Phantasmal Force (L2, always prepared); Sleep (L1, always prepared)
 - Uses: Misty Step 3/Long Rest
-- Actions (no spells): Bonus Action: Steps of the Fey · No action: Resourceful
+- Actions (no spells): Bonus Action: Steps of the Fey
 - Swap: Refreshing or Taunting Step (each time you use it)
 - Combination notes:
   - Elf: Drow: Faerie Fire comes from Archfey Patron and Elf (Drow) — you only need it once; free casts from each source still apply.
@@ -590,8 +633,8 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Celestial Spells, Healing Light [Bonus Action]
 - Spells: Aid (L2, always prepared); Cure Wounds (L1, always prepared); Guiding Bolt (L1, always prepared); Lesser Restoration (L2, always prepared); Light (C, cantrip); Sacred Flame (C, cantrip)
-- Uses: Healing Light 5/Long Rest
-- Actions (no spells): Bonus Action: Healing Light · No action: Resourceful
+- Uses: Healing Light 5×d6/Long Rest
+- Actions (no spells): Bonus Action: Healing Light
 - Combination notes:
   - Aasimar: Light comes from Celestial Patron and Aasimar — you only need it once; consider replacing the duplicate cantrip.
 
@@ -599,36 +642,40 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Awakened Mind [Bonus Action], Psychic Spells, Great Old One Spells
 - Spells: Detect Thoughts (L2, always prepared); Dissonant Whispers (L1, always prepared); Phantasmal Force (L2, always prepared); Tasha's Hideous Laughter (L1, always prepared)
-- Actions (no spells): Bonus Action: Awakened Mind · No action: Resourceful
+- Actions (no spells): Bonus Action: Awakened Mind
 
 ### Wizard (d6)
 
 - Class features L1–4: Spellcasting, Ritual Adept, Arcane Recovery, Scholar, Wizard Subclass, Ability Score Improvement
 - Spellcasting at L4: INT, 4 cantrips, 7 prepared (level ≤ 2), slots 4×L1, 3×L2
 - Uses: Arcane Recovery 1/Long Rest
-- Choose (level 1–4): skills / class options at creation; Choose 4 more cantrip(s) from the Wizard list; Prepare 7 more spell(s) (level 2 or lower)
+- Choose:
+  - At creation: 2 skills (Arcana, History, Insight, Investigation, Medicine, Nature, Religion); 6 level 1 Wizard spells for your spellbook
+  - Level 2: Scholar: Expertise in Arcana, History, Investigation, Medicine, Nature or Religion
+  - Level 3: your subclass
+  - Level 4: Ability Score Improvement or a feat
 - Swap: Your whole list of prepared spells (from your spellbook) (on a Long Rest); One cantrip (on a Long Rest)
 
 #### Evoker
 
 - Features (L3): Evocation Savant, Potent Cantrip
-- Actions (no spells): No action: Resourceful
+- Actions (no spells): 
 
 #### Abjurer
 
 - Features (L3): Abjuration Savant, Arcane Ward [Bonus Action]
 - Uses: Arcane Ward 1/Long Rest
-- Actions (no spells): Bonus Action: Arcane Ward · No action: Resourceful
+- Actions (no spells): Bonus Action: Arcane Ward
 
 #### Diviner
 
 - Features (L3): Divination Savant, Portent [No action]
-- Uses: Portent 2/Long Rest
-- Actions (no spells): No action: Portent, Resourceful
+- Uses: Portent 2×d20 rolls/Long Rest
+- Actions (no spells): No action: Portent
 
 #### Illusionist
 
 - Features (L3): Illusion Savant, Improved Illusions [Bonus Action]
 - Spells: Minor Illusion (C, cantrip)
-- Actions (no spells): Bonus Action: Improved Illusions · No action: Resourceful
+- Actions (no spells): Bonus Action: Improved Illusions
 

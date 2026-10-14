@@ -413,7 +413,7 @@ const DATA = {
     rogue: {
         hitDie: 8,
         savingThrows: ["dex", "int"],
-        skillOptions: ["acrobatics", "athletics", "deception", "insight", "intimidation", "investigation", "perception", "performance", "persuasion", "sleight of hand", "stealth"],
+        skillOptions: ["acrobatics", "athletics", "deception", "insight", "intimidation", "investigation", "perception", "persuasion", "sleight of hand", "stealth"],
         skillCount: 4,
 
         sneakAttack: {
@@ -739,6 +739,7 @@ const DATA = {
             feyWanderer: {
                 name: "Fey Wanderer",
                 level: 3,
+                choices: { 3: [{ id: 'skills', count: 1, options: ['deception', 'performance', 'persuasion'], featName: 'Otherworldly Glamour' }] },
                 spells: [
                     { name: "Charm Person", lvl: 3, kind: 'prepared' },
                     { name: "Misty Step", lvl: 5, kind: 'prepared' },
@@ -797,7 +798,7 @@ const DATA = {
     wizard: {
         hitDie: 6,
         savingThrows: ["int", "wis"],
-        skillOptions: ["arcana", "history", "insight", "investigation", "medicine", "religion"],
+        skillOptions: ["arcana", "history", "insight", "investigation", "medicine", "nature", "religion"],
         skillCount: 2,
         asiLevels: [4, 8, 12, 16, 19],
 
@@ -1359,7 +1360,7 @@ const DATA = {
     fighter: {
         hitDie: 10,
         savingThrows: ["str", "con"],
-        skillOptions: ["acrobatics", "animal handling", "athletics", "history", "insight", "intimidation", "perception", "survival"],
+        skillOptions: ["acrobatics", "animal handling", "athletics", "history", "insight", "intimidation", "persuasion", "perception", "survival"],
         skillCount: 2,
         asiLevels: [4, 6, 8, 12, 14, 16, 19],
 
@@ -1445,6 +1446,7 @@ const DATA = {
             battleMaster: {
                 name: "Battle Master",
                 level: 3,
+                choices: { 3: [{ id: 'skills', count: 1, options: 'class', featName: 'Student of War', note: 'Also choose one type of Artisan\'s Tools — record it with your DM.' }] },
                 features: {
                     3: [
                         { name: "Combat Superiority", desc: "You know three maneuvers (two more at levels 7, 10 and 15 — each time you can also swap one you know) and have four Superiority Dice (d8; 5 at level 7, 6 at 15), all regained on a Short or Long Rest. You can use one maneuver per attack. Maneuver save DC = 8 + your Strength or Dexterity modifier + Proficiency Bonus." },
@@ -1945,6 +1947,7 @@ const DATA = {
             lore: {
                 name: "College of Lore",
                 level: 3,
+                choices: { 3: [{ id: 'skills', count: 3, featName: 'Bonus Proficiencies' }] },
                 features: {
                     3: [
                         { name: "Bonus Proficiencies", desc: "You gain proficiency in three skills of your choice." },
@@ -2338,6 +2341,7 @@ const DATA = {
             mercy: {
                 name: "Warrior of Mercy",
                 level: 3,
+                choices: { 3: [{ id: 'skills', fixed: ['insight', 'medicine'], featName: 'Implements of Mercy' }] },
                 features: {
                     3: [
                         { name: "Hand of Harm", act: 'attack', desc: "Once per turn, when your Unarmed Strike hits a creature and deals damage, spend 1 Focus Point to add Necrotic damage equal to a roll of your Martial Arts die + your Wisdom modifier." },
@@ -2859,295 +2863,6 @@ const DATA = {
                 A: { items: ["Dagger (x2)", "Thieves' Tools", "Gaming Set (one of your choice)", "Pouch (x2)", "Traveler's Clothes"], gp: 16 },
                 B: { gp: 50 }
             }
-        }
-    },
-
-    // ===== TOOLTIPS =====
-    tooltips: {
-        halfElf: {
-            title: "Half-Elf (Legacy)",
-            desc: "LEGACY — Removed in the 2024 PHB. Choose Human or Elf for new characters.",
-            abilities: "+2 Charisma, +1 op twee andere ability scores naar keuze",
-            traits: "Darkvision 60ft, Fey Ancestry (advantage vs charm), Skill Versatility (2 extra skill proficiencies)",
-            languages: "Common, Elvish, +1 naar keuze",
-            speed: "30ft",
-            size: "Medium"
-        },
-        sorcerer: {
-            title: "Sorcerer",
-            desc: "Magic runs in your blood. You don't have to learn it — it's already there.",
-            hitDie: "d6",
-            primaryAbility: "Charisma",
-            savingThrows: "Constitution, Charisma",
-            armorProf: "Geen",
-            weaponProf: "Daggers, darts, slings, quarterstaffs, light crossbows",
-            spellcasting: "Bereid spells voor uit de volledige Sorcerer spell list. Aantal = CHA mod + level."
-        },
-        rogue: {
-            title: "Rogue",
-            desc: "A specialist in precision, stealth, and exploiting weak spots.",
-            hitDie: "d8",
-            primaryAbility: "Dexterity",
-            savingThrows: "Dexterity, Intelligence",
-            armorProf: "Light armor",
-            weaponProf: "Simple weapons, hand crossbows, longswords, rapiers, shortswords",
-            tools: "Thieves' tools"
-        },
-        wildMagic: {
-            title: "Wild Magic Origin",
-            desc: "Your magic flows from a chaotic source. Unpredictable but powerful — every spell carries a chance of a Wild Magic Surge.",
-            keyFeatures: "Wild Magic Surge, Tides of Chaos (lvl 3), Bend Luck (lvl 6), Controlled Chaos (lvl 14), Spell Bombardment (lvl 18)"
-        },
-        scout: {
-            title: "Scout Archetype (Legacy)",
-            desc: "LEGACY — Not in the 2024 PHB. 5.5e Rogue subclasses: Arcane Trickster, Assassin, Soulknife, Thief.",
-            keyFeatures: "Skirmisher, Survivalist (lvl 3), Superior Mobility (lvl 9), Ambush Master (lvl 13), Sudden Strike (lvl 17)"
-        },
-        urchin: {
-            title: "Urchin Background (Legacy)",
-            desc: "LEGACY — Not in the 2024 PHB. Consider Criminal or Wayfarer as an alternative.",
-            skillProf: "Sleight of Hand, Stealth",
-            toolProf: "Thieves' tools",
-            feature: "Lucky — Origin feat",
-            abilityScores: "+2/+1 verdeeld over DEX, CON, WIS"
-        },
-
-        // New race tooltips
-        human: {
-            title: "Human (2024)",
-            desc: "Versatile and ambitious. Humans adapt to any situation.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Resourceful (Heroic Inspiration op long rest), Skillful (1 extra skill proficiency), Versatile (origin feat naar keuze)",
-            languages: "Common, +1 naar keuze",
-            speed: "30ft",
-            size: "Medium"
-        },
-        halfling: {
-            title: "Halfling (2024)",
-            desc: "Klein maar dapper. Halflings zijn optimistisch en buitengewoon gelukkig.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Brave (advantage vs frightened), Halfling Nimbleness (door grotere creatures bewegen), Luck (herrol nat 1), Naturally Stealthy (verbergen achter grotere creatures)",
-            languages: "Common, Halfling",
-            speed: "30ft",
-            size: "Small"
-        },
-        tiefling: {
-            title: "Tiefling (2024)",
-            desc: "Descended from fiendish powers. Tieflings bear the marks of their heritage.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Darkvision 60ft, Fiendish Legacy (kies Abyssal/Chthonic/Infernal voor resistance + spells), Otherworldly Presence (Thaumaturgy cantrip)",
-            languages: "Common, +1 naar keuze",
-            speed: "30ft",
-            size: "Medium"
-        },
-        aasimar: {
-            title: "Aasimar (2024)",
-            desc: "Blessed with celestial power. Aasimar carry a divine spark in their soul.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Celestial Resistance (necrotic + radiant resistance), Darkvision 60ft, Healing Hands (heal = prof bonus, 1x/long rest), Light Bearer (Light cantrip), Celestial Revelation (lvl 3: Wings/Radiance/Shroud)",
-            languages: "Common, +1 naar keuze",
-            speed: "30ft",
-            size: "Medium"
-        },
-        woodElf: {
-            title: "Wood Elf (2024)",
-            desc: "Swift and unobtrusive. Wood Elves live in harmony with nature and move through the forest like shadows.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Darkvision 60ft, Fey Ancestry (advantage vs charmed, immuun magische slaap), Keen Senses (Perception proficiency), Trance (4 uur meditatie i.p.v. slaap), Elf Lineage: Wood Elf (speed 35ft, Longstrider lvl 3, Pass Without Trace lvl 5)",
-            languages: "Common, Elvish",
-            speed: "35ft",
-            size: "Medium"
-        },
-
-        // New class tooltips
-        ranger: {
-            title: "Ranger",
-            desc: "A warrior of the wilds who blends magic with martial skill and survival craft.",
-            hitDie: "d10",
-            primaryAbility: "Dexterity & Wisdom",
-            savingThrows: "Strength, Dexterity",
-            armorProf: "Light armor, medium armor, shields",
-            weaponProf: "Simple weapons, martial weapons",
-            spellcasting: "Half caster (WIS). Bereidt spells voor: WIS mod + half ranger level. Geen cantrips."
-        },
-        wizard: {
-            title: "Wizard",
-            desc: "Geleerde magiër die magie bestudeert vanuit boeken en eeuwenoude kennis.",
-            hitDie: "d6",
-            primaryAbility: "Intelligence",
-            savingThrows: "Intelligence, Wisdom",
-            armorProf: "Geen",
-            weaponProf: "Daggers, darts, slings, quarterstaffs, light crossbows",
-            spellcasting: "Full caster (INT). Bereidt spells voor uit spellbook: INT mod + wizard level."
-        },
-        paladin: {
-            title: "Paladin",
-            desc: "A holy warrior bound by an oath, combining divine magic with skill at arms.",
-            hitDie: "d10",
-            primaryAbility: "Strength & Charisma",
-            savingThrows: "Wisdom, Charisma",
-            armorProf: "Alle armor, shields",
-            weaponProf: "Simple weapons, martial weapons",
-            spellcasting: "Half caster (CHA). Bereidt spells voor: CHA mod + half paladin level. Divine Smite voor extra radiant damage."
-        },
-        druid: {
-            title: "Druid",
-            desc: "A guardian of nature who calls on the power of the elements and wild beasts.",
-            hitDie: "d8",
-            primaryAbility: "Wisdom",
-            savingThrows: "Intelligence, Wisdom",
-            armorProf: "Light armor, medium armor, shields (no metal)",
-            weaponProf: "Clubs, daggers, darts, javelins, maces, quarterstaffs, scimitars, sickles, slings, spears",
-            spellcasting: "Full caster (WIS). Bereidt spells voor: WIS mod + druid level. Wild Shape om in dieren te transformeren."
-        },
-        fighter: {
-            title: "Fighter",
-            desc: "A master of weapons and tactics. The most versatile martial class.",
-            hitDie: "d10",
-            primaryAbility: "Strength of Dexterity",
-            savingThrows: "Strength, Constitution",
-            armorProf: "Alle armor, shields",
-            weaponProf: "Simple weapons, martial weapons",
-            spellcasting: "Geen (tenzij Eldritch Knight subclass). Krijgt meer ASIs dan andere klassen (7 totaal)."
-        },
-        warlock: {
-            title: "Warlock",
-            desc: "A mage who draws power from a pact with an otherworldly being.",
-            hitDie: "d8",
-            primaryAbility: "Charisma",
-            savingThrows: "Wisdom, Charisma",
-            armorProf: "Light armor",
-            weaponProf: "Simple weapons",
-            spellcasting: "Pact Magic (CHA). Beperkte spell slots die herstellen na short rest. Alle slots zijn van hetzelfde level. Mystic Arcanum voor hogere spells."
-        },
-        barbarian: {
-            title: "Barbarian",
-            desc: "Woeste krijger die primitieve kracht en ontembare woede inzet.",
-            hitDie: "d12",
-            primaryAbility: "Strength",
-            savingThrows: "Strength, Constitution",
-            armorProf: "Light armor, medium armor, shields",
-            weaponProf: "Simple weapons, martial weapons",
-            spellcasting: "None. Rage grants bonus melee damage and resistance to B/P/S. Weapon Mastery (2 properties)."
-        },
-        bard: {
-            title: "Bard",
-            desc: "An artist-mage who wields music and words as magical power.",
-            hitDie: "d8",
-            primaryAbility: "Charisma",
-            savingThrows: "Dexterity, Charisma",
-            armorProf: "Light armor",
-            weaponProf: "Simple weapons, hand crossbows, longswords, rapiers, shortswords",
-            spellcasting: "Full caster (CHA). Bereidt spells voor: CHA mod + bard level. Bardic Inspiration voor allies."
-        },
-        cleric: {
-            title: "Cleric",
-            desc: "A divine caster in service of a higher power. Healer and protector.",
-            hitDie: "d8",
-            primaryAbility: "Wisdom",
-            savingThrows: "Wisdom, Charisma",
-            armorProf: "Light armor, medium armor, shields (+ heavy via Divine Order: Protector)",
-            weaponProf: "Simple weapons (+ martial via Divine Order: Protector)",
-            spellcasting: "Full caster (WIS). Bereidt spells voor: WIS mod + cleric level. Channel Divinity voor goddelijke effecten."
-        },
-        monk: {
-            title: "Monk",
-            desc: "A martial artist pursuing physical perfection, fueled by Focus Points.",
-            hitDie: "d8",
-            primaryAbility: "Dexterity & Wisdom",
-            savingThrows: "Strength, Dexterity",
-            armorProf: "Geen (Unarmored Defense: 10 + DEX + WIS)",
-            weaponProf: "Simple weapons, shortswords",
-            spellcasting: "Geen. Focus Points (voorheen Ki) voor Flurry of Blows, Patient Defense, Step of the Wind. Unarmed strikes schalen."
-        },
-
-        // Species tooltips for new races
-        dwarf: {
-            title: "Dwarf (2024)",
-            desc: "Tough and resilient. Dwarves are masters of stone and smithing.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Darkvision 120ft, Dwarven Resilience (poison resistance + advantage vs poisoned), Dwarven Toughness (+1 HP/level), Stonecunning (Tremorsense 60ft op steen)",
-            languages: "Common, Dwarvish",
-            speed: "30ft",
-            size: "Medium"
-        },
-        gnome: {
-            title: "Gnome (2024)",
-            desc: "Klein, slim en boordevol curiositeit. Gnomes zijn natuurlijke uitvinders.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Darkvision 60ft, Gnome Cunning (advantage INT/WIS/CHA saves vs magic), Gnome Lineage (Forest: Minor Illusion + Speak with Animals / Rock: Mending + Prestidigitation + Tinker)",
-            languages: "Common, Gnomish",
-            speed: "30ft",
-            size: "Small"
-        },
-        goliath: {
-            title: "Goliath (2024)",
-            desc: "Towering and unyielding. Goliaths descend from giants.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Giant Ancestry (kies Cloud/Fire/Frost/Hill/Stone/Storm), Large Form (lvl 5: word Large), Powerful Build (tel als Large voor carry/push/drag)",
-            languages: "Common, Giant",
-            speed: "35ft",
-            size: "Medium"
-        },
-        orc: {
-            title: "Orc (2024)",
-            desc: "Powerful and indomitable. Orcs thrive on adrenaline and survival.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Darkvision 120ft, Adrenaline Rush (Dash + temp HP als bonus action), Relentless Endurance (1 HP i.p.v. 0, 1x/long rest)",
-            languages: "Common, Orc",
-            speed: "30ft",
-            size: "Medium"
-        },
-        dragonborn: {
-            title: "Dragonborn (2024)",
-            desc: "Descended from dragons. Dragonborn carry the power of their ancestors.",
-            abilities: "+1 op drie ability scores naar keuze (via background), of +2/+1",
-            traits: "Draconic Ancestry (element choice + resistance), Breath Weapon (15ft cone or 30ft line, scaling), Draconic Flight (lvl 5: fly speed 10 min)",
-            languages: "Common, Draconic",
-            speed: "30ft",
-            size: "Medium"
-        },
-
-        // New background tooltips
-        guide: {
-            title: "Guide Background",
-            desc: "You've guided travelers through the wilderness all your life. You know nature's paths and perils.",
-            skillProf: "Stealth, Survival",
-            toolProf: "Cartographer's Tools",
-            feature: "Magic Initiate (Druid) — Leer 2 druid cantrips en 1 first-level druid spell.",
-            abilityScores: "+2/+1 verdeeld over DEX, WIS, CON"
-        },
-        sage: {
-            title: "Sage Background",
-            desc: "For years you've gathered knowledge from books and libraries. You're an expert in your field.",
-            skillProf: "Arcana, History",
-            toolProf: "Calligrapher's Supplies",
-            feature: "Magic Initiate (Wizard) — Leer 2 wizard cantrips en 1 first-level wizard spell.",
-            abilityScores: "+2/+1 verdeeld over INT, WIS, CON"
-        },
-        soldier: {
-            title: "Soldier Background",
-            desc: "You served in an army or militia. You know the discipline of the battlefield.",
-            skillProf: "Athletics, Intimidation",
-            toolProf: "Gaming Set",
-            feature: "Savage Attacker — Once per turn, reroll melee weapon damage dice and use the higher result.",
-            abilityScores: "+2/+1 verdeeld over STR, DEX, CON"
-        },
-        acolyte: {
-            title: "Acolyte Background",
-            desc: "You've devoted your life to the service of a temple or religious order.",
-            skillProf: "Insight, Religion",
-            toolProf: "Calligrapher's Supplies",
-            feature: "Magic Initiate (Cleric) — Leer 2 cleric cantrips en 1 first-level cleric spell.",
-            abilityScores: "+2/+1 verdeeld over INT, WIS, CHA"
-        },
-        charlatan: {
-            title: "Charlatan Background",
-            desc: "False identities, cons, and deception are your specialty.",
-            skillProf: "Deception, Sleight of Hand",
-            toolProf: "Forgery Kit",
-            feature: "Skilled — Proficiency in 3 extra skills of tools naar keuze.",
-            abilityScores: "+2/+1 verdeeld over DEX, CON, CHA"
         }
     },
 
@@ -4005,6 +3720,9 @@ DATA.thirdCasterFixedCantrips = { arcaneTrickster: ['Mage Hand'] };
 // from DATA.choiceTotals (data-rules.js) with (total − known) semantics, and the
 // Ability Score Improvement / feat step comes from each class's asiLevels.
 // id → renderer in wg-levelup.js; unknown ids render an informational step.
+// { id: 'skills', count, options: [WG_SKILLS keys] | 'class' (class skill list) | absent (any),
+//   fixed: [keys] (granted without a choice), featName } — also allowed per subclass as
+// subclass.choices[level]; stored in config.defaultSkills, rolled back via levelChoices.
 DATA.levelUpChoices = {
     rogue:     { 3: [{ id: 'subclass' }] },
     paladin:   { 2: [{ id: 'fightingStyle' }], 3: [{ id: 'subclass' }] },
@@ -4017,7 +3735,7 @@ DATA.levelUpChoices = {
     bard:      { 2: [{ id: 'expertise', count: 2 }], 3: [{ id: 'subclass' }] },
     cleric:    { 3: [{ id: 'subclass' }] },
     monk:      { 3: [{ id: 'subclass' }] },
-    barbarian: { 3: [{ id: 'subclass' }] }
+    barbarian: { 3: [{ id: 'subclass' }, { id: 'skills', count: 1, options: 'class', featName: 'Primal Knowledge' }] }
 };
 
 // 2024 PHB Eldritch Invocations a Warlock can take at levels 1-4 (minLevel gates
