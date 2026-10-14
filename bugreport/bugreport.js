@@ -18,9 +18,14 @@
  *
  * Site colour contract (optional; defaults fall back to common token names):
  *   --br-bg --br-text --br-muted --br-border --br-accent --br-on-accent --br-danger --br-ok
+ *
+ * Hardening (2.2): page text and stored drafts are only ever set as textContent,
+ * the description is capped and stripped of invisible characters, a hidden
+ * honeypot field drops bot submissions, a per-device cooldown limits bursts, and
+ * showPlace() refuses routes that would leave the site (javascript:, other hosts).
  */
 
-export const VERSION = '2.1.0';
+export const VERSION = '2.2.0';
 
 const CSS = `
 :where(.br-fab,.br-hud,.br-overlay,.br-modal-wrap,.br-toast,.cv-btn,.cv-backdrop,.br-pulse){
@@ -103,6 +108,11 @@ body.br-selecting .br-fab { cursor: pointer !important; }
 }
 .br-submit:hover { filter: brightness(1.08); }
 .br-submit:disabled { opacity: .6; cursor: default; }
+.br-count { display: block; text-align: right; color: var(--_br-muted); font-size: .7rem; margin-top: .2rem; }
+.br-hp { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }
+.br-error { margin: 0 0 .7rem; padding: .5rem .65rem; border-radius: 8px; font-size: .8rem; overflow-wrap: anywhere;
+  color: var(--_br-danger); border: 1px solid var(--_br-danger); background: color-mix(in srgb, var(--_br-danger) 8%, transparent); }
+.br-error[hidden] { display: none; }
 .br-foot { margin-top: .9rem; display: flex; justify-content: flex-end; gap: .6rem; font-size: .75rem; color: var(--_br-muted); }
 .br-foot button { background: none; border: 0; padding: 0; color: var(--_br-accent); font: inherit; cursor: pointer; text-decoration: underline; }
 
@@ -122,6 +132,69 @@ const BUG_SVG = `<svg viewBox="0 0 24 24"><path d="M8 2l1.5 3M16 2l-1.5 3"/><pat
 const DEVICE_KEY = 'br_device_name';
 const HIGHLIGHT_KEY = 'br_highlight';
 const DRAFT_KEY = 'br_draft';
+const SENT_KEY = 'br_sent';
+const REVIEW_KEY = 'br_review_auth';
+
+const DESC_MAX = 1999;          // the hub rules accept < 2000 characters
+const DEVICE_MAX = 60;
+const COOLDOWN_MS = 15000;      // between two reports from one device
+const MAX_PER_HOUR = 20;
+const HOUR = 3600000;
+
+// Control, zero-width, bidi, variation-selector and tag characters (newline and tab survive).
+const INVISIBLE = /[\u{0}-\u{8}\u{B}\u{C}\u{E}-\u{1F}\u{7F}-\u{9F}\u{AD}\u{34F}\u{61C}\u{115F}\u{1160}\u{17B4}\u{17B5}\u{180B}-\u{180F}\u{200B}-\u{200F}\u{202A}-\u{202E}\u{2060}-\u{206F}\u{3164}\u{FE00}-\u{FE0F}\u{FEFF}\u{FFA0}\u{FFF0}-\u{FFFB}\u{1D173}-\u{1D17A}\u{E0000}-\u{E007F}\u{E0100}-\u{E01EF}]/gu;
+
+function cleanInput(value, max, multiline = false) {
+    let s = String(value == null ? '' : value);
+    if (typeof s.toWellFormed === 'function') s = s.toWellFormed();
+    s = s.normalize('NFC').replace(/\r\n?|[\u{2028}\u{2029}]/gu, '\n').replace(INVISIBLE, '');
+    s = (multiline ? s.replace(/\n{4,}/g, '\n\n\n') : s.replace(/\s+/g, ' ')).trim();
+    if (s.length > max) s = s.slice(0, max).replace(/[\uD800-\uDBFF]$/, '');
+    return s;
+}
+
+/** '#…' or a path on this site; null when the route would leave the site or run script. */
+function sameSiteRoute(route) {
+    const r = typeof route === 'string' ? route.trim() : '';
+    if (!r) return '';
+    if (r[0] === '#') return r;
+    try {
+        const u = new URL(r, location.href);
+        if (u.origin === location.origin && /^(https?|file):$/.test(u.protocol)) return u.pathname + u.search + u.hash;
+    } catch (e) { /* not a URL */ }
+    return null;
+}
+
+// Per-device send log for the cooldown; memory fallback when storage is blocked.
+let memSent = [];
+
+function readSent() {
+    let stored = [];
+    try { stored = JSON.parse(localStorage.getItem(SENT_KEY) || '[]'); } catch (e) { stored = []; }
+    const now = Date.now();
+    const all = (Array.isArray(stored) ? stored : []).concat(memSent);
+    return [...new Set(all)].filter(t => typeof t === 'number' && t <= now && now - t < HOUR).sort((a, b) => a - b);
+}
+
+function noteSent() {
+    const list = readSent().concat(Date.now()).slice(-MAX_PER_HOUR);
+    memSent = list;
+    try { localStorage.setItem(SENT_KEY, JSON.stringify(list)); } catch (e) { /* storage blocked: memory only */ }
+}
+
+/** Milliseconds this device still has to wait before the next report (0 = may send). */
+function sendWait() {
+    const sent = readSent();
+    if (!sent.length) return 0;
+    const now = Date.now();
+    let wait = sent[sent.length - 1] + COOLDOWN_MS - now;
+    if (sent.length >= MAX_PER_HOUR) wait = Math.max(wait, sent[sent.length - MAX_PER_HOUR] + HOUR - now);
+    return Math.max(0, wait);
+}
+
+function isSignedInReviewer() {
+    try { return !!localStorage.getItem(REVIEW_KEY); } catch (e) { return false; }
+}
 
 // ---------------------------------------------------------------- metadata
 
@@ -185,7 +258,10 @@ function detectTheme() {
 }
 
 function readDraft() {
-    try { const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); return d && d.text ? d : null; } catch (e) { return null; }
+    try {
+        const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+        return d && typeof d.text === 'string' && d.text ? d : null;
+    } catch (e) { return null; }
 }
 
 function writeDraft(draft) {
@@ -205,7 +281,7 @@ function draftAge(at) {
 }
 
 function readDeviceName() {
-    try { return localStorage.getItem(DEVICE_KEY) || ''; } catch (e) { return ''; }
+    try { return cleanInput(localStorage.getItem(DEVICE_KEY) || '', DEVICE_MAX); } catch (e) { return ''; }
 }
 
 // ---------------------------------------------------------------- reporter
@@ -278,9 +354,13 @@ export class BugReporter {
      * target = { route, selector, elementPath, elementText }. onNavigate(route) lets a
      * site with its own router take over; otherwise hash routes set location.hash and
      * other paths reload the page and pick the highlight up on load.
+     * The route comes from hub data, so anything that is not '#…' or a path on this
+     * site (javascript:, data:, another host) is refused.
      */
     showPlace(target, onNavigate) {
-        const route = target.route || '';
+        target = target || {};
+        const route = sameSiteRoute(target.route);
+        if (route === null) { this._toast('This change points outside this site, so it was not opened', 'error'); return; }
         const here = location.hash || (location.pathname + location.search);
         if (route && route !== here) {
             if (onNavigate) {
@@ -404,8 +484,10 @@ export class BugReporter {
             const range = this._hud.querySelector('.br-level');
             range.max = this._chain.length - 1;
             range.value = this._level;
-            this._hud.querySelector('.br-hud-text').innerHTML =
-                `<b>level ${this._level + 1}/${this._chain.length}</b> · ${this.esc(this._shortName(el))}`;
+            const label = this._hud.querySelector('.br-hud-text');
+            const lvl = document.createElement('b');
+            lvl.textContent = `level ${this._level + 1}/${this._chain.length}`;
+            label.replaceChildren(lvl, ' · ' + this._shortName(el));
             this._hud.style.display = 'flex';
             const hudH = this._hud.offsetHeight || 28;
             const top = rect.top - hudH - 6 >= 0 ? rect.top - hudH - 6 : Math.min(rect.bottom + 6, window.innerHeight - hudH - 4);
@@ -525,14 +607,16 @@ export class BugReporter {
     }
 
     _find(t) {
+        const str = (v) => (typeof v === 'string' ? v : '');
+        const selector = str(t.selector), path = str(t.elementPath), text = str(t.elementText).slice(0, 20);
         const tryQ = (q) => { try { return q ? document.querySelector(q) : null; } catch (e) { return null; } };
-        let el = tryQ(t.selector);
-        if (el && t.elementText && !(el.textContent || '').includes(t.elementText.slice(0, 20))) el = null;
-        if (!el && t.elementPath) {
-            const all = (() => { try { return [...document.querySelectorAll(t.elementPath)]; } catch (e) { return []; } })();
-            el = (t.elementText && all.find(n => (n.textContent || '').includes(t.elementText.slice(0, 20)))) || all[0] || null;
+        let el = tryQ(selector);
+        if (el && text && !(el.textContent || '').includes(text)) el = null;
+        if (!el && path) {
+            const all = (() => { try { return [...document.querySelectorAll(path)]; } catch (e) { return []; } })();
+            el = (text && all.find(n => (n.textContent || '').includes(text))) || all[0] || null;
         }
-        return el || tryQ(t.selector);
+        return el || tryQ(selector);
     }
 
     _resumeHighlight() {
@@ -555,6 +639,7 @@ export class BugReporter {
         const draft = readDraft();
         const wrap = document.createElement('div');
         wrap.className = 'br-modal-wrap';
+        // Static skeleton only; page text, drafts and labels are set as textContent below.
         wrap.innerHTML = `
             <div class="br-modal" role="dialog" aria-modal="true" aria-label="Send a report">
                 <div class="br-modal-header">
@@ -564,58 +649,99 @@ export class BugReporter {
                 <div class="br-modal-body">
                     <div class="br-field">
                         <label class="br-label">Element</label>
-                        <div class="br-info"><code class="br-info-element">${this.esc(info.descriptor)}</code></div>
-                        <div class="br-path"><small>${this.esc(info.path)}</small></div>
+                        <div class="br-info"><code class="br-info-element"></code></div>
+                        <div class="br-path"><small></small></div>
                         ${hasChain ? `<div class="br-level-row">
                             <small>smaller</small>
                             <input type="range" class="br-level" data-br="level" min="0" max="${this._chain.length - 1}" value="${this._level}">
                             <small>bigger</small>
-                            <small class="br-level-label">level ${this._level + 1}/${this._chain.length}</small>
+                            <small class="br-level-label"></small>
                         </div>` : '<small class="br-level-label" hidden></small>'}
                     </div>
                     <div class="br-field">
                         <label class="br-label">Page</label>
-                        <div class="br-info"><code>${this.esc(info.route)}</code></div>
+                        <div class="br-info"><code class="br-info-route"></code></div>
                     </div>
                     <div class="br-field">
                         <label class="br-label" for="br-description">What should change?</label>
-                        ${draft ? `<div class="br-draft" data-br="draft"><span>Unsent report from ${this.esc(draftAge(draft.at))}: “${this.esc(draft.text.replace(/\s+/g, ' ').slice(0, 60))}${draft.text.length > 60 ? '…' : ''}”</span><button type="button" data-br="restore">Restore last report</button></div>` : ''}
-                        <textarea class="br-textarea" id="br-description" rows="4" placeholder="Describe the problem, question or wish..."></textarea>
+                        <textarea class="br-textarea" id="br-description" rows="4" maxlength="${DESC_MAX}" placeholder="Describe the problem, question or wish..."></textarea>
+                        <small class="br-count"></small>
                     </div>
                     <div class="br-field">
                         <label class="br-label" for="br-device">Device</label>
-                        <input class="br-input" id="br-device" maxlength="60" value="${this.esc(deviceName)}" placeholder="e.g. Work laptop">
+                        <input class="br-input" id="br-device" maxlength="${DEVICE_MAX}" placeholder="e.g. Work laptop">
                         <small class="br-hint">Remembered on this device. Browser, screen size and theme are added automatically.</small>
                     </div>
+                    <div class="br-hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="br-website" data-br="hp" tabindex="-1" autocomplete="off"></label></div>
+                    <div class="br-error" data-br="error" role="alert" hidden></div>
                     <button class="br-submit" data-br="submit">Send</button>
-                    ${this.footerLinks.length ? `<div class="br-foot">${this.footerLinks.map((l, i) => `<button type="button" data-br-link="${i}">${this.esc(l.label)}</button>`).join('')}</div>` : ''}
                 </div>
             </div>`;
+
+        const ta = wrap.querySelector('#br-description');
+        const count = wrap.querySelector('.br-count');
+        const updateCount = () => { count.textContent = `${ta.value.length} / ${DESC_MAX}`; };
+        wrap.querySelector('.br-info-element').textContent = info.descriptor;
+        wrap.querySelector('.br-path small').textContent = info.path;
+        wrap.querySelector('.br-info-route').textContent = info.route;
+        wrap.querySelector('.br-level-label').textContent = `level ${this._level + 1}/${this._chain.length}`;
+        wrap.querySelector('#br-device').value = deviceName;
+        updateCount();
+
+        if (draft) {
+            const box = document.createElement('div');
+            box.className = 'br-draft';
+            const preview = draft.text.replace(/\s+/g, ' ');
+            const text = document.createElement('span');
+            text.textContent = `Unsent report from ${draftAge(draft.at)}: “${preview.slice(0, 60)}${preview.length > 60 ? '…' : ''}”`;
+            const restore = document.createElement('button');
+            restore.type = 'button';
+            restore.textContent = 'Restore last report';
+            restore.addEventListener('click', () => {
+                ta.value = draft.text.slice(0, DESC_MAX);
+                box.remove();
+                updateCount();
+                ta.focus();
+                ta.setSelectionRange(ta.value.length, ta.value.length);
+            });
+            box.append(text, restore);
+            ta.before(box);
+        }
+
+        if (this.footerLinks.length) {
+            const foot = document.createElement('div');
+            foot.className = 'br-foot';
+            for (const link of this.footerLinks) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = link.label;
+                b.addEventListener('click', () => { this._closeModal(); link.onClick?.(); });
+                foot.append(b);
+            }
+            wrap.querySelector('.br-modal-body').append(foot);
+        }
 
         document.body.appendChild(wrap);
         document.body.style.overflow = 'hidden';
 
         // Only ×, Esc or Send close the window — a click beside it does not.
         wrap.querySelector('[data-br="close"]').addEventListener('click', () => this._closeModal());
-        wrap.querySelector('[data-br="restore"]')?.addEventListener('click', () => {
-            const ta = wrap.querySelector('#br-description');
-            ta.value = draft.text;
-            wrap.querySelector('[data-br="draft"]')?.remove();
-            ta.focus();
-            ta.setSelectionRange(ta.value.length, ta.value.length);
-        });
+        ta.addEventListener('input', () => { updateCount(); this._formError(''); });
         this._onModalKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); this._closeModal(); } };
         document.addEventListener('keydown', this._onModalKey, true);
         wrap.querySelector('[data-br="submit"]').addEventListener('click', () => this._submit());
         wrap.querySelector('[data-br="level"]')?.addEventListener('input', (e) => this._setLevel(+e.target.value));
-        wrap.querySelectorAll('[data-br-link]').forEach(b => b.addEventListener('click', () => {
-            const link = this.footerLinks[+b.dataset.brLink];
-            this._closeModal();
-            link?.onClick();
-        }));
         window.addEventListener('resize', this._onReposition);
-        wrap.querySelector('#br-description')?.focus();
+        ta.focus();
         this._render();
+    }
+
+    /** Inline error inside the report window ('' hides it). */
+    _formError(msg) {
+        const box = document.querySelector('.br-modal-wrap [data-br="error"]');
+        if (!box) { if (msg) this._toast(msg, 'error'); return; }
+        box.textContent = msg || '';
+        box.hidden = !msg;
     }
 
     /** sent=false keeps typed text as a draft that the next report window offers to restore. */
@@ -665,42 +791,65 @@ export class BugReporter {
     }
 
     async _submit() {
-        const desc = document.getElementById('br-description');
-        if (!desc || !desc.value.trim()) {
-            this._toast('Please describe what should change', 'error');
+        const wrap = document.querySelector('.br-modal-wrap');
+        const desc = wrap?.querySelector('#br-description');
+        if (!wrap || !desc || this._sending) return;
+        const description = cleanInput(desc.value, DESC_MAX, true);
+        if (!description) {
+            this._formError('Please describe what should change.');
+            desc.focus();
             return;
         }
-        const btn = document.querySelector('.br-modal-wrap [data-br="submit"]');
+        // Honeypot: people never see this field, form-filling bots do. Pretend it worked.
+        if (wrap.querySelector('[data-br="hp"]')?.value) {
+            this._closeModal(true);
+            this._toast('Report sent — thank you!', 'success');
+            return;
+        }
+        const wait = isSignedInReviewer() ? 0 : sendWait();
+        if (wait > 0) {
+            const s = Math.ceil(wait / 1000);
+            this._formError(s > 90
+                ? `You sent a lot of reports in a short time. Please try again in ${Math.ceil(s / 60)} min.`
+                : `Please wait ${s} s before sending another report.`);
+            return;
+        }
+
+        this._sending = true;
+        this._formError('');
+        const btn = wrap.querySelector('[data-br="submit"]');
         if (btn) btn.disabled = true;
-        const deviceInput = document.getElementById('br-device');
-        const deviceName = (deviceInput?.value || '').trim().slice(0, 60);
+        const deviceName = cleanInput(wrap.querySelector('#br-device')?.value, DEVICE_MAX);
         try { if (deviceName) localStorage.setItem(DEVICE_KEY, deviceName); } catch (e) { /* ignore */ }
 
-        const info = this._selectionInfo();
-        const reporter = await Promise.resolve(this.getUser());
-        const report = {
-            type: 'report',
-            element: info.descriptor,
-            elementPath: info.path,
-            selector: info.selector,
-            elementText: info.text,
-            route: info.route,
-            url: location.href,
-            description: desc.value.trim(),
-            reporter: reporter || 'anonymous',
-            timestamp: Date.now(),
-            status: 'open',
-            meta: await this._meta(deviceName),
-        };
-        if (this._chain.length) report.elementLevel = this._level;
-
         try {
+            const info = this._selectionInfo();
+            let reporter = 'anonymous';
+            try { reporter = cleanInput(await Promise.resolve(this.getUser()), 120) || 'anonymous'; } catch (e) { /* keep anonymous */ }
+            const report = {
+                type: 'report',
+                element: info.descriptor,
+                elementPath: info.path,
+                selector: info.selector,
+                elementText: info.text,
+                route: info.route,
+                url: location.href,
+                description,
+                reporter,
+                timestamp: Date.now(),
+                status: 'open',
+                meta: await this._meta(deviceName),
+            };
+            if (this._chain.length) report.elementLevel = this._level;
             await this.onSubmit(report);
+            noteSent();
             this._closeModal(true);
             this._toast('Report sent — thank you!', 'success');
         } catch (err) {
             if (btn) btn.disabled = false;
-            this._toast('Could not send: ' + err.message, 'error');
+            this._formError('Could not send: ' + ((err && err.message) || 'unknown error'));
+        } finally {
+            this._sending = false;
         }
     }
 

@@ -11,6 +11,10 @@
  * reworks it. Accept → verdict 'accepted'. Colours follow the --br-* contract of
  * bugreport.js, so the window follows the site's light/dark theme.
  *
+ * Hub data is untrusted (anyone can file a report): every field is rendered as
+ * textContent, commit links only accept a hex hash, and showPlace() in
+ * bugreport.js refuses routes that leave the site.
+ *
  * Usage (init.js):
  *   import { mountChangelog } from './changelog.js';
  *   mountChangelog(reporter, { project: 'meridian', repo: 'Meridian', owner: 'Joshua-NTS' });
@@ -19,7 +23,7 @@
 import { fetchChanges, updateHubBug } from './central-hub.js';
 import { isReviewer, reviewerEmail, signIn, signOut, onReviewerChange } from './review-auth.js';
 
-export const VERSION = '2.0.0';
+export const VERSION = '2.1.0';
 
 const CSS = `
 .cv-btn { position: fixed; right: 1.5rem; bottom: calc(2rem + 62px); z-index: 10001;
@@ -240,14 +244,16 @@ export function mountChangelog(reporter, { project, repo, owner = 'Joshua-NTS', 
             meta.append(el('span', 'cv-tag is-' + state, STATE_LABEL[state]));
             const when = fmtDate(bug.fixedAt || bug.timestamp);
             if (when) meta.append(el('span', null, when));
-            const href = commitUrl(bug.fixCommit);
+            const hash = typeof bug.fixCommit === 'string' ? bug.fixCommit : '';
+            const href = commitUrl(hash);
             if (href) {
-                const a = el('a', null, bug.fixCommit.slice(0, 7));
+                const a = el('a', null, hash.slice(0, 7));
                 a.href = href; a.target = '_blank'; a.rel = 'noopener';
                 a.addEventListener('click', (e) => e.stopPropagation());
                 meta.append(a);
             }
-            if (bug.rejectCount > 0) meta.append(el('span', null, 'Attempt ' + (bug.rejectCount + 1)));
+            const rejects = Number(bug.rejectCount) || 0;
+            if (rejects > 0) meta.append(el('span', null, 'Attempt ' + (rejects + 1)));
 
             const actions = el('span', 'cv-actions');
             if (state === 'pending') {
