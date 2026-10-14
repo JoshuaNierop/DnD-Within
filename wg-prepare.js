@@ -45,26 +45,34 @@ if (typeof WG_SOURCE_LABELS !== 'undefined') {
 
 // ===== Afleidingsregels =====
 function wgxSpellIsConcentration(sp) { return /concentration/i.test((sp && sp.dur) || ''); }
-function wgxSpellIsRitual(sp) { return /\britual\b/i.test((sp && sp.desc) || ''); }   // best-effort, zie review-flag
+// Ritual tag from the 2024 spell data (DATA.spellMeta); text match only as fallback.
+function wgxSpellIsRitual(sp, name) {
+  const meta = name && typeof DATA !== 'undefined' && DATA.spellMeta && DATA.spellMeta[name];
+  if (meta) return meta.indexOf('r') !== -1;
+  return /\britual\b/i.test((sp && sp.desc) || '');
+}
 
 // Action-economy / ritual tag voor de micro-icon-kolom (slot 2).
-function wgxSpellActionTag(sp) {
+function wgxSpellActionTag(sp, name) {
   const time = (sp && sp.time) || '';
   if (/bonus/i.test(time)) return 'B';
   if (/reaction/i.test(time)) return 'R';
-  if (wgxSpellIsRitual(sp)) return '(R)';
+  if (wgxSpellIsRitual(sp, name)) return '(R)';
   if (/minute|hour|min\b|uur/i.test(time)) return '⏱';
   return '';
 }
 
 // ===== Character spell-DC + attack (generiek, per character) =====
-function wgxSpellStats(raw) {
+// abilityOverride: a granted spell's own ability (species / feat spells can use
+// INT, WIS or CHA independently of the class). Scores include ASI and feats.
+function wgxSpellStats(raw, abilityOverride) {
   const cfg = (raw && raw.config) || {};
   const st  = (raw && raw.state)  || {};
   const lvl = (typeof st.level === 'number') ? st.level : 1;
-  const ability = (typeof getSpellcastingAbility === 'function')
-    ? getSpellcastingAbility(cfg.className, cfg.subclass) : 'cha';
-  const score = (cfg.baseAbilities || {})[ability];
+  const ability = abilityOverride || ((typeof getSpellcastingAbility === 'function')
+    ? getSpellcastingAbility(cfg.className, cfg.subclass) : 'cha');
+  const score = (typeof getAbilityScore === 'function')
+    ? getAbilityScore(cfg, Object.assign({ asiChoices: {} }, st), ability) : (cfg.baseAbilities || {})[ability];
   const mod = (typeof score === 'number')
     ? ((typeof getMod === 'function') ? getMod(score) : Math.floor((score - 10) / 2)) : 0;
   const prof = (typeof cfg.proficiencyBonus === 'number') ? cfg.proficiencyBonus
@@ -106,38 +114,56 @@ function wgxFreeCastResources(cfg, st, spellName) {
 }
 
 // ===== Tooltip-body opbouw (volledig: alle spell-metadata) =====
-function wgxSpellTooltip(name, sp, stats) {
+function wgxSpellTooltip(name, sp, stats, grants) {
   const isCantrip = sp && sp.level === 0;
   const lvlLabel = sp ? (isCantrip ? 'Cantrip' : 'Level ' + sp.level) : '?';
   const title = name + ' · ' + lvlLabel;
   if (!sp) return { title: title, body: 'Unknown spell — no data available.' };
   const flags = [];
   if (wgxSpellIsConcentration(sp)) flags.push('Concentration');
-  if (wgxSpellIsRitual(sp)) flags.push('Ritual');
+  if (wgxSpellIsRitual(sp, name)) flags.push('Ritual');
+  const from = (grants || []).map(function (g) {
+    return '★ ' + g.from + ': ' + (typeof wgxFreeText === 'function' ? wgxFreeText(g) : g.kind) + (g.slots && g.freeMax != null ? ' + spell slots' : '');
+  });
   const body =
     'Casting time: ' + (sp.time || '—') + '\n' +
     'Range: ' + (sp.range || '—') + '\n' +
     'Components: ' + (sp.comp || '—') + '\n' +
     'Duration: ' + (sp.dur || '—') + (flags.length ? '\n' + flags.join(' · ') : '') + '\n\n' +
-    (sp.desc || '—') + '\n\n' +
+    (sp.desc || '—') + '\n\n' + (from.length ? from.join('\n') + '\n' : '') +
     'Spell save DC ' + stats.dc + ' · Spell attack +' + stats.atk +
     (isCantrip ? '' : '\nClick the spell to cast it.');
   return { title: title, body: body };
 }
 
 // ===== Gedeeld entry-model (builder + click-handler, 1:1 met rijen) =====
-function wgxPreparedEntries(st) {
+// Class cantrips + prepared spells, plus every granted spell (subclass, species,
+// feats, invocations — see getGrantedSpells). A spell that is both shows once,
+// with its grants attached (free uses, own spellcasting ability).
+function wgxPreparedEntries(cfg, st) {
   const spellData = (typeof DATA !== 'undefined' && DATA.spellPool) || {};
   const names = []
     .concat(Array.isArray(st.cantrips) ? st.cantrips : [])
     .concat(Array.isArray(st.prepared) ? st.prepared : []);
   const seen = new Set();
   const entries = [];
+  const byName = {};
   for (const nm of names) {
     if (!nm || seen.has(nm)) continue;
     seen.add(nm);
     const sp = spellData[nm] || null;
-    entries.push({ name: nm, sp: sp, level: sp ? (sp.level || 0) : 99 });
+    byName[nm] = { name: nm, sp: sp, level: sp ? (sp.level || 0) : 99, grants: [] };
+    entries.push(byName[nm]);
+  }
+  const grants = (typeof getGrantedSpells === 'function') ? getGrantedSpells(cfg || {}, st) : [];
+  for (const g of grants) {
+    if (g.open) continue;
+    if (!byName[g.name]) {
+      const sp = spellData[g.name] || null;
+      byName[g.name] = { name: g.name, sp: sp, level: sp ? (sp.level || 0) : 99, grants: [], granted: true };
+      entries.push(byName[g.name]);
+    }
+    byName[g.name].grants.push(g);
   }
   // Sorteer: level oplopend (cantrips=0 eerst), alfabetisch binnen level.
   entries.sort((a, b) => (a.level - b.level) || a.name.localeCompare(b.name));
@@ -148,6 +174,7 @@ function wgxPreparedEntries(st) {
 function wgxBuildPrepared(widget) {
   const raw = WG_CHAR_CACHE[state.characterId] || {};
   const st  = raw.state || {};
+  const cfg = raw.config || {};
   const d = widget.data, L = widget.layout;
   const stats = wgxSpellStats(raw);
 
@@ -157,7 +184,7 @@ function wgxBuildPrepared(widget) {
     { key: 'flags', label: '' },
   ];
 
-  const entries = wgxPreparedEntries(st);
+  const entries = wgxPreparedEntries(cfg, st);
   const rows = [], tips = [];
   if (entries.length === 0) {
     rows.push(['', 'No spells prepared', '']);
@@ -167,10 +194,12 @@ function wgxBuildPrepared(widget) {
       const isCantrip = e.sp && e.sp.level === 0;
       const badge = e.sp ? (isCantrip ? 'C' : String(e.sp.level)) : '?';
       const conc = e.sp && wgxSpellIsConcentration(e.sp) ? '◆' : '';
-      const tag = e.sp ? wgxSpellActionTag(e.sp) : '';
-      const flags = (conc && tag) ? (conc + ' ' + tag) : (conc || tag);
+      const tag = e.sp ? wgxSpellActionTag(e.sp, e.name) : '';
+      let flags = (conc && tag) ? (conc + ' ' + tag) : (conc || tag);
+      if (e.grants.length) flags = (flags ? flags + ' ' : '') + '★';
       rows.push([badge, e.name, flags]);
-      const tip = wgxSpellTooltip(e.name, e.sp, stats);
+      const gAb = e.granted && e.grants[0] && e.grants[0].ability;
+      const tip = wgxSpellTooltip(e.name, e.sp, gAb ? wgxSpellStats(raw, gAb) : stats, e.grants);
       tips.push([tip, tip, tip]);   // zelfde tip op alle 3 cellen → hover overal op de rij
     }
   }
@@ -197,7 +226,7 @@ WG_EXTRA_INFOBOX_BUILDERS.prepared = wgxBuildPrepared;
 // Klik op een spell-rij → cast-window; klik op de laatste rij → prepare-window.
 WG_INFOBOX_CLICK_HANDLERS.prepared = function (ctx) {
   const raw = ctx.raw || {};
-  const entries = wgxPreparedEntries(raw.state || {});
+  const entries = wgxPreparedEntries(raw.config || {}, raw.state || {});
   const e = entries[ctx.rowIdx];
   if (!e) { wgxOpenPrepareWindow(ctx.charId); return; }
   wgxOpenCastModal(ctx.charId, e.name);
@@ -304,11 +333,15 @@ function wgxRenderCastModal() {
   const raw = WG_CHAR_CACHE[wgxCast.charId] || {};
   const cfg = raw.config || {}, st = raw.state || {};
   const sp = wgxCast.sp;
-  const stats = wgxSpellStats(raw);
+  const grants = (typeof getGrantedSpells === 'function') ? getGrantedSpells(cfg, st).filter(function (g) { return !g.open && g.name === wgxCast.name; }) : [];
+  const classKnown = (st.cantrips || []).indexOf(wgxCast.name) !== -1 || (st.prepared || []).indexOf(wgxCast.name) !== -1;
+  const gAbility = !classKnown && grants[0] && grants[0].ability;
+  const stats = wgxSpellStats(raw, gAbility || null);
   const isCantrip = sp && sp.level === 0;
   const lvlLabel = sp ? (isCantrip ? 'Cantrip' : 'Level ' + sp.level) : '';
   const conc = sp && wgxSpellIsConcentration(sp);
-  const ritual = sp && wgxSpellIsRitual(sp);
+  const ritual = sp && (wgxSpellIsRitual(sp, wgxCast.name) || grants.some(function (g) { return g.kind === 'ritual'; }));
+  const slotsAllowed = classKnown || grants.some(function (g) { return g.slots || g.kind === 'prepared'; });
 
   let html = '<div class="modal-header"><h2>' + wgxCastEsc(wgxCast.name) +
     (lvlLabel ? ' <span class="wgx-cast-lvl">' + lvlLabel + '</span>' : '') + '</h2>' +
@@ -325,7 +358,9 @@ function wgxRenderCastModal() {
       (ritual ? '<span class="wgx-cast-flag">(R) Ritual</span>' : '') +
       '</div>';
     html += '<p class="wgx-cast-desc">' + wgxCastEsc(sp.desc || '') + '</p>';
-    html += '<p class="wgx-cast-stats">Spell save DC <b>' + stats.dc + '</b> · Spell attack <b>+' + stats.atk + '</b></p>';
+    html += '<p class="wgx-cast-stats">Spell save DC <b>' + stats.dc + '</b> · Spell attack <b>+' + stats.atk + '</b>' +
+      (gAbility ? ' <span class="wgx-lu-note">(' + wgxCastEsc(grants[0].from) + ' — ' + gAbility.toUpperCase() + ')</span>' : '') + '</p>';
+    if (grants.length) html += '<p class="wgx-lu-note">' + grants.map(function (g) { return '★ ' + wgxCastEsc(g.from) + (g.note ? ' — ' + wgxCastEsc(g.note) : ''); }).join('<br>') + '</p>';
   } else {
     html += '<p class="wgx-cast-desc">Unknown spell — no data available. You can still track the cast manually via the Spell Slots widget.</p>';
   }
@@ -338,6 +373,20 @@ function wgxRenderCastModal() {
     html += '<button class="wgx-cast-opt" data-wgx-cast="cantrip"><b>Cast</b><span>Cantrip — at will, no slot</span></button>';
     anyOption = true;
   }
+  // At will without a slot (invocations such as Armor of Shadows, Pact of the Chain)
+  if (!isCantrip && grants.some(function (g) { return g.kind === 'atWill'; })) {
+    const aw = grants.filter(function (g) { return g.kind === 'atWill'; })[0];
+    html += '<button class="wgx-cast-opt" data-wgx-cast="atwill"><b>Cast (at will)</b><span>' + wgxCastEsc(aw.from) + ' — no slot, no limit' + (aw.note ? ' · ' + wgxCastEsc(aw.note) : '') + '</span></button>';
+    anyOption = true;
+  }
+  // Cast by spending another resource (Warrior of Shadow: Darkness for 1 Focus Point)
+  grants.filter(function (g) { return g.cost; }).forEach(function (g, gi) {
+    const res = (typeof getClassResources === 'function') ? getClassResources(cfg, st).filter(function (r) { return r.id === g.cost.res; })[0] : null;
+    if (!res) return;
+    const max = res.max(cfg, st), left = max - Math.min(st[res.stateKey] || 0, max);
+    html += '<button class="wgx-cast-opt" data-wgx-cast="cost" data-g="' + gi + '"' + (left < g.cost.n ? ' disabled' : '') + '><b>Cast · ' + g.cost.n + ' ' + wgxCastEsc(res.label) + '</b><span>' + left + '/' + max + ' left</span></button>';
+    anyOption = true;
+  });
 
   // Gratis casts via gekoppelde resources (Favored Enemy, Paladin's Smite, species-spells)
   const freeRes = sp ? wgxFreeCastResources(cfg, st, wgxCast.name) : [];
@@ -358,7 +407,7 @@ function wgxRenderCastModal() {
   }
 
   // Slots (std: per level vanaf spell-level = upcast; pact: vaste slot-level)
-  if (sp && !isCantrip) {
+  if (sp && !isCantrip && slotsAllowed) {
     const sm = wgxSlotModel(raw);
     if (sm.kind === 'std') {
       for (let L = sp.level; L <= sm.totals.length; L++) {
@@ -410,6 +459,16 @@ async function wgxDoCast(act, t) {
   try {
     if (act === 'cantrip') {
       detail = 'cantrip';
+    } else if (act === 'atwill') {
+      detail = 'at will, no slot';
+    } else if (act === 'cost') {
+      const g = getGrantedSpells(cfg, st).filter(function (x) { return !x.open && x.name === cast.name && x.cost; })[parseInt(t.getAttribute('data-g'), 10)];
+      const res = g && getClassResources(cfg, st).filter(function (r) { return r.id === g.cost.res; })[0];
+      if (!res) return;
+      const max = res.max(cfg, st), used = Math.min(st[res.stateKey] || 0, max);
+      if (max - used < g.cost.n) return;
+      patch[res.stateKey] = used + g.cost.n;
+      detail = g.cost.n + ' ' + res.label + ', ' + (max - used - g.cost.n) + '/' + max + ' left';
     } else if (act === 'ritual') {
       detail = 'ritual, no slot';
     } else if (act === 'resource') {

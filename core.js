@@ -372,7 +372,8 @@ function loadCharState(charId) {
         }
     }
 
-    var config = loadCharConfig(charId);
+    // A character deleted elsewhere while this page is open has no config.
+    var config = loadCharConfig(charId) || {};
     var defaults = {
         level: 1,
         skills: config.defaultSkills ? config.defaultSkills.slice() : [],

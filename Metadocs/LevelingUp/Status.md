@@ -1,8 +1,17 @@
 # Leveling Up — Status
 
-_Laatst bijgewerkt: 2026-08-14 (combo-smoketest: 12 classes × 4 species, committed)_
+_Laatst bijgewerkt: 2026-10-15 (L4-builds: alle 48 subclasses × 15 species-varianten, 2024)_
 
-## Combo-smoketest (2026-08-14) — `Metadocs/LevelingUp/combo-smoke.mjs`
+## L4-builds (2026-10-15) — fase F+ L4 afgerond, review per batch loopt
+Ontwerp + datamodel: `L4-Design.md` · overzicht alle combinaties: `L4-Combinations.md` (gegenereerd door `l4-overview.mjs`).
+- **Data 2024**: 77 feats (origin/general/fighting/epic, met prereqs, ability-keuzes, spell-grants), 10 species met lineages (Elf/Gnome/Tiefling/Goliath/Dragonborn) + species-spellcasting-ability, 12 classes L1–4 + 48 subclasses L3 met `act` (action-type) en spell-grants, invocations/metamagic 2024, 22 spells L0–2 herschreven
+- **Engine**: `getGrantedSpells`, `getBuildProfile`, `featInstances`/`hasFeat`, `featPrereqMet`, swaps (`swapRules`), dynamische free-cast-tellers `fc_*`, HP/AC-feats (Tough, Boon, Draconic Resilience, Defense)
+- **UI**: Build-venster + Explore builds (`wg-build.js`), level-up-stappen voor álle L4-keuzes + fix-modus "Complete missing choices", granted spells ★ in Prepared Spells, feats/maneuvers in Features, Short Rest-resources
+- **Test**: `build-smoke.mjs` — 720 builds L1→4 + level-down, 26 113/26 113 groen, feiten uit de 2024 PHB-data (`l4-facts.json`); vervangt `combo-smoke.mjs`
+- **Review**: 24 batches van 20 combinaties (Barbarian → Wizard); kolom "Reviewed" in de matrix
+
+
+## Combo-smoketest (2026-08-14) — `combo-smoke.mjs` (verwijderd 2026-10-15, vervangen door `build-smoke.mjs`)
 Gecommitteerde vervanging van de eerdere scratchpad-smoketest (die verloren ging).
 Run: `node Metadocs/LevelingUp/combo-smoke.mjs` vanuit de project-root.
 - **Matrix: alle 12 classes × {tiefling, aasimar, highElf, human}** = 48 combinaties (gevraagd: paladin/druid/sorcerer/wizard/rogue/warlock × tiefling/aasimar; de rest kost niets extra) — **801/801 checks groen**
@@ -66,14 +75,14 @@ Bekende gaten → fase F+: Battle Master maneuvers-picker, Arcane Trickster/Eldr
 
 ## Open
 - [x] P1 — Fase D2: browser-test — level-up confirm-flow + level-down live geverifieerd (2026-08-04); resources/rest-widgets klik-interactie + rest-resets live geverifieerd (2026-08-14, zie hierboven)
-- [ ] P2 — Fase F+: hogere levels (L4+): ASI/feat-stap in het menu, preparedTable/invocations/metamagic uitbreiden boven L3, Battle Master maneuvers, Arcane Trickster/EK spells
+- [x] P2 — Fase F+ L4 (2026-10-15, zie boven); L5+ volgt wanneer de party richting L5 gaat. Was: hogere levels (L4+): ASI/feat-stap in het menu, preparedTable/invocations/metamagic uitbreiden boven L3, Battle Master maneuvers, Arcane Trickster/EK spells
 
 ## Review-lijst (Joshua / fysieke PHB)
 0. Resource-widget interactie: klik = 1 use verbruiken, klik-bij-leeg = alles herstellen — simpel maar onconventioneel; akkoord of liever ± knoppen?
 0b. ~~Choice-types zonder picker tonen een informatieve stap~~ → alle L1–3 choice-types hebben nu een echte picker; de informatieve fallback blijft alleen voor onbekende toekomstige types.
 0c. Innate Sorcery: data zei "PB uses per Long Rest", 2024 PHB/verificatiepass zegt 2×/LR — aangepast naar 2. Spot-check fysieke PHB gewenst.
-0d. Draconic Resilience (max HP +1 per sorcerer level) wordt getoond maar NIET verrekend in de HP-berekening — bewust; verrekening vergt subclass-aware getHP (open punt).
-0e. Sorcerer 2024 "swap 1 spell + 1 cantrip + 1 metamagic per level-up" is nog niet in het menu — alleen nieuwe picks, geen swaps. (Geldt ook voor Warlock-swaps.) **UPDATE 2026-08-15:** de long-rest-herprepare is nu wél gebouwd (fase 2, `wg-prepare.js` prepare-window): opent automatisch na Long Rest voor casters + handmatig via "⚙ Change spells"-rij in de Prepared Spells-widget. Volledige herpick tot `getMaxPrepared`; per-class RAW-note in de UI, niet hard-enforced (DM's call). Per-class regels web-geverifieerd 2026-08-15 (aidedd/roll20/wikidot): cleric/druid/wizard = hele lijst per Long Rest; paladin/ranger = één spell per Long Rest; bard/sorcerer/warlock = één spell bij level-up. House rule (Joshua): character zonder vastgelegde prepared spells mag zijn volledige lijst vrij vullen (UI toont dan die note i.p.v. de RAW-note).
+0d. **Opgelost 2026-10-15** (getHP telt +1/level vanaf L3). Draconic Resilience (max HP +1 per sorcerer level) wordt getoond maar NIET verrekend in de HP-berekening — bewust; verrekening vergt subclass-aware getHP (open punt).
+0e. **Opgelost 2026-10-15** (swaps zitten in het level-up-menu via `swapRules`). Sorcerer 2024 "swap 1 spell + 1 cantrip + 1 metamagic per level-up" is nog niet in het menu — alleen nieuwe picks, geen swaps. (Geldt ook voor Warlock-swaps.) **UPDATE 2026-08-15:** de long-rest-herprepare is nu wél gebouwd (fase 2, `wg-prepare.js` prepare-window): opent automatisch na Long Rest voor casters + handmatig via "⚙ Change spells"-rij in de Prepared Spells-widget. Volledige herpick tot `getMaxPrepared`; per-class RAW-note in de UI, niet hard-enforced (DM's call). Per-class regels web-geverifieerd 2026-08-15 (aidedd/roll20/wikidot): cleric/druid/wizard = hele lijst per Long Rest; paladin/ranger = één spell per Long Rest; bard/sorcerer/warlock = één spell bij level-up. House rule (Joshua): character zonder vastgelegde prepared spells mag zijn volledige lijst vrij vullen (UI toont dan die note i.p.v. de RAW-note).
 0f. **NIEUW 2026-08-04:** `preparedTable` paladin/ranger van `[-,2,3]`/`[-,3,4]` naar `[2,3,4]` + `halfCasterSlots[1]=2×1st` + `spellcastingStart` 2→1. De eerdere aidedd-tabel volgde de 2014-start-op-L2-layout en sprak de geverifieerde class-research in dit document tegen (Paladin/Ranger L1: "Spellcasting v.a. L1, 2 prepared, slots 2×1st"). **Spot-check fysieke 2024 PHB gewenst** — dit raakt barius (L3-cap 3→4) en ancha.
 0g. **NIEUW:** druid `cantripsKnown` L1–3 van 4 naar 2 (2024-tabel; was een sorcerer-kopie). **io heeft 4 cantrips in state** — bewust NIET gestript; DM-besluit welke 2 blijven (of laten zoals het is).
 0h. **NIEUW:** `DATA.invocations` (14, L≤3) en `DATA.wildShapeForms` (20) teksten zijn agent-kennis 2024 PHB / 2025 MM — spot-check namen/regels (m.n. Eldritch Spear range ×30/level, Fiendish Vigor max-temp-HP, Pact of the Chain vormen; wild-shape speeds).

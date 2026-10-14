@@ -2,6 +2,36 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-15 — Every class, subclass and species up to level 4 (2024 rules)
+
+### Your build at a glance
+The level tile now opens **Level N · Build**: everything your character has at their
+current level in one window — spellcasting (DC, attack, slots), every spell you get
+from your class, subclass, species or feats (with its level, free casts and when they
+come back), feats, features, **actions sorted by Action, Bonus Action, Reaction and On
+a hit**, uses and resets, the choices you made, choices still open, what you can swap
+and when, and warnings for unusual combinations (for example a Barbarian whose species
+spells don't work while raging). **Explore builds** lets you preview any class,
+subclass and species at level 1–4 without making a character.
+
+### Level 4 and everything before it, 2024 rules
+- **All 77 feats** follow the 2024 Player's Handbook: Origin feats, General feats with
+  their prerequisites and +1 ability choice, Fighting Styles and Epic Boons. Feats that
+  grant spells (Magic Initiate, Fey-Touched, Shadow-Touched, Telepathic, Telekinetic,
+  Ritual Caster) let you pick them and add them to your spells.
+- **All 10 species** with their 2024 traits and lineages: Elf, Gnome and Tiefling
+  lineages (with a spellcasting ability you choose), Goliath giant ancestry and the ten
+  Dragonborn ancestries.
+- **All 12 classes and 48 subclasses** have their level 1–4 features, always-prepared
+  subclass spells, resources and action types.
+- Level-up asks for every level 4 choice: Ability Score Improvement or feat (and the
+  feat's own choices), Weapon Mastery, maneuvers, invocations, Land type, Hunter's Prey,
+  a replacement cantrip when you already know one, and optional swaps.
+- Characters that missed a choice earlier get **Complete missing choices** instead of a
+  silent gap.
+- Granted spells appear in **Prepared Spells** with a ★, their own DC and a free-cast
+  button; Short Rest now restores what recharges on a Short Rest.
+
 ## 2026-09-23 — Eldritch Knight spells, familiars and a fuller initiative tracker
 
 ### Eldritch Knight and Arcane Trickster can finally cast

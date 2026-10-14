@@ -216,6 +216,11 @@ function initWizardState() {
         baseAbilities: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
         bgBonusChoice: { plus2: '', plus1: '' },
         subclass: '',
+        // 2024 creation picks used by the build engine (engine.js getBuildProfile)
+        lineage: '',          // Tiefling legacy / Gnome lineage / Goliath & Dragonborn ancestry
+        speciesAbility: '',   // INT/WIS/CHA for Elf, Gnome and Tiefling spells
+        order: '',            // Cleric Divine Order / Druid Primal Order
+        versatileFeat: '',    // Human Versatile origin feat
         alignment: 'True Neutral',
         age: '',
         accentColor: '#22d3ee',
@@ -620,6 +625,7 @@ function renderWizardStep1() {
         html += '</div>';
     }
     html += '</div>'; // wizard-subfield-group
+    html += wizardSpeciesChoicesHtml();
     html += '<div class="wizard-field">';
     if (wizardState.race && DATA[wizardState.race]) {
         var raceData = DATA[wizardState.race];
@@ -679,7 +685,50 @@ function renderWizardStep1() {
         html += '</details>';
     }
     html += '</div>';
+    if (wizardState.className === 'cleric' || wizardState.className === 'druid') {
+        var isCl = wizardState.className === 'cleric';
+        var ordOpts = isCl
+            ? [['protector', 'Protector — Martial weapons + Heavy armor'], ['thaumaturge', 'Thaumaturge — +1 Cleric cantrip, WIS to Arcana/Religion']]
+            : [['magician', 'Magician — +1 Druid cantrip, WIS to Arcana/Nature'], ['warden', 'Warden — Martial weapons + Medium armor']];
+        html += '<div class="wizard-field"><label class="wizard-label">' + (isCl ? 'Divine Order' : 'Primal Order') + '</label>';
+        html += '<select class="wizard-select" data-action="wizard-order-change"><option value="">Choose…</option>';
+        ordOpts.forEach(function (o) { html += '<option value="' + o[0] + '"' + (wizardState.order === o[0] ? ' selected' : '') + '>' + escapeHtml(o[1]) + '</option>'; });
+        html += '</select></div>';
+    }
 
+    return html;
+}
+
+// 2024 species picks: lineage / legacy / ancestry, the spellcasting ability for
+// species spells, and the Human Versatile origin feat.
+function wizardSpeciesChoicesHtml() {
+    var r = DATA[wizardState.race];
+    if (!r) return '';
+    var html = '';
+    if (r.lineages) {
+        html += '<div class="wizard-field"><label class="wizard-label">' + escapeHtml(r.lineageLabel || 'Lineage') + '</label>';
+        html += '<select class="wizard-select" data-action="wizard-sublineage-change"><option value="">Choose…</option>';
+        Object.keys(r.lineages).forEach(function (k) {
+            html += '<option value="' + k + '"' + (wizardState.lineage === k ? ' selected' : '') + '>' + escapeHtml(r.lineages[k].name) + '</option>';
+        });
+        html += '</select></div>';
+    }
+    if (r.spellAbility === 'choose') {
+        html += '<div class="wizard-field"><label class="wizard-label">Spellcasting ability for your species spells</label>';
+        html += '<select class="wizard-select" data-action="wizard-speciesability-change"><option value="">Choose…</option>';
+        [['int', 'Intelligence'], ['wis', 'Wisdom'], ['cha', 'Charisma']].forEach(function (a) {
+            html += '<option value="' + a[0] + '"' + (wizardState.speciesAbility === a[0] ? ' selected' : '') + '>' + a[1] + '</option>';
+        });
+        html += '</select></div>';
+    }
+    if (wizardState.race === 'human') {
+        html += '<div class="wizard-field"><label class="wizard-label">Versatile: Origin feat</label>';
+        html += '<select class="wizard-select" data-action="wizard-versatile-change"><option value="">Choose…</option>';
+        (DATA.feats || []).filter(function (f) { return f.category === 'origin'; }).forEach(function (f) {
+            html += '<option value="' + escapeAttr(f.name) + '"' + (wizardState.versatileFeat === f.name ? ' selected' : '') + '>' + escapeHtml(f.name) + '</option>';
+        });
+        html += '</select><p class="wizard-detail">On top of your background\'s Origin feat (take a different one, unless it can be repeated). Spell picks for it are asked at your first level-up.</p></div>';
+    }
     return html;
 }
 
@@ -1212,6 +1261,10 @@ function createCharacterFromWizard() {
         backgroundBonuses: bgBonuses,
         abilityBonusApplied: true,
         originFeat: bgFeat,
+        lineage: (DATA[wizardState.race] && DATA[wizardState.race].lineages) ? (wizardState.lineage || existing.lineage || '') : '',
+        speciesAbility: (DATA[wizardState.race] && DATA[wizardState.race].spellAbility === 'choose') ? (wizardState.speciesAbility || existing.speciesAbility || '') : '',
+        divineOrder: wizardState.className === 'cleric' ? (wizardState.order || existing.divineOrder || '') : '',
+        primalOrder: wizardState.className === 'druid' ? (wizardState.order || existing.primalOrder || '') : '',
         defaultSkills: mergedSkills,
         defaultCantrips: wizardState.cantrips.slice(),
         defaultPrepared: wizardState.prepared.slice(),
@@ -1295,6 +1348,10 @@ function createCharacterFromWizard() {
         // Legacy platte velden meespiegelen voor backward-compat readers.
         est.currentHP = startCurE;
         est.tempHP = startTmpE;
+        if (wizardState.race === 'human' && wizardState.versatileFeat &&
+            !(est.speciesFeat && est.speciesFeat.feat === wizardState.versatileFeat)) {
+            est.speciesFeat = { type: 'feat', feat: wizardState.versatileFeat, origin: true };
+        }
         saveCharState(charId, est);
         showToast(t('wizard.editsuccess') === 'wizard.editsuccess' ? 'Character updated' : t('wizard.editsuccess'), 'success');
         return charId;
@@ -1318,6 +1375,7 @@ function createCharacterFromWizard() {
         prepared: wizardState.prepared.slice(),
         metamagic: [],
         asiChoices: bgFeat ? { 1: { type: 'feat', feat: bgFeat, origin: true } } : {},
+        speciesFeat: (wizardState.race === 'human' && wizardState.versatileFeat) ? { type: 'feat', feat: wizardState.versatileFeat, origin: true } : null,
         favorites: [],
         items: [],
         customAbilities: null,
@@ -1391,6 +1449,11 @@ function buildWizardStateFromConfig(charId) {
     var _subGate = (typeof subclassChoiceLevel === 'function') ? subclassChoiceLevel(cfg.className) : 3;
     wizardState.subclass = (wizardCharLevel() >= _subGate) ? (cfg.subclass || '') : '';
     wizardState.background = bgKeyFromConfig(cfg.background);
+    wizardState.lineage = cfg.lineage || '';
+    wizardState.speciesAbility = cfg.speciesAbility || '';
+    wizardState.order = cfg.divineOrder || cfg.primalOrder || '';
+    var _est = (typeof loadCharState === 'function' && loadCharState(charId)) || {};
+    wizardState.versatileFeat = (_est.speciesFeat && _est.speciesFeat.feat) || '';
     wizardState.alignment = cfg.alignment || 'True Neutral';
     wizardState.age = (cfg.age != null) ? cfg.age : '';
     wizardState.accentColor = cfg.accentColor || '#22d3ee';
@@ -1784,6 +1847,7 @@ function bindWizardEvents() {
             saveWizardStepData();
             var sp = target.value;
             wizardState.species = sp;
+            wizardState.lineage = ''; wizardState.speciesAbility = ''; wizardState.versatileFeat = '';
             var lineages = (sp && WIZARD_SPECIES[sp]) ? WIZARD_SPECIES[sp] : [];
             // Soort zonder lineages → race = soort; mét lineages → forceer keuze.
             wizardState.race = lineages.length ? '' : sp;
@@ -1798,11 +1862,17 @@ function bindWizardEvents() {
             return;
         }
 
+        if (target.matches('[data-action="wizard-sublineage-change"]')) { wizardState.lineage = target.value; refreshWizard(); return; }
+        if (target.matches('[data-action="wizard-speciesability-change"]')) { wizardState.speciesAbility = target.value; refreshWizard(); return; }
+        if (target.matches('[data-action="wizard-versatile-change"]')) { wizardState.versatileFeat = target.value; refreshWizard(); return; }
+        if (target.matches('[data-action="wizard-order-change"]')) { wizardState.order = target.value; refreshWizard(); return; }
+
         if (target.matches('[data-action="wizard-class-change"]')) {
             saveWizardStepData();
             var newClass = target.value;
             if (newClass !== wizardState.className) {
                 wizardState.className = newClass;
+                wizardState.order = '';
                 wizardState.skills = [];
                 wizardState.cantrips = [];
                 wizardState.prepared = [];

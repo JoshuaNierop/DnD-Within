@@ -9,6 +9,9 @@
 - `Progression-Reference.md` — per class/race/subclass wat er per level verandert (L1–3 volledig voor de eerste batch; L4+ later)
 - `Design.md` — datamodel, level-up/down-mechanic, menu-UX, widget-ontwerp
 - `Status.md` — voortgang, gedane stappen, volgende stappen, review-flags
+- `L4-Design.md` — L4-builds: datamodel (regels/engine/keuzes), opslag, weergave, efficiëntie
+- `L4-Combinations.md` — gegenereerd overzicht van alle class × subclass × species op level 4 (`node Metadocs/LevelingUp/l4-overview.mjs`)
+- `build-smoke.mjs` + `harness.mjs` + `l4-facts.json` — test van alle 720 builds L1→4 tegen feiten uit de 2024 PHB
 
 ## Scope eerste batch
 - **Races:** Human, High Elf, Aasimar, Tiefling
@@ -19,9 +22,10 @@
 ## Fasering
 | Fase | Inhoud | Status |
 |---|---|---|
-| A | Verkenning bestaand systeem + rules-research L1–3 | ~ |
-| B | Progression-Reference.md + Design.md | open |
-| C | Data-laag: progression-data in data.js + engine `getLevelUpDelta` | open |
-| D | Level-up knop + menu (Aasimar Rogue eerst) + level-down met confirm | open |
-| E | Feature-uitleg widget (algemeen) + Psionic Dice widget (Soulknife-only) | open |
-| F | Overige classes/races doorlopen + verificatie | open |
+| A | Verkenning bestaand systeem + rules-research L1–3 | ✓ |
+| B | Progression-Reference.md + Design.md | ✓ |
+| C | Data-laag: progression-data in data.js + engine `getLevelUpDelta` | ✓ |
+| D | Level-up knop + menu (Aasimar Rogue eerst) + level-down met confirm | ✓ |
+| E | Feature-uitleg widget (algemeen) + Psionic Dice widget (Soulknife-only) | ✓ |
+| F | Overige classes/races doorlopen + verificatie | ✓ |
+| F+ | L4: alle 48 subclasses × 10 species (2024), Build-venster | ✓ (review per batch loopt) |

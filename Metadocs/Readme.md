@@ -2,6 +2,7 @@
 name: dnd-within
 category: Sites
 complexity: high
+language: English
 stack: [vanilla-js, firebase-rtdb, clean-url-router, custom-css, spa]
 ---
 
@@ -11,6 +12,7 @@ Interactive D&D 5.5e (2024 PHB) character sheet + campaign management SPA voor 8
 
 ## Wat het is
 - Per-character sheets met full 2024-PHB mechanics (ability scores, ASI/feat tracks, spell prep, weapon mastery, third-caster slots, etc.)
+- Level-up L1–4 voor alle 12 classes × 48 subclasses × 10 species (2024): spells, feats, actions, uses/resets en swaps per build; Build-venster + Explore builds (zie `Metadocs/LevelingUp/L4-Design.md`)
 - Dashboard met drag-and-drop widget grid (22 widget types, per-breakpoint layouts)
 - Multi-campaign systeem met DM panel (NPC management, family trees, initiative tracker, dice tools)
 - Maps met portal-linking tussen dimensies, Notes (6 layouts), Timeline events
@@ -59,7 +61,7 @@ In-app FAB (debug-mode) → `/shared/bugs` op centrale Nexus Firebase hub. Proje
 
 ## Status
 - Complexity: **high** — multi-module, Firebase sync, complex 5.5e calculations, shared state
-- Hot file: `data.js` (3072+ regels, regelmatig gewijzigd)
+- Hot file: `data.js` (~435 kB, regelmatig gewijzigd); regeltabellen in `data-rules.js`
 - P0 audit (2026-04-13): ✅ alle 11 opgelost (2026-05-15)
 - P1 ~18 items open (Testresults.md sectie 2)
 - P2 ~15 items open (resource trackers, concentration, exhaustion)

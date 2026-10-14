@@ -44,7 +44,7 @@ function wgxIsCaster(raw) {
   if (typeof isThirdCaster === 'function' && isThirdCaster(cn, sub)) return lvl >= 3; // EK/AT vanaf L3
   const cd = (typeof DATA !== 'undefined' && DATA[cn]) || {};
   if (cd.spellSlots) return true;                    // full caster
-  if (cd.spellcasting === 'half') return lvl >= 2;   // Paladin/Ranger vanaf L2
+  if (cd.spellcasting === 'half') return lvl >= (cd.spellcastingStart || 1); // 2024: Paladin/Ranger cast from L1
   return false;
 }
 
@@ -89,7 +89,7 @@ async function wgxLongRest(charId) {
   return { max: hp.max, restoredHitDice: restore };
 }
 
-// ===== Short rest (Warlock Pact Magic + short-one resources) =====
+// ===== Short rest (Warlock Pact Magic + short / short-one resources) =====
 async function wgxShortRest(charId) {
   const raw = WG_CHAR_CACHE[charId] || {};
   const st = raw.state || {};
@@ -99,6 +99,8 @@ async function wgxShortRest(charId) {
   const resources = (typeof getClassResources === 'function') ? getClassResources(raw.config || {}, st) : [];
   for (const r of resources) {
     if (r.recharge === 'short-one' && (st[r.stateKey] || 0) > 0) patch[r.stateKey] = (st[r.stateKey] || 0) - 1;
+    // 'short': all uses return (Action Surge, Focus Points, Adrenaline Rush, Superiority Dice …)
+    if (r.recharge === 'short' && (st[r.stateKey] || 0) > 0) patch[r.stateKey] = 0;
   }
   await wgxPatchState(charId, patch);
 }
@@ -112,9 +114,9 @@ function wgxBuildRest(widget) {
   d.columns = [{ key: 'cell', label: 'Rest' }];
   const rows = [], rowCls = [];
   rows.push(['🌙 Long Rest']); rowCls.push('wgx-act-rest-long');
-  // Short Rest matters for Pact Magic and for any 'short-one' resource.
+  // Short Rest matters for Pact Magic and for any 'short' / 'short-one' resource.
   const res = (typeof getClassResources === 'function') ? getClassResources(raw.config || {}, raw.state || {}) : [];
-  const hasShort = cn === 'warlock' || res.some(r => r.recharge === 'short-one');
+  const hasShort = cn === 'warlock' || res.some(r => r.recharge === 'short-one' || r.recharge === 'short');
   if (hasShort) { rows.push(['☀️ Short Rest']); rowCls.push('wgx-act-rest-short'); }
   d.rows = rows;
   L.columnHighlight = [false];

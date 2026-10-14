@@ -1,5 +1,19 @@
 # D&D Within — To Do
 
+## L4-builds 2026-10-15 — alle class × subclass × species op level 4 (2024 PHB)
+Ontwerp: `Metadocs/LevelingUp/L4-Design.md` · overzicht: `Metadocs/LevelingUp/L4-Combinations.md` (gegenereerd) · test: `node Metadocs/LevelingUp/build-smoke.mjs` (720 builds).
+- [x] P0 — Engine + UI: spell-grants (class/subclass/species/lineage/feat/invocation), resources met resets, actions per type, swaps, Build-venster + Explore builds, level-up fix-modus
+- [x] P0 — Data 2024: 77 feats, 10 species incl. lineages, 12 classes L1–4 + 48 subclasses L3, metamagic, invocations, 22 spells L0–2
+- [~] P1 — Review per batch van 20 combinaties (2 subclasses × 10 species), Barbarian → Wizard, push per batch
+- [ ] P2 — 243 spells van level 3+ hebben nog 2014-tekst (o.a. Conjure-spells) — pas relevant vanaf character level 5
+- [ ] P2 — 19 spells zitten niet in de 2024 PHB (Absorb Elements, Booming Blade, Silvery Barbs, …; `!` in `spellMeta`) — DM-besluit: houden als extra content of verwijderen
+- [ ] P2 — Class/subclass-features L5+ nog niet op 2024 nagelopen (2014-restanten mogelijk)
+- [ ] P2 — Wizard-spellbook wordt niet bijgehouden (alleen prepared spells)
+- [ ] P2 — Skill-keys inconsistent: `'sleight of hand'` (legacy state) vs `sleightOfHand` (config/widgets)
+- [ ] P3 — 20 legacy `{nl, en}`-description-objecten in `data.js` → Engels-only maken
+- [ ] P3 — `data.js` is 435 kB en laadt op elke pagina → later opsplitsen per domein
+- [ ] P3 — Licentie: regelteksten in eigen woorden houden; 5etools-JSON blijft buiten de (publieke) repo, alleen feiten in `l4-facts.json`
+
 ## Hub-bugs 2026-09-23 (5 reports) — EK-spells, familiars, concentration
 - [x] P1 — #P0hvu6q (varragoth) **Background bonus ontbrak**: de wizard schreef de KALE scores weg terwijl engine + alle wg-widgets `config.baseAbilities` als eindscore lezen (legacy SEED_DATA bevat de bonus wél). Fix: wizard telt de bonus op bij opslaan (`applyBgBonusesToAbilities`) en haalt hem er bij edit weer af; eenmalige migratie `migrateCharConfigAbilities` in `loadCharConfig` repareert bestaande wizard-characters (discriminator: `abilityMethod` bestaat + `abilityBonusApplied` ontbreekt → legacy blijft ongemoeid). `core.js`/`ui-modals.js`.
 - [x] P1 — #P0hwaBZ (varragoth) **Eldritch Knight / Arcane Trickster spellcasting**: third casters bestonden alleen in `getSpellSlots`. Toegevoegd: `DATA.thirdCasterPrepared` (vaste 2024-kolom L3-20, géén ability-mod), `DATA.thirdCasterCantrips` (EK 2→3, AT 3→4 op L10), `DATA.thirdCasterFixedCantrips` (AT krijgt Mage Hand automatisch, telt mee voor het max). `hasSpellcasting`/`getMaxPrepared`/`getMaxCantrips` subclass-bewust; nieuwe `getSpellListClass()` → wizard-lijst voor EK/AT; wizard, prepare-window en level-up pickers erop aangesloten. 2024 schrapte de school-restrictie → géén filter. 9 feature-descriptions van 2014- naar 2024-tekst herschreven. `data.js`/`engine.js`/`core.js`/`ui-modals.js`/`wg-prepare.js`/`wg-levelup.js`.

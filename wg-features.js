@@ -45,7 +45,9 @@ function wgxFeatureText(desc) {
   return String(desc || '');
 }
 
-// All features up to the current level: [{src:'C'|'S'|'R'|'M'|'I'|'F', name, desc, level}]
+// All features up to the current level:
+// [{src:'C'|'S'|'R'|'M'|'I'|'F'|'T'|'B', name, desc, level, act}]
+// T = feat (background / Human Versatile / ASI level), B = Battle Master maneuver.
 function wgxCollectFeatures(cfg, st) {
   var lvl = st.level || 1;
   var out = [];
@@ -53,12 +55,12 @@ function wgxCollectFeatures(cfg, st) {
   var feats = classData.features || {};
   for (var l = 1; l <= lvl; l++) {
     var fl = feats[l] || [];
-    for (var i = 0; i < fl.length; i++) out.push({ src: 'C', name: fl[i].name, desc: fl[i].desc, level: l });
+    for (var i = 0; i < fl.length; i++) out.push({ src: 'C', name: fl[i].name, desc: fl[i].desc, level: l, act: fl[i].act });
     var sub = cfg.subclass && classData.subclasses && classData.subclasses[cfg.subclass];
     var sfl = (sub && sub.features && sub.features[l]) || [];
-    for (var s = 0; s < sfl.length; s++) out.push({ src: 'S', name: sfl[s].name, desc: sfl[s].desc, level: l });
+    for (var s = 0; s < sfl.length; s++) out.push({ src: 'S', name: sfl[s].name, desc: sfl[s].desc, level: l, act: sfl[s].act });
     var spl = ((DATA.speciesProgression || {})[cfg.race] || {})[l] || [];
-    for (var p = 0; p < spl.length; p++) out.push({ src: 'R', name: spl[p].name, desc: spl[p].desc, level: l });
+    for (var p = 0; p < spl.length; p++) out.push({ src: 'R', name: spl[p].name, desc: spl[p].desc, level: l, act: spl[p].act });
   }
   // Species base features (level 1, flat array on the race entry). Skip names
   // already added by speciesProgression — e.g. Aasimar list "Celestial
@@ -70,7 +72,12 @@ function wgxCollectFeatures(cfg, st) {
   for (var o = 0; o < out.length; o++) seen[out[o].name.toLowerCase()] = true;
   for (var r = 0; r < rfl.length; r++) {
     if (seen[rfl[r].name.toLowerCase()]) continue;
-    out.push({ src: 'R', name: rfl[r].name, desc: rfl[r].desc, level: 1 });
+    out.push({ src: 'R', name: rfl[r].name, desc: rfl[r].desc, level: 1, act: rfl[r].act });
+  }
+  // Lineage traits (Goliath giant boon, Rock Gnome Tinker, …)
+  var lin = (typeof getLineage === 'function') ? getLineage(cfg) : null;
+  if (lin && lin.data && lin.data !== race) {
+    (lin.data.features || []).forEach(function (lf) { out.push({ src: 'R', name: lf.name, desc: lf.desc, level: 1, act: lf.act }); });
   }
   // Picked options stored in state (level-up menu): the level a pick was made
   // at is recoverable from levelChoices[N].<recKey>.
@@ -106,6 +113,20 @@ function wgxCollectFeatures(cfg, st) {
   for (var fi = 0; fi < fs.length; fi++) {
     out.push({ src: 'F', name: fs[fi], desc: fsDesc(fs[fi]), level: pickLevel('fightingStyle', fs[fi], 2) });
   }
+  // Feats from every source (Fighting Style feats are listed above).
+  if (typeof featInstances === 'function') {
+    featInstances(cfg, st).forEach(function (f) {
+      if (f.src === 'style' || !f.feat) return;
+      var acts = (f.feat.actions || []).map(function (a) { return a.act; });
+      out.push({ src: 'T', name: f.name, desc: f.feat.desc, level: f.level || 1, act: acts[0] || null });
+    });
+  }
+  // Battle Master maneuvers
+  var mns = st.maneuvers || [];
+  for (var mi = 0; mi < mns.length; mi++) {
+    var mo = (DATA.maneuvers || []).filter(function (o) { return o.name === mns[mi]; })[0];
+    if (mo) out.push({ src: 'B', name: mo.name, desc: mo.desc + ' (costs one Superiority Die)', level: pickLevel('maneuvers', mo.name, 3), act: mo.act });
+  }
   return out;
 }
 
@@ -124,7 +145,7 @@ function wgxFeatureResourceMap(cfg, st) {
 // (kost sorcery points) of invocation (verleent casts/actieve opties).
 // Fighting styles en overige rules-text zijn passief.
 function wgxFeatureIsActive(entry) {
-  return !!entry.res || entry.feat.src === 'M' || entry.feat.src === 'I';
+  return !!entry.res || !!entry.feat.act || entry.feat.src === 'M' || entry.feat.src === 'I' || entry.feat.src === 'B';
 }
 
 // Row model shared by builder and click-handler (1:1 with rendered rows).
@@ -168,7 +189,8 @@ function wgxBuildFeatures(widget, filter) {
     rows.push(['', filter ? ('No ' + filter + ' features') : 'No features', '', '']);
     tips.push(null); rowCls.push(null);
   } else {
-    var srcLabel = { C: 'Class', S: 'Subclass', R: 'Species', M: 'Metamagic', I: 'Invocation', F: 'Fighting Style' };
+    var srcLabel = { C: 'Class', S: 'Subclass', R: 'Species', M: 'Metamagic', I: 'Invocation', F: 'Fighting Style', T: 'Feat', B: 'Maneuver' };
+    var actLabel = { action: 'Action', bonus: 'Bonus Action', reaction: 'Reaction', attack: 'On a hit / Attack action', free: 'No action' };
     for (var i = 0; i < model.length; i++) {
       var row = model[i];
       if (row.header) {
@@ -186,13 +208,13 @@ function wgxBuildFeatures(widget, filter) {
         var used = Math.min(st[res.stateKey] || 0, max);
         var unit = res.unit === 'points' ? 'points' : 'uses';
         var die = res.die ? (' (' + res.die(st) + ')') : '';
-        var rechargeTxt = res.recharge === 'long' ? 'All return on a Long Rest.' : 'Regain one on a Short Rest, all on a Long Rest.';
+        var rechargeTxt = res.recharge === 'long' ? 'All return on a Long Rest.' : res.recharge === 'short' ? 'All return on a Short or Long Rest.' : 'Regain one on a Short Rest, all on a Long Rest.';
         var extra = (typeof res.extraDesc === 'function') ? res.extraDesc(cfg, st) : '';
         body += (extra ? '\n\n' + extra : '') +
           '\n\n' + (max - used) + '/' + max + ' ' + unit + die + ' left. ' + rechargeTxt +
           '\n\nClick the counter to spend 1' + (res.unit === 'points' ? ' point' : ' use') + '; click when empty to restore all.';
       }
-      var tip = { title: f.name + ' · ' + srcLabel[f.src] + ' (level ' + f.level + ')', body: body };
+      var tip = { title: f.name + ' · ' + srcLabel[f.src] + ' (level ' + f.level + ')' + (f.act ? ' · ' + actLabel[f.act] : ''), body: body };
       tips.push([tip, tip, tip, tip]);
       rowCls.push(res ? 'wgx-feat-active' : 'wgx-feat-passive');
     }
