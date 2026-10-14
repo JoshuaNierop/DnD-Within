@@ -4,12 +4,12 @@
 Ontwerp: `Metadocs/LevelingUp/L4-Design.md` · overzicht: `Metadocs/LevelingUp/L4-Combinations.md` (gegenereerd) · test: `node Metadocs/LevelingUp/build-smoke.mjs` (720 builds).
 - [x] P0 — Engine + UI: spell-grants (class/subclass/species/lineage/feat/invocation), resources met resets, actions per type, swaps, Build-venster + Explore builds, level-up fix-modus
 - [x] P0 — Data 2024: 77 feats, 10 species incl. lineages, 12 classes L1–4 + 48 subclasses L3, metamagic, invocations, 22 spells L0–2
-- [~] P1 — Review per batch van 20 combinaties (2 subclasses × 10 species), Barbarian → Wizard, push per batch — batch 1 (Berserker, Wild Heart) klaar
+- [~] P1 — Review per batch van 20 combinaties (2 subclasses × 10 species), Barbarian → Wizard, push per batch — batch 1–2 (Barbarian) klaar
 - [x] P1 — Batch 1: skill-keuzes uit features in level-up (Primal Knowledge, Bonus Proficiencies, Student of War, Otherworldly Glamour; Implements of Mercy automatisch); 2024-skilllijsten Fighter (+Persuasion), Rogue (−Performance), Wizard (+Nature); regressie gefixt: gekozen subclass-stap verdween uit het level-up-menu; ongebruikt NL/2014-blok `DATA.tooltips` (289 regels) verwijderd
 - [ ] P1 — Level 5 voor alle class × subclass × species (na de L4-review; verzoek Joshua 2026-10-15)
 - [ ] P2 — 243 spells van level 3+ hebben nog 2014-tekst (o.a. Conjure-spells) — pas relevant vanaf character level 5
 - [ ] P2 — 19 spells zitten niet in de 2024 PHB (Absorb Elements, Booming Blade, Silvery Barbs, …; `!` in `spellMeta`) — DM-besluit: houden als extra content of verwijderen
-- [ ] P2 — Class/subclass-features L5+ nog niet op 2024 nagelopen (2014-restanten mogelijk)
+- [ ] P2 — Class/subclass-features L5+ nog niet op 2024 nagelopen (2014-restanten mogelijk). Al gezien: World Tree L6 Branches of the Tree (moet Reaction + STR-save zijn), Zealot L6 Fanatical Focus (bonus = Rage Damage ontbreekt), L10 Zealous Presence (herstel via Rage ontbreekt), L14 = 2014 "Rage Beyond Death" i.p.v. 2024 "Rage of the Gods"
 - [ ] P2 — Wizard-spellbook wordt niet bijgehouden (alleen prepared spells)
 - [ ] P2 — Skill-keys inconsistent: `'sleight of hand'` (legacy state) vs `sleightOfHand` (config/widgets)
 - [ ] P3 — 20 legacy `{nl, en}`-description-objecten in `data.js` → Engels-only maken
