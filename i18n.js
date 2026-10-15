@@ -97,7 +97,7 @@ var TRANSLATIONS = {
         'char.refreshquote': 'Ander citaat',
 
         // Overview Tab
-        'overview.race': 'Ras',
+        'overview.race': 'Soort',
         'overview.class': 'Klasse',
         'overview.subclass': 'Subklasse',
         'overview.background': 'Achtergrond',
@@ -609,6 +609,7 @@ var TRANSLATIONS = {
         'combat.tab.party': 'Party',
         'combat.tab.familiars': 'Familiars',
         'combat.tab.creatures': 'Creatures',
+        'combat.tab.srd': 'Monster Manual',
         'combat.empty.cat': 'Niets voorbereid in deze categorie.',
         'combat.close': 'Sluiten',
         'combat.loading': 'laden…',
@@ -645,7 +646,7 @@ var TRANSLATIONS = {
         'wizard.error.step1': 'Vul naam, ras en klasse in (Stap 1).',
         'wizard.success': 'Character aangemaakt!',
         'wizard.summary.name': 'Naam: ',
-        'wizard.summary.race': 'Ras: ',
+        'wizard.summary.race': 'Soort: ',
         'wizard.summary.class': 'Klasse: ',
         'wizard.empty': '(niet ingevuld)',
         'wizard.notchosen': '(niet gekozen)',
@@ -792,7 +793,7 @@ var TRANSLATIONS = {
         'char.refreshquote': 'Different quote',
 
         // Overview Tab
-        'overview.race': 'Race',
+        'overview.race': 'Species',
         'overview.class': 'Class',
         'overview.subclass': 'Subclass',
         'overview.background': 'Background',
@@ -1304,6 +1305,7 @@ var TRANSLATIONS = {
         'combat.tab.party': 'Party',
         'combat.tab.familiars': 'Familiars',
         'combat.tab.creatures': 'Creatures',
+        'combat.tab.srd': 'Monster Manual',
         'combat.empty.cat': 'Nothing prepared in this category.',
         'combat.close': 'Close',
         'combat.loading': 'loading…',
@@ -1340,7 +1342,7 @@ var TRANSLATIONS = {
         'wizard.error.step1': 'Fill in name, race and class (Step 1).',
         'wizard.success': 'Character created!',
         'wizard.summary.name': 'Name: ',
-        'wizard.summary.race': 'Race: ',
+        'wizard.summary.race': 'Species: ',
         'wizard.summary.class': 'Class: ',
         'wizard.empty': '(not filled in)',
         'wizard.notchosen': '(not chosen)',

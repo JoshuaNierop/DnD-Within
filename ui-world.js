@@ -2294,7 +2294,7 @@ var LORE_CAT_FIELDS = {
     // -mentions en -hypotheses niet te breken; het UI-label is "Creatures".)
     monsters: [
         // Identity / social (NPC-origin)
-        { key: 'race',          label: 'Race',                type: 'text' },
+        { key: 'race',          label: 'Species',             type: 'text' },
         { key: 'npcClass',      label: 'Class',               type: 'text' },
         { key: 'profession',    label: 'Profession',          type: 'text' },
         { key: 'alive',         label: 'Status',              type: 'select', options: ['alive', 'dead'] },
@@ -2307,6 +2307,7 @@ var LORE_CAT_FIELDS = {
         // Stat block (monster-origin)
         { key: 'size',          label: 'Size',                type: 'text' },
         { key: 'mtype',         label: 'Type',                type: 'text' },
+        { key: 'alignment',     label: 'Alignment',           type: 'text' },
         { key: 'cr',            label: 'CR',                  type: 'text' },
         { key: 'profBonus',     label: 'Prof. Bonus',         type: 'number' },
         { key: 'initiative',    label: 'Initiative',          type: 'number' },
@@ -2320,11 +2321,14 @@ var LORE_CAT_FIELDS = {
         { key: 'immunities',    label: 'Damage Immunities',   type: 'text' },
         { key: 'condImmunities',label: 'Condition Immunities',type: 'text' },
         { key: 'vulnerabilities',label:'Vulnerabilities',     type: 'text' },
+        { key: 'gear',          label: 'Gear',                type: 'text' },
         { key: 'senses',        label: 'Senses',              type: 'text' },
         { key: 'languages',     label: 'Languages',           type: 'text' },
         // Narrative (textareas)
         { key: 'traits',        label: 'Traits',              type: 'textarea' },
         { key: 'actions',       label: 'Actions',             type: 'textarea' },
+        { key: 'bonusActions',  label: 'Bonus Actions',       type: 'textarea' },
+        { key: 'reactions',     label: 'Reactions',           type: 'textarea' },
         { key: 'legendary',     label: 'Legendary Actions',   type: 'textarea' },
         { key: 'spellcasting',  label: 'Spellcasting',        type: 'textarea' },
         { key: 'preferences',   label: 'Likes / Preferences', type: 'textarea' },
@@ -2418,17 +2422,19 @@ function renderLoreField(f, e, cat) {
 // Pagina-indeling per categorie: velden die niet op 1 pagina passen (monsters)
 // worden over 2 pagina's verdeeld. Overige categorieën = 1 pagina (alle velden).
 var LORE_CAT_PAGES = {
-    // Creatures (key 'monsters') — 4 pagina's, vaste vensterhoogte dekt het
+    // Creatures (key 'monsters') — 5 pagina's, vaste vensterhoogte dekt het
     // formaatverschil af (#OvywGWk).
     monsters: [
         // P1 — identiteit & sociaal (NPC-origin)
         ['race', 'npcClass', 'profession', 'alive', 'disposition', 'faction', 'religion', 'location', 'birthYear', 'relation'],
         // P2 — stat-block-getallen + ability scores
-        ['size', 'mtype', 'cr', 'profBonus', 'initiative', 'ac', 'hp', 'speed', 'abilities'],
+        ['size', 'mtype', 'alignment', 'cr', 'profBonus', 'initiative', 'ac', 'hp', 'speed', 'abilities'],
         // P3 — defenses & senses (korte velden)
-        ['saves', 'skills', 'senses', 'languages', 'resistances', 'immunities', 'condImmunities', 'vulnerabilities'],
-        // P4 — narratief (textareas)
-        ['traits', 'actions', 'legendary', 'spellcasting', 'preferences', 'dislikes', 'pets', 'description', 'notes']
+        ['saves', 'skills', 'senses', 'languages', 'resistances', 'immunities', 'condImmunities', 'vulnerabilities', 'gear'],
+        // P4 — 2024 stat-block sections
+        ['traits', 'actions', 'bonusActions', 'reactions', 'legendary', 'spellcasting'],
+        // P5 — narrative
+        ['preferences', 'dislikes', 'pets', 'description', 'notes']
     ]
 };
 function lorePagesFor(cat) {
@@ -2544,6 +2550,8 @@ function renderLoreEntryModal(cat, idx) {
             }
             html += '</div>';
             html += '</div>';
+            // DM-only: link to a Monster Manual (SRD 5.2) stat block as the base (monster-db.js)
+            if (showHdrVis && typeof monsterBaseRowHtml === 'function') html += monsterBaseRowHtml(e.base);
         }
         html += '<div class="lore-form-grid">';
         for (var fi = 0; fi < pages[p].length; fi++) html += renderLoreField(pages[p][fi], e, cat);
@@ -2619,6 +2627,12 @@ async function saveLoreEntryModal() {
     var oldImage2 = entry.image2 || '';
     entry.name = name;
     if (cat === 'monsters') { entry.firstName = creFirst; entry.lastName = creLast; }
+    var baseEl = document.getElementById('lore-entry-f-base');
+    if (cat === 'monsters' && baseEl) {
+        var baseVal = null;
+        try { baseVal = baseEl.value ? JSON.parse(baseEl.value) : null; } catch (e) {}
+        entry.base = baseVal;
+    }
     entry.image = v('lore-entry-f-image') || null;
     if (imgElH) entry.image2 = v('lore-entry-f-image2') || null;
 
@@ -2841,6 +2855,8 @@ function renderMonsterEntryInfo(e) {
     // (traits/actions/spellcasting/description) blijven full-width eronder.
     var cols = '';
     var blocks = '';
+    // DM-only: never show players which stat block a creature is built on (fog of war)
+    var baseChip = (dm && e.base && typeof monsterBaseChipHtml === 'function') ? monsterBaseChipHtml(e.base) : '';
     for (var fi = 0; fi < fields.length; fi++) {
         var f = fields[fi];
         var vis = monsterFieldVis(e, f.key);
@@ -2865,7 +2881,7 @@ function renderMonsterEntryInfo(e) {
             if (f.type === 'textarea') {
                 blocks += '<div class="lore-info-block' + (vis === 'private' ? ' is-private' : '') + '">' +
                     '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' + monsterVisToggle(eid, f.key, vis) +
-                    '<div class="lore-info-text">' + renderRichText(val) + '</div></div>';
+                    '<div class="lore-info-text">' + monsterBlockText(f.key, val) + '</div></div>';
             } else {
                 cols += '<div class="lore-info-row' + (vis === 'private' ? ' is-private' : '') + '">' +
                     '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
@@ -2875,7 +2891,7 @@ function renderMonsterEntryInfo(e) {
             if (!hasVal) continue;
             if (f.type === 'textarea') {
                 blocks += '<div class="lore-info-block"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
-                    '<div class="lore-info-text">' + renderRichText(val) + '</div></div>';
+                    '<div class="lore-info-text">' + monsterBlockText(f.key, val) + '</div></div>';
             } else {
                 cols += '<div class="lore-info-row"><span class="lore-info-label">' + escapeHtml(f.label) + '</span>' +
                     '<span class="lore-info-val">' + escapeHtml(dispVal) + '</span></div>';
@@ -2885,7 +2901,14 @@ function renderMonsterEntryInfo(e) {
             if (f.type !== 'textarea') cols += renderMonsterHypRow(f, eid);
         }
     }
-    return (cols ? '<div class="monster-stat-cols">' + cols + '</div>' : '') + blocks;
+    return baseChip + (cols ? '<div class="monster-stat-cols">' + cols + '</div>' : '') + blocks;
+}
+// Stat-block sections hold "Name. text" paragraphs: bold the name like a printed stat block.
+var MONSTER_BLOCK_KEYS = { traits: 1, actions: 1, bonusActions: 1, reactions: 1, legendary: 1, spellcasting: 1 };
+function monsterBlockText(key, val) {
+    var html = renderRichText(val);
+    if (!MONSTER_BLOCK_KEYS[key]) return html;
+    return html.replace(/(^|\n\n)([^\n.<]{1,60}?\.)(?= )/g, '$1<strong>$2</strong>');
 }
 
 function renderLoreEntryInfo(cat, e) {

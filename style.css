@@ -10709,3 +10709,45 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
         max-width: none !important;
     }
 }
+
+/* ===== Monster Manual database (monster-db.js) ===== */
+.monster-base-row {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.6rem;
+    padding: 0.55rem 0.7rem; border: 1px dashed var(--hairline-gold); border-radius: var(--radius-sm);
+    background: var(--bg-block);
+}
+.monster-base-row .login-label { margin: 0; }
+.monster-base-val { flex: 1 1 8rem; min-width: 0; color: var(--text-bright); }
+.monster-base-chip {
+    display: inline-block; margin-bottom: 0.5rem; padding: 0.2rem 0.55rem; font-size: 0.8rem;
+    border: 1px solid var(--hairline-gold); border-radius: 999px; color: var(--gold); background: var(--bg-block);
+}
+.monster-db-card { max-width: 720px; height: min(88vh, 720px); display: flex; flex-direction: column; overflow: hidden; }
+.monster-db-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 0.5rem; padding: 0.8rem 1.1rem 0.9rem; }
+.monster-db-loading, .monster-db-empty { color: var(--text-dim); padding: 1rem 0; text-align: center; }
+.monster-db-filters { display: grid; grid-template-columns: 2fr repeat(4, minmax(0, 1fr)); gap: 0.45rem; }
+.monster-db-count { font-size: 0.8rem; }
+.monster-db-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+.monster-db-row { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-block); }
+.monster-db-row.is-open { border-color: var(--hairline-gold); }
+.monster-db-head {
+    width: 100%; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.5fr) auto; gap: 0.6rem; align-items: baseline;
+    padding: 0.45rem 0.7rem; background: none; border: 0; color: var(--text-main); text-align: left; cursor: pointer; font: inherit;
+}
+.monster-db-head:hover, .monster-db-head:focus-visible { background: var(--bg-elevated); }
+.monster-db-name { color: var(--text-bright); font-weight: 600; }
+.monster-db-meta { color: var(--text-dim); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.monster-db-cr { color: var(--gold); font-size: 0.85rem; white-space: nowrap; }
+.monster-db-detail { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.2rem 0.7rem 0.65rem; font-size: 0.88rem; }
+.monster-db-detail .btn { align-self: flex-start; margin-top: 0.3rem; }
+.monster-db-foot { display: flex; flex-direction: column; gap: 0.35rem; border-top: 1px solid var(--border); padding-top: 0.55rem; }
+.monster-db-overwrite { display: flex; align-items: center; gap: 0.45rem; font-size: 0.9rem; }
+.monster-db-attrib { margin: 0; font-size: 0.75rem; }
+.combat-add-search { width: 100%; margin-bottom: 4px; }
+@media (max-width: 640px) {
+    .monster-db-card { height: 92dvh; }
+    .monster-db-filters { grid-template-columns: 1fr 1fr; }
+    .monster-db-search { grid-column: 1 / -1; }
+    .monster-db-head { grid-template-columns: minmax(0, 1fr) auto; }
+    .monster-db-meta { grid-column: 1 / -1; grid-row: 2; }
+}

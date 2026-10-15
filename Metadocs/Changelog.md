@@ -2,6 +2,20 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-16 — Monster Manual base for Creatures
+
+- **Start from Monster Manual** in the Creature editor (DM): search 330 Monster Manual
+  (2025) monsters from the SRD 5.2 by name, type, size and CR, and fill the stat block in
+  one go. New creatures get the whole stat block; existing ones only their empty fields,
+  unless you choose to overwrite.
+- Every field stays editable; the creature remembers its base (shown only to the DM as
+  "Base: …" on the card).
+- Creature stat blocks follow the 2024 layout: Alignment, Gear, Bonus Actions and Reactions
+  are new fields, and action names are shown in bold.
+- The combat tracker's add menu has a **Monster Manual** tab with search, so a monster can
+  join the initiative without making a Creature first.
+- "Race" is now "Species" everywhere (2024 term).
+
 ## 2026-10-15 — Levels 17–20: every class and subclass up to level 20 (2024 rules)
 
 - Every class and subclass feature from level 17 to 20 follows the 2024 Player's

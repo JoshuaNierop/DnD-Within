@@ -69,7 +69,7 @@ function buildRowsFromSource(widget) {
     // subclass kiest (5.5e = level 3) of zodra er al één gekozen is. De
     // edit-handler leest dezelfde field-key uit d.fieldKeys[rowIdx].
     const fields = [
-      { key: 'race',       label: 'Race',       value: cfg.race ? raceTxt : dash },
+      { key: 'race',       label: 'Species',    value: cfg.race ? raceTxt : dash },
       { key: 'className',  label: 'Class',      value: cfg.className ? classTxt : dash },
       { key: 'background', label: 'Background', value: cfg.background ? capLocal(cfg.background) : dash },
       { key: 'age',        label: 'Age',        value: (cfg.age != null && cfg.age !== '') ? String(cfg.age) : dash },

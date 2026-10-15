@@ -674,6 +674,18 @@ function combatAddSources(tab) {
       };
     });
   }
+  // Monster Manual (SRD 5.2): straight from the lazy-loaded database, no Creature entry needed.
+  if (tab === 'srd') {
+    const db = (typeof monsterDbList === 'function') ? monsterDbList() : [];
+    return db.map(m => ({
+      key: 'srd:' + m.id,
+      name: m.name,
+      portrait: null,
+      meta: 'CR ' + m.cr,
+      search: (m.name + ' ' + m.mtype).toLowerCase(),
+      make: () => combatEntityFromMonster(m, 'monster'),
+    }));
+  }
   let mons = [];
   try { if (typeof getLoreCatEntries === 'function') mons = getLoreCatEntries('monsters') || []; } catch (e) {}
   // #OvywGWk: één Creatures-bron (lore-categorie 'monsters', incl. gemigreerde
@@ -707,7 +719,7 @@ function showCombatAddPanel(clientX, clientY) {
   pop.style.top = (clientY + 8) + 'px';
 
   const tabs = hEl('div', 'combat-add-tabs');
-  [['party', ct('combat.tab.party')], ['familiars', ct('combat.tab.familiars')], ['creatures', ct('combat.tab.creatures')]].forEach(([id, label]) => {
+  [['party', ct('combat.tab.party')], ['familiars', ct('combat.tab.familiars')], ['creatures', ct('combat.tab.creatures')], ['srd', ct('combat.tab.srd')]].forEach(([id, label]) => {
     const b = hEl('button', 'combat-add-tab' + (_combatAddTab === id ? ' active' : ''), label);
     b.dataset.tab = id;
     // Actief-markering op de tab-id, niet op het label: twee tabs kunnen in een
@@ -720,9 +732,31 @@ function showCombatAddPanel(clientX, clientY) {
   const listWrap = hEl('div', 'combat-add-list');
   pop.appendChild(listWrap);
 
+  let srdQuery = '';
   function renderList() {
     listWrap.innerHTML = '';
-    const items = combatAddSources(_combatAddTab);
+    let items = combatAddSources(_combatAddTab);
+    if (_combatAddTab === 'srd') {
+      if (typeof loadMonsterDb !== 'function') return;
+      if (!window.DW_MONSTER_DB) {
+        listWrap.appendChild(hEl('div', 'combat-empty', ct('combat.loading')));
+        loadMonsterDb().then(() => { if (_combatAddTab === 'srd' && pop.isConnected) renderList(); },
+          () => { listWrap.innerHTML = ''; listWrap.appendChild(hEl('div', 'combat-empty', 'Could not load the monster database.')); });
+        return;
+      }
+      const q = hEl('input', 'edit-input combat-add-search');
+      q.type = 'search'; q.placeholder = 'Search monsters…'; q.value = srdQuery;
+      q.addEventListener('click', (e) => e.stopPropagation());
+      q.addEventListener('input', () => {
+        srdQuery = q.value;
+        renderList();
+        const nq = listWrap.querySelector('.combat-add-search');
+        if (nq) { nq.focus(); nq.setSelectionRange(nq.value.length, nq.value.length); }
+      });
+      listWrap.appendChild(q);
+      const needle = srdQuery.trim().toLowerCase();
+      if (needle) items = items.filter(src => src.search.indexOf(needle) >= 0);
+    }
     if (!items.length) { listWrap.appendChild(hEl('div', 'combat-empty', ct('combat.empty.cat'))); return; }
     items.forEach(src => {
       const row = hEl('button', 'combat-add-item');
