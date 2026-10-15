@@ -46,10 +46,19 @@ for (const cls of ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'p
     });
   });
   f.asiAt4 = !!(j.classFeature || []).find((x) => x.source === 'XPHB' && x.className === c.name && x.level === 4 && /Ability Score Improvement/.test(x.name));
+  // levels with an Ability Score Improvement or the Epic Boon (both a feat choice)
+  f.asiLevels = (j.classFeature || []).filter((x) => x.source === 'XPHB' && x.className === c.name && x.level <= MAXL && /^(Ability Score Improvement|Epic Boon)$/.test(x.name))
+    .map((x) => x.level).sort((a, b) => a - b);
+  // feature names per level (names only), to compare with our class features
+  f.features = {};
+  (j.classFeature || []).filter((x) => x.source === 'XPHB' && x.className === c.name && x.level <= MAXL)
+    .forEach((x) => { (f.features[x.level] = f.features[x.level] || []).push(x.name); });
   out.classes[cls] = f;
   (j.subclass || []).filter((s) => s.source === 'XPHB' && s.classSource === 'XPHB').forEach((s) => {
     const key = KEYS[s.name]; if (!key) return;
-    const g = { cls, name: s.name, preparedAt: {}, knownAt: {} };
+    const g = { cls, name: s.name, preparedAt: {}, knownAt: {}, features: {} };
+    (j.subclassFeature || []).filter((x) => x.source === 'XPHB' && x.className === c.name && x.subclassShortName === s.shortName && x.level <= MAXL && x.name !== s.name)
+      .forEach((x) => { (g.features[x.level] = g.features[x.level] || []).push(x.name); });
     (s.additionalSpells || []).forEach((as) => {
       const p = as.prepared || {}; const k = as.known || {};
       for (let L = 1; L <= MAXL; L++) {

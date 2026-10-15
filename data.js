@@ -3667,20 +3667,16 @@ DATA.spells = {
 // levels beyond the array length fall back to the legacy formula in
 // getMaxPrepared() until fase F extends these.
 DATA.preparedTable = {
-    // 2024 PHB fixed prepared-spells columns. L1-3 verified via class research;
-    // L4-5 added 2026-08-04 from the 2024 tables (spot-check PHB). Levels beyond
-    // the array fall back to the legacy formula in getMaxPrepared().
-    wizard:   [0, 4, 5, 6, 7, 9],
-    sorcerer: [0, 2, 4, 6, 7, 9],
-    druid:    [0, 4, 5, 6, 7, 9],
-    cleric:   [0, 4, 5, 6, 7, 9],
-    bard:     [0, 4, 5, 6, 7, 9],
-    warlock:  [0, 2, 3, 4, 5, 6],
-    // 2024 PHB: half-casters cast from L1 (2 prepared). The earlier aidedd
-    // values ([-,2,3] / [-,3,4]) matched the 2014 start-at-L2 layout and
-    // contradicted the verified class research — spot-check PHB.
-    paladin:  [0, 2, 3, 4, 5, 6],
-    ranger:   [0, 2, 3, 4, 5, 6]
+    // 2024 PHB fixed prepared-spells columns, levels 1-20 (checked against the
+    // PHB data by build-smoke.mjs). Half casters prepare spells from level 1.
+    wizard:   [0, 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 16, 17, 18, 19, 21, 22, 23, 24, 25],
+    sorcerer: [0, 2, 4, 6, 7, 9, 10, 11, 12, 14, 15, 16, 16, 17, 17, 18, 18, 19, 20, 21, 22],
+    druid:    [0, 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 16, 17, 17, 18, 18, 19, 20, 21, 22],
+    cleric:   [0, 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 16, 17, 17, 18, 18, 19, 20, 21, 22],
+    bard:     [0, 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 16, 17, 17, 18, 18, 19, 20, 21, 22],
+    warlock:  [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15],
+    paladin:  [0, 2, 3, 4, 5, 6, 6, 7, 7, 9, 9, 10, 10, 11, 11, 12, 12, 14, 14, 15, 15],
+    ranger:   [0, 2, 3, 4, 5, 6, 6, 7, 7, 9, 9, 10, 10, 11, 11, 12, 12, 14, 14, 15, 15]
 };
 
 // #P0hwaBZ — Third casters (Eldritch Knight / Arcane Trickster). The 2024 PHB

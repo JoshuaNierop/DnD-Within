@@ -57,7 +57,7 @@ function totalsAt(cls, L) {
   const tb = FACTS.classes[cls].table || {};
   const t = {};
   if (cls === 'warlock') t.invocations = at(tb['Eldritch Invocations'], L);
-  if (cls === 'sorcerer') t.metamagic = L >= 10 ? 4 : L >= 2 ? 2 : 0;
+  if (cls === 'sorcerer') t.metamagic = L >= 17 ? 6 : L >= 10 ? 4 : L >= 2 ? 2 : 0;
   if (cls === 'druid') t.wildShapeForms = L >= 8 ? 8 : L >= 4 ? 6 : L >= 2 ? 4 : 0;
   if (tb['Weapon Mastery']) t.weaponMasteries = at(tb['Weapon Mastery'], L);
   else if (['paladin', 'ranger', 'rogue'].includes(cls)) t.weaponMasteries = 2;
@@ -128,7 +128,13 @@ for (const cls of CLASSES) {
         for (const [id, want] of Object.entries(totalsAt(cls, T))) {
           check(combo + ': ' + id + ' = ' + want, (st[id] || []).length === want, String((st[id] || []).length));
         }
-        if (cfg.subclass === 'battleMaster') check(combo + ': 3 maneuvers', (st.maneuvers || []).length === 3);
+        if (cfg.subclass === 'battleMaster') {
+          const wantM = T >= 15 ? 9 : T >= 10 ? 7 : T >= 7 ? 5 : 3;   // 2024 Battle Master: 3/5/7/9 at 3/7/10/15
+          check(combo + ': ' + wantM + ' maneuvers', (st.maneuvers || []).length === wantM, String((st.maneuvers || []).length));
+        }
+        // an ASI or feat (Epic Boon at 19) recorded at every 2024 ASI level
+        const asiMiss = (cf.asiLevels || []).filter((L) => L <= T && !(st.asiChoices || {})[L]);
+        check(combo + ': ASI/feat at ' + (cf.asiLevels || []).filter((L) => L <= T).join(','), asiMiss.length === 0, 'missing ' + asiMiss.join(','));
         // class resources with a table column, dice that grow with level
         prof.resources.forEach((r) => {
           const col = RES_COLUMNS[r.id];
@@ -156,7 +162,7 @@ for (const cls of CLASSES) {
         // subclass always-prepared spells up to level T (2024 facts)
         let wantSub = [];
         for (let L = 3; L <= T; L++) wantSub = wantSub.concat((sf.preparedAt || {})[L] || [], (sf.knownAt || {})[L] || []);
-        if (cls === 'druid' && cfg.subclass === 'land') wantSub = [3, 5].filter((L) => L <= T).flatMap((L) => sf.variants['Arid Land'][L] || []);
+        if (cls === 'druid' && cfg.subclass === 'land') wantSub = [3, 5, 7, 9].filter((L) => L <= T).flatMap((L) => sf.variants['Arid Land'][L] || []);
         const have = gNames.concat(st.cantrips || []).map((x) => x.toLowerCase());
         const missSub = wantSub.filter((n) => have.indexOf(n.toLowerCase()) === -1);
         check(combo + ': subclass spells', missSub.length === 0, 'missing ' + missSub.join(', '));
@@ -243,6 +249,29 @@ for (const cls of CLASSES) {
     check('Wild Shape ' + f.name + ': CR/Fly/swarm as MM 2025', b.cr === f.cr && b.fly === !!f.fly && b.swarm === !!f.swarm, JSON.stringify(b));
   });
   check('77 feats (2024 PHB)', DATA.feats.length === 77, String(DATA.feats.length));
+  // Class and subclass feature names per level = the 2024 PHB (levels 1..T). The PHB data also lists
+  // option entries (Divine Order choices, Cunning Strike options, …) as features; those are skipped.
+  const OPTION_ENTRIES = new Set(['Subclass Feature', 'Ability Score Improvement', 'Epic Boon', 'Protector', 'Thaumaturge',
+    'Magician', 'Warden', 'Archer', 'Chalice', 'Dragon', 'Maneuver Options', 'Bonus Unarmed Strike', 'Dexterous Attacks',
+    'Martial Arts Die', 'Darkness', 'Darkvision', 'Shadowy Figments', 'Poison (Cost: 1d6)', 'Trip (Cost: 1d6)',
+    'Withdraw (Cost: 1d6)', 'Metamagic Options', 'Eldritch Invocation Options', 'Bardic Damage', 'Dance Virtuoso',
+    'Unarmored Defense', 'Divine Strike', 'Potent Spellcasting', 'Primal Strike']);
+  const nm = (s) => s.toLowerCase().replace(/[’']/g, "'").trim();
+  const cmpNames = (label, want, have) => {
+    const h = (have || []).map((f) => nm(f.name)), all = (want || []).map(nm);
+    const w = (want || []).filter((n) => !OPTION_ENTRIES.has(n) || h.includes(nm(n))).map(nm);
+    const miss = w.filter((n) => !h.includes(n)), extra = h.filter((n) => !all.includes(n));
+    check(label + ' feature names = 2024 PHB', miss.length === 0 && extra.length === 0, 'missing ' + miss.join(' | ') + ' / ours only ' + extra.join(' | '));
+  };
+  for (const cls of CLASSES) {
+    for (let L = 1; L <= T; L++) {
+      cmpNames(cls + ' L' + L, FACTS.classes[cls].features[L], ((DATA[cls].features || {})[L] || []).filter((f) => !/^(Ability Score Improvement|Epic Boon)$/.test(f.name)));
+      for (const [key, sub] of Object.entries(DATA[cls].subclasses)) {
+        const sf = FACTS.subclasses[cls + '/' + key];
+        if (sf && L >= 3) cmpNames(cls + '/' + key + ' L' + L, sf.features[L], (sub.features || {})[L]);
+      }
+    }
+  }
   for (const cls of CLASSES) {
     const f = FACTS.classes[cls];
     check(cls + ': hit die ' + f.hitDie, DATA[cls].hitDie === f.hitDie);
