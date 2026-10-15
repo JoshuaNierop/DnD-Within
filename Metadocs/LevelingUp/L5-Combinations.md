@@ -28,8 +28,8 @@
 | Battle Master (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 9 |
 | Eldritch Knight (fighter) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 10 |
 | Psi Warrior (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 10 |
-| Open Hand (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
-| Mercy (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
+| Open Hand (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 11 |
+| Mercy (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 11 |
 | Shadow (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Elements (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Devotion (paladin) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
