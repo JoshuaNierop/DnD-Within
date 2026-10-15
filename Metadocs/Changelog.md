@@ -2,6 +2,22 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-16 — Your Turn widget, spell countdown, nested tooltips
+
+- New **Your Turn** widget (Combat category): everything you can do on a turn, grouped as
+  Action, Bonus Action, Reaction and Other — attacks, spells, features, the standard actions
+  and Opportunity Attack. Click a spell to cast it or a counter to spend a use.
+- The Features widgets are grouped the same way (Action / Bonus Action / Reaction / Other),
+  with Passive features separate.
+- A spell with a duration keeps running after you cast it: it shows under **Active spells**
+  and counts down with the Combat Tracker rounds (10 rounds = 1 minute). Casting a new
+  Concentration spell ends the old one; rests end spells that ran out. Click it to end it early.
+- The Combat Tracker shows each character's running spells as small chips next to the name;
+  hover a chip to see which spell it is and how many rounds are left.
+- Tooltips stay open when you move the mouse into them. Underlined words (spells, conditions,
+  actions, rules terms, feats and your own features) open a second tooltip on hover, and
+  that one can open another.
+
 ## 2026-10-16 — Combat tracker keeps its minimum size
 
 - The Combat Tracker and Initiative Tracker now measure what they really need: they can't

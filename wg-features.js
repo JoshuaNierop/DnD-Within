@@ -1,8 +1,9 @@
 // wg-features.js — Features widget: every class + subclass + species feature
-// the character has at its current level, split into an ACTIVE section
-// (features backed by a use-counter from DATA.classResources — click the uses
-// cell to spend one; click when empty to restore all, same semantics as the
-// Resources widget) and a PASSIVE section (rules text only). Full rules text
+// the character has at its current level, grouped by what it costs on a turn
+// (Action / Bonus Action / Reaction / Other — features backed by a use-counter
+// from DATA.classResources: click the uses cell to spend one; click when empty
+// to restore all, same semantics as the Resources widget) and a PASSIVE
+// section (rules text only). Full rules text
 // in the shared hover/long-press tooltip, plus uses/recharge info for active
 // features. Leveling Up subproject.
 //
@@ -148,23 +149,43 @@ function wgxFeatureIsActive(entry) {
   return !!entry.res || !!entry.feat.act || entry.feat.src === 'M' || entry.feat.src === 'I' || entry.feat.src === 'B';
 }
 
+// Action-economy groups: what you can do on a turn. 'other' = triggered or
+// free (riders on a hit, metamagic while casting, plain use-counters).
+var WGX_ACT_GROUPS = [
+  { id: 'action', label: 'Action', tip: 'One action on your turn.' },
+  { id: 'bonus', label: 'Bonus Action', tip: 'One Bonus Action per turn, only from a feature or spell that gives one.' },
+  { id: 'reaction', label: 'Reaction', tip: "One Reaction per round, also on other creatures' turns. It returns at the start of your turn." },
+  { id: 'other', label: 'Other', tip: 'Free or triggered: riders on a hit, options while casting, and use-counters.' },
+];
+var WGX_PASSIVE_TIP = 'Always on: nothing to spend or activate.';
+function wgxActGroupOf(act) {
+  return (act === 'action' || act === 'bonus' || act === 'reaction') ? act : 'other';
+}
+
 // Row model shared by builder and click-handler (1:1 with rendered rows).
-// Entries: { header: 'Active'|'Passive' } or { feat, res|null }.
-// filter: null (gecombineerd, met section-headers) | 'active' | 'passive'.
+// Entries: { header, tip } or { feat, res|null }.
+// filter: null (gecombineerd: action-groups + Passive) | 'active' | 'passive'.
 function wgxFeatureRowModel(cfg, st, filter) {
   var feats = wgxCollectFeatures(cfg, st);
   feats.sort(function (a, b) { return (a.level - b.level) || a.name.localeCompare(b.name); });
   var resMap = wgxFeatureResourceMap(cfg, st);
-  var active = [], passive = [];
+  var groups = {}, passive = [];
   for (var i = 0; i < feats.length; i++) {
     var entry = { feat: feats[i], res: resMap[feats[i].name.toLowerCase()] || null };
-    (wgxFeatureIsActive(entry) ? active : passive).push(entry);
+    if (!wgxFeatureIsActive(entry)) { passive.push(entry); continue; }
+    var g = wgxActGroupOf(feats[i].act);
+    (groups[g] = groups[g] || []).push(entry);
   }
-  if (filter === 'active') return active;
   if (filter === 'passive') return passive;
-  if (!active.length) return passive; // flat list, no section headers needed
-  var rows = [{ header: 'Active' }].concat(active);
-  if (passive.length) rows = rows.concat([{ header: 'Passive' }], passive);
+  var rows = [];
+  WGX_ACT_GROUPS.forEach(function (g) {
+    if (!groups[g.id]) return;
+    rows.push({ header: g.label, tip: g.tip });
+    rows = rows.concat(groups[g.id]);
+  });
+  if (filter === 'active') return rows;
+  if (!rows.length) return passive; // flat list, no section headers needed
+  if (passive.length) rows = rows.concat([{ header: 'Passive', tip: WGX_PASSIVE_TIP }], passive);
   return rows;
 }
 
@@ -195,7 +216,8 @@ function wgxBuildFeatures(widget, filter) {
       var row = model[i];
       if (row.header) {
         rows.push(['', row.header.toUpperCase(), '', '']);
-        tips.push(null);
+        var htip = { title: row.header, body: row.tip };
+        tips.push([htip, htip, htip, htip]);
         rowCls.push('wgx-feat-header');
         continue;
       }

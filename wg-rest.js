@@ -85,6 +85,7 @@ async function wgxLongRest(charId) {
   // All class/subclass/species resources recharge fully on a Long Rest.
   const resources = (typeof getClassResources === 'function') ? getClassResources(raw.config || {}, st) : [];
   for (const r of resources) patch[r.stateKey] = 0;
+  patch.activeEffects = null;                         // 8 hours: every running spell has ended
   await wgxPatchState(charId, patch);
   return { max: hp.max, restoredHitDice: restore };
 }
@@ -102,6 +103,9 @@ async function wgxShortRest(charId) {
     // 'short': all uses return (Action Surge, Focus Points, Adrenaline Rush, Superiority Dice …)
     if (r.recharge === 'short' && (st[r.stateKey] || 0) > 0) patch[r.stateKey] = 0;
   }
+  // 1 hour: spells of up to an hour have ended.
+  const effs = st.activeEffects || {};
+  for (const id in effs) if (effs[id] && effs[id].rounds > 0 && effs[id].rounds <= 600) patch['activeEffects/' + id] = null;
   await wgxPatchState(charId, patch);
 }
 

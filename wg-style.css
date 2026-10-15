@@ -1290,6 +1290,15 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   .combat-kind-npc { color: #c9a961; }
   .combat-kind-monster { color: #f08a8a; }
   .combat-kind-familiar { color: #8fd9a8; }
+  /* Kind badge + spell-effect chips on one line under the name (wg-turn.js). */
+  .combat-name-meta { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .combat-fx {
+    font-size: 9px; font-weight: 700; line-height: 1; padding: 2px 4px; border-radius: 999px; cursor: help;
+    color: var(--user-text-highlight, var(--accent));
+    border: 1px solid color-mix(in srgb, var(--user-text-highlight, var(--accent)) 45%, transparent);
+    font-variant-numeric: tabular-nums; white-space: nowrap; flex: 0 0 auto;
+  }
+  .combat-fx.is-conc { color: #b9a0ff; border-color: color-mix(in srgb, #b9a0ff 50%, transparent); }
   /* De badge is voor niet-PC's een knop die de soort cyclet (#P0huIQ1). */
   button.combat-kind-badge {
     background: transparent; border: none; cursor: pointer; text-align: left;
@@ -1619,6 +1628,8 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
 svg .info-box-cell.wgx-feat-header { fill: var(--accent-warm, #c9a961); fill-opacity: 0.10; }
 svg g.editable-cell:hover .info-box-cell.wgx-feat-header { fill-opacity: 0.10; cursor: default; }
 svg .info-box-cell.wgx-feat-active { fill: var(--info-amber, #e0a106); fill-opacity: 0.10; }
+svg .info-box-cell.wgx-turn-effect { fill: #b9a0ff; fill-opacity: 0.12; }
+svg g.editable-cell:hover .info-box-cell.wgx-turn-effect { fill-opacity: 0.26; }
 svg g.editable-cell:hover .info-box-cell.wgx-feat-active { fill-opacity: 0.26; }
 svg g.editable-cell:hover .info-box-cell.wgx-feat-passive { cursor: default; }
 

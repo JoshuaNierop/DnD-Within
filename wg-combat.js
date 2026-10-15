@@ -222,6 +222,27 @@ function combatSetHp(ent, val) {
   ent.currentHP = Math.max(0, Math.min(ent.maxHP, Math.round(val)));
   combatSyncConcentration(ent);
 }
+// Spells a PC is maintaining (state.activeEffects, wg-turn.js), as small chips:
+// only a symbol and the rounds left; hover shows the spell and its countdown.
+function combatEffectList(ent) {
+  if (!ent || ent.kind !== 'pc' || !ent.ref || typeof wgxActiveEffects !== 'function') return [];
+  try { return wgxActiveEffects(wgxLiveCharState(ent.ref)); } catch (e) { return []; }
+}
+function combatEffectChips(ent) {
+  return combatEffectList(ent).map(x => {
+    const chip = hEl('span', 'combat-fx' + (x.eff.conc ? ' is-conc' : ''), (x.eff.conc ? '◆' : '✦') + wgxEffectShort(x).replace(' rnd', ''));
+    const tip = wgxEffectTip(x);
+    chip.setAttribute('data-tip-title', tip.title);
+    chip.setAttribute('data-tip-body', tip.body);
+    return chip;
+  });
+}
+// Concentration from a cast spell when nobody typed one in the tracker.
+function combatDerivedConcentration(ent) {
+  const c = combatEffectList(ent).filter(x => x.eff.conc)[0];
+  return c ? c.eff.spell : '';
+}
+
 // RAW: op 0 HP raak je Unconscious en daarmee verlies je concentratie. De
 // tracker ruimt het veld daarom zelf op zodra iemand omvalt.
 function combatSyncConcentration(ent) {
@@ -339,7 +360,10 @@ function combatCell(field, ent, widgetIdx) {
         });
       });
     }
-    c.appendChild(inp); c.appendChild(kind);
+    const meta = hEl('div', 'combat-name-meta');
+    meta.appendChild(kind);
+    combatEffectChips(ent).forEach(ch => meta.appendChild(ch));
+    c.appendChild(inp); c.appendChild(meta);
     return c;
   }
   // #P0ihGxA: concentration — vrije tekst met de spell waarop geconcentreerd
@@ -349,9 +373,10 @@ function combatCell(field, ent, widgetIdx) {
     const c = hEl('div', 'combat-cell combat-cell-conc');
     const inp = document.createElement('input');
     inp.type = 'text';
-    inp.className = 'combat-conc-input' + (ent.concentration ? ' active' : '');
+    const derived = ent.concentration ? '' : combatDerivedConcentration(ent);
+    inp.className = 'combat-conc-input' + (ent.concentration || derived ? ' active' : '');
     inp.value = ent.concentration || '';
-    inp.placeholder = ct('combat.conc.placeholder');
+    inp.placeholder = derived || ct('combat.conc.placeholder');
     inp.title = ent.concentration ? (ct('combat.conc.on') + ': ' + ent.concentration) : ct('combat.conc.none');
     inp.addEventListener('pointerdown', (e) => e.stopPropagation());
     inp.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') inp.blur(); });
@@ -527,11 +552,13 @@ function combatBuildPlayerList(root, enc, transpose) {
       }
       item.appendChild(hpBox);
 
-      if (ent.concentration) {
-        const conc = hEl('span', 'combat-init-conc', '◎ ' + ent.concentration);
-        conc.title = ct('combat.conc.on') + ': ' + ent.concentration;
+      const concName = ent.concentration || combatDerivedConcentration(ent);
+      if (concName) {
+        const conc = hEl('span', 'combat-init-conc', '◎ ' + concName);
+        conc.title = ct('combat.conc.on') + ': ' + concName;
         item.appendChild(conc);
       }
+      combatEffectChips(ent).filter(ch => !ch.classList.contains('is-conc')).forEach(ch => item.appendChild(ch));
     }
     list.appendChild(item);
   });
@@ -670,6 +697,7 @@ function combatToggleRunning() {
     if (enc.running) { enc.running = false; enc.activeId = null; }
     else {
       enc.running = true; enc.round = 1;
+      enc.startedAt = Date.now();   // fight id: spell effects count rounds per fight (wg-turn.js)
       const sorted = combatSortEntities(enc.entities);
       enc.activeId = sorted.length ? sorted[0].id : null;
     }

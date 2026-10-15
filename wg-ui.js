@@ -453,6 +453,7 @@ function seedDefaultWidgets() {
     { id: 'campaignMap',    name: 'Campagne-kaart',  category: 'exploring', config: { type: 'map' } },
     { id: 'initiativeTracker', name: 'Initiative Tracker', category: 'combat', config: { type: 'initiativeTracker' } },
     { id: 'attacks',        name: 'Attacks',         category: 'combat',    config: { type: 'attacks' } },
+    { id: 'turnActions',    name: 'Your Turn',       category: 'combat',    config: { type: 'turnActions' } },
     { id: 'inventory',      name: 'Inventory',       category: 'inventory', config: { type: 'inventory' } },
   ];
   library.activeWidgetId = 'abilityScores';

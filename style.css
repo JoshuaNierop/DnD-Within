@@ -7307,7 +7307,9 @@ body:has(.wg-bottombar) #scw-fab {
     z-index: 100000;
     width: max-content;
     max-width: 300px;
-    pointer-events: none;
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+    pointer-events: auto;
     background: var(--bg-elevated, #221d19);
     color: var(--text-main, #e8e2d6);
     border: 1px solid var(--border-light, #3e342c);
@@ -7339,6 +7341,15 @@ body:has(.wg-bottombar) #scw-fab {
     white-space: pre-line;
     color: var(--text-dim, #cabdab);
 }
+/* Hoverable term inside a tooltip: opens a nested tooltip window. */
+.wg-term {
+    color: var(--accent-warm, #c9a961);
+    text-decoration: underline dotted;
+    text-underline-offset: 2px;
+    cursor: help;
+}
+.wg-term:hover { color: var(--text-main, #e8e2d6); }
+.wg-tooltip-nested { border-color: color-mix(in srgb, var(--accent-warm, #c9a961) 45%, transparent); }
 /* Titel-only tooltip (geen body): geen overbodige divider/marge. */
 .wg-tooltip-title:last-child {
     padding-bottom: 0;

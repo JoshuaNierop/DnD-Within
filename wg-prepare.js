@@ -197,9 +197,12 @@ function wgxBuildPrepared(widget) {
       const tag = e.sp ? wgxSpellActionTag(e.sp, e.name) : '';
       let flags = (conc && tag) ? (conc + ' ' + tag) : (conc || tag);
       if (e.grants.length) flags = (flags ? flags + ' ' : '') + '★';
+      const live = (typeof wgxActiveEffectFor === 'function') ? wgxActiveEffectFor(st, e.name) : null;
+      if (live) flags = '⏳' + wgxEffectShort(live);
       rows.push([badge, e.name, flags]);
       const gAb = e.granted && e.grants[0] && e.grants[0].ability;
-      const tip = wgxSpellTooltip(e.name, e.sp, gAb ? wgxSpellStats(raw, gAb) : stats, e.grants);
+      let tip = wgxSpellTooltip(e.name, e.sp, gAb ? wgxSpellStats(raw, gAb) : stats, e.grants);
+      if (live) tip = { title: tip.title, body: 'Active: ' + wgxEffectStatusText(live) + '.\n\n' + tip.body };
       tips.push([tip, tip, tip]);   // zelfde tip op alle 3 cellen → hover overal op de rij
     }
   }
@@ -499,9 +502,18 @@ async function wgxDoCast(act, t) {
     } else {
       return;
     }
+    // Spells with a duration become an active effect that counts down with
+    // the Combat Tracker (wg-turn.js).
+    let lasts = '';
+    if (typeof wgxSpellEffectPatch === 'function' && cast.sp) {
+      const fx = wgxSpellEffectPatch(st, cast.name, cast.sp);
+      Object.assign(patch, fx);
+      const r = wgxSpellDurationRounds(cast.sp);
+      if (r) lasts = ' · ' + (r > 0 ? wgxRoundsLabel(r) : 'until dispelled');
+    }
     wgxCloseCastModal();
     if (Object.keys(patch).length) await wgxPatchState(cast.charId, patch);
-    showToast('✨ ' + cast.name + ' cast (' + detail + ')' + conc);
+    showToast('✨ ' + cast.name + ' cast (' + detail + ')' + conc + lasts);
   } catch (err) {
     showToast('Cast failed · ' + err.message, 'error');
   }

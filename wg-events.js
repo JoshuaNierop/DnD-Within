@@ -1017,53 +1017,56 @@ document.addEventListener("click", async (e) => {
 //  Info-box tooltip (#bug Ov6e4Bv9) — hover (desktop) + long-press (touch/pen)
 // ---------------------------------------------------------------------------
 //  Tooltip-data zit als data-tip-title/data-tip-body op de cel-bg-paths
-//  (wg-render.js drawCellBg). De tekst erboven heeft pointer-events:none, dus
-//  hover/long-press landt altijd op de cel.
+//  (wg-render.js drawCellBg) of op gewone HTML-elementen. De tekst erboven
+//  heeft pointer-events:none, dus hover/long-press landt altijd op de cel.
 //
-//  Botst NIET met slepen: een widget sleep je alleen via de topbar-handle
-//  (widget-move-2d) of resize-handles — die dragen géén tooltip-data. Een touch
-//  op de widget-BODY start hooguit een 'select'-gesture (geen drag), en élke
-//  beweging > LP_MOVE_CANCEL annuleert de long-press-timer, dus tijdens een
-//  sleep/scroll verschijnt nooit een tooltip.
+//  Nested tooltips: the tooltip stays where it opened, so the pointer can move
+//  into it. Known terms in its text (spells, conditions, actions, features —
+//  wgxLinkifyInto in wg-glossary.js) open a second window on hover (tap on
+//  touch), which can nest again. A window closes shortly after the pointer
+//  leaves it and everything opened from it.
+//
+//  Botst NIET met slepen: een widget sleep je alleen via de topbar-handle of
+//  resize-handles — die dragen géén tooltip-data. Élke beweging >
+//  LP_MOVE_CANCEL annuleert de long-press-timer.
 // ===========================================================================
 (function initInfoTooltip() {
   var LONG_PRESS_MS = 450;     // ingedrukt houden vóór de tooltip verschijnt
   var LP_MOVE_CANCEL = 10;     // px beweging die de long-press annuleert
-  var TOUCH_AUTO_HIDE_MS = 5000;
-  var tipEl = null;
-  var lpTimer = null, lpStart = null, lpTip = null, autoHideTimer = null;
+  var HIDE_DELAY = 280;        // ms grace before a window closes (time to reach it)
+  var OPEN_DELAY = 140;        // ms hover on a term before its window opens
+  var SWITCH_DELAY = 130;      // ms before another cell replaces an open tooltip
+  var stack = [];              // [{ el, anchor }] — index 0 = the cell's tooltip
+  var trimTimer = null, openTimer = null;
+  var lpTimer = null, lpStart = null, lpTip = null;
+  var lastXY = { x: 0, y: 0 };
 
-  function ensureTipEl() {
-    if (tipEl && document.body.contains(tipEl)) return tipEl;
-    tipEl = document.createElement('div');
-    tipEl.className = 'wg-tooltip';
-    tipEl.setAttribute('role', 'tooltip');
-    document.body.appendChild(tipEl);
-    return tipEl;
-  }
-  // Vind de dichtstbijzijnde cel met tooltip-data vanaf het event-target.
   function tipFrom(target) {
     var el = (target && target.closest) ? target.closest('[data-tip-title],[data-tip-body]') : null;
-    if (!el) return null;
+    if (!el || el.closest('.wg-tooltip')) return null;
     var title = el.getAttribute('data-tip-title') || '';
     var body = el.getAttribute('data-tip-body') || '';
     if (!title && !body) return null;
     return { el: el, title: title, body: body };
   }
-  function position(cx, cy) {
-    var e = tipEl;
-    // Meet bij (0,0) en clamp daarna binnen de viewport.
-    e.style.left = '0px'; e.style.top = '0px';
-    var r = e.getBoundingClientRect();
-    var x = cx + 14, y = cy + 16;
-    if (x + r.width > window.innerWidth - 8) x = Math.max(8, cx - r.width - 14);
-    if (y + r.height > window.innerHeight - 8) y = Math.max(8, cy - r.height - 16);
-    e.style.left = x + 'px';
-    e.style.top = y + 'px';
+  function levelOf(target) {
+    for (var i = stack.length - 1; i >= 0; i--) if (stack[i].el.contains(target)) return i;
+    return -1;
   }
-  function show(tip, cx, cy) {
-    var e = ensureTipEl();
-    e.innerHTML = '';
+  function closeFrom(n) {
+    clearTimeout(trimTimer); trimTimer = null;
+    while (stack.length > n) { var s = stack.pop(); if (s.el.parentNode) s.el.parentNode.removeChild(s.el); }
+  }
+  function scheduleTrim(keep) {
+    clearTimeout(trimTimer); trimTimer = null;
+    if (stack.length <= keep) return;
+    trimTimer = setTimeout(function () { closeFrom(keep); }, HIDE_DELAY);
+  }
+  function makeEl(tip, depth, skipName) {
+    var e = document.createElement('div');
+    e.className = 'wg-tooltip' + (depth ? ' wg-tooltip-nested' : '');
+    e.setAttribute('role', 'tooltip');
+    e.style.zIndex = String(100000 + depth);
     if (tip.title) {
       var h = document.createElement('div');
       h.className = 'wg-tooltip-title';
@@ -1073,56 +1076,106 @@ document.addEventListener("click", async (e) => {
     if (tip.body) {
       var b = document.createElement('div');
       b.className = 'wg-tooltip-body';
-      b.textContent = tip.body;
+      if (typeof wgxLinkifyInto === 'function') {
+        try { wgxLinkifyInto(b, tip.body, skipName); } catch (err) { b.textContent = tip.body; }
+      } else b.textContent = tip.body;
       e.appendChild(b);
     }
-    position(cx, cy);
-    // forceer reflow zodat de fade-in speelt ook bij hergebruik
-    void e.offsetWidth;
-    e.classList.add('visible');
+    document.body.appendChild(e);
+    return e;
   }
-  function hide() {
-    if (tipEl) tipEl.classList.remove('visible');
-    clearTimeout(autoHideTimer); autoHideTimer = null;
+  function place(e, x, y, r) {
+    var W = window.innerWidth, H = window.innerHeight;
+    if (x + r.width > W - 8) x = W - r.width - 8;
+    if (y + r.height > H - 8) y = H - r.height - 8;
+    e.style.left = Math.max(8, x) + 'px';
+    e.style.top = Math.max(8, y) + 'px';
   }
-  function cancelLongPress() {
-    clearTimeout(lpTimer); lpTimer = null; lpStart = null; lpTip = null;
+  function show(e) { void e.offsetWidth; e.classList.add('visible'); }
+  function openBase(tip, cx, cy) {
+    closeFrom(0);
+    var e = makeEl(tip, 0, (tip.title || '').split(' · ')[0]);
+    var r = e.getBoundingClientRect();
+    var x = cx + 10, y = cy + 12;
+    if (x + r.width > window.innerWidth - 8) x = cx - r.width - 10;
+    if (y + r.height > window.innerHeight - 8) y = cy - r.height - 12;
+    place(e, x, y, r);
+    stack.push({ el: e, anchor: tip.el });
+    show(e);
+  }
+  function openChild(depth, term) {
+    if (!document.body.contains(term) || stack.length < depth) return;
+    var name = term.getAttribute('data-term');
+    var tip = (typeof wgxTermTip === 'function') ? wgxTermTip(name) : null;
+    if (!tip) return;
+    closeFrom(depth);
+    var e = makeEl(tip, depth, name);
+    var a = term.getBoundingClientRect(), r = e.getBoundingClientRect();
+    var x = a.right + 8, y = a.top - 8;
+    if (x + r.width > window.innerWidth - 8) x = a.left - r.width - 8;
+    if (x < 8) { x = a.left; y = a.bottom + 6; }
+    place(e, x, y, r);
+    stack.push({ el: e, anchor: term });
+    show(e);
+  }
+  // Pointer is over target. Inside a tooltip: keep that window (and the one
+  // opened from the hovered term), close deeper ones. Returns true when the
+  // target is outside every tooltip.
+  function onOver(target, isTouch) {
+    var lv = levelOf(target);
+    if (lv < 0) return true;
+    clearTimeout(openTimer); openTimer = null;
+    var term = target.closest ? target.closest('.wg-term') : null;
+    if (term && stack[lv].el.contains(term)) {
+      if (stack[lv + 1] && stack[lv + 1].anchor === term) { scheduleTrim(lv + 2); return false; }
+      if (isTouch) { openChild(lv + 1, term); return false; }
+      scheduleTrim(lv + 1);
+      openTimer = setTimeout(function () { openChild(lv + 1, term); }, OPEN_DELAY);
+    } else {
+      scheduleTrim(lv + 1);
+    }
+    return false;
   }
 
   // ---- Desktop: hover ----
+  document.addEventListener('mousemove', function (ev) { lastXY = { x: ev.clientX, y: ev.clientY }; }, true);
   document.addEventListener('mouseover', function (ev) {
-    if (ev.pointerType === 'touch') return;
+    lastXY = { x: ev.clientX, y: ev.clientY };
+    if (!onOver(ev.target, false)) return;
     var tip = tipFrom(ev.target);
-    if (tip) show(tip, ev.clientX, ev.clientY);
-  });
-  document.addEventListener('mousemove', function (ev) {
-    if (!tipEl || !tipEl.classList.contains('visible')) return;
-    var tip = tipFrom(ev.target);
-    if (!tip) { hide(); return; }
-    position(ev.clientX, ev.clientY);
-  });
-  document.addEventListener('mouseout', function (ev) {
-    if (tipFrom(ev.target)) hide();
-  });
-
-  // ---- Touch/pen: long-press ----
-  document.addEventListener('pointerdown', function (ev) {
-    if (ev.pointerType !== 'touch' && ev.pointerType !== 'pen') {
-      // Muis-klik buiten een tooltip-cel sluit een open tooltip.
-      if (!tipFrom(ev.target)) hide();
+    clearTimeout(openTimer); openTimer = null;
+    if (tip) {
+      if (stack[0] && stack[0].anchor === tip.el) { scheduleTrim(1); return; }
+      if (!stack.length) { openBase(tip, ev.clientX, ev.clientY); return; }
+      openTimer = setTimeout(function () { openBase(tip, lastXY.x, lastXY.y); }, SWITCH_DELAY);
       return;
     }
-    // Nieuwe touch: bestaande tooltip weg tenzij op dezelfde cel.
+    scheduleTrim(0);
+  });
+  document.addEventListener('mouseout', function (ev) {
+    if (!ev.relatedTarget) { clearTimeout(openTimer); openTimer = null; scheduleTrim(0); }   // pointer left the page
+  });
+
+  // ---- Clicks, touch/pen long-press ----
+  function cancelLongPress() {
+    clearTimeout(lpTimer); lpTimer = null; lpStart = null; lpTip = null;
+  }
+  document.addEventListener('pointerdown', function (ev) {
+    if (levelOf(ev.target) >= 0) {
+      if (ev.pointerType === 'touch' || ev.pointerType === 'pen') onOver(ev.target, true);
+      return;
+    }
+    closeFrom(0);
+    clearTimeout(openTimer); openTimer = null;
+    if (ev.pointerType !== 'touch' && ev.pointerType !== 'pen') return;
     var tip = tipFrom(ev.target);
-    if (!tip) { hide(); cancelLongPress(); return; }
     cancelLongPress();
+    if (!tip) return;
     lpStart = { x: ev.clientX, y: ev.clientY };
     lpTip = tip;
     lpTimer = setTimeout(function () {
-      show(lpTip, lpStart.x, lpStart.y);
+      openBase(lpTip, lpStart.x, lpStart.y);
       lpTimer = null;
-      clearTimeout(autoHideTimer);
-      autoHideTimer = setTimeout(hide, TOUCH_AUTO_HIDE_MS);
     }, LONG_PRESS_MS);
   }, true);
   document.addEventListener('pointermove', function (ev) {
@@ -1132,7 +1185,11 @@ document.addEventListener("click", async (e) => {
   document.addEventListener('pointerup', cancelLongPress, true);
   document.addEventListener('pointercancel', cancelLongPress, true);
 
-  // Tooltip verdwijnt bij scrollen/resize (de cel kan onder de cursor wegschuiven).
-  window.addEventListener('scroll', hide, true);
-  window.addEventListener('resize', hide);
+  // Scrolling the page or resizing closes everything (the cell can move away);
+  // scrolling inside a tooltip doesn't.
+  window.addEventListener('scroll', function (ev) {
+    if (ev.target && ev.target.nodeType === 1 && levelOf(ev.target) >= 0) return;
+    closeFrom(0);
+  }, true);
+  window.addEventListener('resize', function () { closeFrom(0); });
 })();

@@ -23,8 +23,9 @@ Alles staat in de repo-root (geen `js/`- of `css/`-map).
 - `data.js` (~530 kB) + `data-rules.js` — classes, species, feats, spells, items, resources
 - `monster-db.js` + `monsters-data.js` (lazy, gegenereerd) — Monster Manual 2025-basis voor Creatures (503 monsters; niet-SRD-tekst in eigen woorden); regels + build in `Metadocs/Monsters/`
 - `wg-*.js` + `wg-style.css` — character-dashboard (widget grid, level-up, prepare, rest, combat)
+- `wg-turn.js` — Your Turn-widget + actieve spell-effecten (`state.activeEffects`, aftellen via encounter-rondes); `wg-glossary.js` — regels-glossary + term-index voor geneste tooltips (tooltip-laag zelf in `wg-events.js`)
 - `style.css` — overige styles
-- Tests: `node Metadocs/LevelingUp/build-smoke.mjs [level]` en `node Metadocs/LevelingUp/ui-smoke.mjs`
+- Tests: `node Metadocs/LevelingUp/build-smoke.mjs [level]`, `node Metadocs/LevelingUp/ui-smoke.mjs` en `node Metadocs/LevelingUp/turn-smoke.mjs` (Your Turn, spell-countdown, tooltip-termen)
 
 ## Firebase
 - Project: `dnd-within-firebase`
