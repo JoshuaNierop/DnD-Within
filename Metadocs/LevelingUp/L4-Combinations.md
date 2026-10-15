@@ -52,8 +52,8 @@
 | Archfey Patron (warlock) | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 21 |
 | Celestial Patron (warlock) | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 22 |
 | Great Old One Patron (warlock) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 22 |
-| Evoker (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Abjurer (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Evoker (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 23 |
+| Abjurer (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 23 |
 | Diviner (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Illusionist (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 
@@ -656,30 +656,34 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Uses: Arcane Recovery 1/Long Rest
 - Choose:
   - At creation: 2 skills (Arcana, History, Insight, Investigation, Medicine, Nature, Religion); 6 level 1 Wizard spells for your spellbook
-  - Level 2: Scholar: Expertise in Arcana, History, Investigation, Medicine, Nature or Religion
-  - Level 3: your subclass
-  - Level 4: Ability Score Improvement or a feat
+  - Level 2: Scholar: Expertise in Arcana, History, Investigation, Medicine, Nature or Religion; 2 Wizard spells for your spellbook
+  - Level 3: your subclass; 2 Wizard spells for your spellbook
+  - Level 4: 2 Wizard spells for your spellbook; Ability Score Improvement or a feat
 - Swap: Your whole list of prepared spells (from your spellbook) (on a Long Rest); One cantrip (on a Long Rest)
 
 #### Evoker
 
 - Features (L3): Evocation Savant, Potent Cantrip
+- Choose: Evocation Savant (L3): 2 Evocation spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)
 
 #### Abjurer
 
 - Features (L3): Abjuration Savant, Arcane Ward [Bonus Action]
+- Choose: Abjuration Savant (L3): 2 Abjuration spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)
 - Uses: Arcane Ward 1/Long Rest
 - Actions (no spells): Bonus Action: Arcane Ward
 
 #### Diviner
 
 - Features (L3): Divination Savant, Portent [No action]
+- Choose: Divination Savant (L3): 2 Divination spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)
 - Uses: Portent 2×d20 rolls/Long Rest
 - Actions (no spells): No action: Portent
 
 #### Illusionist
 
 - Features (L3): Illusion Savant, Improved Illusions [Bonus Action]
+- Choose: Illusion Savant (L3): 2 Illusion spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)
 - Spells: Minor Illusion (C, cantrip)
 - Actions (no spells): Bonus Action: Improved Illusions
 

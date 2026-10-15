@@ -16,7 +16,7 @@ const E = loadEngine();
 const { DATA } = E;
 
 // Batches of 20 combinations (2 subclasses × 10 species) read through by hand.
-const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10', 'monk/openHand': 'batch 11', 'monk/mercy': 'batch 11', 'monk/shadow': 'batch 12', 'monk/elements': 'batch 12', 'paladin/devotion': 'batch 13', 'paladin/ancients': 'batch 13', 'paladin/glory': 'batch 14', 'paladin/vengeance': 'batch 14', 'ranger/hunter': 'batch 15', 'ranger/beastMaster': 'batch 15', 'ranger/feyWanderer': 'batch 16', 'ranger/gloomStalker': 'batch 16', 'rogue/thief': 'batch 17', 'rogue/assassin': 'batch 17', 'rogue/arcaneTrickster': 'batch 18', 'rogue/soulknife': 'batch 18', 'sorcerer/wildMagic': 'batch 19', 'sorcerer/draconic': 'batch 19', 'sorcerer/clockwork': 'batch 20', 'sorcerer/aberrant': 'batch 20', 'warlock/fiend': 'batch 21', 'warlock/archfey': 'batch 21', 'warlock/celestial': 'batch 22', 'warlock/greatOldOne': 'batch 22' };
+const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10', 'monk/openHand': 'batch 11', 'monk/mercy': 'batch 11', 'monk/shadow': 'batch 12', 'monk/elements': 'batch 12', 'paladin/devotion': 'batch 13', 'paladin/ancients': 'batch 13', 'paladin/glory': 'batch 14', 'paladin/vengeance': 'batch 14', 'ranger/hunter': 'batch 15', 'ranger/beastMaster': 'batch 15', 'ranger/feyWanderer': 'batch 16', 'ranger/gloomStalker': 'batch 16', 'rogue/thief': 'batch 17', 'rogue/assassin': 'batch 17', 'rogue/arcaneTrickster': 'batch 18', 'rogue/soulknife': 'batch 18', 'sorcerer/wildMagic': 'batch 19', 'sorcerer/draconic': 'batch 19', 'sorcerer/clockwork': 'batch 20', 'sorcerer/aberrant': 'batch 20', 'warlock/fiend': 'batch 21', 'warlock/archfey': 'batch 21', 'warlock/celestial': 'batch 22', 'warlock/greatOldOne': 'batch 22', 'wizard/evocation': 'batch 23', 'wizard/abjuration': 'batch 23' };
 
 const CLASSES = ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'];
 const SPECIES = [
@@ -197,6 +197,7 @@ for (const cls of CLASSES) {
     list.filter((c) => !(cls === 'fighter' && c.id === 'fightingStyle')).forEach((c) => (byLevel[L] = byLevel[L] || []).push(c.id === 'skills' ? skillChoiceText(c, cls, L).replace(/ \(L\d+\)/, '') : LU[c.id] ? LU[c.id](c) : c.id));
   }
   if (cls === 'ranger') (byLevel[2] = byLevel[2] || []).push('2 languages (Deft Explorer)');
+  if (cls === 'wizard') [2, 3, 4].forEach((L) => (byLevel[L] = byLevel[L] || []).push('2 Wizard spells for your spellbook'));
   if ((DATA[cls].asiLevels || []).includes(4)) (byLevel[4] = byLevel[4] || []).push('Ability Score Improvement or a feat');
   md += '- Choose:\n' + Object.keys(byLevel).sort((a, b) => a - b).map((L) => '  - ' + (L === '1' ? 'At creation' : 'Level ' + L) + ': ' + byLevel[L].join('; ') + '\n').join('');
   const sw = [].concat(...Object.entries(base.swaps).map(([k, v]) => v.filter((x) => !SUB_SWAPS.includes(x.id)).map((x) => x.what + ' (' + WHEN[k] + ')')));
@@ -211,6 +212,8 @@ for (const cls of CLASSES) {
     md += '- Features (L3): ' + sf.map((f) => f.name + (f.act ? ' [' + ACT[f.act] + ']' : '')).join(', ') + '\n';
     const subCh = [].concat(...Object.entries(DATA[cls].subclasses[sub].choices || {}).filter(([L]) => L <= 4).map(([L, list]) => list.filter((c) => c.id === 'skills').map((c) => [!!c.fixed, skillChoiceText(c, cls, L)])));
     if (subCh.some(([fx]) => !fx)) md += '- Choose: ' + subCh.filter(([fx]) => !fx).map(([, t]) => t).join('; ') + '\n';
+    const savant = cls === 'wizard' && { abjuration: 'Abjuration', divination: 'Divination', evocation: 'Evocation', illusion: 'Illusion' }[sub];
+    if (savant) md += '- Choose: ' + savant + ' Savant (L3): 2 ' + savant + " spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)\n";
     if (subCh.some(([fx]) => fx)) md += '- Gain: ' + subCh.filter(([fx]) => fx).map(([, t]) => t).join('; ') + '\n';
     if (p.casting && !base.casting) {
       const c = p.casting;
