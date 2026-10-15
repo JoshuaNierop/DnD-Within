@@ -266,6 +266,9 @@ const DATA = {
             3: [
                 { name: "Sorcerer Subclass", desc: "Choose your Sorcerous Origin. It grants features at level 3 and at higher levels." }
             ],
+            5: [
+                { name: "Sorcerous Restoration", desc: "When you finish a Short Rest, you can regain expended Sorcery Points — no more than half your Sorcerer level (round down). Once per Long Rest." }
+            ],
             4: [
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 8, 12 and 16 (Epic Boon at 19)." }
             ],
@@ -444,8 +447,8 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 8, 10, 12 and 16 (Epic Boon at 19)." }
             ],
             5: [
-                { name: "Uncanny Dodge", desc: "Reaction: when an attacker you can see hits you, halve that attack's damage." },
-                { name: "Cunning Strike", desc: "Trade Sneak Attack dice for extra effects: Disarm (1d6), Poison (1d6, CON save or Poisoned), Trip (1d6, DEX save or Prone), Withdraw (1d6, no opportunity attacks)." }
+                { name: "Uncanny Dodge", act: 'reaction', desc: "When an attacker you can see hits you with an attack roll, you can take a Reaction to halve the attack's damage against you (round down)." },
+                { name: "Cunning Strike", act: 'attack', desc: "When you deal Sneak Attack damage, you can give up Sneak Attack dice to add one effect (save DC = 8 + Dexterity modifier + Proficiency Bonus): Poison (1d6; needs a Poisoner's Kit; Constitution save or Poisoned for 1 minute, save again at the end of each turn), Trip (1d6; Large or smaller, Dexterity save or Prone) or Withdraw (1d6; right after the attack you move up to half your Speed without provoking Opportunity Attacks)." }
             ],
             6: [
                 { name: "Expertise", desc: "Choose 2 more skills (or Thieves' Tools) to gain doubled proficiency bonus with." }
@@ -671,7 +674,7 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 8, 12 and 16 (Epic Boon at 19)." }
             ],
             5: [
-                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." }
+                { name: "Extra Attack", desc: "You can attack twice instead of once whenever you take the Attack action on your turn." }
             ],
             6: [
                 { name: "Roving", desc: "Your walking speed increases by 5ft, and you gain a climbing and swimming speed equal to your walking speed." }
@@ -848,7 +851,7 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 8, 12 and 16 (Epic Boon at 19)." }
             ],
             5: [
-                { name: "Memorize Spell", desc: "When you finish a Short Rest, you can swap 1 prepared spell for another spell from your spellbook." }
+                { name: "Memorize Spell", desc: "Whenever you finish a Short Rest, you can study your spellbook and replace one level 1+ Wizard spell you have prepared with another level 1+ spell from the book." }
             ],
             8: [
                 { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
@@ -967,7 +970,8 @@ const DATA = {
         spellcastingStart: 1,
 
         spells: [
-            { name: "Divine Smite", lvl: 2, kind: 'innate', slots: true, res: 'paladinSmite', note: "Paladin's Smite" }
+            { name: "Divine Smite", lvl: 2, kind: 'innate', slots: true, res: 'paladinSmite', note: "Paladin's Smite" },
+            { name: "Find Steed", lvl: 5, kind: 'innate', free: 1, recharge: 'long', slots: true, note: "Faithful Steed" }
         ],
         features: {
             1: [
@@ -988,8 +992,8 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 8, 12 and 16 (Epic Boon at 19)." }
             ],
             5: [
-                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." },
-                { name: "Faithful Steed", desc: "Find Steed is always prepared and you can cast it once per Long Rest without a spell slot." }
+                { name: "Extra Attack", desc: "You can attack twice instead of once whenever you take the Attack action on your turn." },
+                { name: "Faithful Steed", desc: "You always have Find Steed prepared, and you can cast it once without a spell slot (regained on a Long Rest)." }
             ],
             6: [
                 { name: "Aura of Protection", desc: "You and friendly creatures within 10ft gain a bonus to saving throws equal to your CHA modifier (min +1). At level 18 this grows to 30ft." }
@@ -1208,7 +1212,7 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 8, 12 and 16 (Epic Boon at 19)." }
             ],
             5: [
-                { name: "Wild Resurgence", desc: "Spend 1 use of Wild Shape to recover an expended spell slot (max 3rd level). Once per Long Rest." }
+                { name: "Wild Resurgence", act: 'free', desc: "Once on each of your turns, if you have no Wild Shape uses left, you can expend a spell slot to regain one (no action required). You can also expend a Wild Shape use to gain a level 1 spell slot (no action required) — that part once per Long Rest." }
             ],
             7: [
                 { name: "Elemental Fury", desc: "Once per turn when you hit with a melee attack in Wild Shape or with a weapon: add 1d6 extra damage of a chosen element." }
@@ -1386,8 +1390,8 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 6, 8, 12, 14 and 16 (Epic Boon at 19)." }
             ],
             5: [
-                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." },
-                { name: "Tactical Shift", desc: "When you use Second Wind, you can move up to half your speed without provoking opportunity attacks." }
+                { name: "Extra Attack", desc: "You can attack twice instead of once whenever you take the Attack action on your turn." },
+                { name: "Tactical Shift", desc: "Whenever you activate Second Wind with a Bonus Action, you can move up to half your Speed without provoking Opportunity Attacks." }
             ],
             6: [
                 { name: "Ability Score Improvement", desc: "Increase one ability score by 2, or two scores by 1. Or pick a feat instead." }
@@ -1741,8 +1745,8 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 8, 12 and 16 (Epic Boon at 19)." }
             ],
             5: [
-                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." },
-                { name: "Fast Movement", desc: "+10ft speed while you aren't wearing heavy armor." }
+                { name: "Extra Attack", desc: "You can attack twice instead of once whenever you take the Attack action on your turn." },
+                { name: "Fast Movement", desc: "Your Speed increases by 10 feet while you aren't wearing Heavy armor." }
             ],
             7: [
                 { name: "Feral Instinct", desc: "Advantage on initiative rolls. If you're surprised and enter your Rage, you act normally." }
@@ -1911,7 +1915,7 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 8, 12 and 16 (Epic Boon at 19)." }
             ],
             5: [
-                { name: "Font of Inspiration", desc: "Your Bardic Inspiration now recharges on a Short Rest (instead of only a Long Rest)." }
+                { name: "Font of Inspiration", desc: "All expended uses of Bardic Inspiration now return when you finish a Short or Long Rest. You can also expend a spell slot (no action required) to regain one use." }
             ],
             7: [
                 { name: "Countercharm", desc: "As an action, start a performance. You and allies within 30ft gain advantage on saves against Frightened and Charmed. Lasts until the end of your next turn." }
@@ -2009,7 +2013,7 @@ const DATA = {
                         { name: "Martial Training", desc: "You gain proficiency with Martial weapons and training with Medium armor and Shields, and you can use a Simple or Martial weapon as a spellcasting focus for your Bard spells." }
                     ],
                     6: [
-                        { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." }
+                        { name: "Extra Attack", desc: "You can attack twice instead of once whenever you take the Attack action on your turn." }
                     ],
                     14: [
                         { name: "Battle Magic", desc: "When you cast a bard spell, you can make one weapon attack as a Bonus Action." }
@@ -2071,8 +2075,7 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for, including Origin feats. You get this again at levels 8, 12 and 16 (Epic Boon at 19)." }
             ],
             5: [
-                { name: "Sear Undead", desc: "When an undead fails its Turn Undead save: it takes WIS modifier x d8 radiant damage." },
-                { name: "Smite Undead", desc: "Turn Undead can now destroy undead of a low enough CR." }
+                { name: "Sear Undead", desc: "Whenever you use Turn Undead, you can roll a number of d8s equal to your Wisdom modifier (minimum 1d8); each Undead that fails its save takes that much Radiant damage. The damage doesn't end the Turn effect." }
             ],
             7: [
                 { name: "Blessed Strikes", desc: "Choose: Divine Strike (+1d8 melee damage once per turn) or Potent Spellcasting (+WIS mod damage on cleric cantrips)." }
@@ -2276,8 +2279,8 @@ const DATA = {
                 { name: "Slow Fall", act: 'reaction', desc: "When you fall, Reaction: reduce the falling damage you take by 5 × your Monk level." }
             ],
             5: [
-                { name: "Extra Attack", desc: "You can attack twice, instead of once, whenever you take the Attack action." },
-                { name: "Stunning Strike", desc: "1 Focus Point: on a hit the target makes a CON save or is Stunned until the end of your next turn." }
+                { name: "Extra Attack", desc: "You can attack twice instead of once whenever you take the Attack action on your turn." },
+                { name: "Stunning Strike", act: 'attack', desc: "Once per turn when you hit a creature with a Monk weapon or an Unarmed Strike, you can spend 1 Focus Point: the target makes a Constitution save. On a failure it is Stunned until the start of your next turn; on a success its Speed is halved until then and the next attack roll against it before then has Advantage." }
             ],
             6: [
                 { name: "Empowered Strikes", desc: "Your unarmed strikes deal Force damage (bypassing common resistances)." }
@@ -3279,44 +3282,44 @@ DATA.spellPool = {
     "Zone of Truth": { level: 2, time: "1 action", range: "60ft", comp: "V, S", dur: "10 min", desc: "15ft radius. CHA save or a creature can't lie. You know whether the save succeeded." },
 
     // ===== 3RD LEVEL =====
-    "Magic Circle": { level: 3, time: "1 minute", range: "10ft", comp: "V, S, M (holy water or powdered silver and iron worth 100gp, consumed)", dur: "1 hour", desc: "A cylinder 10ft in radius, 20ft high. Choose a creature type (celestials/elementals/fey/fiends/undead): they can't willingly enter the cylinder, have disadvantage on attacks against creatures inside, and can't charm/frighten/possess them. Can be reversed to keep them in. Extend with higher slots (+1 hour per level)." },
-    "Animate Dead": { level: 3, time: "1 minute", range: "10ft", comp: "V, S, M (a drop of blood, a piece of flesh, and a pinch of bone dust)", dur: "Instant", desc: "Animate a skeleton or zombie from a corpse. It obeys your commands. Recast to maintain control." },
-    "Aura of Vitality": { level: 3, time: "1 action", range: "Self (30ft)", comp: "V", dur: "Concentration, 1 min", desc: "Bonus Action each turn: restore 2d6 HP to a creature within 30ft." },
+    "Magic Circle": { level: 3, time: "1 minute", range: "10ft", comp: "V, S, M (holy water or powdered silver and iron worth 100gp, consumed)", dur: "1 hour", desc: "A 10-ft-radius, 20-ft-tall cylinder on the ground within 10 ft. Choose one or more of Celestials, Elementals, Fey, Fiends and Undead: they can't willingly enter it by nonmagical means (teleporting in needs a Charisma save), have Disadvantage on attack rolls against targets inside, and can't possess, Charm or Frighten them. You can reverse it to trap such a creature inside instead. Upcast: +1 hour per slot level above 3." },
+    "Animate Dead": { level: 3, time: "1 minute", range: "10ft", comp: "V, S, M (a drop of blood, a piece of flesh, and a pinch of bone dust)", dur: "Instant", desc: "Turn the bones or corpse of a Medium or Small Humanoid within 10 ft into a Skeleton or Zombie under your control. As a Bonus Action you command any of your creatures within 60 ft; without orders they only defend themselves. Control lasts 24 hours — recast before then to keep up to four of them. Upcast: +2 creatures per slot level above 3." },
+    "Aura of Vitality": { level: 3, time: "1 action", range: "Self (30ft)", comp: "V", dur: "Concentration, 1 min", desc: "A 30-ft emanation of healing surrounds you. When you create it and at the start of each of your turns, you can restore 2d6 Hit Points to one creature in it." },
     "Beacon of Hope": { level: 3, time: "1 action", range: "30ft", comp: "V, S", dur: "Concentration, 1 min", desc: "Any number of creatures in range have Advantage on Wisdom saves and Death Saving Throws, and regain the maximum possible HP from any healing, for the duration." },
-    "Bestow Curse": { level: 3, time: "1 action", range: "Touch", comp: "V, S", dur: "Concentration, 1 min", desc: "WIS save or choose a curse: disadvantage on ability checks/attacks, wasted turns, or an extra 1d8 necrotic from you. Higher slots: longer duration." },
-    "Blink": { level: 3, time: "1 action", range: "Self", comp: "V, S", dur: "1 min", desc: "Roll a d20 at the end of each of your turns: on 11+ you vanish to the Ethereal Plane until the start of your next turn. Lasts 1 minute." },
-    "Blinding Smite": { level: 3, time: "1 bonus action", range: "Self", comp: "V", dur: "Concentration, 1 min", desc: "Your next melee hit: +3d8 radiant. CON save or Blinded." },
-    "Call Lightning": { level: 3, time: "1 action", range: "120ft", comp: "V, S", dur: "Concentration, 10 min", desc: "Storm cloud. Each turn as an action: 3d10 lightning in a 5ft radius. Upcast: +1d10." },
+    "Bestow Curse": { level: 3, time: "1 action", range: "Touch", comp: "V, S", dur: "Concentration, 1 min", desc: "A creature you touch makes a Wisdom save or is cursed. Choose one: Disadvantage on ability checks and saves with one ability; Disadvantage on attack rolls against you; in combat a Wisdom save at the start of each of its turns or it must take the Dodge action; or your attack rolls and spells deal an extra 1d8 Necrotic damage to it. Upcast: level 4 slot = Concentration up to 10 minutes; level 5-6 = 8 hours, 7-8 = 24 hours (no Concentration); level 9 = until dispelled." },
+    "Blink": { level: 3, time: "1 action", range: "Self", comp: "V, S", dur: "1 min", desc: "For 1 minute, roll 1d6 at the end of each of your turns: on 4-6 you vanish to the Ethereal Plane until the start of your next turn (you can only affect and be affected by creatures there), then return to your space or the nearest free one." },
+    "Blinding Smite": { level: 3, time: "1 bonus action", range: "Self", comp: "V", dur: "Instant", desc: "Bonus Action right after you hit with a Melee weapon or an Unarmed Strike: the target takes an extra 3d8 Radiant damage and is Blinded until the spell ends (1 minute); it makes a Constitution save at the end of each of its turns, ending the effect on a success. Upcast: +1d8 per slot level above 3." },
+    "Call Lightning": { level: 3, time: "1 action", range: "120ft", comp: "V, S", dur: "Concentration, 10 min", desc: "A storm cloud (10-ft-tall, 60-ft-radius cylinder) appears overhead within 120 ft. A bolt strikes a point you choose under it: each creature within 5 ft makes a Dexterity save, taking 3d10 Lightning damage, half on a success. On later turns a Magic action calls another bolt. If you cast it outdoors in a storm, the damage is 1d10 higher. Upcast: +1d10 per slot level above 3." },
     "Clairvoyance": { level: 3, time: "10 minutes", range: "1 mile", comp: "V, S, M (a focus worth at least 100gp)", dur: "Concentration, 10 min", desc: "Concentration, 10 min. Create an invisible sensor at a familiar location up to 1 mile away. See or hear through the sensor." },
     "Conjure Animals": { level: 3, time: "1 action", range: "60ft", comp: "V, S", dur: "Concentration, 10 min", desc: "Conjure a Large pack of spectral nature spirits (wolves, serpents, birds…). You have Advantage on Strength saves within 5 ft of it and can move it 30 ft when you move. When it comes within 10 ft of a creature, or a creature enters or ends its turn within 10 ft of it, that creature makes a Dexterity save or takes 3d10 Slashing damage (once per turn). Higher slot: +1d10 per slot level above 3." },
-    "Conjure Barrage": { level: 3, time: "1 action", range: "Self (60ft cone)", comp: "V, S, M (ammunition/a weapon)", dur: "Instant", desc: "60ft cone. DEX save or 3d8 damage (weapon's type). Half on save." },
-    "Counterspell": { level: 3, time: "1 reaction", range: "60ft", comp: "S", dur: "Instant", desc: "Reaction: automatically cancel a spell of 3rd level or lower. Higher spells: ability check DC 10 + spell level." },
-    "Crusader's Mantle": { level: 3, time: "1 action", range: "Self", comp: "V", dur: "Concentration, 1 min", desc: "Allies within 30ft: +1d4 radiant damage on each melee weapon hit." },
+    "Conjure Barrage": { level: 3, time: "1 action", range: "Self (60ft cone)", comp: "V, S, M (ammunition/a weapon)", dur: "Instant", desc: "Spectral copies of your weapon or ammunition launch in a 60-ft cone: each creature of your choice there makes a Dexterity save, taking 5d8 Force damage, half on a success. Upcast: +1d8 per slot level above 3." },
+    "Counterspell": { level: 3, time: "1 reaction", range: "60ft", comp: "S", dur: "Instant", desc: "Reaction when you see a creature within 60 ft casting a spell: it makes a Constitution save. On a failure the spell has no effect and the action, Bonus Action or Reaction used to cast it is wasted; if it was cast with a spell slot, that slot isn't expended." },
+    "Crusader's Mantle": { level: 3, time: "1 action", range: "Self", comp: "V", dur: "Concentration, 1 min", desc: "A 30-ft emanation surrounds you: while in it, you and your allies deal an extra 1d4 Radiant damage when hitting with a weapon or an Unarmed Strike." },
     "Daylight": { level: 3, time: "1 action", range: "60ft", comp: "V, S", dur: "1 hour", desc: "60ft radius of bright light + 60ft of dim light from a point or object. Lasts 1 hour. Dispels magical darkness of 3rd level or lower." },
     "Dispel Magic": { level: 3, time: "1 action", range: "120ft", comp: "V, S", dur: "Instant", desc: "Automatically end a magical effect of 3rd level or lower. Higher effects: ability check DC 10 + spell level." },
-    "Fear": { level: 3, time: "1 action", range: "Self (30ft cone)", comp: "V, S, M (a white feather or a hen's heart)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. 30ft cone. WIS save or Frightened and must Dash away from you. Repeat the save each turn (with line of sight to you)." },
+    "Fear": { level: 3, time: "1 action", range: "Self (30ft cone)", comp: "V, S, M (a white feather or a hen's heart)", dur: "Concentration, 1 min", desc: "Each creature in a 30-ft cone makes a Wisdom save or drops what it is holding and is Frightened for the duration. A Frightened creature Dashes away from you by the safest route on each of its turns; if it ends its turn where it can't see you, it repeats the save, ending the effect on a success." },
     "Fireball": { level: 3, time: "1 action", range: "150ft", comp: "V, S, M (a tiny ball of bat guano and sulfur)", dur: "Instant", desc: "A 20ft radius explosion at a point within 150ft. DEX save or 8d6 fire damage (half on a save). Upcast: +1d6 per higher slot." },
-    "Fly": { level: 3, time: "1 action", range: "Touch", comp: "V, S, M (a wing feather from any bird)", dur: "Concentration, 10 min", desc: "Concentration, 10 min. The target gains a 60ft flying speed. When it ends: the target falls if still aloft. Upcast: +1 target." },
-    "Gaseous Form": { level: 3, time: "1 action", range: "Touch", comp: "V, S, M (a bit of gauze and a wisp of smoke)", dur: "Concentration, 1 hour", desc: "Concentration, 1 hour. The target becomes a misty cloud. Flying speed 10ft, resistance to nonmagical damage, and it can pass through small openings." },
-    "Haste": { level: 3, time: "1 action", range: "30ft", comp: "V, S, M (a shaving of licorice root)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. The target gains +2 AC, doubled speed, advantage on DEX saves, and one extra action per turn. When it ends: the target can't move or take actions for one turn." },
-    "Hunger of Hadar": { level: 3, time: "1 action", range: "150ft", comp: "V, S, M (octopustentakel)", dur: "Concentration, 1 min", desc: "20ft radius void. 2d6 cold at the start of a turn, 2d6 acid at the end. Blinded, difficult terrain." },
-    "Hypnotic Pattern": { level: 3, time: "1 action", range: "120ft", comp: "S, M (a glowing stick of incense or a crystal vial of phosphorescent material)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. 30ft cube, 120ft range. WIS save or Charmed and Incapacitated. Ends if the target takes damage or is shaken awake." },
+    "Fly": { level: 3, time: "1 action", range: "Touch", comp: "V, S, M (a wing feather from any bird)", dur: "Concentration, 10 min", desc: "A willing creature you touch gains a Fly Speed of 60 ft and can hover for the duration; when the spell ends it falls if still aloft (unless it can stop the fall). Upcast: +1 creature per slot level above 3." },
+    "Gaseous Form": { level: 3, time: "1 action", range: "Touch", comp: "V, S, M (a bit of gauze and a wisp of smoke)", dur: "Concentration, 1 hour", desc: "A willing creature you touch (and its gear) becomes a misty cloud: Fly Speed 10 ft and hover is its only movement, it can enter other creatures' spaces and pass through narrow openings, has Resistance to Bludgeoning, Piercing and Slashing damage, is immune to Prone and has Advantage on Strength, Dexterity and Constitution saves. It can't talk, handle objects, attack or cast spells. Ends at 0 HP or with a Magic action. Upcast: +1 creature per slot level above 3." },
+    "Haste": { level: 3, time: "1 action", range: "30ft", comp: "V, S, M (a shaving of licorice root)", dur: "Concentration, 1 min", desc: "A willing creature within 30 ft gets double Speed, +2 AC, Advantage on Dexterity saves and one extra action each turn (only Attack with one attack, Dash, Disengage, Hide or Utilize). When the spell ends it is Incapacitated with Speed 0 until the end of its next turn." },
+    "Hunger of Hadar": { level: 3, time: "1 action", range: "150ft", comp: "V, S, M (octopustentakel)", dur: "Concentration, 1 min", desc: "A 20-ft-radius sphere of magical Darkness within 150 ft: Difficult Terrain, no light can illuminate it and creatures fully inside are Blinded. A creature that starts its turn there takes 2d6 Cold damage; one that ends its turn there makes a Dexterity save or takes 2d6 Acid damage. Upcast: +1d6 Cold or Acid (your choice) per slot level above 3." },
+    "Hypnotic Pattern": { level: 3, time: "1 action", range: "120ft", comp: "S, M (a glowing stick of incense or a crystal vial of phosphorescent material)", dur: "Concentration, 1 min", desc: "A shifting pattern fills a 30-ft cube within 120 ft. Each creature that sees it makes a Wisdom save or is Charmed for the duration — Incapacitated with Speed 0. The effect ends for a creature that takes damage or is shaken awake with an action." },
     "Lightning Bolt": { level: 3, time: "1 action", range: "Self (100ft line)", comp: "V, S, M (a bit of fur and a rod of amber, crystal, or glass)", dur: "Instant", desc: "100ft line, 5ft wide. DEX save or 8d6 lightning damage (half on save). Ignites flammable material. Upcast: +1d6." },
-    "Major Image": { level: 3, time: "1 action", range: "120ft", comp: "V, S, M (a bit of fleece)", dur: "Concentration, 10 min", desc: "Concentration, 10 min. Create an illusion of up to a 20ft cube with sound, smell, and temperature. 120ft. Investigation check to discern." },
-    "Mass Healing Word": { level: 3, time: "1 bonus action", range: "60ft", comp: "V", dur: "Instant", desc: "Up to 6 creatures: restore 1d4 + modifier HP. Bonus Action. Upcast: +1d4." },
+    "Major Image": { level: 3, time: "1 action", range: "120ft", comp: "V, S, M (a bit of fleece)", dur: "Concentration, 10 min", desc: "An illusion of an object, creature or phenomenon up to a 20-ft cube within 120 ft, with sound, smell and temperature — it can't deal damage or cause conditions. A Magic action moves it within range. A creature that inspects it can see through it with a successful Intelligence (Investigation) check against your spell save DC. Upcast: with a level 4+ slot it lasts until dispelled, without Concentration." },
+    "Mass Healing Word": { level: 3, time: "1 bonus action", range: "60ft", comp: "V", dur: "Instant", desc: "Bonus Action: up to six creatures of your choice you can see within 60 ft regain 2d4 + your spellcasting ability modifier Hit Points. Upcast: +1d4 per slot level above 3." },
     "Plant Growth": { level: 3, time: "1 action / 8 hours", range: "150ft", comp: "V, S", dur: "Instant", desc: "100ft radius of dense plant growth (4ft of movement per 1ft moved). Or an 8-hour ritual to enrich the land." },
     "Protection from Energy": { level: 3, time: "1 action", range: "Touch", comp: "V, S", dur: "Concentration, 1 hour", desc: "Concentration, 1 hour. Touch. The target gains resistance to a chosen damage type (acid/cold/fire/lightning/thunder)." },
     "Revivify": { level: 3, time: "1 action", range: "Touch", comp: "V, S, M (a diamond worth 300+ GP, consumed)", dur: "Instant", desc: "A creature that died within the last minute revives with 1 HP (not from old age; missing body parts don't return)." },
-    "Sending": { level: 3, time: "1 action", range: "Onbeperkt", comp: "V, S, M (a copper wire)", dur: "1 round", desc: "Send a message of up to 25 words to a creature you know. It can reply immediately." },
-    "Sleet Storm": { level: 3, time: "1 action", range: "150ft", comp: "V, S, M (a pinch of dust and a few drops of water)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. 40ft radius, 150ft range. Difficult terrain, heavily obscured. CON save of prone. Concentration check DC 12." },
-    "Slow": { level: 3, time: "1 action", range: "120ft", comp: "V, S, M (a drop of molasses)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. Up to 6 creatures. WIS save or -2 AC, -2 DEX saves, no reactions, halved speed, max 1 attack, and a 50% chance spells fail." },
-    "Speak with Dead": { level: 3, time: "1 action", range: "10ft", comp: "V, S, M (burning incense)", dur: "10 min", desc: "Ask a corpse up to 5 questions. It answers briefly and can lie." },
+    "Sending": { level: 3, time: "1 action", range: "Unlimited", comp: "V, S, M (a copper wire)", dur: "1 round", desc: "Send a message of up to 25 words to a creature you have met or that was described to you; it hears it in its mind, recognises you if it knows you and can answer the same way. Works across any distance; to another plane there is a 5% chance it doesn't arrive (you know if it fails)." },
+    "Sleet Storm": { level: 3, time: "1 action", range: "150ft", comp: "V, S, M (a pinch of dust and a few drops of water)", dur: "Concentration, 1 min", desc: "Sleet falls in a 40-ft-tall, 20-ft-radius cylinder within 150 ft: the area is Heavily Obscured, Difficult Terrain and exposed flames go out. A creature that enters it for the first time on a turn or starts its turn there makes a Dexterity save or falls Prone and loses Concentration." },
+    "Slow": { level: 3, time: "1 action", range: "120ft", comp: "V, S, M (a drop of molasses)", dur: "Concentration, 1 min", desc: "Up to six creatures of your choice in a 40-ft cube within 120 ft make a Wisdom save. On a failure: Speed halved, −2 to AC and Dexterity saves, no Reactions, an action or a Bonus Action on their turn (not both), only one attack with the Attack action, and spells with a Somatic component have a 25% chance to fail. They repeat the save at the end of each of their turns." },
+    "Speak with Dead": { level: 3, time: "1 action", range: "10ft", comp: "V, S, M (burning incense)", dur: "10 min", desc: "A corpse within 10 ft that still has a mouth answers up to five questions within 10 minutes, with what it knew in life. Answers are brief and cryptic, and it needn't be truthful if it sees you as an enemy. Fails if the creature was Undead or the corpse was targeted by this spell in the last 10 days." },
     "Spirit Guardians": { level: 3, time: "1 action", range: "Self (15ft)", comp: "V, S, M (a prayer scroll)", dur: "Concentration, 10 min", desc: "Spirits fill a 15-ft emanation around you; you choose creatures it doesn't affect. Other creatures have their Speed halved there, and when the emanation reaches them or they enter or end their turn in it (once per turn) they make a Wisdom save: 3d8 Radiant damage (Necrotic if you are evil), half on a success. Upcast: +1d8 per slot level above 3." },
     "Spirit Shroud": { level: 3, time: "1 bonus action", range: "Self", comp: "V, S", dur: "Concentration, 1 min", desc: "Attacks within 10ft: +1d8 extra damage, and targets can't regain HP." },
-    "Stinking Cloud": { level: 3, time: "1 action", range: "90ft", comp: "V, S, M (a rotten egg or several skunk cabbage leaves)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. A 20ft radius of nauseating gas. CON save or spend your turn retching. 90ft. Spreads with the wind." },
-    "Summon Fey": { level: 3, time: "1 action", range: "90ft", comp: "V, S, M (a gilded flower worth 300gp)", dur: "Concentration, 1 hour", desc: "Summon a fey spirit that follows your commands. Stronger at higher slot levels." },
+    "Stinking Cloud": { level: 3, time: "1 action", range: "90ft", comp: "V, S, M (a rotten egg or several skunk cabbage leaves)", dur: "Concentration, 1 min", desc: "A 20-ft-radius sphere of nauseating gas within 90 ft, Heavily Obscured, until the spell ends or a strong wind disperses it. A creature that starts its turn inside makes a Constitution save or is Poisoned until the end of that turn and can't take an action or a Bonus Action." },
+    "Summon Fey": { level: 3, time: "1 action", range: "90ft", comp: "V, S, M (a gilded flower worth 300gp)", dur: "Concentration, 1 hour", desc: "A Fey Spirit (choose a mood: Fuming, Mirthful or Tricksy) appears within 90 ft. It is your ally, shares your Initiative and acts right after you, obeys your verbal commands (no action needed) and otherwise Dodges and avoids danger. It vanishes at 0 HP or when the spell ends. Upcast: the stat block uses the slot's level." },
     "Thunder Step": { level: 3, time: "1 action", range: "90ft", comp: "V", dur: "Instant", desc: "Teleport up to 90ft. Creatures at your departure point: CON save or 3d10 thunder. Bring 1 ally along." },
-    "Tongues": { level: 3, time: "1 action", range: "Touch", comp: "V, M (a small clay ziggurat)", dur: "1 hour", desc: "Touch, 1 hour. The target understands any spoken language and is understood by creatures that know a language." },
+    "Tongues": { level: 3, time: "1 action", range: "Touch", comp: "V, M (a small clay ziggurat)", dur: "1 hour", desc: "For 1 hour the creature you touch understands any spoken or signed language it hears or sees, and anyone who knows a language understands it when it speaks or signs." },
     "Water Breathing": { level: 3, time: "1 action", range: "30ft", comp: "V, S, M (a short reed or piece of straw)", dur: "24 hours", desc: "Ritual. Up to 10 creatures can breathe underwater. Lasts 24 hours." },
     "Water Walk": { level: 3, time: "1 action", range: "30ft", comp: "V, S, M (a piece of cork)", dur: "1 hour", desc: "Ritual. Up to 10 creatures can walk on liquid surfaces. Lasts 1 hour." },
     "Wind Wall": { level: 3, time: "1 action", range: "120ft", comp: "V, S, M (a fan and a feather)", dur: "Concentration, 1 min", desc: "A wall of strong wind up to 50 ft long, 15 ft high and 1 ft thick rises along the ground within 120 ft. Creatures in it when it appears make a Strength save: 4d8 Bludgeoning damage, half on a success. It keeps out fog, smoke and gases, stops Small or smaller flyers, and makes arrows, bolts and other ordinary projectiles aimed through it miss (hurled boulders are unaffected)." },
@@ -3467,7 +3470,7 @@ DATA.spellPool = {
     "True Polymorph": { level: 9, time: "1 action", range: "30ft", comp: "V, S, M (a drop of mercury, a dollop of gum arabic, and a wisp of smoke)", dur: "Concentration, 1 hour", desc: "Transform a creature or object (WIS save). If you maintain concentration for the full hour, the transformation becomes permanent." },
     "True Resurrection": { level: 9, time: "1 hour", range: "Touch", comp: "V, S, M (holy oils worth 25000gp)", dur: "Instant", desc: "Return a creature dead no longer than 200 years to life with all its HP. Creates a new body if the original was destroyed." },
     "Wish": { level: 9, time: "1 action", range: "Self", comp: "V", dur: "Instant", desc: "The mightiest spell. Duplicate any spell of 8th level or lower, or create another effect at the DM's discretion. Risky when used creatively." },
-    "Lightning Arrow": { level: 3, time: "1 bonus action", range: "Self", comp: "V, S", dur: "Concentration, 1 min", desc: "Your next ranged weapon attack: 4d8 lightning damage (half on a DEX save). Creatures within 10ft of the target take 2d8 lightning. Upcast: +1d8." },
+    "Lightning Arrow": { level: 3, time: "1 bonus action", range: "Self", comp: "V, S", dur: "Instant", desc: "Bonus Action as you make a ranged weapon attack: instead of the attack's normal effects, the target takes 4d8 Lightning damage on a hit or half on a miss, and each creature within 10 ft of it makes a Dexterity save, taking 2d8 Lightning damage, half on a success. Upcast: +1d8 to both per slot level above 3." },
     "Transport via Plants": { level: 6, time: "1 action", range: "10ft", comp: "V, S", dur: "1 round", desc: "Create a magical link between two plants on the same plane. You and willing creatures can step into one and emerge from the other." },
 
     // ===== CORE SPELLS ADDED (5.5e completeness patch) =====
@@ -3511,14 +3514,14 @@ DATA.spellPool = {
     "Nystul's Magic Aura": { level: 2, time: "1 action", range: "Touch", comp: "V, S, M (a small square of silk)", dur: "24 hours", desc: "Alters the magical aura of a touched creature or object, making it appear nonmagical or of a different school/nonexistent magic item type of your choice to Identify and detection spells; a creature can see through the ruse with an Intelligence (Investigation) check against your spell save DC. Cast daily on the same target for 30 days to make the effect last Until dispelled." },
     "Ray of Enfeeblement": { level: 2, time: "1 action", range: "60ft", comp: "V, S", dur: "Concentration, 1 min", desc: "Target makes a Constitution save; on a fail, it subtracts 1d8 from all its damage rolls and has Disadvantage on Strength-based D20 Tests for the duration, repeating the save at the end of each of its turns to end the effect early on success. On an initial success, the target has Disadvantage on its next attack roll before the start of your next turn." },
     "Rope Trick": { level: 2, time: "1 action", range: "Touch", comp: "V, S, M (a segment of rope)", dur: "1 hour", desc: "Touch a rope; one end hovers upward and an invisible 3ft-by-5ft portal opens at its upper end to an extradimensional space holding up to 8 Medium or smaller creatures. Attacks and spells can't cross the portal. Contents drop out when the spell ends." },
-    "Create Food and Water": { level: 3, time: "1 action", range: "30ft", comp: "V, S", dur: "Instant", desc: "Creates 45 pounds of food and 30 gallons of fresh water on the ground or in containers within range, enough to sustain up to 15 creatures for 24 hours. The food spoils, and the water evaporates, after 24 hours." },
+    "Create Food and Water": { level: 3, time: "1 action", range: "30ft", comp: "V, S", dur: "Instant", desc: "You create 45 pounds of food and 30 gallons of fresh water within 30 ft, on the ground or in containers — enough for 15 creatures for 24 hours. The food is bland but nourishing and spoils after 24 hours if uneaten; the water is clean." },
     "Elemental Weapon": { level: 3, time: "1 action", range: "Touch", comp: "V, S", dur: "Concentration, 1 hour", desc: "A nonmagical weapon you touch becomes magical, gaining +1 to attack rolls and dealing an extra 1d4 damage of a chosen type (acid/cold/fire/lightning/thunder) on a hit. Using a higher-level slot: a level 5-6 slot grants +2/2d4; a level 7+ slot grants +3/3d4." },
     "Feign Death": { level: 3, time: "1 action", range: "Touch", comp: "V, S, M (a pinch of graveyard dirt)", dur: "1 hour", desc: "A willing touched creature appears dead to all inspection and detection, gaining the Blinded and Incapacitated conditions and Speed 0, along with Resistance to all damage except Psychic and Immunity to the Poisoned condition. Ritual." },
     "Glyph of Warding": { level: 3, time: "1 hour", range: "Touch", comp: "V, S, M (powdered diamond worth 200+ GP, which the spell consumes)", dur: "Until dispelled or triggered", desc: "Inscribe a hidden glyph (max 10ft diameter, on a surface or inside a closed object) with a trigger condition, as either an Explosive Rune (a 20ft-radius Sphere burst dealing 5d8 damage of one chosen type: acid/cold/fire/lightning/thunder, Dex save for half) or a Spell Glyph (store a prepared spell of 3rd level or lower, which triggers on the triggering creature or its location). Using a higher-level slot: Explosive Rune damage +1d8 per slot level above 3; a Spell Glyph can store a spell matching the slot level used." },
     "Leomund's Tiny Hut": { level: 3, time: "1 min or Ritual", range: "Self", comp: "V, S, M (a crystal bead)", dur: "8 hours", desc: "A 10ft Emanation of comfortable, weatherproof shelter surrounds you; creatures/objects inside when cast pass freely, all others are barred, and spells of level 3 or lower can't be cast through it. You can command dim light or darkness inside (no action). Can be cast as a Ritual." },
-    "Meld into Stone": { level: 3, time: "1 action or Ritual", range: "Touch", comp: "V, S", dur: "8 hours", desc: "Step into and merge with a touched stone object or surface large enough to contain you; you can breathe but only sense sound outside. Ends if you move or the duration expires, ejecting you into the nearest unoccupied space. Can be cast as a Ritual." },
+    "Meld into Stone": { level: 3, time: "1 action or Ritual", range: "Touch", comp: "V, S", dur: "8 hours", desc: "You step into stone you touch that can hold you, merging with your gear for up to 8 hours. You can't see outside, Perception checks to hear are made with Disadvantage, and you can cast spells on yourself. Using 5 ft of movement takes you out where you entered and ends the spell. If the stone is partly destroyed or reshaped you are expelled and take 6d6 Force damage (50 Force if it is destroyed), landing Prone. Ritual." },
     "Nondetection": { level: 3, time: "1 action", range: "Touch", comp: "V, S, M (a pinch of diamond dust worth 25+ GP, consumed)", dur: "8 hours", desc: "A willing creature, place, or object (max 10ft in any dimension) you touch can't be targeted by Divination spells or perceived through magical scrying sensors for the duration." },
-    "Phantom Steed": { level: 3, time: "1 min or Ritual", range: "30ft", comp: "V, S", dur: "1 hour", desc: "A Large quasi-real horselike creature (Speed 100ft, can't fight) appears in an unoccupied space; only you or a creature you designate can ride it, and it disappears if it takes damage or you dismount. Can be cast as a Ritual. Using a higher-level slot: at 5th level the steed can also move across water as if it were solid ground; at 7th level it can also fly at its speed." },
+    "Phantom Steed": { level: 3, time: "1 min or Ritual", range: "30ft", comp: "V, S", dur: "1 hour", desc: "A Large quasi-real horselike steed with saddle and tack appears within 30 ft for 1 hour. It uses the Riding Horse stat block but has a Speed of 100 ft (13 miles per hour); you or a creature you choose can ride it. The spell ends early if it takes any damage, and the rider gets 1 minute to dismount as it fades. Ritual." },
     "Remove Curse": { level: 3, time: "1 action", range: "Touch", comp: "V, S", dur: "Instant", desc: "All curses affecting one creature or object end. If the object is a cursed magic item, the curse remains but the item's Attunement to its owner breaks, allowing removal." },
     "Speak with Plants": { level: 3, time: "1 action", range: "Self (30ft emanation)", comp: "V, S", dur: "10 min", desc: "Plants in the emanation gain limited sentience, can communicate with you, and follow simple commands. You can question them about events in the area within the past day. You can turn plant-caused difficult terrain into normal terrain or vice versa for the duration." },
     "Summon Undead": { level: 3, time: "1 action", range: "90ft", comp: "V, S, M (a gilded skull worth 300+ GP)", dur: "Concentration, 1 hour", desc: "Summons an Undead Spirit (Ghostly, Putrid, or Skeletal form, chosen on cast) as an ally sharing your initiative, acting immediately after your turn. It obeys verbal commands or Dodges and avoids danger if none given; it disappears at 0 HP or when the spell ends. Using a higher-level slot: use the slot's level for the spirit's stat block." },
@@ -3595,7 +3598,7 @@ DATA.spells = {
         0: ["Acid Splash","Blade Ward","Booming Blade","Chill Touch","Dancing Lights","Elementalism","Fire Bolt","Friends","Light","Mage Hand","Mending","Message","Mind Sliver","Minor Illusion","Poison Spray","Prestidigitation","Ray of Frost","Shocking Grasp","Thunderclap","Toll the Dead","True Strike"],
         1: ["Absorb Elements","Alarm","Burning Hands","Charm Person","Chromatic Orb","Color Spray","Comprehend Languages","Detect Magic","Disguise Self","Expeditious Retreat","False Life","Feather Fall","Find Familiar","Fog Cloud","Grease","Ice Knife","Identify","Illusory Script","Jump","Longstrider","Mage Armor","Magic Missile","Protection from Evil and Good","Ray of Sickness","Shield","Silent Image","Silvery Barbs","Sleep","Tasha's Hideous Laughter","Tenser's Floating Disk","Thunderwave","Unseen Servant","Witch Bolt"],
         2: ["Air Bubble","Alter Self","Arcane Lock","Arcane Vigor","Augury","Blindness/Deafness","Blur","Cloud of Daggers","Continual Flame","Crown of Madness","Darkness","Darkvision","Detect Thoughts","Dragon's Breath","Enhance Ability","Enlarge/Reduce","Flaming Sphere","Gentle Repose","Gust of Wind","Hold Person","Invisibility","Knock","Levitate","Locate Object","Magic Mouth","Magic Weapon","Melf's Acid Arrow","Mind Spike","Mirror Image","Misty Step","Nystul's Magic Aura","Phantasmal Force","Ray of Enfeeblement","Rope Trick","Scorching Ray","See Invisibility","Shatter","Spider Climb","Suggestion","Web"],
-        3: ["Animate Dead","Bestow Curse","Blink","Clairvoyance","Counterspell","Daylight","Dispel Magic","Fear","Feign Death","Fireball","Fly","Gaseous Form","Glyph of Warding","Haste","Hypnotic Pattern","Leomund's Tiny Hut","Lightning Bolt","Magic Circle","Major Image","Nondetection","Phantom Steed","Protection from Energy","Remove Curse","Sending","Sleet Storm","Slow","Speak with Dead","Stinking Cloud","Summon Fey","Summon Undead","Tongues","Vampiric Touch","Water Breathing"],
+        3: ["Animate Dead","Bestow Curse","Blink","Clairvoyance","Counterspell","Dispel Magic","Fear","Feign Death","Fireball","Fly","Gaseous Form","Glyph of Warding","Haste","Hypnotic Pattern","Leomund's Tiny Hut","Lightning Bolt","Magic Circle","Major Image","Nondetection","Phantom Steed","Protection from Energy","Remove Curse","Sending","Sleet Storm","Slow","Speak with Dead","Stinking Cloud","Summon Fey","Summon Undead","Tongues","Vampiric Touch","Water Breathing"],
         4: ["Arcane Eye","Banishment","Blight","Charm Monster","Confusion","Conjure Minor Elementals","Control Water","Dimension Door","Divination","Dominate Beast","Evard's Black Tentacles","Fabricate","Fire Shield","Greater Invisibility","Hallucinatory Terrain","Ice Storm","Leomund's Secret Chest","Locate Creature","Mordenkainen's Faithful Hound","Mordenkainen's Private Sanctum","Otiluke's Resilient Sphere","Phantasmal Killer","Polymorph","Stone Shape","Stoneskin","Summon Aberration","Summon Construct","Summon Elemental","Vitriolic Sphere","Wall of Fire"],
         5: ["Animate Objects","Bigby's Hand","Circle of Power","Cloudkill","Cone of Cold","Conjure Elemental","Contact Other Plane","Creation","Dominate Person","Dream","Geas","Hold Monster","Jallarzi's Storm of Radiance","Legend Lore","Mislead","Modify Memory","Passwall","Planar Binding","Rary's Telepathic Bond","Scrying","Seeming","Steel Wind Strike","Summon Dragon","Synaptic Static","Telekinesis","Teleportation Circle","Wall of Force","Wall of Stone","Yolande's Regal Presence"],
         6: ["Arcane Gate","Chain Lightning","Circle of Death","Contingency","Create Undead","Disintegrate","Drawmij's Instant Summons","Eyebite","Flesh to Stone","Globe of Invulnerability","Guards and Wards","Magic Jar","Mass Suggestion","Move Earth","Otiluke's Freezing Sphere","Otto's Irresistible Dance","Programmed Illusion","Summon Fiend","Sunbeam","Tasha's Bubbling Cauldron","True Seeing","Wall of Ice"],
@@ -3740,9 +3743,9 @@ DATA.levelUpChoices = {
     barbarian: { 3: [{ id: 'subclass' }, { id: 'skills', count: 1, options: 'class', featName: 'Primal Knowledge' }] }
 };
 
-// 2024 PHB Eldritch Invocations a Warlock can take at levels 1-4 (minLevel gates
-// the picker; prereq is shown, not enforced). Level 5+ invocations follow with
-// the higher-level batch. spells = what the invocation lets you cast
+// 2024 PHB Eldritch Invocations up to Warlock level 5 (minLevel gates the
+// picker; `requires` = another invocation you must have, enforced; other
+// prereq text is shown). spells = what the invocation lets you cast
 // ('atWill' = without a spell slot, no limit; picks are stored per character in
 // state.invocationPicks[name]).
 DATA.invocations = [
@@ -3759,7 +3762,15 @@ DATA.invocations = [
     { name: "Pact of the Blade", minLevel: 1, prereq: null, act: 'bonus', desc: "Bonus Action: conjure a pact weapon (a Simple or Martial Melee weapon) in your hand, or bond with a magic weapon you touch. You're proficient with it and can use it as a spellcasting focus; attacks with it can use Charisma instead of Strength or Dexterity, and it can deal Necrotic, Psychic or Radiant damage instead of its normal type. The bond ends if you use this again, if the weapon is more than 5 ft from you for 1 minute, or if you die." },
     { name: "Pact of the Chain", minLevel: 1, prereq: null, desc: "You learn Find Familiar and can cast it as a Magic action without a spell slot. Your familiar can take a special form (Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite or Venomous Snake). When you take the Attack action, you can give up one of your attacks so your familiar makes one attack with its Reaction.", spells: [{ name: "Find Familiar", kind: 'atWill', note: "Magic action, no spell slot" }] },
     { name: "Pact of the Tome", minLevel: 1, prereq: null, desc: "At the end of a Short or Long Rest you can conjure a Book of Shadows. When it appears, choose three cantrips and two level 1 Ritual spells from any class's spell list (not ones you already have prepared); while you carry the book they're prepared and count as Warlock spells. The book is also a spellcasting focus.", spells: [{ pick: 'cantrips', count: 3, level: 0, kind: 'cantrip' }, { pick: 'spells', count: 2, level: 1, ritual: true, kind: 'ritual' }] },
-    { name: "Repelling Blast", minLevel: 2, prereq: "a Warlock cantrip that makes an attack roll", repeatable: true, desc: "Choose one of your known Warlock cantrips that requires an attack roll: when it hits a Large or smaller creature, you can push the creature up to 10 ft straight away from you. You can take this more than once, for a different cantrip each time." }
+    { name: "Repelling Blast", minLevel: 2, prereq: "a Warlock cantrip that makes an attack roll", repeatable: true, desc: "Choose one of your known Warlock cantrips that requires an attack roll: when it hits a Large or smaller creature, you can push the creature up to 10 ft straight away from you. You can take this more than once, for a different cantrip each time." },
+    { name: "Ascendant Step", minLevel: 5, prereq: null, desc: "You can cast Levitate on yourself without expending a spell slot.", spells: [{ name: "Levitate", kind: 'atWill', note: "on yourself" }] },
+    { name: "Eldritch Smite", minLevel: 5, prereq: "Pact of the Blade", requires: "Pact of the Blade", act: 'attack', desc: "Once per turn when you hit a creature with your pact weapon, you can expend a Pact Magic slot: the target takes an extra 1d8 Force damage plus 1d8 per level of the slot, and if it is Huge or smaller you can knock it Prone." },
+    { name: "Gaze of Two Minds", minLevel: 5, prereq: null, act: 'bonus', desc: "Bonus Action: touch a willing creature and perceive through its senses until the end of your next turn (a Bonus Action on later turns keeps the link going while you are on the same plane). Meanwhile you have its special senses, and within 60 ft of each other you can cast spells as if you were in its space." },
+    { name: "Gift of the Depths", minLevel: 5, prereq: null, desc: "You can breathe underwater and have a Swim Speed equal to your Speed. You can also cast Water Breathing once without a spell slot (regained on a Long Rest).", spells: [{ name: "Water Breathing", kind: 'innate', free: 1, recharge: 'long', slots: true }] },
+    { name: "Investment of the Chain Master", minLevel: 5, prereq: "Pact of the Chain", requires: "Pact of the Chain", desc: "Your Find Familiar familiar gets a 40-ft Fly or Swim Speed (your choice); you can command it to take the Attack action as a Bonus Action; its Bludgeoning, Piercing and Slashing damage can be Necrotic or Radiant instead; it uses your spell save DC; and when it takes damage you can use your Reaction to give it Resistance to that damage." },
+    { name: "Master of Myriad Forms", minLevel: 5, prereq: null, desc: "You can cast Alter Self without expending a spell slot.", spells: [{ name: "Alter Self", kind: 'atWill' }] },
+    { name: "One with Shadows", minLevel: 5, prereq: null, desc: "While you are in Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.", spells: [{ name: "Invisibility", kind: 'atWill', note: "on yourself, in Dim Light or Darkness" }] },
+    { name: "Thirsting Blade", minLevel: 5, prereq: "Pact of the Blade", requires: "Pact of the Blade", desc: "You gain Extra Attack for your pact weapon only: you can attack twice with it instead of once when you take the Attack action on your turn." }
 ];
 
 // Beast forms for Wild Shape. Druid levels 2-3: CR 1/4 or lower; levels 4-7:
@@ -3904,6 +3915,13 @@ DATA.classResources = [
     },
     // ---- Druid ----
     {
+        id: 'wildResurgence', label: 'Wild Resurgence (spell slot)',
+        appliesTo: { className: 'druid', minLevel: 5 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'wildResurgenceUsed', recharge: 'long', featureNames: ['Wild Resurgence'],
+        desc: "Expend a Wild Shape use to gain a level 1 spell slot (no action). Once per Long Rest."
+    },
+    {
         id: 'wildShape', label: 'Wild Shape',
         appliesTo: { className: 'druid', minLevel: 2 },
         max: function (cfg, st) { var l = st.level || 1; return l >= 17 ? 4 : l >= 6 ? 3 : 2; },
@@ -4023,6 +4041,13 @@ DATA.classResources = [
         max: function (cfg, st) { return 2; },
         stateKey: 'innateSorceryUsed', recharge: 'long', featureNames: ['Innate Sorcery'],
         desc: "Bonus Action: unleash your magic for 1 minute. Spell save DC +1 and Advantage on attack rolls of Sorcerer spells. Two uses; all return on a Long Rest."
+    },
+    {
+        id: 'sorcerousRestoration', label: 'Sorcerous Restoration',
+        appliesTo: { className: 'sorcerer', minLevel: 5 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'sorcerousRestorationUsed', recharge: 'long', featureNames: ['Sorcerous Restoration'],
+        desc: "After a Short Rest: regain up to half your Sorcerer level (round down) in Sorcery Points. Once per Long Rest."
     },
     {
         id: 'sorceryPoints', label: 'Sorcery Points',

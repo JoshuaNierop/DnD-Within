@@ -1,6 +1,6 @@
 // harness.mjs — loads the real D&D Within rules engine + level-up builders in a
 // Node vm sandbox (browser globals stubbed) and drives them like the modal does.
-// Shared by build-smoke.mjs (tests) and l4-overview.mjs (combination overview).
+// Shared by build-smoke.mjs (tests) and build-overview.mjs (combination overviews).
 
 import { readFileSync } from 'fs';
 import vm from 'vm';
@@ -130,7 +130,7 @@ export function makePick(E, step, cfg, st, delta, picked, prefs) {
   else if (id === 'featElement') setPath(picked, c.owner + '.element', 'fire');
   else if (id === 'featSpells') {
     const known = (st.cantrips || []).concat(st.prepared || []).concat(E.getGrantedSpells(cfg, st).filter((g) => !g.open).map((g) => g.name));
-    const opts = E.wgxSpellOptions(c.filter).map((e) => e.nm).filter((nm) => !(c.filter.level === 0 && known.includes(nm)));
+    const opts = E.wgxSpellOptions(c.filter).map((e) => e.nm).filter((nm) => !known.includes(nm));   // the picker greys out what you already have
     setPath(picked, c.owner + '.' + c.pick, firstN(opts, n));
   } else if (id === 'featSkills' || id === 'featExpertise') {
     const rec = getPath(picked, c.owner) || {};
@@ -146,7 +146,7 @@ export function makePick(E, step, cfg, st, delta, picked, prefs) {
   else if (id === 'invocations') {
     const known = st.invocations || [];
     const want = prefs.invocations || [];
-    const pool = DATA.invocations.filter((op) => (op.minLevel || 1) <= delta.to && !known.includes(op.name)).map((op) => op.name);
+    const pool = DATA.invocations.filter((op) => (op.minLevel || 1) <= delta.to && !known.includes(op.name) && (!op.requires || known.includes(op.requires))).map((op) => op.name);
     picked.invocations = firstN(want.filter((w) => pool.includes(w)).concat(pool.filter((p) => !want.includes(p))), n);
   } else if (id === 'wildShapeForms') {
     const lim = DATA.wildShapeLimits(delta.to, eff.subclass);

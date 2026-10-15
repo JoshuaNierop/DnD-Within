@@ -1,7 +1,7 @@
-// l4-overview.mjs — writes Metadocs/LevelingUp/L4-Combinations.md: every 2024
-// class × subclass × species combination at level 4, generated from the same
+// build-overview.mjs — writes Metadocs/LevelingUp/L<N>-Combinations.md (N = 4 or 5): every 2024
+// class × subclass × species combination at that level, generated from the same
 // rules engine the site uses (getBuildProfile), so the document can't drift
-// from the app. Run from the project root:  node Metadocs/LevelingUp/l4-overview.mjs
+// from the app. Run from the project root:  node Metadocs/LevelingUp/build-overview.mjs [4|5]
 //
 // A combination = its class/subclass section + its species section; the
 // matrix flags combinations whose parts interact (overlapping spells, Rage or
@@ -16,7 +16,9 @@ const E = loadEngine();
 const { DATA } = E;
 
 // Batches of 20 combinations (2 subclasses × 10 species) read through by hand.
-const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10', 'monk/openHand': 'batch 11', 'monk/mercy': 'batch 11', 'monk/shadow': 'batch 12', 'monk/elements': 'batch 12', 'paladin/devotion': 'batch 13', 'paladin/ancients': 'batch 13', 'paladin/glory': 'batch 14', 'paladin/vengeance': 'batch 14', 'ranger/hunter': 'batch 15', 'ranger/beastMaster': 'batch 15', 'ranger/feyWanderer': 'batch 16', 'ranger/gloomStalker': 'batch 16', 'rogue/thief': 'batch 17', 'rogue/assassin': 'batch 17', 'rogue/arcaneTrickster': 'batch 18', 'rogue/soulknife': 'batch 18', 'sorcerer/wildMagic': 'batch 19', 'sorcerer/draconic': 'batch 19', 'sorcerer/clockwork': 'batch 20', 'sorcerer/aberrant': 'batch 20', 'warlock/fiend': 'batch 21', 'warlock/archfey': 'batch 21', 'warlock/celestial': 'batch 22', 'warlock/greatOldOne': 'batch 22', 'wizard/evocation': 'batch 23', 'wizard/abjuration': 'batch 23', 'wizard/divination': 'batch 24', 'wizard/illusion': 'batch 24' };
+const LVL = Math.max(4, Math.min(5, Number(process.argv[2]) || 4));
+const REVIEWED_BY_LEVEL = { 4: { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10', 'monk/openHand': 'batch 11', 'monk/mercy': 'batch 11', 'monk/shadow': 'batch 12', 'monk/elements': 'batch 12', 'paladin/devotion': 'batch 13', 'paladin/ancients': 'batch 13', 'paladin/glory': 'batch 14', 'paladin/vengeance': 'batch 14', 'ranger/hunter': 'batch 15', 'ranger/beastMaster': 'batch 15', 'ranger/feyWanderer': 'batch 16', 'ranger/gloomStalker': 'batch 16', 'rogue/thief': 'batch 17', 'rogue/assassin': 'batch 17', 'rogue/arcaneTrickster': 'batch 18', 'rogue/soulknife': 'batch 18', 'sorcerer/wildMagic': 'batch 19', 'sorcerer/draconic': 'batch 19', 'sorcerer/clockwork': 'batch 20', 'sorcerer/aberrant': 'batch 20', 'warlock/fiend': 'batch 21', 'warlock/archfey': 'batch 21', 'warlock/celestial': 'batch 22', 'warlock/greatOldOne': 'batch 22', 'wizard/evocation': 'batch 23', 'wizard/abjuration': 'batch 23', 'wizard/divination': 'batch 24', 'wizard/illusion': 'batch 24' }, 5: {} };
+const REVIEWED = REVIEWED_BY_LEVEL[LVL] || {};
 
 const CLASSES = ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'];
 const SPECIES = [
@@ -45,7 +47,7 @@ function template(cls, sub, race, lineage, opts = {}) {
   if ((DATA[race] || {}).spellAbility === 'choose') cfg.speciesAbility = ['int', 'wis', 'cha'].includes(E.getSpellcastingAbility(cls, sub)) ? E.getSpellcastingAbility(cls, sub) : 'cha';
   if (cls === 'cleric') cfg.divineOrder = opts.order || 'protector';
   if (cls === 'druid') cfg.primalOrder = opts.order || 'warden';
-  const st = { level: 4, cantrips: [], prepared: [], asiChoices: { 4: { type: 'asi', abilities: {} } } };
+  const st = { level: LVL, cantrips: [], prepared: [], asiChoices: { 4: { type: 'asi', abilities: {} } } };
   if (sub === 'land') st.landType = opts.land || 'arid';
   if (race === 'human') st.speciesFeat = { type: 'feat', feat: 'Alert', origin: true };
   return { cfg, st };
@@ -57,10 +59,10 @@ const freeTxt = (g) => g.kind === 'atWill' ? 'at will' : g.cost ? g.cost.n + ' F
 const spellLine = (g) => g.name + ' (' + (g.spellLevel === 0 ? 'C' : 'L' + g.spellLevel) + ', ' + freeTxt(g) + ')';
 const uniq = (a) => a.filter((x, i) => a.indexOf(x) === i);
 
-let md = '# Level 4 — every class × subclass × species (2024 PHB)\n\n';
-md += '> Generated by `Metadocs/LevelingUp/l4-overview.mjs` from the rules engine the site uses (`getBuildProfile`). Regenerate after any rules change. ';
-md += 'Mechanics of all 720 level 1→4 combinations (48 subclasses × 15 species variants) are verified by `build-smoke.mjs` against facts from the 2024 PHB data.\n\n';
-md += '**How to read it.** A combination = its *class/subclass* section + its *species* section. Everything at level 4 is listed per kind: **spells** (level, free uses, reset), **actions** (by action type), **feats**, **uses & resets**, what you **choose** (and how many), and what you can **swap** and when. ';
+let md = '# Level ' + LVL + ' — every class × subclass × species (2024 PHB)\n\n';
+md += '> Generated by `node Metadocs/LevelingUp/build-overview.mjs ' + LVL + '` from the rules engine the site uses (`getBuildProfile`). Regenerate after any rules change. ';
+md += 'Mechanics of all 720 level 1→' + LVL + ' combinations (48 subclasses × 15 species variants) are verified by `build-smoke.mjs ' + LVL + '` against facts from the 2024 PHB data.\n\n';
+md += '**How to read it.** A combination = its *class/subclass* section + its *species* section. Everything at level ' + LVL + ' is listed per kind: **spells** (level, free uses, reset), **actions** (by action type), **feats**, **uses & resets**, what you **choose** (and how many), and what you can **swap** and when. ';
 md += 'The matrix flags combinations whose parts interact (⚑) — the note is in the class section.\n\n';
 
 // { id: 'skills' } choice as text: "Primal Knowledge (L3): 1 skill from the Barbarian list"
@@ -105,7 +107,7 @@ for (const cls of CLASSES) {
 md += '\n✓ = no interaction between the parts · ⚑ = see "Combination notes" in the class section.\n\n';
 
 // ---------- species ----------
-md += '## Species at level 4\n\nThe species part is the same for every class (spell DCs use the class or the chosen ability). One block per species; lineage variants list only what differs.\n\n';
+md += '## Species at level ' + LVL + '\n\nThe species part is the same for every class (spell DCs use the class or the chosen ability). One block per species; lineage variants list only what differs.\n\n';
 for (const sp of SPECIES) {
   md += '### ' + sp.label + '\n\n';
   const rows = sp.variants.map(([race, lin]) => {
@@ -153,17 +155,17 @@ for (const sp of SPECIES) {
 }
 
 // ---------- classes ----------
-md += '## Classes and subclasses at level 4\n\nPer class: what every subclass shares, then each subclass. Level 4 always brings **Ability Score Improvement or a feat** (any Origin feat or a General feat you qualify for; spell-granting feats: Magic Initiate, Fey-Touched, Shadow-Touched, Telepathic, Telekinetic, Ritual Caster).\n\n';
+md += '## Classes and subclasses at level ' + LVL + '\n\nPer class: what every subclass shares, then each subclass. Level 4 always brings **Ability Score Improvement or a feat** (any Origin feat or a General feat you qualify for; spell-granting feats: Magic Initiate, Fey-Touched, Shadow-Touched, Telepathic, Telekinetic, Ritual Caster).\n\n';
 for (const cls of CLASSES) {
   const cd = DATA[cls];
   const subs = Object.keys(cd.subclasses).filter((k) => !cd.subclasses[k].legacy);
   const base = E.getBuildProfile(...Object.values(template(cls, subs[0], 'human', null)));
   md += '### ' + cls.charAt(0).toUpperCase() + cls.slice(1) + ' (d' + cd.hitDie + ')\n\n';
   const classFeats = base.features.filter((f) => f.source === 'class');
-  md += '- Class features L1–4: ' + classFeats.map((f) => f.name + (f.act ? ' [' + ACT[f.act] + ']' : '')).join(', ') + '\n';
+  md += '- Class features L1–' + LVL + ': ' + classFeats.map((f) => f.name + (f.act ? ' [' + ACT[f.act] + ']' : '')).join(', ') + '\n';
   if (base.casting) {
     const c = base.casting;
-    md += '- Spellcasting at L4: ' + c.ability.toUpperCase() + ', ' + (c.cantrips.max ? c.cantrips.max + ' cantrips, ' : '') + c.prepared.max + ' prepared (level ≤ ' + c.prepared.maxLevel + '), ' +
+    md += '- Spellcasting at L' + LVL + ': ' + c.ability.toUpperCase() + ', ' + (c.cantrips.max ? c.cantrips.max + ' cantrips, ' : '') + c.prepared.max + ' prepared (level ≤ ' + c.prepared.maxLevel + '), ' +
       (c.pact ? c.pact.count + ' Pact slots of level ' + c.pact.level + ' (Short Rest)' : 'slots ' + c.slots.filter((n) => n > 0).map((n, i) => n + '×L' + (i + 1)).join(', ')) + '\n';
   }
   const classSpells = base.granted.filter((x) => x.source === 'class');
@@ -183,7 +185,7 @@ for (const cls of CLASSES) {
   for (const [id, label] of Object.entries(TOT)) {
     const col = (DATA.choiceTotals[id] || {})[cls];
     if (!col) continue;
-    for (let L = 1; L <= 4; L++) {
+    for (let L = 1; L <= LVL; L++) {
       const add = col[L] - col[L - 1];
       if (add > 0) (byLevel[L] = byLevel[L] || []).push((L === 1 || col[L - 1] === 0 ? add + ' ' : '+' + add + ' ') + label + (add > 1 ? 's' : '') + (col[L - 1] > 0 ? ' (' + col[L] + ' total)' : ''));
     }
@@ -192,13 +194,13 @@ for (const cls of CLASSES) {
     fightingStyle: () => 'a Fighting Style feat' + (cls === 'paladin' ? ' or Blessed Warrior (2 Cleric cantrips)' : cls === 'ranger' ? ' or Druidic Warrior (2 Druid cantrips)' : ''),
     scholar: () => 'Scholar: Expertise in Arcana, History, Investigation, Medicine, Nature or Religion', subclass: () => 'your subclass' };
   for (const [L, list] of Object.entries(DATA.levelUpChoices[cls] || {})) {
-    if (L > 4) continue;
+    if (L > LVL) continue;
     // fighter: the L2 entry only heals a level 1 style that was never recorded
     list.filter((c) => !(cls === 'fighter' && c.id === 'fightingStyle')).forEach((c) => (byLevel[L] = byLevel[L] || []).push(c.id === 'skills' ? skillChoiceText(c, cls, L).replace(/ \(L\d+\)/, '') : LU[c.id] ? LU[c.id](c) : c.id));
   }
   if (cls === 'ranger') (byLevel[2] = byLevel[2] || []).push('2 languages (Deft Explorer)');
-  if (cls === 'wizard') [2, 3, 4].forEach((L) => (byLevel[L] = byLevel[L] || []).push('2 Wizard spells for your spellbook'));
-  if ((DATA[cls].asiLevels || []).includes(4)) (byLevel[4] = byLevel[4] || []).push('Ability Score Improvement or a feat');
+  if (cls === 'wizard') [2, 3, 4, 5].filter((L) => L <= LVL).forEach((L) => (byLevel[L] = byLevel[L] || []).push('2 Wizard spells for your spellbook'));
+  (DATA[cls].asiLevels || []).filter((L) => L <= LVL).forEach((L) => (byLevel[L] = byLevel[L] || []).push('Ability Score Improvement or a feat'));
   md += '- Choose:\n' + Object.keys(byLevel).sort((a, b) => a - b).map((L) => '  - ' + (L === '1' ? 'At creation' : 'Level ' + L) + ': ' + byLevel[L].join('; ') + '\n').join('');
   const sw = [].concat(...Object.entries(base.swaps).map(([k, v]) => v.filter((x) => !SUB_SWAPS.includes(x.id)).map((x) => x.what + ' (' + WHEN[k] + ')')));
   if (sw.length) md += '- Swap: ' + uniq(sw).join('; ') + '\n';
@@ -209,15 +211,15 @@ for (const cls of CLASSES) {
     const p = E.getBuildProfile(cfg, st);
     md += '#### ' + sd.name + '\n\n';
     const sf = p.features.filter((f) => f.source === 'subclass');
-    md += '- Features (L3): ' + sf.map((f) => f.name + (f.act ? ' [' + ACT[f.act] + ']' : '')).join(', ') + '\n';
-    const subCh = [].concat(...Object.entries(DATA[cls].subclasses[sub].choices || {}).filter(([L]) => L <= 4).map(([L, list]) => list.filter((c) => c.id === 'skills').map((c) => [!!c.fixed, skillChoiceText(c, cls, L)])));
+    md += '- Features (L3' + (sf.some((x) => x.level > 3) ? '–' + LVL : '') + '): ' + sf.map((f) => f.name + (f.act ? ' [' + ACT[f.act] + ']' : '')).join(', ') + '\n';
+    const subCh = [].concat(...Object.entries(DATA[cls].subclasses[sub].choices || {}).filter(([L]) => L <= LVL).map(([L, list]) => list.filter((c) => c.id === 'skills').map((c) => [!!c.fixed, skillChoiceText(c, cls, L)])));
     if (subCh.some(([fx]) => !fx)) md += '- Choose: ' + subCh.filter(([fx]) => !fx).map(([, t]) => t).join('; ') + '\n';
     const savant = cls === 'wizard' && { abjuration: 'Abjuration', divination: 'Divination', evocation: 'Evocation', illusion: 'Illusion' }[sub];
     if (savant) md += '- Choose: ' + savant + ' Savant (L3): 2 ' + savant + " spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)\n";
     if (subCh.some(([fx]) => fx)) md += '- Gain: ' + subCh.filter(([fx]) => fx).map(([, t]) => t).join('; ') + '\n';
     if (p.casting && !base.casting) {
       const c = p.casting;
-      md += '- Spellcasting at L4: ' + c.ability.toUpperCase() + ' (' + c.list.charAt(0).toUpperCase() + c.list.slice(1) + ' list), ' + c.cantrips.max + ' cantrips, ' + c.prepared.max + ' prepared (level ≤ ' + c.prepared.maxLevel + '), slots ' +
+      md += '- Spellcasting at L' + LVL + ': ' + c.ability.toUpperCase() + ' (' + c.list.charAt(0).toUpperCase() + c.list.slice(1) + ' list), ' + c.cantrips.max + ' cantrips, ' + c.prepared.max + ' prepared (level ≤ ' + c.prepared.maxLevel + '), slots ' +
         c.slots.filter((n) => n > 0).map((n, k) => n + '×L' + (k + 1)).join(', ') + '\n';
     }
     const sg = p.granted.filter((g) => g.source === 'subclass');
@@ -242,5 +244,5 @@ for (const cls of CLASSES) {
     md += '\n';
   }
 }
-writeFileSync(join(ROOT, 'Metadocs/LevelingUp/L4-Combinations.md'), md);
-console.log('L4-Combinations.md written: ' + md.split('\n').length + ' lines');
+writeFileSync(join(ROOT, 'Metadocs/LevelingUp/L' + LVL + '-Combinations.md'), md);
+console.log('L' + LVL + '-Combinations.md written: ' + md.split('\n').length + ' lines');

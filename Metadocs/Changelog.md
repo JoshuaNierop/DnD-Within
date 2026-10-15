@@ -2,6 +2,22 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-15 — Level 5 for every class, subclass and species (2024 rules)
+
+- Level 5 features follow the 2024 rules: Extra Attack, Fast Movement, **Font of
+  Inspiration** (Bardic Inspiration returns on a Short Rest; spend a slot for one more
+  use), **Sear Undead**, **Wild Resurgence**, Stunning Strike, Tactical Shift,
+  **Cunning Strike** (Poison, Trip, Withdraw), Uncanny Dodge, Faithful Steed (Find
+  Steed always prepared plus one free cast), the new **Sorcerous Restoration** and
+  Memorize Spell. New uses are tracked: Wild Resurgence and Sorcerous Restoration.
+- Subclass and species spells that arrive at level 5 are added automatically.
+- Warlocks can pick the level 5 invocations: Ascendant Step, Eldritch Smite, Gaze of
+  Two Minds, Gift of the Depths, Investment of the Chain Master, Master of Myriad Forms,
+  One with Shadows and Thirsting Blade (Pact prerequisites are enforced).
+- Level 3 spells follow the 2024 rules (Counterspell is a Constitution save, Mass
+  Healing Word heals 2d4, Blink, Slow, Sleet Storm, Stinking Cloud and more).
+- Ritual Caster lets you add a ritual each time your Proficiency Bonus grows.
+
 ## 2026-10-15 — Every class, subclass and species up to level 4 (2024 rules)
 
 ### Your build at a glance

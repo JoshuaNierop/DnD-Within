@@ -1,13 +1,14 @@
-// build-smoke.mjs — level 1→4 test over EVERY class × subclass × species
+// build-smoke.mjs — level 1→T test over EVERY class × subclass × species
 // variant (48 × 15 = 720 characters). Run from the project root:
-//   node Metadocs/LevelingUp/build-smoke.mjs
+//   node Metadocs/LevelingUp/build-smoke.mjs      (T = 4)
+//   node Metadocs/LevelingUp/build-smoke.mjs 5    (T = 5)
 //
 // Per character: fresh level 1 (origin feat in rotation, creation picks such as
 // lineage / species ability / Divine Order deliberately missing), level-up
-// 1→2→3→4 through the real builders (subclass = the combo's, a different L4
-// feat in rotation, an optional swap now and then), then checks against
-// l4-facts.json — numbers and spell names taken from the 2024 PHB data, an
-// independent source — and finally level-down 4→1 with an exact rollback check.
+// 1→…→T through the real builders (subclass = the combo's, a different L4 feat
+// in rotation, an optional swap now and then), then checks against
+// build-facts.json — numbers and spell names taken from the 2024 PHB data, an
+// independent source — and finally level-down T→1 with an exact rollback check.
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -15,7 +16,9 @@ import { ROOT, loadEngine, makeChar, autoLevelUp, autoLevelDown, snapshot } from
 
 const E = loadEngine();
 const { DATA } = E;
-const FACTS = JSON.parse(readFileSync(join(ROOT, 'Metadocs/LevelingUp/l4-facts.json'), 'utf8'));
+const FACTS = JSON.parse(readFileSync(join(ROOT, 'Metadocs/LevelingUp/build-facts.json'), 'utf8'));
+const T = Math.max(4, Math.min(FACTS.levels, Number(process.argv[2]) || 4));
+const at = (arr, L) => (arr || [])[L - 1];   // facts arrays run from level 1
 
 let pass = 0, fail = 0;
 const failures = [];
@@ -49,8 +52,20 @@ const L4_FEATS = ['Fey-Touched', 'Magic Initiate (Cleric)', 'Skilled', 'Resilien
 const ORIGIN_FEATS = ['Magic Initiate (Wizard)', 'Alert', 'Tough', 'Skilled', 'Magic Initiate (Druid)', 'Lucky', 'Savage Attacker',
   'Healer', 'Musician', 'Crafter', 'Tavern Brawler', 'Magic Initiate (Cleric)'];
 const exercised = {};
-const TOTALS = { invocations: { warlock: 3 }, metamagic: { sorcerer: 2 }, wildShapeForms: { druid: 6 },
-  weaponMasteries: { barbarian: 3, fighter: 4, paladin: 2, ranger: 2, rogue: 2 } };
+// Counted options at level T (2024 tables; columns where the facts have them)
+function totalsAt(cls, L) {
+  const tb = FACTS.classes[cls].table || {};
+  const t = {};
+  if (cls === 'warlock') t.invocations = at(tb['Eldritch Invocations'], L);
+  if (cls === 'sorcerer') t.metamagic = L >= 10 ? 4 : L >= 2 ? 2 : 0;
+  if (cls === 'druid') t.wildShapeForms = L >= 8 ? 8 : L >= 4 ? 6 : L >= 2 ? 4 : 0;
+  if (tb['Weapon Mastery']) t.weaponMasteries = at(tb['Weapon Mastery'], L);
+  else if (['paladin', 'ranger', 'rogue'].includes(cls)) t.weaponMasteries = 2;
+  return t;
+}
+// Class resources that have a column in the class table: resource id → column
+const RES_COLUMNS = { rage: 'Rages', sorceryPoints: 'Sorcery Points', focusPoints: 'Focus Points', favoredEnemy: 'Favored Enemy',
+  channelDivinityCleric: 'Channel Divinity', channelDivinity: 'Channel Divinity', wildShape: 'Wild Shape', secondWind: 'Second Wind' };
 
 let run = 0;
 for (const cls of CLASSES) {
@@ -69,11 +84,11 @@ for (const cls of CLASSES) {
 
       const snaps = { 1: snapshot(cfg, st) };
       try {
-        for (const to of [2, 3, 4]) {
+        for (let to = 2; to <= T; to++) {
           const { picked } = autoLevelUp(E, combo, cfg, st, prefs);
           snaps[to] = snapshot(cfg, st);
           check(combo + ' L' + to + ': level', st.level === to);
-          // per-level counts against the tables (covers what combo-smoke.mjs did for L1-3)
+          // per-level counts against the engine's own tables
           const ab = E.getSpellcastingAbility(cls, cfg.subclass);
           const mod = E.getMod(E.getAbilityScore(cfg, st, ab));
           const wantP = E.getMaxPrepared(st, mod, cls, cfg.subclass);
@@ -87,49 +102,68 @@ for (const cls of CLASSES) {
             exercised[f] = (exercised[f] || 0) + 1;
           }
         }
-        // ---------- level 4 checks ----------
+        // ---------- level T checks against the 2024 facts ----------
         const cf = FACTS.classes[cls];
         const tc = E.isThirdCaster(cls, cfg.subclass);
         const sf = FACTS.subclasses[cls + '/' + cfg.subclass] || {};
         check(combo + ': subclass is the requested one', cfg.subclass === sub);
         check(combo + ': L4 ASI/feat recorded', !!(st.asiChoices && st.asiChoices[4]), JSON.stringify(st.asiChoices));
         check(combo + ': hp = max', st.hp.current === E.getMaxHP(cfg, st), st.hp.current + ' vs ' + E.getMaxHP(cfg, st));
-        // prepared / cantrips vs the 2024 tables
-        const wantPrep = tc ? sf.preparedL4 : (cf.preparedL4 || 0);
+        const wantPrep = tc ? at(sf.prepared, T) : (at(cf.prepared, T) || 0);
         check(combo + ': prepared = ' + wantPrep, (st.prepared || []).length === wantPrep, String((st.prepared || []).length));
         const styleC = ((st.levelChoices[2] || {}).styleCantrips || []).length;
         const orderBonus = (cls === 'cleric' && cfg.divineOrder === 'thaumaturge') || (cls === 'druid' && cfg.primalOrder === 'magician') ? 1 : 0;
-        const wantC = tc ? sf.cantripsL4 + (cfg.subclass === 'arcaneTrickster' ? 1 : 0) : (cf.cantripsL4 || 0) + orderBonus;
+        const wantC = tc ? at(sf.cantrips, T) + (cfg.subclass === 'arcaneTrickster' ? 1 : 0) : (at(cf.cantrips, T) || 0) + orderBonus;
         check(combo + ': cantrips = ' + (wantC + styleC), (st.cantrips || []).length === wantC + styleC, String((st.cantrips || []).length));
-        if (cf.slotsL4 && !tc) {
-          const slots = E.getSpellSlots(cls, 4, cfg.subclass).filter((n) => n > 0);
-          check(combo + ': slots ' + cf.slotsL4.join('/'), JSON.stringify(slots) === JSON.stringify(cf.slotsL4), slots.join('/'));
+        if (cf.slots && !tc) {
+          const slots = E.getSpellSlots(cls, T, cfg.subclass).filter((n) => n > 0);
+          check(combo + ': slots ' + at(cf.slots, T).join('/'), JSON.stringify(slots) === JSON.stringify(at(cf.slots, T)), slots.join('/'));
+        }
+        const prof = E.getBuildProfile(cfg, st);
+        if (cls === 'warlock') {
+          const pact = (prof.casting || {}).pact || {};
+          check(combo + ': pact slots', pact.count === at(cf.table['Spell Slots'], T) && pact.level === at(cf.table['Slot Level'], T), JSON.stringify(pact));
         }
         // counted options
-        for (const [id, per] of Object.entries(TOTALS)) {
-          if (per[cls] != null) check(combo + ': ' + id + ' = ' + per[cls], (st[id] || []).length === per[cls], String((st[id] || []).length));
+        for (const [id, want] of Object.entries(totalsAt(cls, T))) {
+          check(combo + ': ' + id + ' = ' + want, (st[id] || []).length === want, String((st[id] || []).length));
         }
         if (cfg.subclass === 'battleMaster') check(combo + ': 3 maneuvers', (st.maneuvers || []).length === 3);
+        // class resources with a table column, dice that grow with level
+        prof.resources.forEach((r) => {
+          const col = RES_COLUMNS[r.id];
+          if (col && cf.table[col]) check(combo + ': ' + r.label + ' = ' + at(cf.table[col], T), r.max === at(cf.table[col], T), String(r.max));
+        });
+        if (cls === 'bard') {
+          const bi = prof.resources.find((r) => /^bardicInspiration/.test(r.id)) || {};
+          check(combo + ': Bardic Inspiration die ' + at(cf.table['Bardic Die'], T), '1' + bi.die === at(cf.table['Bardic Die'], T), String(bi.die));
+          check(combo + ': Bardic Inspiration recharge', bi.recharge === (T >= 5 ? 'short' : 'long'), bi.recharge);
+        }
+        if (cls === 'monk') {
+          check(combo + ': Martial Arts die', DATA.monk.martialArtsDie[T] === at(cf.table['Martial Arts'], T), DATA.monk.martialArtsDie[T]);
+          const speedy = Object.values(st.asiChoices || {}).some((x) => x && x.feat === 'Speedy') ? 10 : 0;
+          check(combo + ': Unarmored Movement', prof.who.speed - ((DATA[race] || {}).speed || 30) - speedy === at(cf.table['Unarmored Movement'], T), String(prof.who.speed));
+        }
+        if (cls === 'rogue') check(combo + ': Sneak Attack dice', Math.ceil(T / 2) + 'd6' === at(cf.table['Sneak Attack'], T));
         // L3 skill proficiencies: Primal Knowledge, Bonus Proficiencies, Student of War, Otherworldly Glamour, Implements of Mercy
         const skillL3 = (cls === 'barbarian' ? 1 : 0) + ({ lore: 3, battleMaster: 1, feyWanderer: 1, mercy: 2 }[sub] || 0);
         const gotL3 = snaps[3].__defaultSkills.length - snaps[2].__defaultSkills.length;
         check(combo + ': L3 skill proficiencies +' + skillL3, gotL3 === skillL3, String(gotL3));
         // build profile
-        const prof = E.getBuildProfile(cfg, st);
         const gNames = prof.granted.map((g) => g.name);
         const openIds = prof.open.map((o) => o.id);
         check(combo + ': no open choices', openIds.length === 0, prof.open.map((o) => o.what).join(' | '));
-        // subclass always-prepared spells (2024 facts)
-        let wantSub = sf.preparedAt3 || [];
-        if (cls === 'druid' && cfg.subclass === 'land') wantSub = sf.variants['Arid Land'];
-        const lc = (a) => a.map((x) => x.toLowerCase());
-        const have = lc(gNames.concat(st.cantrips || []));
-        const missSub = wantSub.concat(sf.knownAt3 || []).filter((n) => have.indexOf(n.toLowerCase()) === -1);
+        // subclass always-prepared spells up to level T (2024 facts)
+        let wantSub = [];
+        for (let L = 3; L <= T; L++) wantSub = wantSub.concat((sf.preparedAt || {})[L] || [], (sf.knownAt || {})[L] || []);
+        if (cls === 'druid' && cfg.subclass === 'land') wantSub = [3, 5].filter((L) => L <= T).flatMap((L) => sf.variants['Arid Land'][L] || []);
+        const have = gNames.concat(st.cantrips || []).map((x) => x.toLowerCase());
+        const missSub = wantSub.filter((n) => have.indexOf(n.toLowerCase()) === -1);
         check(combo + ': subclass spells', missSub.length === 0, 'missing ' + missSub.join(', '));
         // species spells (2024 facts)
         if (factsKey) {
           const sp = (FACTS.species[factsSpecies].spells || {})[factsKey] || {};
-          const want = (sp.cantrips || []).concat(sp.level3 || []).concat(sp.innate || []);
+          const want = (sp.cantrips || []).concat(sp.level3 || []).concat(T >= 5 ? sp.level5 || [] : []);
           const miss = want.filter((n) => gNames.map((x) => x.toLowerCase()).indexOf(n.toLowerCase()) === -1);
           check(combo + ': species spells', miss.length === 0, 'missing ' + miss.join(', '));
         }
@@ -150,8 +184,8 @@ for (const cls of CLASSES) {
         // interaction notes for unusual combos
         if (cls === 'barbarian' && prof.granted.length) check(combo + ': rage note', prof.notes.some((n) => /raging/.test(n)));
         if (cls === 'druid') check(combo + ': wild shape casting note', prof.notes.some((n) => /Wild Shape/.test(n)));
-        // ---------- level-down 4 → 1 ----------
-        for (const back of [3, 2, 1]) {
+        // ---------- level-down T → 1 ----------
+        for (let back = T - 1; back >= 1; back--) {
           autoLevelDown(E, cfg, st);
           const a = snapshot(cfg, st), b = snaps[back];
           if (back === 1) { delete a.__defaultSkills; delete b.__defaultSkills; }
@@ -178,13 +212,15 @@ for (const cls of CLASSES) {
   for (const cls of CLASSES) {
     const f = FACTS.classes[cls];
     check(cls + ': hit die ' + f.hitDie, DATA[cls].hitDie === f.hitDie);
-    if (f.preparedL4) check(cls + ': prepared table L4', (DATA.preparedTable[cls] || [])[4] === f.preparedL4);
-    if (f.cantripsL4) check(cls + ': cantrips table L4', (DATA[cls].cantripsKnown || {})[4] === f.cantripsL4);
+    for (let L = 1; L <= T; L++) {
+      if (f.prepared) check(cls + ': prepared table L' + L, (DATA.preparedTable[cls] || [])[L] === at(f.prepared, L), String((DATA.preparedTable[cls] || [])[L]));
+      if (f.cantrips) check(cls + ': cantrips table L' + L, (DATA[cls].cantripsKnown || {})[L] === at(f.cantrips, L), String((DATA[cls].cantripsKnown || {})[L]));
+    }
     check(cls + ': ASI at level 4', (DATA[cls].asiLevels || []).includes(4) === f.asiAt4);
   }
 }
 
-console.log('\nbuild-smoke: ' + pass + '/' + (pass + fail) + ' checks passed (' + run + ' characters)');
+console.log('\nbuild-smoke (level ' + T + '): ' + pass + '/' + (pass + fail) + ' checks passed (' + run + ' characters)');
 console.log('L4 feats exercised: ' + Object.entries(exercised).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + ' ' + v).join(', '));
 if (failures.length) {
   const uniq = {};

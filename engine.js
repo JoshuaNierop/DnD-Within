@@ -752,7 +752,8 @@ function getLevelUpDelta(config, state, toLevel) {
     if (speciesNeedsAbility(config)) choices.unshift({ id: 'speciesAbility', level: toLevel, source: 'species', fix: true });
     if ((cn === 'cleric' && !config.divineOrder) || (cn === 'druid' && !config.primalOrder)) choices.unshift({ id: 'order', level: toLevel, source: 'class', fix: true });
     if (config.race === 'human' && !(state.speciesFeat && state.speciesFeat.feat)) choices.unshift({ id: 'versatileFeat', level: toLevel, source: 'species', fix: true });
-    if (openFeatPicks(config, state).length) choices.unshift({ id: 'featPicks', level: toLevel, source: 'feat', fix: true });
+    // at the target level: picks that grow with Proficiency Bonus (Ritual Caster) open up here too
+    if (openFeatPicks(config, Object.assign({}, state, { level: toLevel })).length) choices.unshift({ id: 'featPicks', level: toLevel, source: 'feat', fix: true });
     if (openInvocationPicks(config, state).length) choices.unshift({ id: 'invocationPicks', level: toLevel, source: 'class', fix: true });
 
     // Spellcasting deltas (uses a state clone at each level to query pure fns)

@@ -1,13 +1,21 @@
 # Leveling Up — Status
 
-_Laatst bijgewerkt: 2026-10-15 (L4-builds: alle 48 subclasses × 15 species-varianten, 2024)_
+_Laatst bijgewerkt: 2026-10-15 (L5-builds gestart: engine + data klaar, review per batch loopt)_
+
+## L5-builds (2026-10-15)
+Overzicht: `L5-Combinations.md` (`node Metadocs/LevelingUp/build-overview.mjs 5`) · test: `node Metadocs/LevelingUp/build-smoke.mjs 5` (720 builds L1→5, 33 391 checks groen; L4-run 27 715).
+- **Feiten**: `build-facts.json` (L1–5 uit de 2024 PHB-data: cantrips, prepared, slots, class-tabellen zoals rages/sorcery points/focus/channel divinity/invocations) vervangt `l4-facts.json`
+- **Data**: L5-classfeatures 2024, Sorcerous Restoration + Wild Resurgence als resource, Find Steed-grant (Paladin), 8 L5-invocations, 29 level 3-spells 2024, Daylight van de Wizard-lijst
+- **Engine**: feat-picks die met PB meegroeien (Ritual Caster) worden bij level-up gevraagd, samengevoegd en bij level-down teruggedraaid
+- **Review**: 24 batches van 20 combinaties, zoals bij L4
+
 
 ## L4-builds (2026-10-15) — fase F+ L4 afgerond, review per batch loopt
-Ontwerp + datamodel: `L4-Design.md` · overzicht alle combinaties: `L4-Combinations.md` (gegenereerd door `l4-overview.mjs`).
+Ontwerp + datamodel: `L4-Design.md` · overzicht alle combinaties: `L4-Combinations.md` (gegenereerd door `build-overview.mjs`).
 - **Data 2024**: 77 feats (origin/general/fighting/epic, met prereqs, ability-keuzes, spell-grants), 10 species met lineages (Elf/Gnome/Tiefling/Goliath/Dragonborn) + species-spellcasting-ability, 12 classes L1–4 + 48 subclasses L3 met `act` (action-type) en spell-grants, invocations/metamagic 2024, 22 spells L0–2 herschreven
 - **Engine**: `getGrantedSpells`, `getBuildProfile`, `featInstances`/`hasFeat`, `featPrereqMet`, swaps (`swapRules`), dynamische free-cast-tellers `fc_*`, HP/AC-feats (Tough, Boon, Draconic Resilience, Defense)
 - **UI**: Build-venster + Explore builds (`wg-build.js`), level-up-stappen voor álle L4-keuzes + fix-modus "Complete missing choices", granted spells ★ in Prepared Spells, feats/maneuvers in Features, Short Rest-resources
-- **Test**: `build-smoke.mjs` — 720 builds L1→4 + level-down, 26 113/26 113 groen, feiten uit de 2024 PHB-data (`l4-facts.json`); vervangt `combo-smoke.mjs`
+- **Test**: `build-smoke.mjs` — 720 builds L1→4 + level-down, 26 113/26 113 groen, feiten uit de 2024 PHB-data (`build-facts.json`, L1–5); vervangt `combo-smoke.mjs`
 - **Review**: alle 24 batches van 20 combinaties nagelopen tegen de 2024-brontekst (kolom "Reviewed" in de matrix). Gevonden + gefixt: skill-keuzes uit features, 3 class-skilllijsten, subclass-stap-regressie, widgets zonder ASI/PB, speed/darkvision/initiative, 14 NL/2014-spellteksten + 12 componenten, Soulknife-acties, notities (Wild Shape vs. species, dubbele cantrips, Improved Illusions). L6+-afwijkingen staan in Todo.md
 
 

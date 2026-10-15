@@ -1,0 +1,1523 @@
+{
+ "generated": "2026-10-15",
+ "source": "2024 PHB (5etools XPHB data)",
+ "levels": 5,
+ "classes": {
+  "barbarian": {
+   "hitDie": 12,
+   "saves": [
+    "str",
+    "con"
+   ],
+   "table": {
+    "Rages": [
+     2,
+     2,
+     3,
+     3,
+     3
+    ],
+    "Rage Damage": [
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "Weapon Mastery": [
+     2,
+     2,
+     2,
+     3,
+     3
+    ]
+   },
+   "asiAt4": true
+  },
+  "bard": {
+   "hitDie": 8,
+   "saves": [
+    "dex",
+    "cha"
+   ],
+   "table": {
+    "Bardic Die": [
+     "1d6",
+     "1d6",
+     "1d6",
+     "1d6",
+     "1d8"
+    ]
+   },
+   "cantrips": [
+    2,
+    2,
+    2,
+    3,
+    3
+   ],
+   "prepared": [
+    4,
+    5,
+    6,
+    7,
+    9
+   ],
+   "slots": [
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     4,
+     3,
+     2
+    ]
+   ],
+   "asiAt4": true
+  },
+  "cleric": {
+   "hitDie": 8,
+   "saves": [
+    "wis",
+    "cha"
+   ],
+   "table": {
+    "Channel Divinity": [
+     0,
+     2,
+     2,
+     2,
+     2
+    ]
+   },
+   "cantrips": [
+    3,
+    3,
+    3,
+    4,
+    4
+   ],
+   "prepared": [
+    4,
+    5,
+    6,
+    7,
+    9
+   ],
+   "slots": [
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     4,
+     3,
+     2
+    ]
+   ],
+   "asiAt4": true
+  },
+  "druid": {
+   "hitDie": 8,
+   "saves": [
+    "int",
+    "wis"
+   ],
+   "table": {
+    "Wild Shape": [
+     0,
+     2,
+     2,
+     2,
+     2
+    ]
+   },
+   "cantrips": [
+    2,
+    2,
+    2,
+    3,
+    3
+   ],
+   "prepared": [
+    4,
+    5,
+    6,
+    7,
+    9
+   ],
+   "slots": [
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     4,
+     3,
+     2
+    ]
+   ],
+   "asiAt4": true
+  },
+  "fighter": {
+   "hitDie": 10,
+   "saves": [
+    "str",
+    "con"
+   ],
+   "table": {
+    "Second Wind": [
+     2,
+     2,
+     2,
+     3,
+     3
+    ],
+    "Weapon Mastery": [
+     3,
+     3,
+     3,
+     4,
+     4
+    ]
+   },
+   "asiAt4": true
+  },
+  "monk": {
+   "hitDie": 8,
+   "saves": [
+    "str",
+    "dex"
+   ],
+   "table": {
+    "Martial Arts": [
+     "1d6",
+     "1d6",
+     "1d6",
+     "1d6",
+     "1d8"
+    ],
+    "Focus Points": [
+     0,
+     2,
+     3,
+     4,
+     5
+    ],
+    "Unarmored Movement": [
+     0,
+     10,
+     10,
+     10,
+     10
+    ]
+   },
+   "asiAt4": true
+  },
+  "paladin": {
+   "hitDie": 10,
+   "saves": [
+    "wis",
+    "cha"
+   ],
+   "table": {
+    "Channel Divinity": [
+     0,
+     0,
+     2,
+     2,
+     2
+    ]
+   },
+   "prepared": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "slots": [
+    [
+     2
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     3
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "asiAt4": true
+  },
+  "ranger": {
+   "hitDie": 10,
+   "saves": [
+    "str",
+    "dex"
+   ],
+   "table": {
+    "Favored Enemy": [
+     2,
+     2,
+     2,
+     2,
+     3
+    ]
+   },
+   "prepared": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "slots": [
+    [
+     2
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     3
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "asiAt4": true
+  },
+  "rogue": {
+   "hitDie": 8,
+   "saves": [
+    "dex",
+    "int"
+   ],
+   "table": {
+    "Sneak Attack": [
+     "1d6",
+     "1d6",
+     "2d6",
+     "2d6",
+     "3d6"
+    ]
+   },
+   "asiAt4": true
+  },
+  "sorcerer": {
+   "hitDie": 6,
+   "saves": [
+    "con",
+    "cha"
+   ],
+   "table": {
+    "Sorcery Points": [
+     0,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "cantrips": [
+    4,
+    4,
+    4,
+    5,
+    5
+   ],
+   "prepared": [
+    2,
+    4,
+    6,
+    7,
+    9
+   ],
+   "slots": [
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     4,
+     3,
+     2
+    ]
+   ],
+   "asiAt4": true
+  },
+  "warlock": {
+   "hitDie": 8,
+   "saves": [
+    "wis",
+    "cha"
+   ],
+   "table": {
+    "Eldritch Invocations": [
+     1,
+     3,
+     3,
+     3,
+     5
+    ],
+    "Spell Slots": [
+     1,
+     2,
+     2,
+     2,
+     2
+    ],
+    "Slot Level": [
+     1,
+     1,
+     2,
+     2,
+     3
+    ]
+   },
+   "cantrips": [
+    2,
+    2,
+    2,
+    3,
+    3
+   ],
+   "prepared": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "asiAt4": true
+  },
+  "wizard": {
+   "hitDie": 6,
+   "saves": [
+    "int",
+    "wis"
+   ],
+   "table": {},
+   "cantrips": [
+    3,
+    3,
+    3,
+    4,
+    4
+   ],
+   "prepared": [
+    4,
+    5,
+    6,
+    7,
+    9
+   ],
+   "slots": [
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     4,
+     3,
+     2
+    ]
+   ],
+   "asiAt4": true
+  }
+ },
+ "subclasses": {
+  "barbarian/berserker": {
+   "cls": "barbarian",
+   "name": "Path of the Berserker",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "barbarian/wildHeart": {
+   "cls": "barbarian",
+   "name": "Path of the Wild Heart",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "barbarian/worldTree": {
+   "cls": "barbarian",
+   "name": "Path of the World Tree",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "barbarian/zealot": {
+   "cls": "barbarian",
+   "name": "Path of the Zealot",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "bard/dance": {
+   "cls": "bard",
+   "name": "College of Dance",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "bard/glamour": {
+   "cls": "bard",
+   "name": "College of Glamour",
+   "preparedAt": {
+    "3": [
+     "Charm Person",
+     "Mirror Image"
+    ],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "bard/lore": {
+   "cls": "bard",
+   "name": "College of Lore",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "bard/valor": {
+   "cls": "bard",
+   "name": "College of Valor",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "cleric/life": {
+   "cls": "cleric",
+   "name": "Life Domain",
+   "preparedAt": {
+    "3": [
+     "Aid",
+     "Bless",
+     "Cure Wounds",
+     "Lesser Restoration"
+    ],
+    "4": [],
+    "5": [
+     "Mass Healing Word",
+     "Revivify"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "cleric/light": {
+   "cls": "cleric",
+   "name": "Light Domain",
+   "preparedAt": {
+    "3": [
+     "Burning Hands",
+     "Faerie Fire",
+     "Scorching Ray",
+     "See Invisibility"
+    ],
+    "4": [],
+    "5": [
+     "Daylight",
+     "Fireball"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "cleric/trickery": {
+   "cls": "cleric",
+   "name": "Trickery Domain",
+   "preparedAt": {
+    "3": [
+     "Charm Person",
+     "Disguise Self",
+     "Invisibility",
+     "Pass without Trace"
+    ],
+    "4": [],
+    "5": [
+     "Hypnotic Pattern",
+     "Nondetection"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "cleric/war": {
+   "cls": "cleric",
+   "name": "War Domain",
+   "preparedAt": {
+    "3": [
+     "Guiding Bolt",
+     "Magic Weapon",
+     "Shield of Faith",
+     "Spiritual Weapon"
+    ],
+    "4": [],
+    "5": [
+     "Crusader's Mantle",
+     "Spirit Guardians"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "druid/land": {
+   "cls": "druid",
+   "name": "Circle of the Land",
+   "preparedAt": {
+    "3": [
+     "Blur",
+     "Burning Hands",
+     "Fire Bolt",
+     "Fog Cloud",
+     "Hold Person",
+     "Ray of Frost",
+     "Misty Step",
+     "Shocking Grasp",
+     "Sleep",
+     "Acid Splash",
+     "Ray of Sickness",
+     "Web"
+    ],
+    "4": [],
+    "5": [
+     "Fireball",
+     "Sleet Storm",
+     "Lightning Bolt",
+     "Stinking Cloud"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "variants": {
+    "Arid Land": {
+     "3": [
+      "Blur",
+      "Burning Hands",
+      "Fire Bolt"
+     ],
+     "5": [
+      "Fireball"
+     ]
+    },
+    "Polar Land": {
+     "3": [
+      "Fog Cloud",
+      "Hold Person",
+      "Ray of Frost"
+     ],
+     "5": [
+      "Sleet Storm"
+     ]
+    },
+    "Temperate Land": {
+     "3": [
+      "Misty Step",
+      "Shocking Grasp",
+      "Sleep"
+     ],
+     "5": [
+      "Lightning Bolt"
+     ]
+    },
+    "Tropical Land": {
+     "3": [
+      "Acid Splash",
+      "Ray of Sickness",
+      "Web"
+     ],
+     "5": [
+      "Stinking Cloud"
+     ]
+    }
+   }
+  },
+  "druid/moon": {
+   "cls": "druid",
+   "name": "Circle of the Moon",
+   "preparedAt": {
+    "3": [
+     "Cure Wounds",
+     "Moonbeam",
+     "Starry Wisp"
+    ],
+    "4": [],
+    "5": [
+     "Conjure Animals"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "druid/sea": {
+   "cls": "druid",
+   "name": "Circle of the Sea",
+   "preparedAt": {
+    "3": [
+     "Fog Cloud",
+     "Gust of Wind",
+     "Ray of Frost",
+     "Shatter",
+     "Thunderwave"
+    ],
+    "4": [],
+    "5": [
+     "Lightning Bolt",
+     "Water Breathing"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "druid/stars": {
+   "cls": "druid",
+   "name": "Circle of the Stars",
+   "preparedAt": {
+    "3": [
+     "Guiding Bolt"
+    ],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [
+     "Guidance"
+    ],
+    "4": [],
+    "5": []
+   }
+  },
+  "fighter/battleMaster": {
+   "cls": "fighter",
+   "name": "Battle Master",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "fighter/champion": {
+   "cls": "fighter",
+   "name": "Champion",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "fighter/eldritchKnight": {
+   "cls": "fighter",
+   "name": "Eldritch Knight",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "cantrips": [
+    0,
+    0,
+    2,
+    2,
+    2
+   ],
+   "prepared": [
+    0,
+    0,
+    3,
+    4,
+    4
+   ]
+  },
+  "fighter/psiWarrior": {
+   "cls": "fighter",
+   "name": "Psi Warrior",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "monk/mercy": {
+   "cls": "monk",
+   "name": "Warrior of Mercy",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "monk/shadow": {
+   "cls": "monk",
+   "name": "Warrior of Shadow",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [
+     "Minor Illusion"
+    ],
+    "4": [],
+    "5": []
+   }
+  },
+  "monk/elements": {
+   "cls": "monk",
+   "name": "Warrior of the Elements",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [
+     "Elementalism"
+    ],
+    "4": [],
+    "5": []
+   }
+  },
+  "monk/openHand": {
+   "cls": "monk",
+   "name": "Warrior of the Open Hand",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "paladin/devotion": {
+   "cls": "paladin",
+   "name": "Oath of Devotion",
+   "preparedAt": {
+    "3": [
+     "Protection from Evil and Good",
+     "Shield of Faith"
+    ],
+    "4": [],
+    "5": [
+     "Aid",
+     "Zone of Truth"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "paladin/glory": {
+   "cls": "paladin",
+   "name": "Oath of Glory",
+   "preparedAt": {
+    "3": [
+     "Guiding Bolt",
+     "Heroism"
+    ],
+    "4": [],
+    "5": [
+     "Enhance Ability",
+     "Magic Weapon"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "paladin/ancients": {
+   "cls": "paladin",
+   "name": "Oath of the Ancients",
+   "preparedAt": {
+    "3": [
+     "Ensnaring Strike",
+     "Speak with Animals"
+    ],
+    "4": [],
+    "5": [
+     "Misty Step",
+     "Moonbeam"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "paladin/vengeance": {
+   "cls": "paladin",
+   "name": "Oath of Vengeance",
+   "preparedAt": {
+    "3": [
+     "Bane",
+     "Hunter's Mark"
+    ],
+    "4": [],
+    "5": [
+     "Hold Person",
+     "Misty Step"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "ranger/beastMaster": {
+   "cls": "ranger",
+   "name": "Beast Master",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "ranger/feyWanderer": {
+   "cls": "ranger",
+   "name": "Fey Wanderer",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [
+     "Charm Person"
+    ],
+    "4": [],
+    "5": [
+     "Misty Step"
+    ]
+   }
+  },
+  "ranger/gloomStalker": {
+   "cls": "ranger",
+   "name": "Gloom Stalker",
+   "preparedAt": {
+    "3": [
+     "Disguise Self"
+    ],
+    "4": [],
+    "5": [
+     "Rope Trick"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "ranger/hunter": {
+   "cls": "ranger",
+   "name": "Hunter",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "rogue/arcaneTrickster": {
+   "cls": "rogue",
+   "name": "Arcane Trickster",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [
+     "Mage Hand"
+    ],
+    "4": [],
+    "5": []
+   },
+   "cantrips": [
+    0,
+    0,
+    2,
+    2,
+    2
+   ],
+   "prepared": [
+    0,
+    0,
+    3,
+    4,
+    4
+   ]
+  },
+  "rogue/assassin": {
+   "cls": "rogue",
+   "name": "Assassin",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "rogue/soulknife": {
+   "cls": "rogue",
+   "name": "Soulknife",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "rogue/thief": {
+   "cls": "rogue",
+   "name": "Thief",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "sorcerer/aberrant": {
+   "cls": "sorcerer",
+   "name": "Aberrant Sorcery",
+   "preparedAt": {
+    "3": [
+     "Arms of Hadar",
+     "Calm Emotions",
+     "Detect Thoughts",
+     "Dissonant Whispers",
+     "Mind Sliver"
+    ],
+    "4": [],
+    "5": [
+     "Hunger of Hadar",
+     "Sending"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "sorcerer/clockwork": {
+   "cls": "sorcerer",
+   "name": "Clockwork Sorcery",
+   "preparedAt": {
+    "3": [
+     "Aid",
+     "Alarm",
+     "Lesser Restoration",
+     "Protection from Evil and Good"
+    ],
+    "4": [],
+    "5": [
+     "Dispel Magic",
+     "Protection from Energy"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "sorcerer/draconic": {
+   "cls": "sorcerer",
+   "name": "Draconic Sorcery",
+   "preparedAt": {
+    "3": [
+     "Alter Self",
+     "Chromatic Orb",
+     "Command",
+     "Dragon's Breath"
+    ],
+    "4": [],
+    "5": [
+     "Fear",
+     "Fly"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "sorcerer/wildMagic": {
+   "cls": "sorcerer",
+   "name": "Wild Magic Sorcery",
+   "preparedAt": {},
+   "knownAt": {}
+  },
+  "warlock/archfey": {
+   "cls": "warlock",
+   "name": "Archfey Patron",
+   "preparedAt": {
+    "3": [
+     "Calm Emotions",
+     "Faerie Fire",
+     "Misty Step",
+     "Phantasmal Force",
+     "Sleep"
+    ],
+    "4": [],
+    "5": [
+     "Blink",
+     "Plant Growth"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "warlock/celestial": {
+   "cls": "warlock",
+   "name": "Celestial Patron",
+   "preparedAt": {
+    "3": [
+     "Aid",
+     "Cure Wounds",
+     "Guiding Bolt",
+     "Lesser Restoration"
+    ],
+    "4": [],
+    "5": [
+     "Daylight",
+     "Revivify"
+    ]
+   },
+   "knownAt": {
+    "3": [
+     "Sacred Flame",
+     "Light"
+    ],
+    "4": [],
+    "5": []
+   }
+  },
+  "warlock/fiend": {
+   "cls": "warlock",
+   "name": "Fiend Patron",
+   "preparedAt": {
+    "3": [
+     "Burning Hands",
+     "Command",
+     "Scorching Ray",
+     "Suggestion"
+    ],
+    "4": [],
+    "5": [
+     "Fireball",
+     "Stinking Cloud"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "warlock/greatOldOne": {
+   "cls": "warlock",
+   "name": "Great Old One Patron",
+   "preparedAt": {
+    "3": [
+     "Detect Thoughts",
+     "Dissonant Whispers",
+     "Phantasmal Force",
+     "Tasha's Hideous Laughter"
+    ],
+    "4": [],
+    "5": [
+     "Clairvoyance",
+     "Hunger of Hadar"
+    ]
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "wizard/abjuration": {
+   "cls": "wizard",
+   "name": "Abjurer",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "wizard/divination": {
+   "cls": "wizard",
+   "name": "Diviner",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "wizard/evocation": {
+   "cls": "wizard",
+   "name": "Evoker",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   }
+  },
+  "wizard/illusion": {
+   "cls": "wizard",
+   "name": "Illusionist",
+   "preparedAt": {
+    "3": [],
+    "4": [],
+    "5": []
+   },
+   "knownAt": {
+    "3": [
+     "Minor Illusion"
+    ],
+    "4": [],
+    "5": []
+   }
+  }
+ },
+ "species": {
+  "Aasimar": {
+   "speed": 30,
+   "darkvision": 60,
+   "resist": [
+    "necrotic",
+    "radiant"
+   ],
+   "spells": {
+    "_": {
+     "cantrips": [
+      "Light"
+     ],
+     "level3": [],
+     "level5": [],
+     "ability": "cha"
+    }
+   }
+  },
+  "Dragonborn": {
+   "speed": 30,
+   "darkvision": 60,
+   "resist": [
+    {
+     "choose": {
+      "from": [
+       "acid",
+       "lightning",
+       "fire",
+       "poison",
+       "cold"
+      ]
+     }
+    }
+   ]
+  },
+  "Dwarf": {
+   "speed": 30,
+   "darkvision": 120,
+   "resist": [
+    "poison"
+   ]
+  },
+  "Elf": {
+   "speed": 30,
+   "darkvision": 60,
+   "resist": [],
+   "spells": {
+    "Drow": {
+     "cantrips": [
+      "Dancing Lights"
+     ],
+     "level3": [
+      "Faerie Fire"
+     ],
+     "level5": [
+      "Darkness"
+     ],
+     "ability": {
+      "choose": [
+       "int",
+       "wis",
+       "cha"
+      ]
+     }
+    },
+    "High Elf": {
+     "cantrips": [],
+     "level3": [
+      "Detect Magic"
+     ],
+     "level5": [
+      "Misty Step"
+     ],
+     "ability": {
+      "choose": [
+       "int",
+       "wis",
+       "cha"
+      ]
+     }
+    },
+    "Wood Elf": {
+     "cantrips": [
+      "Druidcraft"
+     ],
+     "level3": [
+      "Longstrider"
+     ],
+     "level5": [
+      "Pass without Trace"
+     ],
+     "ability": {
+      "choose": [
+       "int",
+       "wis",
+       "cha"
+      ]
+     }
+    }
+   }
+  },
+  "Gnome": {
+   "speed": 30,
+   "darkvision": 60,
+   "resist": [],
+   "spells": {
+    "Forest Gnome": {
+     "cantrips": [
+      "Minor Illusion"
+     ],
+     "level3": [
+      "Speak with Animals"
+     ],
+     "level5": [],
+     "ability": {
+      "choose": [
+       "int",
+       "wis",
+       "cha"
+      ]
+     }
+    },
+    "Rock Gnome": {
+     "cantrips": [
+      "Mending",
+      "Prestidigitation"
+     ],
+     "level3": [],
+     "level5": [],
+     "ability": {
+      "choose": [
+       "int",
+       "wis",
+       "cha"
+      ]
+     }
+    }
+   }
+  },
+  "Goliath": {
+   "speed": 35,
+   "darkvision": 0,
+   "resist": []
+  },
+  "Halfling": {
+   "speed": 30,
+   "darkvision": 0,
+   "resist": []
+  },
+  "Human": {
+   "speed": 30,
+   "darkvision": 0,
+   "resist": []
+  },
+  "Orc": {
+   "speed": 30,
+   "darkvision": 120,
+   "resist": []
+  },
+  "Tiefling": {
+   "speed": 30,
+   "darkvision": 60,
+   "resist": [
+    {
+     "choose": {
+      "from": [
+       "poison",
+       "necrotic",
+       "fire"
+      ]
+     }
+    }
+   ],
+   "spells": {
+    "Abyssal": {
+     "cantrips": [
+      "Thaumaturgy",
+      "Poison Spray"
+     ],
+     "level3": [
+      "Ray of Sickness"
+     ],
+     "level5": [
+      "Hold Person"
+     ],
+     "ability": {
+      "choose": [
+       "int",
+       "wis",
+       "cha"
+      ]
+     }
+    },
+    "Chthonic": {
+     "cantrips": [
+      "Thaumaturgy",
+      "Chill Touch"
+     ],
+     "level3": [
+      "False Life"
+     ],
+     "level5": [
+      "Ray of Enfeeblement"
+     ],
+     "ability": {
+      "choose": [
+       "int",
+       "wis",
+       "cha"
+      ]
+     }
+    },
+    "Infernal": {
+     "cantrips": [
+      "Thaumaturgy",
+      "Fire Bolt"
+     ],
+     "level3": [
+      "Hellish Rebuke"
+     ],
+     "level5": [
+      "Darkness"
+     ],
+     "ability": {
+      "choose": [
+       "int",
+       "wis",
+       "cha"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

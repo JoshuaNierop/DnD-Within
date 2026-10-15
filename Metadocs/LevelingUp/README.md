@@ -10,8 +10,8 @@
 - `Design.md` — datamodel, level-up/down-mechanic, menu-UX, widget-ontwerp
 - `Status.md` — voortgang, gedane stappen, volgende stappen, review-flags
 - `L4-Design.md` — L4-builds: datamodel (regels/engine/keuzes), opslag, weergave, efficiëntie
-- `L4-Combinations.md` — gegenereerd overzicht van alle class × subclass × species op level 4 (`node Metadocs/LevelingUp/l4-overview.mjs`)
-- `build-smoke.mjs` + `harness.mjs` + `l4-facts.json` — test van alle 720 builds L1→4 tegen feiten uit de 2024 PHB
+- `L4-Combinations.md` + `L5-Combinations.md` — gegenereerd overzicht van alle class × subclass × species op level 4 en 5 (`node Metadocs/LevelingUp/build-overview.mjs 4` of `5`)
+- `build-smoke.mjs` + `harness.mjs` + `build-facts.json` — test van alle 720 builds L1→4 of L1→5 (`node Metadocs/LevelingUp/build-smoke.mjs 5`) tegen feiten uit de 2024 PHB
 
 ## Scope eerste batch
 - **Races:** Human, High Elf, Aasimar, Tiefling

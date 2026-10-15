@@ -297,7 +297,7 @@ function wgxLevelUpSteps(delta, cfg, st, picked) {
       continue;
     }
     if (c.id === 'featPicks') {
-      openFeatPicks(cfg, st).forEach(function (o) {
+      openFeatPicks(cfg, Object.assign({}, st, { level: delta.to })).forEach(function (o) {
         var own = 'fix:' + (o.src === 'asi' ? 'asi' + o.level : o.src === 'invocation' ? 'inv:' + o.feat : o.src);
         if (o.pick === 'spellAbility') steps.push({ kind: 'choice', choice: { id: 'featSpellAbility', owner: own, featName: o.feat }, needed: 1 });
         else steps.push({ kind: 'choice', choice: { id: 'featSpells', owner: own, featName: o.feat, pick: o.pick, count: o.need, filter: { list: o.spec.list, level: o.spec.level, schools: o.spec.schools, ritual: o.spec.ritual } }, needed: o.need });
@@ -413,7 +413,7 @@ function wgxSwapOptions(cfg, st, delta) {
   }
   if (cn === 'warlock' && known('invocations').length) {
     out.push({ id: 'invocation', label: 'Replace an Eldritch Invocation', stateKey: 'invocations', have: known('invocations'),
-      pool: (DATA.invocations || []).filter(function (iv) { return (iv.minLevel || 1) <= delta.to && (known('invocations').indexOf(iv.name) === -1 || iv.repeatable); }).map(function (iv) { return iv.name; }) });
+      pool: (DATA.invocations || []).filter(function (iv) { return (iv.minLevel || 1) <= delta.to && (known('invocations').indexOf(iv.name) === -1 || iv.repeatable) && (!iv.requires || known('invocations').indexOf(iv.requires) !== -1); }).map(function (iv) { return iv.name; }) });
   }
   if (cn === 'sorcerer' && known('metamagic').length) {
     out.push({ id: 'metamagic', label: 'Replace a Metamagic option', stateKey: 'metamagic', have: known('metamagic'),
@@ -497,7 +497,17 @@ function wgxBuildLevelUpPatch(cfg, st, delta, picked) {
       // Origin feat only known from config.originFeat → create the record.
       statePatch['asiChoices/1'] = Object.assign({ type: 'feat', feat: cfg.originFeat, origin: true }, p);
     } else {
-      Object.keys(p).forEach(function (f) { statePatch[base + '/' + f] = p[f]; });
+      // Merge list picks into what the record already has (Ritual Caster adds one
+      // spell each time PB grows); record additions so Level Down can undo them.
+      var curRec = src === 'species' ? (st.speciesFeat || {}) : am ? (numMap(st.asiChoices)[am[1]] || {}) : src.indexOf('inv:') === 0 ? (((st.invocationPicks || {})['Lessons of the First Ones'] || {}).rec || {})[src.slice(4)] || {} : (numMap(st.asiChoices)[1] || {});
+      Object.keys(p).forEach(function (f) {
+        var had = Array.isArray(curRec[f]) ? curRec[f] : [];
+        if (Array.isArray(p[f]) && had.length) {
+          var add = p[f].filter(function (n) { return had.indexOf(n) === -1; });
+          statePatch[base + '/' + f] = had.concat(add);
+          if (add.length && delta.to > delta.from) { rec.featAdded = rec.featAdded || {}; rec.featAdded[(base + '/' + f).split('/').join('|')] = add; }
+        } else statePatch[base + '/' + f] = p[f];
+      });
     }
     // Feat cantrips that also sat in the class cantrip list move out of it
     // (they never counted against the class maximum).
@@ -663,6 +673,14 @@ function wgxBuildLevelDownPatch(cfg, stRaw) {
     }
   });
   if (choices.tome) { statePatch['invocationPicks/Pact of the Tome'] = null; lost.push('Book of Shadows spells'); }
+  // Feat picks added to an existing record at this level (Ritual Caster growth)
+  Object.keys(choices.featAdded || {}).forEach(function (key) {
+    var path = key.split('|').join('/'), parts = path.split('/'), cur = st;
+    parts.forEach(function (p) { cur = cur && (Array.isArray(cur) ? cur[+p] : cur[p]); });
+    var drop = choices.featAdded[key];
+    statePatch[path] = (Array.isArray(cur) ? cur : []).filter(function (n) { return drop.indexOf(n) === -1; });
+    lost.push('feat pick: ' + drop.join(', '));
+  });
   if (choices.lessonsFeat) {
     var lp2 = (st.invocationPicks || {})['Lessons of the First Ones'] || {};
     var lrec2 = Object.assign({}, lp2.rec || {}); delete lrec2[choices.lessonsFeat];
@@ -1048,9 +1066,12 @@ function wgxRenderLUStep() {
     var invNeed = step.needed;
     var invKnown = st.invocations || [];
     html += '<h3>Choose ' + invNeed + ' Eldritch Invocation' + (invNeed > 1 ? 's' : '') + '</h3>' + wgxLUCountNote(picked.invocations, invNeed);
+    var invHave = invKnown.concat(picked.invocations || []);
     html += wgxLUGrid((DATA.invocations || []).filter(function (op) { return (op.minLevel || 1) <= d.to; }).map(function (op) {
       var desc = (op.prereq ? 'Requires ' + op.prereq + '. ' : '') + op.desc;
-      return { val: op.name, title: op.name, desc: desc, known: invKnown.indexOf(op.name) !== -1 && !op.repeatable };
+      var c = { val: op.name, title: op.name, desc: desc, known: invKnown.indexOf(op.name) !== -1 && !op.repeatable };
+      if (op.requires && invHave.indexOf(op.requires) === -1) { c.known = true; c.knownLabel = 'needs ' + op.requires; }
+      return c;
     }), 'invocations', false, picked.invocations);
   } else if (step.kind === 'choice' && step.choice.id === 'wildShapeForms') {
     var wsNeed = step.needed;
