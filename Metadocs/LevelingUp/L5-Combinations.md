@@ -36,8 +36,8 @@
 | Ancients (paladin) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 13 |
 | Glory (paladin) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 14 |
 | Vengeance (paladin) | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 14 |
-| Hunter (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Beast Master (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Hunter (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 15 |
+| Beast Master (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 15 |
 | Fey Wanderer (ranger) | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Gloom Stalker (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Thief (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
