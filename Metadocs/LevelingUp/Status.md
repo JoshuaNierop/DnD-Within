@@ -2,6 +2,13 @@
 
 _Laatst bijgewerkt: 2026-10-15 (huisregel 2024 PHB-spells + Wild Shape uit MM 2025; daarvoor L5-builds af)_
 
+## Level 6–20 — tier 2 (L11–16) (2026-10-15)
+- **Features**: alle class- en subclass-features L11–16 naar 2024 (namen = PHB, getest t/m 16); Mystic Arcanum als spellkeuze (11/13/15/17) via `featurePicks`; Fey Wanderer gratis casts; resources o.a. Persistent Rage, Glorious Defense, Hurl Through Hell, Trance of Order
+- **Spells**: level 6–8 (73) naar 2024; alleen level 9 nog open
+- **Bug**: feat-skillstap begrensd op beschikbare skills
+- **Tool**: `tools/set-features.js` (features vervangen/toevoegen/verwijderen vanuit JSON)
+- **Test**: `build-smoke.mjs 16` 71 590/71 590 groen
+
 ## Level 6–20 — tier 1 (L6–10) features + engine (2026-10-15)
 Werkwijze (verbeterd t.o.v. L4/L5): geen overzicht van 720 combinaties per level meer — species krijgen na L5 niets nieuws. In plaats daarvan vergelijkt `build-smoke.mjs <T>` de featurenamen per level met de PHB-feiten (`build-facts.json` tot L20) en zet `tools/featdump.js` onze tekst naast de 2024-tekst; review = per class alle subclasses over het hele levelbereik.
 - **Test**: `build-smoke.mjs 10` 52 332/52 332 groen (720 builds L1→10 + level-down); 7: 41 641, 5: 34 608, 4: 28 872

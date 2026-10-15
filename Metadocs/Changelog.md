@@ -2,6 +2,22 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-15 — Levels 11–16 for every class and subclass (2024 rules)
+
+- Every class and subclass feature from level 11 to 16 follows the 2024 Player's
+  Handbook, e.g. Improved Brutal Strike, Two Extra Attacks, Devious Strikes, Relentless
+  Hunter, Rage of the Gods, Lunar Form, Smite of Protection, Bewitching Magic.
+- **Mystic Arcanum**: Warlocks pick their level 6, 7, 8 and 9 arcanum spells in the
+  level-up menu (at levels 11, 13, 15 and 17); each can be cast once per Long Rest
+  without a slot and is tracked.
+- Fey Wanderers get their free Summon Fey (11) and Misty Step casts (15).
+- New tracked uses: Intimidating Presence, Persistent Rage, Rage of the Gods, Bulwark of
+  Force, Glorious Defense, Undying Sentinel, Hurl Through Hell, Trance of Order, Dragon
+  Wings, Psychic Veil and more.
+- All level 6, 7 and 8 spells follow the 2024 rules (casting time, range, components,
+  duration and description).
+- Fix: a feat that asks for more skills than you have left no longer blocks levelling up.
+
 ## 2026-10-15 — Levels 6–10 for every class and subclass (2024 rules)
 
 - Every class and subclass feature from level 6 to 10 follows the 2024 Player's Handbook

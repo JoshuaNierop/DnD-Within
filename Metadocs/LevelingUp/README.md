@@ -34,5 +34,5 @@
 | F++ | L5: dezelfde 720 combinaties op level 5 | ✓ |
 | G0 | L6–20 fase 0: feiten + tests tot L20, `featdump.js` | ✓ |
 | G1 | Tier 1 (L6–10): engine (opties, feature-spellkeuzes, Magical Secrets) + alle features + spells level 4–5 | ✓ |
-| G2 | Tier 2 (L11–16): Mystic Arcanum, features, spells level 6–8 | — |
+| G2 | Tier 2 (L11–16): Mystic Arcanum, features, spells level 6–8 | ✓ |
 | G3 | Tier 3 (L17–20): Epic Boon + scores tot 30, capstones, spells level 9 | — |
