@@ -980,6 +980,7 @@ function getBuildProfile(cfg, st) {
         prof.notes.push("In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM).");
     }
     if (cn === 'druid' && lvl >= 2) prof.notes.push(cfg.subclass === 'moon' && sub ? 'In Wild Shape you can cast only your Circle of the Moon spells.' : "In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).");
+    if (cn === 'druid' && lvl >= 3 && sub && (cfg.subclass === 'stars' || cfg.subclass === 'sea')) prof.notes.push((cfg.subclass === 'stars' ? 'Starry Form' : 'Wrath of the Sea') + ' spends a Wild Shape use but is not a beast shape — you keep your own statistics and can still cast spells.');
     if (!prof.casting && prof.granted.some(function (g) { return g.slots && g.kind === 'innate'; })) prof.notes.push('You have no spell slots, so granted spells can only be cast with their free uses.');
     return prof;
 }

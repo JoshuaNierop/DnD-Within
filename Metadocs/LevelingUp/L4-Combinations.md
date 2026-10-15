@@ -22,8 +22,8 @@
 | War Domain (cleric) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 6 |
 | Land (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 7 |
 | Moon (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 7 |
-| Sea (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Stars (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Sea (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 8 |
+| Stars (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 8 |
 | Champion (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Battle Master (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Eldritch Knight (fighter) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
@@ -335,7 +335,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Features (L3): Circle of the Sea Spells, Wrath of the Sea [Bonus Action]
 - Spells: Fog Cloud (L1, always prepared); Gust of Wind (L2, always prepared); Ray of Frost (C, cantrip); Shatter (L2, always prepared); Thunderwave (L1, always prepared)
 - Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape, Wrath of the Sea
-- Good to know: In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM). In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
+- Good to know: In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM). In Wild Shape you can't cast spells (Concentration on a spell you already cast continues). Wrath of the Sea spends a Wild Shape use but is not a beast shape — you keep your own statistics and can still cast spells.
 - Combination notes:
   - Gnome: Forest Gnome: Speak with Animals comes from Druid and Gnome (Forest Gnome) — you only need it once; free casts from each source still apply.
 
@@ -346,7 +346,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Uses: Guiding Bolt 3/Long Rest
 - Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape, Starry Form
 - Swap: Starry Form constellation (each time you use it)
-- Good to know: In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM). In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
+- Good to know: In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM). In Wild Shape you can't cast spells (Concentration on a spell you already cast continues). Starry Form spends a Wild Shape use but is not a beast shape — you keep your own statistics and can still cast spells.
 - Combination notes:
   - Gnome: Forest Gnome: Speak with Animals comes from Druid and Gnome (Forest Gnome) — you only need it once; free casts from each source still apply.
 
