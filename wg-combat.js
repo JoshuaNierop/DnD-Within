@@ -561,6 +561,7 @@ function drawCombatTable(g, widget, x, contentY, w, contentH, widgetIdx) {
   const root = document.createElement('div');
   root.setAttribute('xmlns', WG_XHTML_NS);
   root.className = 'combat-root combat-mode-' + mode + (widget._combatFits ? ' combat-fitted' : '');
+  root.setAttribute('data-widget-idx', String(widgetIdx));
   // Combat-interacties mogen de canvas-drag-arbiter niet triggeren.
   root.addEventListener('pointerdown', (e) => e.stopPropagation());
 
@@ -598,6 +599,69 @@ function drawCombatTable(g, widget, x, contentY, w, contentH, widgetIdx) {
 
   fo.appendChild(root);
   g.appendChild(fo);
+}
+
+// ---- Size measurement ----
+// After a render, measure what each combat widget really needs: the natural
+// height of header + rows and the narrowest width that still shows everything
+// (normal table/list: max-content; transposed/horizontal: one column, the rest
+// wraps). Stored on the widget as _combatM, in the same units as
+// widgetPxWFor / widgetContentPxHFor, so the fit no longer relies on estimates.
+function combatMeasureRoot(root, widget) {
+  const fo = root.parentNode;
+  const header = root.querySelector('.combat-header');
+  const body = root.querySelector('.combat-body');
+  const content = body && body.firstElementChild;
+  if (!fo || !header || !content || !root.isConnected) return null;
+  const px = (cs, p) => parseFloat(cs[p]) || 0;
+  const hcs = getComputedStyle(header), bcs = getComputedStyle(body), ccs = getComputedStyle(content);
+
+  const kids = Array.from(header.children);
+  let headerW = px(hcs, 'paddingLeft') + px(hcs, 'paddingRight') + Math.max(0, kids.length - 1) * px(hcs, 'columnGap');
+  kids.forEach(k => { headerW += k.scrollWidth; });
+
+  const transpose = !!(widget.cfg && widget.cfg.transpose);
+  const saved = content.getAttribute('style');
+  content.style.height = 'auto';
+  content.style.justifyContent = 'flex-start';
+  const natH = content.offsetHeight;
+  content.style.width = transpose ? 'min-content' : 'max-content';
+  const natW = content.offsetWidth;
+  if (saved == null) content.removeAttribute('style'); else content.setAttribute('style', saved);
+
+  const rows = Array.from(content.children).filter(c => !c.classList.contains('combat-head') && !c.classList.contains('combat-empty'));
+  const rowH = rows.length ? rows.reduce((t, r) => t + r.offsetHeight, 0) / rows.length : 0;
+  const scrollbar = Math.max(0, body.offsetWidth - body.clientWidth);
+  const padW = px(bcs, 'paddingLeft') + px(bcs, 'paddingRight') + scrollbar;
+  const padH = px(bcs, 'paddingTop') + px(bcs, 'paddingBottom');
+  const foW = parseFloat(fo.getAttribute('width')) || 0;
+  const foH = parseFloat(fo.getAttribute('height')) || 0;
+  const dW = widgetPxWFor(widget.spanUnits) - foW;
+  const dH = widgetContentPxHFor(widget.spanUnitsY) - foH;
+  return {
+    key: combatMode(widget) + (transpose ? '-t' : ''),
+    n: rows.length,
+    minW: Math.ceil(Math.max(headerW, natW + padW) + dW + 2),
+    needH: Math.ceil(header.offsetHeight + padH + natH + dH + 1),
+    perRow: rowH + px(ccs, 'rowGap'),
+  };
+}
+
+// Returns true when a measurement changed (the caller re-renders once more).
+function combatMeasureWidgets() {
+  let changed = false;
+  document.querySelectorAll('#canvas .combat-root[data-widget-idx]').forEach(root => {
+    const w = state.widgets[parseInt(root.getAttribute('data-widget-idx'), 10)];
+    if (!w) return;
+    const m = combatMeasureRoot(root, w);
+    if (!m) return;
+    const o = w._combatM;
+    if (!o || o.key !== m.key || o.n !== m.n || Math.abs(o.minW - m.minW) > 1 || Math.abs(o.needH - m.needH) > 1) {
+      w._combatM = m;
+      changed = true;
+    }
+  });
+  return changed;
 }
 
 // ---- Turn-control ----

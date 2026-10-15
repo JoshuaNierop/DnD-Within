@@ -695,9 +695,15 @@ function combatFieldCount() {
   return (typeof WG_COMBAT_FIELDS !== 'undefined' && WG_COMBAT_FIELDS.length)
     ? WG_COMBAT_FIELDS.length : COMBAT_FIT.transposeRows;
 }
-function _fitCombatSpanY(growOnly) {
-  const w = state.widget;
-  if (!w) return;
+// Measurement of the last render, only while mode + orientation are unchanged.
+function combatMeasured(w) {
+  const m = w && w._combatM;
+  return (m && m.key === combatMode(w) + (w.cfg && w.cfg.transpose ? '-t' : '')) ? m : null;
+}
+// Content height (px, widgetContentPxHFor units) the combat widget needs. Uses
+// the sizes measured after the last render (combatMeasureWidgets); the
+// COMBAT_FIT estimates are only the fallback before the first measurement.
+function combatNeededPxH(w) {
   const mode = (typeof combatMode === 'function')
     ? combatMode(w) : (w.type === 'initiativeTracker' ? 'player' : 'dm');
   let ents = [];
@@ -705,43 +711,54 @@ function _fitCombatSpanY(growOnly) {
   const n = (mode === 'player')
     ? ents.filter(e => e && e.visibility !== 'hidden').length
     : ents.length;
-  const C = COMBAT_FIT;
   const transpose = !!(w.cfg && w.cfg.transpose);
-  let pxNeeded;
+  const m = combatMeasured(w);
+  if (m) {
+    if (m.n === n || transpose) return m.needH;
+    if (m.n > 0 && n > 0) return m.needH + (n - m.n) * m.perRow;
+  }
+  const C = COMBAT_FIT;
   if (transpose) {
     // Getransponeerd: vaste rij-set (één rij per veld), groeit niet met entities.
     const tRows = combatFieldCount();
-    pxNeeded = C.headerPx + C.bodyPadPx + tRows * C.rowPx + (tRows - 1) * C.rowGapPx;
-  } else {
-    const rows = Math.max(n, 1);
-    const headExtra = (mode === 'dm') ? (C.dmHeadPx + C.rowGapPx) : 0;
-    pxNeeded = C.headerPx + C.bodyPadPx + headExtra + rows * C.rowPx + (rows - 1) * C.rowGapPx;
+    return C.headerPx + C.bodyPadPx + tRows * C.rowPx + (tRows - 1) * C.rowGapPx;
   }
+  const rows = Math.max(n, 1);
+  const headExtra = (mode === 'dm') ? (C.dmHeadPx + C.rowGapPx) : 0;
+  return C.headerPx + C.bodyPadPx + headExtra + rows * C.rowPx + (rows - 1) * C.rowGapPx;
+}
+function combatMinSpanUnitsY(w) {
+  const C = COMBAT_FIT;
+  const pxNeeded = combatNeededPxH(w);
   const maxSpanUnitsY = Math.max(C.minSpanY, rowsPerPage());   // cap op schermhoogte
-  let chosen = maxSpanUnitsY;
   for (let s = C.minSpanY; s <= maxSpanUnitsY; s++) {
-    if (widgetContentPxHFor(s) >= pxNeeded) { chosen = s; break; }
+    if (widgetContentPxHFor(s) >= pxNeeded) return s;
   }
-  chosen = Math.max(C.minSpanY, Math.min(chosen, maxSpanUnitsY));
+  return maxSpanUnitsY;
+}
+function _fitCombatSpanY(growOnly) {
+  const w = state.widget;
+  if (!w) return;
+  const chosen = combatMinSpanUnitsY(w);
   w.spanUnitsY = growOnly ? Math.max(w.spanUnitsY, chosen) : chosen;
   // Vlag voor de renderer: past álle content binnen de gekozen hoogte? Zo ja →
   // space-between verdeelt de speling tussen de rijen; zo nee → body scrollt.
-  w._combatFits = widgetContentPxHFor(w.spanUnitsY) >= pxNeeded;
+  w._combatFits = widgetContentPxHFor(w.spanUnitsY) >= combatNeededPxH(w);
 }
 
 // Minimale BREEDTE (in dashboard-tegels / spanUnits) waarbij de combat-tracker
-// al zijn kolommen toont zonder horizontaal te moeten scrollen. De volledige
-// tabel (grid-template 34+96+84+120+52+40+28 + 6×6 gaps ≈ 490px, plus body- en
-// widget-padding) vraagt ~510px. In transpose-mode (één veld per rij) is de
-// widget juist smal → geen ondergrens. Bewust iets royaal (zie #NU-YZ6-filosofie:
-// liever iets te breed dan content die net wegvalt).
-const COMBAT_MIN_PX = 510;
+// alles toont zonder horizontaal te scrollen. Gemeten na de render
+// (w._combatM.minW: breedste van header en tabel/lijst); tot de eerste meting
+// alleen een vaste ondergrens voor de normale DM-tabel (8 kolommen ≈ 600px).
+const COMBAT_MIN_PX = 610;
 function combatMinSpanUnits(w) {
   if (!w || widgetKind(w) !== 'combat') return 1;
-  if (w.cfg && w.cfg.transpose) return 1;            // getransponeerd = smal, geen floor
+  const m = combatMeasured(w);
+  const minPx = m ? m.minW
+    : ((w.cfg && w.cfg.transpose) || combatMode(w) === 'player') ? 0 : COMBAT_MIN_PX;
   const maxSpan = Math.max(1, tilesPerPage());
   for (let s = 1; s <= maxSpan; s++) {
-    if (widgetPxWFor(s) >= COMBAT_MIN_PX) return s;
+    if (widgetPxWFor(s) >= minPx) return s;
   }
   return maxSpan;                                    // pagina te smal → zo breed mogelijk
 }
@@ -753,7 +770,6 @@ function recomputeCombatWidgets(growOnly) {
   for (const w of state.widgets) {
     if (widgetKind(w) !== 'combat') continue;
     withWidget(w, () => {
-      _fitCombatSpanY(!!growOnly);
       // Breedte-ondergrens afdwingen: bestaande te smalle widgets (of na een
       // layout-wissel) groeien terug tot alle kolommen zichtbaar zijn.
       const tpp = Math.max(1, tilesPerPage());
@@ -766,6 +782,8 @@ function recomputeCombatWidgets(growOnly) {
           w.globalCol = pageOf(w.globalCol) * tpp + Math.max(0, tpp - minSpan);
         }
       }
+      // Hoogte ná de breedte: een gewrapte lijst hangt van de breedte af.
+      _fitCombatSpanY(!!growOnly);
     });
   }
 }

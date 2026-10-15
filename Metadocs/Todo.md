@@ -30,7 +30,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P1 — Entity-merge fase 3: `@`-mention van een ex-NPC opent de Creatures-kaart, oude `/lore/monsters`-links, combat-picker zonder dubbele namen, klik in family-diagram, Families-tab
 - [ ] P2 — Level-up level 6–20 in de echte site (alleen in Node getest): een paar characters omhoog en weer omlaag
-- [ ] P2 — Combat tracker: concentration-kolom (8 kolommen breed genoeg?), speler-tracker normaal + gedraaid, Familiars-tab, soort-knop, auto-hoogte, breedte in een smal dashboard
+- [ ] P2 — Combat tracker: concentration-kolom, speler-tracker normaal + gedraaid, Familiars-tab, soort-knop; min. breedte/hoogte worden sinds 2026-10-16 na elke render gemeten (`combatMeasureWidgets`) — check of hij niet smaller/lager kan dan de inhoud, ook in een smal dashboard
 - [ ] P2 — Inventory-widget: verschijnt, tooltips, herschikken, hoogte, afbeeldingsmodus
 - [ ] P2 — Character-page: sidebar-categorieknoppen (#Ovv22sJ), tooltips via long-press op telefoon, crop van de profielfoto overal, copy/paste + Ctrl-multiselect van widgets, bug-reporter onderdeel kiezen
 - [ ] P2 — Edit-character: background-bonus (+2/+1) klopt na bewerken; Varragoth toont STR 17 / INT 14

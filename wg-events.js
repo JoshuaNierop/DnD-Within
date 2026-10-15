@@ -289,6 +289,8 @@ function applyDrag(handle, svgX, svgY) {
     const relY = svgY - state.dashboard.topY - vl.spacing - t;
     let row = Math.round(relY / unit);
     if (row < w.startRowIdx) row = w.startRowIdx;
+    // Combat-tracker: niet lager dan de content nodig heeft.
+    if (widgetKind(w) === 'combat') row = Math.max(row, w.startRowIdx + combatMinSpanUnitsY(w) - 1);
     if (row > rpp - 1) row = rpp - 1;
     w.spanUnitsY = row - w.startRowIdx + 1;
     compactSpanUnits();

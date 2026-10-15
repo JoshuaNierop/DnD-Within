@@ -2,6 +2,12 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-16 — Combat tracker keeps its minimum size
+
+- The Combat Tracker and Initiative Tracker now measure what they really need: they can't
+  be resized narrower than their widest row (or the header buttons) or lower than all
+  their rows, and they grow back automatically when a new participant needs more room.
+
 ## 2026-10-16 — Every Monster Manual monster
 
 - The Monster Manual picker and the combat tracker's Monster Manual tab now hold all 503

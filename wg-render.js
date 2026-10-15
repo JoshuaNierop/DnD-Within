@@ -51,6 +51,7 @@ function drawHandle(svg, x, y, id) {
 
 // ----- Rendering -----
 
+let _combatRemeasure = 0;
 function render() {
   applyResponsive();
   // V10: dashboard heeft vaste maat — vult de beschikbare ruimte elke render.
@@ -124,6 +125,19 @@ function render() {
   }
 
   // V10: dashboard heeft geen drag-handles meer — vaste maat (% van scherm).
+
+  // Combat-widgets: echte maten meten; bij een wijziging nog één (max 3)
+  // render-pass zodat breedte/hoogte aansluiten op de gemeten content.
+  if (!dragHandle && typeof combatMeasureWidgets === 'function') {
+    let changed = false;
+    try { changed = combatMeasureWidgets(); } catch (e) { console.warn('combat measure', e); }
+    if (changed && _combatRemeasure < 3) {
+      _combatRemeasure++;
+      requestAnimationFrame(render);
+    } else {
+      _combatRemeasure = 0;
+    }
+  }
 
   renderInfo();
   renderPageNav();
