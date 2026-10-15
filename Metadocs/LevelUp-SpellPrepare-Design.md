@@ -1,5 +1,7 @@
 # Level-Up & Spell-Prepare — Ontwerp (E5.5 / 2024)
 
+> **Stand 2026-10-15:** fase 0–3 zijn gebouwd (prepare-window, level-up 1–20). Alleen fase 4 (multiclass) is open en wacht op een besluit. Paladin/Ranger casten in 2024 vanaf L1, niet L2.
+
 > BG3-achtige level-up + spell-prepare flow voor D&D Within. Bron: research door
 > de D&D 5.5e-mechanics agents + architect-decompositie (2026-06-19).
 > Status: **fase 1 (long-rest widget) gebouwd**, rest ontworpen.

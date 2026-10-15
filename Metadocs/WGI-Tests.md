@@ -1,5 +1,7 @@
 # WGI Test Checklist
 
+> **Gearchiveerd 2026-10-15:** de integratie is al lang gemerged en de lijst gebruikt verouderde routes (`/#characters/...`) en versies. Niet meer afwerken; de browserchecks die nog zin hebben staan in `Todo.md` → "Joshua — testen".
+
 Test-lijst voor Widget Grid V8/V11 inline-integratie. Loop deze door voor je `josh/widget-grid-inline` naar `master` mergt.
 
 **Setup vóór testen:**

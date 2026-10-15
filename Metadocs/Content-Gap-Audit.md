@@ -1,5 +1,7 @@
 # Content-Gap-Audit — D&D Within vs 2024 PHB (E5.5)
 
+> **Stand 2026-10-15: volledig uitgevoerd** (spells, feats, invocations, renames). Alleen de PHB-steekproeven staan nog in `Todo.md`.
+
 > **STATUS 2026-08-16: spells-deel UITGEVOERD** — 88 nieuwe spellPool-entries + 339
 > lijst-toevoegingen (volledige PHB-parity, alle 8 classes, alle levels), renames toegepast
 > (Shining Smite, Befuddlement, Mordenkainen's Magnificent Mansion), Summon Beast-fout

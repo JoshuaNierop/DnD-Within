@@ -1,5 +1,7 @@
 # D&D Within — Backend Restructure & Image Separation
 
+> **Stand 2026-10-15:** fase 1 (afbeeldingen naar Cloudinary) is klaar en het Cloudinary-account is ingericht. Open: de delete-worker (deploy door Joshua) en fase 2 (data per campaign in een boom) — of fase 2 nog gewenst is, is een besluit.
+
 Gestart 2026-05-30. Doel (Joshua): afbeeldingen los van de tekst-database opslaan, en
 de backend indelen in 4 categorieën — **DnD General / DnD Version E5.0·E5.5 /
 Campaign / Player** — zonder dataverlies en zonder de live site te breken. Op termijn:

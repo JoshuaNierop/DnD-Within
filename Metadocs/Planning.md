@@ -12,42 +12,46 @@ Status: ✅ **DONE** (2026-05-15)
 - [x] P0 — Background Equipment Choice A/B data
 
 ## Milestone 2 — 5.5e content uitbreiding (audit P1)
-Status: in progress — ~18 items
+Status: bijna klaar — gecontroleerd tegen de code op 2026-10-15
 
-- [ ] P1 — Third-caster spell slot tabel + EK/AT spellcasting ability (engine reeds bijgewerkt; data verifiëren)
-- [ ] P1 — Spell list gaps dichten (Cleric 2nd, Druid 1st, Bard 1st, Ranger 2-3, Paladin)
-- [ ] P1 — Fighting Style feats als losse feat-category in pickers (data bestaat al, UI ontbreekt)
-- [ ] P1 — Equipment Choice A/B picker in character creation wizard
-- [ ] P1 — Verifieer GP-bedragen + item-counts van background Equipment tegen 2024 PHB Ch.4
-- [ ] P1 — Eldritch Invocations data + Warlock keuzeflow
-- [ ] P1 — Battle Master Maneuvers data + selectie-UI
-- [ ] P1 — High Elf + Drow species toevoegen (Elf lineages)
-- [ ] P1 — Weapon Mastery properties als gestructureerde data + tooltips
+- [x] P1 — Third-caster spell slot tabel + EK/AT spellcasting ability (`thirdCasterSlots`, `isThirdCaster`)
+- [x] P1 — Spell list gaps dichten → alle lijsten = 2024 PHB (391 spells, bewaakt door `build-smoke`)
+- [x] P1 — Fighting Style feats als feat-category in pickers (`category:'fighting'` in de level-up)
+- [ ] P1 — Equipment Choice A/B picker in character creation wizard (wizard neemt nu altijd A)
+- [ ] P2 — GP-bedragen + item-counts van background Equipment checken tegen de 2024-data
+- [x] P1 — Eldritch Invocations data + Warlock keuzeflow
+- [x] P1 — Battle Master Maneuvers data + selectie-UI
+- [x] P1 — High Elf + Drow (+ Wood Elf) lineages
+- [x] P1 — Weapon Mastery als gestructureerde data + tooltips
 
 ## Milestone 3 — Resource trackers (audit P2)
-Status: open — ~12 trackers
+Status: grotendeels klaar — gecontroleerd 2026-10-15
 
-- [ ] P1 — Rage uses, Focus Points, Channel Divinity, Bardic Inspiration, Lay on Hands pool
-- [ ] P1 — Sorcery Points current/max, Second Wind / Action Surge / Indomitable
-- [ ] P1 — Wild Shape, Arcane Ward HP, Superiority Dice, Psionic Energy
-- [ ] P1 — Concentration tracker met save-on-damage flow
-- [ ] P1 — Exhaustion (1-6 levels, -2 d20 per level)
-- [ ] P1 — Heroic Inspiration toggle
-- [ ] P1 — Death saves widget
+- [x] P1 — Rage, Focus Points, Channel Divinity, Bardic Inspiration, Lay on Hands
+- [x] P1 — Sorcery Points, Second Wind / Action Surge / Indomitable
+- [~] P1 — Wild Shape, Superiority Dice, Psionic Energy klaar; Arcane Ward heeft alleen een 1×/Long Rest-teller, geen ward-HP
+- [~] P1 — Concentration: alleen een kolom in de DM-combat-tracker; geen tracker voor spelers en geen CON-save bij schade
+- [ ] P1 — Exhaustion (1-6 levels, -2 op d20 per level)
+- [~] P1 — Heroic Inspiration: alleen de Human-resource (Resourceful), geen algemene toggle
+- [x] P1 — Death saves (in de Hit Points-widget)
+- [ ] P2 — Saving throws berekenen en tonen (zie `LevelingUp/Saving-Throws.md`)
 
 ## Milestone 4 — High-level features (audit P2)
-- [ ] P2 — Epic Boon picker (lvl 19+)
-- [ ] P2 — Eldritch Invocations picker
-- [ ] P2 — Weapon Mastery properties picker
-- [ ] P2 — Character creation Step 6 confirm + validatie
-- [ ] P2 — DM NPC editor (subclass/equipment/spells)
-- [ ] P2 — DM Whispers handler binding
+Status: klaar op twee punten na — level 1–20 is compleet voor alle classes (2026-10-15)
+
+- [x] P2 — Epic Boon picker (lvl 19+)
+- [x] P2 — Eldritch Invocations picker
+- [x] P2 — Weapon Mastery picker
+- [~] P2 — Character creation stap 6: overzicht + validatie bij aanmaken bestaan; validatie per stap niet
+- [x] P2 — DM NPC editor → vervallen, vervangen door de gezamenlijke Creatures-editor (entity-merge)
+- [x] P2 — DM Whispers handler (`send-whisper`)
+- [ ] P2 — Multiclass (`getCombinedCasterLevel` + config-model) — eerst besluit Joshua of het nodig is
 
 ## Milestone 5 — Dashboard/Widget polish
 Status: ⛔ vervangen door Milestone 5b (WGI). Oude widget-grid is genukket in `41e4257` + `bf35f2a` (2026-05-26/27). Oude items verplaatst naar Changelog/archief.
 
 ## Milestone 5b — WGI (Widget Grid V8/V11 Inline Integration)
-Status: 🚧 gestart 2026-05-27. Plan via `vanilla-js-architect` agent.
+Status: ✅ gemerged in master (branch `josh/widget-grid-inline` heeft 0 eigen commits meer). Alleen M7 staat nog open.
 
 **Doel:** Widget Grid V8 (intussen V11-compleet) inline mounten in `<div class="character-page">` als character-dashboard, met merges/splits van overlappende identifiers.
 
@@ -63,11 +67,11 @@ Status: 🚧 gestart 2026-05-27. Plan via `vanilla-js-architect` agent.
 - [x] P0 — WGI-M4: `WidgetGrid` namespace met `mount(rootEl, opts)` + `unmount()` in `wg-mount.js`. Body-template als JS string (~180 r markup), idempotent via `_wgMounted`-flag. Bedraad in `app.js renderApp` (`unmount()` voor `app.innerHTML = html`) + `postRenderEffects` (mount-call op `.character-page` div met characterId uit route). `style.css:830-872` `.character-page` grid gesloopt → volle flex-shell. `body[data-route^="characters/"] .navbar { display: none }` verbergt DnD-navbar op character-routes. `_settings*` refs van `const` → `let` + `WidgetGridInitSettingsRefs(scope)` voor herinitialisatie binnen mount-root. Smoke-test geverifieerd: Saya (1 widget) + Ren (3 widgets) mounten correct, navigate-away unmounteert, navbar wisselt zichtbaarheid.
 - [x] P1 — WGI-M5: `wg-style.css` wrapped in `@scope (.character-page) { … }`. Original `:root { --bg/--panel/--accent/etc. }` block vervangen door theme-bridge `.character-page { --bg: var(--bg-dark); --panel: var(--bg-card); --text: var(--text-main); --muted: var(--text-dim); --border: var(--border-light); --accent: var(--char-accent, var(--accent, #6cf)); --tile-dash: var(--char-accent, #6cf); …V8-eigen tokens behouden… }`. Per-character accent flows door: Saya zilver (#b8c5d1) en Ren goud (#d4a017) verifieerd in `--accent` + `--tile-dash`. Body bg blijft DnD's --bg-dark; geen regressie op home/campaigns/characters pagina's.
 - [x] P1 — WGI-M6: V11 edit-flow via direct REST-PATCH + targeted localStorage update (geen full `syncUpload`). Twee helpers in `wg-firebase.js`: `wgSyncCharToLocal(charId)` splitst `WG_CHAR_CACHE[id]` naar DnD's split-storage (`dw_charconfig_{id}`/`dw_charstate_{id}`/`dw_img_{id}_portrait`/`_banner`/`_appearance`); `wgSyncMapsToLocal()` schrijft `WG_MAPS_CACHE` naar `dw_maps`. Aanroep na elke succesvolle REST-write in 6 V11 functies (writeAbilityScore, writeSkillProficiency, savePinsToFirebase, uploadMapImage, deleteMapFromFirebase, uploadPortrait). Bij standalone V8 no-op (geen localStorage `dw_*` keys aanwezig). Code-niveau verifieerbaar; live browser-test in interactieve sessie volgt.
-- [ ] P1 — WGI-M7: polish — verwijder V8 `#characterSelect`, opruimen dode `.is-edit-mode` rules, smoke-test alle 5 situations × 3 devices
+- [~] P3 — WGI-M7: `.is-edit-mode` is weg; `#characterSelect` bestaat nog als verborgen element (bewust, twee bindings); smoke-test per situation × device nooit gedaan
 - [x] P0 — WGI-M4 bugfix (2026-05-29): canvas-click listener werd top-level gebound vóór mount-tijd (`document.getElementById("canvas")?.addEventListener` met `?.` op `null`). Vervangen door `document`-delegated listener met `closest('#canvas')`-filter in `wg-events.js:690`. Profile Picture upload-knop werkt nu; vermoedelijk ook latent stille bugs in skill-cycle, ability-edit en pin-edit clicks opgelost.
 - [x] P1 — WGI: Map Widget action-buttons (add-pin / upload-image / delete-map) uit topbar verwijderd (`wg-render.js`). Deze acties horen alleen op de Maps-page (DM/Admin only).
 
-**Branch:** `josh/widget-grid-inline`, 7 commits (één per M-fase).
+**Branch:** `josh/widget-grid-inline` — volledig gemerged, kan weg.
 **Architect-rapport:** zie sessie-notes 2026-05-27 (vanilla-js-architect opus max).
 **Originele V8 Metadocs:** `Projects/Tools/Widget Grid V8/Metadocs/` — Architecture.md (V9-paginering), V11-Handoff.md (afgesloten V11-features), V11-Dashboards-Spec.md.
 
@@ -127,31 +131,35 @@ Joshua's 7-puntenlijst + 5 follow-up correcties in twee rondes doorgevoerd. Zie 
 - [x] P1 — Timeline events gesorteerd op session-nummer descending (recent bovenaan); events zonder session-# zakken naar beneden.
 
 ## Milestone 6 — Modern CSS / responsive / a11y polish
-Status: gepland — onderzoek loopt 2026-05-15 (modern-css skill)
+Status: open — alleen in een browser te beoordelen
 
-- [ ] P2 — CSS-modernization audit (cascade layers, container queries, :has(), color-mix, light-dark())
-- [ ] P2 — Touch targets <44px op spell/feat lists (mobile)
-- [ ] P2 — Keyboard nav broken (tab-door-spells)
-- [ ] P2 — Dark mode contrast-issues (sommige links/buttons onzichtbaar)
-- [ ] P2 — Mobile auto-square widgets geven loze ruimte voor wide widgets
-- [ ] P3 — Ability radar chart labels cut off op mobile
+- [x] P2 — Moderne CSS is al in gebruik (@layer, @container, :has, color-mix, light-dark); losse audit vervalt
+- [~] P2 — Touch targets ≥44px: deels (`min-height:44px` op een deel van de knoppen), spell/feat-lijsten niet gecontroleerd
+- [ ] P2 — Keyboard-navigatie door de spell-lijsten (browsertest)
+- [ ] P2 — Dark mode contrast (browsertest)
+- [ ] P2 — Mobiel: widgets met loze ruimte (browsertest)
+- [x] P3 — Ability radar chart → vervallen, die widget bestaat niet meer
 - [ ] P3 — Level-up animation feedback
 
 ## Milestone 7 — Infrastructure
-- [ ] P1 — Migratie GitHub Pages → Cloudflare Pages (workspace-default), of beslis: legacy houden tot Sanctum klaar is
-- [ ] P2 — Repo privé maken (bij Sanctum migratie — zie `project_dnd_within_migration.md` memory)
-- [ ] P3 — `sw.js` cache version → hash-based asset manifest (geen handmatig bumpen)
-- [ ] P3 — Oude `dw/bugs` (74 fixed) archiveren onder Nexus `/shared/bugs` of read-only laten
+
+- [x] P1 — Live op Cloudflare Pages (`dnd-within.pages.dev`)
+- [ ] P1 — GitHub Pages uitzetten (de oude, kapotte kopie op joshuanierop.github.io draait nog) — Joshua
+- [ ] P1 — Repo privé maken — de publieke repo bevat namen en wachtwoorden van spelers (`core.js`) — Joshua
+- [ ] P3 — `sw.js` en `manifest.json` verwijderen (site is online-only, er wordt geen service worker geregistreerd)
+- [x] P3 — Oude `dw/bugs` (74 fixed) blijven als read-only archief staan (besluit in CLAUDE.md)
 
 ## Milestone 8 — Quality / bugs (audit P3)
-- [ ] P3 — `open-create-wizard` button handler binden
-- [ ] P3 — `send-whisper` handler binden
-- [ ] P3 — `asi-content` selector hernoemen naar `.levelup-asi-detail`
-- [ ] P3 — Initiative drag-drop ghost cleanup bij page change
-- [ ] P3 — Firebase sync error-handling (`sync.js` try/catch)
-- [ ] P3 — i18n keys voor wizard.error.step1 + nieuwe 5.5e content
-- [ ] P3 — meetsPrereq() strOrDex/strOrCha logica
-- [ ] P3 — Temp HP stacking = replace-if-higher
-- [ ] P3 — Warlock pact slots short rest refresh
+Gecontroleerd 2026-10-15: bijna alles was al gedaan.
 
-Zie `Testresults.md` voor de volledige issue-lijst met file:line referenties.
+- [x] P3 — `open-create-wizard` handler
+- [x] P3 — `send-whisper` handler
+- [x] P3 — `asi-content` selector → vervallen (bestaat niet meer)
+- [~] P3 — Initiative drag-drop ghost: `cleanup()` bestaat; paginawissel midden in een drag niet getest
+- [x] P3 — Firebase sync error-handling (`sync.js` try/catch)
+- [x] P3 — i18n `wizard.error.step1` (site is Engels-only)
+- [x] P3 — Feat-prereq OF-logica (`featPrereqMet`)
+- [x] P3 — Temp HP: nieuwe waarde vervangt de oude (geen optelling)
+- [x] P3 — Warlock pact slots herstellen bij Short Rest
+
+Alle open punten staan geordend (Joshua / Claude) in `Todo.md` → "Overzicht 2026-10-15". `Testresults.md` is de oude audit van april en grotendeels historisch.

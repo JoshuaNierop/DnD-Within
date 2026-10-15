@@ -118,28 +118,20 @@ Bekende gaten → fase F+: Battle Master maneuvers-picker, Arcane Trickster/Eldr
 - [x] P1 — Fase D2: browser-test — level-up confirm-flow + level-down live geverifieerd (2026-08-04); resources/rest-widgets klik-interactie + rest-resets live geverifieerd (2026-08-14, zie hierboven)
 - [x] P2 — Fase F+ L4 (2026-10-15, zie boven); L5+ volgt wanneer de party richting L5 gaat. Was: hogere levels (L4+): ASI/feat-stap in het menu, preparedTable/invocations/metamagic uitbreiden boven L3, Battle Master maneuvers, Arcane Trickster/EK spells
 
-## Review-lijst (Joshua / fysieke PHB)
-0. Resource-widget interactie: klik = 1 use verbruiken, klik-bij-leeg = alles herstellen — simpel maar onconventioneel; akkoord of liever ± knoppen?
-0b. ~~Choice-types zonder picker tonen een informatieve stap~~ → alle L1–3 choice-types hebben nu een echte picker; de informatieve fallback blijft alleen voor onbekende toekomstige types.
-0c. Innate Sorcery: data zei "PB uses per Long Rest", 2024 PHB/verificatiepass zegt 2×/LR — aangepast naar 2. Spot-check fysieke PHB gewenst.
-0d. **Opgelost 2026-10-15** (getHP telt +1/level vanaf L3). Draconic Resilience (max HP +1 per sorcerer level) wordt getoond maar NIET verrekend in de HP-berekening — bewust; verrekening vergt subclass-aware getHP (open punt).
-0e. **Opgelost 2026-10-15** (swaps zitten in het level-up-menu via `swapRules`). Sorcerer 2024 "swap 1 spell + 1 cantrip + 1 metamagic per level-up" is nog niet in het menu — alleen nieuwe picks, geen swaps. (Geldt ook voor Warlock-swaps.) **UPDATE 2026-08-15:** de long-rest-herprepare is nu wél gebouwd (fase 2, `wg-prepare.js` prepare-window): opent automatisch na Long Rest voor casters + handmatig via "⚙ Change spells"-rij in de Prepared Spells-widget. Volledige herpick tot `getMaxPrepared`; per-class RAW-note in de UI, niet hard-enforced (DM's call). Per-class regels web-geverifieerd 2026-08-15 (aidedd/roll20/wikidot): cleric/druid/wizard = hele lijst per Long Rest; paladin/ranger = één spell per Long Rest; bard/sorcerer/warlock = één spell bij level-up. House rule (Joshua): character zonder vastgelegde prepared spells mag zijn volledige lijst vrij vullen (UI toont dan die note i.p.v. de RAW-note).
-0f. **NIEUW 2026-08-04:** `preparedTable` paladin/ranger van `[-,2,3]`/`[-,3,4]` naar `[2,3,4]` + `halfCasterSlots[1]=2×1st` + `spellcastingStart` 2→1. De eerdere aidedd-tabel volgde de 2014-start-op-L2-layout en sprak de geverifieerde class-research in dit document tegen (Paladin/Ranger L1: "Spellcasting v.a. L1, 2 prepared, slots 2×1st"). **Spot-check fysieke 2024 PHB gewenst** — dit raakt barius (L3-cap 3→4) en ancha.
-0g. **NIEUW:** druid `cantripsKnown` L1–3 van 4 naar 2 (2024-tabel; was een sorcerer-kopie). **io heeft 4 cantrips in state** — bewust NIET gestript; DM-besluit welke 2 blijven (of laten zoals het is).
-0h. **NIEUW:** `DATA.invocations` (14, L≤3) en `DATA.wildShapeForms` (20) teksten zijn agent-kennis 2024 PHB / 2025 MM — spot-check namen/regels (m.n. Eldritch Spear range ×30/level, Fiendish Vigor max-temp-HP, Pact of the Chain vormen; wild-shape speeds). **Wild Shape-deel opgelost 2026-10-15**: vormen komen nu uit de MM 2025-data (89 Beasts t/m CR 6) en worden getest.
-0n. **Besloten 2026-10-15:** swarms toegestaan (gemarkeerd, DM-call). Was: de 6 swarms ("Swarm of Tiny Beasts", o.a. Swarm of Rats/Ravens/Venomous Snakes) staan als Wild Shape-vorm in de lijst. RAW zijn het Beasts; mogen ze van de DM?
-0i. **NIEUW:** Bastion (id `barius`, Paladin L3) heeft géén prepared spells vastgelegd; de self-heal biedt pas picks bij de vólgende level-up. Workaround als je het nu wil vullen: prepare-window ("⚙ Change spells" of Long Rest) vult prepared direct; fighting style vergt nog wel Level Down → Level Up. Boven L3 valt de prepared-tabel terug op de legacy-formule → discontinuïteit mogelijk bij L3→4 (fase F+).
-0j. **NIEUW (pre-existing, gesignaleerd):** skills-data-dualiteit: widgets/pickers gebruiken `config.defaultSkills`/`config.expertSkills` (camelCase keys), maar legacy state heeft óók `state.skills`/`state.expertise` — en ren's config bevat `'sleight of hand'` (spaties) die nooit matcht met WG_SKILLS-key `sleightOfHand`. Opruimactie nodig (aparte fix).
-0k. **Opgelost 2026-10-15:** laatste 14 NL-spellteksten + 12 NL-componenten vertaald (2024). Was — **Data-debt (deels gedaan):** `spellPool`: dur/time-velden + 23 party-zichtbare descs zijn nu Engels; **~230 desc-bodies nog NL** (zichtbaar in level-up spell-pickers voor niet-geprepairde spells). Bulk-vertaalslag = aparte sessie. Ook nog NL: material-component-teksten in `comp` ("een beetje fosforus") en veel class-feature-descs buiten paladin/ranger/druid/fighter-geraakte.
-0l. **NIEUW 2026-10-15 (L4):** Wild Shape 2024 noemt bij wat je behoudt: creature type, HP, Hit Dice, INT/WIS/CHA, class features, talen en feats — géén species traits. De site meldt daarom dat species-abilities (Breath Weapon, Healing Hands, …) in beast form waarschijnlijk niet werken ("ask your DM"). Interpretatie bevestigen?
-0m. **NIEUW 2026-10-15 (L4):** dubbele cantrip uit twee vaste bronnen (bv. Fire Bolt van Arid Land + Infernal Tiefling): de 2024-regels geven geen vervangende cantrip; de site zegt dat ook zo. Huisregel gewenst?
-1. Prepared-tabel L1–3: wizard/sorcerer/druid/warlock-kolommen single-source geverifieerd; paladin/ranger nu per 0f. Spot-check fysieke 2024 PHB gewenst.
-2. Soulknife: Bonus-Action-die-regain op L3 wél/niet (verifier: pas hoger level; aangenomen Long Rest only).
-3. Fighting Style opties-aantal (10 feats + class-optie) en Battle Master maneuvers op L3 (3 vs 4) — maneuvers pas relevant bij fase F+.
-4. ~~`wg-rest.js` UI-strings Nederlands~~ — Engels sinds fase F/Sorcerer.
-5. Level-down "tijdelijke opslag om te resetten" (demotedChoices) is ontworpen maar bewust nog niet gebouwd.
+## Review-lijst (Joshua / fysieke PHB) — gecontroleerd 2026-10-15
+Gesloten na controle: 0b, 0d, 0e, 0k, 0n (al eerder); 0f + 1 (prepared-tabel t/m L20 wordt door `build-smoke` tegen de 2024-data gecheckt); 0g (io heeft 2 cantrips); 3 (Battle Master 3 maneuvers op L3, 10 fighting-style feats); 0h Wild Shape-deel (MM 2025-data).
+
+Nog open — alle punten staan ook in `Metadocs/Todo.md`:
+- 0 — Resource-klik (1 use / alles herstellen) of ± knoppen: besluit Joshua
+- 0c — Innate Sorcery 2×/Long Rest: optionele PHB-steekproef
+- 0h — Invocation-teksten: namen getest, tekst niet volledig machine-gecheckt: optionele steekproef
+- 0i — Barius heeft 2 van 4 prepared spells (snapshot 26-09): aanvullen in de UI
+- 0j — Skill-keys `'sleight of hand'` vs `sleightOfHand`: Claude (Todo, P2)
+- 0l — Species-traits in Wild Shape, 0m — dubbele vaste cantrip: huisregel Joshua
+- 2 — Soulknife-die terug op L3: optionele PHB-steekproef
+- 5 — Level-down bewaart gekozen opties niet (`demotedChoices`): Claude, P3
 
 ## Volgende stappen
-1. D2-rest: resources/rest-widgets live testen in de browser.
-2. Review-lijst 0f/0g/0h met fysieke PHB; daarna evt. io's cantrips normaliseren.
-3. Fase F+ (L4+) pas wanneer de party richting L4 gaat.
+1. Level-up L6–20 een keer in de echte site doorlopen (alleen in Node getest).
+2. Saving throws (`Saving-Throws.md`) en class-features in de Attacks-widget.
+3. Multiclass alleen als Joshua het wil.

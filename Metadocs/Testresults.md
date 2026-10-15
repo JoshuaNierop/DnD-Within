@@ -1,5 +1,7 @@
 # D&D Within — Testresults
 
+> **Stand 2026-10-15:** grotendeels historisch (audit van april + browserchecks van juni). De meeste punten zijn opgelost; wat nog open is staat in `Todo.md`. Actuele tests: `node Metadocs/LevelingUp/build-smoke.mjs 20` en `node Metadocs/LevelingUp/ui-smoke.mjs`.
+
 ## 2026-06-04 — Clean URLs, maps/lore redesign, widget, storage-paden, 3 bugs
 
 ### Geverifieerd (deel 5 — laat op 2026-06-04)

@@ -17,10 +17,13 @@ Interactive D&D 5.5e character sheet en campaign management SPA voor 8 spelers.
 
 ## Key Files
 - `index.html` — SPA shell
-- `js/app.js` — Router, auth, UI logic (~2800 lines)
-- `js/engine.js` — D&D mechanics (ability scores, combat, leveling)
-- `js/data.js` — Character/spell/item/race/class data (~1300 lines)
-- `css/style.css` — Alle styles (~3500 lines)
+Alles staat in de repo-root (geen `js/`- of `css/`-map).
+- `app.js` / `core.js` / `events.js` / `ui-*.js` — router, auth, pagina's, vensters (`ui-modals.js` heeft `showPromptModal`/`showConfirmModal`/`showAlertModal`)
+- `engine.js` — D&D-regels (scores, HP/AC, spells, level-up-delta, skills)
+- `data.js` (~530 kB) + `data-rules.js` — classes, species, feats, spells, items, resources
+- `wg-*.js` + `wg-style.css` — character-dashboard (widget grid, level-up, prepare, rest, combat)
+- `style.css` — overige styles
+- Tests: `node Metadocs/LevelingUp/build-smoke.mjs [level]` en `node Metadocs/LevelingUp/ui-smoke.mjs`
 
 ## Firebase
 - Project: `dnd-within-firebase`
@@ -35,23 +38,15 @@ Interactive D&D 5.5e character sheet en campaign management SPA voor 8 spelers.
 - Zie `~/Documents/Claude/Modules/bugreport/README.md` voor schema + integratie
 
 ## Party
-8 characters: Ren, Saya + 6 anderen — elk met unieke class/race/subclass
+9 characters (ren, saya, ancha, varragoth, barius, io, lira, nero, addybluelight) — elk met unieke class/species/subclass
 
 ## Features
 - Animated glow ring portrait border (conic-gradient, rotating taper)
 - Spell prep system, item tracking, combat stats
 - Maps met portal linking tussen dimensies
 - Notes (6 layouts), Timeline events
-- Multi-language (NL/EN), Admin mode (admin/admin)
+- Engels-only (i18n-laag staat vast op `en`)
 
 ## Deploy
-⚠️ **Clean URLs vereisen Cloudflare Pages** — GitHub Pages (project-site onder `/DnD-Within/`) kan geen SPA-fallback en breekt op `<base href="/">`. Migratie naar Cloudflare Pages is nu NOODZAKELIJK voor de live site.
-
-Cloudflare Pages setup (Joshua, eenmalig):
-1. Cloudflare dash → Pages → Connect to Git → repo `JoshuaNierop/DnD-Within`, branch `master`.
-2. Build command: *(leeg)*; Build output directory: `/` (repo-root).
-3. `_redirects` (in repo-root) levert de SPA-fallback (`/* /index.html 200`) → clean URLs werken op refresh/deeplink.
-4. Custom domain koppelen; daarna GitHub Pages uitzetten (Settings → Pages → Source: None) zodat de oude broken subpath-versie niet meer serveert.
-
-- Repo: `JoshuaNierop/DnD-Within`, branch `master`
-- Oude live (breekt na deze commit): https://joshuanierop.github.io/DnD-Within/
+- Live: **Cloudflare Pages** `https://dnd-within.pages.dev` (Git-gekoppeld aan `JoshuaNierop/DnD-Within`, branch `master`, geen build; `_redirects` levert de SPA-fallback).
+- De oude GitHub Pages-kopie (joshuanierop.github.io/DnD-Within) is kapot door de clean URLs en moet nog uitgezet worden (Todo).
