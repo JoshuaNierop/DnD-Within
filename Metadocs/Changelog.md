@@ -45,6 +45,8 @@ subclass and species at level 1–4 without making a character.
   and follow the 2024 rules (among them Cure Wounds 2d8, Inflict Wounds as a
   Constitution save, Spirit Guardians, Moonbeam and Ice Knife), including their
   material components.
+- Speed in the Build window now includes the Monk's Unarmored Movement, the
+  Barbarian's Fast Movement (level 5) and the Speedy feat.
 
 ## 2026-09-23 — Eldritch Knight spells, familiars and a fuller initiative tracker
 

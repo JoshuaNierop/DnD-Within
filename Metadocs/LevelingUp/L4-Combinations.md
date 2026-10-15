@@ -28,8 +28,8 @@
 | Battle Master (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 9 |
 | Eldritch Knight (fighter) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 10 |
 | Psi Warrior (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 10 |
-| Open Hand (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
-| Mercy (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
+| Open Hand (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 11 |
+| Mercy (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 11 |
 | Shadow (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Elements (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Devotion (paladin) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
@@ -419,7 +419,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Warrior of Mercy
 
 - Features (L3): Hand of Harm [On a hit / Attack action], Hand of Healing [Action], Implements of Mercy
-- Choose: Implements of Mercy (L3): proficiency in Insight and Medicine
+- Gain: Implements of Mercy (L3): proficiency in Insight and Medicine
 - Actions (no spells): Action: Hand of Healing · Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · On a hit / Attack action: Hand of Harm · No action: Uncanny Metabolism
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.

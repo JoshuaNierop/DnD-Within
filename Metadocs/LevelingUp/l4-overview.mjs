@@ -16,7 +16,7 @@ const E = loadEngine();
 const { DATA } = E;
 
 // Batches of 20 combinations (2 subclasses × 10 species) read through by hand.
-const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10' };
+const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10', 'monk/openHand': 'batch 11', 'monk/mercy': 'batch 11' };
 
 const CLASSES = ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'];
 const SPECIES = [
@@ -204,8 +204,9 @@ for (const cls of CLASSES) {
     md += '#### ' + sd.name + '\n\n';
     const sf = p.features.filter((f) => f.source === 'subclass');
     md += '- Features (L3): ' + sf.map((f) => f.name + (f.act ? ' [' + ACT[f.act] + ']' : '')).join(', ') + '\n';
-    const subCh = [].concat(...Object.entries(DATA[cls].subclasses[sub].choices || {}).filter(([L]) => L <= 4).map(([L, list]) => list.filter((c) => c.id === 'skills').map((c) => skillChoiceText(c, cls, L))));
-    if (subCh.length) md += '- Choose: ' + subCh.join('; ') + '\n';
+    const subCh = [].concat(...Object.entries(DATA[cls].subclasses[sub].choices || {}).filter(([L]) => L <= 4).map(([L, list]) => list.filter((c) => c.id === 'skills').map((c) => [!!c.fixed, skillChoiceText(c, cls, L)])));
+    if (subCh.some(([fx]) => !fx)) md += '- Choose: ' + subCh.filter(([fx]) => !fx).map(([, t]) => t).join('; ') + '\n';
+    if (subCh.some(([fx]) => fx)) md += '- Gain: ' + subCh.filter(([fx]) => fx).map(([, t]) => t).join('; ') + '\n';
     if (p.casting && !base.casting) {
       const c = p.casting;
       md += '- Spellcasting at L4: ' + c.ability.toUpperCase() + ' (' + c.list.charAt(0).toUpperCase() + c.list.slice(1) + ' list), ' + c.cantrips.max + ' cantrips, ' + c.prepared.max + ' prepared (level ≤ ' + c.prepared.maxLevel + '), slots ' +

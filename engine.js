@@ -66,6 +66,18 @@ function getSkillBonus(config, state, skill, ability) {
     return { total: parts.reduce(function (a, p) { return a + p.value; }, 0), parts: parts, prof: prof, expert: expert };
 }
 
+// Walking speed: species + Unarmored Movement (Monk 2+, no armor or Shield) +
+// Fast Movement (Barbarian 5+, no Heavy armor) + Speedy (+10 ft).
+function getSpeed(config, state) {
+    var st = state || {};
+    var lvl = st.level || 1;
+    var spd = (DATA[config.race] || {}).speed || 30;
+    if (config.className === 'monk' && lvl >= 2) spd += lvl >= 18 ? 30 : lvl >= 14 ? 25 : lvl >= 10 ? 20 : lvl >= 6 ? 15 : 10;
+    if (config.className === 'barbarian' && lvl >= 5) spd += 10;
+    if (hasFeat(st, 'Speedy', config)) spd += 10;
+    return spd;
+}
+
 // Effective ability scores (base + ASI/feat bonuses), for widgets.
 function getEffectiveAbilities(config, state) {
     var st = Object.assign({ asiChoices: {}, level: 1 }, state || {});
@@ -807,7 +819,7 @@ function getBuildProfile(cfg, st) {
         who: {
             className: cn, classLabel: classLabel(cn), subclass: sub ? cfg.subclass : null, subclassLabel: sub ? sub.name : null,
             race: cfg.race, species: speciesOf(cfg.race), speciesLabel: speciesLabel(cfg), lineage: lin ? lin.key : null,
-            size: race.size || '', speed: race.speed || 30, darkvision: race.darkvision || 0,
+            size: race.size || '', speed: getSpeed(cfg, st), darkvision: race.darkvision || 0,
             hp: getMaxHP(cfg, st), ac: getAC(cfg, st)
         },
         casting: null, granted: [], feats: [], features: [], actions: {}, resources: [],
