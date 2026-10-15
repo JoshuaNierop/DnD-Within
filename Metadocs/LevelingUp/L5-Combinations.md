@@ -52,8 +52,8 @@
 | Archfey Patron (warlock) | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 21 |
 | Celestial Patron (warlock) | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 22 |
 | Great Old One Patron (warlock) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 22 |
-| Evoker (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Abjurer (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Evoker (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 23 |
+| Abjurer (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 23 |
 | Diviner (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Illusionist (wizard) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 
@@ -669,31 +669,31 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
   - Level 3: your subclass; 2 Wizard spells for your spellbook
   - Level 4: 2 Wizard spells for your spellbook; Ability Score Improvement or a feat
   - Level 5: 2 Wizard spells for your spellbook
-- Swap: Your whole list of prepared spells (from your spellbook) (on a Long Rest); One cantrip (on a Long Rest)
+- Swap: Your whole list of prepared spells (from your spellbook) (on a Long Rest); One cantrip (on a Long Rest); One prepared spell for another from your spellbook (Memorize Spell) (on a Short or Long Rest)
 
 #### Evoker
 
 - Features (L3): Evocation Savant, Potent Cantrip
-- Choose: Evocation Savant (L3): 2 Evocation spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)
+- Choose: Evocation Savant (L3): 2 Evocation spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet); level 5 (new spell slot level): 1 more free Evocation spell
 
 #### Abjurer
 
 - Features (L3): Abjuration Savant, Arcane Ward [Bonus Action]
-- Choose: Abjuration Savant (L3): 2 Abjuration spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)
+- Choose: Abjuration Savant (L3): 2 Abjuration spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet); level 5 (new spell slot level): 1 more free Abjuration spell
 - Uses: Arcane Ward 1/Long Rest
 - Actions (no spells): Bonus Action: Arcane Ward
 
 #### Diviner
 
 - Features (L3): Divination Savant, Portent [No action]
-- Choose: Divination Savant (L3): 2 Divination spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)
+- Choose: Divination Savant (L3): 2 Divination spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet); level 5 (new spell slot level): 1 more free Divination spell
 - Uses: Portent 2×d20 rolls/Long Rest
 - Actions (no spells): No action: Portent
 
 #### Illusionist
 
 - Features (L3): Illusion Savant, Improved Illusions [Bonus Action]
-- Choose: Illusion Savant (L3): 2 Illusion spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)
+- Choose: Illusion Savant (L3): 2 Illusion spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet); level 5 (new spell slot level): 1 more free Illusion spell
 - Spells: Minor Illusion (C, cantrip)
 - Actions (no spells): Bonus Action: Improved Illusions
 - Combination notes:

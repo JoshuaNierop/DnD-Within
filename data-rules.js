@@ -40,6 +40,7 @@ DATA.swapRules = [
     { id: 'preparedOneTC', when: 'levelUp',   what: "One prepared spell", appliesTo: { subclass: ['eldritchKnight', 'arcaneTrickster'], minLevel: 3 } },
     { id: 'cantripLv',     when: 'levelUp',   what: "One cantrip", appliesTo: { className: ['bard', 'cleric', 'druid', 'sorcerer', 'warlock'] } },
     { id: 'cantripLR',     when: 'longRest',  what: "One cantrip", appliesTo: { className: 'wizard' } },
+    { id: 'memorizeSpell', when: 'shortRest', what: "One prepared spell for another from your spellbook (Memorize Spell)", appliesTo: { className: 'wizard', minLevel: 5 } },
     { id: 'cantripTC',     when: 'levelUp',   what: "One cantrip", appliesTo: { subclass: ['eldritchKnight'], minLevel: 3 } },
     { id: 'cantripAT',     when: 'levelUp',   what: "One cantrip (Mage Hand stays)", appliesTo: { subclass: ['arcaneTrickster'], minLevel: 3 } },
     { id: 'invocation',    when: 'levelUp',   what: "One Eldritch Invocation", appliesTo: { className: 'warlock' } },
