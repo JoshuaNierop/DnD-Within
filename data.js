@@ -570,7 +570,9 @@ const DATA = {
                 level: 3,
                 features: {
                     3: [
-                        { name: "Psionic Power", act: 'free', desc: "You have Psionic Energy Dice: 4 × d6 (6 × d8 from level 5); regain one on a Short Rest and all on a Long Rest. Psi-Bolstered Knack: when you fail a check with a skill or tool you're proficient in, roll a die and add it (the die is spent only if the check then succeeds). Psychic Whispers (Magic action): up to Proficiency Bonus creatures you can see can talk telepathically with you for a number of hours equal to a die roll (within 1 mile); the first use after each Long Rest costs no die." },
+                        { name: "Psionic Power", desc: "You have Psionic Energy Dice that fuel this subclass's powers: 4 × d6 (6 × d8 at level 5, 8 × d8 at 9, 8 × d10 at 11, 10 × d10 at 13, 12 × d12 at 17). You regain one expended die on a Short Rest and all of them on a Long Rest." },
+                        { name: "Psi-Bolstered Knack", act: 'free', desc: "When you fail an ability check using a skill or tool you're proficient with, roll a Psionic Energy Die and add it to the check; the die is spent only if the check then succeeds." },
+                        { name: "Psychic Whispers", act: 'action', desc: "Magic action: choose up to your Proficiency Bonus in creatures you can see and roll a Psionic Energy Die; for that many hours you and they can speak telepathically while within 1 mile of each other. The first use after each Long Rest doesn't spend the die." },
                         { name: "Psychic Blades", act: 'attack', desc: "When you take the Attack action or make an Opportunity Attack, you can attack with a psychic blade from your free hand: Simple melee weapon, 1d6 Psychic, Finesse, Thrown (60/120 ft), Vex mastery; it vanishes after the attack. Afterwards, as a Bonus Action, you can attack with a second blade (1d4) if your other hand is free." }
                     ],
                     9: [

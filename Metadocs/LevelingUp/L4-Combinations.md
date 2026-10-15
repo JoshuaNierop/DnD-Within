@@ -42,8 +42,8 @@
 | Gloom Stalker (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 16 |
 | Thief (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 17 |
 | Assassin (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 17 |
-| Arcane Trickster (rogue) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Soulknife (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
+| Arcane Trickster (rogue) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 18 |
+| Soulknife (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 18 |
 | Wild Magic Sorcery (sorcerer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Draconic Sorcery (sorcerer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Clockwork Sorcery (sorcerer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
@@ -556,14 +556,15 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Spellcasting, Mage Hand Legerdemain [Bonus Action]
 - Spellcasting at L4: INT (Wizard list), 3 cantrips, 4 prepared (level ≤ 1), slots 3×L1
+- Spells: Mage Hand (C, cantrip, always known — counts toward your cantrips)
 - Actions (no spells): Bonus Action: Cunning Action, Steady Aim, Mage Hand Legerdemain · On a hit / Attack action: Sneak Attack
 - Swap: One prepared spell (when you gain a level); One cantrip (Mage Hand stays) (when you gain a level)
 
 #### Soulknife
 
-- Features (L3): Psionic Power [No action], Psychic Blades [On a hit / Attack action]
+- Features (L3): Psionic Power, Psi-Bolstered Knack [No action], Psychic Whispers [Action], Psychic Blades [On a hit / Attack action]
 - Uses: Psionic Energy Dice 4×d6/1 per Short Rest, all on a Long Rest
-- Actions (no spells): Bonus Action: Cunning Action, Steady Aim · On a hit / Attack action: Sneak Attack, Psychic Blades · No action: Psionic Power
+- Actions (no spells): Action: Psychic Whispers · Bonus Action: Cunning Action, Steady Aim · On a hit / Attack action: Sneak Attack, Psychic Blades · No action: Psi-Bolstered Knack
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
   - Gnome: Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
