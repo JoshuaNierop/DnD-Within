@@ -2,8 +2,8 @@ const DATA = {
     // Index 0 unused, index 1-20 = character levels
     profBonus: [0, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6],
 
-    // NOTE: Half-Elf is VERWIJDERD in 5.5e (2024 PHB). Spelers kiezen Human of Elf.
-    // Behouden als legacy voor bestaande characters.
+    // NOTE: Half-Elf was REMOVED in the 2024 PHB; players pick Human or Elf.
+    // Kept as legacy for existing characters.
     halfElf: {
         speed: 30,
         darkvision: 60,
@@ -487,7 +487,7 @@ const DATA = {
         },
 
         subclasses: {
-            // NOTE: Scout is LEGACY — niet in 2024 PHB. 5.5e subclasses: Arcane Trickster, Assassin, Soulknife, Thief.
+            // NOTE: Scout is LEGACY — not in the 2024 PHB. 2024 subclasses: Arcane Trickster, Assassin, Soulknife, Thief.
             scout: {
                 name: "Scout",
                 legacy: true,
@@ -2248,7 +2248,7 @@ const DATA = {
         asiLevels: [4, 8, 12, 16, 19],
         spellcasting: "none",
 
-        // 5.5e: "Ki" hernoemd naar "Focus Points"
+        // 2024: "Ki" was renamed "Focus Points"
         martialArtsDie: { 1:"1d6", 2:"1d6", 3:"1d6", 4:"1d6", 5:"1d8", 6:"1d8", 7:"1d8", 8:"1d8", 9:"1d8", 10:"1d8", 11:"1d10", 12:"1d10", 13:"1d10", 14:"1d10", 15:"1d10", 16:"1d10", 17:"1d12", 18:"1d12", 19:"1d12", 20:"1d12" },
         focusPoints: { 1:0, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 10:10, 11:11, 12:12, 13:13, 14:14, 15:15, 16:16, 17:17, 18:18, 19:19, 20:20 },
 
@@ -2654,9 +2654,9 @@ const DATA = {
 
     // ===== BACKGROUNDS (5.5e / 2024 PHB — 16 core + 1 legacy) =====
     // Each provides: 3 ability scores (+2/+1 or +1/+1/+1), 2 skills, 1 tool, 1 origin feat, equipment (Choice A = themed gear + GP, Choice B = 50 GP).
-    // Equipment lists below zijn best-recall van 2024 PHB Ch.4 Backgrounds — verifieer tegen PHB voordat je op production rekent.
+    // Equipment lists below are best recall of 2024 PHB ch. 4 Backgrounds — verify against the PHB before relying on them.
     backgrounds: {
-        // --- LEGACY (niet in 2024 PHB) ---
+        // --- LEGACY (not in the 2024 PHB) ---
         urchin: {
             name: "Urchin",
             legacy: true,
@@ -3005,14 +3005,14 @@ const DATA = {
 };
 
 // ===== ITEM DATABASE (flat, rich) =====
-// Single source of truth voor de Inventory-widget. Verrijkt de magere
-// DATA.items.* arrays hierboven (die alleen {name, weight, mastery?} hadden en
-// nergens anders meer geconsumeerd worden) met type/cost/damage/properties/armor.
-// Per-character inventory leeft los in state.items {name, qty, equipped, notes,
-// ref?}; deze tabel is de read-only DEFINITIE die de widget op naam joint.
-// Velden met "verify:true" in _verify zijn niet 100% zeker uit de 2024 PHB
-// (geheugen) — zie de review-lijst in de chat. Damage-type staat in damageType
-// (niet 'type', dat is de top-level categorie).
+// Single source of truth for the Inventory widget. Extends the thin
+// DATA.items.* arrays above (only {name, weight, mastery?}, no longer used
+// elsewhere) with type/cost/damage/properties/armor.
+// Per-character inventory lives in state.items {name, qty, equipped, notes,
+// ref?}; this table is the read-only DEFINITION the widget joins by name.
+// Fields listed in _verify are not 100% certain against the 2024 PHB
+// (from memory) — see the review list. Damage type lives in damageType
+// (not 'type', which is the top-level category).
 DATA.itemDB = [
   // ---- Simple melee weapons ----
   { id:"club", name:"Club", type:"weapon", subtype:"simple-melee", weight:2, cost:1, costUnit:"sp", dmg:"1d4", damageType:"bludgeoning", mastery:"slow", properties:["light"] },
@@ -3123,9 +3123,9 @@ DATA.itemDB = [
   { id:"holy-water", name:"Holy Water (flask)", type:"consumable", weight:1, cost:25, costUnit:"gp", description:"Throw it: fiends/undead within 5ft make a DEX save or take 2d6 radiant." }
 ];
 
-// Starter equipment-packs (2024 PHB). Klappen uit naar losse itemDB-items.
-// counts × outer-count bij expansie. Cost/sommige counts staan op verify
-// (zie review-lijst). ref = itemDB-naam (genormaliseerd gematcht door de widget).
+// Starter equipment packs (2024 PHB). They expand into separate itemDB items
+// (counts × outer count). Cost and some counts are marked verify (see the
+// review list). ref = itemDB name (matched normalised by the widget).
 DATA.itemPacks = {
   "Burglar's Pack":     { cost:16, costUnit:"gp", contents:[["Backpack",1],["Ball Bearings (1000)",1],["Bell",1],["Candle",5],["Crowbar",1],["Hammer",1],["Piton",10],["Hooded Lantern",1],["Oil (flask)",2],["Rations (1 day)",5],["Tinderbox",1],["Waterskin",1],["Rope (50 ft)",1]], _verify:true },
   "Diplomat's Pack":    { cost:39, costUnit:"gp", contents:[["Chest",1],["Case (map/scroll)",2],["Fine Clothes",1],["Ink (bottle)",1],["Ink Pen",1],["Lamp",1],["Oil (flask)",2],["Paper (sheet)",5],["Perfume (vial)",1],["Sealing Wax",1],["Soap",1]], _verify:true },
@@ -3146,7 +3146,7 @@ DATA.spellPool = {
     "Booming Blade": { level: 0, time: "1 action", range: "Self (5ft)", comp: "S, M (a weapon)", dur: "1 round", desc: "Melee weapon attack. On a hit: if the target willingly moves, it takes 1d8 thunder damage. Scales at levels 5/11/17." },
     "Chill Touch": { level: 0, time: "1 action", range: "Touch", comp: "V, S", dur: "Instant", desc: "Melee spell attack against a target within reach: 1d10 Necrotic damage, and it can't regain HP until the end of your next turn. Damage +1d10 at levels 5, 11 and 17." },
     "Dancing Lights": { level: 0, time: "1 action", range: "120ft", comp: "V, S, M (a bit of phosphorus or wychwood, or a glowworm)", dur: "Concentration, 1 min", desc: "Create up to 4 torch-like lights within 120ft. Move them as a Bonus Action. Concentration, 1 minute." },
-    "Druidcraft": { level: 0, time: "1 action", range: "30ft", comp: "V, S", dur: "Instant", desc: "Klein natuurlijk trucje: weer voorspellen, bloem laten bloeien, sensorisch effect, of vlammetje aan/uit." },
+    "Druidcraft": { level: 0, time: "1 action", range: "30ft", comp: "V, S", dur: "Instant", desc: "Pick one effect within 30 ft: a tiny effect that predicts the weather at your location for the next 24 hours, make a flower blossom or a seed pod or leaf bud open, a harmless sensory effect (falling leaves, a gentle breeze, an animal sound, a faint smell) in a 5-ft cube, or light or snuff out a candle, torch or small campfire." },
     "Eldritch Blast": { level: 0, time: "1 action", range: "120ft", comp: "V, S", dur: "Instant", desc: "Ranged spell attack, 1d10 force damage. At level 5: 2 beams, 11: 3, 17: 4. Each beam attacks separately." },
     "Elementalism": { level: 0, time: "1 action", range: "30ft", comp: "V, S", dur: "Instant", desc: "Manipulate a small elemental effect: a breeze, a candle-sized flame, a stream of water, or a handful of earth. Pure utility cantrip." },
     "Fire Bolt": { level: 0, time: "1 action", range: "120ft", comp: "V, S", dur: "Instant", desc: "Ranged spell attack, 1d10 fire damage, 120ft. Scales at levels 5/11/17." },
@@ -3163,12 +3163,12 @@ DATA.spellPool = {
     "Produce Flame": { level: 0, time: "1 bonus action", range: "Self", comp: "V, S", dur: "10 min", desc: "A flame appears in your hand, shedding Bright Light 20 ft and Dim Light 20 ft more (no heat). Until the spell ends, take a Magic action to hurl it at a creature or object within 60 ft: ranged spell attack, 1d8 Fire damage (+1d8 at levels 5, 11 and 17). Casting it again ends the previous flame." },
     "Ray of Frost": { level: 0, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "Ranged spell attack, 1d8 cold damage, -10ft speed until the start of your next turn. 60ft range. Scales at levels 5/11/17." },
     "Resistance": { level: 0, time: "1 action", range: "Touch", comp: "V, S, M (miniature mantel)", dur: "Concentration, 1 min", desc: "The target can add 1d4 to one saving throw. Concentration." },
-    "Sacred Flame": { level: 0, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "DEX save of 1d8 radiant damage. Negeert cover. Schaalt." },
+    "Sacred Flame": { level: 0, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "A creature you can see within 60 ft makes a Dexterity save or takes 1d8 Radiant damage; it gets no benefit from Half or Three-Quarters Cover against this save. Cantrip upgrade: 2d8 at level 5, 3d8 at 11, 4d8 at 17." },
     "Shillelagh": { level: 0, time: "1 bonus action", range: "Self", comp: "V, S, M (mistletoe)", dur: "1 min", desc: "A Club or Quarterstaff you hold: use your spellcasting ability instead of Strength for its melee attack and damage rolls; its damage die becomes a d8 (d10 at level 5, d12 at 11, 2d6 at 17) and it can deal Force damage. Ends if you cast it again or let go of the weapon." },
     "Shocking Grasp": { level: 0, time: "1 action", range: "Touch", comp: "V, S", dur: "Instant", desc: "Melee spell attack with advantage against metal armor. 1d8 lightning damage, and the target can't take reactions. Scales." },
     "Sorcerous Burst": { level: 0, time: "1 action", range: "120ft", comp: "V, S", dur: "Instant", desc: "Ranged spell attack: 1d8 damage of a random type (roll a d8 for the element). On doubles: add an extra 1d8 (can chain). Scales at levels 5/11/17." },
     "Spare the Dying": { level: 0, time: "1 action", range: "15ft", comp: "V, S", dur: "Instant", desc: "A creature within range that has 0 HP and isn't dead becomes Stable. The range doubles at levels 5 (30 ft), 11 (60 ft) and 17 (120 ft)." },
-    "Thaumaturgy": { level: 0, time: "1 action", range: "30ft", comp: "V", dur: "Up to 1 minute", desc: "Kleine goddelijke effecten: stem versterken, vlammen flikkeren, deuren opengooien, etc." },
+    "Thaumaturgy": { level: 0, time: "1 action", range: "30ft", comp: "V", dur: "Up to 1 minute", desc: "Create a minor wonder within 30 ft: your eyes change appearance, your voice booms three times as loud (Advantage on Charisma (Intimidation) checks), flames flicker or change colour, or the ground trembles harmlessly — each for 1 minute; or an unlocked door or window flies open or slams shut, or a sound rings out from a point you choose. Up to three 1-minute effects at a time." },
     "Thorn Whip": { level: 0, time: "1 action", range: "30ft", comp: "V, S, M (doornenstengel)", dur: "Instant", desc: "Melee spell attack, 1d6 piercing. Pull the target 10ft toward you if it's Large or smaller. Scales." },
     "Toll the Dead": { level: 0, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "WIS save or 1d8 necrotic damage (1d12 if the target is missing HP). Scales at levels 5/11/17." },
     "True Strike": { level: 0, time: "1 action", range: "Self", comp: "V, M (a weapon with the Finesse or Ranged property worth 1sp+)", dur: "Instant", desc: "2024: Make one attack with the weapon using your spellcasting ability instead of STR/DEX for attack and damage. On a hit: +1d6 extra radiant damage (2d6 at lvl 5, 3d6 at 11, 4d6 at 17). Works with melee or ranged weapon attacks." },
@@ -3180,8 +3180,8 @@ DATA.spellPool = {
     "Animal Friendship": { level: 1, time: "1 action", range: "30ft", comp: "V, S, M (voedsel)", dur: "24 hours", desc: "WIS save or a beast (INT 3 or lower) is Charmed. 24 hours. Upcast: +1 target." },
     "Arms of Hadar": { level: 1, time: "1 action", range: "Self (10ft)", comp: "V, S", dur: "Instant", desc: "STR save or 2d6 necrotic damage and no reactions. Half on a save. Upcast: +1d6." },
     "Armor of Agathys": { level: 1, time: "1 bonus action", range: "Self", comp: "V, S, M (a shard of blue glass)", dur: "1 hour", desc: "You gain 5 Temporary HP. While you have them, a creature that hits you with a melee attack takes 5 Cold damage. The spell ends when the Temporary HP are gone. Higher slot: +5 Temporary HP and +5 Cold damage per slot level above 1." },
-    "Bane": { level: 1, time: "1 action", range: "30ft", comp: "V, S, M (bloed)", dur: "Concentration, 1 min", desc: "Up to 3 creatures: CHA save or -1d4 on attack rolls and saving throws." },
-    "Bless": { level: 1, time: "1 action", range: "30ft", comp: "V, S, M (heilig water)", dur: "Concentration, 1 min", desc: "Up to 3 creatures: +1d4 on attack rolls and saving throws. Upcast: +1 target." },
+    "Bane": { level: 1, time: "1 action", range: "30ft", comp: "V, S, M (a drop of blood)", dur: "Concentration, 1 min", desc: "Up to 3 creatures: CHA save or -1d4 on attack rolls and saving throws." },
+    "Bless": { level: 1, time: "1 action", range: "30ft", comp: "V, S, M (a Holy Symbol worth 5+ GP)", dur: "Concentration, 1 min", desc: "Up to 3 creatures: +1d4 on attack rolls and saving throws. Upcast: +1 target." },
     "Burning Hands": { level: 1, time: "1 action", range: "Self (15ft cone)", comp: "V, S", dur: "Instant", desc: "15ft cone of fire. DEX save, 3d6 fire damage (half on save). Upcast: +1d6 per higher slot level." },
     "Chaos Bolt": { level: 1, time: "1 action", range: "120ft", comp: "V, S", dur: "Instant", desc: "Ranged spell attack, 2d8+1d6 damage. Type determined by a d8 roll. On doubles: the bolt leaps to a new target!" },
     "Charm Person": { level: 1, time: "1 action", range: "30ft", comp: "V, S", dur: "1 hour", desc: "Charm a humanoid within 30ft. WIS save (advantage if you're fighting it). The target regards you as a friendly acquaintance. Lasts 1 hour." },
@@ -3190,7 +3190,7 @@ DATA.spellPool = {
     "Command": { level: 1, time: "1 action", range: "60ft", comp: "V", dur: "Instant", desc: "Speak a one-word command to a creature you can see: it makes a Wisdom save or follows it on its next turn — Approach, Drop (what it holds), Flee, Grovel (falls Prone) or Halt (doesn't move or act). Higher slot: one extra creature per slot level above 1." },
     "Compelled Duel": { level: 1, time: "1 bonus action", range: "30ft", comp: "V", dur: "Concentration, 1 min", desc: "WIS save or the target has disadvantage on attacks against others and must stay near you." },
     "Comprehend Languages": { level: 1, time: "1 action", range: "Self", comp: "V, S, M (a pinch of soot and salt)", dur: "1 hour", desc: "Ritual. You understand any spoken language you hear and written text you touch. Lasts 1 hour." },
-    "Cure Wounds": { level: 1, time: "1 action", range: "Touch", comp: "V, S", dur: "Instant", desc: "Herstel 1d8 + spellcasting mod HP. Schaalt +1d8." },
+    "Cure Wounds": { level: 1, time: "1 action", range: "Touch", comp: "V, S", dur: "Instant", desc: "A creature you touch regains 2d8 + your spellcasting ability modifier Hit Points. Upcast: +2d8 per slot level above 1." },
     "Detect Evil and Good": { level: 1, time: "1 action", range: "Self", comp: "V, S", dur: "Concentration, 10 min", desc: "Detect aberrations, celestials, elementals, fey, fiends, and undead within 30ft." },
     "Detect Magic": { level: 1, time: "1 action", range: "Self", comp: "V, S", dur: "Concentration, 10 min", desc: "Ritual. Concentration, 10 min. Sense the presence of magic within 30ft and see the school of magic through thin barriers." },
     "Disguise Self": { level: 1, time: "1 action", range: "Self", comp: "V, S", dur: "1 hour", desc: "Change your appearance (clothing, armor, weapons, height ±1ft). Investigation check to see through the illusion. Lasts 1 hour." },
@@ -3201,7 +3201,7 @@ DATA.spellPool = {
     "Faerie Fire": { level: 1, time: "1 action", range: "60ft", comp: "V", dur: "Concentration, 1 min", desc: "20ft cube. DEX save of verlicht. Attacks hebben advantage. Onzichtbaarheid opgeheven." },
     "False Life": { level: 1, time: "1 action", range: "Self", comp: "V, S, M (a small amount of alcohol or distilled spirits)", dur: "1 hour", desc: "Give yourself 1d4+4 temporary HP. Lasts 1 hour. Upcast: +5 temp HP per higher slot." },
     "Feather Fall": { level: 1, time: "1 reaction", range: "60ft", comp: "V, M (a small feather or piece of down)", dur: "1 min", desc: "Reaction: up to 5 falling creatures within 60ft fall slowly (60ft/round) and take no fall damage." },
-    "Find Familiar": { level: 1, time: "1 hour", range: "10ft", comp: "V, S, M (10gp houtskool en kruiden)", dur: "Instant", desc: "Summon a familiar (owl, cat, etc.). You can see through its senses and deliver spells through it." },
+    "Find Familiar": { level: 1, time: "1 hour", range: "10ft", comp: "V, S, M (burning incense worth 10+ GP, which the spell consumes)", dur: "Instant", desc: "Summon a familiar (owl, cat, etc.). You can see through its senses and deliver spells through it." },
     "Fog Cloud": { level: 1, time: "1 action", range: "120ft", comp: "V, S", dur: "Concentration, 1 hour", desc: "20ft radius sphere of fog. Heavily obscured area. Concentration, 1 hour. Upcast: +20ft radius per slot." },
     "Goodberry": { level: 1, time: "1 action", range: "Touch", comp: "V, S, M (holly)", dur: "Instant", desc: "Create 10 berries. Each berry restores 1 HP and provides a day's worth of food. They vanish after 24 hours." },
     "Guiding Bolt": { level: 1, time: "1 action", range: "120ft", comp: "V, S", dur: "1 round", desc: "Ranged spell attack, 4d6 radiant. The next attack against the target has advantage. Upcast: +1d6." },
@@ -3211,15 +3211,15 @@ DATA.spellPool = {
     "Heroism": { level: 1, time: "1 action", range: "Touch", comp: "V, S", dur: "Concentration, 1 min", desc: "The target is immune to Frightened and gains temp HP equal to your spellcasting modifier each turn." },
     "Hex": { level: 1, time: "1 bonus action", range: "90ft", comp: "V, S, M (newt-oog)", dur: "Concentration, 1 hour", desc: "Bonus Action. +1d6 necrotic damage on each of your hits. Choose an ability: the target has Disadvantage on checks with it." },
     "Hunter's Mark": { level: 1, time: "1 bonus action", range: "90ft", comp: "V", dur: "Concentration, 1 hour", desc: "2024: Bonus Action. Mark 1 creature: +1d6 extra damage on your weapon hits. Move the mark to a new target (Bonus Action) when it drops to 0 HP. Concentration (Ranger level 13: no longer breaks concentration on damage)." },
-    "Ice Knife": { level: 1, time: "1 action", range: "60ft", comp: "S, M (ijs)", dur: "Instant", desc: "Ranged spell attack, 1d10 piercing. Explodeert: DEX save of 2d6 cold in 5ft. Schaalt +1d6." },
+    "Ice Knife": { level: 1, time: "1 action", range: "60ft", comp: "S, M (a drop of water or a piece of ice)", dur: "Instant", desc: "Ranged spell attack against a creature within 60 ft: 1d10 Piercing damage on a hit. Hit or miss, the shard then explodes — the target and each creature within 5 ft of it make a Dexterity save or take 2d6 Cold damage. Upcast: +1d6 Cold per slot level above 1." },
     "Identify": { level: 1, time: "1 minute", range: "Touch", comp: "V, S, M (a pearl worth 100gp)", dur: "Instant", desc: "Ritual. Learn the properties of a magic item, or the active spells on a creature." },
-    "Inflict Wounds": { level: 1, time: "1 action", range: "Touch", comp: "V, S", dur: "Instant", desc: "Melee spell attack, 3d10 necrotic damage. Schaalt +1d10 per slot." },
+    "Inflict Wounds": { level: 1, time: "1 action", range: "Touch", comp: "V, S", dur: "Instant", desc: "A creature you touch makes a Constitution save, taking 2d10 Necrotic damage on a failure or half as much on a success. Upcast: +1d10 per slot level above 1." },
     "Jump": { level: 1, time: "1 bonus action", range: "Touch", comp: "V, S, M (a grasshopper's hind leg)", dur: "1 min", desc: "A willing creature you touch can, once on each of its turns, jump up to 30 ft by spending 10 ft of movement. Higher slot: one extra creature per slot level above 1." },
     "Mage Armor": { level: 1, time: "1 action", range: "Touch", comp: "V, S, M (a piece of cured leather)", dur: "8 hours", desc: "Touch. AC becomes 13 + DEX modifier for a creature not wearing armor. Lasts 8 hours." },
     "Magic Missile": { level: 1, time: "1 action", range: "120ft", comp: "V, S", dur: "Instant", desc: "Three glowing darts hit automatically. Each deals 1d4+1 force damage. Upcast: +1 dart per higher slot." },
-    "Protection from Evil and Good": { level: 1, time: "1 action", range: "Touch", comp: "V, S, M (heilig water)", dur: "Concentration, 10 min", desc: "Aberrations, celestials, elementals, fey, fiends, and undead have disadvantage on attacks against the target." },
+    "Protection from Evil and Good": { level: 1, time: "1 action", range: "Touch", comp: "V, S, M (a flask of Holy Water worth 25+ GP, which the spell consumes)", dur: "Concentration, 10 min", desc: "A willing creature you touch is protected against Aberrations, Celestials, Elementals, Fey, Fiends and Undead: they have Disadvantage on attack rolls against it, and it can't be possessed, Charmed or Frightened by them (if it already is, it has Advantage on new saves against that effect)." },
     "Ray of Sickness": { level: 1, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "Ranged spell attack, 2d8 poison damage. On a hit: CON save or also Poisoned until the end of its next turn. 60ft." },
-    "Sanctuary": { level: 1, time: "1 bonus action", range: "30ft", comp: "V, S, M (zilveren spiegel)", dur: "1 min", desc: "A WIS save is required to attack the target. Ends if the target attacks or deals damage." },
+    "Sanctuary": { level: 1, time: "1 bonus action", range: "30ft", comp: "V, S, M (a shard of glass from a mirror)", dur: "1 min", desc: "A WIS save is required to attack the target. Ends if the target attacks or deals damage." },
     "Shield": { level: 1, time: "1 reaction", range: "Self", comp: "V, S", dur: "1 round", desc: "Reaction: +5 AC until the start of your next turn, including against the triggering attack. Also blocks Magic Missile." },
     "Shield of Faith": { level: 1, time: "1 bonus action", range: "60ft", comp: "V, S, M (perkament)", dur: "Concentration, 10 min", desc: "The target gains +2 AC. Concentration, 10 minutes." },
     "Silent Image": { level: 1, time: "1 action", range: "60ft", comp: "V, S, M (a bit of fleece)", dur: "Concentration, 10 min", desc: "Concentration, 10 min. Create a visual illusion of up to a 15ft cube within 60ft. Move it with an action. Investigation check to discern." },
@@ -3249,7 +3249,7 @@ DATA.spellPool = {
     "Enlarge/Reduce": { level: 2, time: "1 action", range: "30ft", comp: "V, S, M (a pinch of powdered iron)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. CON save. Enlarge: +1d4 weapon damage, advantage STR checks. Reduce: -1d4 damage, disadvantage STR." },
     "Find Steed": { level: 2, time: "1 action", range: "30ft", comp: "V, S", dur: "Instant", desc: "Summon a loyal otherworldly steed (Otherworldly Steed stat block) that looks like a Large rideable animal of your choice; choose Celestial, Fey or Fiend each time you cast it. It shares your Initiative, acts as a controlled mount while you ride it, and disappears at 0 HP or when you die. Higher slot: use the slot level in the stat block." },
     "Flame Blade": { level: 2, time: "1 bonus action", range: "Self", comp: "V, S, M (a sumac leaf)", dur: "Concentration, 10 min", desc: "Evoke a fiery, scimitar-sized blade in your free hand (if you let go, you can evoke it again as a Bonus Action). As a Magic action, make a melee spell attack with it: 3d6 + your spellcasting modifier Fire damage. It sheds Bright Light 10 ft and Dim Light 10 ft more." },
-    "Flaming Sphere": { level: 2, time: "1 action", range: "60ft", comp: "V, S, M (talg en ijzerpoeder)", dur: "Concentration, 1 min", desc: "5ft diameter sphere of fire. 2d6 fire damage to creatures it comes near. Bonus Action to move it." },
+    "Flaming Sphere": { level: 2, time: "1 action", range: "60ft", comp: "V, S, M (a ball of wax)", dur: "Concentration, 1 min", desc: "5ft diameter sphere of fire. 2d6 fire damage to creatures it comes near. Bonus Action to move it." },
     "Gust of Wind": { level: 2, time: "1 action", range: "Self (60ft line)", comp: "V, S, M (a seed from a pod)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. 60ft line of strong wind. STR save or pushed 15ft. Moving against the wind costs double movement." },
     "Heat Metal": { level: 2, time: "1 action", range: "60ft", comp: "V, S, M (a piece of iron and a flame)", dur: "Concentration, 1 min", desc: "A manufactured metal object you can see glows red-hot: any creature touching it takes 2d8 Fire damage, and you can deal this again as a Bonus Action on later turns. A creature holding or wearing it makes a Constitution save or drops it if it can; if it keeps it, it has Disadvantage on attack rolls and ability checks until the start of your next turn. Higher slot: +1d8 per slot level above 2." },
     "Hold Person": { level: 2, time: "1 action", range: "60ft", comp: "V, S, M (a piece of iron)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. WIS save or a humanoid is Paralyzed. Repeat the save each turn. Upcast: +1 target per higher slot." },
@@ -3260,7 +3260,7 @@ DATA.spellPool = {
     "Magic Weapon": { level: 2, time: "1 bonus action", range: "Touch", comp: "V, S", dur: "1 hour", desc: "A nonmagical weapon you touch becomes a magic weapon with +1 to attack and damage rolls (+2 with a level 3-5 slot, +3 with level 6+). Casting it again ends the previous one." },
     "Mirror Image": { level: 2, time: "1 action", range: "Self", comp: "V, S", dur: "1 min", desc: "Three illusory duplicates appear. Attacks may hit a duplicate (AC 10+DEX) instead; a duplicate vanishes when hit. Lasts 1 min." },
     "Misty Step": { level: 2, time: "1 bonus action", range: "Self", comp: "V", dur: "Instant", desc: "Bonus Action: teleport up to 30ft to a spot you can see." },
-    "Moonbeam": { level: 2, time: "1 action", range: "120ft", comp: "V, S, M (maansteen)", dur: "Concentration, 1 min", desc: "5ft radius lichtcilinder. CON save of 2d10 radiant. Shapechangers hebben disadvantage. Schaalt." },
+    "Moonbeam": { level: 2, time: "1 action", range: "120ft", comp: "V, S, M (a moonseed leaf)", dur: "Concentration, 1 min", desc: "A 5-ft-radius, 40-ft-high cylinder of pale light (Dim Light) appears on a point within 120 ft; on later turns a Magic action moves it up to 60 ft. A creature makes a Constitution save when the cylinder appears on it or moves into its space, and when it enters or ends its turn there (once per turn): 2d10 Radiant damage, half on a success; a shape-shifted creature that fails reverts to its true form and can't shape-shift while inside. Upcast: +1d10 per slot level above 2." },
     "Pass Without Trace": { level: 2, time: "1 action", range: "Self", comp: "V, S, M (ashes from burned holly)", dur: "Concentration, 1 hour", desc: "You and allies within 30ft gain +10 to Stealth checks and can't be tracked." },
     "Phantasmal Force": { level: 2, time: "1 action", range: "60ft", comp: "V, S, M (a bit of fleece)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. INT save or the target perceives an illusion that can deal 1d6 psychic damage per turn. Investigation check to discern." },
     "Prayer of Healing": { level: 2, time: "10 minutes", range: "30ft", comp: "V", dur: "Instant", desc: "Up to 6 creatures: restore 2d8 + modifier HP. Casting time 10 min. Upcast: +1d8." },
@@ -3278,7 +3278,7 @@ DATA.spellPool = {
 
     // ===== 3RD LEVEL =====
     "Magic Circle": { level: 3, time: "1 minute", range: "10ft", comp: "V, S, M (holy water or powdered silver and iron worth 100gp, consumed)", dur: "1 hour", desc: "A cylinder 10ft in radius, 20ft high. Choose a creature type (celestials/elementals/fey/fiends/undead): they can't willingly enter the cylinder, have disadvantage on attacks against creatures inside, and can't charm/frighten/possess them. Can be reversed to keep them in. Extend with higher slots (+1 hour per level)." },
-    "Animate Dead": { level: 3, time: "1 minute", range: "10ft", comp: "V, S, M (bloed en botsplinter)", dur: "Instant", desc: "Animate a skeleton or zombie from a corpse. It obeys your commands. Recast to maintain control." },
+    "Animate Dead": { level: 3, time: "1 minute", range: "10ft", comp: "V, S, M (a drop of blood, a piece of flesh, and a pinch of bone dust)", dur: "Instant", desc: "Animate a skeleton or zombie from a corpse. It obeys your commands. Recast to maintain control." },
     "Aura of Vitality": { level: 3, time: "1 action", range: "Self (30ft)", comp: "V", dur: "Concentration, 1 min", desc: "Bonus Action each turn: restore 2d6 HP to a creature within 30ft." },
     "Beacon of Hope": { level: 3, time: "1 action", range: "30ft", comp: "V, S", dur: "Concentration, 1 min", desc: "Any number of creatures in range have Advantage on Wisdom saves and Death Saving Throws, and regain the maximum possible HP from any healing, for the duration." },
     "Bestow Curse": { level: 3, time: "1 action", range: "Touch", comp: "V, S", dur: "Concentration, 1 min", desc: "WIS save or choose a curse: disadvantage on ability checks/attacks, wasted turns, or an extra 1d8 necrotic from you. Higher slots: longer duration." },
@@ -3305,11 +3305,11 @@ DATA.spellPool = {
     "Plant Growth": { level: 3, time: "1 action / 8 hours", range: "150ft", comp: "V, S", dur: "Instant", desc: "100ft radius of dense plant growth (4ft of movement per 1ft moved). Or an 8-hour ritual to enrich the land." },
     "Protection from Energy": { level: 3, time: "1 action", range: "Touch", comp: "V, S", dur: "Concentration, 1 hour", desc: "Concentration, 1 hour. Touch. The target gains resistance to a chosen damage type (acid/cold/fire/lightning/thunder)." },
     "Revivify": { level: 3, time: "1 action", range: "Touch", comp: "V, S, M (a diamond worth 300+ GP, consumed)", dur: "Instant", desc: "A creature that died within the last minute revives with 1 HP (not from old age; missing body parts don't return)." },
-    "Sending": { level: 3, time: "1 action", range: "Onbeperkt", comp: "V, S, M (koperdraad)", dur: "1 round", desc: "Send a message of up to 25 words to a creature you know. It can reply immediately." },
+    "Sending": { level: 3, time: "1 action", range: "Onbeperkt", comp: "V, S, M (a copper wire)", dur: "1 round", desc: "Send a message of up to 25 words to a creature you know. It can reply immediately." },
     "Sleet Storm": { level: 3, time: "1 action", range: "150ft", comp: "V, S, M (a pinch of dust and a few drops of water)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. 40ft radius, 150ft range. Difficult terrain, heavily obscured. CON save of prone. Concentration check DC 12." },
     "Slow": { level: 3, time: "1 action", range: "120ft", comp: "V, S, M (a drop of molasses)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. Up to 6 creatures. WIS save or -2 AC, -2 DEX saves, no reactions, halved speed, max 1 attack, and a 50% chance spells fail." },
-    "Speak with Dead": { level: 3, time: "1 action", range: "10ft", comp: "V, S, M (brandende wierook)", dur: "10 min", desc: "Ask a corpse up to 5 questions. It answers briefly and can lie." },
-    "Spirit Guardians": { level: 3, time: "1 action", range: "Self (15ft)", comp: "V, S, M (heilig symbool)", dur: "Concentration, 10 min", desc: "15ft radius om jou. Vijanden: halve speed en WIS save of 3d8 radiant/necrotic. Schaalt +1d8." },
+    "Speak with Dead": { level: 3, time: "1 action", range: "10ft", comp: "V, S, M (burning incense)", dur: "10 min", desc: "Ask a corpse up to 5 questions. It answers briefly and can lie." },
+    "Spirit Guardians": { level: 3, time: "1 action", range: "Self (15ft)", comp: "V, S, M (a prayer scroll)", dur: "Concentration, 10 min", desc: "Spirits fill a 15-ft emanation around you; you choose creatures it doesn't affect. Other creatures have their Speed halved there, and when the emanation reaches them or they enter or end their turn in it (once per turn) they make a Wisdom save: 3d8 Radiant damage (Necrotic if you are evil), half on a success. Upcast: +1d8 per slot level above 3." },
     "Spirit Shroud": { level: 3, time: "1 bonus action", range: "Self", comp: "V, S", dur: "Concentration, 1 min", desc: "Attacks within 10ft: +1d8 extra damage, and targets can't regain HP." },
     "Stinking Cloud": { level: 3, time: "1 action", range: "90ft", comp: "V, S, M (a rotten egg or several skunk cabbage leaves)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. A 20ft radius of nauseating gas. CON save or spend your turn retching. 90ft. Spreads with the wind." },
     "Summon Fey": { level: 3, time: "1 action", range: "90ft", comp: "V, S, M (a gilded flower worth 300gp)", dur: "Concentration, 1 hour", desc: "Summon a fey spirit that follows your commands. Stronger at higher slot levels." },
@@ -3317,7 +3317,7 @@ DATA.spellPool = {
     "Tongues": { level: 3, time: "1 action", range: "Touch", comp: "V, M (a small clay ziggurat)", dur: "1 hour", desc: "Touch, 1 hour. The target understands any spoken language and is understood by creatures that know a language." },
     "Water Breathing": { level: 3, time: "1 action", range: "30ft", comp: "V, S, M (a short reed or piece of straw)", dur: "24 hours", desc: "Ritual. Up to 10 creatures can breathe underwater. Lasts 24 hours." },
     "Water Walk": { level: 3, time: "1 action", range: "30ft", comp: "V, S, M (a piece of cork)", dur: "1 hour", desc: "Ritual. Up to 10 creatures can walk on liquid surfaces. Lasts 1 hour." },
-    "Wind Wall": { level: 3, time: "1 action", range: "120ft", comp: "V, S, M (waaier en veer)", dur: "Concentration, 1 min", desc: "50ft lang, 15ft hoog. 3d8 bludgeoning. Blokkeert projectielen en gas." },
+    "Wind Wall": { level: 3, time: "1 action", range: "120ft", comp: "V, S, M (a fan and a feather)", dur: "Concentration, 1 min", desc: "A wall of strong wind up to 50 ft long, 15 ft high and 1 ft thick rises along the ground within 120 ft. Creatures in it when it appears make a Strength save: 4d8 Bludgeoning damage, half on a success. It keeps out fog, smoke and gases, stops Small or smaller flyers, and makes arrows, bolts and other ordinary projectiles aimed through it miss (hurled boulders are unaffected)." },
 
     // ===== 4TH LEVEL =====
     "Arcane Eye": { level: 4, time: "1 action", range: "30ft", comp: "V, S, M (vleermuisvacht)", dur: "Concentration, 1 hour", desc: "An invisible magical eye you can steer and see through." },
@@ -3348,9 +3348,9 @@ DATA.spellPool = {
     "Animate Objects": { level: 5, time: "1 action", range: "120ft", comp: "V, S", dur: "Concentration, 1 min", desc: "Concentration, 1 min. Animate up to 10 small objects. They have AC, HP, and attack on your Bonus Action. Upcast: +2 objects." },
     "Banishing Smite": { level: 5, time: "1 bonus action", range: "Self", comp: "V", dur: "Concentration, 1 min", desc: "Your next hit: +5d10 force. If the target has 50 HP or fewer after the hit: banished." },
     "Cloudkill": { level: 5, time: "1 action", range: "120ft", comp: "V, S", dur: "Concentration, 10 min", desc: "Concentration, 10 min. 20ft radius of poisonous fog. CON save or 5d8 poison (half on save). Moves 10ft per turn with the wind." },
-    "Commune": { level: 5, time: "1 minute", range: "Self", comp: "V, S, M (wierook)", dur: "1 min", desc: "Ritual. Ask your deity 3 yes/no questions. The answers are correct, but may be cryptic." },
+    "Commune": { level: 5, time: "1 minute", range: "Self", comp: "V, S, M (incense)", dur: "1 min", desc: "Ritual. Ask your deity 3 yes/no questions. The answers are correct, but may be cryptic." },
     "Cone of Cold": { level: 5, time: "1 action", range: "Self (60ft cone)", comp: "V, S, M (a small crystal or glass cone)", dur: "Instant", desc: "60ft cone. CON save or 8d8 cold damage (half on save). Creatures killed become frozen statues. Upcast: +1d8." },
-    "Conjure Elemental": { level: 5, time: "1 minute", range: "90ft", comp: "V, S, M (elementaal materiaal)", dur: "Concentration, 1 hour", desc: "Summon an elemental of CR 5 or lower. You lose control if your concentration breaks." },
+    "Conjure Elemental": { level: 5, time: "1 minute", range: "90ft", comp: "V, S", dur: "Concentration, 1 hour", desc: "Summon an elemental of CR 5 or lower. You lose control if your concentration breaks." },
     "Conjure Volley": { level: 5, time: "1 action", range: "150ft", comp: "V, S, M (ammunition/a weapon)", dur: "Instant", desc: "40ft radius. DEX save or 8d8 damage (weapon's type). Half on save." },
     "Contagion": { level: 5, time: "1 action", range: "Touch", comp: "V, S", dur: "7 days", desc: "Melee spell attack. The target contracts a disease of your choice (blinding sickness, filth fever, etc.). After 3 failed CON saves the effect lasts 7 days." },
     "Creation": { level: 5, time: "1 minute", range: "30ft", comp: "V, S, M (a tiny piece of matter of the same type as the item you plan to create)", dur: "Special", desc: "Create a nonliving object of vegetable or mineral matter, up to a 5ft cube. Duration depends on the material." },
@@ -3363,7 +3363,7 @@ DATA.spellPool = {
     "Holy Weapon": { level: 5, time: "1 bonus action", range: "Touch", comp: "V, S", dur: "Concentration, 1 hour", desc: "Weapon deals +2d8 radiant per hit. Bonus action burst: 4d8 radiant in 30ft." },
     "Insect Plague": { level: 5, time: "1 action", range: "300ft", comp: "V, S, M (a few grains of sugar, some kernels of grain, and a smear of fat)", dur: "Concentration, 10 min", desc: "Concentration, 10 min. 20ft radius swarm, 300ft range. CON save or 4d10 piercing (half on save). Difficult terrain. Upcast: +1d10." },
     "Mass Cure Wounds": { level: 5, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "Up to 6 creatures regain 3d8 + spellcasting mod HP. Upcast: +1d8." },
-    "Raise Dead": { level: 5, time: "1 hour", range: "Touch", comp: "V, S, M (a diamond worth 500gp)", dur: "Instant", desc: "Breng creature terug dat max 10 dagen dood is. -4 penalty, vermindert per long rest." },
+    "Raise Dead": { level: 5, time: "1 hour", range: "Touch", comp: "V, S, M (a diamond worth 500+ GP, which the spell consumes)", dur: "Instant", desc: "You revive a creature that has been dead for no longer than 10 days and wasn't Undead when it died. It returns with 1 Hit Point, poisons are neutralised and mortal wounds close (missing body parts aren't restored; without a vital one the spell fails). It takes a −4 penalty to D20 Tests, reduced by 1 each time it finishes a Long Rest." },
     "Scrying": { level: 5, time: "10 minutes", range: "Self", comp: "V, S, M (a focus worth 1000gp)", dur: "Concentration, 10 min", desc: "Observe a creature on any plane. WIS save, modified by how well you know it." },
     "Seeming": { level: 5, time: "1 action", range: "30ft", comp: "V, S", dur: "8 hours", desc: "Change the appearance of any number of creatures within 30ft. Lasts 8 hours. CHA save for unwilling targets. Investigation check to discern." },
     "Steel Wind Strike": { level: 5, time: "1 action", range: "30ft", comp: "S, M (a weapon)", dur: "Instant", desc: "Melee spell attacks against up to 5 creatures. 6d10 force per hit. Teleport next to each target you strike." },
@@ -3371,7 +3371,7 @@ DATA.spellPool = {
     "Synaptic Static": { level: 5, time: "1 action", range: "120ft", comp: "V, S", dur: "Instant", desc: "20ft radius, 120ft range. INT save or 8d6 psychic damage (half on save). Failed targets: -1d6 on attack rolls, checks and concentration saves for 1 min." },
     "Telekinesis": { level: 5, time: "1 action", range: "60ft", comp: "V, S", dur: "Concentration, 10 min", desc: "Concentration, 10 min. Move a creature or object of up to 1000 lbs. Creatures: contested ability check. 60ft range." },
     "Teleportation Circle": { level: 5, time: "1 minute", range: "10ft", comp: "V, M (rare chalks and inks infused with gems worth 50gp, which the spell consumes)", dur: "1 round", desc: "Draw a circle that teleports you to a permanent sigil sequence you know. 10ft radius. Lasts 1 round." },
-    "Wall of Force": { level: 5, time: "1 action", range: "120ft", comp: "V, S, M (edelsteenpoeder)", dur: "Concentration, 10 min", desc: "Invisible wall of force. Nothing can pass through; only Disintegrate destroys it." },
+    "Wall of Force": { level: 5, time: "1 action", range: "120ft", comp: "V, S, M (a shard of glass)", dur: "Concentration, 10 min", desc: "Invisible wall of force. Nothing can pass through; only Disintegrate destroys it." },
     "Wall of Light": { level: 5, time: "1 action", range: "120ft", comp: "V, S, M (handspiegel)", dur: "Concentration, 10 min", desc: "60ft long, 10ft high. 4d8 radiant when entering. Action: ranged attack for 4d8." },
     "Wall of Stone": { level: 5, time: "1 action", range: "120ft", comp: "V, S, M (a small block of granite)", dur: "Concentration, 10 min", desc: "Concentration, 10 min. 10 panels of 10x10ft stone, 6 inches thick. Each panel AC 15, 30 HP. Can become permanent." },
 
@@ -3389,7 +3389,7 @@ DATA.spellPool = {
     "Flesh to Stone": { level: 6, time: "1 action", range: "60ft", comp: "V, S, M (a sprinkling of holy water, rare incense, and ruby dust)", dur: "Concentration, 1 min", desc: "CON save of target begint te verstenen. Drie gefaalde saves = permanent petrified. Concentration, 1 min." },
     "Forbiddance": { level: 6, time: "10 minutes", range: "Touch", comp: "V, S, M (incense and ruby dust worth 1000gp)", dur: "1 day", desc: "Ward an area of up to 40,000 square feet against teleportation and planar travel. Celestials, fiends, or undead take 5d10 damage on entering." },
     "Globe of Invulnerability": { level: 6, time: "1 action", range: "Self (10ft radius)", comp: "V, S, M (a glass or crystal bead that shatters when the spell ends)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. A 10ft radius sphere. Spells of 5th level or lower can't penetrate it. Scales." },
-    "Guards and Wards": { level: 6, time: "10 minutes", range: "Touch", comp: "V, S, M (brandende wierook, stukje zwavel, inkt en 10gp)", dur: "24 hours", desc: "Ward a building of 2500 square feet with several magical effects: confusion, alarms, fog, magical doors and stairs." },
+    "Guards and Wards": { level: 6, time: "10 minutes", range: "Touch", comp: "V, S, M (a silver rod worth 10+ GP)", dur: "24 hours", desc: "Ward a building of 2500 square feet with several magical effects: confusion, alarms, fog, magical doors and stairs." },
     "Harm": { level: 6, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "CON save or the target takes 14d6 necrotic damage and its max HP is reduced by the same amount. Half damage on a save." },
     "Heal": { level: 6, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "Restore 70 HP to a creature. Also ends blindness, deafness, and all diseases. Upcast: +10 HP per higher slot." },
     "Heroes' Feast": { level: 6, time: "10 minutes", range: "30ft", comp: "V, S, M (a bowl worth 1000gp)", dur: "Instant", desc: "Up to 12 creatures share a divine feast. They become immune to poison and being Frightened, gain advantage on WIS saves, and their max HP rises by 2d10 for 24 hours." },
@@ -3398,7 +3398,7 @@ DATA.spellPool = {
     "Move Earth": { level: 6, time: "1 action", range: "120ft", comp: "V, S, M (an iron blade and a small bag of soil, clay, and sand)", dur: "Concentration, 2 hours", desc: "Concentration, 2 hours. Move earth in a 40ft square. 120ft range. Reshape terrain over time." },
     "Otto's Irresistible Dance": { level: 6, time: "1 action", range: "30ft", comp: "V", dur: "Concentration, 1 min", desc: "WIS save or the target starts a compulsive dance. It has disadvantage on attack rolls and DEX saves, and attackers have advantage. Repeat the save each turn." },
     "Planar Ally": { level: 6, time: "10 minutes", range: "60ft", comp: "V, S", dur: "Instant", desc: "Call a celestial, elemental, or fiend. It performs one task for you in exchange for a reward of its choosing." },
-    "Programmed Illusion": { level: 6, time: "1 action", range: "120ft", comp: "V, S, M (fleece and jade dust worth 25gp)", dur: "Totdat getriggerd", desc: "Create an illusion that activates on a chosen trigger. Runs for 5 minutes and can be triggered multiple times." },
+    "Programmed Illusion": { level: 6, time: "1 action", range: "120ft", comp: "V, S, M (jade dust worth 25+ GP)", dur: "Until dispelled", desc: "Create an illusion that activates on a chosen trigger. Runs for 5 minutes and can be triggered multiple times." },
     "Sunbeam": { level: 6, time: "1 action", range: "Self (60ft line)", comp: "V, S, M (a magnifying glass, a piece of sunstone, and a fire-plant seed)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. A 60ft line of light. CON save or 6d8 radiant damage and Blinded. Dispels darkness. Repeat with an action each turn." },
     "True Seeing": { level: 6, time: "1 action", range: "Touch", comp: "V, S, M (an ointment for the eyes worth 25gp, made of mushroom powder, saffron, and fat, which the spell consumes)", dur: "1 hour", desc: "Touch, 1 hour. The target sees in darkness, sees invisible creatures, discerns illusions, and sees into the Ethereal Plane. 120ft truesight." },
     "Wall of Thorns": { level: 6, time: "1 action", range: "120ft", comp: "V, S, M (a handful of thorns)", dur: "Concentration, 10 min", desc: "Create a hedge of thorns 60ft long, 10ft wide, and 5ft high. DEX save or 7d8 piercing damage. Difficult terrain." },
@@ -3421,7 +3421,7 @@ DATA.spellPool = {
     "Project Image": { level: 7, time: "1 action", range: "500 miles", comp: "V, S, M (a small replica of yourself worth 5gp)", dur: "Concentration, 1 day", desc: "Create an illusory duplicate of yourself at any place you have visited. You can see and hear through the illusion and cast spells through it." },
     "Regenerate": { level: 7, time: "1 minute", range: "Touch", comp: "V, S, M (prayer beads, a piece of hallowed flesh, and a pouch of healing herbs)", dur: "1 hour", desc: "The target regains 4d8+15 HP and regenerates 1 HP per turn for 1 hour. Severed limbs regrow after 2 minutes." },
     "Resurrection": { level: 7, time: "1 hour", range: "Touch", comp: "V, S, M (a diamond worth 1000gp)", dur: "Instant", desc: "Return a creature that has been dead no longer than 100 years to life with all its HP. The caster gains 1 level of exhaustion." },
-    "Reverse Gravity": { level: 7, time: "1 action", range: "100ft", comp: "V, S, M (a lodestone and iron filings)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. 50ft radius, 100ft hoog. Alles valt omhoog. DEX save om iets vast te grijpen." },
+    "Reverse Gravity": { level: 7, time: "1 action", range: "100ft", comp: "V, S, M (a lodestone and iron filings)", dur: "Concentration, 1 min", desc: "Gravity reverses in a 50-ft-radius, 100-ft-high cylinder on a point within 100 ft. Creatures and objects that aren't anchored fall upward to the top (a creature can make a Dexterity save to grab a fixed object it can reach) and hover there; anything they hit on the way up is struck as in a normal fall. When the spell ends, everything falls back down." },
     "Sequester": { level: 7, time: "1 action", range: "Touch", comp: "V, S, M (a combination of chrysoberyl, agate, and flint worth 5000gp)", dur: "Until broken", desc: "A willing creature or object becomes invisible and undetectable. A living creature enters suspended animation until a chosen trigger occurs." },
     "Simulacrum": { level: 7, time: "12 hours", range: "Touch", comp: "V, S, M (snow or ice, hair or a flake of skin, and ruby dust worth 1500gp)", dur: "Until destroyed", desc: "Create a duplicate of a humanoid or beast. It has half the HP, can't regain spell slots, and is obedient to you." },
     "Symbol": { level: 7, time: "1 minute", range: "Touch", comp: "V, S, M (mercury, phosphorus and diamond/opal worth 1000gp)", dur: "Until triggered, max 10 min", desc: "Inscribe a magical symbol on a surface. When triggered: choose one of eight effects (death, discord, fear, hopelessness, insanity, pain, sleep, stun)." },
@@ -3433,7 +3433,7 @@ DATA.spellPool = {
     "Antimagic Field": { level: 8, time: "1 action", range: "Self (10ft radius)", comp: "V, S, M (a pinch of powdered iron or a small magnet)", dur: "Concentration, 1 hour", desc: "Concentration, 1 hour. A 10ft radius around you. Magic doesn't function in the zone: spells, magic items, and curses are suppressed." },
     "Antipathy/Sympathy": { level: 8, time: "1 hour", range: "60ft", comp: "V, S, M (alum soaked in vinegar or a drop of honey)", dur: "10 days", desc: "Choose an object/location and a creature type or specific creature. Antipathy: WIS save or flee. Sympathy: WIS save or be drawn toward it." },
     "Clone": { level: 8, time: "1 hour", range: "Touch", comp: "V, S, M (flesh of the creature + diamonds worth 1000gp + a vessel worth 2000gp)", dur: "Permanent", desc: "Create an inert clone of a living creature. When the original dies, its soul migrates to the clone, which then comes to life." },
-    "Control Weather": { level: 8, time: "10 minutes", range: "Self (5-mile radius)", comp: "V, S, M (brandende wierook en stukjes aarde en hout gemengd in water)", dur: "Concentration, 8 hours", desc: "Concentration, 8 hours. Change the weather in a 5-mile area. Takes 10 minutes to shift." },
+    "Control Weather": { level: 8, time: "10 minutes", range: "Self (5-mile radius)", comp: "V, S, M (burning incense)", dur: "Concentration, 8 hours", desc: "Concentration, 8 hours. Change the weather in a 5-mile area. Takes 10 minutes to shift." },
     "Demiplane": { level: 8, time: "1 action", range: "60ft", comp: "S", dur: "1 hour", desc: "Create a door to an extradimensional space of a 30ft cube. The door is 5ft wide and 8ft high and vanishes after 1 hour." },
     "Dominate Monster": { level: 8, time: "1 action", range: "60ft", comp: "V, S", dur: "Concentration, 1 hour", desc: "Concentration, 1 hour. WIS save or a creature of any type follows your telepathic commands. Repeat the save on damage. Upcast: longer duration." },
     "Earthquake": { level: 8, time: "1 action", range: "500ft", comp: "V, S, M (a pinch of dirt, a piece of rock, and a lump of clay)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. 100ft radius. CON save or knocked Prone. Fissures, structural damage, collapsing buildings." },
@@ -3696,21 +3696,21 @@ DATA.preparedTable = {
     ranger:   [0, 2, 3, 4, 5, 6]
 };
 
-// #P0hwaBZ — Third casters (Eldritch Knight / Arcane Trickster). 2024 PHB geeft
-// ze een VASTE prepared-kolom die NIET op de ability-mod leunt; de tabel is voor
-// beide subclasses identiek en loopt van level 3 t/m 20. Bron: dnd2024.wikidot
-// subclass-pagina's (transcriptie van de 2024 PHB) — fysieke-PHB-spotcheck open.
+// #P0hwaBZ — Third casters (Eldritch Knight / Arcane Trickster). The 2024 PHB
+// gives them a FIXED prepared column that does NOT use the ability modifier; the
+// table is the same for both subclasses and runs from level 3 to 20 (checked
+// against the 2024 PHB data).
 DATA.thirdCasterPrepared = [0, 0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13];
 
-// Cantrips known per class level. EK krijgt er 2 op L3 en een 3e op L10; AT
-// krijgt er 3 op L3 (waarvan Mage Hand verplicht is) en een 4e op L10.
+// Cantrips known per class level. Eldritch Knight: 2 at L3, a 3rd at L10;
+// Arcane Trickster: 3 at L3 (Mage Hand is mandatory), a 4th at L10.
 DATA.thirdCasterCantrips = {
     eldritchKnight:  [0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     arcaneTrickster: [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
 };
 
-// Arcane Trickster heeft Mage Hand verplicht in zijn cantrip-lijst (telt mee
-// voor het maximum en is niet inwisselbaar).
+// Arcane Trickster always knows Mage Hand (counts against the maximum and
+// can't be swapped).
 DATA.thirdCasterFixedCantrips = { arcaneTrickster: ['Mage Hand'] };
 
 // Choices the player makes when REACHING a class level (level-up menu steps).

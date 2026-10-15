@@ -20,8 +20,8 @@
 | Light Domain (cleric) | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 5 |
 | Trickery Domain (cleric) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 6 |
 | War Domain (cleric) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 6 |
-| Land (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
-| Moon (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Land (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 7 |
+| Moon (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 7 |
 | Sea (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Stars (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Champion (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
@@ -316,17 +316,17 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Spells: Blur (L2, always prepared); Burning Hands (L1, always prepared); Fire Bolt (C, cantrip) — Arid shown; Polar/Temperate/Tropical on other Long Rests
 - Actions (no spells): Action: Wild Companion, Land's Aid · Bonus Action: Wild Shape
 - Swap: Land type for your Circle Spells (on a Long Rest)
-- Good to know: In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
+- Good to know: In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM). In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
 - Combination notes:
   - Gnome: Forest Gnome: Speak with Animals comes from Druid and Gnome (Forest Gnome) — you only need it once; free casts from each source still apply.
-  - Tiefling: Infernal: Fire Bolt comes from Circle of the Land and Tiefling (Infernal) — you only need it once; consider replacing the duplicate cantrip.
+  - Tiefling: Infernal: Fire Bolt comes from Circle of the Land and Tiefling (Infernal) — you simply know it once; the second source adds nothing (the 2024 rules have no replacement for this).
 
 #### Circle of the Moon
 
 - Features (L3): Circle Forms, Circle of the Moon Spells
 - Spells: Cure Wounds (L1, always prepared); Moonbeam (L2, always prepared); Starry Wisp (C, cantrip)
 - Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape
-- Good to know: In Wild Shape you can cast only your Circle of the Moon spells.
+- Good to know: In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM). In Wild Shape you can cast only your Circle of the Moon spells.
 - Combination notes:
   - Gnome: Forest Gnome: Speak with Animals comes from Druid and Gnome (Forest Gnome) — you only need it once; free casts from each source still apply.
 
@@ -335,7 +335,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Features (L3): Circle of the Sea Spells, Wrath of the Sea [Bonus Action]
 - Spells: Fog Cloud (L1, always prepared); Gust of Wind (L2, always prepared); Ray of Frost (C, cantrip); Shatter (L2, always prepared); Thunderwave (L1, always prepared)
 - Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape, Wrath of the Sea
-- Good to know: In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
+- Good to know: In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM). In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
 - Combination notes:
   - Gnome: Forest Gnome: Speak with Animals comes from Druid and Gnome (Forest Gnome) — you only need it once; free casts from each source still apply.
 
@@ -346,7 +346,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Uses: Guiding Bolt 3/Long Rest
 - Actions (no spells): Action: Wild Companion · Bonus Action: Wild Shape, Starry Form
 - Swap: Starry Form constellation (each time you use it)
-- Good to know: In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
+- Good to know: In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM). In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).
 - Combination notes:
   - Gnome: Forest Gnome: Speak with Animals comes from Druid and Gnome (Forest Gnome) — you only need it once; free casts from each source still apply.
 
@@ -432,7 +432,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Actions (no spells): Bonus Action: Martial Arts, Flurry of Blows, Patient Defense, Step of the Wind · Reaction: Deflect Attacks, Slow Fall · No action: Uncanny Metabolism
 - Combination notes:
   - Elf: You have no spell slots, so granted spells can only be cast with their free uses.
-  - Gnome: Forest Gnome: Minor Illusion comes from Warrior of Shadow and Gnome (Forest Gnome) — you only need it once; consider replacing the duplicate cantrip. · Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
+  - Gnome: Forest Gnome: Minor Illusion comes from Warrior of Shadow and Gnome (Forest Gnome) — you simply know it once; the second source adds nothing (the 2024 rules have no replacement for this). · Forest Gnome: You have no spell slots, so granted spells can only be cast with their free uses.
   - Tiefling: You have no spell slots, so granted spells can only be cast with their free uses.
 
 #### Warrior of the Elements
@@ -636,7 +636,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Uses: Healing Light 5×d6/Long Rest
 - Actions (no spells): Bonus Action: Healing Light
 - Combination notes:
-  - Aasimar: Light comes from Celestial Patron and Aasimar — you only need it once; consider replacing the duplicate cantrip.
+  - Aasimar: Light comes from Celestial Patron and Aasimar — you simply know it once; the second source adds nothing (the 2024 rules have no replacement for this).
 
 #### Great Old One Patron
 

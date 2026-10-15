@@ -966,11 +966,19 @@ function getBuildProfile(cfg, st) {
     prof.granted.forEach(function (g) { addSrc(g.name, g.from); });
     Object.keys(bySpell).forEach(function (nm) {
         var srcs = bySpell[nm].filter(function (s, i, a) { return a.indexOf(s) === i; });
-        if (srcs.length > 1) prof.notes.push(nm + ' comes from ' + srcs.join(' and ') + ' — you only need it once; ' +
-            (((DATA.spellPool || {})[nm] || {}).level === 0 ? 'consider replacing the duplicate cantrip.' : 'free casts from each source still apply.'));
+        if (srcs.length < 2) return;
+        var ownPick = srcs.some(function (s) { return / (cantrip|prepared)$/.test(s); });
+        var isCantrip = ((DATA.spellPool || {})[nm] || {}).level === 0;
+        prof.notes.push(nm + ' comes from ' + srcs.join(' and ') + ' — ' + (!isCantrip ? 'you only need it once; free casts from each source still apply.'
+            : ownPick ? 'swap the copy you picked yourself the next time your class lets you replace a cantrip.'
+            : 'you simply know it once; the second source adds nothing (the 2024 rules have no replacement for this).'));
     });
     var anySpells = !!prof.casting || prof.granted.length > 0;
     if (cn === 'barbarian' && anySpells) prof.notes.push("While raging you can't cast spells or keep Concentration — spells you get only work outside your Rage.");
+    // 2024 Wild Shape keeps class features and feats but doesn't list species traits.
+    if (cn === 'druid' && lvl >= 2) {
+        prof.notes.push("In Wild Shape you keep your class features and feats; the 2024 rules don't list species traits, so your species abilities likely don't work in beast form (ask your DM).");
+    }
     if (cn === 'druid' && lvl >= 2) prof.notes.push(cfg.subclass === 'moon' && sub ? 'In Wild Shape you can cast only your Circle of the Moon spells.' : "In Wild Shape you can't cast spells (Concentration on a spell you already cast continues).");
     if (!prof.casting && prof.granted.some(function (g) { return g.slots && g.kind === 'innate'; })) prof.notes.push('You have no spell slots, so granted spells can only be cast with their free uses.');
     return prof;

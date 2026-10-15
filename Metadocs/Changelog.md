@@ -41,6 +41,10 @@ subclass and species at level 1–4 without making a character.
   proficiency bonus follows your level. Skills add Jack of All Trades (Bard), the
   Thaumaturge and Magician bonus to Arcana/Religion/Nature, and Otherworldly Glamour
   (Fey Wanderer) to Charisma checks.
+- The last spell texts that were still in Dutch or used 2014 numbers are now English
+  and follow the 2024 rules (among them Cure Wounds 2d8, Inflict Wounds as a
+  Constitution save, Spirit Guardians, Moonbeam and Ice Knife), including their
+  material components.
 
 ## 2026-09-23 — Eldritch Knight spells, familiars and a fuller initiative tracker
 
