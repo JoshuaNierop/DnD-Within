@@ -26,8 +26,8 @@
 | Stars (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 8 |
 | Champion (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 9 |
 | Battle Master (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 9 |
-| Eldritch Knight (fighter) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Psi Warrior (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
+| Eldritch Knight (fighter) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 10 |
+| Psi Warrior (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 10 |
 | Open Hand (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Mercy (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Shadow (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
