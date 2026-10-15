@@ -36,8 +36,8 @@
 | Ancients (paladin) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 13 |
 | Glory (paladin) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 14 |
 | Vengeance (paladin) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 14 |
-| Hunter (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Beast Master (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Hunter (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 15 |
+| Beast Master (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 15 |
 | Fey Wanderer (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Gloom Stalker (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Thief (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
@@ -302,6 +302,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Class features L1–4: Druidic, Primal Order, Spellcasting, Wild Shape [Bonus Action], Wild Companion [Action], Druid Subclass, Ability Score Improvement
 - Spellcasting at L4: WIS, 3 cantrips, 7 prepared (level ≤ 2), slots 4×L1, 3×L2
+- Class spells: Speak with Animals (L1, always prepared); Find Familiar (L1, slot or Wild Shape use)
 - Uses: Wild Shape 2/1 per Short Rest, all on a Long Rest
 - Choose:
   - At creation: 2 skills (Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, Survival); Primal Order (Magician or Warden)
@@ -450,6 +451,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Class features L1–4: Lay on Hands [Bonus Action], Spellcasting, Weapon Mastery, Fighting Style, Paladin's Smite, Channel Divinity, Divine Sense [Bonus Action], Paladin Subclass, Ability Score Improvement
 - Spellcasting at L4: CHA, 5 prepared (level ≤ 1), slots 3×L1
+- Class spells: Divine Smite (L1, free via Paladin's Smite)
 - Uses: Lay on Hands 20 points/Long Rest; Paladin's Smite 1/Long Rest; Channel Divinity 2/1 per Short Rest, all on a Long Rest
 - Choose:
   - At creation: 2 skills (Athletics, Insight, Intimidation, Medicine, Persuasion, Religion); 2 Weapon Mastery weapons
@@ -488,6 +490,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Class features L1–4: Favored Enemy, Spellcasting, Weapon Mastery, Deft Explorer, Fighting Style, Ranger Subclass, Ability Score Improvement
 - Spellcasting at L4: WIS, 5 prepared (level ≤ 1), slots 3×L1
+- Class spells: Hunter's Mark (L1, free via Favored Enemy)
 - Uses: Favored Enemy 2/Long Rest
 - Choose:
   - At creation: 3 skills (Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, Survival); 2 Weapon Mastery weapons

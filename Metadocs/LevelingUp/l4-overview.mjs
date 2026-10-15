@@ -16,7 +16,7 @@ const E = loadEngine();
 const { DATA } = E;
 
 // Batches of 20 combinations (2 subclasses × 10 species) read through by hand.
-const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10', 'monk/openHand': 'batch 11', 'monk/mercy': 'batch 11', 'monk/shadow': 'batch 12', 'monk/elements': 'batch 12', 'paladin/devotion': 'batch 13', 'paladin/ancients': 'batch 13', 'paladin/glory': 'batch 14', 'paladin/vengeance': 'batch 14' };
+const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10', 'monk/openHand': 'batch 11', 'monk/mercy': 'batch 11', 'monk/shadow': 'batch 12', 'monk/elements': 'batch 12', 'paladin/devotion': 'batch 13', 'paladin/ancients': 'batch 13', 'paladin/glory': 'batch 14', 'paladin/vengeance': 'batch 14', 'ranger/hunter': 'batch 15', 'ranger/beastMaster': 'batch 15' };
 
 const CLASSES = ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'];
 const SPECIES = [
@@ -166,6 +166,8 @@ for (const cls of CLASSES) {
     md += '- Spellcasting at L4: ' + c.ability.toUpperCase() + ', ' + (c.cantrips.max ? c.cantrips.max + ' cantrips, ' : '') + c.prepared.max + ' prepared (level ≤ ' + c.prepared.maxLevel + '), ' +
       (c.pact ? c.pact.count + ' Pact slots of level ' + c.pact.level + ' (Short Rest)' : 'slots ' + c.slots.filter((n) => n > 0).map((n, i) => n + '×L' + (i + 1)).join(', ')) + '\n';
   }
+  const classSpells = base.granted.filter((x) => x.source === 'class');
+  if (classSpells.length) md += '- Class spells: ' + classSpells.map(spellLine).join('; ') + '\n';
   const classRes = base.resources.filter((r) => !r.dynamic && DATA.classResources.find((x) => x.id === r.id && x.appliesTo.className === cls && !x.appliesTo.subclass));
   if (classRes.length) md += '- Uses: ' + classRes.map((r) => r.label + ' ' + r.max + dieTxt(r) + '/' + (RECH[r.recharge] || r.recharge)).join('; ') + '\n';
   // What you choose per level, from the data (not from the template character).
