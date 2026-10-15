@@ -40,8 +40,8 @@
 | Beast Master (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 15 |
 | Fey Wanderer (ranger) | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 16 |
 | Gloom Stalker (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 16 |
-| Thief (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
-| Assassin (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
+| Thief (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 17 |
+| Assassin (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 17 |
 | Arcane Trickster (rogue) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Soulknife (rogue) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Wild Magic Sorcery (sorcerer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
