@@ -47,10 +47,9 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P2 — Skill-keys: wizard-characters slaan `'sleight of hand'` op, de rest `sleightOfHand`; klikken op de proficiency-markering kan een dubbele key toevoegen (`wg-events.js:902`, `wg-state.js:112`). Normaliseren + migratie van opgeslagen characters (ren, addybluelight)
 
 ## Claude — features
-- [x] P1 — Monster-bibliotheek: 330 SRD 5.2-monsters (MM 2025) als basis voor Creatures (picker met zoek/filter op naam, type, grootte, CR) + Monster Manual-tab in de combat-picker — regels in `Monsters/Rules.md`
+- [x] P1 — Monster-bibliotheek: alle 503 Monster Manual 2025-monsters (330 SRD 5.2 met tekst, 173 met feiten + eigen-woorden-tekst) als basis voor Creatures (picker met zoek/filter op naam, type, grootte, CR) + Monster Manual-tab in de combat-picker — regels in `Monsters/Rules.md`
 - [ ] P2 — Monsters schalen voor hogere party-levels: "Scale to CR"-helper op basis van de base-link (PB, to-hit/DC, HP) — eerst een gecontroleerde bron voor HP/schade per CR (`Monsters/Rules.md`)
-- [ ] P3 — Niet-SRD MM 2025-monsters (173, o.a. Twig Blight): alleen feiten (getallen, geen tekst) achter de login in Firebase, niet in de publieke repo/site
-- [ ] P3 — Bestaande creatures koppelen aan een basis (DM, via de editor): Gargoyle → Gargoyle, S.P.O.T. → Bat, Bad Bramble/Twig Blight → dichtstbijzijnde SRD-monster
+- [ ] P3 — Bestaande creatures koppelen aan een basis (DM, via de editor): Gargoyle → Gargoyle, S.P.O.T. → Bat, Twig Blight → Twig Blight, Bad Bramble → dichtstbijzijnde monster
 - [ ] P2 — Saving throws: `getSaveBonus` in de engine + widget (`LevelingUp/Saving-Throws.md`)
 - [ ] P2 — Attacks-widget met class-features: Martial Arts, Rage-damage, Archery/Dueling, Bardic Damage, pact weapon (CHA)
 - [ ] P2 — Equipment A/B-keuze in de creation-wizard + background-equipment (GP, aantallen) checken tegen de 2024-data

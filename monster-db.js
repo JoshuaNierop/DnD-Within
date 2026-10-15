@@ -1,10 +1,10 @@
-// D&D Within — Monster Manual database (SRD 5.2 stat blocks, see Metadocs/Monsters/Rules.md)
-// The data (monsters-srd.js, ~400 kB) is only loaded when the DM opens the picker or the
+// D&D Within — Monster Manual database (all MM 2025 stat blocks, see Metadocs/Monsters/Rules.md)
+// The data (monsters-data.js) is only loaded when the DM opens the picker or the
 // SRD tab of the combat picker. A creature stores a flat copy of the stat block plus
 // `base: {id, name, cr, v}` so it can be re-based or scaled later.
 // Requires: core.js (escapeHtml/escapeAttr), ui-world.js (LORE_ABILITY_KEYS)
 
-var MONSTER_DB_VERSION = 1;   // bump when monsters-srd.js is rebuilt (lazy file is outside the ?v= hook)
+var MONSTER_DB_VERSION = 2;   // bump when monsters-srd.js is rebuilt (lazy file is outside the ?v= hook)
 var _monsterDbPromise = null;
 
 function loadMonsterDb() {
@@ -12,7 +12,7 @@ function loadMonsterDb() {
     if (_monsterDbPromise) return _monsterDbPromise;
     _monsterDbPromise = new Promise(function (resolve, reject) {
         var s = document.createElement('script');
-        s.src = 'monsters-srd.js?v=' + MONSTER_DB_VERSION;
+        s.src = 'monsters-data.js?v=' + MONSTER_DB_VERSION;
         s.onload = function () { window.DW_MONSTER_DB ? resolve(window.DW_MONSTER_DB) : reject(new Error('Monster database is empty')); };
         s.onerror = function () { _monsterDbPromise = null; s.remove(); reject(new Error('Could not load the monster database')); };
         document.head.appendChild(s);
@@ -26,7 +26,7 @@ function monsterDbGet(id) {
     return null;
 }
 function monsterDbAttribution() {
-    return 'Stat blocks from the System Reference Document 5.2 by Wizards of the Coast LLC, licensed under CC-BY-4.0.';
+    return 'Monster Manual (2025) stat blocks. SRD monsters include material from the System Reference Document 5.2 by Wizards of the Coast LLC, licensed under CC-BY-4.0; descriptions of the other monsters are paraphrased.';
 }
 
 // Creature fields that come from the stat block. Identity/social fields are never touched.
@@ -51,7 +51,7 @@ function monsterBaseLabel(base) {
 }
 function monsterBaseChipHtml(base) {
     return '<div class="monster-base-chip" title="' + escapeAttr(monsterDbAttribution()) + '">Base: ' + escapeHtml(base.name) +
-        (base.cr != null ? ' · CR ' + escapeHtml(String(base.cr)) : '') + ' <span class="text-dim">(SRD 5.2)</span></div>';
+        (base.cr != null ? ' · CR ' + escapeHtml(String(base.cr)) : '') + ' <span class="text-dim">(' + (base.src === 'MM' ? 'Monster Manual' : 'SRD 5.2') + ')</span></div>';
 }
 function setEditorBase(base) {
     var hid = document.getElementById('lore-entry-f-base');
@@ -104,7 +104,7 @@ function fillEditorFromMonster(rec, overwrite) {
     if (first && !first.value.trim()) { first.value = rec.name; n++; }
     var sp = document.getElementById('lore-entry-f-race');
     if (sp && !sp.value.trim()) { sp.value = rec.name; n++; }
-    setEditorBase({ id: rec.id, name: rec.name, cr: rec.cr, v: MONSTER_DB_VERSION });
+    setEditorBase({ id: rec.id, name: rec.name, cr: rec.cr, src: rec.src || 'SRD', v: MONSTER_DB_VERSION });
     var form = document.querySelector('.lore-entry-modal-active .lore-entry-form');
     if (form && typeof autoGrowAll === 'function') autoGrowAll(form);
     return n;
@@ -189,7 +189,7 @@ function renderMonsterPickerBody(overlay) {
     h += '<div class="monster-db-list">' + monsterPickerRowsHtml() + '</div>';
     h += '<div class="monster-db-foot">';
     if (opts.showOverwrite) h += '<label class="monster-db-overwrite"><input type="checkbox" id="monster-db-overwrite"> Overwrite fields that already have a value</label>';
-    h += '<p class="monster-db-attrib text-dim">' + escapeHtml(monsterDbAttribution()) + ' Monsters outside the SRD are not included.</p>';
+    h += '<p class="monster-db-attrib text-dim">' + escapeHtml(monsterDbAttribution()) + '</p>';
     h += '</div>';
     var body = overlay.querySelector('.monster-db-body');
     body.innerHTML = h;

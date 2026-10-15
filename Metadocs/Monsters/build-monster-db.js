@@ -1,11 +1,16 @@
-// Builds monsters-srd.js (repo root): every Monster Manual 2025 creature that is part of the
-// SRD 5.2 (CC-BY-4.0), normalised to the Creature field strings used by the editor.
-// Non-SRD monsters are skipped on purpose (public repo, see Metadocs/Monsters/Rules.md).
-// usage: XPHB_DATA=<dir with bestiary/bestiary-xmm.json> node build-monster-db.js [out=../../monsters-srd.js]
+// Builds monsters-data.js (repo root): every Monster Manual 2025 creature, normalised to the
+// Creature field strings used by the editor. SRD 5.2 monsters (CC-BY-4.0) keep their text; for
+// the other monsters only the game facts come from the data, and the trait/action text comes from
+// our own paraphrase in mm-own-words.json (see Metadocs/Monsters/Rules.md).
+// usage: XPHB_DATA=<dir with bestiary/bestiary-xmm.json> node build-monster-db.js [out=../../monsters-data.js]
+//        DUMP_DIR=<scratch dir> [BATCHES=6] → writes the non-SRD source text in batches to paraphrase (never commit)
+//        ALLOW_MISSING=1 → skip non-SRD monsters that have no own words yet
 const fs = require('fs'), path = require('path');
 const RAW = process.env.XPHB_DATA;
 if (!RAW) { console.error('Set XPHB_DATA to the folder with bestiary/bestiary-xmm.json'); process.exit(1); }
-const OUT = process.argv[2] || path.join(__dirname, '..', '..', 'monsters-srd.js');
+const OUT = process.argv[2] || path.join(__dirname, '..', '..', 'monsters-data.js');
+const OWN = path.join(__dirname, 'mm-own-words.json');
+const own = fs.existsSync(OWN) ? JSON.parse(fs.readFileSync(OWN, 'utf8')) : {};
 const src = JSON.parse(fs.readFileSync(path.join(RAW, 'bestiary', 'bestiary-xmm.json'), 'utf8')).monster;
 
 const SIZE = { T: 'Tiny', S: 'Small', M: 'Medium', L: 'Large', H: 'Huge', G: 'Gargantuan' };
@@ -21,6 +26,7 @@ const sign = (n) => (n >= 0 ? '+' : '') + n;
 const mod = (score) => Math.floor((score - 10) / 2);
 const crNum = (cr) => (cr.indexOf('/') > 0 ? cr.split('/').reduce((a, b) => a / b) : Number(cr));
 const pbFor = (cr) => Math.max(2, Math.ceil(crNum(cr) / 4) + 1);
+const idOf = (m) => m.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 // SRD 5.2 drops the wizard names from spell titles (Melf's Acid Arrow -> Acid Arrow, Bigby's Hand -> Arcane Hand)
 const SRD_SPELL = { "Bigby's Hand": 'Arcane Hand', "Mordenkainen's Sword": 'Arcane Sword', "Nystul's Magic Aura": "Arcanist's Magic Aura",
@@ -61,10 +67,9 @@ function flat(e) {
   if (e.type === 'item') return (e.name ? tags(e.name) + ' ' : '') + flat(e.entries || e.entry);
   return flat(e.entries || e.items || e.entry || []);
 }
-// "Name. text" blocks, separated by a blank line
-function blocks(arr) {
-  return (arr || []).map((b) => (b.name ? tags(b.name) + '. ' : '') + flat(b.entries)).join('\n\n');
-}
+// Section → [{name, text}]; joined as "Name. text" blocks separated by a blank line
+function list(arr) { return (arr || []).map((b) => ({ name: b.name ? tags(b.name) : '', text: flat(b.entries) })); }
+function join(items) { return (items || []).map((b) => (b.name ? b.name + '. ' : '') + b.text).join('\n\n'); }
 function typeStr(t) {
   if (typeof t === 'string') return cap(t);
   if (t.swarmSize) return 'Swarm of ' + SIZE[t.swarmSize] + ' ' + cap(typeof t.type === 'string' ? t.type : t.type.choose.join(' or ')) + (t.type === 'undead' ? '' : 's');
@@ -76,7 +81,7 @@ function alignStr(a) {
   if (!a || !a.length) return '';
   if (a.length === 1) return a[0] === 'N' ? 'Neutral' : (ALIGN[a[0]] || a[0]);
   if (a.length === 2) return a.map((x) => ALIGN[x]).join(' ');
-  return a.map((x) => ALIGN[x] || x).join(' ');
+  return a.map((x) => (typeof x === 'string' ? ALIGN[x] || x : '')).filter(Boolean).join(' ');
 }
 function speedStr(sp) {
   const out = [];
@@ -103,9 +108,9 @@ function gearStr(g) {
   return (g || []).map((x) => (typeof x === 'string' ? tags('{@item ' + x + '}') : tags('{@item ' + x.item + '}') + ' (' + x.quantity + ')'))
     .map((s) => titleCase(s.replace(/\|.*$/, ''))).join(', ');
 }
-function spellStr(scs) {
+function spellList(scs) {
   return (scs || []).map((sc) => {
-    const lines = [(sc.name ? tags(sc.name) + '. ' : '') + flat(sc.headerEntries)];
+    const lines = [flat(sc.headerEntries)];
     if (sc.will) lines.push('At Will: ' + sc.will.map(tags).join(', '));
     ['daily', 'restLong', 'rest', 'recharge'].forEach((k) => {
       if (!sc[k]) return;
@@ -116,19 +121,53 @@ function spellStr(scs) {
       });
     });
     if (sc.footerEntries) lines.push(flat(sc.footerEntries));
-    return lines.join('\n');
-  }).join('\n\n');
+    return { name: sc.name ? tags(sc.name) : '', text: lines.join('\n') };
+  });
 }
-function legendaryStr(m) {
-  if (!m.legendary) return '';
+const SECTIONS = { traits: 'trait', actions: 'action', bonusActions: 'bonus', reactions: 'reaction', legendary: 'legendary' };
+function sections(m) {
+  const out = {};
+  Object.keys(SECTIONS).forEach((k) => { if (m[SECTIONS[k]] && m[SECTIONS[k]].length) out[k] = list(m[SECTIONS[k]]); });
+  if (m.spellcasting && m.spellcasting.length) out.spellcasting = spellList(m.spellcasting);
+  return out;
+}
+// Non-SRD text must come from our own paraphrase, with the same sections and block names
+const missingOwn = [];
+function textFor(m) {
+  const sec = sections(m);
+  if (m.srd52) return sec;
+  const id = idOf(m), ow = own[id];
+  if (!ow) { missingOwn.push(id); return null; }
+  Object.keys(sec).forEach((k) => {
+    const a = sec[k], b = ow[k] || [];
+    if (a.length !== b.length || a.some((x, i) => x.name !== b[i].name || !b[i].text)) throw new Error('own words do not match the source blocks: ' + id + ' / ' + k);
+  });
+  Object.keys(ow).forEach((k) => { if (!sec[k]) throw new Error('own words have an extra section: ' + id + ' / ' + k); });
+  return ow;
+}
+function legendaryStr(m, items) {
+  if (!items || !items.length) return '';
   const n = m.legendaryActions || 3, lair = m.legendaryActionsLair;
   const short = m.shortName === true ? m.name.toLowerCase() : (m.shortName || m.name.toLowerCase());
   const head = 'Legendary Action Uses: ' + n + (lair ? ' (' + lair + ' in Lair)' : '') + '. Immediately after another creature\'s turn, the ' + short +
     ' can expend a use to take one of the following actions. The ' + short + ' regains all expended uses at the start of each of its turns.';
-  return head + '\n\n' + blocks(m.legendary);
+  return head + '\n\n' + join(items);
 }
 
-const monsters = src.filter((m) => m.srd52).map((m) => {
+if (process.env.DUMP_DIR) {
+  const rest = src.filter((m) => !m.srd52).sort((a, b) => a.name.localeCompare(b.name));
+  const per = Math.ceil(rest.length / (Number(process.env.BATCHES) || 6));
+  let n = 0;
+  for (let i = 0; i * per < rest.length; i++, n++) {
+    const batch = {};
+    rest.slice(i * per, (i + 1) * per).forEach((m) => { batch[idOf(m)] = { name: m.name, sections: sections(m) }; });
+    fs.writeFileSync(path.join(process.env.DUMP_DIR, 'source-' + (i + 1) + '.json'), JSON.stringify(batch, null, 1));
+  }
+  console.log('dumped', rest.length, 'non-SRD monsters in', n, 'batches');
+  process.exit(0);
+}
+
+const monsters = src.filter((m) => m.srd52 || process.env.ALLOW_MISSING !== '1' || own[idOf(m)]).map((m) => {
   const cr = typeof m.cr === 'string' ? m.cr : m.cr.cr;
   const pb = pbFor(cr);
   const initMod = mod(m.dex) + (m.initiative && m.initiative.proficiency ? m.initiative.proficiency * pb : 0);
@@ -137,16 +176,18 @@ const monsters = src.filter((m) => m.srd52).map((m) => {
   const senses = (m.senses || []).map(tags).concat(['Passive Perception ' + m.passive]).join(', ');
   const xp = typeof m.cr === 'object' && m.cr.xp ? m.cr.xp : XP[cr];
   const xpLair = typeof m.cr === 'object' && m.cr.xpLair ? m.cr.xpLair : null;
+  const txt = textFor(m) || {};
   const typeKey = typeof m.type === 'string' ? m.type : (typeof m.type.type === 'string' ? m.type.type : m.type.type.choose[0]);
   const rec = {
-    id: m.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    id: idOf(m),
     name: m.name,
+    src: m.srd52 ? 'SRD' : 'MM',
     size: m.size.map((s) => SIZE[s]).join(' or '),
     mtype: typeStr(m.type),
     alignment: alignStr(m.alignment),
     ac: String(m.ac[0] && typeof m.ac[0] === 'object' ? m.ac[0].ac : m.ac[0]),
     initiative: initMod,
-    hp: m.hp.average + ' (' + m.hp.formula + ')',
+    hp: m.hp.average != null ? m.hp.average + ' (' + m.hp.formula + ')' : tags(m.hp.special || ''),
     speed: speedStr(m.speed),
     abilities: { str: m.str, dex: m.dex, con: m.con, int: m.int, wis: m.wis, cha: m.cha },
     saves, skills,
@@ -158,12 +199,12 @@ const monsters = src.filter((m) => m.srd52).map((m) => {
     senses,
     languages: (m.languages || []).map(tags).join(', ') || 'None',
     cr, xp, xpLair, profBonus: pb,
-    traits: blocks(m.trait),
-    actions: blocks(m.action),
-    bonusActions: blocks(m.bonus),
-    reactions: blocks(m.reaction),
-    legendary: legendaryStr(m),
-    spellcasting: spellStr(m.spellcasting),
+    traits: join(txt.traits),
+    actions: join(txt.actions),
+    bonusActions: join(txt.bonusActions),
+    reactions: join(txt.reactions),
+    legendary: legendaryStr(m, txt.legendary),
+    spellcasting: join(txt.spellcasting),
     // filter keys
     crNum: crNum(cr), typeKey, env: m.environment || []
   };
@@ -171,16 +212,19 @@ const monsters = src.filter((m) => m.srd52).map((m) => {
   return rec;
 }).sort((a, b) => a.name.localeCompare(b.name));
 
+if (missingOwn.length) { console.error('no own words for', missingOwn.length, 'non-SRD monsters (ALLOW_MISSING=1 skips them):', missingOwn.slice(0, 10).join(', ')); process.exit(1); }
 const ids = new Set();
 monsters.forEach((m) => { if (ids.has(m.id)) throw new Error('duplicate id ' + m.id); ids.add(m.id); });
 const leftover = JSON.stringify(monsters).match(/\{@[^}]*\}?/g);
 if (leftover) { console.error('unrendered tags:', [...new Set(leftover)].slice(0, 20)); process.exit(1); }
 
-const header = '// Monster Manual 2025 creatures from the SRD 5.2 — generated by Metadocs/Monsters/build-monster-db.js, do not edit by hand.\n' +
-  '// This work includes material from the System Reference Document 5.2 ("SRD 5.2") by Wizards of the Coast LLC,\n' +
-  '// available at https://www.dndbeyond.com/srd. The SRD 5.2 is licensed under the Creative Commons Attribution 4.0\n' +
-  '// International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.\n';
-const meta = { source: 'SRD 5.2 (Monster Manual 2025 stat blocks)', license: 'CC-BY-4.0', count: monsters.length,
+const srdCount = monsters.filter((m) => m.src === 'SRD').length;
+const header = '// Monster Manual 2025 creatures — generated by Metadocs/Monsters/build-monster-db.js, do not edit by hand.\n' +
+  '// Monsters with src "SRD": this work includes material from the System Reference Document 5.2 ("SRD 5.2") by\n' +
+  '// Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2 is licensed under the Creative\n' +
+  '// Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.\n' +
+  '// Monsters with src "MM": game statistics only; every description is our own paraphrase (Metadocs/Monsters/mm-own-words.json).\n';
+const meta = { source: 'Monster Manual 2025 stat blocks', count: monsters.length, srd: srdCount,
   attribution: 'Includes material from the System Reference Document 5.2 by Wizards of the Coast LLC, licensed under CC-BY-4.0.' };
 fs.writeFileSync(OUT, header + 'window.DW_MONSTER_DB = ' + JSON.stringify({ meta, monsters }) + ';\n');
-console.log('wrote', OUT, monsters.length, 'monsters,', Math.round(fs.statSync(OUT).size / 1024), 'kB');
+console.log('wrote', OUT, monsters.length, 'monsters (' + srdCount + ' SRD),', Math.round(fs.statSync(OUT).size / 1024), 'kB');

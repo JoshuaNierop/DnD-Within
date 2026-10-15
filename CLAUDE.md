@@ -21,7 +21,7 @@ Alles staat in de repo-root (geen `js/`- of `css/`-map).
 - `app.js` / `core.js` / `events.js` / `ui-*.js` — router, auth, pagina's, vensters (`ui-modals.js` heeft `showPromptModal`/`showConfirmModal`/`showAlertModal`)
 - `engine.js` — D&D-regels (scores, HP/AC, spells, level-up-delta, skills)
 - `data.js` (~530 kB) + `data-rules.js` — classes, species, feats, spells, items, resources
-- `monster-db.js` + `monsters-srd.js` (lazy, gegenereerd) — Monster Manual-basis voor Creatures (SRD 5.2); regels + build in `Metadocs/Monsters/`
+- `monster-db.js` + `monsters-data.js` (lazy, gegenereerd) — Monster Manual 2025-basis voor Creatures (503 monsters; niet-SRD-tekst in eigen woorden); regels + build in `Metadocs/Monsters/`
 - `wg-*.js` + `wg-style.css` — character-dashboard (widget grid, level-up, prepare, rest, combat)
 - `style.css` — overige styles
 - Tests: `node Metadocs/LevelingUp/build-smoke.mjs [level]` en `node Metadocs/LevelingUp/ui-smoke.mjs`

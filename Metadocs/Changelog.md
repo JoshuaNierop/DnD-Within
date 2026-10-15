@@ -2,6 +2,13 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-16 — Every Monster Manual monster
+
+- The Monster Manual picker and the combat tracker's Monster Manual tab now hold all 503
+  monsters of the 2025 Monster Manual (was 330), including Twig Blight, Beholder, Mind
+  Flayer and the other monsters outside the SRD. Their stats are complete; their trait and
+  action descriptions are written in our own words.
+
 ## 2026-10-16 — Dashboard button
 
 - New orange round button next to Search (same style as Notes and Report): it takes a
