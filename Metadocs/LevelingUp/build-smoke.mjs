@@ -264,7 +264,8 @@ for (const cls of CLASSES) {
   const nm = (s) => s.toLowerCase().replace(/[’']/g, "'").trim();
   const cmpNames = (label, want, have) => {
     const h = (have || []).map((f) => nm(f.name)), all = (want || []).map(nm);
-    const w = (want || []).filter((n) => !OPTION_ENTRIES.has(n) || h.includes(nm(n))).map(nm);
+    const isOption = (n) => OPTION_ENTRIES.has(n) || /\(Cost: \d+d\d+\)$/.test(n);   // Cunning/Devious Strike options
+    const w = (want || []).filter((n) => !isOption(n) || h.includes(nm(n))).map(nm);
     const miss = w.filter((n) => !h.includes(n)), extra = h.filter((n) => !all.includes(n));
     check(label + ' feature names = 2024 PHB', miss.length === 0 && extra.length === 0, 'missing ' + miss.join(' | ') + ' / ours only ' + extra.join(' | '));
   };

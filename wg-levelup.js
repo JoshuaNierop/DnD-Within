@@ -281,7 +281,18 @@ function wgxFeatSubSteps(feat, owner, cfg, st) {
     steps.push({ id: 'featSpells', owner: owner, pick: s.pick, count: count, filter: { list: s.list, level: s.level, schools: s.schools, ritual: s.ritual } });
   });
   (feat.choices || []).forEach(function (c) {
-    if (c.id === 'skills') steps.push({ id: 'featSkills', owner: owner, count: c.count || 1, options: c.options || null, mode: c.mode || 'proficiency' });
+    if (c.id === 'skills') {
+      // Never ask for more skills than are still available (Skilled taken several times).
+      var mode = c.mode || 'proficiency', cnt = c.count || 1;
+      if (typeof WG_SKILLS !== 'undefined') {
+        var elig = WG_SKILLS.filter(function (sk) {
+          if (c.options && c.options.indexOf(sk.key) === -1) return false;
+          return mode === 'proficiency' ? !wgxHasSkill(cfg.defaultSkills, sk.key) : !wgxHasSkill(cfg.expertSkills, sk.key);
+        }).length;
+        cnt = Math.min(cnt, elig);
+      }
+      if (cnt > 0) steps.push({ id: 'featSkills', owner: owner, count: cnt, options: c.options || null, mode: mode });
+    }
     else if (c.id === 'expertise') steps.push({ id: 'featExpertise', owner: owner, count: c.count || 1 });
     else if (c.id === 'element') steps.push({ id: 'featElement', owner: owner, options: c.options });
   });
