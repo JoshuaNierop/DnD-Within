@@ -78,6 +78,15 @@ function getSpeed(config, state) {
     return spd;
 }
 
+// Darkvision: species range; Shadow Arts (Warrior of Shadow) and Umbral Sight
+// (Gloom Stalker) give 60 ft, or +60 ft if you already have Darkvision.
+function getDarkvision(config, state) {
+    var lvl = (state && state.level) || 1;
+    var dv = (DATA[config.race] || {}).darkvision || 0;
+    if (lvl >= 3 && ((config.className === 'monk' && config.subclass === 'shadow') || (config.className === 'ranger' && config.subclass === 'gloomStalker'))) dv = dv ? dv + 60 : 60;
+    return dv;
+}
+
 // Effective ability scores (base + ASI/feat bonuses), for widgets.
 function getEffectiveAbilities(config, state) {
     var st = Object.assign({ asiChoices: {}, level: 1 }, state || {});
@@ -819,7 +828,7 @@ function getBuildProfile(cfg, st) {
         who: {
             className: cn, classLabel: classLabel(cn), subclass: sub ? cfg.subclass : null, subclassLabel: sub ? sub.name : null,
             race: cfg.race, species: speciesOf(cfg.race), speciesLabel: speciesLabel(cfg), lineage: lin ? lin.key : null,
-            size: race.size || '', speed: getSpeed(cfg, st), darkvision: race.darkvision || 0,
+            size: race.size || '', speed: getSpeed(cfg, st), darkvision: getDarkvision(cfg, st),
             hp: getMaxHP(cfg, st), ac: getAC(cfg, st)
         },
         casting: null, granted: [], feats: [], features: [], actions: {}, resources: [],

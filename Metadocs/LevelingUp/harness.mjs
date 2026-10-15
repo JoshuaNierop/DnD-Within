@@ -28,7 +28,7 @@ __exports = { DATA, WG_SKILLS, getMod, getProfBonus, getAbilityScore, getHP, get
   openFeatPicks, numMap, isThirdCaster,
   wgxScholarSkillKeys, wgxEligibleExpertise, wgxStyleBonus, wgxMaxSpellLevel, wgxSpellOptions, wgxMasteryOptions,
   wgxCrValue, wgxChoiceNeeded, wgxLevelUpSteps, wgxStepComplete, wgxSwapOptions, wgxBuildLevelUpPatch,
-  wgxBuildLevelDownPatch, wgxHasSkill, getSkillBonus, getEffectiveAbilities, getSpeed };
+  wgxBuildLevelDownPatch, wgxHasSkill, getSkillBonus, getEffectiveAbilities, getSpeed, getDarkvision };
 `;
   const sandbox = { console, __exports: null };
   vm.createContext(sandbox);
