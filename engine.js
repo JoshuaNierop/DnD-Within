@@ -87,6 +87,23 @@ function getDarkvision(config, state) {
     return dv;
 }
 
+// Initiative: Dexterity modifier + Alert (Proficiency Bonus) + Dread Ambusher
+// (Gloom Stalker 3+, Wisdom modifier); Remarkable Athlete (Champion 3+) gives
+// Advantage. Returns { bonus, advantage, parts: [{ label, value }] }.
+function getInitiative(config, state) {
+    var st = Object.assign({ asiChoices: {}, level: 1 }, state || {});
+    var lvl = st.level || 1;
+    var dex = getMod(getAbilityScore(config, st, 'dex'));
+    var parts = [{ label: 'DEX modifier', value: dex }];
+    if (hasFeat(st, 'Alert', config)) parts.push({ label: 'Alert', value: getProfBonus(lvl) });
+    if (config.className === 'ranger' && config.subclass === 'gloomStalker' && lvl >= 3) parts.push({ label: 'Dread Ambusher (WIS modifier)', value: getMod(getAbilityScore(config, st, 'wis')) });
+    return {
+        bonus: parts.reduce(function (a, p) { return a + p.value; }, 0),
+        advantage: config.className === 'fighter' && config.subclass === 'champion' && lvl >= 3,
+        parts: parts
+    };
+}
+
 // Effective ability scores (base + ASI/feat bonuses), for widgets.
 function getEffectiveAbilities(config, state) {
     var st = Object.assign({ asiChoices: {}, level: 1 }, state || {});
@@ -828,7 +845,7 @@ function getBuildProfile(cfg, st) {
         who: {
             className: cn, classLabel: classLabel(cn), subclass: sub ? cfg.subclass : null, subclassLabel: sub ? sub.name : null,
             race: cfg.race, species: speciesOf(cfg.race), speciesLabel: speciesLabel(cfg), lineage: lin ? lin.key : null,
-            size: race.size || '', speed: getSpeed(cfg, st), darkvision: getDarkvision(cfg, st),
+            size: race.size || '', speed: getSpeed(cfg, st), darkvision: getDarkvision(cfg, st), initiative: getInitiative(cfg, st),
             hp: getMaxHP(cfg, st), ac: getAC(cfg, st)
         },
         casting: null, granted: [], feats: [], features: [], actions: {}, resources: [],

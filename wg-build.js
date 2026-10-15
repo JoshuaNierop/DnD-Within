@@ -85,6 +85,7 @@ function wgxBuildProfileHtml(prof, isChar) {
   h += '<div class="wgx-bd-who"><div class="wgx-bd-title">Level ' + prof.level + ' ' + wgxEsc(who.classLabel) +
     (who.subclassLabel ? ' · ' + wgxEsc(who.subclassLabel) : '') + ' · ' + wgxEsc(who.speciesLabel) + '</div><div class="wgx-bd-stats">' +
     wgxBDChip('HP ' + who.hp, 'stat') + wgxBDChip('AC ' + who.ac, 'stat', 'Class default armor') + wgxBDChip('Proficiency +' + prof.pb, 'stat') +
+    wgxBDChip('Initiative ' + (who.initiative.bonus >= 0 ? '+' : '') + who.initiative.bonus + (who.initiative.advantage ? ' (Advantage)' : ''), 'stat', who.initiative.parts.map(function (p) { return p.label + ' ' + (p.value >= 0 ? '+' : '') + p.value; }).join(', ')) +
     wgxBDChip('Speed ' + who.speed + ' ft', 'stat') + (who.darkvision ? wgxBDChip('Darkvision ' + who.darkvision + ' ft', 'stat') : '') +
     (prof.casting ? wgxBDChip('Spell DC ' + prof.casting.dc, 'stat') + wgxBDChip('Spell attack +' + prof.casting.atk, 'stat') : '') + '</div></div>';
   // --- open choices ---

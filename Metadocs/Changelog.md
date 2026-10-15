@@ -46,7 +46,10 @@ subclass and species at level 1–4 without making a character.
   Constitution save, Spirit Guardians, Moonbeam and Ice Knife), including their
   material components.
 - Speed in the Build window now includes the Monk's Unarmored Movement, the
-  Barbarian's Fast Movement (level 5) and the Speedy feat.
+  Barbarian's Fast Movement (level 5) and the Speedy feat; Darkvision includes Shadow
+  Arts (Warrior of Shadow) and Umbral Sight (Gloom Stalker).
+- The Build window shows your **Initiative** bonus: Dexterity plus Alert and the Gloom
+  Stalker's Dread Ambusher, and Advantage for a Champion.
 
 ## 2026-09-23 — Eldritch Knight spells, familiars and a fuller initiative tracker
 
