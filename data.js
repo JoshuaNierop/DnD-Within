@@ -288,13 +288,13 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
             17: [
-                { name: "Additional Metamagic", desc: "Learn 1 additional Metamagic option." }
+                { name: "Metamagic", desc: "You learn two more Metamagic options (six in total)." }
             ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Arcane Apotheosis", desc: "While Innate Sorcery is active, you can use one Metamagic option per turn without spending sorcery points." }
+                { name: "Arcane Apotheosis", desc: "While Innate Sorcery is active, you can use one Metamagic option on each of your turns without spending Sorcery Points on it." }
             ]
         },
 
@@ -314,7 +314,7 @@ const DATA = {
                         { name: "Controlled Chaos", desc: "Whenever you roll on the Wild Magic Surge table, you can roll twice and use either number." }
                     ],
                     18: [
-                        { name: "Spell Bombardment", desc: "When you roll damage for a spell and one or more dice show their maximum, choose one of those dice, roll it again, and add the result to the damage." }
+                        { name: "Tamed Surge", desc: "Right after you cast a Sorcerer spell with a spell slot, you can pick an effect from the Wild Magic Surge table (except the last row) instead of rolling; if it involves a roll, you make it. Once per Long Rest." }
                     ]
                 }
             },
@@ -331,7 +331,8 @@ const DATA = {
                     { name: "Arcane Eye", lvl: 7, kind: 'prepared' },
                     { name: "Charm Monster", lvl: 7, kind: 'prepared' },
                     { name: "Legend Lore", lvl: 9, kind: 'prepared' },
-                    { name: "Summon Dragon", lvl: 9, kind: 'prepared' }
+                    { name: "Summon Dragon", lvl: 9, kind: 'prepared' },
+                    { name: "Summon Dragon", lvl: 18, kind: 'innate', free: 1, recharge: 'long', slots: true, note: "Dragon Companion: no Material component; you can drop Concentration (lasts 1 minute)" }
                 ],
                 features: {
                     3: [
@@ -345,7 +346,7 @@ const DATA = {
                         { name: "Dragon Wings", act: 'bonus', desc: "Bonus Action: draconic wings give you a Fly Speed of 60 ft for 1 hour or until you dismiss them (no action). Once per Long Rest, or restore it by spending 3 Sorcery Points (no action)." }
                     ],
                     18: [
-                        { name: "Draconic Presence", desc: "5 sorcery points: a 60ft aura of awe or dread. WIS save or creatures are Charmed/Frightened for 1 minute." }
+                        { name: "Dragon Companion", desc: "You can cast Summon Dragon without a Material component, and once per Long Rest without a spell slot. When you cast it, you can drop the Concentration requirement; that casting then lasts 1 minute." }
                     ]
                 }
             },
@@ -376,7 +377,7 @@ const DATA = {
                         { name: "Trance of Order", act: 'bonus', desc: "Bonus Action: for 1 minute, attack rolls against you can't have Advantage, and when you make a D20 Test you can treat a d20 roll of 9 or lower as a 10. Once per Long Rest, or restore it by spending 5 Sorcery Points (no action)." }
                     ],
                     18: [
-                        { name: "Clockwork Cavalcade", desc: "Spend 7 sorcery points: restore 100 HP divided among creatures within 30ft, repair damaged objects, and end spells of 6th level or lower." }
+                        { name: "Clockwork Cavalcade", act: 'action', desc: "Magic action: spirits of order fill a 30-ft Cube from you and, before vanishing, restore up to 100 Hit Points divided among creatures of your choice in it, repair damaged objects entirely inside, and end every spell of level 6 or lower on creatures and objects of your choice there. Once per Long Rest, or restore it by spending 7 Sorcery Points (no action)." }
                     ]
                 }
             },
@@ -409,7 +410,7 @@ const DATA = {
                         { name: "Revelation in Flesh", act: 'bonus', desc: "Bonus Action: spend 1 or more Sorcery Points to change your body for 10 minutes, gaining one benefit per point: Aquatic Adaptation (Swim Speed twice your Speed, breathe underwater), Glistening Flight (Fly Speed equal to your Speed, hover), See the Invisible (see Invisible creatures within 60 ft not behind Total Cover) or Wormlike Movement (move through spaces as narrow as 1 inch; spend 5 ft of movement to escape the Grappled condition or nonmagical restraints)." }
                     ],
                     18: [
-                        { name: "Warping Implosion", desc: "Teleport up to 120ft. Each creature within 30ft of the space you left: STR save or 3d10 force damage and pulled toward your old position. Once per Long Rest, or for 5 sorcery points." }
+                        { name: "Warping Implosion", act: 'action', desc: "Magic action: teleport to an unoccupied space you can see within 120 ft. Each creature within 30 ft of the space you left makes a Strength save against your spell save DC: on a failure 3d10 Force damage and pulled toward that space, on a success half damage only. Once per Long Rest, or restore it by spending 5 Sorcery Points (no action)." }
                     ]
                 }
             }
@@ -483,13 +484,13 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
             18: [
-                { name: "Elusive", desc: "No attack roll has advantage against you while you aren't Incapacitated." }
+                { name: "Elusive", desc: "No attack roll can have Advantage against you unless you have the Incapacitated condition." }
             ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Stroke of Luck", desc: "Turn a missed attack into a hit, or treat the d20 of a failed ability check as a 20. Once per Short or Long Rest." }
+                { name: "Stroke of Luck", act: 'free', desc: "When you fail a D20 Test, you can turn the roll into a 20. Once per Short or Long Rest." }
             ]
         },
 
@@ -530,7 +531,7 @@ const DATA = {
                         { name: "Use Magic Device", desc: "You can attune to up to four magic items at once. When you use a magic item property that expends charges, roll 1d6: on a 6 it costs no charges. You can use any Spell Scroll with Intelligence as your spellcasting ability — cantrips and level 1 spells reliably, higher levels after a successful Intelligence (Arcana) check (DC 10 + spell level; on a failure the scroll crumbles)." }
                     ],
                     17: [
-                        { name: "Thief's Reflexes", desc: "You get an extra turn in the first round of combat (at your initiative minus 10)." }
+                        { name: "Thief's Reflexes", desc: "You take two turns in the first round of any combat: one at your normal Initiative and one at your Initiative minus 10." }
                     ]
                 }
             },
@@ -549,7 +550,7 @@ const DATA = {
                         { name: "Envenom Weapons", desc: "When you use the Poison option of Cunning Strike, a target that fails the save also takes 2d6 Poison damage; this damage ignores Resistance to Poison damage." }
                     ],
                     17: [
-                        { name: "Death Strike", desc: "When you hit a surprised creature: CON save (DC 8 + DEX mod + prof) or the damage is doubled." }
+                        { name: "Death Strike", act: 'attack', desc: "When you hit with Sneak Attack in the first round of a combat, the target makes a Constitution save (DC 8 + Dexterity modifier + Proficiency Bonus) or the attack's damage against it is doubled." }
                     ]
                 }
             },
@@ -568,7 +569,7 @@ const DATA = {
                         { name: "Versatile Trickster", desc: "When you use the Trip option of Cunning Strike on a creature, you can also use it on another creature within 5 ft of your spectral Mage Hand." }
                     ],
                     17: [
-                        { name: "Spell Thief", desc: "Reaction, right after a creature casts a spell that targets you or includes you in its area: it makes an Intelligence saving throw against your spell save DC. On a failure you negate the spell's effect against you, and if the spell is level 1+ and of a level you can cast, you have it prepared for 8 hours while the caster can't cast it. Recharges on a Long Rest." }
+                        { name: "Spell Thief", act: 'reaction', desc: "Right after a creature casts a spell that targets you or includes you in its area, you can take a Reaction: it makes an Intelligence save against your spell save DC. On a failure the spell has no effect on you, and if it is level 1+ and of a level you can cast (any class), you have it prepared for 8 hours while the caster can't cast it. Once per Long Rest." }
                     ]
                 }
             },
@@ -591,7 +592,7 @@ const DATA = {
                         { name: "Psychic Veil", act: 'action', desc: "Magic action: you have the Invisible condition for 1 hour or until you dismiss it (no action); it ends right after you deal damage to a creature or force one to make a saving throw. Once per Long Rest, or restore it by spending a Psionic Energy Die (no action)." }
                     ],
                     17: [
-                        { name: "Rend Mind", desc: "On a Sneak Attack with your Psychic Blades: the target makes a WIS save or is Stunned for 1 minute (repeat save at end of turns). Once per Long Rest, or for 3 Psionic Energy dice." }
+                        { name: "Rend Mind", act: 'attack', desc: "When your Psychic Blades deal Sneak Attack damage, the target makes a Wisdom save (DC 8 + Dexterity modifier + Proficiency Bonus) or is Stunned for 1 minute, repeating the save at the end of each of its turns. Once per Long Rest, or restore it by spending three Psionic Energy Dice (no action)." }
                     ]
                 }
             }
@@ -706,14 +707,17 @@ const DATA = {
             16: [
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
+            17: [
+                { name: "Precise Hunter", desc: "You have Advantage on attack rolls against the creature currently marked by your Hunter's Mark." }
+            ],
             18: [
-                { name: "Feral Senses", desc: "You have Blindsight 30ft. Invisible creatures gain no advantage on attacks against you." }
+                { name: "Feral Senses", desc: "You have Blindsight with a range of 30 ft." }
             ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Foe Slayer", desc: "Once per turn, add your WIS modifier to an attack roll or damage roll." }
+                { name: "Foe Slayer", desc: "The damage die of your Hunter's Mark is a d10 instead of a d6." }
             ]
         },
 
@@ -822,6 +826,12 @@ const DATA = {
         skillOptions: ["arcana", "history", "insight", "investigation", "medicine", "nature", "religion"],
         skillCount: 2,
         asiLevels: [4, 8, 12, 16, 19],
+        // Spell Mastery (18) and Signature Spells (20): picks in state.featurePicks.spellMastery / .signatureSpells
+        spells: [
+            { pick: 'mastery1', count: 1, list: 'wizard', level: 1, kind: 'atWill', lvl: 18, key: 'spellMastery', label: 'Spell Mastery (level 1)', note: "at its lowest level, no slot" },
+            { pick: 'mastery2', count: 1, list: 'wizard', level: 2, kind: 'atWill', lvl: 18, key: 'spellMastery', label: 'Spell Mastery (level 2)', note: "at its lowest level, no slot" },
+            { pick: 'signature', count: 2, list: 'wizard', level: 3, kind: 'innate', free: 1, recharge: 'short', slots: true, lvl: 20, key: 'signatureSpells', label: 'Signature Spells', note: "free cast at level 3" }
+        ],
 
         // Full caster: uses same spell slot table as sorcerer
         spellcasting: "full",
@@ -879,13 +889,13 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
             18: [
-                { name: "Spell Mastery", desc: "Choose a 1st-level and a 2nd-level wizard spell. You can cast them at their lowest level without expending a spell slot." }
+                { name: "Spell Mastery", desc: "Choose a level 1 and a level 2 spell from your spellbook that take an action to cast (asked at level-up). They are always prepared and you can cast them at their lowest level without a spell slot, at will. After a Long Rest you can swap one for another eligible spell of the same level." }
             ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Signature Spells", desc: "Choose two 3rd-level wizard spells. They are always prepared and you can cast each once per Short or Long Rest without a spell slot." }
+                { name: "Signature Spells", desc: "Choose two level 3 spells from your spellbook (asked at level-up). They are always prepared, and you can cast each once at level 3 without a spell slot, regained on a Short or Long Rest." }
             ]
         },
 
@@ -1041,6 +1051,9 @@ const DATA = {
             16: [
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
+            18: [
+                { name: "Aura Expansion", desc: "Your Aura of Protection is now a 30-ft Emanation." }
+            ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ]
@@ -1074,7 +1087,7 @@ const DATA = {
                         { name: "Smite of Protection", desc: "Whenever you cast Divine Smite, you and your allies have Half Cover while in your Aura of Protection, until the start of your next turn." }
                     ],
                     20: [
-                        { name: "Holy Nimbus", desc: "As an action: for 1 minute you shed bright light in 30ft, and enemies within 10ft take 10 radiant damage each turn. Advantage on saves against spells of fiends and undead. Once per Long Rest." }
+                        { name: "Holy Nimbus", act: 'bonus', desc: "Bonus Action: for 10 minutes (or until you end it, no action) your Aura of Protection is filled with sunlight (Bright Light); you have Advantage on saves forced by Fiends or Undead, and an enemy that starts its turn in the aura takes Radiant damage equal to your Charisma modifier + Proficiency Bonus. Once per Long Rest, or restore it with a level 5 spell slot (no action)." }
                     ]
                 }
             },
@@ -1105,7 +1118,7 @@ const DATA = {
                         { name: "Undying Sentinel", desc: "When you are reduced to 0 Hit Points and not killed outright, you can drop to 1 Hit Point instead and regain Hit Points equal to three times your Paladin level (once per Long Rest). You can't be aged magically and you stop visibly aging." }
                     ],
                     20: [
-                        { name: "Elder Champion", desc: "As an action, transform for 1 minute: regain 10 HP at the start of each of your turns, paladin spells with a casting time of 1 action become a Bonus Action, and enemies within 10ft have disadvantage on saves against your spells and Channel Divinity. Once per Long Rest." }
+                        { name: "Elder Champion", act: 'bonus', desc: "Bonus Action: for 1 minute (or until you end it, no action) enemies in your Aura of Protection have Disadvantage on saves against your spells and Channel Divinity, you regain 10 Hit Points at the start of each of your turns, and spells with a casting time of an action can be cast as a Bonus Action. Once per Long Rest, or restore it with a level 5 spell slot (no action)." }
                     ]
                 }
             },
@@ -1137,7 +1150,7 @@ const DATA = {
                         { name: "Glorious Defense", act: 'reaction', desc: "When you or a creature you can see within 10 ft is hit by an attack roll, you can take a Reaction to add your Charisma modifier (min +1) to the target's AC against it, possibly making it miss; if it misses, you can make one weapon attack against the attacker as part of the Reaction if it's in range. Uses = your Charisma modifier (min 1) per Long Rest." }
                     ],
                     20: [
-                        { name: "Living Legend", desc: "As a Bonus Action, for 1 minute: advantage on CHA checks, one missed weapon attack per turn becomes a hit, and advantage on saving throws against spells. Once per Long Rest." }
+                        { name: "Living Legend", act: 'bonus', desc: "Bonus Action: for 10 minutes you have Advantage on all Charisma checks; when you fail a saving throw you can take a Reaction to reroll it (you must use the new roll); and once on each of your turns, a weapon attack roll that misses can hit instead. Once per Long Rest, or restore it with a level 5 spell slot (no action)." }
                     ]
                 }
             },
@@ -1168,7 +1181,7 @@ const DATA = {
                         { name: "Soul of Vengeance", act: 'reaction', desc: "Right after a creature under your Vow of Enmity hits or misses with an attack roll, you can take a Reaction to make a melee attack against it if it's within range." }
                     ],
                     20: [
-                        { name: "Avenging Angel", desc: "As an action, transform for 1 hour: you gain wings (fly speed 60ft) and a 30ft aura. Enemies that enter the aura for the first time or start their turn there: WIS save or Frightened for 1 minute. Once per Long Rest." }
+                        { name: "Avenging Angel", act: 'bonus', desc: "Bonus Action: for 10 minutes (or until you end it, no action) you have spectral wings (Fly Speed 60 ft, hover), and an enemy that starts its turn in your Aura of Protection makes a Wisdom save or is Frightened for 1 minute or until it takes damage; attack rolls against it have Advantage. Once per Long Rest, or restore it with a level 5 spell slot (no action)." }
                     ]
                 }
             }
@@ -1251,8 +1264,14 @@ const DATA = {
             16: [
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
+            18: [
+                { name: "Beast Spells", desc: "You can cast spells while in Wild Shape, except spells whose Material component has a cost or is consumed." }
+            ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
+            ],
+            20: [
+                { name: "Archdruid", desc: "Evergreen Wild Shape: when you roll Initiative with no Wild Shape uses left, you regain one. Nature Magician: once per Long Rest, turn unused Wild Shape uses into one spell slot (no action), 2 slot levels per use (two uses = a level 4 slot). Longevity: you age only one year for every ten that pass." }
             ]
         },
 
@@ -1444,11 +1463,15 @@ const DATA = {
             16: [
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
+            17: [
+                { name: "Action Surge", desc: "You can now use Action Surge twice per Short or Long Rest, but only once per turn." },
+                { name: "Indomitable", desc: "You can now use Indomitable three times per Long Rest." }
+            ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Extra Attack (3)", desc: "You can attack four times, instead of three, whenever you take the Attack action." }
+                { name: "Three Extra Attacks", desc: "You can attack four times instead of once whenever you take the Attack action on your turn." }
             ]
         },
 
@@ -1471,7 +1494,7 @@ const DATA = {
                         { name: "Superior Critical", desc: "Your attack rolls with weapons and Unarmed Strikes score a Critical Hit on a roll of 18-20." }
                     ],
                     18: [
-                        { name: "Survivor", desc: "At the start of each of your turns, if you have less than half your max HP but more than 0, you regain 5 + CON modifier HP." }
+                        { name: "Survivor", desc: "Defy Death: Advantage on Death Saving Throws, and a roll of 18-20 counts as a 20. Heroic Rally: at the start of each of your turns, if you are Bloodied and have at least 1 Hit Point, you regain 5 + your Constitution modifier Hit Points." }
                     ]
                 }
             },
@@ -1494,7 +1517,7 @@ const DATA = {
                         { name: "Relentless", desc: "Once per turn, when you use a maneuver, you can roll 1d8 and use that instead of spending a Superiority Die." }
                     ],
                     18: [
-                        { name: "Ultimate Combat Superiority", desc: "Your superiority dice become d12s." }
+                        { name: "Ultimate Combat Superiority", desc: "Your Superiority Die becomes a d12." }
                     ]
                 }
             },
@@ -1516,13 +1539,18 @@ const DATA = {
                         { name: "Arcane Charge", desc: "When you use Action Surge, you can teleport up to 30ft to an unoccupied space you can see (before or after the extra action)." }
                     ],
                     18: [
-                        { name: "Improved War Magic", desc: "When you take the Attack action, you can replace two of the attacks with a casting of a level 1 or level 2 Wizard spell that has a casting time of an action." }
+                        { name: "Improved War Magic", desc: "When you take the Attack action on your turn, you can replace two of the attacks with casting one of your level 1 or 2 Wizard spells that has a casting time of an action." }
                     ]
                 }
             },
             psiWarrior: {
                 name: "Psi Warrior",
                 level: 3,
+                spellAbility: 'int',
+                // Telekinetic Master (18): Telekinesis always prepared, one free cast per Long Rest
+                spells: [
+                    { name: "Telekinesis", lvl: 18, kind: 'innate', free: 1, recharge: 'long', note: "no components; a Psionic Energy Die restores the free cast; Bonus Action weapon attack while concentrating" }
+                ],
                 features: {
                     3: [
                         { name: "Psionic Power", desc: "You have Psionic Energy Dice: 4 × d6 (6 × d8 from level 5). Regain one on a Short Rest and all on a Long Rest. They fuel Protective Field, Psionic Strike and Telekinetic Movement." },
@@ -1542,7 +1570,7 @@ const DATA = {
                         { name: "Bulwark of Force", act: 'bonus', desc: "Bonus Action: up to your Intelligence modifier (min 1) creatures within 30 ft, yourself included, have Half Cover for 1 minute or until you're Incapacitated. Once per Long Rest, or restore it by spending a Psionic Energy Die (no action)." }
                     ],
                     18: [
-                        { name: "Telekinetic Master", desc: "Cast Telekinesis once per Long Rest without a spell slot (INT is your spellcasting ability)." }
+                        { name: "Telekinetic Master", desc: "You always have Telekinesis prepared. Once per Long Rest you can cast it without a spell slot or components (Intelligence is your spellcasting ability), or restore that use by spending a Psionic Energy Die (no action). While you concentrate on it, you can make one weapon attack as a Bonus Action on each of your turns." }
                     ]
                 }
             }
@@ -1616,7 +1644,7 @@ const DATA = {
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Eldritch Master", desc: "Once per Long Rest you can spend 1 minute to restore all your Pact Magic spell slots." }
+                { name: "Eldritch Master", desc: "When you use Magical Cunning, you regain all your expended Pact Magic spell slots." }
             ]
         },
 
@@ -1812,14 +1840,17 @@ const DATA = {
             16: [
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
+            17: [
+                { name: "Improved Brutal Strike", desc: "Brutal Strike's extra damage becomes 2d10, and you can apply two different Brutal Strike effects each time you use it." }
+            ],
             18: [
-                { name: "Indomitable Might", desc: "If your STR check total is lower than your STR score, use your STR score instead of the roll." }
+                { name: "Indomitable Might", desc: "If your total for a Strength check or Strength saving throw is lower than your Strength score, you can use the score instead." }
             ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Primal Champion", desc: "STR and CON each increase by 4, to a maximum of 25." }
+                { name: "Primal Champion", desc: "Your Strength and Constitution scores increase by 4, to a maximum of 25 (applied automatically)." }
             ]
         },
 
@@ -1914,6 +1945,11 @@ const DATA = {
         skillOptions: ["any"],
         skillCount: 3,
         asiLevels: [4, 8, 12, 16, 19],
+        // Words of Creation (20)
+        spells: [
+            { name: "Power Word Heal", lvl: 20, kind: 'prepared', note: "can target a second creature within 10 ft of the first" },
+            { name: "Power Word Kill", lvl: 20, kind: 'prepared', note: "can target a second creature within 10 ft of the first" }
+        ],
 
         spellcasting: "full",
         spellSlots: {
@@ -1979,13 +2015,13 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
             18: [
-                { name: "Superior Inspiration", desc: "When you roll initiative with no Bardic Inspiration uses left, you regain 1." }
+                { name: "Superior Inspiration", desc: "When you roll Initiative, you regain Bardic Inspiration uses until you have two, if you have fewer." }
             ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Words of Creation", desc: "Cast Power Word Heal or Power Word Kill once per Long Rest for free. The effect targets 2 creatures instead of 1." }
+                { name: "Words of Creation", desc: "You always have Power Word Heal and Power Word Kill prepared. When you cast either, you can target a second creature within 10 ft of the first." }
             ]
         },
 
@@ -2144,7 +2180,7 @@ const DATA = {
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Greater Divine Intervention", desc: "Your Divine Intervention can now cast spells up to 9th level, or Wish once." }
+                { name: "Greater Divine Intervention", desc: "When you use Divine Intervention, you can choose Wish. If you do, you can't use Divine Intervention again until you finish 2d4 Long Rests." }
             ]
         },
 
@@ -2174,7 +2210,7 @@ const DATA = {
                         { name: "Blessed Healer", desc: "Right after you cast a spell with a spell slot that restores Hit Points to one or more creatures other than you, you regain Hit Points equal to 2 + the slot's level." }
                     ],
                     17: [
-                        { name: "Supreme Healing", desc: "With healing spells: instead of rolling, take the maximum result of the healing dice." }
+                        { name: "Supreme Healing", desc: "When a spell or Channel Divinity of yours would roll dice to restore Hit Points, use the highest number on each die instead of rolling (2d6 heals 12)." }
                     ]
                 }
             },
@@ -2203,7 +2239,7 @@ const DATA = {
                         { name: "Improved Warding Flare", desc: "Warding Flare now returns on a Short or Long Rest. Whenever you use it, you can give the target of the attack Temporary Hit Points equal to 2d6 + your Wisdom modifier." }
                     ],
                     17: [
-                        { name: "Corona of Light", desc: "As an action: radiate bright light in 60ft. Enemies in the light have disadvantage on saves against your fire and radiant spells. Lasts 1 minute." }
+                        { name: "Corona of Light", act: 'action', desc: "Magic action: emit sunlight for 1 minute or until you dismiss it (no action) — Bright Light 60 ft, Dim Light 30 ft more. Enemies in the Bright Light have Disadvantage on saves against your Radiance of the Dawn and spells that deal Fire or Radiant damage. Uses = your Wisdom modifier (min 1) per Long Rest." }
                     ]
                 }
             },
@@ -2232,7 +2268,7 @@ const DATA = {
                         { name: "Trickster's Transposition", act: 'bonus', desc: "Whenever you take the Bonus Action to create or move the double of your Invoke Duplicity, you can teleport, swapping places with it." }
                     ],
                     17: [
-                        { name: "Improved Duplicity", desc: "You can move your duplicate 30ft per turn, and can now have 4 duplicates at once." }
+                        { name: "Improved Duplicity", desc: "Shared Distraction: you and your allies have Advantage on attack rolls against creatures within 5 ft of your Invoke Duplicity illusion. Healing Illusion: when the illusion ends, you or a creature within 5 ft of it regains Hit Points equal to your Cleric level." }
                     ]
                 }
             },
@@ -2261,7 +2297,7 @@ const DATA = {
                         { name: "War God's Blessing", desc: "You can spend a Channel Divinity use instead of a spell slot to cast Shield of Faith or Spiritual Weapon. Cast this way, the spell needs no Concentration and lasts 1 minute, ending early if you cast that spell again, have the Incapacitated condition or die." }
                     ],
                     17: [
-                        { name: "Avatar of Battle", desc: "Resistance to bludgeoning, piercing, and slashing damage from nonmagical weapons." }
+                        { name: "Avatar of Battle", desc: "You have Resistance to Bludgeoning, Piercing and Slashing damage." }
                     ]
                 }
             }
@@ -2338,13 +2374,13 @@ const DATA = {
                 { name: "Ability Score Improvement", desc: "Take the Ability Score Improvement feat (+2 to one ability or +1 to two, max 20) or another feat you qualify for." }
             ],
             18: [
-                { name: "Superior Defense", desc: "While Dodging (via Patient Defense): resistance to all damage except force." }
+                { name: "Superior Defense", desc: "At the start of your turn you can spend 3 Focus Points: for 1 minute or until you're Incapacitated, you have Resistance to all damage except Force." }
             ],
             19: [
                 { name: "Epic Boon", desc: "Choose an Epic Boon feat. Your ability scores can now go up to 30." }
             ],
             20: [
-                { name: "Body and Mind", desc: "+4 DEX and +4 WIS (max 25 for both)." }
+                { name: "Body and Mind", desc: "Your Dexterity and Wisdom scores increase by 4, to a maximum of 25 (applied automatically)." }
             ]
         },
 
@@ -2363,7 +2399,7 @@ const DATA = {
                         { name: "Fleet Step", act: 'bonus', desc: "When you take a Bonus Action other than Step of the Wind, you can also use Step of the Wind right after it." }
                     ],
                     17: [
-                        { name: "Quivering Palm", desc: "3 Focus Points on an unarmed hit: plant lethal vibrations. Within 14 days, as an action: CON save or the target drops to 0 HP; on a success it takes 10d12 force damage." }
+                        { name: "Quivering Palm", act: 'attack', desc: "When you hit a creature with an Unarmed Strike, you can spend 4 Focus Points to start harmless vibrations that last a number of days equal to your Monk level (one creature at a time). Take an action, or give up one attack of an Attack action, to end them while on the same plane: Constitution save, 10d12 Force damage, half on a success. You can also end them harmlessly (no action)." }
                     ]
                 }
             },
@@ -2384,7 +2420,7 @@ const DATA = {
                         { name: "Flurry of Healing and Harm", desc: "With Flurry of Blows you can replace each Unarmed Strike with a Hand of Healing that costs no Focus Point, and when a Flurry strike deals damage you can add Hand of Harm without spending a Focus Point (still once per turn). Uses = your Wisdom modifier (min 1) per Long Rest." }
                     ],
                     17: [
-                        { name: "Hand of Ultimate Mercy", desc: "5 Focus Points: touch a creature that died within the last 24 hours. It returns to life with 4d10 + WIS modifier HP. Once per Long Rest." }
+                        { name: "Hand of Ultimate Mercy", act: 'action', desc: "Magic action, 5 Focus Points: touch the corpse of a creature that died within the past 24 hours; it returns to life with 4d10 + your Wisdom modifier Hit Points, free of the Blinded, Deafened, Paralyzed, Poisoned and Stunned conditions it died with. Once per Long Rest." }
                     ]
                 }
             },
@@ -2407,7 +2443,7 @@ const DATA = {
                         { name: "Improved Shadow Step", act: 'bonus', desc: "When you use Shadow Step you can spend 1 Focus Point to drop the requirement to start and end in Dim Light or Darkness, and as part of the same Bonus Action you can make an Unarmed Strike right after teleporting." }
                     ],
                     17: [
-                        { name: "Opportunist", desc: "Reaction: when a creature within 5ft of you is hit by another creature's attack, make a melee attack against the attacker." }
+                        { name: "Cloak of Shadows", act: 'action', desc: "Magic action while entirely in Dim Light or Darkness, 3 Focus Points: shadows shroud you for 1 minute, until you're Incapacitated or end your turn in Bright Light. Meanwhile you are Invisible, can move through occupied spaces as Difficult Terrain (shunted out if you end your turn there), and can use Flurry of Blows without spending Focus Points." }
                     ]
                 }
             },
@@ -2430,7 +2466,7 @@ const DATA = {
                         { name: "Stride of the Elements", desc: "While your Elemental Attunement is active, you also have a Fly Speed and a Swim Speed equal to your Speed." }
                     ],
                     17: [
-                        { name: "Elemental Epitome", desc: "Become an avatar of the elements: extra elemental damage on unarmed strikes, resistance to a chosen element, and your reach becomes 10ft." }
+                        { name: "Elemental Epitome", desc: "While your Elemental Attunement is active: Resistance to Acid, Cold, Fire, Lightning or Thunder (change at the start of each turn); Destructive Stride — Step of the Wind adds 20 ft of Speed, and creatures of your choice you move within 5 ft of take one Martial Arts die of Acid, Cold, Fire, Lightning or Thunder damage (once per turn); Empowered Strikes — once per turn an Unarmed Strike hit deals an extra Martial Arts die of its type." }
                     ]
                 }
             }
@@ -2630,19 +2666,36 @@ const DATA = {
         { name: "Weapon Master", category: "general", prereq: { level: 4 }, ability: ['str', 'dex'],
           desc: "+1 Strength or Dexterity. You can use the mastery property of one kind of Simple or Martial weapon you're proficient with. Whenever you finish a Long Rest, you can change that weapon kind." },
 
-        // --- EPIC BOONS (level 19+) — outside the level 1-4 scope, unchanged ---
-        { name: "Boon of Combat Prowess", category: "epic", desc: "+1 STR or DEX (max 30). When you miss with a melee attack, you can turn it into a hit. Once per Long Rest.", prereq: null },
-        { name: "Boon of Dimensional Travel", category: "epic", desc: "+1 INT, WIS, or CHA (max 30). Teleport up to 30ft as a Bonus Action. Uses = proficiency bonus per Long Rest.", prereq: null },
-        { name: "Boon of Energy Resistance", category: "epic", desc: "+1 CON (max 30). When you take acid/cold/fire/lightning/thunder damage: reaction to gain resistance, plus choose allies (up to prof bonus) who also gain it.", prereq: null },
-        { name: "Boon of Fate", category: "epic", desc: "+1 INT, WIS, or CHA (max 30). Add 2d4 to, or subtract 2d4 from, an attack roll, ability check, or saving throw (once per Short/Long Rest).", prereq: null },
-        { name: "Boon of Fortitude", category: "epic", desc: "+1 CON (max 30). Your max HP increases by 40.", prereq: null },
-        { name: "Boon of Irresistible Offense", category: "epic", desc: "+1 STR or DEX (max 30). Your weapon and unarmed attacks ignore resistance, and treat immunity as resistance.", prereq: null },
-        { name: "Boon of Recovery", category: "epic", desc: "+1 CON (max 30). On a failed death save: succeed instead and regain HP equal to proficiency bonus x Hit Die.", prereq: null },
-        { name: "Boon of Skill", category: "epic", desc: "+1 to one ability (max 30). Proficiency in all skills.", prereq: null },
-        { name: "Boon of Speed", category: "epic", desc: "+1 DEX (max 30). +30ft speed. Opportunity attacks against you have disadvantage.", prereq: null },
-        { name: "Boon of Spell Recall", category: "epic", desc: "+1 INT, WIS, or CHA (max 30). Cast a spell of 5th level or lower without a spell slot. Once per Long Rest.", prereq: null },
-        { name: "Boon of the Night Spirit", category: "epic", desc: "+1 DEX, WIS, or CHA (max 30). Merge with shadows: invisible in dim light/darkness. Resistance to all damage except force/psychic/radiant.", prereq: null },
-        { name: "Boon of Truesight", category: "epic", desc: "+1 INT, WIS, or CHA (max 30). Truesight 60ft.", prereq: null },
+        // --- EPIC BOONS (level 19+, 2024): +1 to an ability up to 30 ---
+        { name: "Boon of Combat Prowess", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). Peerless Aim: when you miss with an attack roll, you can hit instead; then not again until the start of your next turn." },
+        { name: "Boon of Dimensional Travel", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). Blink Steps: right after you take the Attack action or the Magic action, you can teleport up to 30 ft to an unoccupied space you can see." },
+        { name: "Boon of Energy Resistance", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). Energy Resistances: Resistance to two damage types of your choice from Acid, Cold, Fire, Lightning, Necrotic, Poison, Psychic, Radiant and Thunder (change them on a Long Rest). Energy Redirection: when you take damage of one of those types, you can take a Reaction to make a creature you can see within 60 ft (not behind Total Cover) make a Dexterity save (DC 8 + Constitution modifier + Proficiency Bonus) or take 2d12 + your Constitution modifier damage of that type.",
+          actions: [{ act: 'reaction', name: "Energy Redirection", desc: "When you take damage of a chosen type: a creature within 60 ft makes a DEX save or takes 2d12 + CON modifier damage of that type." }] },
+        { name: "Boon of Fate", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). Improve Fate: when you or a creature within 60 ft succeeds or fails a D20 Test, you can roll 2d4 and add it to or subtract it from the d20 roll; then not again until you roll Initiative or finish a Short or Long Rest." },
+        { name: "Boon of Fortitude", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). Fortified Health: your Hit Point maximum increases by 40, and once per turn when you regain Hit Points you can regain extra Hit Points equal to your Constitution modifier." },
+        { name: "Boon of Irresistible Offense", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex'], abilityMax: 30,
+          desc: "+1 Strength or Dexterity (max 30). Overcome Defenses: your Bludgeoning, Piercing and Slashing damage always ignores Resistance. Overwhelming Strike: on a 20 on the d20 for an attack roll, you deal extra damage equal to the ability score this feat increased, of the attack's type." },
+        { name: "Boon of Recovery", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). Last Stand: when you would drop to 0 Hit Points, you can drop to 1 instead and regain half your Hit Point maximum (once per Long Rest). Recover Vitality: a pool of ten d10s; as a Bonus Action spend and roll any number of them to regain that many Hit Points (the pool refills on a Long Rest).",
+          actions: [{ act: 'bonus', name: "Recover Vitality", desc: "Spend dice from your pool of ten d10s and regain HP equal to the roll." }] },
+        { name: "Boon of Skill", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). All-Around Adept: you have proficiency in all skills. Expertise: you gain Expertise in one skill that doesn't have it yet.",
+          choices: [{ id: 'expertise', count: 1, anySkill: true }] },
+        { name: "Boon of Speed", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). Escape Artist: as a Bonus Action you can take the Disengage action, which also ends the Grappled condition on you. Quickness: your Speed increases by 30 ft.",
+          actions: [{ act: 'bonus', name: "Escape Artist", desc: "Disengage, also ending the Grappled condition on you." }] },
+        { name: "Boon of Spell Recall", category: "epic", prereq: { level: 19 }, ability: ['int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 Intelligence, Wisdom or Charisma (max 30). Free Casting: when you cast a spell with a level 1-4 spell slot, roll 1d4; if it equals the slot's level, the slot isn't expended." },
+        { name: "Boon of the Night Spirit", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). Merge with Shadows: in Dim Light or Darkness, as a Bonus Action you can give yourself the Invisible condition, which ends right after you take an action, Bonus Action or Reaction. Shadowy Form: in Dim Light or Darkness you have Resistance to all damage except Psychic and Radiant.",
+          actions: [{ act: 'bonus', name: "Merge with Shadows", desc: "In Dim Light or Darkness: Invisible until you take an action, Bonus Action or Reaction." }] },
+        { name: "Boon of Truesight", category: "epic", prereq: { level: 19 }, ability: ['str', 'dex', 'con', 'int', 'wis', 'cha'], abilityMax: 30,
+          desc: "+1 to any ability (max 30). You have Truesight with a range of 60 ft." },
 
         // --- FIGHTING STYLE FEATS (prereq: the Fighting Style feature) ---
         { name: "Archery", category: "fighting", desc: "You gain a +2 bonus to attack rolls you make with Ranged weapons.", prereq: { fightingStyle: true } },
@@ -3462,21 +3515,21 @@ DATA.spellPool = {
     "Tsunami": { level: 8, time: "1 minute", range: "1 mile", comp: "V, S", dur: "Concentration, 6 rounds", desc: "A wall of water up to 300 ft long, 300 ft high and 50 ft thick appears within range. Creatures in it make a Strength save: 6d10 Bludgeoning damage, half on a success. At the start of each of your turns it moves 50 ft away from you with everything in it; a Huge or smaller creature inside it or in its path makes a Strength save or takes 5d10 Bludgeoning damage (once per round). After each turn the wall loses 50 ft of height and later damage drops by 1d10; at 0 ft the spell ends. Moving within it takes a Strength (Athletics) check against your spell save DC." },
 
     // ===== 9TH LEVEL =====
-    "Astral Projection": { level: 9, time: "1 hour", range: "10ft", comp: "V, S, M (for each target: a jacinth worth 1000gp and a silver bar worth 100gp)", dur: "Special", desc: "You and up to 8 willing creatures travel to the Astral Plane as astral projections, connected by silver cords." },
-    "Foresight": { level: 9, time: "1 minute", range: "Touch", comp: "V, S, M (a hummingbird feather)", dur: "8 hours", desc: "8 hours. The target can't be surprised and has advantage on attack rolls, ability checks, and saving throws. Attackers have disadvantage." },
-    "Gate": { level: 9, time: "1 action", range: "60ft", comp: "V, S, M (a diamond worth at least 5000gp)", dur: "Concentration, 1 min", desc: "Open a portal to another plane, or call a specific being by name. The portal works both ways. Concentration, 1 min." },
-    "Imprisonment": { level: 9, time: "1 minute", range: "30ft", comp: "V, S, M (components worth 500gp per Hit Die of the target)", dur: "Until broken", desc: "WIS save or the target is imprisoned in one of five forms: burial, chaining, hedged prison, minimus containment, or slumber. No escape without the specific countermeasure." },
-    "Mass Heal": { level: 9, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "Restore 700 HP, divided as you choose among creatures within 60ft. Also ends blindness, deafness, and all diseases." },
-    "Meteor Swarm": { level: 9, time: "1 action", range: "1 mile", comp: "V, S", dur: "Instant", desc: "Four 40ft radius explosions at points within 1 mile. DEX save or 20d6 fire + 20d6 bludgeoning damage (half on a save)." },
-    "Power Word Heal": { level: 9, time: "1 action", range: "60ft", comp: "V", dur: "Instant", desc: "Restore all of a creature's HP. Also ends the Charmed, Frightened, Paralyzed, and Stunned conditions. If Prone, it stands up." },
-    "Power Word Kill": { level: 9, time: "1 action", range: "60ft", comp: "V", dur: "Instant", desc: "Choose a creature with 100 HP or fewer: it dies instantly. No save." },
-    "Prismatic Wall": { level: 9, time: "1 action", range: "60ft", comp: "V, S", dur: "10 min", desc: "Wall or sphere of brilliant multicolored light. Seven layers, each with a unique effect. Creatures that come too close can be Blinded." },
-    "Shapechange": { level: 9, time: "1 action", range: "Self", comp: "V, S, M (a jade circlet worth 1500gp)", dur: "Concentration, 1 hour", desc: "Transform into any creature of CR equal to or lower than your level. You keep your INT, WIS, and CHA, and your class features." },
-    "Storm of Vengeance": { level: 9, time: "1 action", range: "Sight", comp: "V, S", dur: "Concentration, 1 min", desc: "Call up a colossal storm. Each round a different effect: thunder, lightning, hailstones, acidic rain, or gusts of wind." },
-    "Time Stop": { level: 9, time: "1 action", range: "Self", comp: "V", dur: "Instant", desc: "Stop time for 1d4+1 turns. Only you act. Ends if you affect or damage another creature." },
-    "True Polymorph": { level: 9, time: "1 action", range: "30ft", comp: "V, S, M (a drop of mercury, a dollop of gum arabic, and a wisp of smoke)", dur: "Concentration, 1 hour", desc: "Transform a creature or object (WIS save). If you maintain concentration for the full hour, the transformation becomes permanent." },
-    "True Resurrection": { level: 9, time: "1 hour", range: "Touch", comp: "V, S, M (holy oils worth 25000gp)", dur: "Instant", desc: "Return a creature dead no longer than 200 years to life with all its HP. Creates a new body if the original was destroyed." },
-    "Wish": { level: 9, time: "1 action", range: "Self", comp: "V", dur: "Instant", desc: "The mightiest spell. Duplicate any spell of 8th level or lower, or create another effect at the DM's discretion. Risky when used creatively." },
+    "Astral Projection": { level: 9, time: "1 hour", range: "10ft", comp: "V, S, M (for each of the spell's targets, one jacinth worth 1,000+ GP and one silver bar worth 100+ GP, all of which the spell consumes)", dur: "Until dispelled", desc: "You and up to eight willing creatures within range project astral forms into the Astral Plane (it ends at once if you're already there). The bodies stay behind in suspended animation (Unconscious, needing no food or air, not aging). Each astral form copies its creature's statistics and gear, trailing a silver cord — if the cord is cut, body and form both die. Leaving the Astral Plane pulls body and possessions along to the new plane. Damage to the form doesn't affect the body and vice versa; the spell ends for a target whose body or form drops to 0 Hit Points, or for everyone if you dismiss it with a Magic action." },
+    "Foresight": { level: 9, time: "1 minute", range: "Touch", comp: "V, S, M (a hummingbird feather)", dur: "8 hours", desc: "Touch a willing creature: for the duration it has Advantage on D20 Tests and other creatures have Disadvantage on attack rolls against it. Casting it again ends the previous one." },
+    "Gate": { level: 9, time: "1 action", range: "60ft", comp: "V, S, M (a diamond worth 5,000+ GP)", dur: "Concentration, 1 min", desc: "A circular portal (5-20 ft across, any orientation) links an unoccupied space within range to a precise place on another plane for the duration; only its front can be used, and travellers arrive in the nearest free space. Gods and planar rulers can block it in their domains. If you speak the true name of a creature on another plane, the portal opens next to it and pulls it through to your side — you gain no power over it." },
+    "Imprisonment": { level: 9, time: "1 minute", range: "30ft", comp: "V, S, M (a statuette of the target worth 5,000+ GP)", dur: "Until dispelled", desc: "A creature you can see within range makes a Wisdom save; on a success it's immune to this spell for 24 hours. On a failure it is imprisoned: it doesn't breathe, eat, drink or age, can't be found by Divination or teleport, and suffers one form you choose — Burial (sealed in a globe of force underground), Chaining (Restrained and immovable), Hedged Prison (a warded demiplane: labyrinth, cage, tower…), Minimus Containment (1 inch tall inside an indestructible gem) or Slumber (Unconscious, can't be woken). You set an observable end trigger the DM agrees is likely within a decade; Dispel Magic only works with a level 9 slot." },
+    "Mass Heal": { level: 9, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "Restore up to 700 Hit Points, divided as you like among any creatures you can see within range; it also ends their Blinded, Deafened and Poisoned conditions." },
+    "Meteor Swarm": { level: 9, time: "1 action", range: "1 mile", comp: "V, S", dur: "Instant", desc: "Fiery orbs strike four points you can see within range. Each creature in a 40-ft-radius Sphere around any point makes a Dexterity save: 20d6 Fire + 20d6 Bludgeoning damage, half on a success (once even if in several spheres). Unattended nonmagical objects take the damage too and flammable ones catch fire." },
+    "Power Word Heal": { level: 9, time: "1 action", range: "60ft", comp: "V, S", dur: "Instant", desc: "A creature you can see within range regains all its Hit Points; its Charmed, Frightened, Paralyzed, Poisoned and Stunned conditions end, and if it's Prone it can use its Reaction to stand up." },
+    "Power Word Kill": { level: 9, time: "1 action", range: "60ft", comp: "V", dur: "Instant", desc: "A creature you can see within range with 100 Hit Points or fewer dies; otherwise it takes 12d12 Psychic damage." },
+    "Prismatic Wall": { level: 9, time: "1 action", range: "60ft", comp: "V, S", dur: "10 min", desc: "An opaque, shimmering wall of seven colored layers (up to 90 ft long, 30 ft high, 1 inch thick, or a globe up to 30 ft across) appears within range for the duration (Bright Light 100 ft, Dim Light 100 ft more); it fails if placed in an occupied space. You and creatures you choose pass safely. Others that can see it and come within 20 ft or start their turn there make a Constitution save or are Blinded for 1 minute. Passing through means a Dexterity save per layer: red 12d6 Fire (stops nonmagical missiles), orange 12d6 Acid (stops magical missiles), yellow 12d6 Lightning, green 12d6 Poison, blue 12d6 Cold (half on success), indigo Restrained then Petrified after three failed Constitution saves (blocks spells), violet Blinded then possibly sent to another plane. Layers fall in order to: 25 Cold, strong wind, 60 Force, Passwall, 25 Fire, Daylight, Dispel Magic. Antimagic Field doesn't affect it." },
+    "Shapechange": { level: 9, time: "1 action", range: "Self", comp: "V, S, M (a jade circlet worth 1,500+ GP)", dur: "Concentration, 1 hour", desc: "You shape-shift into a creature you've seen of CR no higher than your level (not a Construct or Undead); a Magic action switches to another eligible form. You gain Temporary Hit Points equal to the first form's HP and take its statistics, but keep your creature type, alignment, personality, INT, WIS and CHA, Hit Points, Hit Point Dice, proficiencies, ability to communicate and Spellcasting. Your gear either drops or reshapes to fit." },
+    "Storm of Vengeance": { level: 9, time: "1 action", range: "1 mile", comp: "V, S", dur: "Concentration, 1 min", desc: "A storm cloud with a 300-ft radius forms around a point within range. Creatures under it when it appears make a Constitution save or take 2d6 Thunder damage and are Deafened for the duration. At the start of your later turns: turn 2 — acid rain, 4d6 Acid to everything below; turn 3 — six lightning bolts at six targets, Dexterity save, 10d6 Lightning, half on a success; turn 4 — hail, 2d6 Bludgeoning; turns 5-10 — freezing gusts, 1d6 Cold each turn, and the area is Difficult Terrain and Heavily Obscured, with strong wind and no ranged weapon attacks." },
+    "Time Stop": { level: 9, time: "1 action", range: "Self", comp: "V", dur: "Instant", desc: "Time stops for everyone but you: you take 1d4 + 1 turns in a row. The spell ends early if anything you do affects another creature or an object someone else wears or carries, or if you move more than 1,000 ft from where you cast it." },
+    "True Polymorph": { level: 9, time: "1 action", range: "30ft", comp: "V, S, M (a drop of mercury, a dollop of gum arabic, and a wisp of smoke)", dur: "Concentration, 1 hour", desc: "Transform a creature or unattended nonmagical object you can see within range (an unwilling creature makes a Wisdom save). Creature into creature: any kind of CR up to the target's CR or level; it keeps its Hit Points, Hit Point Dice, alignment and personality, gains Temporary Hit Points equal to the new form's HP, can't speak or cast spells, gear melds in. Object into creature: CR 9 or lower and no larger than the object; Friendly, acts after you and obeys you (after an hour you lose control). Creature into object: no larger than the creature, with no memory of the time afterwards. Hold Concentration for the full hour and it lasts until dispelled." },
+    "True Resurrection": { level: 9, time: "1 hour", range: "Touch", comp: "V, S, M (diamonds worth 25,000+ GP, which the spell consumes)", dur: "Instant", desc: "Touch a creature dead no longer than 200 years, of anything but old age: it returns with all its Hit Points, wounds closed, poisons, magical diseases and curses from its death removed, and missing parts restored; an Undead returns to its living form. If the body is gone, speak its name and it appears in a new body within 10 ft of you." },
+    "Wish": { level: 9, time: "1 action", range: "Self", comp: "V", dur: "Instant", desc: "The mightiest spell. Duplicate any spell of level 8 or lower, ignoring all requirements and costly components. Or choose: Object Creation (a nonmagical object worth up to 25,000 GP, at most 300 ft in any dimension); Instant Health (you and up to twenty creatures you see regain all Hit Points and are cured of everything Greater Restoration ends); Resistance (up to ten creatures gain permanent Resistance to one damage type); Spell Immunity (up to ten creatures are immune to one spell or effect for 8 hours); Sudden Learning (replace one of your feats with another you qualify for); Roll Redo (force a reroll of any die rolled in the last round, with Advantage or Disadvantage if you like, and pick the result); or Reshape Reality (anything else — the DM decides, and big wishes can go wrong). Any use other than duplicating a spell strains you: until a Long Rest each spell you cast deals you 1d10 Necrotic per spell level (unpreventable), your Strength becomes 3 for 2d4 days, and there's a 33% chance you can never cast Wish again." },
     "Lightning Arrow": { level: 3, time: "1 bonus action", range: "Self", comp: "V, S", dur: "Instant", desc: "Bonus Action as you make a ranged weapon attack: instead of the attack's normal effects, the target takes 4d8 Lightning damage on a hit or half on a miss, and each creature within 10 ft of it makes a Dexterity save, taking 2d8 Lightning damage, half on a success. Upcast: +1d8 to both per slot level above 3." },
     "Transport via Plants": { level: 6, time: "1 action", range: "10ft", comp: "V, S", dur: "1 min", desc: "Link a Large or larger inanimate plant within range to another plant on the same plane that you have seen or touched before. For the duration, any creature can step into the first plant and out of the other using 5 ft of movement." },
 
@@ -3582,7 +3635,7 @@ DATA.spellPool = {
     "Wall of Ice": { level: 6, time: "1 action", range: "120ft", comp: "V, S, M (a piece of quartz)", dur: "Concentration, 10 min", desc: "A wall of ice on a solid surface within range, 1 ft thick: a dome or globe up to 10 ft in radius, or ten connected 10-ft-square panels. A creature in its path is pushed to one side and makes a Dexterity save: 10d6 Cold damage, half on a success. Each 10-ft section has AC 12 and 30 Hit Points, Immunity to Cold, Poison and Psychic damage and Vulnerability to Fire; a destroyed section leaves frigid air, and a creature moving through it for the first time on a turn makes a Constitution save: 5d6 Cold damage, half on a success. Upcast: +2d6 for the appearing damage and +1d6 for the frigid air per slot level above 6." },
     "Mordenkainen's Sword": { level: 7, time: "1 action", range: "90ft", comp: "V, S, M (a miniature sword worth 250+ GP)", dur: "Concentration, 1 min", desc: "A spectral sword hovers within range for the duration. When it appears, make a melee spell attack against a target within 5 ft of it: 4d12 + your spellcasting modifier Force damage. Bonus Action on later turns: move it up to 30 ft and attack again (same or another target)." },
     "Telepathy": { level: 8, time: "1 action", range: "Unlimited", comp: "V, S, M (a pair of linked silver rings)", dur: "24 hours", desc: "Link minds with a willing creature you know anywhere on your plane for the duration: you can instantly share words, images, sounds and other sensations, it recognizes you, and it understands the meaning of your words. The spell ends if you're no longer on the same plane." },
-    "Weird": { level: 9, time: "1 action", range: "120ft", comp: "V, S", dur: "Concentration, 1 min", desc: "Each creature you choose in a 30ft-radius sphere makes a Wisdom save, taking 10d10 Psychic damage and gaining the Frightened condition on a failure, or half damage only on a success. A Frightened target saves again at the end of each of its turns, taking 5d10 Psychic damage on a failure or ending the spell on itself on a success." },
+    "Weird": { level: 9, time: "1 action", range: "120ft", comp: "V, S", dur: "Concentration, 1 min", desc: "Creatures of your choice in a 30-ft-radius Sphere within range make a Wisdom save: on a failure 10d10 Psychic damage and Frightened for the duration, on a success half damage only. A Frightened target repeats the save at the end of each of its turns, taking 5d10 Psychic damage on a failure or ending the effect on a success." },
 };
 
 // ===== SPELLS (class lists with name strings) =====
@@ -3919,6 +3972,63 @@ DATA.speciesProgression = {
 function _resMod(cfg, st, ab) { return Math.max(1, getMod(getAbilityScore(cfg, st, ab))); }
 DATA.classResources = [
     // ---- Barbarian ----
+    // ---- Level 17-20 capstones and subclass finales ----
+    {
+        id: 'paladinFinale', label: 'Oath capstone',
+        appliesTo: { className: 'paladin', minLevel: 20 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'paladinFinaleUsed', recharge: 'long', featureNames: ['Holy Nimbus', 'Living Legend', 'Elder Champion', 'Avenging Angel'],
+        desc: "Holy Nimbus, Living Legend, Elder Champion or Avenging Angel: once per Long Rest; a level 5 spell slot restores it."
+    },
+    {
+        id: 'coronaOfLight', label: 'Corona of Light',
+        appliesTo: { className: 'cleric', subclass: 'light', minLevel: 17 },
+        max: function (cfg, st) { return _resMod(cfg, st, 'wis'); },
+        stateKey: 'coronaOfLightUsed', recharge: 'long', featureNames: ['Corona of Light'],
+        desc: "Uses = Wisdom modifier (min 1) per Long Rest."
+    },
+    {
+        id: 'handOfUltimateMercy', label: 'Hand of Ultimate Mercy',
+        appliesTo: { className: 'monk', subclass: 'mercy', minLevel: 17 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'handOfUltimateMercyUsed', recharge: 'long', featureNames: ['Hand of Ultimate Mercy'],
+        desc: "Revive a creature (5 Focus Points). Once per Long Rest."
+    },
+    {
+        id: 'natureMagician', label: 'Nature Magician',
+        appliesTo: { className: 'druid', minLevel: 20 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'natureMagicianUsed', recharge: 'long', featureNames: ['Archdruid'],
+        desc: "Turn Wild Shape uses into one spell slot (2 levels per use). Once per Long Rest."
+    },
+    {
+        id: 'spellThief', label: 'Spell Thief',
+        appliesTo: { className: 'rogue', subclass: 'arcaneTrickster', minLevel: 17 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'spellThiefUsed', recharge: 'long', featureNames: ['Spell Thief'],
+        desc: "Once per Long Rest."
+    },
+    {
+        id: 'rendMind', label: 'Rend Mind',
+        appliesTo: { className: 'rogue', subclass: 'soulknife', minLevel: 17 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'rendMindUsed', recharge: 'long', featureNames: ['Rend Mind'],
+        desc: "Once per Long Rest; three Psionic Energy Dice restore it."
+    },
+    {
+        id: 'strokeOfLuck', label: 'Stroke of Luck',
+        appliesTo: { className: 'rogue', minLevel: 20 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'strokeOfLuckUsed', recharge: 'short', featureNames: ['Stroke of Luck'],
+        desc: "Turn a failed D20 Test into a 20. Once per Short or Long Rest."
+    },
+    {
+        id: 'sorcererFinale', label: 'Sorcery capstone',
+        appliesTo: { className: 'sorcerer', subclass: ['aberrant', 'clockwork', 'wildMagic'], minLevel: 18 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'sorcererFinaleUsed', recharge: 'long', featureNames: ['Warping Implosion', 'Clockwork Cavalcade', 'Tamed Surge'],
+        desc: "Warping Implosion, Clockwork Cavalcade or Tamed Surge: once per Long Rest (Sorcery Points can restore the first two)."
+    },
     {
         id: 'rage', label: 'Rage',
         appliesTo: { className: 'barbarian', minLevel: 1 },

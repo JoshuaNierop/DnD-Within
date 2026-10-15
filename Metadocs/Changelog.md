@@ -2,6 +2,22 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-15 — Levels 17–20: every class and subclass up to level 20 (2024 rules)
+
+- Every class and subclass feature from level 17 to 20 follows the 2024 Player's
+  Handbook — characters can now level all the way to 20.
+- **Epic Boon** at level 19: pick an Epic Boon feat (or another feat) in the level-up menu.
+  The twelve boons follow the 2024 rules and raise an ability up to 30; Boon of Skill
+  (all skills plus one Expertise), Boon of Speed (+30 ft) and Boon of Fortitude (+40 HP)
+  count automatically.
+- **Primal Champion** (Barbarian 20) and **Body and Mind** (Monk 20) raise your scores
+  by 4, up to 25.
+- **Spell Mastery** (Wizard 18) and **Signature Spells** (Wizard 20) are chosen in the
+  level-up menu; Signature Spells' free casts are tracked.
+- Words of Creation, Dragon Companion and Telekinetic Master spells are added
+  automatically; capstone uses (Oath capstones, Stroke of Luck, Rend Mind, …) are tracked.
+- All level 9 spells follow the 2024 rules — every spell now matches the 2024 Handbook.
+
 ## 2026-10-15 — Levels 11–16 for every class and subclass (2024 rules)
 
 - Every class and subclass feature from level 11 to 16 follows the 2024 Player's

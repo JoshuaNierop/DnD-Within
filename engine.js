@@ -39,7 +39,14 @@ function getAbilityScore(config, state, ability) {
             }
         }
     }
-    return score;
+    return capstoneScore(config, state, ability, score);
+}
+
+// Level 20 capstones (Primal Champion, Body and Mind): +4 to two abilities, to a maximum of 25.
+function capstoneScore(config, state, ability, score) {
+    var cap4 = (config.className === 'barbarian' && (ability === 'str' || ability === 'con')) ||
+        (config.className === 'monk' && (ability === 'dex' || ability === 'wis'));
+    return cap4 && ((state && state.level) || 1) >= 20 ? Math.max(score, Math.min(score + 4, 25)) : score;
 }
 
 // Skill check bonus (2024): ability modifier + Proficiency (doubled with
@@ -53,7 +60,7 @@ function getSkillBonus(config, state, skill, ability) {
     var norm = function (s) { return String(s || '').toLowerCase().replace(/[^a-z]/g, ''); };
     var k = norm(skill);
     var has = function (list) { return listOf(list).some(function (s) { return norm(s) === k; }); };
-    var prof = has(config.defaultSkills), expert = has(config.expertSkills);
+    var prof = has(config.defaultSkills) || hasFeat(st, 'Boon of Skill', config), expert = has(config.expertSkills);
     var mod = getMod(getAbilityScore(config, st, ability));
     var parts = [{ label: ability.toUpperCase() + ' modifier', value: mod }];
     if (expert) parts.push({ label: 'Expertise (2 × proficiency)', value: 2 * pb });
@@ -76,6 +83,7 @@ function getSpeed(config, state) {
     if (config.className === 'barbarian' && lvl >= 5) spd += 10;
     if (config.className === 'ranger' && lvl >= 6) spd += 10;
     if (hasFeat(st, 'Speedy', config)) spd += 10;
+    if (hasFeat(st, 'Boon of Speed', config)) spd += 30;
     return spd;
 }
 
@@ -135,7 +143,7 @@ function getCalculatedAbilityScore(config, state, ability) {
             }
         }
     }
-    return score;
+    return capstoneScore(config, state, ability, score);
 }
 
 function getAbilityBreakdown(config, state, ability) {
@@ -744,14 +752,14 @@ function getLevelUpDelta(config, state, toLevel) {
             if (chl[c].subclass && chl[c].subclass !== config.subclass) continue;   // subclass-only (Champion style)
             choices.push(Object.assign({ level: lvl, source: 'class' }, chl[c]));
         }
-        // Ability Score Improvement / feat (Epic Boon at 19 is out of scope here)
-        if ((classData.asiLevels || []).indexOf(lvl) !== -1 && lvl < 19) choices.push({ id: 'asi', level: lvl, source: 'class' });
+        // Ability Score Improvement / feat (level 19: Epic Boon or another feat)
+        if ((classData.asiLevels || []).indexOf(lvl) !== -1) choices.push({ id: 'asi', level: lvl, source: 'class' });
     }
     // Fix mode (toLevel === current level, "Complete missing choices"): offer
     // Ability Score Improvement records that are missing at levels already reached.
     if (toLevel === from) {
         var asiRec = numMap(state.asiChoices);
-        var missingAsi = (classData.asiLevels || []).filter(function (L) { return L <= from && L < 19 && !asiRec[L]; })[0];
+        var missingAsi = (classData.asiLevels || []).filter(function (L) { return L <= from && !asiRec[L]; })[0];
         if (missingAsi) choices.push({ id: 'asi', level: missingAsi, source: 'class' });
     }
     // Counted choices that grow with level: ask for (total at toLevel − known).
@@ -924,7 +932,7 @@ function getBuildProfile(cfg, st) {
     });
     openFeatPicks(cfg, st).forEach(function (o) { prof.open.push({ id: 'featPicks', what: o.feat + ': ' + (o.pick === 'spellAbility' ? 'choose the spellcasting ability' : 'choose ' + o.need + ' ' + o.pick) }); });
     // Feats due at ASI levels that have no record yet
-    (cd.asiLevels || []).forEach(function (L) { if (L <= lvl && L < 19 && !numMap(st.asiChoices)[L]) prof.open.push({ id: 'asi', what: 'Level ' + L + ': Ability Score Improvement or a feat' }); });
+    (cd.asiLevels || []).forEach(function (L) { if (L <= lvl && !numMap(st.asiChoices)[L]) prof.open.push({ id: 'asi', what: 'Level ' + L + (L === 19 ? ': Epic Boon (or another feat)' : ': Ability Score Improvement or a feat') }); });
 
     // --- Features (class, subclass, species, lineage) with action type ---
     var resList = getClassResources(cfg, st);

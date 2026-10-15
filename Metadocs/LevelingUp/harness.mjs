@@ -108,7 +108,8 @@ export function makePick(E, step, cfg, st, delta, picked, prefs) {
   else if (id === 'order') picked.order = prefs.order || (cfg.className === 'cleric' ? 'thaumaturge' : 'magician');
   else if (id === 'versatileFeat' || id === 'asi' || id === 'lessonsFeat') {
     const owner = id === 'asi' ? 'asi' : id === 'lessonsFeat' ? 'lessons' : 'versatile';
-    const want = id === 'asi' ? prefs.asiFeat : id === 'lessonsFeat' ? 'Tough' : (prefs.versatileFeat || 'Skilled');
+    // level 19: an Epic Boon (rotated through the matrix)
+    const want = id === 'asi' ? (delta.to === 19 && prefs.epicBoon ? prefs.epicBoon : prefs.asiFeat) : id === 'lessonsFeat' ? 'Tough' : (prefs.versatileFeat || 'Skilled');
     const fe = want && want !== 'Ability Score Improvement' ? E.findFeat(want) : null;
     const ok = fe && E.featPrereqMet(fe, eff, stAt, delta.to).ok;
     if (id === 'asi' && !ok) picked.asi = { type: 'asi', abilities: {} };
@@ -129,7 +130,8 @@ export function makePick(E, step, cfg, st, delta, picked, prefs) {
   } else if (id === 'featAbility') {
     const rec = getPath(picked, c.owner);
     const saves = (DATA[cfg.className] || {}).savingThrows || [];
-    const opts = c.options.filter((a) => rec.feat !== 'Resilient' || saves.indexOf(a) === -1).filter((a) => E.getAbilityScore(cfg, stAt, a) < 20);
+    const capA = (E.findFeat(rec.feat) || {}).abilityMax || 20;
+    const opts = c.options.filter((a) => rec.feat !== 'Resilient' || saves.indexOf(a) === -1).filter((a) => E.getAbilityScore(cfg, stAt, a) < capA);
     rec.ability = opts[0];
   } else if (id === 'featSpellAbility') setPath(picked, c.owner + '.spellAbility', prefs.spellAbility || 'wis');
   else if (id === 'featElement') setPath(picked, c.owner + '.element', 'fire');
@@ -139,7 +141,7 @@ export function makePick(E, step, cfg, st, delta, picked, prefs) {
     setPath(picked, c.owner + '.' + c.pick, firstN(opts, n));
   } else if (id === 'featSkills' || id === 'featExpertise') {
     const rec = getPath(picked, c.owner) || {};
-    const prof = (cfg.defaultSkills || []).concat(id === 'featExpertise' ? (rec.skills || []) : []);
+    const prof = c.anySkill ? E.WG_SKILLS.map((s) => s.key) : (cfg.defaultSkills || []).concat(id === 'featExpertise' ? (rec.skills || []) : []);
     const keys = E.WG_SKILLS.map((s) => s.key).filter((k) => !c.options || c.options.indexOf(k) !== -1).filter((k) => {
       const isProf = E.wgxHasSkill(prof, k), isXp = E.wgxHasSkill(cfg.expertSkills, k);
       if (id === 'featExpertise') return isProf && !isXp;

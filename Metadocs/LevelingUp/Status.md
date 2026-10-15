@@ -1,6 +1,14 @@
 # Leveling Up — Status
 
-_Laatst bijgewerkt: 2026-10-15 (huisregel 2024 PHB-spells + Wild Shape uit MM 2025; daarvoor L5-builds af)_
+_Laatst bijgewerkt: 2026-10-15 (level 1–20 compleet: alle classes, subclasses en spells volgens de 2024 PHB)_
+
+## Level 6–20 — tier 3 (L17–20) (2026-10-15) — level 1–20 compleet
+- **Features**: alle class- en subclass-features L17–20 naar 2024; `build-smoke.mjs 20` 85 605/85 605 groen (720 builds L1→20 en terug; ook 5: 34 608)
+- **Epic Boon**: ASI-stap op 19 (Epic Boon of andere feat); 12 boons herschreven met +1 tot 30 (`abilityMax`), Boon of Skill/Speed/Fortitude doorgerekend; de test roteert de boons
+- **Capstones**: Primal Champion en Body and Mind (+4, max 25) in `getAbilityScore` (`capstoneScore`) + test
+- **Spellkeuzes**: Spell Mastery (level 1 + 2, at will) en Signature Spells (2× level 3, 1×/Short Rest) via `featurePicks`
+- **Spells**: level 9 naar 2024 → alle 391 spells volgen de PHB
+- **Bug**: Boon of Skill-expertise bood alleen proficient skills aan (nu elke skill zonder Expertise)
 
 ## Level 6–20 — tier 2 (L11–16) (2026-10-15)
 - **Features**: alle class- en subclass-features L11–16 naar 2024 (namen = PHB, getest t/m 16); Mystic Arcanum als spellkeuze (11/13/15/17) via `featurePicks`; Fey Wanderer gratis casts; resources o.a. Persistent Rage, Glorious Defense, Hurl Through Hell, Trance of Order

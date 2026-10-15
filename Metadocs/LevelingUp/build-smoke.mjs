@@ -51,6 +51,7 @@ const L4_FEATS = ['Fey-Touched', 'Magic Initiate (Cleric)', 'Skilled', 'Resilien
   'Ability Score Improvement', 'Magic Initiate (Wizard)', 'Lucky', 'Speedy', 'Mage Slayer', 'Spell Sniper', 'Sentinel', 'Durable'];
 const ORIGIN_FEATS = ['Magic Initiate (Wizard)', 'Alert', 'Tough', 'Skilled', 'Magic Initiate (Druid)', 'Lucky', 'Savage Attacker',
   'Healer', 'Musician', 'Crafter', 'Tavern Brawler', 'Magic Initiate (Cleric)'];
+const EPIC_BOONS = DATA.feats.filter((f) => f.category === 'epic').map((f) => f.name);
 const exercised = {};
 // Counted options at level T (2024 tables; columns where the facts have them)
 function totalsAt(cls, L) {
@@ -77,7 +78,7 @@ for (const cls of CLASSES) {
       const combo = cls + '/' + sub + ' × ' + label;
       const origin = ORIGIN_FEATS[run % ORIGIN_FEATS.length];
       const { config: cfg, state: st } = makeChar(E, cls, race, { originFeat: origin });
-      const prefs = { subclass: sub, lineage: lineage || undefined, asiFeat: L4_FEATS[run % L4_FEATS.length], optionIndex: run,
+      const prefs = { subclass: sub, lineage: lineage || undefined, asiFeat: L4_FEATS[run % L4_FEATS.length], optionIndex: run, epicBoon: EPIC_BOONS[run % EPIC_BOONS.length],
         speciesAbility: ['int', 'wis', 'cha'][run % 3], classStyle: run % 2 === 0, swap: run % 4 === 0,
         order: cls === 'cleric' ? (run % 2 ? 'thaumaturge' : 'protector') : (run % 2 ? 'magician' : 'warden'),
         invocations: run % 3 === 0 ? ['Pact of the Tome'] : run % 3 === 1 ? ['Lessons of the First Ones', 'Pact of the Chain'] : ['Pact of the Blade'] };
@@ -133,6 +134,14 @@ for (const cls of CLASSES) {
           const fs = st.fightingStyles || [];
           check(combo + ': ' + wantS + ' fighting style(s)', fs.length === wantS && new Set(fs).size === fs.length, fs.join(', '));
         }
+        // Level 20 capstones: Primal Champion (STR, CON) / Body and Mind (DEX, WIS) +4, max 25
+        if (T >= 20 && (cls === 'barbarian' || cls === 'monk')) {
+          const st19 = Object.assign({}, st, { level: 19 });
+          for (const ab of cls === 'barbarian' ? ['str', 'con'] : ['dex', 'wis']) {
+            const s19 = E.getAbilityScore(cfg, st19, ab);
+            check(combo + ': capstone ' + ab + ' +4 (max 25)', E.getAbilityScore(cfg, st, ab) === Math.max(s19, Math.min(s19 + 4, 25)), s19 + ' → ' + E.getAbilityScore(cfg, st, ab));
+          }
+        }
         if (cfg.subclass === 'battleMaster') {
           const wantM = T >= 15 ? 9 : T >= 10 ? 7 : T >= 7 ? 5 : 3;   // 2024 Battle Master: 3/5/7/9 at 3/7/10/15
           check(combo + ': ' + wantM + ' maneuvers', (st.maneuvers || []).length === wantM, String((st.maneuvers || []).length));
@@ -152,7 +161,7 @@ for (const cls of CLASSES) {
         }
         if (cls === 'monk') {
           check(combo + ': Martial Arts die', DATA.monk.martialArtsDie[T] === at(cf.table['Martial Arts'], T), DATA.monk.martialArtsDie[T]);
-          const speedy = Object.values(st.asiChoices || {}).some((x) => x && x.feat === 'Speedy') ? 10 : 0;
+          const speedy = (Object.values(st.asiChoices || {}).some((x) => x && x.feat === 'Speedy') ? 10 : 0) + (Object.values(st.asiChoices || {}).some((x) => x && x.feat === 'Boon of Speed') ? 30 : 0);
           check(combo + ': Unarmored Movement', prof.who.speed - ((DATA[race] || {}).speed || 30) - speedy === at(cf.table['Unarmored Movement'], T), String(prof.who.speed));
         }
         if (cls === 'rogue') check(combo + ': Sneak Attack dice', Math.ceil(T / 2) + 'd6' === at(cf.table['Sneak Attack'], T));

@@ -293,7 +293,12 @@ function wgxFeatSubSteps(feat, owner, cfg, st) {
       }
       if (cnt > 0) steps.push({ id: 'featSkills', owner: owner, count: cnt, options: c.options || null, mode: mode });
     }
-    else if (c.id === 'expertise') steps.push({ id: 'featExpertise', owner: owner, count: c.count || 1 });
+    else if (c.id === 'expertise') {
+      // anySkill (Boon of Skill): every skill counts as proficient. Never ask for more than is left.
+      var xcnt = c.count || 1;
+      if (typeof WG_SKILLS !== 'undefined') xcnt = Math.min(xcnt, WG_SKILLS.filter(function (sk) { return (c.anySkill || wgxHasSkill(cfg.defaultSkills, sk.key)) && !wgxHasSkill(cfg.expertSkills, sk.key); }).length);
+      if (xcnt > 0) steps.push({ id: 'featExpertise', owner: owner, count: xcnt, anySkill: !!c.anySkill });
+    }
     else if (c.id === 'element') steps.push({ id: 'featElement', owner: owner, options: c.options });
   });
   return steps;
@@ -1106,7 +1111,8 @@ function wgxRenderLUStep() {
     html += '<h3>' + wgxEsc(fr.feat || 'Feat') + ': +1 to which ability?</h3>' + (fobj.abilityNote ? '<p class="wgx-lu-note">Choose ' + wgxEsc(fobj.abilityNote) + '.</p>' : '');
     html += wgxLUGrid(opts.map(function (a) {
       var sc = getAbilityScore(cfg, Object.assign({ asiChoices: {} }, st), a);
-      return { val: a, title: WG_ABILITY_LABELS[a] || a, sub: sc + ' → ' + Math.min(20, sc + 1), known: sc >= 20, knownLabel: 'already 20' };
+      var capA = fobj.abilityMax || 20;   // Epic Boons go up to 30
+      return { val: a, title: WG_ABILITY_LABELS[a] || a, sub: sc + ' → ' + Math.min(capA, sc + 1), known: sc >= capA, knownLabel: 'already ' + capA };
     }), wgxOwnerPath(step.choice.owner, 'ability'), true, fr.ability);
   } else if (step.kind === 'choice' && step.choice.id === 'featSpells') {
     var fowner = step.choice.owner, fpath = wgxOwnerPath(fowner, step.choice.pick);
@@ -1132,6 +1138,7 @@ function wgxRenderLUStep() {
     var sPath = wgxOwnerPath(sOwner, isExp ? 'expertise' : 'skills');
     var fr2 = wgxOwnerRec(picked, sOwner);
     var prof = (cfg.defaultSkills || []).concat(isExp ? (fr2.skills || []) : []);
+    if (isExp && step.choice.anySkill && typeof WG_SKILLS !== 'undefined') prof = WG_SKILLS.map(function (sk) { return sk.key; });
     var allSk = (typeof WG_SKILLS !== 'undefined') ? WG_SKILLS : [];
     var skItems = allSk.filter(function (s) { return !step.choice.options || step.choice.options.indexOf(s.key) !== -1; }).map(function (s) {
       var isProf = wgxHasSkill(prof, s.key), isXp = wgxHasSkill(cfg.expertSkills, s.key);
