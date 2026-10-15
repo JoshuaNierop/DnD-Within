@@ -32,8 +32,8 @@
 | Mercy (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 11 |
 | Shadow (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 12 |
 | Elements (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 12 |
-| Devotion (paladin) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Ancients (paladin) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Devotion (paladin) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 13 |
+| Ancients (paladin) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 13 |
 | Glory (paladin) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Vengeance (paladin) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Hunter (ranger) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
@@ -449,8 +449,8 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 ### Paladin (d10)
 
 - Class features L1–4: Lay on Hands [Bonus Action], Spellcasting, Weapon Mastery, Fighting Style, Paladin's Smite, Channel Divinity, Divine Sense [Bonus Action], Paladin Subclass, Ability Score Improvement
-- Spellcasting at L4: CHA, 0 cantrips, 5 prepared (level ≤ 1), slots 3×L1
-- Uses: Lay on Hands 20×points/Long Rest; Paladin's Smite 1/Long Rest; Channel Divinity 2/1 per Short Rest, all on a Long Rest
+- Spellcasting at L4: CHA, 5 prepared (level ≤ 1), slots 3×L1
+- Uses: Lay on Hands 20 points/Long Rest; Paladin's Smite 1/Long Rest; Channel Divinity 2/1 per Short Rest, all on a Long Rest
 - Choose:
   - At creation: 2 skills (Athletics, Insight, Intimidation, Medicine, Persuasion, Religion); 2 Weapon Mastery weapons
   - Level 2: a Fighting Style feat or Blessed Warrior (2 Cleric cantrips)
@@ -487,7 +487,7 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 ### Ranger (d10)
 
 - Class features L1–4: Favored Enemy, Spellcasting, Weapon Mastery, Deft Explorer, Fighting Style, Ranger Subclass, Ability Score Improvement
-- Spellcasting at L4: WIS, 0 cantrips, 5 prepared (level ≤ 1), slots 3×L1
+- Spellcasting at L4: WIS, 5 prepared (level ≤ 1), slots 3×L1
 - Uses: Favored Enemy 2/Long Rest
 - Choose:
   - At creation: 3 skills (Animal Handling, Athletics, Insight, Investigation, Nature, Perception, Stealth, Survival); 2 Weapon Mastery weapons

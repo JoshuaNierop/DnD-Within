@@ -16,7 +16,7 @@ const E = loadEngine();
 const { DATA } = E;
 
 // Batches of 20 combinations (2 subclasses × 10 species) read through by hand.
-const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10', 'monk/openHand': 'batch 11', 'monk/mercy': 'batch 11', 'monk/shadow': 'batch 12', 'monk/elements': 'batch 12' };
+const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10', 'monk/openHand': 'batch 11', 'monk/mercy': 'batch 11', 'monk/shadow': 'batch 12', 'monk/elements': 'batch 12', 'paladin/devotion': 'batch 13', 'paladin/ancients': 'batch 13' };
 
 const CLASSES = ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'];
 const SPECIES = [
@@ -70,6 +70,9 @@ function skillChoiceText(c, cls, L) {
   const from = c.options === 'class' ? 'the ' + cls.charAt(0).toUpperCase() + cls.slice(1) + ' list' : c.options ? c.options.map(nm).join(', ') : 'any skill';
   return c.featName + ' (L' + L + '): ' + (c.count || 1) + ' skill' + ((c.count || 1) > 1 ? 's' : '') + ' — ' + from + (c.note ? '. ' + c.note : '');
 }
+
+// '×d8' for dice pools, ' points' for point pools (Lay on Hands)
+const dieTxt = (r) => { const u = r.die || r.unit; return !u ? '' : /^d\d/.test(u) ? '×' + u : ' ' + u; };
 
 // ---------- matrix ----------
 const notesByCombo = {};
@@ -160,11 +163,11 @@ for (const cls of CLASSES) {
   md += '- Class features L1–4: ' + classFeats.map((f) => f.name + (f.act ? ' [' + ACT[f.act] + ']' : '')).join(', ') + '\n';
   if (base.casting) {
     const c = base.casting;
-    md += '- Spellcasting at L4: ' + c.ability.toUpperCase() + ', ' + c.cantrips.max + ' cantrips, ' + c.prepared.max + ' prepared (level ≤ ' + c.prepared.maxLevel + '), ' +
+    md += '- Spellcasting at L4: ' + c.ability.toUpperCase() + ', ' + (c.cantrips.max ? c.cantrips.max + ' cantrips, ' : '') + c.prepared.max + ' prepared (level ≤ ' + c.prepared.maxLevel + '), ' +
       (c.pact ? c.pact.count + ' Pact slots of level ' + c.pact.level + ' (Short Rest)' : 'slots ' + c.slots.filter((n) => n > 0).map((n, i) => n + '×L' + (i + 1)).join(', ')) + '\n';
   }
   const classRes = base.resources.filter((r) => !r.dynamic && DATA.classResources.find((x) => x.id === r.id && x.appliesTo.className === cls && !x.appliesTo.subclass));
-  if (classRes.length) md += '- Uses: ' + classRes.map((r) => r.label + ' ' + r.max + ((r.die || r.unit) ? '×' + (r.die || r.unit) : '') + '/' + (RECH[r.recharge] || r.recharge)).join('; ') + '\n';
+  if (classRes.length) md += '- Uses: ' + classRes.map((r) => r.label + ' ' + r.max + dieTxt(r) + '/' + (RECH[r.recharge] || r.recharge)).join('; ') + '\n';
   // What you choose per level, from the data (not from the template character).
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const skName = (k) => k.replace(/([A-Z])/g, ' $1').split(' ').map((w) => (w.toLowerCase() === 'of' ? 'of' : cap(w))).join(' ');
@@ -215,7 +218,7 @@ for (const cls of CLASSES) {
     const sg = p.granted.filter((g) => g.source === 'subclass');
     if (sg.length) md += '- Spells: ' + sg.map(spellLine).join('; ') + (sub === 'land' ? ' — Arid shown; Polar/Temperate/Tropical on other Long Rests' : '') + '\n';
     const sres = p.resources.filter((r) => { const x = DATA.classResources.find((y) => y.id === r.id); return (x && x.appliesTo.subclass === sub) || (r.dynamic && sg.some((g) => r.id === g.key)); });
-    if (sres.length) md += '- Uses: ' + sres.map((r) => r.label.replace(/ — .*/, '') + ' ' + r.max + ((r.die || r.unit) ? '×' + (r.die || r.unit) : '') + '/' + (RECH[r.recharge] || r.recharge)).join('; ') + '\n';
+    if (sres.length) md += '- Uses: ' + sres.map((r) => r.label.replace(/ — .*/, '') + ' ' + r.max + dieTxt(r) + '/' + (RECH[r.recharge] || r.recharge)).join('; ') + '\n';
     const subActs = ACT ? Object.keys(ACT).map((a) => [a, (p.actions[a] || []).filter((x) => !x.spell && (x.source === 'class' || x.source === 'subclass'))]).filter(([, v]) => v.length) : [];
     md += '- Actions (no spells): ' + subActs.map(([a, v]) => ACT[a] + ': ' + v.map((x) => x.name).join(', ')).join(' · ') + '\n';
     const subSwaps = [].concat(...Object.entries(p.swaps).map(([k, v]) => v.filter((x) => SUB_SWAPS.includes(x.id)).map((x) => x.what + ' (' + WHEN[k] + ')')));
