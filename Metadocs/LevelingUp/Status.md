@@ -8,7 +8,7 @@ Werkwijze (verbeterd t.o.v. L4/L5): geen overzicht van 720 combinaties per level
 - **Fase 0**: feiten L1–20 (incl. ASI-levels, featurenamen), `preparedTable` tot L20, smoke-checks voor ASI-levels, maneuvers 3/5/7/9, Metamagic 6, Land-spells tot 9, featurenamen
 - **Engine**: `optionChoices` + `state.featurePicks` + `getSpellLists` (Magical Secrets) + subclass-filter op `levelUpChoices` (Champion) — zie `L4-Design.md`
 - **Data**: alle class- en subclass-features L6–10 in 2024-tekst (zie Todo/Changelog)
-- **Nog open in tier 1**: spells van level 4–5 naar 2024-tekst (89)
+- **Spells level 4–5**: alle 89 naar 2024 (tekst in eigen woorden + tijd/range/componenten/duur uit de PHB-data); `spellcheck.js` meldt alleen nog level 6–9
 
 ## Huisregel spells + Wild Shape (2026-10-15)
 Besluiten Joshua: spells die niet in de 2024 PHB staan worden niet gebruikt; Wild Shape-vormen komen uit het Monster Manual 2025.

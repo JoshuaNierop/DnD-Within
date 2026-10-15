@@ -19,6 +19,10 @@ User-facing changes, newest first. Written in English to match the rest of the a
 - Six more Eldritch Invocations (Whispers of the Grave, Lifedrinker, Visions of Distant
   Realms, Gift of the Protectors, Devouring Blade, Witch Sight).
 - Rangers get +10 ft Speed from Roving; the Owl aspect gives Darkvision.
+- All level 4 and 5 spells follow the 2024 rules: casting time, range, components,
+  duration and description (e.g. Staggering Smite stuns, Mordenkainen's Faithful Hound
+  forces a Dexterity save for Force damage, Mass Cure Wounds heals 5d8, Contagion deals
+  11d8 Necrotic, Banishment's range is 30 ft).
 
 ## 2026-10-15 — Wild Shape beasts from the 2025 Monster Manual; 2024 PHB spells only
 
