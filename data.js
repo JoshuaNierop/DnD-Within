@@ -260,7 +260,7 @@ const DATA = {
                 { name: "Spellcasting", desc: "Charisma; Sorcerer spell list. Cantrips: 4 (5 from level 4) — whenever you gain a Sorcerer level you can replace one. Prepared spells: 2 at level 1 → 7 at level 4; whenever you gain a Sorcerer level you can replace one prepared spell. Spellcasting focus: an Arcane Focus." }
             ],
             2: [
-                { name: "Font of Magic", act: 'bonus', desc: "You have Sorcery Points equal to your Sorcerer level (4 at level 4), all regained on a Long Rest. Turn a spell slot into points equal to its level (no action), or as a Bonus Action turn points into a spell slot that lasts until your Long Rest: level 1 slot = 2 points, level 2 slot = 3 points (from level 3)." },
+                { name: "Font of Magic", act: 'bonus', desc: "You have Sorcery Points equal to your Sorcerer level (4 at level 4), all regained on a Long Rest. Turn a spell slot into points equal to its level (no action), or as a Bonus Action turn points into a spell slot that lasts until your Long Rest: level 1 slot = 2 points, level 2 = 3 (from level 3), level 3 = 5 (from level 5), level 4 = 6 (from level 7), level 5 = 7 (from level 9). Created slots can't be higher than level 5." },
                 { name: "Metamagic", desc: "You know two Metamagic options (two more at levels 10 and 17); spend Sorcery Points to apply one option per spell (unless an option says otherwise). Whenever you gain a Sorcerer level, you can replace one option with another." }
             ],
             3: [
@@ -4054,7 +4054,7 @@ DATA.classResources = [
         appliesTo: { className: 'sorcerer', minLevel: 2 },
         max: function (cfg, st) { return st.level || 1; },
         stateKey: 'sorceryPointsUsed', recharge: 'long', featureNames: ['Font of Magic'],
-        desc: "Font of Magic. Bonus Action: turn points into a spell slot (level 1 = 2 points, level 2 = 3) or a slot into points (= its level, no action). Fuels Metamagic. All points return on a Long Rest."
+        desc: "Font of Magic. Bonus Action: turn points into a spell slot (level 1 = 2 points, 2 = 3, 3 = 5, 4 = 6, 5 = 7; you need Sorcerer level 2/3/5/7/9) or a slot into points (= its level, no action). Fuels Metamagic. All points return on a Long Rest."
     },
     {
         id: 'restoreBalance', label: 'Restore Balance',
