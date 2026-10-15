@@ -88,8 +88,8 @@ function getDarkvision(config, state) {
 }
 
 // Initiative: Dexterity modifier + Alert (Proficiency Bonus) + Dread Ambusher
-// (Gloom Stalker 3+, Wisdom modifier); Remarkable Athlete (Champion 3+) gives
-// Advantage. Returns { bonus, advantage, parts: [{ label, value }] }.
+// (Gloom Stalker 3+, Wisdom modifier); Remarkable Athlete (Champion 3+) and
+// Assassinate (Assassin 3+) give Advantage. Returns { bonus, advantage, parts: [{ label, value }] }.
 function getInitiative(config, state) {
     var st = Object.assign({ asiChoices: {}, level: 1 }, state || {});
     var lvl = st.level || 1;
@@ -99,7 +99,7 @@ function getInitiative(config, state) {
     if (config.className === 'ranger' && config.subclass === 'gloomStalker' && lvl >= 3) parts.push({ label: 'Dread Ambusher (WIS modifier)', value: getMod(getAbilityScore(config, st, 'wis')) });
     return {
         bonus: parts.reduce(function (a, p) { return a + p.value; }, 0),
-        advantage: config.className === 'fighter' && config.subclass === 'champion' && lvl >= 3,
+        advantage: lvl >= 3 && ((config.className === 'fighter' && config.subclass === 'champion') || (config.className === 'rogue' && config.subclass === 'assassin')),
         parts: parts
     };
 }

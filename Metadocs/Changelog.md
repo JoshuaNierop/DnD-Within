@@ -49,7 +49,7 @@ subclass and species at level 1–4 without making a character.
   Barbarian's Fast Movement (level 5) and the Speedy feat; Darkvision includes Shadow
   Arts (Warrior of Shadow) and Umbral Sight (Gloom Stalker).
 - The Build window shows your **Initiative** bonus: Dexterity plus Alert and the Gloom
-  Stalker's Dread Ambusher, and Advantage for a Champion.
+  Stalker's Dread Ambusher, and Advantage for a Champion or an Assassin.
 
 ## 2026-09-23 — Eldritch Knight spells, familiars and a fuller initiative tracker
 
