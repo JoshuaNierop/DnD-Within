@@ -2,7 +2,7 @@
 
 How the site knows, for every class × subclass × species combination, which spells,
 feats, actions, uses and choices a character has at level 1–4, and how that is stored.
-Overview of all combinations: `L4-Combinations.md` (generated). Tests: `build-smoke.mjs`.
+Overviews of all combinations: `L4-Combinations.md` and `L5-Combinations.md` (`node Metadocs/LevelingUp/build-overview.mjs 4|5`). Tests: `node Metadocs/LevelingUp/build-smoke.mjs 4|5` against `build-facts.json` (facts from the 2024 PHB data, levels 1–5).
 
 ## What a combination is
 
@@ -85,7 +85,7 @@ earlier choices shows **"Complete missing choices"** (fix mode) instead of guess
 - **Good**: ~150 rule blocks instead of 720 stored combinations; Firebase holds only
   choices (a few hundred bytes per character), so a rules fix updates every character
   and derived values can't go out of sync. The engine is pure, so the same code runs
-  in the browser, in `build-smoke.mjs` (26 113 checks) and in the overview generator.
+  in the browser, in `build-smoke.mjs` (27 715 checks at level 4, 33 391 at level 5) and in the overview generator.
 - **Cost**: the profile is recomputed on render (milliseconds — fine).
 - **Weak spots** (in `Todo.md`): `data.js` is 435 kB and loads on every page (split per
   domain later); ~20 legacy `{nl, en}` description objects; mixed skill keys

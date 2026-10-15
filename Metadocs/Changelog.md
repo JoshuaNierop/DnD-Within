@@ -17,6 +17,8 @@ User-facing changes, newest first. Written in English to match the rest of the a
 - Level 3 spells follow the 2024 rules (Counterspell is a Constitution save, Mass
   Healing Word heals 2d4, Blink, Slow, Sleet Storm, Stinking Cloud and more).
 - Ritual Caster lets you add a ritual each time your Proficiency Bonus grows.
+- Font of Magic lists every slot cost up to level 5, and Wizards see Memorize Spell as a
+  Short Rest swap from level 5.
 
 ## 2026-10-15 — Every class, subclass and species up to level 4 (2024 rules)
 

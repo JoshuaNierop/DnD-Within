@@ -1,13 +1,13 @@
 # Leveling Up — Status
 
-_Laatst bijgewerkt: 2026-10-15 (L5-builds gestart: engine + data klaar, review per batch loopt)_
+_Laatst bijgewerkt: 2026-10-15 (L5-builds af: engine + data + 24 review-batches)_
 
 ## L5-builds (2026-10-15)
 Overzicht: `L5-Combinations.md` (`node Metadocs/LevelingUp/build-overview.mjs 5`) · test: `node Metadocs/LevelingUp/build-smoke.mjs 5` (720 builds L1→5, 33 391 checks groen; L4-run 27 715).
 - **Feiten**: `build-facts.json` (L1–5 uit de 2024 PHB-data: cantrips, prepared, slots, class-tabellen zoals rages/sorcery points/focus/channel divinity/invocations) vervangt `l4-facts.json`
 - **Data**: L5-classfeatures 2024, Sorcerous Restoration + Wild Resurgence als resource, Find Steed-grant (Paladin), 8 L5-invocations, 29 level 3-spells 2024, Daylight van de Wizard-lijst
 - **Engine**: feat-picks die met PB meegroeien (Ritual Caster) worden bij level-up gevraagd, samengevoegd en bij level-down teruggedraaid
-- **Review**: 24 batches van 20 combinaties, zoals bij L4
+- **Review**: alle 24 batches nagelopen (L5-kolom "Reviewed" in `L5-Combinations.md`); extra gevonden: Font of Magic-kosten tot slot-level 5, Memorize Spell als Short Rest-swap, Savant-spell op L5, uses van Draconic Flight/Large Form in het overzicht
 
 
 ## L4-builds (2026-10-15) — fase F+ L4 afgerond, review per batch loopt
