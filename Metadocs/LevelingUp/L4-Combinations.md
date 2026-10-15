@@ -18,8 +18,8 @@
 | Valor (bard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 4 |
 | Life Domain (cleric) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 5 |
 | Light Domain (cleric) | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 5 |
-| Trickery Domain (cleric) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| War Domain (cleric) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Trickery Domain (cleric) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 6 |
+| War Domain (cleric) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 6 |
 | Land (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Moon (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Sea (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
