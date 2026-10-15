@@ -27,7 +27,7 @@ __exports = { DATA, WG_SKILLS, getMod, getProfBonus, getAbilityScore, getHP, get
   getLevelUpDelta, getBuildProfile, getGrantedSpells, featInstances, featPrereqMet, findFeat, choiceTotal,
   openFeatPicks, numMap, isThirdCaster,
   wgxScholarSkillKeys, wgxEligibleExpertise, wgxStyleBonus, wgxMaxSpellLevel, wgxSpellOptions, wgxMasteryOptions,
-  wgxCrValue, wgxChoiceNeeded, wgxLevelUpSteps, wgxStepComplete, wgxSwapOptions, wgxBuildLevelUpPatch,
+  wgxCrValue, wgxWildShapeOptions, wgxChoiceNeeded, wgxLevelUpSteps, wgxStepComplete, wgxSwapOptions, wgxBuildLevelUpPatch,
   wgxBuildLevelDownPatch, wgxHasSkill, getSkillBonus, getEffectiveAbilities, getSpeed, getDarkvision, getInitiative };
 `;
   const sandbox = { console, __exports: null };
@@ -149,8 +149,7 @@ export function makePick(E, step, cfg, st, delta, picked, prefs) {
     const pool = DATA.invocations.filter((op) => (op.minLevel || 1) <= delta.to && !known.includes(op.name) && (!op.requires || known.includes(op.requires))).map((op) => op.name);
     picked.invocations = firstN(want.filter((w) => pool.includes(w)).concat(pool.filter((p) => !want.includes(p))), n);
   } else if (id === 'wildShapeForms') {
-    const lim = DATA.wildShapeLimits(delta.to, eff.subclass);
-    picked.wildShapeForms = firstN(DATA.wildShapeForms.filter((f) => E.wgxCrValue(f.cr) <= lim.cr).map((f) => f.name).filter((x) => !(st.wildShapeForms || []).includes(x)), n);
+    picked.wildShapeForms = firstN(E.wgxWildShapeOptions(delta.to, eff.subclass).map((f) => f.name).filter((x) => !(st.wildShapeForms || []).includes(x)), n);
   } else if (id === 'maneuvers') picked.maneuvers = firstN(DATA.maneuvers.map((m) => m.name).filter((x) => !(st.maneuvers || []).includes(x)), n);
   else if (id === 'weaponMasteries') picked.weaponMasteries = firstN(E.wgxMasteryOptions(cfg.className).map((w) => w.name).filter((x) => !(st.weaponMasteries || []).includes(x)), n);
   else if (id === 'fightingStyle') {

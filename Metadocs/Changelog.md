@@ -2,6 +2,18 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-15 — Wild Shape beasts from the 2025 Monster Manual; 2024 PHB spells only
+
+- **Wild Shape**: Druids can now learn every Beast up to CR 6 from the 2025 Monster
+  Manual (89 forms, was 32). Each card shows size, AC, speeds, STR/DEX/CON, attacks and
+  traits. Forms with a Fly Speed only appear from druid level 8; Circle of the Moon sees
+  stronger beasts as it levels (CR 2 at level 6 up to CR 6 at level 18). Poisonous
+  Snake is now called Venomous Snake, and several speeds were corrected.
+- **Spells**: only spells from the 2024 Player's Handbook are offered. 19 spells from
+  other books (Absorb Elements, Booming Blade, Silvery Barbs, …) are gone, and spell
+  lists match the 2024 class lists (e.g. Misty Step is no longer a Ranger spell).
+  Power Word Fortify (level 7, Bard and Cleric) was missing and is now available.
+
 ## 2026-10-15 — Level 5 for every class, subclass and species (2024 rules)
 
 - Level 5 features follow the 2024 rules: Extra Attack, Fast Movement, **Font of

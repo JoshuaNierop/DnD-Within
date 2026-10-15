@@ -1,10 +1,11 @@
-// Extracts level 1-5 FACTS (numbers + spell names, no rules text) from the
-// 2024 PHB data (5etools XPHB JSON) into build-facts.json for the D&D Within
-// build smoke test. usage: XPHB_DATA=<dir> node extract-facts.js <out.json> [maxLevel=5]
+// Extracts FACTS (numbers + names, no rules text) from the 2024 PHB data (5etools XPHB JSON)
+// and the 2025 Monster Manual beasts (XMM) into build-facts.json for the D&D Within build
+// smoke test. usage: XPHB_DATA=<dir> node extract-facts.js <out.json> [maxLevel=5]
 const { load, stripTags } = require('./lib.js');
 const fs = require('fs');
 const MAXL = Number(process.argv[3]) || 5;
-const out = { generated: new Date().toISOString().slice(0, 10), source: '2024 PHB (5etools XPHB data)', levels: MAXL, classes: {}, subclasses: {}, species: {} };
+const out = { generated: new Date().toISOString().slice(0, 10), source: '2024 PHB + 2025 MM (5etools XPHB/XMM data)', levels: MAXL,
+  classes: {}, subclasses: {}, species: {}, spells: {}, spellLists: {}, beasts: {} };
 const KEYS = { 'Path of the Berserker': 'berserker', 'Path of the Wild Heart': 'wildHeart', 'Path of the World Tree': 'worldTree', 'Path of the Zealot': 'zealot',
   'College of Dance': 'dance', 'College of Glamour': 'glamour', 'College of Lore': 'lore', 'College of Valor': 'valor',
   'Life Domain': 'life', 'Light Domain': 'light', 'Trickery Domain': 'trickery', 'War Domain': 'war',
@@ -80,5 +81,19 @@ races.forEach((r) => {
   }));
   out.species[r.name] = sp;
 });
+// Every 2024 PHB spell (name → spell level) and the class spell lists.
+load('spells/spells-xphb.json').spell.forEach((s) => { out.spells[s.name] = s.level; });
+const srcs = load('spells/sources.json').XPHB || {};
+Object.keys(srcs).sort().forEach((name) => (srcs[name].class || []).filter((c) => c.source === 'XPHB').forEach((c) => {
+  const k = c.name.toLowerCase(), L = out.spells[name];
+  out.spellLists[k] = out.spellLists[k] || {};
+  (out.spellLists[k][L] = out.spellLists[k][L] || []).push(name);
+}));
+// Beasts of the 2025 Monster Manual: challenge rating and Fly Speed (Wild Shape limits).
+const crOf = (c) => (typeof c === 'object' ? c.cr : c);
+load('bestiary/bestiary-xmm.json').monster.filter((m) => (typeof m.type === 'string' ? m.type : m.type && m.type.type) === 'beast')
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .forEach((m) => { out.beasts[m.name] = { cr: String(crOf(m.cr)), fly: !!(m.speed && m.speed.fly != null), swarm: !!(m.type && m.type.swarmSize) }; });
 fs.writeFileSync(process.argv[2], JSON.stringify(out, null, 1));
-console.log('classes', Object.keys(out.classes).length, 'subclasses', Object.keys(out.subclasses).length, 'species', Object.keys(out.species).length);
+console.log('classes', Object.keys(out.classes).length, 'subclasses', Object.keys(out.subclasses).length, 'species', Object.keys(out.species).length,
+  'spells', Object.keys(out.spells).length, 'beasts', Object.keys(out.beasts).length);

@@ -224,7 +224,7 @@ function wgxChoiceNeeded(choice, cfg, st, picked) {
 
 // Spells for a picker: { list?: class key (absent = every class list),
 // level, schools?: ['Divination', …], ritual?: true }. Returns
-// [{ nm, lvl, sp, school, ritual, old }] — old = not in the 2024 PHB.
+// [{ nm, lvl, sp, school, ritual }].
 function wgxSpellOptions(filter) {
   var lists = filter.list ? [filter.list] : Object.keys(DATA.spells || {});
   var seen = {}, out = [];
@@ -237,10 +237,10 @@ function wgxSpellOptions(filter) {
       var ritual = meta.indexOf('r') !== -1;
       if (filter.schools && filter.schools.indexOf(school) === -1) return;
       if (filter.ritual && !ritual) return;
-      out.push({ nm: nm, lvl: filter.level, sp: DATA.spellPool[nm] || {}, school: school, ritual: ritual, old: meta.indexOf('!') !== -1 });
+      out.push({ nm: nm, lvl: filter.level, sp: DATA.spellPool[nm] || {}, school: school, ritual: ritual });
     });
   });
-  out.sort(function (a, b) { return (a.old - b.old) || a.nm.localeCompare(b.nm); });
+  out.sort(function (a, b) { return a.nm.localeCompare(b.nm); });
   return out;
 }
 
@@ -256,6 +256,12 @@ function wgxMasteryOptions(className) {
   return all;
 }
 function wgxCrValue(cr) { if (cr === '1/8') return 0.125; if (cr === '1/4') return 0.25; if (cr === '1/2') return 0.5; return parseFloat(cr) || 0; }
+
+// Beast forms a druid of this level may learn: CR limit, Fly Speed from level 8.
+function wgxWildShapeOptions(level, subclass) {
+  var lim = (DATA.wildShapeLimits || function () { return { cr: 0.25 }; })(level, subclass);
+  return (DATA.wildShapeForms || []).filter(function (fm) { return wgxCrValue(fm.cr) <= lim.cr && (lim.fly || !fm.fly); });
+}
 
 // The feat-specific picks (ability +1, spellcasting ability, spells, skills,
 // element) a feat needs → list of sub-step descriptors.
@@ -848,7 +854,7 @@ function wgxSpellCard(e, known) {
   var sp = e.sp || {};
   return {
     val: e.nm, title: e.nm,
-    sub: (e.lvl ? 'Lvl ' + e.lvl + ' · ' : '') + (sp.time || '') + (e.school ? ' · ' + e.school : '') + (e.ritual ? ' · Ritual' : '') + (e.old ? ' · not 2024 PHB' : ''),
+    sub: (e.lvl ? 'Lvl ' + e.lvl + ' · ' : '') + (sp.time || '') + (e.school ? ' · ' + e.school : '') + (e.ritual ? ' · Ritual' : ''),
     desc: wgxTrunc(sp.desc, 110), known: known,
   };
 }
@@ -1080,8 +1086,8 @@ function wgxRenderLUStep() {
     html += '<h3>Choose ' + wsNeed + ' Wild Shape form' + (wsNeed > 1 ? 's' : '') + '</h3>' +
       '<p class="wgx-lu-note">Beasts of CR ' + (lim.cr === 0.25 ? '1/4' : lim.cr === 0.5 ? '1/2' : lim.cr) + ' or lower' + (lim.fly ? '' : ' without a Fly Speed') + '. You can swap one known form on each Long Rest.</p>' +
       wgxLUCountNote(picked.wildShapeForms, wsNeed);
-    html += wgxLUGrid((DATA.wildShapeForms || []).filter(function (fm) { return wgxCrValue(fm.cr) <= lim.cr; }).map(function (fm) {
-      return { val: fm.name, title: fm.name, sub: 'CR ' + fm.cr, desc: fm.desc, known: wsKnown.indexOf(fm.name) !== -1 };
+    html += wgxLUGrid(wgxWildShapeOptions(d.to, eff.subclass).map(function (fm) {
+      return { val: fm.name, title: fm.name, sub: 'CR ' + fm.cr + (fm.fly ? ' · Fly' : '') + (fm.swarm ? ' · Swarm' : ''), desc: fm.desc, known: wsKnown.indexOf(fm.name) !== -1 };
     }), 'wildShapeForms', false, picked.wildShapeForms);
   } else if (step.kind === 'choice' && step.choice.id === 'maneuvers') {
     var mnNeed = step.needed, mnKnown = st.maneuvers || [];

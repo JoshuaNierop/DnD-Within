@@ -184,6 +184,13 @@ for (const cls of CLASSES) {
         // interaction notes for unusual combos
         if (cls === 'barbarian' && prof.granted.length) check(combo + ': rage note', prof.notes.some((n) => /raging/.test(n)));
         if (cls === 'druid') check(combo + ': wild shape casting note', prof.notes.some((n) => /Wild Shape/.test(n)));
+        // known Wild Shape forms obey the 2024 Beast Shapes limits (MM 2025 CR + Fly Speed)
+        if (cls === 'druid') {
+          let maxCr = T >= 8 ? 1 : T >= 4 ? 0.5 : 0.25;
+          if (cfg.subclass === 'moon' && T >= 3) maxCr = Math.max(maxCr, Math.floor(T / 3));
+          const bad = (st.wildShapeForms || []).filter((n) => { const b = FACTS.beasts[n]; return !b || E.wgxCrValue(b.cr) > maxCr || (b.fly && T < 8); });
+          check(combo + ': Wild Shape forms within limits', bad.length === 0, bad.join(', '));
+        }
         // ---------- level-down T → 1 ----------
         for (let back = T - 1; back >= 1; back--) {
           autoLevelDown(E, cfg, st);
@@ -208,6 +215,33 @@ for (const cls of CLASSES) {
   check('spell lists resolve in spellPool', missing.length === 0, missing.slice(0, 5).join('; '));
   const noMeta = Object.keys(DATA.spellPool).filter((n) => !DATA.spellMeta[n]);
   check('every spell has school/ritual meta', noMeta.length === 0, noMeta.join(', '));
+  // House rule (2026-10-15): only 2024 PHB spells, on the 2024 class lists. Case-insensitive
+  // because of the known "Pass Without Trace" casing (stored character data uses that key).
+  const lc = (n) => n.toLowerCase();
+  const phb = {}; Object.entries(FACTS.spells).forEach(([n, l]) => { phb[lc(n)] = l; });
+  const notPhb = Object.keys(DATA.spellPool).filter((n) => !(lc(n) in phb));
+  check('spellPool holds 2024 PHB spells only', notPhb.length === 0, notPhb.join(', '));
+  const wrongLvl = Object.entries(DATA.spellPool).filter(([n, p]) => lc(n) in phb && p.level !== phb[lc(n)]).map(([n]) => n);
+  check('spell levels match the 2024 PHB', wrongLvl.length === 0, wrongLvl.join(', '));
+  const poolLc = new Set(Object.keys(DATA.spellPool).map(lc));
+  const absent = Object.keys(FACTS.spells).filter((n) => !poolLc.has(lc(n)));
+  check('every 2024 PHB spell is in spellPool', absent.length === 0, absent.join(', '));
+  for (const [cls, lv] of Object.entries(FACTS.spellLists)) {
+    for (let L = 0; L <= 9; L++) {
+      const want = (lv[L] || []).map(lc).sort(), have = ((DATA.spells[cls] || {})[L] || []).map(lc).sort();
+      check(cls + ' spell list level ' + L + ' = 2024 PHB', JSON.stringify(want) === JSON.stringify(have),
+        'missing ' + want.filter((n) => !have.includes(n)).join(', ') + ' / extra ' + have.filter((n) => !want.includes(n)).join(', '));
+    }
+  }
+  // Wild Shape forms: every 2025 Monster Manual Beast up to CR 6 (Circle of the Moon at 18), CR/Fly/swarm as in the MM
+  const wantForms = Object.keys(FACTS.beasts).filter((n) => E.wgxCrValue(FACTS.beasts[n].cr) <= 6).sort();
+  const haveForms = DATA.wildShapeForms.map((f) => f.name).sort();
+  check('Wild Shape forms = MM 2025 beasts up to CR 6', JSON.stringify(wantForms) === JSON.stringify(haveForms),
+    'missing ' + wantForms.filter((n) => !haveForms.includes(n)).join(', ') + ' / extra ' + haveForms.filter((n) => !wantForms.includes(n)).join(', '));
+  DATA.wildShapeForms.forEach((f) => {
+    const b = FACTS.beasts[f.name] || {};
+    check('Wild Shape ' + f.name + ': CR/Fly/swarm as MM 2025', b.cr === f.cr && b.fly === !!f.fly && b.swarm === !!f.swarm, JSON.stringify(b));
+  });
   check('77 feats (2024 PHB)', DATA.feats.length === 77, String(DATA.feats.length));
   for (const cls of CLASSES) {
     const f = FACTS.classes[cls];
