@@ -36,6 +36,11 @@ subclass and species at level 1–4 without making a character.
   Otherworldly Glamour (Fey Wanderer); Warrior of Mercy gets Insight and Medicine
   automatically. The Fighter, Rogue and Wizard skill lists now match the 2024 rules.
 - After picking a subclass during a level-up you can go back and change it again.
+- **Ability Scores, Skills and Attacks** now use your real scores, including Ability
+  Score Improvements and feat bonuses (the tooltip shows base + bonus), and your
+  proficiency bonus follows your level. Skills add Jack of All Trades (Bard), the
+  Thaumaturge and Magician bonus to Arcana/Religion/Nature, and Otherworldly Glamour
+  (Fey Wanderer) to Charisma checks.
 
 ## 2026-09-23 — Eldritch Knight spells, familiars and a fuller initiative tracker
 

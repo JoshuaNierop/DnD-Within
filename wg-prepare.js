@@ -570,7 +570,8 @@ function wgxOpenPrepareWindow(charId) {
 
   // Max prepared = 2024 table (fallback formula) op spellcasting-ability mod.
   const stats = wgxSpellStats(raw);
-  const score = (cfg.baseAbilities || {})[stats.ability];
+  const score = (typeof getAbilityScore === 'function')
+    ? getAbilityScore(cfg, Object.assign({ asiChoices: {} }, st), stats.ability) : (cfg.baseAbilities || {})[stats.ability];
   const mod = (typeof score === 'number')
     ? ((typeof getMod === 'function') ? getMod(score) : Math.floor((score - 10) / 2)) : 0;
   const max = (typeof getMaxPrepared === 'function')

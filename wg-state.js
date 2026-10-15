@@ -14,7 +14,10 @@ function buildRowsFromSource(widget) {
   }
   if (src === 'abilities') {
     // baseAbilities zit binnen `config` in de D&D Within schema
-    const ab = (raw.config && raw.config.baseAbilities) || raw.baseAbilities || {};
+    const baseAb = (raw.config && raw.config.baseAbilities) || raw.baseAbilities || {};
+    // Effective scores: base + Ability Score Improvements / feat bonuses.
+    const ab = (typeof getEffectiveAbilities === 'function' && raw.config && raw.config.baseAbilities)
+      ? getEffectiveAbilities(raw.config, raw.state || {}) : baseAb;
     d.columns = [
       { key: 'ability', label: 'Ability' },
       { key: 'score',   label: 'Score' },
@@ -34,12 +37,13 @@ function buildRowsFromSource(widget) {
       const modStr = hasScore ? `(${m >= 0 ? '+' : ''}${m})` : '—';
       const name = WG_ABILITY_LABELS[k];
       const modSigned = `${m >= 0 ? '+' : ''}${m}`;
+      const bonus = (hasScore && typeof baseAb[k] === 'number') ? score - baseAb[k] : 0;
       // Tooltips: naam = wat de ability bestuurt; score = WAAR de waarde vandaan
       // komt (samenstelling); modifier = de bonus die je overal optelt.
       abTips.push([
         { title: name, body: abInfo[k] || '' },
         { title: name + ' score', body: hasScore
-            ? `Your ${name} score of ${score}. Set at character creation (point buy, standard array, or rolled), then raised by your background's ability score increases and any Ability Score Improvements or feats taken as you level up.`
+            ? (bonus ? `Base ${baseAb[k]} ${bonus > 0 ? '+' : '−'} ${Math.abs(bonus)} from Ability Score Improvements and feats = ${score}.\n\n` : '') + `Your ${name} score of ${score}. Set at character creation (point buy, standard array, or rolled), then raised by your background's ability score increases and any Ability Score Improvements or feats taken as you level up.`
             : 'Not set yet.' },
         { title: `${name} modifier ${modSigned}`, body: (abInfo[k] || '') + (hasScore ? `\n\nApplied to every ${titleizeAbility(k)}-based roll.` : '') },
       ]);
@@ -103,10 +107,12 @@ function buildRowsFromSource(widget) {
   }
   if (src === 'skills') {
     const cfg = raw.config || {};
-    const ab = cfg.baseAbilities || {};
+    const stS = raw.state || {};
+    const ab = (typeof getEffectiveAbilities === 'function') ? getEffectiveAbilities(cfg, stS) : (cfg.baseAbilities || {});
     const proficient = new Set(cfg.defaultSkills || []);
-    // Proficiency bonus: lees uit config, fallback +2 (level 1-4 standaard)
-    const profBonus = (typeof cfg.proficiencyBonus === 'number') ? cfg.proficiencyBonus : 2;
+    // Proficiency bonus from the character level (config override kept for legacy data).
+    const profBonus = (typeof cfg.proficiencyBonus === 'number') ? cfg.proficiencyBonus
+      : ((typeof getProfBonus === 'function') ? getProfBonus(stS.level || 1) : 2);
     const fmtBonus = (n) => `${n >= 0 ? '+' : ''}${n}`;
     d.columns = [
       { key: 'prof',  label: 'Prof' },
@@ -119,16 +125,20 @@ function buildRowsFromSource(widget) {
     d.rows = WG_SKILLS.map(s => {
       const score = ab[s.ability];
       const mod = (typeof score === 'number') ? Math.floor((score - 10) / 2) : 0;
-      const isProf = proficient.has(s.key);
-      const isExpert = expert.has(s.key);
+      const sb = (typeof getSkillBonus === 'function') ? getSkillBonus(cfg, stS, s.key, s.ability) : null;
+      const isProf = sb ? sb.prof : proficient.has(s.key);
+      const isExpert = sb ? sb.expert : expert.has(s.key);
       const mark = isExpert ? '★' : (isProf ? '●' : '○');
-      const total = mod + (isExpert ? 2 * profBonus : (isProf ? profBonus : 0));
+      const total = sb ? sb.total : mod + (isExpert ? 2 * profBonus : (isProf ? profBonus : 0));
       const abName = titleizeAbility(s.ability);
       const fullAb = WG_ABILITY_LABELS[s.ability] || abName;
       // Tooltips (#bug Ov6e4Bv9): proficiency-status, skill-uitleg, bonus-opbouw.
       const parts = [`${fmtBonus(mod)} from ${fullAb}`];
-      if (isProf || isExpert) parts.push(`+${profBonus} proficiency`);
-      if (isExpert) parts.push(`+${profBonus} expertise`);
+      if (sb) sb.parts.slice(1).forEach((p) => parts.push(`${fmtBonus(p.value)} ${p.label}`));
+      else {
+        if (isProf || isExpert) parts.push(`+${profBonus} proficiency`);
+        if (isExpert) parts.push(`+${profBonus} expertise`);
+      }
       const bonusBody = parts.join('\n') + `\n= ${fmtBonus(total)}`;
       const profBody = isExpert ? 'Expertise — your proficiency bonus counts double for this skill.'
         : (isProf ? 'Proficient — your proficiency bonus is added.' : 'Not proficient — only the ability modifier applies.');

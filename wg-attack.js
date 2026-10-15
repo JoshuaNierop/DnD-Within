@@ -51,6 +51,8 @@ function wgxWeaponAttack(db, cfg, prof) {
 
 // Attack-lijst voor de huidige character: subclass-specials → weapons → riders.
 function wgxCollectAttacks(cfg, st) {
+  // Effective ability scores (base + Ability Score Improvements / feats).
+  if (typeof getEffectiveAbilities === 'function' && cfg.baseAbilities) cfg = Object.assign({}, cfg, { baseAbilities: getEffectiveAbilities(cfg, st) });
   var lvl = st.level || 1;
   var prof = (typeof getProfBonus === 'function') ? getProfBonus(lvl) : 2;
   var dex = wgxMod(cfg, 'dex'), str = wgxMod(cfg, 'str');

@@ -42,6 +42,38 @@ function getAbilityScore(config, state, ability) {
     return score;
 }
 
+// Skill check bonus (2024): ability modifier + Proficiency (doubled with
+// Expertise), Jack of All Trades (Bard 2+, skills you lack) and flat feature
+// bonuses — Thaumaturge (Arcana, Religion), Magician (Arcana, Nature) and
+// Otherworldly Glamour (Charisma checks) add your Wisdom modifier (min +1).
+// Returns { total, parts: [{ label, value }], prof, expert }.
+function getSkillBonus(config, state, skill, ability) {
+    var st = Object.assign({ asiChoices: {}, level: 1 }, state || {});
+    var lvl = st.level || 1, pb = getProfBonus(lvl);
+    var norm = function (s) { return String(s || '').toLowerCase().replace(/[^a-z]/g, ''); };
+    var k = norm(skill);
+    var has = function (list) { return listOf(list).some(function (s) { return norm(s) === k; }); };
+    var prof = has(config.defaultSkills), expert = has(config.expertSkills);
+    var mod = getMod(getAbilityScore(config, st, ability));
+    var parts = [{ label: ability.toUpperCase() + ' modifier', value: mod }];
+    if (expert) parts.push({ label: 'Expertise (2 × proficiency)', value: 2 * pb });
+    else if (prof) parts.push({ label: 'Proficiency', value: pb });
+    else if (config.className === 'bard' && lvl >= 2) parts.push({ label: 'Jack of All Trades (half proficiency)', value: Math.floor(pb / 2) });
+    var wisB = Math.max(1, getMod(getAbilityScore(config, st, 'wis')));
+    if (config.className === 'cleric' && config.divineOrder === 'thaumaturge' && (k === 'arcana' || k === 'religion')) parts.push({ label: 'Thaumaturge (Wisdom modifier)', value: wisB });
+    if (config.className === 'druid' && config.primalOrder === 'magician' && (k === 'arcana' || k === 'nature')) parts.push({ label: 'Magician (Wisdom modifier)', value: wisB });
+    if (config.className === 'ranger' && config.subclass === 'feyWanderer' && lvl >= 3 && ability === 'cha') parts.push({ label: 'Otherworldly Glamour (Wisdom modifier)', value: wisB });
+    return { total: parts.reduce(function (a, p) { return a + p.value; }, 0), parts: parts, prof: prof, expert: expert };
+}
+
+// Effective ability scores (base + ASI/feat bonuses), for widgets.
+function getEffectiveAbilities(config, state) {
+    var st = Object.assign({ asiChoices: {}, level: 1 }, state || {});
+    var out = {};
+    ['str', 'dex', 'con', 'int', 'wis', 'cha'].forEach(function (a) { out[a] = getAbilityScore(config, st, a); });
+    return out;
+}
+
 // Get the calculated (non-override) score for tooltip breakdown
 function getCalculatedAbilityScore(config, state, ability) {
     let score = (config.baseAbilities || {})[ability] || 10;
