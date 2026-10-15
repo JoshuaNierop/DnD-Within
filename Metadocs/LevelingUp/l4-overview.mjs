@@ -16,7 +16,7 @@ const E = loadEngine();
 const { DATA } = E;
 
 // Batches of 20 combinations (2 subclasses × 10 species) read through by hand.
-const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9' };
+const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4', 'cleric/life': 'batch 5', 'cleric/light': 'batch 5', 'cleric/trickery': 'batch 6', 'cleric/war': 'batch 6', 'druid/land': 'batch 7', 'druid/moon': 'batch 7', 'druid/sea': 'batch 8', 'druid/stars': 'batch 8', 'fighter/champion': 'batch 9', 'fighter/battleMaster': 'batch 9', 'fighter/eldritchKnight': 'batch 10', 'fighter/psiWarrior': 'batch 10' };
 
 const CLASSES = ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'];
 const SPECIES = [
@@ -35,7 +35,7 @@ const PRIMARY = { barbarian: 'str', bard: 'cha', cleric: 'wis', druid: 'wis', fi
 const ACT = { action: 'Action', bonus: 'Bonus Action', reaction: 'Reaction', attack: 'On a hit / Attack action', free: 'No action', other: '1 min+' };
 const RECH = { long: 'Long Rest', short: 'Short or Long Rest', 'short-one': '1 per Short Rest, all on a Long Rest' };
 const WHEN = { longRest: 'on a Long Rest', shortRest: 'on a Short or Long Rest', levelUp: 'when you gain a level', use: 'each time you use it' };
-const SUB_SWAPS = ['landType', 'huntersPrey', 'companion', 'rageWilds', 'starryForm', 'stepsOfFey', 'maneuver', 'preparedOneTC', 'cantripTC'];
+const SUB_SWAPS = ['landType', 'huntersPrey', 'companion', 'rageWilds', 'starryForm', 'stepsOfFey', 'maneuver', 'preparedOneTC', 'cantripTC', 'cantripAT'];
 
 function template(cls, sub, race, lineage, opts = {}) {
   const ab = { str: 10, dex: 14, con: 14, int: 10, wis: 12, cha: 10 };
@@ -206,13 +206,18 @@ for (const cls of CLASSES) {
     md += '- Features (L3): ' + sf.map((f) => f.name + (f.act ? ' [' + ACT[f.act] + ']' : '')).join(', ') + '\n';
     const subCh = [].concat(...Object.entries(DATA[cls].subclasses[sub].choices || {}).filter(([L]) => L <= 4).map(([L, list]) => list.filter((c) => c.id === 'skills').map((c) => skillChoiceText(c, cls, L))));
     if (subCh.length) md += '- Choose: ' + subCh.join('; ') + '\n';
+    if (p.casting && !base.casting) {
+      const c = p.casting;
+      md += '- Spellcasting at L4: ' + c.ability.toUpperCase() + ' (' + c.list.charAt(0).toUpperCase() + c.list.slice(1) + ' list), ' + c.cantrips.max + ' cantrips, ' + c.prepared.max + ' prepared (level ≤ ' + c.prepared.maxLevel + '), slots ' +
+        c.slots.filter((n) => n > 0).map((n, k) => n + '×L' + (k + 1)).join(', ') + '\n';
+    }
     const sg = p.granted.filter((g) => g.source === 'subclass');
     if (sg.length) md += '- Spells: ' + sg.map(spellLine).join('; ') + (sub === 'land' ? ' — Arid shown; Polar/Temperate/Tropical on other Long Rests' : '') + '\n';
     const sres = p.resources.filter((r) => { const x = DATA.classResources.find((y) => y.id === r.id); return (x && x.appliesTo.subclass === sub) || (r.dynamic && sg.some((g) => r.id === g.key)); });
     if (sres.length) md += '- Uses: ' + sres.map((r) => r.label.replace(/ — .*/, '') + ' ' + r.max + ((r.die || r.unit) ? '×' + (r.die || r.unit) : '') + '/' + (RECH[r.recharge] || r.recharge)).join('; ') + '\n';
     const subActs = ACT ? Object.keys(ACT).map((a) => [a, (p.actions[a] || []).filter((x) => !x.spell && (x.source === 'class' || x.source === 'subclass'))]).filter(([, v]) => v.length) : [];
     md += '- Actions (no spells): ' + subActs.map(([a, v]) => ACT[a] + ': ' + v.map((x) => x.name).join(', ')).join(' · ') + '\n';
-    const subSwaps = [].concat(...Object.entries(p.swaps).map(([k, v]) => v.filter((x) => ['landType', 'huntersPrey', 'companion', 'rageWilds', 'starryForm', 'stepsOfFey', 'maneuver', 'preparedOneTC', 'cantripTC'].includes(x.id)).map((x) => x.what + ' (' + WHEN[k] + ')')));
+    const subSwaps = [].concat(...Object.entries(p.swaps).map(([k, v]) => v.filter((x) => SUB_SWAPS.includes(x.id)).map((x) => x.what + ' (' + WHEN[k] + ')')));
     if (subSwaps.length) md += '- Swap: ' + uniq(subSwaps).join('; ') + '\n';
     if ((classNotes[cls + '/' + sub] || []).length) md += '- Good to know: ' + classNotes[cls + '/' + sub].join(' ') + '\n';
     const comboNotes = SPECIES.map((s) => [s.label, notesByCombo[cls + '/' + sub + '/' + s.key]]).filter(([, n]) => n && n.length);

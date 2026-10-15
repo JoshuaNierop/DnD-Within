@@ -26,8 +26,8 @@
 | Stars (druid) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 8 |
 | Champion (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 9 |
 | Battle Master (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 9 |
-| Eldritch Knight (fighter) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Psi Warrior (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
+| Eldritch Knight (fighter) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 10 |
+| Psi Warrior (fighter) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 10 |
 | Open Hand (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Mercy (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Shadow (monk) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
@@ -384,8 +384,9 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Eldritch Knight
 
 - Features (L3): Spellcasting, War Bond [Bonus Action]
+- Spellcasting at L4: INT (Wizard list), 2 cantrips, 4 prepared (level ≤ 1), slots 3×L1
 - Actions (no spells): Bonus Action: Second Wind, War Bond · No action: Action Surge, Tactical Mind
-- Swap: One prepared spell (when you gain a level); One cantrip (an Arcane Trickster keeps Mage Hand) (when you gain a level)
+- Swap: One prepared spell (when you gain a level); One cantrip (when you gain a level)
 
 #### Psi Warrior
 
@@ -551,8 +552,9 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Arcane Trickster
 
 - Features (L3): Spellcasting, Mage Hand Legerdemain [Bonus Action]
+- Spellcasting at L4: INT (Wizard list), 3 cantrips, 4 prepared (level ≤ 1), slots 3×L1
 - Actions (no spells): Bonus Action: Cunning Action, Steady Aim, Mage Hand Legerdemain · On a hit / Attack action: Sneak Attack
-- Swap: One prepared spell (when you gain a level); One cantrip (an Arcane Trickster keeps Mage Hand) (when you gain a level)
+- Swap: One prepared spell (when you gain a level); One cantrip (Mage Hand stays) (when you gain a level)
 
 #### Soulknife
 
