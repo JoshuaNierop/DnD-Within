@@ -44,6 +44,14 @@ combination is stored — the engine composes it.
   - `kind` = `'cantrip' | 'prepared'` (always prepared, does not count against the limit) `| 'innate'` (free casts) `| 'ritual'` (ritual only).
   - `free` + `recharge` (`'long' | 'short'`) = casts without a slot; `slots: true` = can also use slots.
   - Pick grants: `{ pick: 'spells' | 'cantrips', count, level, list, schools }` — the player chooses.
+    On a class or subclass: `list` may be an array, `level: 'slot'` = any level you have slots
+    for (`cantrips: true` adds cantrips), `key` + `label` name the store (`state.featurePicks[key]`)
+    and the level-up step (Lore's Magical Discoveries; later Mystic Arcanum, Signature Spells).
+- **Option choice** (`optionChoices` in `data-rules.js`): `{ id, label, appliesTo, stateKey, swap, options: [{ name, desc, act }] }` —
+  a one-of-N pick asked when `appliesTo` first holds (Blessed Strikes, Elemental Fury, Elemental Affinity,
+  Defensive Tactics, Aspect of the Wilds); the picked option appears as a feature with its `act`.
+- **Level-up choice** (`levelUpChoices[class][level]`): `{ id, count | total, subclass }` — `subclass` limits it
+  to one subclass (Champion's second Fighting Style: `{ id: 'fightingStyle', total: 2, subclass: 'champion' }`).
 - **Resource** (`classResources`): `{ id, label, max(cfg, st), die(st), stateKey, recharge, featureNames }` with
   `recharge` = `'long' | 'short' | 'short-one'` (one use back on a Short Rest). Free spell casts
   get a dynamic counter `fc_<source>_<spell>` (e.g. `fc_featFeyTouched_mistyStep`); `res` links a grant to a class resource instead (Divine Smite → Paladin's Smite).
@@ -60,6 +68,8 @@ combination is stored — the engine composes it.
 | `state` | `speciesFeat` (Human Versatile), `fightingStyles`, `weaponMasteries`, `maneuvers`, `invocations`, `invocationPicks`, `metamagic`, `wildShapeForms` | `weaponMasteries: ["Longsword","Shortbow"]` |
 | `state` | swap-on-rest choices: `landType`, `huntersPrey`, `speciesCantrip` | `landType: "temperate"` |
 | `state` | `replacementCantrips/<spell>` (Improved Illusions when you already know Minor Illusion) | `{ "Minor Illusion": "Mage Hand" }` |
+| `state` | `featurePicks/<key>/<pick>` (spells a class/subclass feature lets you choose) | `featurePicks: { magicalDiscoveries: { spells: ["Revivify","Guidance"] } }` |
+| `state` | option choices: `blessedStrikes`, `elementalFury`, `elementalAffinity`, `defensiveTactics`, `aspectOfTheWilds` | `elementalFury: "Primal Strike"` |
 | `state` | uses spent: `<stateKey>` per resource, `fc_<source>_<spell>` per free cast | `rageUsed: 1`, `fc_featFeyTouched_mistyStep: 1` |
 | `state` | `levelChoices/<N>` = what level N added (for level-down rollback) | `{ asi: …, spells: […] }` |
 

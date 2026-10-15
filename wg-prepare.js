@@ -553,9 +553,13 @@ function wgxOpenPrepareWindow(charId) {
   const maxLvl = wgxPrepMaxSpellLevel(raw);
   const pool = [];
   const inPool = new Set();
+  // Bard 10+ (Magical Secrets): Cleric, Druid and Wizard lists as well.
+  const lists = (typeof getSpellLists === 'function') ? getSpellLists(cfg.className, cfg.subclass, st.level || 1) : [cn];
   for (let sl = 1; sl <= maxLvl; sl++) {
-    const list = ((DATA.spells || {})[cn] || {})[sl] || [];
-    for (const nm of list) { pool.push({ nm: nm, lvl: sl, sp: spellData[nm] || null }); inPool.add(nm); }
+    for (const lc of lists) {
+      const list = ((DATA.spells || {})[lc] || {})[sl] || [];
+      for (const nm of list) { if (inPool.has(nm)) continue; pool.push({ nm: nm, lvl: sl, sp: spellData[nm] || null }); inPool.add(nm); }
+    }
   }
   // Currently prepared spells outside the class list (DM grants, always-prepared
   // subclass spells, legacy data) stay visible so they never silently vanish.

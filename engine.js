@@ -67,13 +67,14 @@ function getSkillBonus(config, state, skill, ability) {
 }
 
 // Walking speed: species + Unarmored Movement (Monk 2+, no armor or Shield) +
-// Fast Movement (Barbarian 5+, no Heavy armor) + Speedy (+10 ft).
+// Fast Movement (Barbarian 5+) / Roving (Ranger 6+), both without Heavy armor + Speedy (+10 ft).
 function getSpeed(config, state) {
     var st = state || {};
     var lvl = st.level || 1;
     var spd = (DATA[config.race] || {}).speed || 30;
     if (config.className === 'monk' && lvl >= 2) spd += lvl >= 18 ? 30 : lvl >= 14 ? 25 : lvl >= 10 ? 20 : lvl >= 6 ? 15 : 10;
     if (config.className === 'barbarian' && lvl >= 5) spd += 10;
+    if (config.className === 'ranger' && lvl >= 6) spd += 10;
     if (hasFeat(st, 'Speedy', config)) spd += 10;
     return spd;
 }
@@ -84,6 +85,8 @@ function getDarkvision(config, state) {
     var lvl = (state && state.level) || 1;
     var dv = (DATA[config.race] || {}).darkvision || 0;
     if (lvl >= 3 && ((config.className === 'monk' && config.subclass === 'shadow') || (config.className === 'ranger' && config.subclass === 'gloomStalker'))) dv = dv ? dv + 60 : 60;
+    // Aspect of the Wilds: Owl (Wild Heart 6+)
+    if (lvl >= 6 && config.subclass === 'wildHeart' && state && state.aspectOfTheWilds === 'Owl') dv = dv ? dv + 60 : 60;
     return dv;
 }
 
@@ -364,6 +367,13 @@ function getSpellListClass(className, subclass) {
     if (isThirdCaster(className, subclass)) return 'wizard';
     return className;
 }
+// Class lists you prepare (non-cantrip) spells from. Magical Secrets (Bard 10,
+// 2024): the Cleric, Druid and Wizard lists too; those spells count as Bard spells.
+function getSpellLists(className, subclass, level) {
+    var base = getSpellListClass(className, subclass);
+    if (className === 'bard' && (level || 1) >= 10) return [base, 'cleric', 'druid', 'wizard'];
+    return [base];
+}
 
 function getSpellcastingAbility(className, subclass) {
     // Third-caster subclasses override class default
@@ -619,14 +629,17 @@ function getGrantedSpells(cfg, st) {
             });
         });
     };
-    (cd.spells || []).forEach(function (s) { push(s, 'class', (DATA[cn] && classLabel(cn)) || cn, cd.spellAbility, null, cn); });
+    // Spells a class/subclass feature lets you choose live in st.featurePicks[key][pick]
+    // (key = the grant's key, else the class or subclass id).
+    var fPicks = st.featurePicks || {};
+    (cd.spells || []).forEach(function (s) { push(s, 'class', (DATA[cn] && classLabel(cn)) || cn, cd.spellAbility, fPicks[s.key || cn] || {}, cn); });
     var sub = cfg.subclass && cd.subclasses && cd.subclasses[cfg.subclass];
     var deferred = [];
     if (sub && lvl >= (sub.level || 3)) {
         (sub.spells || []).forEach(function (s) {
             if (s.land && s.land !== st.landType) return;
             if (s.ifKnown) { deferred.push(s); return; }   // resolved after all other grants
-            push(s, 'subclass', sub.name, sub.spellAbility, null, cfg.subclass);
+            push(s, 'subclass', sub.name, sub.spellAbility, fPicks[s.key || cfg.subclass] || {}, cfg.subclass);
         });
     }
     var race = DATA[cfg.race] || {};
@@ -727,7 +740,10 @@ function getLevelUpDelta(config, state, toLevel) {
         for (var p = 0; p < spl.length; p++) features.push({ source: 'species', name: spl[p].name, desc: spl[p].desc, act: spl[p].act, level: lvl });
         // Choices
         var chl = (DATA.levelUpChoices && DATA.levelUpChoices[cn] || {})[lvl] || [];
-        for (var c = 0; c < chl.length; c++) choices.push(Object.assign({ level: lvl, source: 'class' }, chl[c]));
+        for (var c = 0; c < chl.length; c++) {
+            if (chl[c].subclass && chl[c].subclass !== config.subclass) continue;   // subclass-only (Champion style)
+            choices.push(Object.assign({ level: lvl, source: 'class' }, chl[c]));
+        }
         // Ability Score Improvement / feat (Epic Boon at 19 is out of scope here)
         if ((classData.asiLevels || []).indexOf(lvl) !== -1 && lvl < 19) choices.push({ id: 'asi', level: lvl, source: 'class' });
     }
@@ -784,6 +800,16 @@ function getLevelUpDelta(config, state, toLevel) {
         })
     };
     return delta;
+}
+
+// One-of-N feature picks (DATA.optionChoices): the stored option, and the ones
+// that apply now but have no pick yet.
+function optionPicked(o, st) {
+    var v = (st || {})[o.stateKey];
+    return v ? (o.options.filter(function (x) { return x.name === v; })[0] || null) : null;
+}
+function openOptionChoices(cfg, st) {
+    return (DATA.optionChoices || []).filter(function (o) { return ruleApplies(o.appliesTo, cfg, st) && !(st || {})[o.stateKey]; });
 }
 
 // Invocation spell picks still missing (Pact of the Tome: 3 cantrips + 2 rituals).
@@ -928,6 +954,11 @@ function getBuildProfile(cfg, st) {
         var m = (DATA.metamagic || []).filter(function (x) { return x.name === mm; })[0];
         if (m) prof.features.push({ name: m.name, source: 'metamagic', level: 2, act: null, desc: (typeof m.desc === 'object' ? m.desc.en : m.desc) + ' (' + m.cost + ' Sorcery Point' + (m.cost === 1 ? '' : 's') + ')' });
     });
+    // The option picked for a one-of-N feature (Blessed Strikes, Elemental Fury, …)
+    (DATA.optionChoices || []).forEach(function (o) {
+        var op = optionPicked(o, st);
+        if (op && ruleApplies(o.appliesTo, cfg, st)) addFeature({ name: o.label + ': ' + op.name, act: op.act, desc: op.desc }, 'option', (o.appliesTo || {}).minLevel || 1);
+    });
 
     // --- Spells as actions (by casting time) ---
     var spellAct = function (nm, source, from) {
@@ -975,6 +1006,11 @@ function getBuildProfile(cfg, st) {
     if (prof.casting) { chosen('Cantrips', prof.casting.cantrips.known, 'cantrip'); chosen('Prepared spells', prof.casting.prepared.known, 'prepared'); }
     if (st.landType) chosen('Land type', st.landType.charAt(0).toUpperCase() + st.landType.slice(1), 'landType');
     if (st.huntersPrey) chosen("Hunter's Prey", st.huntersPrey, 'huntersPrey');
+    (DATA.optionChoices || []).forEach(function (o) {
+        if (!ruleApplies(o.appliesTo, cfg, st)) return;
+        if (st[o.stateKey]) chosen(o.label, st[o.stateKey], o.swap ? o.id : null);
+        else prof.open.push({ id: 'option', what: 'Choose your ' + o.label + ' option (' + o.options.map(function (x) { return x.name; }).join(' or ') + ')' });
+    });
     var asi = numMap(st.asiChoices);
     Object.keys(asi).forEach(function (k) {
         var c = asi[k];

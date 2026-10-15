@@ -201,7 +201,7 @@ function wgxChoiceNeeded(choice, cfg, st, picked) {
   var id = choice.id;
   picked = picked || {};
   if (id === 'subclass') return cfg.subclass ? 0 : 1;
-  if (id === 'fightingStyle') return (st.fightingStyles || []).length ? 0 : 1;
+  if (id === 'fightingStyle') return Math.max(0, (choice.total || 1) - (st.fightingStyles || []).length);
   if (id === 'expertise') {
     var el = wgxEligibleExpertise(cfg, null);
     return Math.min(choice.count || 1, el.length);
@@ -222,25 +222,29 @@ function wgxChoiceNeeded(choice, cfg, st, picked) {
   return choice.count || 1;
 }
 
-// Spells for a picker: { list?: class key (absent = every class list),
-// level, schools?: ['Divination', …], ritual?: true }. Returns
-// [{ nm, lvl, sp, school, ritual }].
+// Spells for a picker: { list?: class key or array of keys (absent = every
+// class list), level (or maxLevel: every level 1..maxLevel), schools?:
+// ['Divination', …], ritual?: true }. Returns [{ nm, lvl, sp, school, ritual }].
 function wgxSpellOptions(filter) {
-  var lists = filter.list ? [filter.list] : Object.keys(DATA.spells || {});
+  var lists = filter.list ? [].concat(filter.list) : Object.keys(DATA.spells || {});
+  var levels = [filter.level];
+  if (filter.maxLevel) { levels = []; for (var L = filter.minLevel || 1; L <= filter.maxLevel; L++) levels.push(L); }
   var seen = {}, out = [];
-  lists.forEach(function (cl) {
-    ((DATA.spells[cl] || {})[filter.level] || []).forEach(function (nm) {
-      if (seen[nm]) return;
-      seen[nm] = true;
-      var meta = (DATA.spellMeta || {})[nm] || '';
-      var school = WGX_SCHOOL[meta.charAt(0)] || '';
-      var ritual = meta.indexOf('r') !== -1;
-      if (filter.schools && filter.schools.indexOf(school) === -1) return;
-      if (filter.ritual && !ritual) return;
-      out.push({ nm: nm, lvl: filter.level, sp: DATA.spellPool[nm] || {}, school: school, ritual: ritual });
+  levels.forEach(function (lv) {
+    lists.forEach(function (cl) {
+      ((DATA.spells[cl] || {})[lv] || []).forEach(function (nm) {
+        if (seen[nm]) return;
+        seen[nm] = true;
+        var meta = (DATA.spellMeta || {})[nm] || '';
+        var school = WGX_SCHOOL[meta.charAt(0)] || '';
+        var ritual = meta.indexOf('r') !== -1;
+        if (filter.schools && filter.schools.indexOf(school) === -1) return;
+        if (filter.ritual && !ritual) return;
+        out.push({ nm: nm, lvl: lv, sp: DATA.spellPool[nm] || {}, school: school, ritual: ritual });
+      });
     });
   });
-  out.sort(function (a, b) { return a.nm.localeCompare(b.nm); });
+  out.sort(function (a, b) { return (a.lvl - b.lvl) || a.nm.localeCompare(b.nm); });
   return out;
 }
 
@@ -372,6 +376,27 @@ function wgxLevelUpSteps(delta, cfg, st, picked) {
       if (g.open && g.pick === 'replacement') steps.push({ kind: 'choice', choice: { id: 'featSpells', owner: 'repl', pick: g.replaces, featName: g.from + ' (instead of ' + g.replaces + ')', count: 1, filter: { list: g.spec.list, level: 0 } }, needed: 1 });
     });
   }
+  // Spells a class or subclass feature lets you choose (Magical Discoveries, …):
+  // stored in state.featurePicks[key][pick]; level 'slot' = any level you have slots for.
+  if (typeof getGrantedSpells === 'function') {
+    getGrantedSpells(eff, Object.assign({}, st, { level: delta.to })).forEach(function (g) {
+      if (!g.open || (g.source !== 'class' && g.source !== 'subclass') || g.pick === 'replacement') return;
+      var key = g.spec.key || (g.source === 'subclass' ? eff.subclass : eff.className);
+      var flt = { list: g.spec.list, schools: g.spec.schools, ritual: g.spec.ritual };
+      if (g.spec.level === 'slot') {
+        flt.maxLevel = wgxMaxSpellLevel(eff.className, delta, getSpellSlots(eff.className, delta.to, eff.subclass));
+        flt.minLevel = g.spec.cantrips ? 0 : 1;
+      }
+      else flt.level = g.spec.level;
+      steps.push({ kind: 'choice', choice: { id: 'featSpells', owner: 'fp.' + key, featName: g.spec.label || g.from, pick: g.pick, count: g.count, filter: flt }, needed: g.count });
+    });
+  }
+  // One-of-N feature options (Blessed Strikes, Elemental Fury, Aspect of the Wilds, …)
+  if (typeof openOptionChoices === 'function') {
+    openOptionChoices(eff, Object.assign({}, st, { level: delta.to })).forEach(function (o) {
+      steps.push({ kind: 'choice', choice: { id: 'option', opt: o.id }, needed: 1 });
+    });
+  }
   // Long/Short-Rest choices that must have a starting value.
   if (eff.className === 'druid' && eff.subclass === 'land' && !st.landType && delta.to >= 3) steps.push({ kind: 'choice', choice: { id: 'landType' }, needed: 1 });
   if (eff.className === 'ranger' && eff.subclass === 'hunter' && !st.huntersPrey && delta.to >= 3) steps.push({ kind: 'choice', choice: { id: 'huntersPrey' }, needed: 1 });
@@ -412,8 +437,8 @@ function wgxSwapOptions(cfg, st, delta) {
       pool: ((DATA.spells[spellCn] || {})[0] || []).filter(function (n) { return known('cantrips').indexOf(n) === -1; }) });
   }
   if ((['bard', 'sorcerer', 'warlock'].indexOf(cn) !== -1 || tc) && known('prepared').length) {
-    var maxL = wgxMaxSpellLevel(cn, delta), pool = [];
-    for (var l = 1; l <= maxL; l++) pool = pool.concat((DATA.spells[spellCn] || {})[l] || []);
+    var maxL = wgxMaxSpellLevel(cn, delta);
+    var pool = wgxSpellOptions({ list: getSpellLists(cn, cfg.subclass, delta.to), maxLevel: maxL }).map(function (e) { return e.nm; });
     out.push({ id: 'spell', label: 'Replace a prepared spell', stateKey: 'prepared', have: known('prepared'),
       pool: pool.filter(function (n) { return known('prepared').indexOf(n) === -1; }) });
   }
@@ -548,6 +573,30 @@ function wgxBuildLevelUpPatch(cfg, st, delta, picked) {
   // Long/Short-Rest choices (not rolled back: they are swapped on rests anyway)
   if (picked.landType) statePatch.landType = picked.landType;
   if (picked.huntersPrey) statePatch.huntersPrey = picked.huntersPrey;
+  // One-of-N feature options (rolled back on Level Down)
+  Object.keys(picked.options || {}).forEach(function (id) {
+    var od = (DATA.optionChoices || []).filter(function (o) { return o.id === id; })[0];
+    if (!od || !picked.options[id]) return;
+    statePatch[od.stateKey] = picked.options[id];
+    rec.options = rec.options || {};
+    rec.options[od.stateKey] = picked.options[id];
+  });
+  // Spells picked for a class/subclass feature (whole object, so empties never linger)
+  var fpAdd = picked.fp || {};
+  if (Object.keys(fpAdd).length) {
+    var fpAll = JSON.parse(JSON.stringify(st.featurePicks || {}));
+    Object.keys(fpAdd).forEach(function (key) {
+      Object.keys(fpAdd[key] || {}).forEach(function (pk) {
+        var add = (fpAdd[key][pk] || []).filter(function (n) { return n; });
+        if (!add.length) return;
+        fpAll[key] = fpAll[key] || {};
+        fpAll[key][pk] = (fpAll[key][pk] || []).concat(add);
+        rec.featurePicks = rec.featurePicks || {};
+        rec.featurePicks[key + '|' + pk] = add;
+      });
+    });
+    statePatch.featurePicks = fpAll;
+  }
   if (picked.fightingStyle) {
     rec.fightingStyle = picked.fightingStyle;
     statePatch.fightingStyles = (st.fightingStyles || []).concat([picked.fightingStyle]);
@@ -624,7 +673,8 @@ function wgxBuildLevelUpPatch(cfg, st, delta, picked) {
     var prevRec = numMap(st.levelChoices)[delta.to] || {};
     Object.keys(rec).forEach(function (k) {
       var v = rec[k];
-      statePatch['levelChoices/' + delta.to + '/' + k] = Array.isArray(v) && Array.isArray(prevRec[k]) ? prevRec[k].concat(v) : v;
+      var pv = prevRec[k], isObj = function (x) { return x && typeof x === 'object' && !Array.isArray(x); };
+      statePatch['levelChoices/' + delta.to + '/' + k] = Array.isArray(v) && Array.isArray(pv) ? pv.concat(v) : isObj(v) && isObj(pv) ? Object.assign({}, pv, v) : v;
     });
   } else {
     statePatch['levelChoices/' + delta.to] = rec;
@@ -697,6 +747,22 @@ function wgxBuildLevelDownPatch(cfg, stRaw) {
   if (choices.fightingStyle) {
     work.fightingStyles = arr('fightingStyles').filter(function (n) { return n !== choices.fightingStyle; });
     lost.push('Fighting Style: ' + choices.fightingStyle);
+  }
+  Object.keys(choices.options || {}).forEach(function (k) {
+    statePatch[k] = null;
+    lost.push(k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g, ' $1') + ': ' + choices.options[k]);
+  });
+  if (choices.featurePicks) {
+    var fpLeft = JSON.parse(JSON.stringify(st.featurePicks || {}));
+    Object.keys(choices.featurePicks).forEach(function (kp) {
+      var parts = kp.split('|'), drop = choices.featurePicks[kp];
+      if (!fpLeft[parts[0]]) return;
+      fpLeft[parts[0]][parts[1]] = (fpLeft[parts[0]][parts[1]] || []).filter(notIn(drop));
+      if (!fpLeft[parts[0]][parts[1]].length) delete fpLeft[parts[0]][parts[1]];
+      if (!Object.keys(fpLeft[parts[0]]).length) delete fpLeft[parts[0]];
+      lost.push('Spells: ' + drop.join(', '));
+    });
+    statePatch.featurePicks = Object.keys(fpLeft).length ? fpLeft : null;
   }
   var dropExpert = (choices.expertise || []).slice().concat(choices.featExpert || []);
   if (choices.scholar) dropExpert.push(choices.scholar);
@@ -888,8 +954,11 @@ function wgxRenderLUStep() {
     versatileFeat: 'Human: Versatile Feat', lessonsFeat: 'Lessons of the First Ones',
     landType: 'Circle of the Land', huntersPrey: "Hunter's Prey"
   };
+  var optDef = step.choice && step.choice.id === 'option' ? (DATA.optionChoices || []).filter(function (o) { return o.id === step.choice.opt; })[0] : null;
   var stepLabel = step.kind === 'overview' ? 'Overview'
     : step.kind === 'confirm' ? 'Confirm'
+    : optDef ? optDef.label
+    : (step.choice.id === 'featSpells' && /^fp\./.test(step.choice.owner || '')) ? step.choice.featName
     : (step.choice.id === 'featSkills' && /^(cls|sub)Skills$/.test(step.choice.owner || '')) ? step.choice.featName
     : (labels[step.choice.id] || step.choice.id.charAt(0).toUpperCase() + step.choice.id.slice(1).replace(/([A-Z])/g, ' $1'));
   html += '</div><div class="wgx-lu-steplabel">' + wgxEsc(stepLabel) + '</div>';
@@ -950,6 +1019,10 @@ function wgxRenderLUStep() {
       var sp = ((DATA.druid.subclasses.land || {}).spells || []).filter(function (s) { return s.land === l[0] && s.lvl <= d.to; }).map(function (s) { return s.name; });
       return { val: l[0], title: l[1], desc: sp.join(', ') };
     }), 'landType', true, picked.landType);
+  } else if (optDef) {
+    html += '<h3>' + wgxEsc(optDef.label) + ': choose one option</h3>' +
+      (optDef.swap ? '<p class="wgx-lu-note">You can change it on every ' + (optDef.swap === 'shortRest' ? 'Short or ' : '') + 'Long Rest (Build overview).</p>' : '');
+    html += wgxLUGrid(optDef.options.map(function (op) { return { val: op.name, title: op.name, desc: op.desc }; }), 'options.' + optDef.id, true, (picked.options || {})[optDef.id]);
   } else if (step.kind === 'choice' && step.choice.id === 'huntersPrey') {
     html += "<h3>Hunter's Prey</h3><p class=\"wgx-lu-note\">You can switch on every Short or Long Rest (Build overview).</p>";
     html += wgxLUGrid(WGX_HUNTERS_PREY.map(function (h) { return { val: h[0], title: h[0], desc: h[1] }; }), 'huntersPrey', true, picked.huntersPrey);
@@ -1028,8 +1101,11 @@ function wgxRenderLUStep() {
     var fowner = step.choice.owner, fpath = wgxOwnerPath(fowner, step.choice.pick);
     var fName = step.choice.featName || wgxOwnerRec(picked, fowner).feat || 'Feat';
     var flt = step.choice.filter || {};
-    var desc2 = (flt.level === 0 ? 'cantrip' : 'level ' + flt.level + ' spell') + (step.needed > 1 ? 's' : '') +
-      (flt.list ? ' from the ' + flt.list.charAt(0).toUpperCase() + flt.list.slice(1) + ' list' : ' from any class list') +
+    var cap = function (s) { return s.charAt(0).toUpperCase() + s.slice(1); };
+    var fLists = flt.list ? [].concat(flt.list).map(cap) : [];
+    var desc2 = (flt.maxLevel ? 'spell' : flt.level === 0 ? 'cantrip' : 'level ' + flt.level + ' spell') + (step.needed > 1 ? 's' : '') +
+      (flt.maxLevel ? ' of level ' + flt.maxLevel + ' or lower' : '') +
+      (fLists.length ? ' from the ' + (fLists.length > 1 ? fLists.slice(0, -1).join(', ') + ' or ' + fLists[fLists.length - 1] + ' lists' : fLists[0] + ' list') : ' from any class list') +
       (flt.schools ? ' (' + flt.schools.join(' or ') + ')' : '') + (flt.ritual ? ' with the Ritual tag' : '');
     html += '<h3>' + wgxEsc(fName) + ': choose ' + step.needed + ' ' + wgxEsc(desc2) + '</h3>' + wgxLUCountNote(wgxPGet(fpath), step.needed);
     var already = wgxKnownSpellNames(eff, st, picked, fpath);
@@ -1149,7 +1225,7 @@ function wgxRenderLUStep() {
       pool = wgxSpellOptions({ list: spellCn, level: 0 });
     } else {
       var maxLvl = wgxMaxSpellLevel(cn, d, wgxEffCasting(cfg, st, d, picked).slots);
-      for (var sl = 1; sl <= maxLvl; sl++) pool = pool.concat(wgxSpellOptions({ list: spellCn, level: sl }));
+      pool = wgxSpellOptions({ list: getSpellLists(cn, eff.subclass, d.to), maxLevel: maxLvl });
     }
     html += '<h3>Choose ' + spNeed + ' new ' + (isCantrip ? 'cantrip' : 'spell') + (spNeed > 1 ? 's' : '') + '</h3>';
     if (!isCantrip && cn === 'wizard') html += '<p class="wgx-lu-note">Your spellbook also gains 2 spells of your choice — record it with your DM (the app tracks prepared spells only).</p>';
@@ -1217,6 +1293,7 @@ function wgxStepComplete(step, picked) {
   if (id === 'lineage') return !!picked.lineage;
   if (id === 'landType') return !!picked.landType;
   if (id === 'huntersPrey') return !!picked.huntersPrey;
+  if (id === 'option') return !!(picked.options || {})[c.opt];
   if (id === 'speciesAbility') return !!picked.speciesAbility;
   if (id === 'order') return !!picked.order;
   if (id === 'fightingStyle') return !!picked.fightingStyle || step.needed === 0;
@@ -1274,6 +1351,15 @@ function wgxLUSummaryHtml(cfg, st, d, picked) {
   if (picked.lessons && picked.lessons.feat) sum.push(['Lessons of the First Ones', featLine(picked.lessons)]);
   if (picked.landType) sum.push(['Land type', picked.landType]);
   if (picked.huntersPrey) sum.push(["Hunter's Prey", picked.huntersPrey]);
+  Object.keys(picked.options || {}).forEach(function (id) {
+    var od = (DATA.optionChoices || []).filter(function (o) { return o.id === id; })[0];
+    if (od && picked.options[id]) sum.push([od.label, picked.options[id]]);
+  });
+  Object.keys(picked.fp || {}).forEach(function (key) {
+    Object.keys(picked.fp[key] || {}).forEach(function (pk) {
+      if ((picked.fp[key][pk] || []).length) sum.push([(wgxLU && (wgxLU.steps || []).filter(function (s) { return s.choice && s.choice.owner === 'fp.' + key; }).map(function (s) { return s.choice.featName; })[0]) || 'Feature spells', picked.fp[key][pk].join(', ')]);
+    });
+  });
   if (picked.subclass) sum.push(['Subclass', ((DATA[cn].subclasses || {})[picked.subclass] || {}).name || picked.subclass]);
   if (picked.asi) sum.push(['Level ' + d.to, featLine(picked.asi)]);
   if (picked.metamagic && picked.metamagic.length) sum.push(['Metamagic', picked.metamagic.join(', ')]);

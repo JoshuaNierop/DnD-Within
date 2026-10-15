@@ -23,7 +23,7 @@ ${labelsMatch[0]}
 `;
   const epilogue = `
 __exports = { DATA, WG_SKILLS, getMod, getProfBonus, getAbilityScore, getHP, getMaxHP, getAC,
-  getMaxPrepared, getMaxCantrips, getSpellcastingAbility, getSpellSlots, getClassResources, getSpellListClass,
+  getMaxPrepared, getMaxCantrips, getSpellcastingAbility, getSpellSlots, getClassResources, getSpellListClass, getSpellLists,
   getLevelUpDelta, getBuildProfile, getGrantedSpells, featInstances, featPrereqMet, findFeat, choiceTotal,
   openFeatPicks, numMap, isThirdCaster,
   wgxScholarSkillKeys, wgxEligibleExpertise, wgxStyleBonus, wgxMaxSpellLevel, wgxSpellOptions, wgxMasteryOptions,
@@ -99,6 +99,11 @@ export function makePick(E, step, cfg, st, delta, picked, prefs) {
   else if (id === 'lineage') picked.lineage = prefs.lineage || Object.keys(DATA[cfg.race].lineages)[0];
   else if (id === 'landType') picked.landType = prefs.landType || 'arid';
   else if (id === 'huntersPrey') picked.huntersPrey = 'Colossus Slayer';
+  else if (id === 'option') {
+    const od = DATA.optionChoices.find((o) => o.id === c.opt);
+    picked.options = picked.options || {};
+    picked.options[c.opt] = od.options[(prefs.optionIndex || 0) % od.options.length].name;
+  }
   else if (id === 'speciesAbility') picked.speciesAbility = prefs.speciesAbility || 'cha';
   else if (id === 'order') picked.order = prefs.order || (cfg.className === 'cleric' ? 'thaumaturge' : 'magician');
   else if (id === 'versatileFeat' || id === 'asi' || id === 'lessonsFeat') {
@@ -154,7 +159,9 @@ export function makePick(E, step, cfg, st, delta, picked, prefs) {
   else if (id === 'weaponMasteries') picked.weaponMasteries = firstN(E.wgxMasteryOptions(cfg.className).map((w) => w.name).filter((x) => !(st.weaponMasteries || []).includes(x)), n);
   else if (id === 'fightingStyle') {
     const extras = (DATA.classFightingBonus || {})[cfg.className] || [];
-    picked.fightingStyle = (prefs.classStyle && extras.length) ? extras[0].name : DATA.feats.filter((f) => f.category === 'fighting')[0].name;
+    const have = st.fightingStyles || [];
+    picked.fightingStyle = (prefs.classStyle && extras.length && !have.length) ? extras[0].name
+      : DATA.feats.filter((f) => f.category === 'fighting' && !have.includes(f.name))[0].name;
     delete picked.styleCantrips;
   } else if (id === 'styleCantrips') {
     const list = (DATA.spells[c.list] || {})[0] || [];
@@ -165,11 +172,12 @@ export function makePick(E, step, cfg, st, delta, picked, prefs) {
     const listCn = E.getSpellListClass(cfg.className, eff.subclass);
     picked.cantrips = firstN(((DATA.spells[listCn] || {})[0] || []).filter((x) => !(st.cantrips || []).includes(x)), n);
   } else if (id === 'spells') {
-    const listCn = E.getSpellListClass(cfg.className, eff.subclass);
     const maxLvl = E.wgxMaxSpellLevel(cfg.className, delta, E.getSpellSlots(cfg.className, delta.to, eff.subclass));
-    let pool = [];
-    for (let sl = 1; sl <= maxLvl; sl++) pool = pool.concat((DATA.spells[listCn] || {})[sl] || []);
-    picked.spells = firstN(pool.filter((x) => !(st.prepared || []).includes(x)), n);
+    const pool = E.wgxSpellOptions({ list: E.getSpellLists(cfg.className, eff.subclass, delta.to), maxLevel: maxLvl }).map((e) => e.nm);
+    // a Bard with Magical Secrets takes the last new spell from another list, so that path is exercised too
+    const fresh = pool.filter((x) => !(st.prepared || []).includes(x));
+    const other = cfg.className === 'bard' && delta.to >= 10 ? fresh.filter((x) => !Object.values(DATA.spells.bard).flat().includes(x)) : [];
+    picked.spells = other.length && n > 0 ? firstN(fresh.filter((x) => x !== other[0]), n - 1).concat([other[0]]) : firstN(fresh, n);
   } else if (id === 'swaps') {
     picked.swaps = {};
     if (prefs.swap) {
@@ -212,11 +220,13 @@ export function autoLevelDown(E, cfg, st) {
 // Keys whose values must round-trip exactly through level-down (creation-time
 // fixes such as lineage or origin-feat picks are kept on purpose).
 const ROLLBACK_KEYS = ['level', 'cantrips', 'prepared', 'metamagic', 'invocations', 'wildShapeForms', 'maneuvers',
-  'weaponMasteries', 'fightingStyles', 'levelChoices', 'hp'];
-export function snapshot(cfg, st) {
+  'weaponMasteries', 'fightingStyles', 'levelChoices', 'hp', 'featurePicks'];
+export function snapshot(cfg, st, E) {
   const norm = (v) => (v == null || isEmptyContainer(v)) ? null : clone(v);
   const s = {};
   for (const k of ROLLBACK_KEYS) s[k] = norm(st[k]);
+  // stored picks of one-of-N feature options (Blessed Strikes, …)
+  for (const o of ((E && E.DATA.optionChoices) || [])) s['opt:' + o.stateKey] = norm(st[o.stateKey]);
   const asi = Object.assign({}, st.asiChoices || {}); delete asi[1];
   s.asi = norm(asi);
   s.__subclass = cfg.subclass ?? null;

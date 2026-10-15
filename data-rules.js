@@ -28,6 +28,34 @@ DATA.wildShapeLimits = function (level, subclass) {
     return { cr: cr, fly: level >= 8 };
 };
 
+// ---- One-of-N picks a class or subclass feature asks for (2024 PHB) ----
+// Asked in the level-up menu when appliesTo first holds; the pick is stored in
+// state[stateKey] and undone by Level Down. swap = when it may be changed later.
+// act = action type of the picked option (Build window); desc in our own words.
+DATA.optionChoices = [
+    { id: 'blessedStrikes', label: 'Blessed Strikes', appliesTo: { className: 'cleric', minLevel: 7 }, stateKey: 'blessedStrikes',
+      options: [
+          { name: 'Divine Strike', act: 'attack', desc: "Once on each of your turns when you hit a creature with a weapon attack, it takes an extra 1d8 Necrotic or Radiant damage (your choice)." },
+          { name: 'Potent Spellcasting', desc: "Add your Wisdom modifier to the damage of your Cleric cantrips." }] },
+    { id: 'elementalFury', label: 'Elemental Fury', appliesTo: { className: 'druid', minLevel: 7 }, stateKey: 'elementalFury',
+      options: [
+          { name: 'Potent Spellcasting', desc: "Add your Wisdom modifier to the damage of your Druid cantrips." },
+          { name: 'Primal Strike', act: 'attack', desc: "Once on each of your turns when you hit a creature with a weapon attack or a Beast form's attack in Wild Shape, it takes an extra 1d8 Cold, Fire, Lightning or Thunder damage (choose when you hit)." }] },
+    { id: 'elementalAffinity', label: 'Elemental Affinity', appliesTo: { subclass: 'draconic', minLevel: 6 }, stateKey: 'elementalAffinity',
+      options: ['Acid', 'Cold', 'Fire', 'Lightning', 'Poison'].map(function (t) {
+          return { name: t, desc: "Resistance to " + t + " damage; add your Charisma modifier to one damage roll of a spell that deals " + t + " damage." };
+      }) },
+    { id: 'defensiveTactics', label: 'Defensive Tactics', appliesTo: { subclass: 'hunter', minLevel: 7 }, stateKey: 'defensiveTactics', swap: 'shortRest',
+      options: [
+          { name: 'Escape the Horde', desc: "Opportunity Attacks have Disadvantage against you." },
+          { name: 'Multiattack Defense', desc: "When a creature hits you with an attack roll, it has Disadvantage on all its other attack rolls against you this turn." }] },
+    { id: 'aspectOfTheWilds', label: 'Aspect of the Wilds', appliesTo: { subclass: 'wildHeart', minLevel: 6 }, stateKey: 'aspectOfTheWilds', swap: 'longRest',
+      options: [
+          { name: 'Owl', desc: "Darkvision 60 ft; if you already have Darkvision, its range grows by 60 ft." },
+          { name: 'Panther', desc: "A Climb Speed equal to your Speed." },
+          { name: 'Salmon', desc: "A Swim Speed equal to your Speed." }] }
+];
+
 // ---- What can be swapped, and when (2024 PHB) ----
 // when: 'longRest' | 'shortRest' (also on a Long Rest) | 'levelUp' | 'use'
 // (chosen again every time you use it). appliesTo: className / subclass / race
@@ -52,6 +80,8 @@ DATA.swapRules = [
     { id: 'wildShapeForm', when: 'longRest',  what: "One known Wild Shape form", appliesTo: { className: 'druid', minLevel: 2 } },
     { id: 'landType',      when: 'longRest',  what: "Land type for your Circle Spells", appliesTo: { subclass: 'land', minLevel: 3 } },
     { id: 'huntersPrey',   when: 'shortRest', what: "Hunter's Prey option", appliesTo: { subclass: 'hunter', minLevel: 3 } },
+    { id: 'aspectOfTheWilds', when: 'longRest', what: "Aspect of the Wilds option (Owl, Panther or Salmon)", appliesTo: { subclass: 'wildHeart', minLevel: 6 } },
+    { id: 'defensiveTactics', when: 'shortRest', what: "Defensive Tactics option", appliesTo: { subclass: 'hunter', minLevel: 7 } },
     { id: 'companion',     when: 'longRest',  what: "Your Primal Companion (stat block)", appliesTo: { subclass: 'beastMaster', minLevel: 3 } },
     { id: 'styleCantrip',  when: 'levelUp',   what: "One Blessed/Druidic Warrior cantrip", appliesTo: { fightingStyle: ['Blessed Warrior', 'Druidic Warrior'] } },
     { id: 'elfCantrip',    when: 'longRest',  what: "Your High Elf cantrip (any Wizard cantrip)", appliesTo: { race: 'highElf' } },

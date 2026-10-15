@@ -2,6 +2,24 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-15 — Levels 6–10 for every class and subclass (2024 rules)
+
+- Every class and subclass feature from level 6 to 10 follows the 2024 Player's Handbook
+  (texts, action types and uses), e.g. Aura of Protection, Evasion and Reliable Talent at 7,
+  Brutal Strike, Contact Patron, Divine Intervention, Tireless, Heightened Focus.
+- New choices in the level-up menu: **Blessed Strikes** (Cleric 7), **Elemental Fury**
+  (Druid 7), **Elemental Affinity** (Draconic Sorcerer 6), **Defensive Tactics** (Hunter 7,
+  switch on a rest), **Aspect of the Wilds** (Wild Heart 6, switch on a Long Rest), a second
+  **Fighting Style** (Champion 7), and Expertise at Rogue 6, Bard 9 and Ranger 9.
+- **Magical Discoveries** (Lore Bard 6): pick two always-prepared Cleric, Druid or Wizard
+  spells. **Magical Secrets** (Bard 10): new prepared spells can come from the Cleric,
+  Druid and Wizard lists, in the level-up menu and the prepare window.
+- New tracked uses: Indomitable, Divine Intervention, Moonlight Step, Cosmic Omen, Tireless,
+  Zealous Presence, Mantle of Majesty, Wholeness of Body, Dark One's Own Luck and more.
+- Six more Eldritch Invocations (Whispers of the Grave, Lifedrinker, Visions of Distant
+  Realms, Gift of the Protectors, Devouring Blade, Witch Sight).
+- Rangers get +10 ft Speed from Roving; the Owl aspect gives Darkvision.
+
 ## 2026-10-15 — Wild Shape beasts from the 2025 Monster Manual; 2024 PHB spells only
 
 - **Wild Shape**: Druids can now learn every Beast up to CR 6 from the 2025 Monster

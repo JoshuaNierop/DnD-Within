@@ -2,6 +2,14 @@
 
 _Laatst bijgewerkt: 2026-10-15 (huisregel 2024 PHB-spells + Wild Shape uit MM 2025; daarvoor L5-builds af)_
 
+## Level 6–20 — tier 1 (L6–10) features + engine (2026-10-15)
+Werkwijze (verbeterd t.o.v. L4/L5): geen overzicht van 720 combinaties per level meer — species krijgen na L5 niets nieuws. In plaats daarvan vergelijkt `build-smoke.mjs <T>` de featurenamen per level met de PHB-feiten (`build-facts.json` tot L20) en zet `tools/featdump.js` onze tekst naast de 2024-tekst; review = per class alle subclasses over het hele levelbereik.
+- **Test**: `build-smoke.mjs 10` 52 332/52 332 groen (720 builds L1→10 + level-down); 7: 41 641, 5: 34 608, 4: 28 872
+- **Fase 0**: feiten L1–20 (incl. ASI-levels, featurenamen), `preparedTable` tot L20, smoke-checks voor ASI-levels, maneuvers 3/5/7/9, Metamagic 6, Land-spells tot 9, featurenamen
+- **Engine**: `optionChoices` + `state.featurePicks` + `getSpellLists` (Magical Secrets) + subclass-filter op `levelUpChoices` (Champion) — zie `L4-Design.md`
+- **Data**: alle class- en subclass-features L6–10 in 2024-tekst (zie Todo/Changelog)
+- **Nog open in tier 1**: spells van level 4–5 naar 2024-tekst (89)
+
 ## Huisregel spells + Wild Shape (2026-10-15)
 Besluiten Joshua: spells die niet in de 2024 PHB staan worden niet gebruikt; Wild Shape-vormen komen uit het Monster Manual 2025.
 - **Spells**: 19 niet-PHB-spells weg (pool, lijsten, `spellMeta`), 9 lijst-items weg die de 2024 PHB niet op die class zet, Power Word Fortify toegevoegd → pool = 391 = de 2024 PHB. "not 2024 PHB"-markering in de spell-picker is vervallen

@@ -77,16 +77,16 @@ for (const cls of CLASSES) {
       const combo = cls + '/' + sub + ' × ' + label;
       const origin = ORIGIN_FEATS[run % ORIGIN_FEATS.length];
       const { config: cfg, state: st } = makeChar(E, cls, race, { originFeat: origin });
-      const prefs = { subclass: sub, lineage: lineage || undefined, asiFeat: L4_FEATS[run % L4_FEATS.length],
+      const prefs = { subclass: sub, lineage: lineage || undefined, asiFeat: L4_FEATS[run % L4_FEATS.length], optionIndex: run,
         speciesAbility: ['int', 'wis', 'cha'][run % 3], classStyle: run % 2 === 0, swap: run % 4 === 0,
         order: cls === 'cleric' ? (run % 2 ? 'thaumaturge' : 'protector') : (run % 2 ? 'magician' : 'warden'),
         invocations: run % 3 === 0 ? ['Pact of the Tome'] : run % 3 === 1 ? ['Lessons of the First Ones', 'Pact of the Chain'] : ['Pact of the Blade'] };
 
-      const snaps = { 1: snapshot(cfg, st) };
+      const snaps = { 1: snapshot(cfg, st, E) };
       try {
         for (let to = 2; to <= T; to++) {
           const { picked } = autoLevelUp(E, combo, cfg, st, prefs);
-          snaps[to] = snapshot(cfg, st);
+          snaps[to] = snapshot(cfg, st, E);
           check(combo + ' L' + to + ': level', st.level === to);
           // per-level counts against the engine's own tables
           const ab = E.getSpellcastingAbility(cls, cfg.subclass);
@@ -127,6 +127,11 @@ for (const cls of CLASSES) {
         // counted options
         for (const [id, want] of Object.entries(totalsAt(cls, T))) {
           check(combo + ': ' + id + ' = ' + want, (st[id] || []).length === want, String((st[id] || []).length));
+        }
+        if (cls === 'fighter') {   // Fighting Style at 1 (recorded at 2), Champion's Additional Fighting Style at 7
+          const wantS = cfg.subclass === 'champion' && T >= 7 ? 2 : 1;
+          const fs = st.fightingStyles || [];
+          check(combo + ': ' + wantS + ' fighting style(s)', fs.length === wantS && new Set(fs).size === fs.length, fs.join(', '));
         }
         if (cfg.subclass === 'battleMaster') {
           const wantM = T >= 15 ? 9 : T >= 10 ? 7 : T >= 7 ? 5 : 3;   // 2024 Battle Master: 3/5/7/9 at 3/7/10/15
@@ -200,7 +205,7 @@ for (const cls of CLASSES) {
         // ---------- level-down T → 1 ----------
         for (let back = T - 1; back >= 1; back--) {
           autoLevelDown(E, cfg, st);
-          const a = snapshot(cfg, st), b = snaps[back];
+          const a = snapshot(cfg, st, E), b = snaps[back];
           if (back === 1) { delete a.__defaultSkills; delete b.__defaultSkills; }
           check(combo + ': rollback to L' + back, JSON.stringify(a) === JSON.stringify(b),
             JSON.stringify(Object.keys(a).filter((k) => JSON.stringify(a[k]) !== JSON.stringify(b[k]))));
