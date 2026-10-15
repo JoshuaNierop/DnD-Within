@@ -2,6 +2,12 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-16 — Dashboard button
+
+- New orange round button next to Search (same style as Notes and Report): it takes a
+  player to their own character dashboard and the DM to the DM Dashboard. On small
+  phones it sits above the Search button; on the dashboards themselves it is hidden.
+
 ## 2026-10-16 — Monster Manual base for Creatures
 
 - **Start from Monster Manual** in the Creature editor (DM): search 330 Monster Manual

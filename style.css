@@ -65,7 +65,8 @@
     --fab-slot-1: calc(var(--fab-right-base) + var(--fab-gap));       /* notes */
     --fab-slot-2: calc(var(--fab-right-base) + var(--fab-gap) * 2);   /* chat  */
     --fab-slot-3: calc(var(--fab-right-base) + var(--fab-gap) * 3);   /* bug   */
-    --fab-slot-4: calc(var(--fab-right-base) + var(--fab-gap) * 4);   /* search — meest links */
+    --fab-slot-4: calc(var(--fab-right-base) + var(--fab-gap) * 4);   /* search */
+    --fab-slot-5: calc(var(--fab-right-base) + var(--fab-gap) * 5);   /* dashboard — leftmost */
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -7089,6 +7090,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 body:has(.wg-bottombar) .dice-fab,
 body:has(.wg-bottombar) .notes-fab,
 body:has(.wg-bottombar) .search-fab,
+body:has(.wg-bottombar) .dashboard-fab,
 body:has(.wg-bottombar) #scw-fab {
     display: none !important;
 }
@@ -10750,4 +10752,28 @@ body.bug-selecting .bug-fab { cursor: pointer !important; }
     .monster-db-search { grid-column: 1 / -1; }
     .monster-db-head { grid-template-columns: minmax(0, 1fr) auto; }
     .monster-db-meta { grid-column: 1 / -1; grid-row: 2; }
+}
+
+/* ----- Dashboard FAB (own character / DM Dashboard) ----- */
+.dashboard-fab {
+    position: fixed;
+    bottom: var(--fab-bottom);
+    right: var(--fab-slot-5);
+    width: var(--fab-size); height: var(--fab-size);
+    border-radius: 50%;
+    background: #1a1a2e;
+    border: 2px solid #fb923c;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 90;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(251, 146, 60, 0.3);
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation;
+}
+.dashboard-fab:hover, .dashboard-fab:focus-visible { border-color: #fdba74; transform: scale(1.1); box-shadow: 0 4px 20px rgba(251, 146, 60, 0.5); }
+.dashboard-fab-icon { width: var(--fab-icon); height: var(--fab-icon); color: #fb923c; pointer-events: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+.dashboard-fab:hover .dashboard-fab-icon { color: #fdba74; }
+/* Narrow screens: no room for a sixth FAB in the row → stack it above the search FAB */
+@media (max-width: 460px) {
+    .dashboard-fab { right: var(--fab-slot-4); bottom: calc(var(--fab-bottom) + var(--fab-size) + 10px); }
 }

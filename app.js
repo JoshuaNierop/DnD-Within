@@ -5,6 +5,24 @@
 // Section 8: Main Render Function (Router)
 // ============================================================
 
+// Dashboard FAB: the DM (or admin) goes to the DM Dashboard, a player to their own
+// character in the active campaign. No target (no party character) → no button.
+function renderDashboardFab() {
+    var href = null, label = '';
+    if ((typeof isCampaignDM === 'function' && isCampaignDM()) || isAdmin()) {
+        href = '/dm'; label = 'DM Dashboard';
+    } else {
+        var camp = getCampaigns()[getActiveCampaign()];
+        var charId = camp && camp.party ? camp.party[currentUserId()] : null;
+        if (charId) { href = '/characters/' + encodeURIComponent(charId); label = 'My dashboard'; }
+    }
+    if (!href) return '';
+    return '<a class="dashboard-fab" href="' + href + '" title="' + label + '" aria-label="' + label + '">' +
+        '<svg class="dashboard-fab-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round">' +
+        '<rect x="14" y="14" width="30" height="38" rx="5"/><rect x="56" y="14" width="30" height="22" rx="5"/>' +
+        '<rect x="14" y="64" width="30" height="22" rx="5"/><rect x="56" y="48" width="30" height="38" rx="5"/></svg></a>';
+}
+
 function renderApp() {
     var user = currentUser();
     var route = getRoute();
@@ -106,6 +124,8 @@ function renderApp() {
 
         // Global search FAB — find any entity reference (like @-mentions).
         html += '<div class="search-fab" data-action="open-search" title="Search"><svg class="search-fab-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"><circle cx="44" cy="44" r="30"/><line x1="66" y1="66" x2="88" y2="88"/></svg></div>';
+
+        html += renderDashboardFab();
 
         // Bug reporter FAB (only in debug mode)
         html += renderBugFab();
