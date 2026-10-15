@@ -828,8 +828,8 @@ const DATA = {
         asiLevels: [4, 8, 12, 16, 19],
         // Spell Mastery (18) and Signature Spells (20): picks in state.featurePicks.spellMastery / .signatureSpells
         spells: [
-            { pick: 'mastery1', count: 1, list: 'wizard', level: 1, kind: 'atWill', lvl: 18, key: 'spellMastery', label: 'Spell Mastery (level 1)', note: "at its lowest level, no slot" },
-            { pick: 'mastery2', count: 1, list: 'wizard', level: 2, kind: 'atWill', lvl: 18, key: 'spellMastery', label: 'Spell Mastery (level 2)', note: "at its lowest level, no slot" },
+            { pick: 'mastery1', count: 1, list: 'wizard', level: 1, kind: 'atWill', actionOnly: true, lvl: 18, key: 'spellMastery', label: 'Spell Mastery (level 1)', note: "at its lowest level, no slot" },
+            { pick: 'mastery2', count: 1, list: 'wizard', level: 2, kind: 'atWill', actionOnly: true, lvl: 18, key: 'spellMastery', label: 'Spell Mastery (level 2)', note: "at its lowest level, no slot" },
             { pick: 'signature', count: 2, list: 'wizard', level: 3, kind: 'innate', free: 1, recharge: 'short', slots: true, lvl: 20, key: 'signatureSpells', label: 'Signature Spells', note: "free cast at level 3" }
         ],
 
@@ -3974,11 +3974,32 @@ DATA.classResources = [
     // ---- Barbarian ----
     // ---- Level 17-20 capstones and subclass finales ----
     {
-        id: 'paladinFinale', label: 'Oath capstone',
-        appliesTo: { className: 'paladin', minLevel: 20 },
+        id: 'holyNimbus', label: "Holy Nimbus",
+        appliesTo: { className: 'paladin', subclass: 'devotion', minLevel: 20 },
         max: function (cfg, st) { return 1; },
-        stateKey: 'paladinFinaleUsed', recharge: 'long', featureNames: ['Holy Nimbus', 'Living Legend', 'Elder Champion', 'Avenging Angel'],
-        desc: "Holy Nimbus, Living Legend, Elder Champion or Avenging Angel: once per Long Rest; a level 5 spell slot restores it."
+        stateKey: 'holyNimbusUsed', recharge: 'long', featureNames: ["Holy Nimbus"],
+        desc: "Once per Long Rest; a level 5 spell slot restores it."
+    },
+    {
+        id: 'livingLegend', label: "Living Legend",
+        appliesTo: { className: 'paladin', subclass: 'glory', minLevel: 20 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'livingLegendUsed', recharge: 'long', featureNames: ["Living Legend"],
+        desc: "Once per Long Rest; a level 5 spell slot restores it."
+    },
+    {
+        id: 'elderChampion', label: "Elder Champion",
+        appliesTo: { className: 'paladin', subclass: 'ancients', minLevel: 20 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'elderChampionUsed', recharge: 'long', featureNames: ["Elder Champion"],
+        desc: "Once per Long Rest; a level 5 spell slot restores it."
+    },
+    {
+        id: 'avengingAngel', label: "Avenging Angel",
+        appliesTo: { className: 'paladin', subclass: 'vengeance', minLevel: 20 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'avengingAngelUsed', recharge: 'long', featureNames: ["Avenging Angel"],
+        desc: "Once per Long Rest; a level 5 spell slot restores it."
     },
     {
         id: 'coronaOfLight', label: 'Corona of Light',
@@ -4023,11 +4044,25 @@ DATA.classResources = [
         desc: "Turn a failed D20 Test into a 20. Once per Short or Long Rest."
     },
     {
-        id: 'sorcererFinale', label: 'Sorcery capstone',
-        appliesTo: { className: 'sorcerer', subclass: ['aberrant', 'clockwork', 'wildMagic'], minLevel: 18 },
+        id: 'warpingImplosion', label: "Warping Implosion",
+        appliesTo: { className: 'sorcerer', subclass: 'aberrant', minLevel: 18 },
         max: function (cfg, st) { return 1; },
-        stateKey: 'sorcererFinaleUsed', recharge: 'long', featureNames: ['Warping Implosion', 'Clockwork Cavalcade', 'Tamed Surge'],
-        desc: "Warping Implosion, Clockwork Cavalcade or Tamed Surge: once per Long Rest (Sorcery Points can restore the first two)."
+        stateKey: 'warpingImplosionUsed', recharge: 'long', featureNames: ["Warping Implosion"],
+        desc: "Once per Long Rest; 5 Sorcery Points restore it."
+    },
+    {
+        id: 'clockworkCavalcade', label: "Clockwork Cavalcade",
+        appliesTo: { className: 'sorcerer', subclass: 'clockwork', minLevel: 18 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'clockworkCavalcadeUsed', recharge: 'long', featureNames: ["Clockwork Cavalcade"],
+        desc: "Once per Long Rest; 7 Sorcery Points restore it."
+    },
+    {
+        id: 'tamedSurge', label: "Tamed Surge",
+        appliesTo: { className: 'sorcerer', subclass: 'wildMagic', minLevel: 18 },
+        max: function (cfg, st) { return 1; },
+        stateKey: 'tamedSurgeUsed', recharge: 'long', featureNames: ["Tamed Surge"],
+        desc: "Once per Long Rest."
     },
     {
         id: 'rage', label: 'Rage',

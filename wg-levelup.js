@@ -228,7 +228,7 @@ function wgxChoiceNeeded(choice, cfg, st, picked) {
 function wgxSpellOptions(filter) {
   var lists = filter.list ? [].concat(filter.list) : Object.keys(DATA.spells || {});
   var levels = [filter.level];
-  if (filter.maxLevel) { levels = []; for (var L = filter.minLevel || 1; L <= filter.maxLevel; L++) levels.push(L); }
+  if (filter.maxLevel) { levels = []; for (var L = filter.minLevel != null ? filter.minLevel : 1; L <= filter.maxLevel; L++) levels.push(L); }
   var seen = {}, out = [];
   levels.forEach(function (lv) {
     lists.forEach(function (cl) {
@@ -240,6 +240,7 @@ function wgxSpellOptions(filter) {
         var ritual = meta.indexOf('r') !== -1;
         if (filter.schools && filter.schools.indexOf(school) === -1) return;
         if (filter.ritual && !ritual) return;
+        if (filter.actionOnly && (DATA.spellPool[nm] || {}).time !== '1 action') return;   // Spell Mastery
         out.push({ nm: nm, lvl: lv, sp: DATA.spellPool[nm] || {}, school: school, ritual: ritual });
       });
     });
@@ -398,7 +399,7 @@ function wgxLevelUpSteps(delta, cfg, st, picked) {
     getGrantedSpells(eff, Object.assign({}, st, { level: delta.to })).forEach(function (g) {
       if (!g.open || (g.source !== 'class' && g.source !== 'subclass') || g.pick === 'replacement') return;
       var key = g.spec.key || (g.source === 'subclass' ? eff.subclass : eff.className);
-      var flt = { list: g.spec.list, schools: g.spec.schools, ritual: g.spec.ritual };
+      var flt = { list: g.spec.list, schools: g.spec.schools, ritual: g.spec.ritual, actionOnly: g.spec.actionOnly };
       if (g.spec.level === 'slot') {
         flt.maxLevel = wgxMaxSpellLevel(eff.className, delta, getSpellSlots(eff.className, delta.to, eff.subclass));
         flt.minLevel = g.spec.cantrips ? 0 : 1;
@@ -1079,16 +1080,17 @@ function wgxRenderLUStep() {
     var cur = wgxOwnerRec(picked, owner);
     var curVal = cur.type === 'asi' ? '__asi__' : (cur.feat || null);
     var stLvl = Object.assign({ asiChoices: {} }, st, { level: d.to });
-    var feats = (DATA.feats || []).filter(function (fe) { return isAsi ? (fe.category === 'general' || fe.category === 'origin' || fe.category === 'fighting') : fe.category === 'origin'; });
-    html += '<h3>' + (isAsi ? 'Level ' + d.to + ': increase your abilities or take a feat' : owner === 'lessons' ? 'Lessons of the First Ones: choose an Origin feat' : 'Human Versatile: choose an Origin feat') + '</h3>';
+    var asiLvl = (step.choice.level || d.to);
+    var feats = (DATA.feats || []).filter(function (fe) { return isAsi ? (fe.category === 'general' || fe.category === 'origin' || fe.category === 'fighting' || (fe.category === 'epic' && asiLvl >= 19)) : fe.category === 'origin'; });
+    html += '<h3>' + (isAsi ? (asiLvl >= 19 ? 'Level ' + asiLvl + ': choose an Epic Boon (or another feat)' : 'Level ' + d.to + ': increase your abilities or take a feat') : owner === 'lessons' ? 'Lessons of the First Ones: choose an Origin feat' : 'Human Versatile: choose an Origin feat') + '</h3>';
     html += '<p class="wgx-lu-note">' + (isAsi ? 'Ability Score Improvement = +2 to one ability or +1 to two (max 20). Every General feat also gives +1 to an ability. Greyed feats show what you are missing.' : owner === 'lessons' ? 'An extra Origin feat from your invocation.' : 'This level 1 choice was never recorded. You get it on top of your background\'s Origin feat.') + '</p>';
     var items = [];
     if (isAsi) items.push({ val: '__asi__', title: 'Ability Score Improvement', sub: '+2 / +1 +1', desc: 'Increase one ability by 2, or two abilities by 1 (max 20).' });
-    var order = { general: 0, origin: 1, fighting: 2 };
+    var order = { epic: -1, general: 0, origin: 1, fighting: 2 };
     feats.slice().sort(function (a, b) { return (order[a.category] - order[b.category]) || a.name.localeCompare(b.name); }).forEach(function (fe) {
       if (fe.asi) return;
       var pr = featPrereqMet(fe, eff, stLvl, d.to);
-      var sub = fe.category === 'general' ? 'General' : fe.category === 'origin' ? 'Origin' : 'Fighting Style';
+      var sub = fe.category === 'epic' ? 'Epic Boon' : fe.category === 'general' ? 'General' : fe.category === 'origin' ? 'Origin' : 'Fighting Style';
       if (fe.spells) sub += ' · spells';
       items.push({ val: fe.name, title: fe.name, sub: sub, desc: wgxTrunc(wgxLUFeatureDesc(fe.desc), 150), known: !pr.ok, knownLabel: pr.reason });
     });

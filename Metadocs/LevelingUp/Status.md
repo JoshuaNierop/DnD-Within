@@ -2,6 +2,10 @@
 
 _Laatst bijgewerkt: 2026-10-15 (level 1–20 compleet: alle classes, subclasses en spells volgens de 2024 PHB)_
 
+## Tactische UI-test (2026-10-15)
+`node Metadocs/LevelingUp/ui-smoke.mjs` — rendert het level-up-venster in Node (nep-DOM) voor wat nieuw of dubbelzinnig is: optie-stappen, Magical Discoveries, Magical Secrets, Mystic Arcanum, Spell Mastery/Signature Spells, Epic Boon (+1 boven 20, Boon of Skill-expertise), tweede Fighting Style, Wild Shape Fly-grens, Level Down-teksten. 107/107. Gevonden + gefixt: Epic Boons ontbraken in de feat-lijst, Magical Discoveries zonder cantrips. Niet gedekt: prepare-venster (DOM-zwaar) en de Build-weergave.
+Onderzocht: Phantasmal Creatures = één gratis cast per spell per Long Rest (2024-tekst) — zo gebouwd.
+
 ## Level 6–20 — tier 3 (L17–20) (2026-10-15) — level 1–20 compleet
 - **Features**: alle class- en subclass-features L17–20 naar 2024; `build-smoke.mjs 20` 85 605/85 605 groen (720 builds L1→20 en terug; ook 5: 34 608)
 - **Epic Boon**: ASI-stap op 19 (Epic Boon of andere feat); 12 boons herschreven met +1 tot 30 (`abilityMax`), Boon of Skill/Speed/Fortitude doorgerekend; de test roteert de boons
@@ -123,7 +127,7 @@ Bekende gaten → fase F+: Battle Master maneuvers-picker, Arcane Trickster/Eldr
 0f. **NIEUW 2026-08-04:** `preparedTable` paladin/ranger van `[-,2,3]`/`[-,3,4]` naar `[2,3,4]` + `halfCasterSlots[1]=2×1st` + `spellcastingStart` 2→1. De eerdere aidedd-tabel volgde de 2014-start-op-L2-layout en sprak de geverifieerde class-research in dit document tegen (Paladin/Ranger L1: "Spellcasting v.a. L1, 2 prepared, slots 2×1st"). **Spot-check fysieke 2024 PHB gewenst** — dit raakt barius (L3-cap 3→4) en ancha.
 0g. **NIEUW:** druid `cantripsKnown` L1–3 van 4 naar 2 (2024-tabel; was een sorcerer-kopie). **io heeft 4 cantrips in state** — bewust NIET gestript; DM-besluit welke 2 blijven (of laten zoals het is).
 0h. **NIEUW:** `DATA.invocations` (14, L≤3) en `DATA.wildShapeForms` (20) teksten zijn agent-kennis 2024 PHB / 2025 MM — spot-check namen/regels (m.n. Eldritch Spear range ×30/level, Fiendish Vigor max-temp-HP, Pact of the Chain vormen; wild-shape speeds). **Wild Shape-deel opgelost 2026-10-15**: vormen komen nu uit de MM 2025-data (89 Beasts t/m CR 6) en worden getest.
-0n. **NIEUW 2026-10-15:** de 6 swarms ("Swarm of Tiny Beasts", o.a. Swarm of Rats/Ravens/Venomous Snakes) staan als Wild Shape-vorm in de lijst. RAW zijn het Beasts; mogen ze van de DM?
+0n. **Besloten 2026-10-15:** swarms toegestaan (gemarkeerd, DM-call). Was: de 6 swarms ("Swarm of Tiny Beasts", o.a. Swarm of Rats/Ravens/Venomous Snakes) staan als Wild Shape-vorm in de lijst. RAW zijn het Beasts; mogen ze van de DM?
 0i. **NIEUW:** Bastion (id `barius`, Paladin L3) heeft géén prepared spells vastgelegd; de self-heal biedt pas picks bij de vólgende level-up. Workaround als je het nu wil vullen: prepare-window ("⚙ Change spells" of Long Rest) vult prepared direct; fighting style vergt nog wel Level Down → Level Up. Boven L3 valt de prepared-tabel terug op de legacy-formule → discontinuïteit mogelijk bij L3→4 (fase F+).
 0j. **NIEUW (pre-existing, gesignaleerd):** skills-data-dualiteit: widgets/pickers gebruiken `config.defaultSkills`/`config.expertSkills` (camelCase keys), maar legacy state heeft óók `state.skills`/`state.expertise` — en ren's config bevat `'sleight of hand'` (spaties) die nooit matcht met WG_SKILLS-key `sleightOfHand`. Opruimactie nodig (aparte fix).
 0k. **Opgelost 2026-10-15:** laatste 14 NL-spellteksten + 12 NL-componenten vertaald (2024). Was — **Data-debt (deels gedaan):** `spellPool`: dur/time-velden + 23 party-zichtbare descs zijn nu Engels; **~230 desc-bodies nog NL** (zichtbaar in level-up spell-pickers voor niet-geprepairde spells). Bulk-vertaalslag = aparte sessie. Ook nog NL: material-component-teksten in `comp` ("een beetje fosforus") en veel class-feature-descs buiten paladin/ranger/druid/fighter-geraakte.

@@ -29,6 +29,7 @@ __exports = { DATA, WG_SKILLS, getMod, getProfBonus, getAbilityScore, getHP, get
   wgxScholarSkillKeys, wgxEligibleExpertise, wgxStyleBonus, wgxMaxSpellLevel, wgxSpellOptions, wgxMasteryOptions,
   wgxCrValue, wgxWildShapeOptions, wgxChoiceNeeded, wgxLevelUpSteps, wgxStepComplete, wgxSwapOptions, wgxBuildLevelUpPatch,
   wgxBuildLevelDownPatch, wgxHasSkill, getSkillBonus, getEffectiveAbilities, getSpeed, getDarkvision, getInitiative };
+__exports.__global = this;   // the sandbox itself (UI tests drive the level-up window through it)
 `;
   const sandbox = { console, __exports: null };
   vm.createContext(sandbox);
