@@ -48,8 +48,8 @@
 | Draconic Sorcery (sorcerer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 19 |
 | Clockwork Sorcery (sorcerer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 20 |
 | Aberrant Sorcery (sorcerer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 20 |
-| Fiend Patron (warlock) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Archfey Patron (warlock) | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Fiend Patron (warlock) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 21 |
+| Archfey Patron (warlock) | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 21 |
 | Celestial Patron (warlock) | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Great Old One Patron (warlock) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | Evoker (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
@@ -623,7 +623,6 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 
 - Features (L3): Dark One's Blessing, Fiend Spells
 - Spells: Burning Hands (L1, always prepared); Command (L1, always prepared); Scorching Ray (L2, always prepared); Suggestion (L2, always prepared)
-- Actions (no spells): 
 
 #### Archfey Patron
 
@@ -665,7 +664,6 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 #### Evoker
 
 - Features (L3): Evocation Savant, Potent Cantrip
-- Actions (no spells): 
 
 #### Abjurer
 
