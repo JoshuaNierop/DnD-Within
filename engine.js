@@ -1011,6 +1011,11 @@ function getBuildProfile(cfg, st) {
             : ownPick ? 'swap the copy you picked yourself the next time your class lets you replace a cantrip.'
             : 'you simply know it once; the second source adds nothing (the 2024 rules have no replacement for this).'));
     });
+    // "If you already know it, learn another cantrip" (Improved Illusions).
+    getGrantedSpells(cfg, st).forEach(function (g) {
+        if (g.open && g.pick === 'replacement') prof.notes.push('You already know ' + g.replaces + ' from another source, so ' + g.from + ' lets you pick a different ' + classLabel(g.spec.list) + ' cantrip instead.');
+        else if (/^instead of /.test(g.note || '')) prof.notes.push('You already knew ' + g.note.slice(11) + ' from another source, so ' + g.from + ' gave you ' + g.name + ' instead.');
+    });
     var anySpells = !!prof.casting || prof.granted.length > 0;
     if (cn === 'barbarian' && anySpells) prof.notes.push("While raging you can't cast spells or keep Concentration — spells you get only work outside your Rage.");
     // 2024 Wild Shape keeps class features and feats but doesn't list species traits.

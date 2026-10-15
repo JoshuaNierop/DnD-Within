@@ -54,8 +54,8 @@
 | Great Old One Patron (warlock) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 22 |
 | Evoker (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 23 |
 | Abjurer (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 23 |
-| Diviner (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Illusionist (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Diviner (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 24 |
+| Illusionist (wizard) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 24 |
 
 ✓ = no interaction between the parts · ⚑ = see "Combination notes" in the class section.
 
@@ -686,4 +686,6 @@ Per class: what every subclass shares, then each subclass. Level 4 always brings
 - Choose: Illusion Savant (L3): 2 Illusion spells of level 2 or lower for your spellbook (free; the site doesn't track the spellbook yet)
 - Spells: Minor Illusion (C, cantrip)
 - Actions (no spells): Bonus Action: Improved Illusions
+- Combination notes:
+  - Gnome: Forest Gnome: You already know Minor Illusion from another source, so Illusionist lets you pick a different Wizard cantrip instead.
 

@@ -8,7 +8,7 @@ Ontwerp + datamodel: `L4-Design.md` · overzicht alle combinaties: `L4-Combinati
 - **Engine**: `getGrantedSpells`, `getBuildProfile`, `featInstances`/`hasFeat`, `featPrereqMet`, swaps (`swapRules`), dynamische free-cast-tellers `fc_*`, HP/AC-feats (Tough, Boon, Draconic Resilience, Defense)
 - **UI**: Build-venster + Explore builds (`wg-build.js`), level-up-stappen voor álle L4-keuzes + fix-modus "Complete missing choices", granted spells ★ in Prepared Spells, feats/maneuvers in Features, Short Rest-resources
 - **Test**: `build-smoke.mjs` — 720 builds L1→4 + level-down, 26 113/26 113 groen, feiten uit de 2024 PHB-data (`l4-facts.json`); vervangt `combo-smoke.mjs`
-- **Review**: 24 batches van 20 combinaties (Barbarian → Wizard); kolom "Reviewed" in de matrix
+- **Review**: alle 24 batches van 20 combinaties nagelopen tegen de 2024-brontekst (kolom "Reviewed" in de matrix). Gevonden + gefixt: skill-keuzes uit features, 3 class-skilllijsten, subclass-stap-regressie, widgets zonder ASI/PB, speed/darkvision/initiative, 14 NL/2014-spellteksten + 12 componenten, Soulknife-acties, notities (Wild Shape vs. species, dubbele cantrips, Improved Illusions). L6+-afwijkingen staan in Todo.md
 
 
 ## Combo-smoketest (2026-08-14) — `combo-smoke.mjs` (verwijderd 2026-10-15, vervangen door `build-smoke.mjs`)
