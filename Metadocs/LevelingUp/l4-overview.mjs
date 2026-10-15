@@ -16,7 +16,7 @@ const E = loadEngine();
 const { DATA } = E;
 
 // Batches of 20 combinations (2 subclasses × 10 species) read through by hand.
-const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3' };
+const REVIEWED = { 'barbarian/berserker': 'batch 1', 'barbarian/wildHeart': 'batch 1', 'barbarian/worldTree': 'batch 2', 'barbarian/zealot': 'batch 2', 'bard/lore': 'batch 3', 'bard/dance': 'batch 3', 'bard/glamour': 'batch 4', 'bard/valor': 'batch 4' };
 
 const CLASSES = ['barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'];
 const SPECIES = [
