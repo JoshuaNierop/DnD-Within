@@ -54,8 +54,8 @@
 | Great Old One Patron (warlock) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 22 |
 | Evoker (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 23 |
 | Abjurer (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 23 |
-| Diviner (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
-| Illusionist (wizard) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| Diviner (wizard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 24 |
+| Illusionist (wizard) | ✓ | ✓ | ✓ | ✓ | ⚑ | ✓ | ✓ | ✓ | ✓ | ✓ | batch 24 |
 
 ✓ = no interaction between the parts · ⚑ = see "Combination notes" in the class section.
 
