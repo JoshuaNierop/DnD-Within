@@ -8,8 +8,8 @@
 
 | Class — Subclass | Aasimar | Dragonborn | Dwarf | Elf | Gnome | Goliath | Halfling | Human | Orc | Tiefling | Reviewed |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Berserker (barbarian) | ⚑ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
-| Wild Heart (barbarian) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
+| Berserker (barbarian) | ⚑ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 1 |
+| Wild Heart (barbarian) | ✓ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ | batch 1 |
 | World Tree (barbarian) | ⚑ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Zealot (barbarian) | ⚑ | ✓ | ✓ | ⚑ | ⚑ | ✓ | ✓ | ✓ | ✓ | ⚑ |  |
 | Lore (bard) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
@@ -79,7 +79,7 @@ Speed 30 ft, Darkvision 60 ft, Medium or Small
 Speed 30 ft, Darkvision 60 ft, Medium
 - Actions: Draconic Flight (Bonus Action); Breath Weapon (On a hit / Attack action)
 - Passive: Draconic Ancestry; Damage Resistance; Darkvision
-- Uses: Breath Weapon 3/Long Rest
+- Uses: Breath Weapon 3/Long Rest; Draconic Flight 1/Long Rest
 - Swap: Breath Weapon shape (cone or line) (each time you use it)
 - Variants:
   - **Black (Acid)**: Damage type: Acid
@@ -124,7 +124,7 @@ Speed 30 ft, Darkvision 60 ft, Small
 
 Speed 35 ft, Medium
 - Passive: Giant Ancestry; Powerful Build
-- Uses: Giant Ancestry 3/Long Rest
+- Uses: Giant Ancestry 3/Long Rest; Large Form 1/Long Rest
 - Variants:
   - **Cloud Giant**: actions Large Form (Bonus Action), Cloud's Jaunt (Bonus Action)
   - **Fire Giant**: actions Large Form (Bonus Action), Fire's Burn (On a hit / Attack action)
