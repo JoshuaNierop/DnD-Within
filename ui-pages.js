@@ -205,6 +205,8 @@ function renderNavbar(route) {
     html += '</div>';
     html += '<button class="nav-toggle" data-action="toggle-nav">&#9776;</button>';
     html += '</nav>';
+    // Phone: bottom tab bar (CSS shows it below 700px; mobile.js builds it).
+    if (typeof DWMobile !== 'undefined' && DWMobile.tabbarHtml) html += DWMobile.tabbarHtml(route, inCampaignView);
     return html;
 }
 

@@ -137,7 +137,8 @@ Status: open — alleen in een browser te beoordelen
 - [~] P2 — Touch targets ≥44px: deels (`min-height:44px` op een deel van de knoppen), spell/feat-lijsten niet gecontroleerd
 - [ ] P2 — Keyboard-navigatie door de spell-lijsten (browsertest)
 - [ ] P2 — Dark mode contrast (browsertest)
-- [ ] P2 — Mobiel: widgets met loze ruimte (browsertest)
+- [x] P1 — Telefoonmodus (< 700px): tab bar + More-sheet, bottom-sheet-modals, één-koloms dashboards afgeleid van desktop, swipe tussen situatie-tabs (2026-10-18; live-check door Joshua open)
+- [ ] P2 — Telefoonmodus vervolg: Combat Tracker compacter, wizard nalopen, landscape, tablet-portret-besluit (Todo "Joshua — beslissingen")
 - [x] P3 — Ability radar chart → vervallen, die widget bestaat niet meer
 - [ ] P3 — Level-up animation feedback
 

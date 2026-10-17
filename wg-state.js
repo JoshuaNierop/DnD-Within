@@ -322,12 +322,17 @@ function applyResponsive() {
   state.config.dashTile         = Math.round(lerp(r.dashTile.mobile,         r.dashTile.desktop,         t));
   state.config.dashMinSpacing   = Math.round(lerp(r.dashMinSpacing.mobile,   r.dashMinSpacing.desktop,   t));
   state.config.fontSize         = lerp(r.fontSize.mobile, r.fontSize.desktop, t);
+  // Phone mode (wg-mobile.js): fixed tile/spacing/font instead of the lerp.
+  const mobile = typeof wgMobileActive === 'function' && wgMobileActive();
+  if (mobile && typeof wgMobileApplyConfig === 'function') wgMobileApplyConfig();
   // V11: hot-swap device class on breakpoint cross
   const newDevice = currentDevice();
   if (newDevice !== state.device) {
     if (dragHandle) return; // drag-guard: ignore resize during active drag
     state.device = newDevice;
     ensureSituation(state.device, state.activeSituation);
+    // Entering phone mode at runtime: the mobile slots mirror the desktop ones.
+    if (mobile && newDevice === 'mobile' && typeof wgMobileDeriveAll === 'function') wgMobileDeriveAll();
     if (!state.widgets.length) pulseSidebar();
   }
 }

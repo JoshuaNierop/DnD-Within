@@ -11,7 +11,7 @@ const WG_RESPONSIVE_DEFAULTS = {
 };
 const WG_VP_MIN = 480;
 const WG_VP_MAX = 1280;
-const WG_BP_MOBILE = 600;
+const WG_BP_MOBILE = 700;   // = the phone breakpoint of the app shell (mobile.css / DWMobile)
 const WG_BP_TABLET = 1024;
 
 // WGI-M2: prefer DnD Within's FIREBASE_CONFIG.databaseURL when V8 is loaded inside D&D Within.

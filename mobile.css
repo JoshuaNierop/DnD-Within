@@ -1,0 +1,490 @@
+/* =============================================================
+   D&D Within — Mobile shell (phones, < 700px)
+   Loaded after style.css and wg-style.css. Everything in here is scoped to
+   the phone breakpoint; desktop and tablet layouts are untouched.
+   JS mirror of the breakpoint: DWMobile (mobile.js) sets html.is-mobile.
+   ============================================================= */
+
+:root {
+    --mtab-h: 58px;
+    --mtab-safe: env(safe-area-inset-bottom, 0px);
+    --mtab-total: calc(var(--mtab-h) + var(--mtab-safe));
+}
+
+/* The tab bar is rendered on every viewport; only phones show it. */
+.mobile-tabbar { display: none; }
+
+@media (max-width: 699.98px) {
+    html { -webkit-text-size-adjust: 100%; }
+
+    /* ---- Top bar: brand + avatar only (links moved to the tab bar) ---- */
+    .navbar {
+        block-size: 52px;
+        gap: 0.5rem;
+        padding-inline-start: max(env(safe-area-inset-left, 0px), 1rem);
+        padding-inline-end: max(env(safe-area-inset-right, 0px), 0.75rem);
+    }
+    .navbar .nav-links,
+    .navbar .nav-logout,
+    .navbar .nav-toggle { display: none !important; }
+    .navbar .nav-right { gap: 0.6rem; }
+    .nav-logo { font-size: 0.9rem; letter-spacing: 0.14em; }
+    .campaign-subtitle { font-size: 0.58rem; max-inline-size: 58vw; overflow: hidden; text-overflow: ellipsis; }
+    .nav-avatar { inline-size: 36px; block-size: 36px; }
+
+    /* ---- Bottom tab bar ---- */
+    .mobile-tabbar {
+        position: fixed;
+        inset-inline: 0;
+        inset-block-end: 0;
+        z-index: 120;
+        display: flex;
+        align-items: stretch;
+        block-size: var(--mtab-total);
+        padding-block-end: var(--mtab-safe);
+        padding-inline-start: max(env(safe-area-inset-left, 0px), 4px);
+        padding-inline-end: max(env(safe-area-inset-right, 0px), 4px);
+        background: color-mix(in oklab, var(--bg-dark) 90%, transparent);
+        -webkit-backdrop-filter: blur(18px) saturate(140%);
+        backdrop-filter: blur(18px) saturate(140%);
+        border-block-start: 1px solid var(--hairline-gold);
+    }
+    .mtab {
+        position: relative;
+        flex: 1 1 0;
+        min-inline-size: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 6px 2px 5px;
+        background: none;
+        border: 0;
+        color: var(--text-dim);
+        text-decoration: none;
+        font-family: var(--font-body);
+        font-size: 0.64rem;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        line-height: 1;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: color 0.15s, transform 0.12s;
+    }
+    .mtab svg { inline-size: 24px; block-size: 24px; flex: none; }
+    .mtab span { max-inline-size: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mtab:active { transform: scale(0.92); }
+    .mtab.active { color: var(--accent-warm); }
+    .mtab.active::before {
+        content: '';
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline: 22%;
+        block-size: 2px;
+        border-radius: 0 0 2px 2px;
+        background: linear-gradient(90deg, transparent, var(--accent-warm) 30%, var(--accent-warm) 70%, transparent);
+    }
+    /* Unread chat count on the More tab — same source as the dashboard-bar badge. */
+    html[data-chat-unread] .mtab-more::after,
+    html[data-chat-unread] .dw-tile-chat::after {
+        counter-reset: chat-unread var(--chat-unread, 0);
+        content: counter(chat-unread);
+        position: absolute;
+        top: 4px;
+        right: calc(50% - 20px);
+        min-width: 17px;
+        height: 17px;
+        padding: 0 4px;
+        border-radius: 9px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 700;
+        line-height: 17px;
+        text-align: center;
+        box-sizing: border-box;
+    }
+    html[data-chat-unread] .dw-tile-chat::after { top: 6px; right: 8px; }
+
+    /* ---- Pages clear the tab bar ---- */
+    .main-content { padding-block-end: calc(var(--mtab-total) + 1.25rem); }
+
+    /* ---- Floating buttons: gone — everything lives in the More sheet ---- */
+    .dice-fab, .notes-fab, .search-fab, .dashboard-fab, .bug-fab, .cv-btn,
+    #social-chat-widget .scw-fab { display: none !important; }
+
+    /* ---- Tool panels: sheets docked above the tab bar ---- */
+    .dice-panel,
+    .notes-panel,
+    #social-chat-widget .scw-panel {
+        position: fixed !important;
+        inset-inline: 0 !important;
+        top: auto !important;
+        inset-block-end: var(--mtab-total) !important;
+        inline-size: auto !important;
+        max-inline-size: none !important;
+        border-radius: 18px 18px 0 0 !important;
+        border-inline: 0 !important;
+        border-block-end: 0 !important;
+        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55) !important;
+    }
+    .dice-panel {
+        block-size: auto !important;
+        max-block-size: calc(100dvh - var(--mtab-total) - 48px) !important;
+    }
+    .notes-panel,
+    #social-chat-widget .scw-panel {
+        block-size: min(78dvh, calc(100dvh - var(--mtab-total) - 48px)) !important;
+        max-block-size: none !important;
+    }
+
+    /* ---- Modals → bottom sheets ---- */
+    .modal-overlay { align-items: flex-end !important; padding: 0 !important; }
+    .modal-overlay > .modal-card,
+    .modal-overlay > .modal-box {
+        inline-size: 100% !important;
+        max-inline-size: none !important;
+        max-block-size: calc(100dvh - 28px - env(safe-area-inset-top, 0px)) !important;
+        border-radius: 20px 20px 0 0 !important;
+        border-inline: 0;
+        border-block-end: 0;
+        padding-block-end: max(env(safe-area-inset-bottom, 0px), 0px);
+        animation: dwSheetUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .modal-overlay > .modal-card::before,
+    .modal-overlay > .modal-box::before {
+        content: '';
+        display: block;
+        inline-size: 40px;
+        block-size: 4px;
+        border-radius: 2px;
+        background: var(--border-light);
+        margin: 10px auto 2px;
+        flex: none;
+    }
+    .modal-header { padding: 0.75rem 1.1rem 0.9rem; }
+    .modal-close { inline-size: 44px; block-size: 44px; display: grid; place-items: center; margin-inline-end: -12px; }
+    .modal-body { padding: 1rem 1.1rem 1.4rem; }
+    /* Full-screen flows keep their own layout (creation wizard). */
+    .modal-overlay.wizard-overlay { align-items: stretch !important; }
+    .modal-overlay.wizard-overlay > .modal-card,
+    .modal-overlay.wizard-overlay > .wizard-modal {
+        border-radius: 0 !important;
+        max-block-size: none !important;
+        animation: none;
+    }
+    .modal-overlay.wizard-overlay > .modal-card::before { display: none; }
+
+    /* ---- Touch targets ---- */
+    .btn, .modal-btn, .header-btn, .options-toggle, .lore-tab, .tab-btn, .dm-tab,
+    .nav-btn, .btn-small, .login-submit, .login-link { min-block-size: 44px; }
+    .btn.btn-sm { min-block-size: 40px; }
+    .login-input, .edit-input, select, input[type="text"], input[type="number"], input[type="search"], input[type="email"], input[type="password"] { min-block-size: 44px; }
+
+    /* ---- Lore tabs: one horizontal strip instead of three wrapped rows ---- */
+    .lore-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+        gap: 0.4rem;
+        margin-inline: -0.75rem;
+        padding-inline: 0.75rem;
+        padding-block-end: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    .lore-tabs::-webkit-scrollbar { display: none; }
+    .lore-tab {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+        display: inline-flex;
+        align-items: center;
+        padding-inline: 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* ---- Timeline: justified text makes rivers in a narrow column ---- */
+    .timeline-session-block .scene p,
+    .timeline-session-block .scene-split-text,
+    .scene-block-readonly p,
+    .scene-block-readonly .scene-split-text { text-align: start; hyphens: manual; }
+    .timeline { padding-inline-start: 1.1rem; }
+
+    /* ===== Character & DM dashboard (widget grid) in phone mode =====
+       wg-style.css is @scope (.character-page); the extra html.is-mobile
+       class gives these rules the specificity to win over the scoped ones. */
+    html.is-mobile .character-page {
+        block-size: calc(100dvh - var(--mtab-total));
+        min-block-size: 0;
+    }
+    html.is-mobile .character-page aside.sidebar,
+    html.is-mobile .character-page .topbar-spacer-right,
+    html.is-mobile .character-page .wg-bottombar,
+    html.is-mobile .character-page .info.show-on-toggle,
+    html.is-mobile .character-page .page-nav { display: none !important; }
+    html.is-mobile .character-page .topbar-spacer-left { inline-size: 48px; }
+    html.is-mobile .char-back-btn { inline-size: 48px; block-size: 48px; border-inline-end: 0; }
+    html.is-mobile .character-page .app-topbar {
+        flex: none;
+        min-block-size: 48px;
+        border-block-end: 1px solid var(--hairline-gold);
+        background: color-mix(in oklab, var(--bg-dark) 92%, transparent);
+    }
+    html.is-mobile .character-page .app-topbar .dash-tabs {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        margin: 0;
+        border: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    html.is-mobile .character-page .dash-tabs::-webkit-scrollbar { display: none; }
+    html.is-mobile .character-page .dash-tab {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        min-block-size: 48px;
+        margin: 0;
+        padding: 0 14px;
+        font-size: 11.5px;
+        letter-spacing: 0.12em;
+        scroll-snap-align: center;
+        border-block-end-width: 2px;
+    }
+    html.is-mobile .character-page .app-row { flex: 1; min-block-size: 0; }
+    html.is-mobile .character-page main.app-main { padding-block-end: 0 !important; min-block-size: 0; }
+    html.is-mobile .character-page .wg-main-scroll {
+        padding: 10px 8px calc(16px + var(--mtab-safe));
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        touch-action: pan-y;
+        -webkit-overflow-scrolling: touch;
+    }
+    html.is-mobile .character-page .canvas-wrap { position: relative; }
+    html.is-mobile .character-page #canvas {
+        touch-action: pan-y !important;
+        max-inline-size: 100%;
+        block-size: auto;
+    }
+    html.is-mobile .character-page svg g.resize-handle { display: none !important; }
+    html.is-mobile .character-page svg .widget-onboard-topbar { cursor: default; }
+
+    /* Slide between situations (swipe) */
+    .wgm-out-left  { animation: wgmOutLeft 0.16s ease-in forwards; }
+    .wgm-out-right { animation: wgmOutRight 0.16s ease-in forwards; }
+    .wgm-in-left   { animation: wgmInLeft 0.24s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .wgm-in-right  { animation: wgmInRight 0.24s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .wgm-bounce    { animation: wgmBounce 0.28s ease; }
+
+    /* Empty situation on the phone */
+    .wgm-empty {
+        margin: 2.5rem auto 1rem;
+        max-inline-size: 28ch;
+        text-align: center;
+        color: var(--text-dim);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    .wgm-empty strong {
+        display: block;
+        margin-block-end: 0.4rem;
+        font-family: var(--font-display);
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent-warm);
+    }
+    .wgm-hint {
+        margin: 0.25rem auto 0.75rem;
+        text-align: center;
+        color: var(--text-dim);
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.8;
+    }
+}
+
+@keyframes dwSheetUp {
+    from { transform: translateY(28px); opacity: 0.5; }
+    to { transform: none; opacity: 1; }
+}
+@keyframes wgmOutLeft  { to { transform: translateX(-18%); opacity: 0; } }
+@keyframes wgmOutRight { to { transform: translateX(18%); opacity: 0; } }
+@keyframes wgmInLeft   { from { transform: translateX(-18%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes wgmInRight  { from { transform: translateX(18%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes wgmBounce {
+    0%, 100% { transform: none; }
+    40% { transform: translateX(-10px); }
+    70% { transform: translateX(6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .wgm-out-left, .wgm-out-right, .wgm-in-left, .wgm-in-right, .wgm-bounce { animation: none; }
+}
+
+/* ===== "More" sheet (opened from the tab bar) =====
+   Not media-gated: it only opens from the phone tab bar, but it must keep
+   working if the viewport changes while it is open. */
+.dw-sheet-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10040;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.18s ease-out;
+}
+.dw-sheet {
+    inline-size: 100%;
+    max-inline-size: 560px;
+    max-block-size: calc(100dvh - 24px - env(safe-area-inset-top, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-block-end: 0;
+    border-radius: 22px 22px 0 0;
+    padding: 0 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.6);
+    animation: dwSheetUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    touch-action: pan-y;
+}
+.dw-sheet.is-dragging { animation: none; transition: none; }
+.dw-sheet.is-settling { transition: transform 0.2s ease-out; }
+.dw-sheet-handle {
+    inline-size: 42px;
+    block-size: 5px;
+    border-radius: 3px;
+    background: var(--border-light);
+    margin: 10px auto 6px;
+}
+.dw-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.25rem 0 0.5rem;
+}
+.dw-sheet-who { display: flex; align-items: center; gap: 0.65rem; min-inline-size: 0; }
+.dw-sheet-avatar {
+    inline-size: 38px;
+    block-size: 38px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 2px solid var(--border-light);
+    background: var(--bg-block);
+    color: var(--text-dim);
+    font-weight: 600;
+}
+.dw-sheet-avatar img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+.dw-sheet-name { font-weight: 600; color: var(--text-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dw-sheet-sub {
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.dw-sheet-close {
+    inline-size: 44px;
+    block-size: 44px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-block);
+    color: var(--text-dim);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.dw-sheet-title {
+    margin: 0.9rem 0 0.5rem;
+    padding-inline: 0.15rem;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-warm);
+}
+.dw-sheet-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+.dw-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-block-size: 74px;
+    padding: 0.6rem 0.25rem;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--bg-block);
+    color: var(--text-main);
+    text-decoration: none;
+    text-align: center;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s, border-color 0.15s, background 0.15s;
+}
+.dw-tile svg { inline-size: 24px; block-size: 24px; color: var(--tile-color, var(--accent-warm)); }
+.dw-tile span { max-inline-size: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dw-tile:active { transform: scale(0.95); background: var(--bg-elevated); }
+.dw-tile[aria-pressed="true"] {
+    border-color: var(--accent-warm);
+    background: color-mix(in srgb, var(--accent-warm) 12%, var(--bg-block));
+    box-shadow: inset 0 0 0 1px var(--accent-warm);
+}
+/* Tool colours match the old floating buttons so they stay recognisable. */
+.dw-tile-dice   { --tile-color: #fbbf24; }
+.dw-tile-notes  { --tile-color: #a78bfa; }
+.dw-tile-search { --tile-color: #4ade80; }
+.dw-tile-chat   { --tile-color: #22d3ee; }
+.dw-tile-bug    { --tile-color: #ef4444; }
+.dw-tile-dash   { --tile-color: #fb923c; }
+.dw-tile-edit[aria-pressed="true"] svg { filter: drop-shadow(0 0 6px var(--accent-warm)); }
+.dw-sheet-list { margin-block-start: 1rem; border-block-start: 1px solid var(--border); }
+.dw-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    inline-size: 100%;
+    min-block-size: 50px;
+    padding: 0.4rem 0.25rem;
+    border: 0;
+    border-block-end: 1px solid var(--border);
+    background: none;
+    color: var(--text-main);
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+.dw-row svg { inline-size: 20px; block-size: 20px; flex: none; color: var(--text-dim); }
+.dw-row:last-child { border-block-end: 0; }
+.dw-row.danger, .dw-row.danger svg { color: var(--danger); }

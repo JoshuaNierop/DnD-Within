@@ -61,6 +61,18 @@ function onPointerDown(evt) {
   const wIdx = (wEl && wEl.dataset && wEl.dataset.widgetIdx != null)
     ? parseInt(wEl.dataset.widgetIdx, 10) : NaN;
 
+  // Phones (wg-mobile.js): no select / drag / page-swipe gestures — the pane
+  // scrolls natively and a horizontal swipe switches tabs. Map taps still work.
+  if (typeof wgMobileActive === 'function' && wgMobileActive()) {
+    const hm = hasHandle ? t.dataset.handle : null;
+    if (hm === 'map-pin' && !Number.isNaN(wIdx))       { evt.preventDefault(); navigateMapWidget(wIdx, t.dataset.target); }
+    else if (hm === 'map-back' && !Number.isNaN(wIdx)) { evt.preventDefault(); mapWidgetBack(wIdx); }
+    else if (hm === 'map-dim' && !Number.isNaN(wIdx))  { evt.preventDefault(); setMapWidgetDim(wIdx, parseInt(t.dataset.dim, 10)); }
+    pendingGesture = null;
+    gestureCommitted = false;
+    return;
+  }
+
   const svg = document.getElementById('canvas');
   pendingGesture = null;
   gestureCommitted = false;

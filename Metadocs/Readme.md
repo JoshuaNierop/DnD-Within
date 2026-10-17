@@ -23,7 +23,8 @@ Interactive D&D 5.5e (2024 PHB) character sheet + campaign management SPA voor 8
 - **Frontend:** Vanilla JS (ES6+), geen build tools, **clean-URL SPA router** (History API: `navigate()`/`getRoute()`/`initRouter()` in `core.js` + document-level link-interceptor; `<base href="/">`). Geen `#` meer in de URL.
 - **Backend:** Firebase Realtime Database via REST API (geen SDK), shared `nexus-12fc7` voor bugs
 - **Hosting:** **Cloudflare Pages** — live op `dnd-within.pages.dev` (sinds 2026-06-04). `_redirects` (`/* /index.html 200`) levert de SPA-fallback zodat clean URLs op refresh/deeplink werken. ⚠️ GitHub Pages nog uitzetten (serveert anders de oude broken `/DnD-Within/`-subpath).
-- **CSS:** ~8600 regels in `style.css` + ~900 in `dashboard.css`, custom properties, dark-mode (hardcoded — light-dark() nog niet), responsive + touch
+- **CSS:** ~10800 regels in `style.css` + ~1700 in `wg-style.css` (dashboard, `@scope (.character-page)`) + `mobile.css` (telefoonmodus), custom properties, dark-mode (hardcoded — light-dark() nog niet)
+- **Telefoon (< 700px, sinds 2026-10-18):** eigen schil in `mobile.css`/`mobile.js` — tab bar onderin (Home · Party · Character/DM · Lore · More), More-sheet met de rest van de navigatie + tools (dice/notes/search/chat/bug), geen zwevende FAB's, alle `.modal-card`/`.modal-box`-vensters als bottom sheet, lore-tabs als strip, 44px tap-targets. Dashboards (`wg-mobile.js`): één kolom, hoogte volgt inhoud, font 13px, situatie-tabs swipebaar; de indeling wordt bij laden **afgeleid van de desktop-layout** (kolom-volgorde, HP eerst, portret laatst, onbekende widget-types overgeslagen) en nooit onder `dashboards/mobile` opgeslagen. Breakpoint = `WG_BP_MOBILE` (700) = `DWMobile` media query (`html.is-mobile`). Tablet (700–1024) houdt het vrije canvas.
 - **Hardware:** Geen build/test pipeline, draait direct in browser
 
 ## Key files
@@ -34,6 +35,7 @@ Interactive D&D 5.5e (2024 PHB) character sheet + campaign management SPA voor 8
 - `data.js` (~3000+ LOC) — classes, subclasses, species, backgrounds, feats, spells, items
 - `style.css` (~8800 LOC) + `wg-style.css` — alle UI styles
 - `wg-*.js` (`wg-state/engine/render/events/ui/firebase/data/mount`) — widget-grid dashboard systeem
+- `mobile.css`, `mobile.js` (`DWMobile`: breakpoint-vlag, tab bar, More-sheet), `wg-mobile.js` (één-koloms dashboard-layout, swipe) — telefoonmodus
 - `ui-pages.js`, `ui-modals.js`, `ui-world.js`, `ui-settings.js` — views (lore/maps/timeline/notes/settings/modals)
 - `events.js` — event delegation (`#app` click) + maps/timeline/lore handlers
 - `sync.js` — Firebase REST integratie + realtime listeners (`applyLeaves` order-onafhankelijke compare)

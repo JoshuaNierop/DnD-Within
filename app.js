@@ -5,18 +5,23 @@
 // Section 8: Main Render Function (Router)
 // ============================================================
 
-// Dashboard FAB: the DM (or admin) goes to the DM Dashboard, a player to their own
-// character in the active campaign. No target (no party character) → no button.
-function renderDashboardFab() {
-    var href = null, label = '';
+// Where "my dashboard" lives: the DM (or admin) → DM Dashboard, a player → their
+// own character in the active campaign. null when there is no target (no party
+// character). Shared by the dashboard FAB and the phone tab bar (mobile.js).
+function dashboardTarget() {
     if ((typeof isCampaignDM === 'function' && isCampaignDM()) || isAdmin()) {
-        href = '/dm'; label = 'DM Dashboard';
-    } else {
-        var camp = getCampaigns()[getActiveCampaign()];
-        var charId = camp && camp.party ? camp.party[currentUserId()] : null;
-        if (charId) { href = '/characters/' + encodeURIComponent(charId); label = 'My dashboard'; }
+        return { href: '/dm', label: 'DM Dashboard', kind: 'dm' };
     }
-    if (!href) return '';
+    var camp = getCampaigns()[getActiveCampaign()];
+    var charId = camp && camp.party ? camp.party[currentUserId()] : null;
+    if (charId) return { href: '/characters/' + encodeURIComponent(charId), label: 'My dashboard', kind: 'character' };
+    return null;
+}
+
+function renderDashboardFab() {
+    var tgt = dashboardTarget();
+    if (!tgt) return '';
+    var href = tgt.href, label = tgt.label;
     return '<a class="dashboard-fab" href="' + href + '" title="' + label + '" aria-label="' + label + '">' +
         '<svg class="dashboard-fab-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round">' +
         '<rect x="14" y="14" width="30" height="38" rx="5"/><rect x="56" y="14" width="30" height="22" rx="5"/>' +

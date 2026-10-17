@@ -267,6 +267,10 @@ function buildSavePayload() {
 // PATCH current device dashboard to Firebase.
 // V11 phase 2: this button moves to the right sidebar in Phase 3; temporarily hijacked for save-dashboard.
 async function saveDashboards() {
+  if (typeof wgMobileActive === 'function' && wgMobileActive()) {
+    showToast('Arrange widgets on a desktop — your phone mirrors that layout');
+    return;
+  }
   const isDM = state.context === 'dm';
   const charId = state.characterId;
   let url;
@@ -343,6 +347,10 @@ async function loadDashboards(charId) {
       state.dashboardsByDevice[device][sit] = slot;
     }
   }
+
+  // Phone (wg-mobile.js): the mobile slots mirror the desktop layout — whatever
+  // was saved under 'mobile' (legacy data) is not used.
+  if (typeof wgMobileActive === 'function' && wgMobileActive() && typeof wgMobileDeriveAll === 'function') wgMobileDeriveAll();
 
   // After loading, if any map widgets exist and WG_MAPS_CACHE is empty, fetch maps
   const allSlots = Object.values(state.dashboardsByDevice[state.device]);

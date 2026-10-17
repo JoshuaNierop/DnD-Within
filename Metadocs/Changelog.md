@@ -2,6 +2,23 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-18 — Phone mode
+
+- On a phone (screens narrower than 700px) the site now has its own shell: a **tab bar at the
+  bottom** (Home · Party · Character or DM · Lore · More) instead of the top links, and a
+  **More** sheet with everything else — Maps, Timeline, Notes, Settings, Profile, Log out and
+  the tools (Dice, Quick notes, Search, Chat, bug report). The six floating buttons are gone on
+  phones; the dice, notes and chat panels dock above the tab bar.
+- **Character and DM dashboards on a phone** show the same widgets as on your desktop, one
+  column wide, each widget as tall as its content, with a larger font. The Character / Social /
+  Exploring / Combat / Inventory tabs are separate screens: **swipe left or right** to move between
+  them (or tap a tab). Hit Points comes first, the portrait last. Taps still work as before
+  (damage/heal, cast a spell, spend a resource, level up); widgets can't be moved or resized on a
+  phone — arrange them on a desktop and the phone mirrors that layout. Empty tabs say so.
+- Windows (cast, prepare, level up, confirm dialogs, …) open as **bottom sheets** on phones; the
+  lore tabs are a single swipeable strip; timeline text is no longer justified on narrow screens;
+  buttons and inputs are at least 44px tall.
+
 ## 2026-10-16 — Your Turn widget, spell countdown, nested tooltips
 
 - New **Your Turn** widget (Combat category): everything you can do on a turn, grouped as

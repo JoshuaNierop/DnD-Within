@@ -14,6 +14,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 
 ## Joshua — beslissingen
 - [ ] P1 — Entity-merge O1 (mention-label), O2 (hypotheses op vrije tekst), O3 (standaard-zichtbaarheid), O5 (opslaan: nu auto-save), O6 (wanneer `dw_npcs` read-only) — `Entity-Merge-Plan.md` §6
+- [ ] P2 — Telefoonmodus (2026-10-18): (a) de telefoon spiegelt de desktop-layout en slaat niets apart op — goed zo, of wil je op de telefoon zelf widgets kunnen toevoegen/verbergen/herordenen? (b) tab bar nu Home · Party · Character/DM · Lore · More — Dice in de balk i.p.v. Lore? (c) tablet-portret (700–1024) houdt het vrije canvas — ook één kolom maken? (d) liggende telefoon = desktopweergave; apart afhandelen?
 - [ ] P2 — Entity-merge losse keuzes: combat-picker standaard-soort (19 van 27 creatures zonder disposition komen als NPC binnen), "Current year"-veld tonen als leeftijd of weghalen, verborgen/privé creatures filteren uit Search en `@`-popup voor spelers
 - [ ] P2 — Wizard-spellbook bijhouden (2024: spellbook + prepared) of zoals nu alleen prepared
 - [ ] P2 — Multiclass: nodig of niet (er bestaat nog niets)
@@ -30,6 +31,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 ## Joshua — testen in de browser / aan tafel
 
 Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
+- [ ] P1 — Nieuw 2026-10-18: **telefoonmodus** op een echte telefoon (alleen in Playwright op 390×844 gezien). Checken: tab bar onderin + More-sheet (dice/notes/search/chat openen boven de tab bar), swipen tussen Character/Social/Exploring/Combat/Inventory op je eigen character, HP damage/heal + spell casten + level-up-venster als bottom sheet, long-press voor tooltips, DM Dashboard met de Combat Tracker op volle breedte, lore-tabs strip, veilige zones op een iPhone (notch/home-balk). Bekend: liggend (breedte ≥ 700) krijg je de desktopweergave
 - [ ] P1 — Nieuw 2026-10-17: chat vervangen (Firebase SDK i.p.v. REST/EventSource). Met twee accounts in twee browsers checken: bericht komt direct binnen, badge op de chatknop in de onderbalk, wat je typt blijft staan als er een bericht binnenkomt, Esc sluit, terug naar de lijst bewaart je concept. Lokaal getest tegen een nep-database, niet tegen de echte.
 - [ ] P2 — Nieuw 2026-10-17: "Saving Throws"-widget (library → stats) en "Conditions"-widget (library → combat) toevoegen en checken — schade nemen tijdens een concentration-spell moet het CON-save-venster tonen; nieuw character → stap 2 "Starting equipment" A/B (B = 50 GP, geen items); typ `@` + sessienaam in een notitie → link naar de timeline; popup staat bij de cursor; Humans: Heroic Inspiration is nu een aan/uit-knop (oude resource weg, staat pas weer aan na de volgende Long Rest); site-vensters i.p.v. browser-popups (verwijderen in notes/maps/lore, family-diagram partner/ouder/kind toevoegen, rest-knoppen, widget opslaan)
 - [ ] P1 — Entity-merge fase 3: `@`-mention van een ex-NPC opent de Creatures-kaart, oude `/lore/monsters`-links, combat-picker zonder dubbele namen, klik in family-diagram, Families-tab
@@ -68,6 +70,9 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P3 — `@`-links naar timeline-sessions (ook in Search), @-popup opent bij de cursor; family-koppeling gebruikt al `linkedCreatureId` (index alleen nog als lees-fallback) (2026-10-17)
 - [x] P3 — Level-down bewaart de keuzes (`state.demotedChoices[N]`); opnieuw omhoog vult ze vooraf in (2026-10-17). Werkt voor level-ups vanaf nu (oudere records hebben geen `_picked`)
 - [x] P3 — Na artikel opslaan landde `/lore` op de Creatures-tab: nu naar het opgeslagen artikel, na verwijderen naar de Articles-tab (2026-10-17)
+- [x] P1 — Telefoonmodus (< 700px): tab bar + More-sheet (`mobile.js`/`mobile.css`), bottom-sheet-modals, FAB's weg, dashboards één kolom met swipe tussen situatie-tabs, afgeleid van desktop (`wg-mobile.js`) (2026-10-18)
+- [ ] P2 — Telefoonmodus vervolg: Combat Tracker (DM-tabel met veel kolommen) compacter op een telefoon; `social/dnd-init.js` importeert `chat-widget.js` e.a. zonder `?v=` (alleen het entry-script heeft er nu één) → bij een chat-wijziging kunnen telefoons de oude module vasthouden; creation-wizard op een telefoon nalopen (full-screen, stepper); landscape-telefoons
+- [ ] P3 — Telefoonmodus: één-malige "swipe"-hint op het dashboard; campaign-wissel voor multi-campaign-gebruikers in de More-sheet (de `<select>` in de navbar is op de telefoon verborgen)
 
 ## Claude — opruimen en techniek
 - [x] P2 — `cloudinary-worker/wrangler.toml`: `ALLOWED_ORIGIN` → `https://dnd-within.pages.dev` (2026-10-17)

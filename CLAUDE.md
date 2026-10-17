@@ -27,6 +27,7 @@ Alles staat in de repo-root (geen `js/`- of `css/`-map).
 - `wg-saves.js` — Saving Throws-widget (bonus uit `getSaveBonus` in `engine.js`, situationele effecten als hover)
 - `wg-turn.js` — Your Turn-widget + actieve spell-effecten (`state.activeEffects`, aftellen via encounter-rondes); `wg-glossary.js` — regels-glossary + term-index voor geneste tooltips (tooltip-laag zelf in `wg-events.js`)
 - `style.css` — overige styles
+- `mobile.css` + `mobile.js` (`DWMobile`) + `wg-mobile.js` — telefoonmodus (< 700px, `html.is-mobile`): tab bar onderin, More-sheet (nav + dice/notes/search/chat), alle modals als bottom sheet, dashboards één kolom afgeleid van de desktop-layout (nooit opgeslagen), swipe tussen situatie-tabs. Mobiele regels die wg-style's `@scope (.character-page)` moeten overrulen krijgen de prefix `html.is-mobile`
 - Tests: `node Metadocs/LevelingUp/build-smoke.mjs [level]`, `node Metadocs/LevelingUp/ui-smoke.mjs` en `node Metadocs/LevelingUp/turn-smoke.mjs` (Your Turn, spell-countdown, tooltip-termen)
 
 ## Firebase

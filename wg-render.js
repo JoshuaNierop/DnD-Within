@@ -54,19 +54,25 @@ function drawHandle(svg, x, y, id) {
 let _combatRemeasure = 0;
 function render() {
   applyResponsive();
+  const mobile = typeof wgMobileActive === 'function' && wgMobileActive();
   // V10: dashboard has a fixed size — fills the available space every render.
   applyResponsiveWidth();
-  applyResponsiveHeight();
-  // V9 pipeline: normalize positions → resolve overlap (not during drag) →
-  // clamp the visible page → draw.
-  normalizePositions();
-  if (!dragHandle) {
-    recomputeCombatWidgets(false);   // #NU-YZ6: fit combat widgets to visible content
-    if (typeof recomputeInventoryWidgets === 'function') recomputeInventoryWidgets(false); // inventory widget fit-to-content
-    resolveCollisionsAll();
+  if (mobile) {
+    // Phone (wg-mobile.js): one full-width column, height follows the content.
+    wgMobileLayout();
+  } else {
+    applyResponsiveHeight();
+    // V9 pipeline: normalize positions → resolve overlap (not during drag) →
+    // clamp the visible page → draw.
     normalizePositions();
-    // V10: eliminate empty in-between pages (no "page 2 empty, page 3 full").
-    compactEmptyPages();
+    if (!dragHandle) {
+      recomputeCombatWidgets(false);   // #NU-YZ6: fit combat widgets to visible content
+      if (typeof recomputeInventoryWidgets === 'function') recomputeInventoryWidgets(false); // inventory widget fit-to-content
+      resolveCollisionsAll();
+      normalizePositions();
+      // V10: eliminate empty in-between pages (no "page 2 empty, page 3 full").
+      compactEmptyPages();
+    }
   }
   state.currentPage = Math.max(0, Math.min(state.currentPage, pageCount() - 1));
   updateReadouts();
@@ -81,8 +87,8 @@ function render() {
   const dT = state.dashboard.topY;
   const dR = dashRight();
 
-  const padL = 22;
-  const padR = 22;
+  const padL = mobile ? 4 : 22;
+  const padR = mobile ? 4 : 22;
   const viewMinX = Math.min(dL - padL, 0);
   const viewMaxX = dR + padR;
   // No fixed 800 minimum: that causes overflow + scrollbar
@@ -141,6 +147,10 @@ function render() {
 
   renderInfo();
   renderPageNav();
+  if (mobile) {
+    if (typeof wgMobileAfterRender === 'function') wgMobileAfterRender();
+    return;   // no resize handles on phones
+  }
   // After render: re-run the proximity check so handles of new
   // widgets react immediately to the current mouse position.
   updateHandleProximity();
@@ -504,10 +514,13 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
     }
   }
 
-  // Resize handles — in widgetG so data-widget-idx propagates via parent
-  drawHandle(widgetG, x, y + h / 2, 'widget-left-2d');
-  drawHandle(widgetG, x + w, y + h / 2, 'widget-right-2d');
-  drawHandle(widgetG, x + w / 2, y + h, 'widget-bottom-2d');
+  // Resize handles — in widgetG so data-widget-idx propagates via parent.
+  // Phones (wg-mobile.js) have a fixed one-column layout → no handles.
+  if (!(typeof wgMobileActive === 'function' && wgMobileActive())) {
+    drawHandle(widgetG, x, y + h / 2, 'widget-left-2d');
+    drawHandle(widgetG, x + w, y + h / 2, 'widget-right-2d');
+    drawHandle(widgetG, x + w / 2, y + h, 'widget-bottom-2d');
+  }
 }
 
 // Crop icon (two L-corners) drawn with lines, centered on (cx,cy).
