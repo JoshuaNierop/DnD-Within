@@ -207,6 +207,7 @@ function initWizardState() {
     wizardState = {
         step: 1,
         editId: null,
+        bgEquip: 'A',
         name: '',
         species: '',
         race: '',
@@ -779,6 +780,20 @@ function renderWizardStep2() {
         }
         html += '</div>';
         html += '</div>';
+        // Starting equipment (2024): A = the background's package + gold, B = 50 GP.
+        // Only for a new character; editing never touches the inventory.
+        var eq = bg.equipment;
+        if (eq && eq.A && !wizardState.editId) {
+            var eqOpt = function (key, label) {
+                var on = (wizardState.bgEquip || 'A') === key;
+                return '<label class="wizard-equip-opt' + (on ? ' checked' : '') + '"><input type="radio" name="wizard-bg-equip" value="' + key + '" data-action="wizard-bg-equip"' + (on ? ' checked' : '') + '> ' + label + '</label>';
+            };
+            html += '<div class="wizard-field wizard-equip">';
+            html += '<label class="wizard-label">Starting equipment</label>';
+            html += eqOpt('A', '<strong>A:</strong> ' + escapeHtml((eq.A.items || []).join(', ')) + (eq.A.gp ? ', ' + eq.A.gp + ' GP' : ''));
+            html += eqOpt('B', '<strong>B:</strong> ' + ((eq.B && eq.B.gp) || 50) + ' GP');
+            html += '</div>';
+        }
         html += '</details>';
     }
     html += '</div>';
@@ -1276,13 +1291,16 @@ function createCharacterFromWizard() {
     if (!isEdit) {
         config.weapons = [];
         config.quotes = [];
-        // Background Choice A (themed equipment-pack) auto-toevoegen aan de
-        // inventory. invResolveStrings (wg-inventory.js) parset counts ("(x2)"),
-        // klapt starter-packs uit, en joint op DATA.itemDB. Geen A/B-picker nog →
-        // default Choice A; valt veilig terug op [] als er geen equipment is.
-        var bgEquip = bgData && bgData.equipment && bgData.equipment.A && bgData.equipment.A.items;
+        // Background starting equipment: Choice A adds the package to the inventory
+        // (invResolveStrings in wg-inventory.js parses counts, unpacks packs and joins
+        // on DATA.itemDB); Choice B is gold only. The gold lands in state.gold below.
+        var bgEq = (bgData && bgData.equipment) || {};
+        var bgChoice = wizardState.bgEquip === 'B' && bgEq.B ? 'B' : 'A';
+        var bgEquip = bgChoice === 'A' && bgEq.A && bgEq.A.items;
         config.defaultItems = (bgEquip && typeof invResolveStrings === 'function')
             ? invResolveStrings(bgEquip) : [];
+        config.startingEquipment = bgEq[bgChoice] ? bgChoice : '';
+        var startGold = (bgEq[bgChoice] && bgEq[bgChoice].gp) || 0;
         config.charTimeline = [];
         config.family = [];
     }
@@ -1387,7 +1405,7 @@ function createCharacterFromWizard() {
         spellSlotsUsed: {},
         hitDiceUsed: 0,
         inspiration: false,
-        gold: 0,
+        gold: (typeof startGold === 'number') ? startGold : 0,
         notes: ''
     };
     saveCharState(charId, defaultState);
@@ -1892,6 +1910,13 @@ function bindWizardEvents() {
             var newBg = DATA.backgrounds[wizardState.background];
             var newBgSkills = newBg && newBg.skills ? newBg.skills.map(function (s) { return s.toLowerCase(); }) : [];
             wizardState.skills = wizardState.skills.filter(function (s) { return newBgSkills.indexOf(s) === -1; });
+            refreshWizard();
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-bg-equip"]')) {
+            saveWizardStepData();
+            wizardState.bgEquip = target.value === 'B' ? 'B' : 'A';
             refreshWizard();
             return;
         }

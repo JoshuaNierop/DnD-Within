@@ -8963,6 +8963,24 @@ body:has(.wg-bottombar) #scw-fab {
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
     gap: 0.45rem;
 }
+/* Background starting-equipment choice (A package / B gold). */
+.wizard-equip { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.75rem; }
+.wizard-equip-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    min-height: 44px;
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.87rem;
+    line-height: 1.35;
+    color: var(--text-main);
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    cursor: pointer;
+}
+.wizard-equip-opt input { margin-top: 0.2rem; accent-color: var(--accent); }
+.wizard-equip-opt.checked { border-color: var(--accent); }
 .wizard-skill-item {
     display: flex;
     align-items: center;

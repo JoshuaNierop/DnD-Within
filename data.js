@@ -2786,7 +2786,7 @@ const DATA = {
             feat: "Skilled",
             desc: { nl: "Je hebt altijd een talent gehad voor het misleiden van anderen. Valse identiteiten, oplichterij en bedrog zijn je specialiteit.", en: "You have always had a talent for deceiving others. False identities, scams and trickery are your specialty." },
             equipment: {
-                A: { items: ["Costume", "Forgery Kit", "Bottle of ink", "Quill", "Sealing wax", "Parchment (12 sheets)", "Pouch"], gp: 15 },
+                A: { items: ["Forgery Kit", "Costume", "Fine Clothes"], gp: 15 },
                 B: { gp: 50 }
             }
         },
@@ -2810,7 +2810,7 @@ const DATA = {
             feat: "Musician",
             desc: { nl: "Je leeft voor het publiek. Als muzikant, danser, acteur of verteller weet je hoe je een menigte moet boeien.", en: "You live for the audience. As a musician, dancer, actor or storyteller, you know how to captivate a crowd." },
             equipment: {
-                A: { items: ["Musical Instrument (one of your choice)", "Perfume", "Costume", "Traveler's Clothes"], gp: 11 },
+                A: { items: ["Musical Instrument (one of your choice)", "Costume (x2)", "Mirror", "Perfume", "Traveler's Clothes"], gp: 11 },
                 B: { gp: 50 }
             }
         },
@@ -2822,7 +2822,7 @@ const DATA = {
             feat: "Tough",
             desc: { nl: "Je bent opgegroeid op het land. Hard werken, de seizoenen en de natuur hebben je gevormd tot wie je bent.", en: "You grew up on the land. Hard work, the seasons and nature shaped you into who you are." },
             equipment: {
-                A: { items: ["Carpenter's Tools", "Shovel", "Iron Pot", "Traveler's Clothes", "Pouch"], gp: 30 },
+                A: { items: ["Sickle", "Carpenter's Tools", "Healer's Kit", "Iron Pot", "Shovel", "Traveler's Clothes"], gp: 30 },
                 B: { gp: 50 }
             }
         },
@@ -2834,7 +2834,7 @@ const DATA = {
             feat: "Alert",
             desc: { nl: "Je hebt gediend als wachter, stadswacht of lijfwacht. Je bent getraind om gevaar te herkennen en te reageren.", en: "You have served as a watchman, city guard or bodyguard. You are trained to spot danger and respond." },
             equipment: {
-                A: { items: ["Spear", "Light Crossbow", "Bolts (20)", "Quiver", "Gaming Set (one of your choice)", "Hooded Lantern", "Manacles", "Traveler's Clothes", "Pouch"], gp: 12 },
+                A: { items: ["Spear", "Light Crossbow", "Bolts (20)", "Quiver", "Gaming Set (one of your choice)", "Hooded Lantern", "Manacles", "Traveler's Clothes"], gp: 12 },
                 B: { gp: 50 }
             }
         },
@@ -2846,7 +2846,7 @@ const DATA = {
             feat: "Magic Initiate (Druid)",
             desc: { nl: "You've guided travelers through the wilderness all your life. You know nature's paths and perils.", en: "You have spent your life guiding travelers through the wilderness. You know the paths and perils of nature." },
             equipment: {
-                A: { items: ["Shortbow", "Arrows (20)", "Quiver", "Cartographer's Tools", "Musical Instrument (one of your choice)", "Bedroll", "Traveler's Clothes", "Pouch"], gp: 3 },
+                A: { items: ["Shortbow", "Arrows (20)", "Quiver", "Cartographer's Tools", "Bedroll", "Tent", "Traveler's Clothes"], gp: 3 },
                 B: { gp: 50 }
             }
         },
@@ -2858,7 +2858,7 @@ const DATA = {
             feat: "Healer",
             desc: { nl: "Je hebt jarenlang in afzondering geleefd — mediterend, studerend of genezend. Je draagt wijsheid mee uit de stilte.", en: "You lived in seclusion for years — meditating, studying or healing. You carry wisdom drawn from the silence." },
             equipment: {
-                A: { items: ["Quarterstaff", "Herbalism Kit", "Bedroll", "Book (philosophy)", "Lamp", "Oil flask (x3)", "Traveler's Clothes", "Pouch"], gp: 16 },
+                A: { items: ["Quarterstaff", "Herbalism Kit", "Bedroll", "Book (philosophy)", "Lamp", "Oil flask (x3)", "Traveler's Clothes"], gp: 16 },
                 B: { gp: 50 }
             }
         },
@@ -2870,7 +2870,7 @@ const DATA = {
             feat: "Lucky",
             desc: { nl: "Je bent een handelaar, koopman of marktverkoper. Je kent de waarde van goederen en de kunst van het onderhandelen.", en: "You are a trader, merchant or market vendor. You know the value of goods and the art of negotiation." },
             equipment: {
-                A: { items: ["Navigator's Tools", "Pouch (x2)", "Mule with Saddlebags", "Traveler's Clothes"], gp: 22 },
+                A: { items: ["Navigator's Tools", "Pouch (x2)", "Traveler's Clothes"], gp: 22 },
                 B: { gp: 50 }
             }
         },
@@ -2882,7 +2882,7 @@ const DATA = {
             feat: "Skilled",
             desc: { nl: "Je bent geboren in een adellijke familie met invloed en rijkdom. Je kent de etiquette van het hof en de last van verwachtingen.", en: "You were born into a noble family of influence and wealth. You know the etiquette of the court and the weight of expectations." },
             equipment: {
-                A: { items: ["Gaming Set (one of your choice)", "Fine Clothes", "Signet Ring", "Scroll of Pedigree", "Pouch"], gp: 29 },
+                A: { items: ["Gaming Set (one of your choice)", "Fine Clothes", "Perfume"], gp: 29 },
                 B: { gp: 50 }
             }
         },
@@ -2894,7 +2894,7 @@ const DATA = {
             feat: "Magic Initiate (Wizard)",
             desc: { nl: "For years you've gathered knowledge from books and libraries. You're an expert in your field.", en: "For years you have gathered knowledge from books and libraries. You are an expert in your field." },
             equipment: {
-                A: { items: ["Quarterstaff", "Calligrapher's Supplies", "Book (history)", "Parchment (8 sheets)", "Bottle of ink", "Quill", "Robe"], gp: 8 },
+                A: { items: ["Quarterstaff", "Calligrapher's Supplies", "Book (history)", "Parchment (8 sheets)", "Robe"], gp: 8 },
                 B: { gp: 50 }
             }
         },
@@ -2906,7 +2906,7 @@ const DATA = {
             feat: "Tavern Brawler",
             desc: { nl: "Je hebt gevaren op de open zee. Stormen, piraten en verre havens — je hebt het allemaal meegemaakt.", en: "You have sailed the open sea. Storms, pirates and distant harbors — you have seen it all." },
             equipment: {
-                A: { items: ["Dagger", "Navigator's Tools", "Rope (50 ft)", "Traveler's Clothes", "Pouch"], gp: 20 },
+                A: { items: ["Dagger", "Navigator's Tools", "Rope (50 ft)", "Traveler's Clothes"], gp: 20 },
                 B: { gp: 50 }
             }
         },
@@ -2918,7 +2918,7 @@ const DATA = {
             feat: "Skilled",
             desc: { nl: "Je hebt gewerkt als schrijver, kopiist of archivaris. Details ontgaan je zelden en je pen is je beste vriend.", en: "You worked as a writer, copyist or archivist. Details rarely escape you and your pen is your best friend." },
             equipment: {
-                A: { items: ["Calligrapher's Supplies", "Fine Clothes", "Lamp", "Oil flask (x3)", "Parchment (12 sheets)", "Bottle of ink", "Quill", "Pouch"], gp: 23 },
+                A: { items: ["Calligrapher's Supplies", "Fine Clothes", "Lamp", "Oil flask (x3)", "Parchment (12 sheets)"], gp: 23 },
                 B: { gp: 50 }
             }
         },
@@ -2930,7 +2930,7 @@ const DATA = {
             feat: "Savage Attacker",
             desc: { nl: "Je hebt gediend in een leger of militie. Je kent de discipline van het slagveld en de kameraadschap van soldaten.", en: "You have served in an army or militia. You know the discipline of the battlefield and the camaraderie of soldiers." },
             equipment: {
-                A: { items: ["Spear", "Shortbow", "Arrows (20)", "Quiver", "Gaming Set (one of your choice)", "Healer's Kit", "Traveler's Clothes", "Pouch"], gp: 14 },
+                A: { items: ["Spear", "Shortbow", "Arrows (20)", "Quiver", "Gaming Set (one of your choice)", "Healer's Kit", "Traveler's Clothes"], gp: 14 },
                 B: { gp: 50 }
             }
         },
@@ -2942,7 +2942,7 @@ const DATA = {
             feat: "Lucky",
             desc: { nl: "Je bent een zwerver, een reiziger zonder vaste bestemming. De weg is je thuis en je overleefd door je instincten.", en: "You are a wanderer, a traveler without a fixed destination. The road is your home and you survive on your instincts." },
             equipment: {
-                A: { items: ["Dagger (x2)", "Thieves' Tools", "Gaming Set (one of your choice)", "Pouch (x2)", "Traveler's Clothes"], gp: 16 },
+                A: { items: ["Dagger (x2)", "Thieves' Tools", "Gaming Set (one of your choice)", "Bedroll", "Pouch (x2)", "Traveler's Clothes"], gp: 16 },
                 B: { gp: 50 }
             }
         }
@@ -3171,7 +3171,12 @@ DATA.itemDB = [
   { id:"chest", name:"Chest", type:"container", weight:25, cost:5, costUnit:"gp", capacity:"12 cubic ft / 300 lb" },
   // ---- Adventuring gear ----
   { id:"bedroll", name:"Bedroll", type:"gear", weight:7, cost:1, costUnit:"gp" },
-  { id:"rope-50", name:"Rope (50 ft)", type:"gear", weight:10, cost:1, costUnit:"gp", description:"Hennep, 50 voet.", _verify:{weight:true} },
+  { id:"bell", name:"Bell", type:"gear", weight:0, cost:1, costUnit:"gp" },
+  { id:"mirror", name:"Mirror", type:"gear", weight:0.5, cost:5, costUnit:"gp" },
+  { id:"perfume", name:"Perfume", type:"gear", weight:0, cost:5, costUnit:"gp" },
+  { id:"robe", name:"Robe", type:"gear", subtype:"clothing", weight:4, cost:1, costUnit:"gp" },
+  { id:"tent", name:"Tent", type:"gear", weight:20, cost:2, costUnit:"gp", description:"Sleeps up to two Small or Medium creatures." },
+  { id:"rope-50", name:"Rope (50 ft)", type:"gear", weight:5, cost:1, costUnit:"gp", description:"Hempen, 50 feet." },
   { id:"travelers-clothes", name:"Traveler's Clothes", type:"gear", subtype:"clothing", weight:4, cost:2, costUnit:"gp" },
   { id:"common-clothes", name:"Common Clothes", type:"gear", subtype:"clothing", weight:3, cost:5, costUnit:"sp" },
   { id:"fine-clothes", name:"Fine Clothes", type:"gear", subtype:"clothing", weight:6, cost:15, costUnit:"gp" },
