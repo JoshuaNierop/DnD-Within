@@ -1,13 +1,13 @@
 // ===== wg-mount.js — bootstrap + WidgetGrid namespace =====
 // WGI-M1: extracted from index.html lines 4525-4604.
 // WGI-M3: WidgetGridInit() function + WIDGET_GRID_DEFER_INIT auto-call gate.
-// WGI-M4: WidgetGrid namespace met mount(rootEl, opts) + unmount() API,
-// body-template injection voor inline-integratie in D&D Within.
+// WGI-M4: WidgetGrid namespace with mount(rootEl, opts) + unmount() API,
+// body-template injection for inline integration in D&D Within.
 
 function WidgetGridInit() {
   window.addEventListener('resize', () => {
-    // Bij window-resize: responsive-scalen + columnPxWidths hercomputeren
-    // (fontSize verandert mee, dus measureText geeft andere px-waardes).
+    // On window resize: responsive scaling + recompute columnPxWidths
+    // (fontSize changes along, so measureText gives different px values).
     applyResponsive();
     applyResponsiveWidth();
     applyResponsiveHeight();
@@ -25,7 +25,7 @@ function WidgetGridInit() {
   bindExportWidget();
   // V11 Phase 3: right sidebar bindings
   bindRightSidebar();
-  // V9: paginanavigatie + character-dropdown (characterSelect is now in right sidebar, binding stays)
+  // V9: page navigation + character dropdown (characterSelect is now in right sidebar, binding stays)
   document.getElementById('characterSelect')?.addEventListener('change', (e) => selectCharacter(e.target.value));
   document.getElementById('pageNav')?.addEventListener('click', (e) => {
     const arrow = e.target.closest('[data-page-arrow]');
@@ -37,7 +37,7 @@ function WidgetGridInit() {
   renderSidebar();
   applyStyle();
 
-  // V11: situatie-tabs — volledig lifecycle met per-tab state.
+  // V11: situation tabs — full lifecycle with per-tab state.
   document.querySelectorAll('.dash-tab').forEach(t => {
     t.addEventListener('click', () => {
       const situation = t.dataset.situation;
@@ -65,9 +65,9 @@ function WidgetGridInit() {
   state.device = currentDevice();
   // ensure the initial situation slot exists
   ensureSituation(state.device, state.activeSituation);
-  // V9: responsive eerst (zet dashTile/dashMinSpacing op de viewport-waarden),
-  // PAS DAARNA setDevView/render — anders normaliseert de eerste render op
-  // verkeerde tpp/rpp en krimpen spans onterecht.
+  // V9: responsive first (sets dashTile/dashMinSpacing to the viewport values),
+  // ONLY THEN setDevView/render — otherwise the first render normalizes on
+  // wrong tpp/rpp and spans shrink wrongly.
   applyResponsive();
   applyResponsiveWidth();
   applyResponsiveHeight();
@@ -75,37 +75,37 @@ function WidgetGridInit() {
   setShowDashboardInfo(state.config.showDashboardInfo);
   render();
   if (state.context === 'dm') {
-    // DM Dashboard: geen character-fetch. Reset de widget-library (anders
-    // blijven character-widgets van een vorige character-mount staan) en laad
-    // het DM-dashboard (per campaign).
+    // DM Dashboard: no character fetch. Reset the widget library (otherwise
+    // character widgets from a previous character mount stay around) and load
+    // the DM dashboard (per campaign).
     seedDefaultWidgets();
     renderSidebar();
     loadDashboards();
   } else {
-    // Speler-dashboard: reset de widget-library expliciet naar de speler-palette.
-    // (Fix 2026-06-07) `library` is een module-global die blijft staan na een
-    // DM-dashboard bezoek; daardoor toonde een speler-dashboard de DM-only
-    // "Combat Tracker" i.p.v. de reguliere speler-widgets. seedDefaultWidgets()
-    // branch't zelf op state.context, dus dit zet altijd de juiste palette.
+    // Player dashboard: explicitly reset the widget library to the player palette.
+    // (Fix 2026-06-07) `library` is a module-global that persists after a
+    // DM dashboard visit; as a result a player dashboard showed the DM-only
+    // "Combat Tracker" instead of the regular player widgets. seedDefaultWidgets()
+    // branches on state.context itself, so this always sets the right palette.
     seedDefaultWidgets();
     renderSidebar();
-    // V9: één dashboard-brede character + lijst voor de dropdown.
-    renderCharacterSelect();          // init met huidige id alvast
-    fetchCharacterList();              // populeer dropdown async
+    // V9: one dashboard-wide character + list for the dropdown.
+    renderCharacterSelect();          // init with current id already
+    fetchCharacterList();              // populate dropdown async
     fetchCharacterData(state.characterId);
     // V11 Phase 2: load dashboards from Firebase on boot
     loadDashboards(state.characterId);
   }
   // V11: pulse sidebar on initial open as onboarding hint (overridden if dashboards load)
   pulseSidebar();
-  // Lijn de bovenste category-knop uit op de canvas-top.
+  // Align the top category button with the canvas top.
   alignSidebarTop();
 }
 
-// WGI-M4: V8 body markup als template-functie (orig index.html lines 1077-1254).
-// Wordt geïnjecteerd in de mount-root door WidgetGrid.mount(rootEl, opts).
-// context 'character' (default) of 'dm' (DM Dashboard) bepaalt de situatie-tabs
-// en of de character-only sidebar-sectie verschijnt.
+// WGI-M4: V8 body markup as a template function (orig index.html lines 1077-1254).
+// Is injected into the mount root by WidgetGrid.mount(rootEl, opts).
+// context 'character' (default) or 'dm' (DM Dashboard) determines the situation tabs
+// and whether the character-only sidebar section appears.
 function wgBodyTemplate(context) {
   const isDM = context === 'dm';
   const tabs = isDM
@@ -114,15 +114,15 @@ function wgBodyTemplate(context) {
   const tabsHtml = tabs.map((tb, i) =>
     `<button class="dash-tab${i === 0 ? ' active' : ''}" data-situation="${tb[0]}">${tb[1]}</button>`
   ).join('\n    ');
-  // #Ovy59sT: rechter sidebar verwijderd; de dashboard-knoppen verhuizen naar
-  // de onderbalk. De #characterSelect blijft (verborgen) in de DOM voor
-  // binding-compat (wg-mount bindt 'm); de zichtbare character-switcher is weg.
+  // #Ovy59sT: right sidebar removed; the dashboard buttons move to
+  // the bottom bar. The #characterSelect stays (hidden) in the DOM for
+  // binding compat (wg-mount binds it); the visible character switcher is gone.
   const hiddenCharSelect = isDM ? '' :
     `<select id="characterSelect" class="character-select" hidden aria-hidden="true"></select>`;
   return `
 <header class="app-topbar">
   <div class="topbar-spacer-left" aria-hidden="true"></div>
-  <nav class="dash-tabs" id="dashTabs" aria-label="Situatie dashboards">
+  <nav class="dash-tabs" id="dashTabs" aria-label="Situation dashboards">
     ${tabsHtml}
   </nav>
   <div class="topbar-spacer-right" aria-hidden="true"></div>
@@ -258,8 +258,8 @@ function wgBodyTemplate(context) {
 </div>
 </div>
 
-<!-- #Ovy59sT: onderbalk — links dashboard-knoppen, midden pagina-navigatie,
-     rechts de quick-action knoppen (notes/search/chat/dice). -->
+<!-- #Ovy59sT: bottom bar — dashboard buttons on the left, page navigation in the middle,
+     quick-action buttons on the right (notes/search/chat/dice). -->
 <div class="wg-bottombar">
   <div class="wg-bottombar-left">
     <button class="wg-barbtn" id="rs-tidy" aria-label="Tidy widgets" title="Tidy — repack widgets compactly">
@@ -318,8 +318,8 @@ ${hiddenCharSelect}
 // WGI-M4: public mount/unmount API for inline integration in D&D Within.
 const WidgetGrid = {
   /**
-   * Mount V8 dashboard binnen rootEl. Bouwt V8's body-template in rootEl,
-   * herinitialiseert DOM-refs binnen die scope en bootstrap-d de bind* +
+   * Mount V8 dashboard inside rootEl. Builds V8's body template in rootEl,
+   * reinitializes DOM refs within that scope and bootstraps the bind* +
    * fetch sequence.
    *
    * @param {HTMLElement} rootEl - .character-page / .dm-page div (mount target)
@@ -333,7 +333,7 @@ const WidgetGrid = {
     state.dmCampaignId = opts.campaignId || null;
     rootEl.innerHTML = wgBodyTemplate(state.context);
     if (opts.characterId) state.characterId = opts.characterId;
-    // Default actieve tab per context (DM heeft geen 'character'-tab).
+    // Default active tab per context (DM has no 'character' tab).
     state.activeSituation = (state.context === 'dm') ? 'social' : 'character';
     if (typeof WidgetGridInitSettingsRefs === 'function') {
       WidgetGridInitSettingsRefs(rootEl);
@@ -343,9 +343,9 @@ const WidgetGrid = {
     WidgetGridInit();
   },
   /**
-   * Cleanup wanneer DnD navigeert weg van character-page. Leegt de DOM
-   * binnen rootEl; document-level listeners (pointer, keydown) blijven
-   * staan maar zijn benign omdat hun handlers state-checks doen.
+   * Cleanup when DnD navigates away from the character page. Empties the DOM
+   * inside rootEl; document-level listeners (pointer, keydown) stay
+   * in place but are benign because their handlers do state checks.
    */
   unmount() {
     const root = WidgetGrid._mountedRoot;
@@ -353,18 +353,18 @@ const WidgetGrid = {
     root._wgMounted = false;
     root.innerHTML = '';
     WidgetGrid._mountedRoot = null;
-    // V11: reset widgets/active situation zodat volgende mount fresh start
+    // V11: reset widgets/active situation so the next mount starts fresh
     if (typeof state !== 'undefined') {
       state.dashboardsByDevice = { mobile: {}, tablet: {}, desktop: {} };
       state.activeWidgetIdx = -1;
-      // Reset naar character-context zodat de volgende mount (bv. character-page)
-      // niet per ongeluk in DM-modus blijft.
+      // Reset to character context so the next mount (e.g. character page)
+      // doesn't accidentally stay in DM mode.
       state.context = 'character';
       state.dmCampaignId = null;
       state.activeSituation = 'character';
     }
   },
-  // Exposed voor debug + dev-tools
+  // Exposed for debug + dev tools
   get state() { return typeof state !== 'undefined' ? state : null; },
 };
 if (typeof window !== 'undefined') {

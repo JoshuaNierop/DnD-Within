@@ -412,8 +412,8 @@ function getMapsData() {
     if (saved) {
         try {
             var parsed = JSON.parse(saved);
-            // Migration 1: 'Valoria' was de dimensie-naam, hoort wereld-naam te zijn. Dim → Material Plane.
-            // Migration 2: De root-map heet nu Valoria (was 'World Map' / 'Wereldkaart').
+            // Migration 1: 'Valoria' was the dimension name, should be the world name. Dim → Material Plane.
+            // Migration 2: The root map is now called Valoria (was 'World Map' / 'Wereldkaart').
             if (parsed && Array.isArray(parsed.dimensions)) {
                 for (var i = 0; i < parsed.dimensions.length; i++) {
                     var pdim = parsed.dimensions[i];
@@ -454,7 +454,7 @@ function saveMapsData(data) {
 }
 
 // ============================================================
-// Maps: Dimensions manager + Add-map windows (vervangen prompt/confirm)
+// Maps: Dimensions manager + Add-map windows (replace prompt/confirm)
 // ============================================================
 function closeMapsModal() {
     var el = document.querySelector('.maps-modal-active');
@@ -472,7 +472,7 @@ function _openMapsModal(innerHtml) {
     if (first) first.focus();
 }
 
-// ----- Dimensions manager (add + remove in één window) -----
+// ----- Dimensions manager (add + remove in one window) -----
 function renderDimensionsModal() {
     var data = getMapsData();
     var dims = data.dimensions || [];
@@ -506,7 +506,7 @@ function refreshDimensionsModal() {
     if (el) el.innerHTML = renderDimensionsModal();
 }
 
-// ----- Add-map window (naam + plaatsing + afbeelding uit Places of upload) -----
+// ----- Add-map window (name + placement + image from Places or upload) -----
 function renderAddMapModal() {
     var data = getMapsData();
     var dim = (data.dimensions || [])[activeDimension] || { maps: [] };
@@ -525,7 +525,7 @@ function renderAddMapModal() {
     html += '<div class="npc-form-field"><label class="login-label" for="map-f-name">' + escapeHtml(t('maps.map.name')) + '</label>';
     html += '<input type="text" class="edit-input" id="map-f-name"></div>';
 
-    // Placement: main of subkaart van bestaande main
+    // Placement: main or submap of existing main
     html += '<div class="npc-form-field"><label class="login-label" for="map-f-parent">' + escapeHtml(t('maps.map.placement')) + '</label>';
     html += '<select class="edit-input" id="map-f-parent">';
     html += '<option value="">' + escapeHtml(t('maps.map.asmain')) + '</option>';
@@ -534,7 +534,7 @@ function renderAddMapModal() {
     }
     html += '</select></div>';
 
-    // Afbeelding: kies uit Places óf upload nieuw
+    // Image: pick from Places or upload new
     html += '<div class="npc-form-field"><label class="login-label">' + escapeHtml(t('maps.map.image')) + '</label>';
     html += '<div class="npc-form-image-preview add-map-preview" id="map-f-image-preview"><span class="npc-portrait-empty">&#128506;</span></div>';
     html += '<input type="hidden" id="map-f-image" value="">';
@@ -564,7 +564,7 @@ function renderAddMapModal() {
 }
 function openAddMapModal() { _openMapsModal(renderAddMapModal()); }
 
-// ----- Rename-map window (vervangt de prompt()) -----
+// ----- Rename-map window (replaces the prompt()) -----
 function renderRenameMapModal(mapId) {
     var data = getMapsData();
     var dim = (data.dimensions || [])[activeDimension] || { maps: [] };
@@ -585,7 +585,7 @@ function renderRenameMapModal(mapId) {
 }
 function openRenameMapModal(mapId) { _openMapsModal(renderRenameMapModal(mapId)); }
 
-// Place-image gekozen in de add-map window → preview + hidden velden vullen.
+// Place image chosen in the add-map window → fill preview + hidden fields.
 function addMapPickPlace(placeId) {
     var places = (typeof getLoreCatEntries === 'function' ? getLoreCatEntries('places') : []);
     var place = null;
@@ -604,7 +604,7 @@ function addMapPickPlace(placeId) {
     if (prev) prev.innerHTML = '<img src="' + escapeAttr(place.image) + '" alt="">';
 }
 
-// Opslaan vanuit de add-map window.
+// Save from the add-map window.
 async function submitAddMap() {
     var nameEl = document.getElementById('map-f-name');
     var name = nameEl ? nameEl.value.trim() : '';
@@ -625,7 +625,7 @@ async function submitAddMap() {
     dim.maps.push({ id: mapId, name: name, image: image, isRoot: false, parentMapId: parentMapId, pins: [] });
     saveMapsData(data);
 
-    // Een NIEUW geüploade kaartafbeelding wordt ook als Place opgeslagen.
+    // A NEWLY uploaded map image is also saved as a Place.
     if (source === 'upload' && image) {
         var lore = getLoreCatsData();
         if (!Array.isArray(lore.places)) lore.places = [];
@@ -645,8 +645,8 @@ function renderMaps() {
 
     var html = '<div class="maps-page">';
 
-    // Header: dimension-dropdown (huidige dimensie + dropdown met dimensies en
-    // "Add dimension") + New map-knop ernaast.
+    // Header: dimension dropdown (current dimension + dropdown with dimensions and
+    // "Add dimension") + New map button next to it.
     html += '<div class="maps-header">';
     html += '<h1>' + t('maps.title') + '</h1>';
     html += '<div class="maps-toolbar">';
@@ -840,8 +840,8 @@ function renderMaps() {
         }
 
     } else {
-        // MAP GRID MODE — main/root map groot + gecentreerd (vult de verticale
-        // ruimte tot net boven de FABs); overige maps als responsive cards eronder.
+        // MAP GRID MODE — main/root map large + centered (fills the vertical
+        // space up to just above the FABs); other maps as responsive cards below.
         var maps = dim.maps || [];
         var mainMap = null;
         for (var gi = 0; gi < maps.length; gi++) { if (maps[gi].isRoot) { mainMap = maps[gi]; break; } }
@@ -864,7 +864,7 @@ function renderMaps() {
         }
 
         html += '<div class="maps-grid-mode">';
-        // Main map — vult de verticale ruimte, gecentreerd.
+        // Main map — fills the vertical space, centered.
         html += '<div class="map-main-stage">';
         if (mainMap) {
             html += renderMapCard(mainMap, true);
@@ -872,7 +872,7 @@ function renderMaps() {
             html += '<div class="map-main-empty">' + t('maps.noimageyet') + '</div>';
         }
         html += '</div>';
-        // Overige maps — responsive card-grid.
+        // Other maps — responsive card grid.
         if (otherMaps.length) {
             html += '<div class="maps-card-grid">';
             for (var oi = 0; oi < otherMaps.length; oi++) {
@@ -1234,7 +1234,7 @@ function deleteScene(sceneId) {
     _removeSceneBlob(sceneId);
 }
 
-// Scene layouts \u2014 4 opties per scene block.
+// Scene layouts \u2014 4 options per scene block.
 var SCENE_LAYOUTS = [
     { id: 'text',        icon: '\ud83d\udcdd',                 label: 'Just Text' },
     { id: 'image-left',  icon: '\ud83d\uddbc\ufe0f\ud83d\udcdd', label: 'Image Left' },
@@ -1242,7 +1242,7 @@ var SCENE_LAYOUTS = [
     { id: 'image-only',  icon: '\ud83c\udf05',                 label: 'Just Image' }
 ];
 
-// Scene image sizes \u2014 small / medium / large (verzoek 2026-06-05). Used by
+// Scene image sizes \u2014 small / medium / large (request 2026-06-05). Used by
 // both the editor picker and the display render (class scene-img-<size>).
 var SCENE_IMG_SIZES = ['small', 'medium', 'large'];
 function sceneImgSize(scene) {
@@ -1452,10 +1452,10 @@ function renderTimeline() {
             html += '</div>';
         }
 
-        // Sessions — sorteer op sessie-nummer ascending: laag bovenaan → hoog
-        // onderaan, zodat de timeline van boven naar beneden chronologisch
-        // leest. Sessies zonder session-# zakken naar onder. Originele index
-        // bewaard voor edit/delete handlers.
+        // Sessions — sort by session number ascending: low at top → high
+        // at bottom, so the timeline reads chronologically from top to
+        // bottom. Sessions without a session-# sink to the bottom. Original index
+        // kept for edit/delete handlers.
         var sessions = ch.events || [];
         var sortedSess = sessions.map(function(s, idx) { return { s: migrateTimelineEvent(s), idx: idx }; });
         sortedSess.sort(function(a, b) {
@@ -1535,11 +1535,11 @@ function saveLoreData(data) {
     if (typeof syncUpload === 'function') syncUpload('dw_lore');
 }
 
-// Lore-tabbladen. `articles` = de bestaande vrije DM-teksten; `npcs` heeft een
-// eigen rijke implementatie; de overige zijn generieke entry-collecties
-// (naam + afbeelding + omschrijving + notities) via renderLoreCategory().
+// Lore tabs. `articles` = the existing free-form DM texts; `npcs` has its
+// own rich implementation; the rest are generic entry collections
+// (name + image + description + notes) via renderLoreCategory().
 var LORE_TABS = [
-    { id: 'npcs',      label: 'Creatures' },   // #OvywGWk: NPC's + monsters samengevoegd
+    { id: 'npcs',      label: 'Creatures' },   // #OvywGWk: NPCs + monsters merged
     { id: 'families',  label: 'Families' },
     { id: 'items',     label: 'Items' },
     { id: 'religions', label: 'Religions' },
@@ -1548,8 +1548,8 @@ var LORE_TABS = [
     { id: 'events',    label: 'Events' },
     { id: 'articles',  label: 'Articles' }
 ];
-// De generieke categorie-tabs (alles behalve party/npcs/articles). 'monsters' is
-// nu de Creature-store achter de 'npcs'-tab, geen losse tab meer (#OvywGWk).
+// The generic category tabs (everything except party/npcs/articles). 'monsters' is
+// now the Creature store behind the 'npcs' tab, no longer a separate tab (#OvywGWk).
 var LORE_CATEGORY_TABS = ['items', 'religions', 'factions', 'places', 'events'];
 
 function isLoreTab(id) {
@@ -1607,7 +1607,7 @@ function renderLore(subpage) {
     return html;
 }
 
-// Articles-tab: de bestaande vrije DM-teksten als kaartgrid.
+// Articles tab: the existing free-form DM texts as a card grid.
 function renderLoreArticlesInner() {
     var data = getLoreData();
     var html = '<div class="lore-cat-toolbar">';
@@ -1708,15 +1708,15 @@ function getNPCData() {
     return { npcs: [] };
 }
 
-// Splits een volledige naam: laatste woord = achternaam (familienaam),
-// de rest = voornaam. Eén woord → alleen voornaam.
+// Split a full name: last word = surname (family name),
+// the rest = first name. One word → first name only.
 function splitNpcName(full) {
     var parts = (full || '').trim().split(/\s+/).filter(Boolean);
     if (parts.length <= 1) return { firstName: parts[0] || '', lastName: '' };
     return { firstName: parts.slice(0, -1).join(' '), lastName: parts[parts.length - 1] };
 }
 
-// Voornaam/achternaam van een NPC, met fallback-split voor ongemigreerde data.
+// First/last name of an NPC, with fallback split for unmigrated data.
 function npcFirstLast(n) {
     if (n && (n.firstName != null || n.lastName != null)) {
         return { firstName: n.firstName || '', lastName: n.lastName || '' };
@@ -1742,16 +1742,16 @@ function ensureEntityIds(force) {
         (nd.npcs || []).forEach(function (n, i) {
             if (!n) return;
             if (!n.id) { n.id = 'npc_' + i + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); nChanged = true; }
-            // Name-split migratie: één 'name'-veld → firstName + lastName.
-            // Laatste woord = achternaam (familienaam), rest = voornaam. Een
-            // bestaand vrij-tekst 'family'-veld overschrijft de achternaam.
+            // Name-split migration: one 'name' field → firstName + lastName.
+            // Last word = surname (family name), rest = first name. An
+            // existing free-text 'family' field overrides the surname.
             if (n.firstName == null && n.lastName == null) {
                 var fl = splitNpcName(n.name);
                 if (typeof n.family === 'string' && n.family.trim()) fl.lastName = n.family.trim();
                 n.firstName = fl.firstName;
                 n.lastName = fl.lastName;
                 n.name = (fl.firstName + ' ' + fl.lastName).trim();
-                if (typeof n.family === 'string') delete n.family; // gevouwen in lastName
+                if (typeof n.family === 'string') delete n.family; // folded into lastName
                 nChanged = true;
             }
         });
@@ -1775,16 +1775,16 @@ function saveNPCData(data) {
     if (typeof syncUpload === 'function') syncUpload('dw_npcs');
 }
 
-// #OvywGWk — Entity-merge Fase B: migreer NPC's uit dw_npcs naar de gedeelde
-// Creature-store (lore_cats.monsters). VEILIG opgezet:
-//  - idempotent + guard-on-target: kopieert alleen NPC's waarvan de id nog niet
-//    in de creature-store zit; draait als no-op zodra alles gemigreerd is.
-//  - NIET-destructief: dw_npcs blijft volledig staan (rollback-net + family-link
-//    fallback via array-index blijft werken).
-//  - family-link remap: zet member.linkedCreatureId = npc.id zodat de nieuwe
-//    creature-kaarten hun familie via stabiele id vinden (oude index-link blijft).
-// Draait na de eerste Firebase-download (zie ensureEntityIds-call sites), nadat
-// ensureEntityIds de id's + firstName/lastName heeft gevuld.
+// #OvywGWk — Entity-merge Phase B: migrate NPCs from dw_npcs to the shared
+// Creature store (lore_cats.monsters). Set up SAFELY:
+//  - idempotent + guard-on-target: only copies NPCs whose id is not yet
+//    in the creature store; runs as a no-op once everything is migrated.
+//  - NON-destructive: dw_npcs stays fully intact (rollback net + family-link
+//    fallback via array index keeps working).
+//  - family-link remap: sets member.linkedCreatureId = npc.id so the new
+//    creature cards find their family via stable id (old index link stays).
+// Runs after the first Firebase download (see ensureEntityIds call sites), after
+// ensureEntityIds has filled in the ids + firstName/lastName.
 var _npcsMergedToCreatures = false;
 function migrateNpcsIntoCreatures(force) {
     if (_npcsMergedToCreatures && !force) return;
@@ -1794,7 +1794,7 @@ function migrateNpcsIntoCreatures(force) {
         var lc = getLoreCatsData();
         if (!Array.isArray(lc.monsters)) lc.monsters = [];
 
-        // Index bestaande creature-id's zodat we niet dubbel kopiëren.
+        // Index existing creature ids so we don't copy twice.
         var haveIds = {};
         for (var ci = 0; ci < lc.monsters.length; ci++) {
             if (lc.monsters[ci] && lc.monsters[ci].id) haveIds[lc.monsters[ci].id] = true;
@@ -1807,16 +1807,16 @@ function migrateNpcsIntoCreatures(force) {
         for (var i = 0; i < npcs.length; i++) {
             var n = npcs[i];
             if (!n || !n.id) continue;
-            if (haveIds[n.id]) continue;            // al gemigreerd → overslaan
+            if (haveIds[n.id]) continue;            // already migrated → skip
 
-            // Veilige kopie: alle NPC-velden passen 1:1 op het creature-schema.
+            // Safe copy: all NPC fields map 1:1 onto the creature schema.
             var cre = {};
             for (var k in n) { if (Object.prototype.hasOwnProperty.call(n, k)) cre[k] = n[k]; }
-            cre._fromNpc = true;                    // herkomst-merker (handig voor rollback/debug)
+            cre._fromNpc = true;                    // origin marker (handy for rollback/debug)
             if (cre.alive == null) cre.alive = 'alive';
-            // NPC's waren voor spelers volledig zichtbaar → markeer de ingevulde
-            // velden als 'public' zodat de migratie geen info verbergt. De DM kan
-            // daarna velden expliciet op private zetten.
+            // NPCs were fully visible to players → mark the filled-in
+            // fields as 'public' so the migration doesn't hide any info. The DM can
+            // then explicitly set fields to private.
             cre.visibility = cre.visibility || {};
             ['race', 'npcClass', 'profession', 'faction', 'religion', 'location', 'relation',
              'birthYear', 'disposition', 'alive', 'preferences', 'dislikes', 'pets', 'notes',
@@ -1830,7 +1830,7 @@ function migrateNpcsIntoCreatures(force) {
             haveIds[n.id] = true;
             lcChanged = true;
 
-            // Family-link remap: array-index → stabiele id (oude key blijft staan).
+            // Family-link remap: array index → stable id (old key stays).
             if (fams && fams.members) {
                 for (var mid in fams.members) {
                     var m = fams.members[mid];
@@ -1846,18 +1846,18 @@ function migrateNpcsIntoCreatures(force) {
         else if (!lc._npcsMerged) { lc._npcsMerged = true; saveLoreCatsData(lc); }
         if (famChanged && typeof saveFamiliesData === 'function') saveFamiliesData(fams);
         _npcsMergedToCreatures = true;
-    } catch (e) { /* niet-fataal: bij fout blijft dw_npcs de bron */ }
+    } catch (e) { /* non-fatal: on error dw_npcs remains the source */ }
 }
 
-// NPC-tab filter-state (module-level, zoals npcSearchQuery in ui-pages.js).
+// NPC tab filter state (module-level, like npcSearchQuery in ui-pages.js).
 var npcFilterDisp = 'all';
 var npcFilterFaction = 'all';
 
-// De "Creatures"-tab (intern tab-id 'npcs', store-key 'monsters'): één lijst met
-// alle creatures (gemigreerde NPC's + monsters), één editor (#OvywGWk).
+// The "Creatures" tab (internal tab id 'npcs', store key 'monsters'): one list with
+// all creatures (migrated NPCs + monsters), one editor (#OvywGWk).
 function renderNPCTracker() {
-    // Offline fallback: zonder Firebase draait de post-download backfill niet,
-    // dus hier id's + NPC→creature-migratie afdwingen (beide guarded).
+    // Offline fallback: without Firebase the post-download backfill doesn't run,
+    // so force ids + NPC→creature migration here (both guarded).
     if (typeof syncReady === 'undefined' || !syncReady) {
         ensureEntityIds();
         if (typeof migrateNpcsIntoCreatures === 'function') migrateNpcsIntoCreatures();
@@ -1865,7 +1865,7 @@ function renderNPCTracker() {
     var currentYear = getNPCData().currentYear || '';
     var creatures = getLoreCatEntries('monsters');
 
-    // Facties uit de creature-store voor de filter-dropdown.
+    // Factions from the creature store for the filter dropdown.
     var factions = [];
     for (var fi = 0; fi < creatures.length; fi++) {
         var fac = creatures[fi].faction;
@@ -1915,10 +1915,10 @@ function loreEntryImgHtml(e) {
     return html + '</div>';
 }
 
-// Filter + render van de Creature-lijst (creatures = lore_cats.monsters). Past de
-// NPC-toolbar filters toe (zoekterm, disposition, faction) en rendert dezelfde
-// lore-entry-kaarten als de generieke lijst — plus een family-diagram als de
-// creature aan een familie gekoppeld is (#OvywGWk).
+// Filter + render of the Creature list (creatures = lore_cats.monsters). Applies the
+// NPC toolbar filters (search term, disposition, faction) and renders the same
+// lore-entry cards as the generic list — plus a family diagram if the
+// creature is linked to a family (#OvywGWk).
 function renderCreatureResultsInner() {
     var entries = getLoreCatEntries('monsters');
     var q = (npcSearchQuery || '').toLowerCase();
@@ -1945,8 +1945,8 @@ function renderCreatureResultsInner() {
         html += '<div class="lore-entry-body">';
         html += '<h3 class="lore-entry-name">' + escapeHtml(e.name || '(unnamed)') + '</h3>';
         if (infoHtml) html += '<div class="lore-entry-info">' + infoHtml + '</div>';
-        // Geen family-diagram op de creature-kaarten/-pagina (Joshua, 2026-06-26);
-        // family trees horen alleen op de Families-tab.
+        // No family diagram on the creature cards/page (Joshua, 2026-06-26);
+        // family trees belong only on the Families tab.
         if (isDM()) {
             html += '<div class="lore-entry-actions">';
             html += '<button class="btn btn-ghost btn-sm" data-action="edit-lore-entry" data-cat="monsters" data-entry-idx="' + realIdx + '">' + t('generic.edit') + '</button>';
@@ -1965,11 +1965,11 @@ function renderCreatureResultsInner() {
 }
 
 // ===== Gedeelde entiteit-registry (voedt @-mention links + afbeelding-picker) =====
-// Geeft een platte lijst {type, cat, id, name, image, route} over alle stores
-// met een stabiele id. `image` is null als de entiteit geen afbeelding heeft.
+// Returns a flat list {type, cat, id, name, image, route} over all stores
+// with a stable id. `image` is null if the entity has no image.
 function collectEntities() {
     var list = [];
-    // Characters — eigen route.
+    // Characters — own route.
     try {
         var ids = (typeof getCharacterIds === 'function') ? getCharacterIds() : [];
         for (var i = 0; i < ids.length; i++) {
@@ -2100,8 +2100,8 @@ function mentionFieldVal(text) {
     return escapeHtml((typeof mentionsToDisplay === 'function') ? mentionsToDisplay(text || '') : (text || ''));
 }
 
-// ===== Afbeelding-picker — kies een bestaande afbeelding (slaat een LIVE ref op) =====
-// target: { hiddenId, previewId }  of  { onPick: function(refValue, resolvedUrl) }
+// ===== Image picker — pick an existing image (stores a LIVE ref) =====
+// target: { hiddenId, previewId }  or  { onPick: function(refValue, resolvedUrl) }
 var _imgPickerTarget = null;
 var imgPickerSearch = '';
 
@@ -2118,8 +2118,8 @@ function openImagePicker(target) {
 function closeImagePicker() {
     var el = document.querySelector('.img-picker-active');
     if (el) el.remove();
-    // Laat de onderliggende modal de body-scroll-lock houden; alleen unlocken
-    // als er geen andere modal meer open is.
+    // Let the underlying modal keep the body scroll lock; only unlock
+    // when no other modal is open anymore.
     if (typeof unlockBodyScroll === 'function' && !document.querySelector('.lore-entry-modal-active, .profile-modal-active')) {
         unlockBodyScroll();
     }
@@ -2143,7 +2143,7 @@ function renderImagePicker() {
     if (!ents.length) {
         html += '<p class="text-dim" style="margin-top:1rem;">' + (q ? 'No results.' : 'No images available yet.') + '</p>';
     } else {
-        // Groepeer per categorie.
+        // Group by category.
         var groups = {};
         ents.forEach(function (e) { (groups[e.cat] = groups[e.cat] || []).push(e); });
         Object.keys(groups).forEach(function (cat) {
@@ -2175,7 +2175,7 @@ function pickExistingImage(ref, url) {
     closeImagePicker();
 }
 
-// ===== Globale Search — zoek referenties (zoals @-mentions) overal =====
+// ===== Global Search — search references (like @-mentions) everywhere =====
 var searchQuery = '';
 var searchShowAll = false;
 
@@ -2221,7 +2221,7 @@ function renderSearchOverlay() {
     } else if (!res.length) {
         html += '<div class="search-hint text-dim">No results for "' + escapeHtml(searchQuery.trim()) + '".</div>';
     } else if (!searchShowAll) {
-        // Compacte referentielijst (zoals de @-popup): top 8, klikbaar.
+        // Compact reference list (like the @-popup): top 8, clickable.
         var top = res.slice(0, 8);
         html += '<div class="search-list">';
         top.forEach(function (e) { html += searchRow(e, false); });
@@ -2230,7 +2230,7 @@ function renderSearchOverlay() {
             html += '<button class="btn btn-ghost btn-sm search-showall" data-action="search-show-all">Show all ' + res.length + ' results</button>';
         }
     } else {
-        // Volledig overzicht: alle resultaten met meer info.
+        // Full overview: all results with more info.
         html += '<div class="search-grid">';
         res.forEach(function (e) { html += searchRow(e, true); });
         html += '</div>';
@@ -2251,11 +2251,11 @@ function searchRow(e, full) {
 }
 
 // ===== Lore-entry editor-modal (generieke categorieën) =====
-// ===== Per-categorie veld-schema's =====
-// Monsters krijgen een 5.5e (2024) stat-block-achtige set velden (NPC-stijl,
-// zonder family tree); Items krijgen Beschrijving + Effect. De overige
-// categorieën (religions/factions/places/events) houden Omschrijving + Notities.
-// type: 'text' | 'number' | 'textarea' (mentions) | 'abilities' (6-cel STR..CHA grid)
+// ===== Per-category field schemas =====
+// Monsters get a 5.5e (2024) stat-block-like set of fields (NPC style,
+// without family tree); Items get Description + Effect. The remaining
+// categories (religions/factions/places/events) keep Description + Notes.
+// type: 'text' | 'number' | 'textarea' (mentions) | 'abilities' (6-cell STR..CHA grid)
 var LORE_ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 // Planes of existence a place can be in. A place without one is on the
 // Material Plane, which is where every place was before dimensions existed.
@@ -2299,12 +2299,12 @@ var LORE_CAT_FIELDS = {
         { key: 'description', label: 'Description', type: 'textarea' },
         { key: 'effect',      label: 'Effect',      type: 'textarea' }
     ],
-    // #OvywGWk: "Creatures" = de gecombineerde NPC + monster categorie. Eén
-    // schema met zowel NPC-identiteit/sociale velden als de monster-statblock.
-    // firstName/lastName staan in de modal-header (niet in dit grid). Alle velden
-    // optioneel: een pure NPC laat de statblock leeg, een puur monster de sociale
-    // velden. (Interne store-key blijft 'monsters' om bestaande monster-data,
-    // -mentions en -hypotheses niet te breken; het UI-label is "Creatures".)
+    // #OvywGWk: "Creatures" = the combined NPC + monster category. One
+    // schema with both NPC identity/social fields and the monster statblock.
+    // firstName/lastName live in the modal header (not in this grid). All fields
+    // optional: a pure NPC leaves the statblock empty, a pure monster the social
+    // fields. (Internal store key stays 'monsters' so as not to break existing monster data,
+    // mentions and hypotheses; the UI label is "Creatures".)
     monsters: [
         // Identity / social (NPC-origin)
         { key: 'race',          label: 'Species',             type: 'text' },
@@ -2364,7 +2364,7 @@ function abilityMod(score) {
     return (m >= 0 ? '+' : '') + m;
 }
 
-// ===== Herbruikbare image-box (klik in de box → keuze Bestaande/Uploaden) =====
+// ===== Reusable image box (click in the box → choose Existing/Upload) =====
 // cfg: { previewId, hiddenId, fileAction, value, name }
 function renderImageBox(cfg) {
     cfg = cfg || {};
@@ -2387,10 +2387,10 @@ function renderImageBox(cfg) {
     return html;
 }
 
-// Render één lore-veld (gedeeld door modal-grid). Textarea/abilities = full-width.
-// cat: bij 'monsters' + DM krijgt dit veld een per-veld visibility-toggle naast
-// het label, óók als het veld nog leeg is (Requirement 5, #OvywGWk). Andere
-// categorieën / niet-DM-gebruikers krijgen de ongewijzigde plain-label markup.
+// Render one lore field (shared by modal grid). Textarea/abilities = full-width.
+// cat: for 'monsters' + DM this field gets a per-field visibility toggle next to
+// the label, even if the field is still empty (Requirement 5, #OvywGWk). Other
+// categories / non-DM users get the unchanged plain-label markup.
 function renderLoreField(f, e, cat) {
     var full = (f.type === 'textarea' || f.type === 'abilities');
     var rows = f.rows || 3;
@@ -2432,17 +2432,17 @@ function renderLoreField(f, e, cat) {
     return html;
 }
 
-// Pagina-indeling per categorie: velden die niet op 1 pagina passen (monsters)
-// worden over 2 pagina's verdeeld. Overige categorieën = 1 pagina (alle velden).
+// Page layout per category: fields that don't fit on 1 page (monsters)
+// are split over 2 pages. Other categories = 1 page (all fields).
 var LORE_CAT_PAGES = {
-    // Creatures (key 'monsters') — 5 pagina's, vaste vensterhoogte dekt het
-    // formaatverschil af (#OvywGWk).
+    // Creatures (key 'monsters') — 5 pages, fixed window height absorbs the
+    // size difference (#OvywGWk).
     monsters: [
         // P1 — identiteit & sociaal (NPC-origin)
         ['race', 'npcClass', 'profession', 'alive', 'disposition', 'faction', 'religion', 'location', 'birthYear', 'relation'],
         // P2 — stat-block-getallen + ability scores
         ['size', 'mtype', 'alignment', 'cr', 'profBonus', 'initiative', 'ac', 'hp', 'speed', 'abilities'],
-        // P3 — defenses & senses (korte velden)
+        // P3 — defenses & senses (short fields)
         ['saves', 'skills', 'senses', 'languages', 'resistances', 'immunities', 'condImmunities', 'vulnerabilities', 'gear'],
         // P4 — 2024 stat-block sections
         ['traits', 'actions', 'bonusActions', 'reactions', 'legendary', 'spellcasting'],
@@ -2461,7 +2461,7 @@ function lorePagesFor(cat) {
     });
 }
 
-// ===== Modal-paginatie (gedeeld door lore- en NPC-modal) =====
+// ===== Modal pagination (shared by lore and NPC modal) =====
 var _modalPage = 1;
 function goModalPage(n) {
     var card = document.querySelector('.lore-entry-modal-active .modal-card');
@@ -2480,7 +2480,7 @@ function goModalPage(n) {
     if (next) next.disabled = (n === pages.length);
 }
 
-// Toggle/sluit het keuze-menu in een image-box.
+// Toggle/close the choice menu in an image box.
 function toggleImageMenu(box) {
     if (!box) return;
     var menu = box.querySelector('.lore-image-menu');
@@ -2498,7 +2498,7 @@ function closeAllImageMenus() {
         if (b) b.setAttribute('aria-expanded', 'false');
     }
 }
-// Werk een image-box bij na een keuze/upload: preview + hidden value + remove-knop.
+// Update an image box after a choice/upload: preview + hidden value + remove button.
 function setImageBoxValue(box, refOrUrl, displayUrl) {
     if (!box) return;
     var prev = box.querySelector('.lore-image-preview');
@@ -2533,9 +2533,9 @@ function renderLoreEntryModal(cat, idx) {
     for (var p = 0; p < pages.length; p++) {
         html += '<div class="modal-page' + (p === 0 ? ' page-active' : '') + '" data-page="' + (p + 1) + '">';
         if (p === 0) {
-            // Requirement 5 (#OvywGWk): image + name hebben geen entry in
-            // LORE_CAT_FIELDS, dus krijgen hun toggle hier expliciet i.p.v. via
-            // renderLoreField. Zelfde showVis-gate (monsters + DM) als daar.
+            // Requirement 5 (#OvywGWk): image + name have no entry in
+            // LORE_CAT_FIELDS, so they get their toggle here explicitly instead of via
+            // renderLoreField. Same showVis gate (monsters + DM) as there.
             var showHdrVis = (cat === 'monsters') && (typeof isDM === 'function') && isDM();
             html += '<div class="lore-entry-header-row">';
             if (showHdrVis) html += '<div class="lore-image-box-wrap">';
@@ -2548,8 +2548,8 @@ function renderLoreEntryModal(cat, idx) {
             }
             html += '<div class="lore-form-grid lore-header-fields">';
             if (cat === 'monsters') {
-                // Creatures: voor- + achternaam (afgeleide `name` wordt bij save
-                // samengesteld). Split bestaande monster-`name` als fallback.
+                // Creatures: first + last name (derived `name` is composed on save).
+                // Split existing monster `name` as fallback.
                 var cfl = (typeof npcFirstLast === 'function') ? npcFirstLast(e) : { firstName: e.name || '', lastName: '' };
                 html += '<div class="npc-form-field">';
                 html += '<div class="lore-field-label-row"><label class="login-label" for="lore-entry-f-firstName">First name</label>' +
@@ -2616,8 +2616,8 @@ async function saveLoreEntryModal() {
     var idx = parseInt(form.dataset.entryIdx, 10);
     var isNew = isNaN(idx) || idx === -1;
     function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-    // Creatures (monsters): naam = voornaam + achternaam; overige categorieën
-    // hebben één naam-veld (#OvywGWk).
+    // Creatures (monsters): name = first name + last name; other categories
+    // have a single name field (#OvywGWk).
     var name, creFirst = '', creLast = '';
     if (cat === 'monsters') {
         creFirst = v('lore-entry-f-firstName');
@@ -2671,13 +2671,13 @@ async function saveLoreEntryModal() {
             entry[f.key] = v('lore-entry-f-' + f.key);
         }
     }
-    // Requirement 5 (#OvywGWk): de per-veld visibility-toggles leven nu ook in
-    // de editor (loreVisToggleDraft, naast élk veld + image/name). Ze muteren
-    // tijdens het editen alléén hun eigen data-vis-attribuut — pas hier, bij
-    // Save, herbouwen we entry.visibility volledig uit de huidige toggle-state.
-    // De toggles worden alleen gerenderd voor DM + Creatures (showVis-gate in
-    // renderLoreField/renderLoreEntryModal); staan ze er niet (geen DM), dan
-    // laten we entry.visibility ongemoeid i.p.v. het te legen.
+    // Requirement 5 (#OvywGWk): the per-field visibility toggles now also live in
+    // the editor (loreVisToggleDraft, next to EVERY field + image/name). While editing they
+    // only mutate their own data-vis attribute — only here, on
+    // Save, do we rebuild entry.visibility entirely from the current toggle state.
+    // The toggles are only rendered for DM + Creatures (showVis gate in
+    // renderLoreField/renderLoreEntryModal); if they're absent (no DM), we
+    // leave entry.visibility untouched instead of clearing it.
     if (cat === 'monsters') {
         var visBtns = form.querySelectorAll('[data-action="toggle-field-vis-draft"]');
         if (visBtns.length) {
@@ -2688,8 +2688,8 @@ async function saveLoreEntryModal() {
             entry.visibility = newVis;
         }
     }
-    // Nieuwe monsters staan standaard op privé (alleen DM); de DM geeft ze
-    // expliciet vrij met de entry-toggle op de kaart.
+    // New monsters default to private (DM only); the DM explicitly
+    // releases them with the entry toggle on the card.
     if (isNew && cat === 'monsters') entry.hidden = true;
     if (isNew) data[cat].push(entry);
     else data[cat][idx] = entry;
@@ -2704,7 +2704,7 @@ async function saveLoreEntryModal() {
     renderApp();
 }
 
-// Party-tab inner content (geen page-wrapper; zit in de lore-tab-shell).
+// Party tab inner content (no page wrapper; lives in the lore tab shell).
 function renderLorePartyInner() {
     var html = '<p class="section-intro">' + t('lore.theparty.intro') + '</p>';
     var ids = getCharacterIds();
@@ -2721,8 +2721,8 @@ function renderLorePartyInner() {
     return html;
 }
 
-// Legacy standalone route (#/lore/party rendert nu via de tab-shell, maar
-// houd deze voor eventuele directe call-sites).
+// Legacy standalone route (#/lore/party now renders via the tab shell, but
+// keep this for any direct call sites).
 function renderLoreParty() {
     var html = '<div class="lore-page lore-article">';
     html += '<a class="btn btn-ghost btn-sm" href="/lore/party">&larr; ' + t('lore.backtolore') + '</a>';
@@ -2732,8 +2732,8 @@ function renderLoreParty() {
     return html;
 }
 
-// ===== Generieke lore-categorie entries (items/religions/factions/places/
-// monsters/events). E\u00e9n store, gefilterd per categorie. =====
+// ===== Generic lore category entries (items/religions/factions/places/
+// monsters/events). One store, filtered per category. =====
 function getLoreCatsData() {
     var saved = localStorage.getItem('dw_lore_cats');
     if (saved) {
@@ -2771,19 +2771,19 @@ function getLoreCatEntries(cat) {
     return Array.isArray(data[cat]) ? data[cat] : [];
 }
 
-// Per-categorie zoekterm (module-level, zoals notesSearch).
+// Per-category search term (module-level, like notesSearch).
 var loreCatSearch = '';
-// Persistente set van uitgeklapte lore-entry-ids (overleeft re-renders).
+// Persistent set of expanded lore entry ids (survives re-renders).
 var loreExpandedIds = {};
 
 // Render the type-specific info for a lore entry (shown in the expanded card
 // and on hover). Iterates the category's field-schema, skipping empties.
-// Monster "fog of war" (#0C4rMb): per-veld public/private (DM-bezit, op e.visibility)
-// + gedeelde speler-hypotheses (apart Firebase-pad, realtime). Default-public alleen
-// voor velden die een speler sowieso waarneemt; rest private.
-// 'image' en 'name' zijn geen entries in LORE_CAT_FIELDS.monsters (ze leven in
-// de modal-header / kaart-header), maar delen dezelfde visibility-store en
-// dezelfde default-fallback-logica (Requirement 5, #OvywGWk).
+// Monster "fog of war" (#0C4rMb): per-field public/private (DM-owned, on e.visibility)
+// + shared player hypotheses (separate Firebase path, realtime). Default-public only
+// for fields a player perceives anyway; the rest private.
+// 'image' and 'name' are not entries in LORE_CAT_FIELDS.monsters (they live in
+// the modal header / card header), but share the same visibility store and
+// the same default-fallback logic (Requirement 5, #OvywGWk).
 var MONSTER_PUBLIC_DEFAULTS = { size: true, mtype: true, speed: true, description: true, image: true, name: true };
 function monsterFieldVis(e, key) {
     if (e.visibility && e.visibility[key]) return e.visibility[key];
@@ -2816,14 +2816,14 @@ function loreVisToggleDraft(key, vis) {
         (priv ? 'Hidden from players — click to make public' : 'Visible to players — click to make private') +
         '">' + (priv ? '🔒' : '👁') + '</button>';
 }
-// Monochrome SVG-iconen (currentColor → erven de witte kleur van de knop).
-// Emoji zijn altijd gekleurd, dus voor een echt wit/monochroom oogje gebruiken
-// we inline SVG (oog = publiek, doorgestreept oog = privé).
+// Monochrome SVG icons (currentColor → inherit the white colour of the button).
+// Emoji are always coloured, so for a truly white/monochrome eye we use
+// inline SVG (eye = public, crossed-out eye = private).
 var DW_ICON_EYE = '<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 var DW_ICON_EYEOFF = '<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 
-// Entry-niveau toggle: het hele monster privé (alleen DM) of publiek (spelers
-// zien de kaart, met per-veld fog-of-war). Default publiek (e.hidden !== true).
+// Entry-level toggle: the whole monster private (DM only) or public (players
+// see the card, with per-field fog-of-war). Default public (e.hidden !== true).
 function monsterEntryVisToggle(idx, hidden) {
     return '<button class="lore-entry-vis' + (hidden ? ' is-private' : '') + '" data-action="toggle-entry-vis" data-entry-idx="' + idx +
         '" aria-pressed="' + (hidden ? 'true' : 'false') + '" title="' +
@@ -2858,14 +2858,14 @@ function renderMonsterHypRow(f, eid) {
         '" value="' + escapeAttr(curVal) + '" placeholder="' + ph + '">' +
         '<span class="lore-hyp-val" data-hyp-val="' + f.key + '">' + escapeHtml(curVal) + '</span>' + meta + '</span></div>';
 }
-// Rol-gesplitste render voor monster-statblocks.
+// Role-split render for monster statblocks.
 function renderMonsterEntryInfo(e) {
     var fields = loreFieldsFor('monsters');
     var dm = (typeof isDM === 'function') && isDM();
     var eid = e.id || '';
-    // #OvVUxz: korte statblock-velden (size/type/AC/HP/saves/abilities/…) in een
-    // multi-kolom container voor sneller overzicht; narratieve textarea-blokken
-    // (traits/actions/spellcasting/description) blijven full-width eronder.
+    // #OvVUxz: short statblock fields (size/type/AC/HP/saves/abilities/…) in a
+    // multi-column container for a quicker overview; narrative textarea blocks
+    // (traits/actions/spellcasting/description) stay full-width below.
     var cols = '';
     var blocks = '';
     // DM-only: never show players which stat block a creature is built on (fog of war)
@@ -2890,7 +2890,7 @@ function renderMonsterEntryInfo(e) {
         var hasVal = !(val == null || val === '');
         var dispVal = (f.type === 'select' && hasVal) ? capitalize(String(val)) : String(val);
         if (dm) {
-            if (!hasVal) continue; // leeg veld: niets te tonen of te verbergen
+            if (!hasVal) continue; // empty field: nothing to show or hide
             if (f.type === 'textarea') {
                 blocks += '<div class="lore-info-block' + (vis === 'private' ? ' is-private' : '') + '">' +
                     '<span class="lore-info-label">' + escapeHtml(f.label) + '</span>' + monsterVisToggle(eid, f.key, vis) +
@@ -2910,7 +2910,7 @@ function renderMonsterEntryInfo(e) {
                     '<span class="lore-info-val">' + escapeHtml(dispVal) + '</span></div>';
             }
         } else {
-            // Speler + privaat veld → gedeelde hypothese-input (geen textarea-hyp in v1).
+            // Player + private field → shared hypothesis input (no textarea hyp in v1).
             if (f.type !== 'textarea') cols += renderMonsterHypRow(f, eid);
         }
     }
@@ -2977,8 +2977,8 @@ function renderLoreCategory(cat) {
     return html;
 }
 
-// Query-afhankelijke lore-resultaten (grid of lege-staat). Apart zodat de
-// search-handler alleen dit deel ververst i.p.v. de hele pagina te herladen.
+// Query-dependent lore results (grid or empty state). Separate so the
+// search handler only refreshes this part instead of reloading the whole page.
 function renderLoreResultsInner(cat) {
     var entries = getLoreCatEntries(cat);
     var label = cat;
@@ -3013,15 +3013,15 @@ function renderLoreResultsInner(cat) {
             lastDim = placeDimension(e);
             html += '<h3 class="lore-dim-head" style="grid-column:1/-1;margin:.75rem 0 .1rem;font-size:.95rem;color:var(--text-dim);">' + escapeHtml(lastDim) + '</h3>';
         }
-        // Entry-niveau zichtbaarheid (monsters): een privé monster is volledig
-        // verborgen voor spelers (analoog aan per-veld fog-of-war, maar voor de
-        // hele kaart). DM ziet 'm altijd, met een markering + toggle.
+        // Entry-level visibility (monsters): a private monster is fully
+        // hidden from players (analogous to per-field fog-of-war, but for the
+        // whole card). The DM always sees it, with a marker + toggle.
         var entryHidden = (cat === 'monsters') && e.hidden === true;
         if (entryHidden && !isDM()) continue;
         var realIdx = entries.indexOf(e);
         var infoHtml = renderLoreEntryInfo(cat, e);
-        // Expand-state uit een persistente set zodat een re-render uitgeklapte
-        // kaarten niet inklapt (#LLD4YT/#3gKQ37 — meerdere tegelijk open blijven).
+        // Expand state from a persistent set so a re-render doesn't collapse
+        // expanded cards (#LLD4YT/#3gKQ37 — multiple can stay open at once).
         var expCls = (e.id && loreExpandedIds[e.id]) ? ' expanded' : '';
         html += '<div class="lore-entry-card' + expCls + (entryHidden ? ' is-private-entry' : '') + '" data-cat="' + cat + '" data-entry-idx="' + realIdx + '" data-entry-id="' + escapeAttr(e.id || '') + '" data-action="toggle-lore-entry">';
         if (cat === 'monsters' && isDM()) {
@@ -3098,8 +3098,8 @@ function renderNotes() {
     var data = getNotesData();
     var notes = data.notes || [];
 
-    // Search (titel + inhoud). Categorie/tag-filtering is verwijderd — referenties
-    // (@-mentions) vervangen het taggen.
+    // Search (title + content). Category/tag filtering has been removed — references
+    // (@-mentions) replace tagging.
     var filtered = notes;
     if (notesSearch) {
         var q = notesSearch.toLowerCase();

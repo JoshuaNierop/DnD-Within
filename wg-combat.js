@@ -1,20 +1,20 @@
 // ===== wg-combat.js — Combat Tracker (DM) + Initiative Tracker (speler) =====
-// Een nieuwe widget-`kind: 'combat'`. Twee types delen de renderer:
-//   - combatTracker     → mode 'dm'     (volledige tabel, bewerkbaar, turn-control)
-//   - initiativeTracker → mode 'player' (read-only publieke variant: portret+naam)
+// A new widget `kind: 'combat'`. Two types share the renderer:
+//   - combatTracker     → mode 'dm'     (full table, editable, turn control)
+//   - initiativeTracker → mode 'player' (read-only public variant: portrait+name)
 //
-// De encounter-DATA is NIET per-widget: ze leeft in localStorage-key
-// `dw_initiative` ↔ Firebase `dm/initiative` (al in de sync-allowlist). De DM
-// schrijft; alle clients lezen live via de bestaande sync (sync.js child_changed
-// op dw/dm → applyLeaves → renderApp). Door localStorage VÓÓR syncUpload te
-// zetten is de eigen Firebase-echo een no-op (changed===0, geen re-mount-flits).
-// De widget is dus een live VIEW, geen data-container; serialize slaat alleen
-// geometrie + cfg.transpose op.
+// The encounter DATA is NOT per-widget: it lives in localStorage key
+// `dw_initiative` ↔ Firebase `dm/initiative` (already in the sync allowlist). The DM
+// writes; all clients read live via the existing sync (sync.js child_changed
+// on dw/dm → applyLeaves → renderApp). By setting localStorage BEFORE syncUpload
+// the own Firebase echo is a no-op (changed===0, no re-mount flash).
+// The widget is thus a live VIEW, not a data container; serialize only stores
+// geometry + cfg.transpose.
 
 const WG_VIS_CYCLE = ['hidden', 'silhouette', 'revealed'];
 const WG_VIS_GLYPH = { hidden: '—', silhouette: '?', revealed: '◉' };
-// i18n: labels worden op render-tijd opgehaald zodat een taalwissel (NL/EN)
-// de combat-widget direct meeneemt. ct() valt terug op de key als t() ontbreekt.
+// i18n: labels are fetched at render time so a language switch (NL/EN)
+// is picked up by the combat widget right away. ct() falls back to the key if t() is missing.
 function ct(key) { return (typeof t === 'function') ? t(key) : key; }
 function combatVisLabel(vis) { return ct('combat.vis.' + vis); }
 function combatKindLabel(kind) { return ct('combat.kind.' + kind); }
@@ -23,7 +23,7 @@ function combatFieldLabel(field) {
   return ct('combat.col.' + field);
 }
 
-// ---- Encounter model (gedeeld, auto-synced) ----
+// ---- Encounter model (shared, auto-synced) ----
 function emptyEncounter() {
   return { round: 1, activeId: null, running: false, entities: [], updatedAt: 0 };
 }
@@ -42,17 +42,17 @@ function getEncounter() {
   } catch (e) {}
   return emptyEncounter();
 }
-// Schrijf encounter: localStorage EERST (zodat de eigen sync-echo changed===0
-// geeft), dan syncUpload, dan render. opts.render===false slaat de render over.
+// Write encounter: localStorage FIRST (so the own sync echo gives changed===0),
+// then syncUpload, then render. opts.render===false skips the render.
 //
-// CRUCIAAL: Firebase strijpt `null`-velden (en lege arrays) bij het opslaan. Als
-// localStorage die nulls WEL bewat, verschilt de eigen echo structureel → sync.js
-// telt changed>0 → renderApp() remount de hele dashboard bij élke HP/init-edit.
-// Daarom serialiseren we met een replacer die null/undefined weglaat, zodat de
-// localStorage-vorm exact matcht met wat Firebase terugstuurt (→ changed===0).
+// CRUCIAL: Firebase strips `null` fields (and empty arrays) on save. If
+// localStorage DOES keep those nulls, the own echo differs structurally → sync.js
+// counts changed>0 → renderApp() remounts the whole dashboard on every HP/init edit.
+// So we serialize with a replacer that drops null/undefined, so that the
+// localStorage shape matches exactly what Firebase sends back (→ changed===0).
 function combatStripNulls(k, v) {
   if (v === null || v === undefined) return undefined;
-  // Firebase dropt lege arrays/objects volledig → doe lokaal hetzelfde.
+  // Firebase drops empty arrays/objects entirely → do the same locally.
   if (Array.isArray(v) && v.length === 0) return undefined;
   if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return undefined;
   return v;
@@ -85,15 +85,15 @@ function dexModFromAbilities(ab) {
   if (ab && typeof ab.dex === 'number') return Math.floor((ab.dex - 10) / 2);
   return 0;
 }
-// Initiative-sort: hoog→laag; null (nog niet gerold) ONDERAAN; tiebreak dexMod
-// desc → kind (pc<npc<monster) → stabiel op id. JS sort is stabiel → null-groep
-// behoudt invoeg-volgorde.
-// #P0huIQ1: 'familiar' is een volwaardige vierde soort naast pc/npc/monster.
-// Familiars horen bij de partij → ze sorteren bij de bondgenoten, zijn standaard
-// zichtbaar voor spelers en krijgen de ally-KO-stijl (niet de dim-stijl).
+// Initiative sort: high→low; null (not yet rolled) AT THE BOTTOM; tiebreak dexMod
+// desc → kind (pc<npc<monster) → stable on id. JS sort is stable → null group
+// keeps insertion order.
+// #P0huIQ1: 'familiar' is a full fourth kind next to pc/npc/monster.
+// Familiars belong to the party → they sort with the allies, are visible
+// to players by default and get the ally KO style (not the dim style).
 const WG_COMBAT_KINDS = ['pc', 'familiar', 'npc', 'monster'];
-// Kind-cyclus op de badge — 'pc' zit er bewust niet in: die hangt aan een echt
-// character-record (ent.ref) en mag niet per ongeluk een monster worden.
+// Kind cycle on the badge — 'pc' is deliberately not in it: it hangs on a real
+// character record (ent.ref) and must not accidentally become a monster.
 const WG_KIND_CYCLE = ['familiar', 'npc', 'monster'];
 function combatIsAlly(ent) { return !ent || ent.kind !== 'monster'; }
 
@@ -115,7 +115,7 @@ function combatSortEntities(list) {
   });
 }
 
-// ---- Entity-fabrieken uit de bronnen ----
+// ---- Entity factories from the sources ----
 function combatEntityFromCharacter(charId) {
   const raw = WG_CHAR_CACHE[charId] || {};
   const cfg = raw.config || {};
@@ -144,8 +144,8 @@ function combatEntityFromNpc(npc) {
     currentHP: hp, maxHP: hp, tempHP: 0, ac: parseLeadingInt(npc.ac, 10), visibility: 'hidden',
   };
 }
-// kind: 'monster' (default) of 'familiar' — dezelfde statblok-bron, maar een
-// familiar is een bondgenoot: die begint zichtbaar i.p.v. verborgen.
+// kind: 'monster' (default) or 'familiar' — same statblock source, but a
+// familiar is an ally: it starts visible instead of hidden.
 function combatEntityFromMonster(m, kind) {
   const hp = parseLeadingInt(m.hp, 1);
   const k = (kind === 'familiar') ? 'familiar' : 'monster';
@@ -157,28 +157,28 @@ function combatEntityFromMonster(m, kind) {
   };
 }
 
-// Zorg dat een character-record in de cache staat vóór we er een entity van
-// snapshotten. Zonder dit kreeg een ongecachet character een placeholder-snapshot
-// (naam = lowercase id, portret null, HP 1, AC 10) die nooit meer bijwerkte → de
-// afbeelding/naam/HP klopten pas na verwijderen + opnieuw toevoegen.
+// Make sure a character record is in the cache before we snapshot an entity
+// from it. Without this an uncached character got a placeholder snapshot
+// (name = lowercase id, portrait null, HP 1, AC 10) that never updated → the
+// image/name/HP were only correct after removing + re-adding.
 async function combatEnsureChar(id) {
   if (!id || WG_CHAR_CACHE[id]) return;
   if (typeof fetchCharacterData !== 'function') return;
   try { await fetchCharacterData(id); } catch (e) {}
-  // Als er al een fetch 'loading' was, returnt fetchCharacterData meteen zonder
-  // te wachten → kort pollen tot de cache gevuld (of fout) is.
+  // If a fetch was already 'loading', fetchCharacterData returns immediately without
+  // waiting → poll briefly until the cache is filled (or errored).
   for (let i = 0; i < 60 && !WG_CHAR_CACHE[id] &&
        (typeof WG_CHAR_STATUS === 'undefined' || WG_CHAR_STATUS[id] !== 'error'); i++) {
     await new Promise(r => setTimeout(r, 50));
   }
 }
 
-// Identiteit (naam + portret) van een PC-entity is GEEN bevroren combat-state:
-// die hoort altijd het echte character te volgen. Resolve daarom op render-tijd
-// uit de cache (heelt ook oude placeholder-snapshots zodra de data binnen is).
-// HP/AC blijven wél een snapshot (bewuste keuze).
-// Capitaliseer een character-id voor gebruik als naam-fallback (character zonder
-// config.name → "ancha" wordt "Ancha"). Tast echte namen niet aan.
+// Identity (name + portrait) of a PC entity is NOT frozen combat state:
+// it should always follow the real character. So resolve at render time
+// from the cache (also heals old placeholder snapshots once the data arrives).
+// HP/AC remain a snapshot (deliberate choice).
+// Capitalise a character id for use as a name fallback (character without
+// config.name → "ancha" becomes "Ancha"). Doesn't touch real names.
 function combatCapId(id) {
   const s = String(id || '');
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -190,7 +190,7 @@ function combatDisplayName(ent) {
     if (c && c.name) return c.name;
   }
   let nm = ent.name || '';
-  // id-fallback (oude placeholder-snapshot, of character zonder naam) → kapitaal.
+  // id fallback (old placeholder snapshot, or character without name) → capitalise.
   if (!nm || nm === ent.ref) nm = combatCapId(ent.ref || nm);
   return nm;
 }
@@ -202,7 +202,7 @@ function combatDisplayPortrait(ent) {
   return (ent && ent.portrait) || null;
 }
 
-// ---- HP-mutaties (temp HP eerst bij schade; heal raakt temp nooit) ----
+// ---- HP mutations (temp HP first on damage; heal never touches temp) ----
 function combatApplyHpDelta(ent, delta) {
   delta = Math.round(delta) || 0;
   if (delta < 0) {
@@ -243,15 +243,15 @@ function combatDerivedConcentration(ent) {
   return c ? c.eff.spell : '';
 }
 
-// RAW: op 0 HP raak je Unconscious en daarmee verlies je concentratie. De
-// tracker ruimt het veld daarom zelf op zodra iemand omvalt.
+// RAW: at 0 HP you become Unconscious and thereby lose concentration. The
+// tracker therefore clears the field itself as soon as someone drops.
 function combatSyncConcentration(ent) {
   if (ent && ent.concentration && ent.currentHP <= 0) ent.concentration = '';
 }
-// HP-tier op basis van (current + temp) / max. Bepaalt de kleur van de HP-box:
-//   ok  : >50%  (groen)
-//   warn: 25–50% (oranje)
-//   crit: 0–25%  (rood)
+// HP tier based on (current + temp) / max. Determines the colour of the HP box:
+//   ok  : >50%  (green)
+//   warn: 25–50% (orange)
+//   crit: 0–25%  (red)
 //   ko  : <=0    (KO)
 function combatHpTier(ent) {
   const max = ent.maxHP > 0 ? ent.maxHP : 1;
@@ -282,7 +282,7 @@ function combatPortraitNode(ent, masked) {
   if (src) {
     const img = document.createElement('img');
     img.src = src; img.alt = '';
-    // PC-portretten volgen dezelfde profielfoto-uitsnede als overal (#fATDUg).
+    // PC portraits follow the same profile-photo crop as everywhere else (#fATDUg).
     if (!masked && ent.kind === 'pc' && ent.ref && typeof portraitCropStyle === 'function') {
       const cs = portraitCropStyle(loadPortraitCrop(ent.ref));
       if (cs) img.style.cssText += cs;
@@ -301,7 +301,7 @@ function combatInitialNode(name) {
   return s;
 }
 
-// Kleine stepper: [−] <input> [+]. onStep(delta), onSet(absoluteOrDelta).
+// Small stepper: [−] <input> [+]. onStep(delta), onSet(absoluteOrDelta).
 function combatStepper(value, cls, onDec, onInc, onCommit, placeholder) {
   const box = hEl('div', 'combat-stepper ' + (cls || ''));
   const dec = hEl('button', 'combat-step-btn', '−');
@@ -324,7 +324,7 @@ function combatStepper(value, cls, onDec, onInc, onCommit, placeholder) {
   return box;
 }
 
-// Bouw één cel-node voor een veld van een entity (gedeeld door normaal+transpose).
+// Build one cell node for a field of an entity (shared by normal+transpose).
 function combatCell(field, ent, widgetIdx) {
   if (field === 'portrait') {
     const c = hEl('div', 'combat-cell combat-cell-portrait');
@@ -341,9 +341,9 @@ function combatCell(field, ent, widgetIdx) {
       const v = inp.value.trim();
       if (v && v !== ent.name) mutateEncounter((enc) => { const t = enc.entities.find(x => x.id === ent.id); if (t) t.name = v; });
     });
-    // #P0huIQ1: de badge is voor alles behalve een PC een knop die door de
-    // soorten cyclet (familiar → npc → monster). Zo maak je een toegevoegd
-    // monster alsnog tot familiar zonder het opnieuw te moeten toevoegen.
+    // #P0huIQ1: for everything except a PC the badge is a button that cycles through the
+    // kinds (familiar → npc → monster). This lets you turn an already added
+    // monster into a familiar without having to add it again.
     const cycles = (ent.kind !== 'pc');
     const kind = hEl(cycles ? 'button' : 'span', 'combat-kind-badge combat-kind-' + ent.kind + (cycles ? ' is-cycle' : ''), combatKindLabel(ent.kind) || '');
     if (cycles) {
@@ -355,7 +355,7 @@ function combatCell(field, ent, widgetIdx) {
           const t = enc.entities.find(x => x.id === ent.id); if (!t) return;
           const i = WG_KIND_CYCLE.indexOf(t.kind);
           t.kind = WG_KIND_CYCLE[(i + 1) % WG_KIND_CYCLE.length];
-          // Een familiar hoort bij de partij → standaard zichtbaar maken.
+          // A familiar belongs to the party → make it visible by default.
           if (t.kind === 'familiar' && t.visibility === 'hidden') t.visibility = 'revealed';
         });
       });
@@ -366,9 +366,9 @@ function combatCell(field, ent, widgetIdx) {
     c.appendChild(inp); c.appendChild(meta);
     return c;
   }
-  // #P0ihGxA: concentration — vrije tekst met de spell waarop geconcentreerd
-  // wordt. Leeg = geen concentratie. De speler-tracker toont het badge-only,
-  // zodat de tafel ziet wie iets in de lucht houdt (en wat) zonder DM-rechten.
+  // #P0ihGxA: concentration — free text with the spell being concentrated on.
+  // Empty = no concentration. The player tracker shows it badge-only,
+  // so the table sees who is keeping something up (and what) without DM rights.
   if (field === 'conc') {
     const c = hEl('div', 'combat-cell combat-cell-conc');
     const inp = document.createElement('input');
@@ -473,7 +473,7 @@ function combatCell(field, ent, widgetIdx) {
 
 const WG_COMBAT_FIELDS = ['portrait', 'name', 'init', 'hp', 'ac', 'conc', 'vis', 'del'];
 
-// DM-tabel (volledige tracker).
+// DM table (full tracker).
 function combatBuildDmTable(root, enc, widgetIdx, transpose) {
   const sorted = combatSortEntities(enc.entities);
   const table = hEl('div', 'combat-table' + (transpose ? ' transposed' : ''));
@@ -487,8 +487,8 @@ function combatBuildDmTable(root, enc, widgetIdx, transpose) {
     WG_COMBAT_FIELDS.forEach(f => head.appendChild(hEl('div', 'combat-cell combat-head-cell combat-head-' + f, combatFieldLabel(f))));
     table.appendChild(head);
     sorted.forEach(ent => {
-      // KO (0 HP): monster-rij dimt (KO = goed nieuws voor de DM); pc/npc-rij
-      // valt juist op (KO van een bondgenoot is doorgaans slecht) — zónder amber.
+      // KO (0 HP): monster row dims (KO = good news for the DM); pc/npc row
+      // stands out instead (an ally KO is usually bad) — without amber.
       const ko = ent.currentHP <= 0;
       const koCls = ko ? (combatIsAlly(ent) ? ' combat-row-ko-ally' : ' combat-row-ko-monster') : '';
       const row = hEl('div', 'combat-row' + (enc.running && enc.activeId === ent.id ? ' is-active' : '') + koCls);
@@ -496,7 +496,7 @@ function combatBuildDmTable(root, enc, widgetIdx, transpose) {
       table.appendChild(row);
     });
   } else {
-    // Transpose: één rij per veld, één kolom per entity.
+    // Transpose: one row per field, one column per entity.
     WG_COMBAT_FIELDS.forEach(f => {
       const row = hEl('div', 'combat-row');
       row.appendChild(hEl('div', 'combat-cell combat-head-cell combat-head-' + f, combatFieldLabel(f)));
@@ -511,7 +511,7 @@ function combatBuildDmTable(root, enc, widgetIdx, transpose) {
   root.appendChild(table);
 }
 
-// Speler-variant: alleen niet-verborgen, portret+naam, op volgorde, actieve gemarkeerd.
+// Player variant: only non-hidden, portrait+name, in order, active one highlighted.
 function combatBuildPlayerList(root, enc, transpose) {
   const visible = combatSortEntities(enc.entities.filter(e => e.visibility !== 'hidden'));
   const list = hEl('div', 'combat-initiative' + (transpose ? ' horizontal' : ''));
@@ -528,9 +528,9 @@ function combatBuildPlayerList(root, enc, transpose) {
       + (masked ? ' masked' : '')
       + (ko && !masked ? (combatIsAlly(ent) ? ' ko-ally' : ' ko-monster') : ''));
 
-    // #P0ihGxA: de speler-tracker gaf alleen portret + naam terwijl de DM-tabel
-    // alles toont. Nu: initiatief, naam + soort, HP-status en concentratie.
-    // Een silhouet blijft volledig gemaskeerd — dat is de hele fog-of-war-functie.
+    // #P0ihGxA: the player tracker only showed portrait + name while the DM table
+    // shows everything. Now: initiative, name + kind, HP status and concentration.
+    // A silhouette stays fully masked — that is the whole fog-of-war function.
     item.appendChild(hEl('span', 'combat-init-order', ent.initiative == null ? '—' : String(ent.initiative)));
     item.appendChild(combatPortraitNode(ent, masked));
 
@@ -540,9 +540,9 @@ function combatBuildPlayerList(root, enc, transpose) {
     item.appendChild(idBlock);
 
     if (!masked) {
-      // HP: exacte cijfers alleen voor bondgenoten (die staan toch al op de
-      // character sheets van de tafel). Een monster geeft alleen zijn tier prijs,
-      // zodat de DM geen statblock weggeeft via de speler-widget.
+      // HP: exact numbers only for allies (they're already on the table's
+      // character sheets anyway). A monster only reveals its tier,
+      // so the DM doesn't give away a statblock via the player widget.
       const tier = combatHpTier(ent);
       const hpBox = hEl('span', 'combat-init-hp hp-' + tier);
       if (ent.kind === 'pc' || ent.kind === 'familiar') {
@@ -565,16 +565,16 @@ function combatBuildPlayerList(root, enc, transpose) {
   root.appendChild(list);
 }
 
-// Hoofd-render — aangeroepen door drawWidgetOnDashboard voor kind 'combat'.
+// Main render — called by drawWidgetOnDashboard for kind 'combat'.
 function drawCombatTable(g, widget, x, contentY, w, contentH, widgetIdx) {
   if (w <= 0 || contentH <= 0) return;
   const mode = combatMode(widget);
   const transpose = !!(widget.cfg && widget.cfg.transpose);
   const enc = getEncounter();
 
-  // Heel oude/placeholder PC-entities: warm de character-cache zodat naam +
-  // portret (combatDisplayName/Portrait) resolven. Guarded op WG_CHAR_STATUS
-  // zodat een 'loading'/'ready'/'error' niet elke render opnieuw fetcht.
+  // Very old/placeholder PC entities: warm the character cache so name +
+  // portrait (combatDisplayName/Portrait) resolve. Guarded on WG_CHAR_STATUS
+  // so a 'loading'/'ready'/'error' doesn't re-fetch on every render.
   if (typeof fetchCharacterData === 'function' && Array.isArray(enc.entities)) {
     enc.entities.forEach(e => {
       if (!e || e.kind !== 'pc' || !e.ref || WG_CHAR_CACHE[e.ref]) return;
@@ -589,7 +589,7 @@ function drawCombatTable(g, widget, x, contentY, w, contentH, widgetIdx) {
   root.setAttribute('xmlns', WG_XHTML_NS);
   root.className = 'combat-root combat-mode-' + mode + (widget._combatFits ? ' combat-fitted' : '');
   root.setAttribute('data-widget-idx', String(widgetIdx));
-  // Combat-interacties mogen de canvas-drag-arbiter niet triggeren.
+  // Combat interactions must not trigger the canvas drag arbiter.
   root.addEventListener('pointerdown', (e) => e.stopPropagation());
 
   // Header
@@ -691,7 +691,7 @@ function combatMeasureWidgets() {
   return changed;
 }
 
-// ---- Turn-control ----
+// ---- Turn control ----
 function combatToggleRunning() {
   mutateEncounter((enc) => {
     if (enc.running) { enc.running = false; enc.activeId = null; }
@@ -717,8 +717,8 @@ function combatAdvanceTurn(dir) {
   });
 }
 
-// Keyboard: ↑/↓ verschuift de beurt zolang er een lopend gevecht is en de focus
-// niet in een invoerveld zit. Eén keer binden.
+// Keyboard: ↑/↓ shifts the turn as long as a fight is running and the focus
+// is not in an input field. Bind once.
 let _combatKeysBound = false;
 function combatBindKeys() {
   if (_combatKeysBound) return;
@@ -727,7 +727,7 @@ function combatBindKeys() {
     if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
     const enc = getEncounter();
     if (!enc.running) return;
-    // Alleen actief als er een Combat Tracker (DM) op het dashboard staat.
+    // Only active if there is a Combat Tracker (DM) on the dashboard.
     if (typeof state === 'undefined' || state.context !== 'dm') return;
     const hasTracker = (state.widgets || []).some(w => w && w.type === 'combatTracker');
     if (!hasTracker) return;
@@ -740,7 +740,7 @@ function combatBindKeys() {
 combatBindKeys();
 
 // ===========================================================================
-//  Add-deelnemer paneel (in-page, geen pop-up — kloon van .map-edit-popover)
+//  Add-participant panel (in-page, no pop-up — clone of .map-edit-popover)
 // ===========================================================================
 let _combatAddPanelEl = null;
 let _combatAddTab = 'party';
@@ -759,8 +759,8 @@ function combatAddSources(tab) {
         name: cfg.name || raw.name || combatCapId(id),
         portrait: (raw.images && raw.images.portrait) || null,
         meta: WG_CHAR_STATUS[id] === 'ready' ? '' : ct('combat.loading'),
-        // ensure() haalt de character-data binnen vóór we snapshotten; make()
-        // bouwt daarna de entity uit de (nu warme) cache → correcte naam/portret/HP/AC.
+        // ensure() fetches the character data before we snapshot; make()
+        // then builds the entity from the (now warm) cache → correct name/portrait/HP/AC.
         ensure: () => combatEnsureChar(id),
         make: () => combatEntityFromCharacter(id),
       };
@@ -780,9 +780,9 @@ function combatAddSources(tab) {
   }
   let mons = [];
   try { if (typeof getLoreCatEntries === 'function') mons = getLoreCatEntries('monsters') || []; } catch (e) {}
-  // #OvywGWk: één Creatures-bron (lore-categorie 'monsters', incl. gemigreerde
-  // NPC's) i.p.v. aparte NPC- en monster-lijsten → geen dubbele namen meer.
-  // Default kind: vijandig = monster, anders npc; de DM kan 'm via de badge wisselen.
+  // #OvywGWk: one Creatures source (lore category 'monsters', incl. migrated
+  // NPCs) instead of separate NPC and monster lists → no more duplicate names.
+  // Default kind: hostile = monster, otherwise npc; the DM can switch it via the badge.
   if (tab === 'creatures') {
     return mons.filter(Boolean).map(m => ({
       key: m.id || m.name,
@@ -792,8 +792,8 @@ function combatAddSources(tab) {
       make: () => (m.disposition === 'hostile') ? combatEntityFromMonster(m, 'monster') : combatEntityFromNpc(m),
     }));
   }
-  // familiars: zelfde statblok-bron, alleen kind 'familiar'. Zo kun je een Owl
-  // of Imp als familiar aan het initiatief toevoegen zonder aparte data-invoer.
+  // familiars: same statblock source, only kind 'familiar'. This lets you add an Owl
+  // or Imp as a familiar to the initiative without separate data entry.
   const asFamiliar = (tab === 'familiars');
   return mons.filter(Boolean).map(m => ({
     key: m.id || m.name,
@@ -814,8 +814,8 @@ function showCombatAddPanel(clientX, clientY) {
   [['party', ct('combat.tab.party')], ['familiars', ct('combat.tab.familiars')], ['creatures', ct('combat.tab.creatures')], ['srd', ct('combat.tab.srd')]].forEach(([id, label]) => {
     const b = hEl('button', 'combat-add-tab' + (_combatAddTab === id ? ' active' : ''), label);
     b.dataset.tab = id;
-    // Actief-markering op de tab-id, niet op het label: twee tabs kunnen in een
-    // vertaling dezelfde tekst krijgen en dan zou de vergelijking omvallen.
+    // Active marking on the tab id, not on the label: two tabs can get the same text
+    // in a translation and then the comparison would break.
     b.addEventListener('click', (e) => { e.stopPropagation(); _combatAddTab = id; renderList(); pop.querySelectorAll('.combat-add-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id)); });
     tabs.appendChild(b);
   });
@@ -861,10 +861,10 @@ function showCombatAddPanel(clientX, clientY) {
       if (src.meta) row.appendChild(hEl('span', 'combat-add-meta', src.meta));
       row.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (row._adding) return;          // dubbelklik-guard tijdens async fetch
+        if (row._adding) return;          // double-click guard during async fetch
         row._adding = true;
         try {
-          // Eerst eventuele data binnenhalen (party-chars) zodat de snapshot klopt.
+          // First fetch any data (party chars) so the snapshot is correct.
           if (typeof src.ensure === 'function') {
             row.classList.add('loading');
             await src.ensure();
@@ -891,8 +891,8 @@ function showCombatAddPanel(clientX, clientY) {
   foot.appendChild(close);
   pop.appendChild(foot);
 
-  // De .map-edit-popover styles zijn @scope (.character-page); hang het paneel
-  // dáárin zodat de styling pakt (body-niveau zou ongestyled zijn).
+  // The .map-edit-popover styles are @scope (.character-page); attach the panel
+  // inside it so the styling applies (body level would be unstyled).
   const scopeRoot = document.querySelector('.character-page') || document.body;
   scopeRoot.appendChild(pop);
   _combatAddPanelEl = pop;

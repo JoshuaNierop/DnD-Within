@@ -210,7 +210,7 @@ function getCampaigns() {
             camps[cid].inviteCode = generateInviteCode();
             needsSave = true;
         }
-        // Agenda-feature: seed de agenda eenmalig uit het bestaande nextSession-veld.
+        // Agenda feature: seed the agenda once from the existing nextSession field.
         if (!Array.isArray(camps[cid].agenda)) {
             camps[cid].agenda = camps[cid].nextSession
                 ? [{ id: 'sess' + Date.now() + Math.floor(Math.random() * 1000), datetime: camps[cid].nextSession, title: '', notes: '' }]
@@ -249,25 +249,25 @@ function saveCampaigns(campaigns) {
 
 // --- Session Agenda (per campaign) ----------------------------------------
 // camp.agenda = [{ id, datetime (datetime-local "YYYY-MM-DDTHH:mm"), title, notes }]
-// nextSession blijft afgeleid (vroegste toekomstige sessie) zodat bestaande
-// weergaves blijven werken. #Ovv3O3E / agenda-feature.
+// nextSession stays derived (earliest future session) so existing
+// views keep working. #Ovv3O3E / agenda feature.
 function _nowLocalIso() {
     var d = new Date();
     var p = function (n) { return (n < 10 ? '0' : '') + n; };
     return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
 }
-// Alle agenda-items met een datum, chronologisch gesorteerd (oplopend).
+// All agenda items with a date, sorted chronologically (ascending).
 function campaignAgenda(camp) {
     if (!camp || !Array.isArray(camp.agenda)) return [];
     return camp.agenda.filter(function (s) { return s && s.datetime; })
         .slice().sort(function (a, b) { return a.datetime < b.datetime ? -1 : (a.datetime > b.datetime ? 1 : 0); });
 }
-// Alleen toekomstige sessies (>= nu).
+// Future sessions only (>= now).
 function campaignUpcoming(camp) {
     var now = _nowLocalIso();
     return campaignAgenda(camp).filter(function (s) { return s.datetime >= now; });
 }
-// Afgeleide "volgende sessie" = vroegste toekomstige; leeg als alles in verleden.
+// Derived "next session" = earliest future one; empty if all are in the past.
 function deriveNextSession(camp) {
     var up = campaignUpcoming(camp);
     return up.length ? up[0].datetime : '';
@@ -440,10 +440,10 @@ function saveCharConfigField(charId, field, value) {
 
 var ABILITY_BONUS_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 
-// #P0hvu6q — Canonieke afspraak: config.baseAbilities BEVAT de background-bonus.
-// De legacy characters in SEED_DATA staan zo opgeslagen (Ren: array 15 + Criminal
-// +2 = dex 17) en engine.js rekent er ook zo mee. De wizard-editor werkt met de
-// kale scores; deze twee helpers vertalen heen en weer.
+// #P0hvu6q — Canonical convention: config.baseAbilities INCLUDES the background bonus.
+// The legacy characters in SEED_DATA are stored this way (Ren: array 15 + Criminal
+// +2 = dex 17) and engine.js computes with it that way too. The wizard editor works with the
+// bare scores; these two helpers translate back and forth.
 function applyBgBonusesToAbilities(abilities, bonuses) {
     var out = Object.assign({}, abilities || {});
     var bb = bonuses || {};
@@ -462,14 +462,14 @@ function stripBgBonusesFromAbilities(abilities, bonuses) {
     return out;
 }
 
-// Eenmalige reparatie van characters die vóór de fix door de wizard zijn gemaakt:
-// die schreven de KALE scores weg, waardoor de +2/+1 van het background nergens
-// meer meetelde. Discriminator: `abilityMethod` wordt uitsluitend door de wizard
-// geschreven (SEED_DATA heeft het veld niet), `abilityBonusApplied` zet de wizard
-// sinds de fix. Beide condities samen = precies de kapotte groep.
+// One-time repair of characters created by the wizard before the fix:
+// they wrote the BARE scores, so the +2/+1 of the background no longer counted
+// anywhere. Discriminator: `abilityMethod` is written exclusively by the wizard
+// (SEED_DATA doesn't have the field), `abilityBonusApplied` is set by the wizard
+// since the fix. Both conditions together = exactly the broken group.
 function migrateCharConfigAbilities(charId, config) {
     if (!config || config.abilityBonusApplied) return config;
-    if (!config.abilityMethod) return config;      // legacy/seed: bonus zit er al in
+    if (!config.abilityMethod) return config;      // legacy/seed: bonus is already included
     var bb = config.backgroundBonuses;
     if (!bb) { config.abilityBonusApplied = true; return config; }
     config.baseAbilities = applyBgBonusesToAbilities(config.baseAbilities, bb);
@@ -500,9 +500,9 @@ function loadImage(charId, type) {
     return localStorage.getItem('dw_img_' + charId + '_' + type) || '';
 }
 
-// #fATDUg: portret-uitsnede (focal {x,y} 0-100 + zoom>=1). Canoniek in Firebase
-// onder /dw/characters/{id}/images/portraitCrop (zo leest het widget het via
-// WG_CHAR_CACHE); een localStorage-mirror geeft de wizard een sync-read.
+// #fATDUg: portrait crop (focal {x,y} 0-100 + zoom>=1). Canonical in Firebase
+// under /dw/characters/{id}/images/portraitCrop (that's how the widget reads it via
+// WG_CHAR_CACHE); a localStorage mirror gives the wizard a sync read.
 function loadPortraitCrop(charId) {
     try {
         if (typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[charId] &&
@@ -511,10 +511,10 @@ function loadPortraitCrop(charId) {
         }
     } catch (_) {}
     try {
-        // dw_imgcrop_* = lokale sync-mirror (geschreven door savePortraitCrop op dit
-        // device). dw_img_<id>_portraitCrop = de Firebase→localStorage down-sync
-        // (sync.js mapt images/portraitCrop hierheen) — dit maakt de uitsnede van
-        // élk gesynct character leesbaar, ook in lijst/combat op een ander device.
+        // dw_imgcrop_* = local sync mirror (written by savePortraitCrop on this
+        // device). dw_img_<id>_portraitCrop = the Firebase→localStorage down-sync
+        // (sync.js maps images/portraitCrop to it) — this makes the crop of
+        // EVERY synced character readable, also in list/combat on another device.
         var s = localStorage.getItem('dw_imgcrop_' + charId + '_portrait')
              || localStorage.getItem('dw_img_' + charId + '_portraitCrop');
         if (s) return JSON.parse(s);
@@ -522,11 +522,11 @@ function loadPortraitCrop(charId) {
     return null;
 }
 
-// #fATDUg: vertaalt een opgeslagen portret-uitsnede (focal {x,y} 0-100 + zoom>=1)
-// naar een inline-style voor een <img> die zijn box vult via object-fit:cover binnen
-// een overflow:hidden container. object-position plaatst het focal-punt; transform
-// scale(z) (met dezelfde origin) zoomt eromheen. Dit reproduceert exact dezelfde
-// crop als het SVG-dashboard-widget, zodat de profielfoto overal identiek oogt.
+// #fATDUg: translates a stored portrait crop (focal {x,y} 0-100 + zoom>=1)
+// into an inline style for an <img> that fills its box via object-fit:cover inside
+// an overflow:hidden container. object-position places the focal point; transform
+// scale(z) (with the same origin) zooms around it. This reproduces exactly the same
+// crop as the SVG dashboard widget, so the profile photo looks identical everywhere.
 function portraitCropStyle(crop) {
     if (!crop) return '';
     var x = (crop.x == null ? 50 : crop.x);
@@ -933,9 +933,9 @@ function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Data-localize (#aftET9): game-data velden mogen óf een kale string (legacy NL),
-// óf een {nl, en}-object zijn. Geeft de string in de actieve taal terug, met NL
-// als canonieke fallback. Backward-compatible: ongemigreerde string-data blijft werken.
+// Data-localize (#aftET9): game-data fields may be either a bare string (legacy NL),
+// or a {nl, en} object. Returns the string in the active language, with NL
+// as canonical fallback. Backward-compatible: unmigrated string data keeps working.
 function dloc(value) {
     if (value == null) return '';
     if (typeof value === 'string') return value;
@@ -1008,15 +1008,15 @@ function subclassKeyFromName(name) {
 }
 
 function hasSpellcasting(className, subclass) {
-    // #P0hwaBZ: fighter/rogue zijn geen casters, MAAR Eldritch Knight en Arcane
-    // Trickster wel (vanaf level 3). Zonder de subclass-check bleef de hele
-    // spell-UI verborgen voor die twee.
+    // #P0hwaBZ: fighter/rogue are not casters, BUT Eldritch Knight and Arcane
+    // Trickster are (from level 3). Without the subclass check the whole
+    // spell UI stayed hidden for those two.
     if (typeof isThirdCaster === 'function' && isThirdCaster(className, subclass)) return true;
     return ['sorcerer', 'wizard', 'druid', 'ranger', 'paladin', 'warlock', 'bard', 'cleric'].indexOf(className) !== -1;
 }
 
-// Vanaf welk class-level begint de spellcasting? Third casters krijgen hun
-// subclass (en daarmee spells) op level 3; de rest staat in data.js.
+// From which class level does spellcasting start? Third casters get their
+// subclass (and with it spells) at level 3; the rest is in data.js.
 function getSpellcastingStart(className, subclass) {
     if (typeof isThirdCaster === 'function' && isThirdCaster(className, subclass)) return 3;
     var cd = DATA[className];
@@ -1142,9 +1142,9 @@ function getCharacterIds(ignoreCampaign) {
     });
 }
 
-// Sorteer character-ids op weergavenaam. De namen zijn "Voornaam Achternaam",
-// dus alfabetisch op de volledige naam = voornaam-eerst (niet op achternaam).
-// Fallback op het id wanneer een character (nog) geen naam heeft.
+// Sort character ids by display name. The names are "First Last",
+// so alphabetical on the full name = first name first (not by surname).
+// Falls back to the id when a character has no name (yet).
 function sortCharIdsByName(ids) {
     return ids.slice().sort(function(a, b) {
         var na = (loadCharConfig(a) || {}).name || a;
@@ -1161,7 +1161,7 @@ function getMyCharacterIds() {
     });
 }
 
-// ===== Character-prullenbak (#4) — soft-delete met 7-daagse retentie =====
+// ===== Character trash bin (#4) — soft-delete with 7-day retention =====
 var CHAR_TRASH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 function getCharTrash() {
@@ -1175,8 +1175,8 @@ function saveCharTrash(trash) {
 function isCharTrashed(charId) {
     return !!getCharTrash()[charId];
 }
-// Verplaats een character naar de prullenbak: weg uit de characters-lijst van de
-// eigenaar, config/state blijven bewaard voor herstel.
+// Move a character to the trash bin: removed from the owner's characters list,
+// config/state are kept for restore.
 function deleteCharacterToTrash(charId) {
     var cfg = loadCharConfig(charId);
     if (!cfg) return false;
@@ -1205,7 +1205,7 @@ function deleteCharacterToTrash(charId) {
     saveCharTrash(trash);
     return true;
 }
-// Herstel een character uit de prullenbak terug naar de eigenaar.
+// Restore a character from the trash bin back to the owner.
 function restoreCharacterFromTrash(charId) {
     var trash = getCharTrash();
     var entry = trash[charId];
@@ -1235,7 +1235,7 @@ function restoreCharacterFromTrash(charId) {
     saveCharTrash(trash);
     return true;
 }
-// Definitief verwijderen: config, state, images, whispers, notes.
+// Delete permanently: config, state, images, whispers, notes.
 function hardDeleteCharacter(charId) {
     var keys = ['dw_charconfig_' + charId, 'dw_char_' + charId,
                 'dw_img_' + charId + '_portrait', 'dw_img_' + charId + '_banner',
@@ -1245,7 +1245,7 @@ function hardDeleteCharacter(charId) {
         if (typeof syncRemove === 'function') syncRemove(k);
     });
 }
-// Ruim prullenbak-items op die ouder zijn dan de retentie (7 dagen).
+// Clean up trash bin items older than the retention (7 days).
 function purgeExpiredCharTrash() {
     var trash = getCharTrash();
     var now = Date.now();

@@ -234,16 +234,16 @@ function initWizardState() {
         appearance: '',
         personality: { traits: '', ideal: '', bond: '', flaw: '' },
         backstory: '',
-        // HP: leeg = auto. hpMaxOverride leeg → afgeleide max (getHP). hpCurrent
-        // leeg → start op (effectieve) max. hpTemp leeg → 0.
+        // HP: empty = auto. hpMaxOverride empty → derived max (getHP). hpCurrent
+        // empty → starts at (effective) max. hpTemp empty → 0.
         hpMaxOverride: '',
         hpCurrent: '',
         hpTemp: ''
     };
 }
 
-// Effectieve/afgeleide max HP voor de wizard-preview. Bouwt een mini-config +
-// -state uit wizardState en leunt op de engine (getHP/getMaxHP).
+// Effective/derived max HP for the wizard preview. Builds a mini config +
+// state from wizardState and relies on the engine (getHP/getMaxHP).
 function wizardDerivedMaxHP() {
     var cfg = {
         className: wizardState.className,
@@ -261,7 +261,7 @@ function wizardDerivedMaxHP() {
     var con = (wizardState.baseAbilities && wizardState.baseAbilities.con) || 10;
     return 10 + Math.floor((con - 10) / 2);
 }
-// Wat het character als max HP krijgt (override wint als positief getal).
+// What max HP the character gets (override wins if a positive number).
 function wizardEffectiveMaxHP() {
     var ov = parseInt(wizardState.hpMaxOverride, 10);
     if (!isNaN(ov) && ov > 0) return ov;
@@ -273,9 +273,9 @@ function getWizardRaces() {
     return raceKeys.filter(function(r) { return DATA[r] && !DATA[r].legacy; });
 }
 
-// 2024 PHB species → bestaande platte DATA-race-keys. Elf is één soort met drie
-// lineages (Wood/High/Drow); de overige soorten mappen 1-op-1. config.race blijft
-// altijd een platte DATA-key (woodElf/human/…) zodat geen enkele reader breekt.
+// 2024 PHB species → existing flat DATA race keys. Elf is one species with three
+// lineages (Wood/High/Drow); the other species map 1-to-1. config.race always
+// stays a flat DATA key (woodElf/human/…) so no reader breaks.
 var WIZARD_SPECIES = {
     aasimar: [], dragonborn: [], dwarf: [],
     elf: ['woodElf', 'highElf', 'drow'],
@@ -292,7 +292,7 @@ function speciesDisplayName(sp) {
     if (sp === 'elf') return 'Elf';
     return raceDisplayName(sp);
 }
-// Reverse: van een platte race-key naar de bijbehorende species-key (voor edit-modus).
+// Reverse: from a flat race key to the matching species key (for edit mode).
 function speciesFromRaceKey(raceKey) {
     if (!raceKey) return '';
     if (WIZARD_SPECIES[raceKey]) return raceKey;
@@ -308,8 +308,8 @@ function getWizardClasses() {
     return classKeys.filter(function(c) { return DATA[c] && DATA[c].hitDie; });
 }
 
-// Primaire ability score(s) per class (2024 PHB "Primary Ability"-regel). Wordt
-// gebruikt om in de wizard te tonen welke stats belangrijk zijn (#kbowMj).
+// Primary ability score(s) per class (2024 PHB "Primary Ability" rule). Used
+// to show in the wizard which stats are important (#kbowMj).
 var CLASS_PRIMARY_ABILITY = {
     barbarian: ['str'], bard: ['cha'], cleric: ['wis'], druid: ['wis'],
     fighter: ['str', 'dex'], monk: ['dex', 'wis'], paladin: ['str', 'cha'],
@@ -320,10 +320,10 @@ function classPrimaryAbilities(className) {
     return CLASS_PRIMARY_ABILITY[className] || [];
 }
 
-// Volledige ability-prioriteit per class (1e → 6e), waarmee de "Suggested"-knop
-// het standard array [15,14,13,12,10,8] toewijst zoals D&D het aanraadt: de
-// primaire ability(s) eerst, daarna CON voor overleving (lager bij casters) en
-// de rest aflopend. Een suggestie — speler kan altijd handmatig herschikken.
+// Full ability priority per class (1st → 6th), with which the "Suggested" button
+// assigns the standard array [15,14,13,12,10,8] as D&D recommends: the
+// primary ability(ies) first, then CON for survival (lower for casters) and
+// the rest descending. A suggestion — the player can always rearrange manually.
 var CLASS_ABILITY_PRIORITY = {
     barbarian: ['str', 'con', 'dex', 'wis', 'cha', 'int'],
     bard:      ['cha', 'dex', 'con', 'wis', 'int', 'str'],
@@ -339,8 +339,8 @@ var CLASS_ABILITY_PRIORITY = {
     wizard:    ['int', 'con', 'dex', 'wis', 'cha', 'str']
 };
 
-// Geeft een {ability: score}-map volgens de class-prioriteit; valt terug op de
-// ABILITY_KEYS-volgorde voor onbekende classes.
+// Returns an {ability: score} map per the class priority; falls back to the
+// ABILITY_KEYS order for unknown classes.
 function wizardSuggestedArray(className) {
     var order = CLASS_ABILITY_PRIORITY[className] || ABILITY_KEYS.slice();
     var out = {};
@@ -350,8 +350,8 @@ function wizardSuggestedArray(className) {
     return out;
 }
 
-// Ability-score generatie (2024 PHB). Standard array vrij toewijsbaar; point-buy
-// 27 punten, scores 8-15 met onderstaande kostentabel (#bij5sk).
+// Ability-score generation (2024 PHB). Standard array freely assignable; point-buy
+// 27 points, scores 8-15 with the cost table below (#bij5sk).
 var STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
 var POINTBUY_COST = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
 var POINTBUY_BUDGET = 27;
@@ -364,8 +364,8 @@ function pointBuySpent() {
     });
     return s;
 }
-// Bouwt het ability-score-blok van step2 met method-switch (handmatig/array/point-buy)
-// + primaire-stat highlight (#bij5sk, #kbowMj).
+// Builds the ability-score block of step2 with method switch (manual/array/point-buy)
+// + primary-stat highlight (#bij5sk, #kbowMj).
 function renderWizardAbilityScores() {
     var method = wizardState.abilityMethod || 'manual';
     var prim = classPrimaryAbilities(wizardState.className);
@@ -443,9 +443,9 @@ function getWizardSubclasses(className) {
     });
 }
 
-// Effectief character-level binnen de wizard. Nieuw character = level 1; bij edit
-// het opgeslagen level. 2024 PHB: subclass kies je pas op level 3, dus onder level
-// 3 hoort er nergens een subclass getoond of geselecteerd te zijn (#vXF9qQ).
+// Effective character level within the wizard. New character = level 1; on edit
+// the saved level. 2024 PHB: you only pick a subclass at level 3, so below level
+// 3 no subclass should be shown or selected anywhere (#vXF9qQ).
 function wizardCharLevel() {
     if (!wizardState || !wizardState.editId) return 1;
     var st = (typeof loadCharState === 'function' && loadCharState(wizardState.editId)) || {};
@@ -496,9 +496,9 @@ function renderWizardModal() {
     html += '<div class="wizard-sidebar">';
     html += '<div class="wizard-sidebar-title">' + t('wizard.step.summary') + '</div>';
     var sidebarColor = wizardState.accentColor || 'var(--accent)';
-    // Portret-upload (#5Y8aZh): label wraps a hidden file input → de hele cirkel
-    // is een tap-target. Base64 leeft in wizardState.portrait (overleeft de
-    // refreshWizard re-render); de Cloudinary-upload gebeurt pas bij character-save.
+    // Portrait upload (#5Y8aZh): label wraps a hidden file input → the whole circle
+    // is a tap target. Base64 lives in wizardState.portrait (survives the
+    // refreshWizard re-render); the Cloudinary upload only happens on character save.
     html += '<div class="wizard-portrait-wrap">';
     html += '<label class="wizard-sidebar-portrait" style="border-color:' + sidebarColor + '">';
     if (wizardState.portrait) {
@@ -509,8 +509,8 @@ function renderWizardModal() {
     html += '<span class="wizard-portrait-overlay" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Zm0-8.2h2.3l1.2-1.6h2.8A1.7 1.7 0 0 1 22 6.8v10.4A1.7 1.7 0 0 1 20.3 19H3.7A1.7 1.7 0 0 1 2 17.2V6.8A1.7 1.7 0 0 1 3.7 5h2.8L7.7 3H12Z"/></svg></span>';
     html += '<input type="file" accept="image/*" class="wizard-portrait-input" aria-label="Upload portrait" data-action="upload-wizard-portrait">';
     html += '</label>';
-    // Crop-knop (#fATDUg): alleen tonen als er een portret is; buiten het <label>
-    // zodat een klik niet de file-picker triggert.
+    // Crop button (#fATDUg): only show when there is a portrait; outside the <label>
+    // so a click doesn't trigger the file picker.
     if (wizardState.portrait) {
         html += '<button type="button" class="portrait-crop-btn" data-action="crop-wizard-portrait" title="Crop" aria-label="Crop portrait"><svg viewBox="0 0 24 24"><path d="M7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7V7z M17 15h2V7c0-1.1-.9-2-2-2H9v2h8z"/></svg></button>';
     }
@@ -548,7 +548,7 @@ function renderWizardModal() {
             + '</div>';
     }
     html += '</div>';
-    // HP-samenvatting (alleen zinvol zodra klasse gekozen is)
+    // HP summary (only meaningful once a class is chosen)
     if (wizardState.className) {
         var sbMax = wizardEffectiveMaxHP();
         var sbOver = (parseInt(wizardState.hpMaxOverride, 10) > 0);
@@ -567,7 +567,7 @@ function renderWizardModal() {
 
     html += '</div>'; // wizard-body
 
-    // Navigation buttons — Prev op step 1 = Cancel (sluit wizard)
+    // Navigation buttons — Prev on step 1 = Cancel (closes wizard)
     html += '<div class="wizard-nav">';
     if (step > 1) {
         html += '<button class="btn btn-ghost" data-action="wizard-prev">' + t('wizard.prev') + '</button>';
@@ -595,8 +595,8 @@ function renderWizardStep1() {
     html += '<input type="text" class="wizard-input" id="wizard-name" value="' + escapeAttr(wizardState.name) + '" placeholder="' + t('wizard.name.plh') + '">';
     html += '</div>';
 
-    // Soort (species) + optionele lineage/subras (#OdBL9u). Elf is één soort met
-    // een verplichte lineage-keuze; andere soorten mappen direct op een race-key.
+    // Species + optional lineage/subrace (#OdBL9u). Elf is one species with
+    // a mandatory lineage choice; other species map directly to a race key.
     var speciesKeys = getWizardSpeciesKeys();
     var curSpecies = wizardState.species || speciesFromRaceKey(wizardState.race);
     var curLineages = (curSpecies && WIZARD_SPECIES[curSpecies]) ? WIZARD_SPECIES[curSpecies] : [];
@@ -664,9 +664,9 @@ function renderWizardStep1() {
         }
         html += '<p class="wizard-detail"><strong>Hit Die:</strong> d' + classData.hitDie + '</p>';
         html += '<p class="wizard-detail"><strong>Saving Throws:</strong> ' + classData.savingThrows.map(function(s) { return s.toUpperCase(); }).join(', ') + '</p>';
-        // #Ovv0gie: baseer Yes/No op een echte caster-predicate i.p.v. enkel
-        // cantripsKnown — half-casters (Paladin/Ranger) hebben geen L1-cantrips
-        // maar zijn wél spellcasters (vanaf hun spellcastingStart-level).
+        // #Ovv0gie: base Yes/No on a real caster predicate instead of only
+        // cantripsKnown — half-casters (Paladin/Ranger) have no L1 cantrips
+        // but are spellcasters (from their spellcastingStart level).
         var isCaster = (typeof hasSpellcasting === 'function') && hasSpellcasting(wizardState.className, wizardState.subclass);
         if (isCaster) {
             var startLvl = (typeof getSpellcastingStart === 'function')
@@ -756,9 +756,9 @@ function renderWizardStep2() {
         html += '<p class="wizard-detail"><strong>Skills:</strong> ' + bg.skills.join(', ') + '</p>';
         html += '<p class="wizard-detail"><strong>Tool:</strong> ' + bg.tool + '</p>';
         html += '<p class="wizard-detail"><strong>Feat:</strong> ' + bg.feat + '</p>';
-        // #Ovv13Yv: dit is de read-only background-bonusinfo, NIET de score-editor.
-        // Herlabeld zodat het niet leest als "stel hier je scores in" (de echte
-        // editor — handmatig/array/point-buy — staat eronder via renderWizardAbilityScores).
+        // #Ovv13Yv: this is the read-only background bonus info, NOT the score editor.
+        // Relabeled so it doesn't read as "set your scores here" (the real
+        // editor — manual/array/point-buy — is below via renderWizardAbilityScores).
         html += '<p class="wizard-detail"><strong>Ability boosts:</strong> +2 / +1 to ' + bg.abilityScores.join(' / ') + ' (set your scores below)</p>';
 
         // Background bonus distribution
@@ -798,7 +798,7 @@ function renderWizardStep2() {
     }
     html += '</div>';
 
-    // Ability Scores — method-switch (handmatig / standaard array / point-buy)
+    // Ability Scores — method switch (manual / standard array / point-buy)
     html += renderWizardAbilityScores();
 
     return html;
@@ -807,9 +807,9 @@ function renderWizardStep2() {
 function renderWizardStep3() {
     var html = '<h3 class="wizard-step-title">' + t('wizard.step.details') + '</h3>';
 
-    // Subclass — 2024 PHB: je kiest je subclass pas op level 3 (#vXF9qQ). De wizard
-    // maakt level-1 characters, dus de keuze alleen tonen bij het bewerken van een
-    // character dat al level 3+ is.
+    // Subclass — 2024 PHB: you only pick your subclass at level 3 (#vXF9qQ). The wizard
+    // creates level-1 characters, so only show the choice when editing a
+    // character that is already level 3+.
     var wizLevel = wizardCharLevel();
     if (wizardState.className && wizLevel >= 3) {
         var subclasses = getWizardSubclasses(wizardState.className);
@@ -846,14 +846,14 @@ function renderWizardStep3() {
     html += '<input type="number" class="wizard-input wizard-input-sm" id="wizard-age" value="' + (wizardState.age || '') + '" min="1" max="999" placeholder="' + t('wizard.age.label') + '">';
     html += '</div>';
 
-    // Hit Points — afgeleide max (klasse + CON + level) met optionele override.
-    // Current/Temp defaulten op vol; bij edit voorgevuld uit state.hp.
+    // Hit Points — derived max (class + CON + level) with optional override.
+    // Current/Temp default to full; on edit prefilled from state.hp.
     var derivedMax = wizardDerivedMaxHP();
     var effMax = wizardEffectiveMaxHP();
     html += '<div class="wizard-field wizard-hp">';
     html += '<label class="wizard-label">Hit Points</label>';
     html += '<div class="wizard-hp-grid">';
-    // Max (afgeleid, read-only) + override
+    // Max (derived, read-only) + override
     html += '<div class="wizard-hp-cell">';
     html += '<span class="wizard-hp-sub">Max (afgeleid)</span>';
     html += '<span class="wizard-hp-derived" id="wizard-hp-derived">' + derivedMax + '</span>';
@@ -874,10 +874,10 @@ function renderWizardStep3() {
     html += '<p class="wizard-hint">Max is calculated automatically from class, CON and level. Only use Override for rolled/homebrew HP. Leave Current/Temp empty for full HP.</p>';
     html += '</div>';
 
-    // Accent Color verwijderd uit de wizard (#YAJBUH): per-character kleur hoort niet
-    // in de creation/edit-flow. Bestaande waarde blijft behouden (edit laadt+bewaart
-    // cfg.accentColor); nieuwe characters krijgen de default. Globaal thema staat in
-    // de algemene settings (settings-select-theme).
+    // Accent Color removed from the wizard (#YAJBUH): per-character color doesn't belong
+    // in the creation/edit flow. Existing value is preserved (edit loads+saves
+    // cfg.accentColor); new characters get the default. Global theme is in
+    // the general settings (settings-select-theme).
 
     return html;
 }
@@ -897,17 +897,17 @@ function renderWizardStep4() {
     // All skills list for "any"
     var allSkills = ["acrobatics", "animal handling", "arcana", "athletics", "deception", "history", "insight", "intimidation", "investigation", "medicine", "nature", "perception", "performance", "persuasion", "religion", "sleight of hand", "stealth", "survival"];
 
-    // 2024 PHB: een background geeft 2 VASTE skills + een Origin Feat. Deze staan
-    // los van de class-skill-keuzes en zijn niet kiesbaar. We tonen ze als
-    // "granted" en sluiten ze uit van de class-lijst zodat je geen duplicaat kiest
-    // (overlap-regel) en het keuzebudget niet wordt opgegeten.
+    // 2024 PHB: a background gives 2 FIXED skills + an Origin Feat. These are
+    // separate from the class skill choices and are not selectable. We show them as
+    // "granted" and exclude them from the class list so you can't pick a duplicate
+    // (overlap rule) and the choice budget isn't eaten up.
     var bgData = wizardState.background ? DATA.backgrounds[wizardState.background] : null;
     var bgSkills = bgData && bgData.skills ? bgData.skills.map(function (s) { return s.toLowerCase(); }) : [];
 
     var availableSkills = (skillOpts.indexOf("any") !== -1 ? allSkills : skillOpts)
         .filter(function (s) { return bgSkills.indexOf(s) === -1; });
 
-    // Granted-sectie (background skills + tool + origin feat).
+    // Granted section (background skills + tool + origin feat).
     if (bgData) {
         html += '<div class="wizard-field wizard-granted">';
         html += '<label class="wizard-label">From your background (granted)</label>';
@@ -924,10 +924,10 @@ function renderWizardStep4() {
         html += '</div>';
     }
 
-    // Budget telt alleen skills die uit déze class-lijst komen. Background-skills
-    // (vast toegekend, en bij edit-modus al in wizardState.skills geladen) mogen het
-    // class-keuzebudget niet opeten — anders kon je er minder kiezen dan het label
-    // zegt (#klopt-aantal / "kan er maar 1 selecteren").
+    // Budget only counts skills that come from THIS class list. Background skills
+    // (fixed grants, and in edit mode already loaded into wizardState.skills) must not eat the
+    // class choice budget — otherwise you could pick fewer than the label
+    // says (#klopt-aantal / "can only select 1").
     var classChosenCount = wizardState.skills.filter(function (s) {
         return availableSkills.indexOf(s) !== -1;
     }).length;
@@ -971,9 +971,9 @@ function renderWizardStep4() {
     }
 
     // Level-1 spell selection for spellcasters (#6). 2024: full casters prepare from
-    // their list; count = spellcasting-ability mod + level (zie getMaxPrepared, zodat
-    // de wizard exact matcht met het spell-prep scherm). Half casters (paladin/ranger)
-    // krijgen pas spells vanaf level 2 → overslaan. Geen L1-spell-data → overslaan.
+    // their list; count = spellcasting-ability mod + level (see getMaxPrepared, so
+    // the wizard matches the spell-prep screen exactly). Half casters (paladin/ranger)
+    // only get spells from level 2 → skip. No L1 spell data → skip.
     var listClass = (typeof getSpellListClass === 'function')
         ? getSpellListClass(wizardState.className, wizardState.subclass) : wizardState.className;
     var spellLevel1 = getSpellsForLevel(listClass, 1);
@@ -1091,7 +1091,7 @@ function renderWizardStep6() {
     if (wizardState.age) html += '<p><strong>Age:</strong> ' + wizardState.age + '</p>';
     html += '</div>';
 
-    // Skills — class-keuzes + vaste background-skills (2024), deduped.
+    // Skills — class choices + fixed background skills (2024), deduped.
     var sumBgSkills = sumBg && sumBg.skills ? sumBg.skills.map(function (s) { return s.toLowerCase(); }) : [];
     var allChosenSkills = wizardState.skills.slice();
     sumBgSkills.forEach(function (s) { if (allChosenSkills.indexOf(s) === -1) allChosenSkills.push(s); });
@@ -1135,10 +1135,10 @@ function calcBgBonuses() {
     return bonuses;
 }
 
-// Opbouw van een ability-waarde voor de summary: standaard-array basewaarde +
-// verdeelde background-bonus = totaal. Levert ook de tooltip-tekst (title/body)
-// die het custom tooltip-systeem (wg-events.js, document-breed op data-tip-*)
-// oppikt — zo zie je bij hover/long-press hoe de waarde is opgebouwd.
+// Breakdown of an ability value for the summary: standard-array base value +
+// assigned background bonus = total. Also returns the tooltip text (title/body)
+// that the custom tooltip system (wg-events.js, document-wide on data-tip-*)
+// picks up — so on hover/long-press you see how the value is built up.
 function abilityBreakdown(ab) {
     var base = wizardState.baseAbilities[ab] || 0;
     var bonus = calcBgBonuses()[ab] || 0;
@@ -1222,7 +1222,7 @@ function createCharacterFromWizard() {
         return false;
     }
 
-    // Ability-score validatie per methode (#bij5sk).
+    // Ability-score validation per method (#bij5sk).
     if (wizardState.abilityMethod === 'array') {
         var got = ABILITY_KEYS.map(function (a) { return wizardState.baseAbilities[a]; }).sort(function (x, y) { return x - y; });
         var want = STANDARD_ARRAY.slice().sort(function (x, y) { return x - y; });
@@ -1238,16 +1238,16 @@ function createCharacterFromWizard() {
         }
     }
 
-    // Edit-modus (#1): bewerk een bestaand character i.p.v. een nieuw aanmaken.
-    // Behoud het id, de niet-wizard config-velden (weapons, quotes, items,
-    // timeline, family, …) én de volledige runtime-state (level, HP, items).
+    // Edit mode (#1): edit an existing character instead of creating a new one.
+    // Keep the id, the non-wizard config fields (weapons, quotes, items,
+    // timeline, family, …) and the full runtime state (level, HP, items).
     var isEdit = !!(wizardState && wizardState.editId);
     var charId = isEdit ? wizardState.editId : generateCharId(wizardState.name);
     var bgBonuses = calcBgBonuses();
     var existing = isEdit ? (loadCharConfig(charId) || {}) : {};
 
-    // 2024: background geeft 2 vaste skills + een Origin Feat. Skills mergen in
-    // defaultSkills (dedupe), feat los bewaren voor weergave + state.asiChoices.
+    // 2024: background gives 2 fixed skills + an Origin Feat. Merge skills into
+    // defaultSkills (dedupe), store the feat separately for display + state.asiChoices.
     var bgData = wizardState.background ? DATA.backgrounds[wizardState.background] : null;
     var bgSkills = bgData && bgData.skills ? bgData.skills.map(function (s) { return s.toLowerCase(); }) : [];
     var bgFeat = bgData && bgData.feat ? bgData.feat : '';
@@ -1260,17 +1260,17 @@ function createCharacterFromWizard() {
         player: existing.player || currentUserId(),
         race: wizardState.race,
         className: wizardState.className,
-        // #OvVZiZ: onder het subclass-keuzelevel (5.5e L3, Cleric L1) ALTIJD leeg
-        // wegschrijven, zodat een stale wizardState.subclass niet terugkeert in Firebase.
+        // #OvVZiZ: below the subclass choice level (5.5e L3, Cleric L1) ALWAYS write
+        // empty, so a stale wizardState.subclass doesn't come back in Firebase.
         subclass: ((wizardCharLevel() >= ((typeof subclassChoiceLevel === 'function') ? subclassChoiceLevel(wizardState.className) : 3)) ? (wizardState.subclass || '') : ''),
         background: wizardState.background ? (DATA.backgrounds[wizardState.background] ? DATA.backgrounds[wizardState.background].name : wizardState.background) : '',
         alignment: wizardState.alignment,
         age: wizardState.age || null,
         accentColor: wizardState.accentColor,
-        // #P0hvu6q: de wizard bewerkt de KALE scores (array/point-buy/manual), maar
-        // de engine (getAbilityScore) verwacht dat baseAbilities
-        // de background-bonus AL bevat — zo staan de legacy characters in SEED_DATA
-        // ook opgeslagen. Zonder deze optelling verdween de +2/+1 volledig.
+        // #P0hvu6q: the wizard edits the RAW scores (array/point-buy/manual), but
+        // the engine (getAbilityScore) expects baseAbilities to
+        // ALREADY contain the background bonus — that's how the legacy characters in SEED_DATA are
+        // stored too. Without this addition the +2/+1 disappeared entirely.
         baseAbilities: applyBgBonusesToAbilities(wizardState.baseAbilities, bgBonuses),
         abilityMethod: wizardState.abilityMethod || 'manual',
         backgroundBonuses: bgBonuses,
@@ -1287,7 +1287,7 @@ function createCharacterFromWizard() {
         personality: Object.assign({}, wizardState.personality),
         backstory: wizardState.backstory || ''
     });
-    // Velden die alleen bij een NIEUW character geïnitialiseerd worden.
+    // Fields that are only initialized for a NEW character.
     if (!isEdit) {
         config.weapons = [];
         config.quotes = [];
@@ -1305,8 +1305,8 @@ function createCharacterFromWizard() {
         config.family = [];
     }
 
-    // HP max-override: positief getal → bewaren in config.hp.max; leeg → afgeleid
-    // (override verwijderen zodat getMaxHP terugvalt op getHP).
+    // HP max override: positive number → store in config.hp.max; empty → derived
+    // (remove override so getMaxHP falls back to getHP).
     var hpOverride = parseInt(wizardState.hpMaxOverride, 10);
     if (!isNaN(hpOverride) && hpOverride > 0) {
         config.hp = Object.assign({}, config.hp, { max: hpOverride });
@@ -1318,14 +1318,14 @@ function createCharacterFromWizard() {
     // Save config
     saveCharConfig(charId, config);
 
-    // Portret (#5Y8aZh): pas hier opslaan — charId bestaat nu, dus de Cloudinary-
-    // folder wordt <Owner>/Characters/<CharName>/Portrait via saveImage(). Alleen
-    // een NIEUWE upload (data:-URL) re-uploaden; een onveranderd bestaand http-URL
-    // in edit-modus overslaan.
+    // Portrait (#5Y8aZh): only save here — charId exists now, so the Cloudinary
+    // folder becomes <Owner>/Characters/<CharName>/Portrait via saveImage(). Only
+    // re-upload a NEW upload (data: URL); an unchanged existing http URL
+    // in edit mode is skipped.
     if (wizardState.portrait && wizardState.portrait.indexOf('data:') === 0) {
         saveImage(charId, 'portrait', wizardState.portrait);
     }
-    // Hover-portret: nieuwe upload opslaan; leeggemaakt → lokaal + Firebase wissen.
+    // Hover portrait: save a new upload; cleared → delete locally + from Firebase.
     if (wizardState.portrait2 && wizardState.portrait2.indexOf('data:') === 0) {
         saveImage(charId, 'portrait2', wizardState.portrait2);
     } else if (!wizardState.portrait2 && loadImage(charId, 'portrait2')) {
@@ -1336,13 +1336,13 @@ function createCharacterFromWizard() {
             }
         } catch (_) {}
     }
-    // Portret-uitsnede (#fATDUg) meeslaan zodat dashboard-widget + sheet hem oppikken.
+    // Save the portrait crop (#fATDUg) too so the dashboard widget + sheet pick it up.
     if (typeof savePortraitCrop === 'function') {
         savePortraitCrop(charId, wizardState.portraitCrop || null);
     }
 
-    // Edit-modus: runtime-state (level, gekozen skills/items) intact laten, maar
-    // HP (current/temp) bijwerken als de gebruiker ze in de wizard heeft gezet.
+    // Edit mode: leave runtime state (level, chosen skills/items) intact, but
+    // update HP (current/temp) if the user set them in the wizard.
     if (isEdit) {
         var est = (typeof loadCharState === 'function' && loadCharState(charId)) || {};
         var effMaxE = wizardEffectiveMaxHP();
@@ -1363,7 +1363,7 @@ function createCharacterFromWizard() {
             stable: aliveE ? false : !!prevHp.stable,
             dead: aliveE ? false : !!prevHp.dead
         };
-        // Legacy platte velden meespiegelen voor backward-compat readers.
+        // Also mirror legacy flat fields for backward-compat readers.
         est.currentHP = startCurE;
         est.tempHP = startTmpE;
         if (wizardState.race === 'human' && wizardState.versatileFeat &&
@@ -1375,11 +1375,11 @@ function createCharacterFromWizard() {
         return charId;
     }
 
-    // Save default state. Origin Feat (2024) gaat in asiChoices op level 1 zodat de
-    // bestaande feat-engine (engine.js leest state.asiChoices per level) hem oppikt;
-    // mechanische sub-keuzes van sommige feats (bv. Magic Initiate-spells) worden
-    // nog niet automatisch toegepast — alleen de feat-naam wordt vastgelegd.
-    // HP: nieuw character start op (effectieve) max tenzij anders ingevuld.
+    // Save default state. Origin Feat (2024) goes into asiChoices at level 1 so the
+    // existing feat engine (engine.js reads state.asiChoices per level) picks it up;
+    // mechanical sub-choices of some feats (e.g. Magic Initiate spells) are
+    // not applied automatically yet — only the feat name is recorded.
+    // HP: a new character starts at (effective) max unless filled in otherwise.
     var effMaxNew = wizardEffectiveMaxHP();
     var curNew = parseInt(wizardState.hpCurrent, 10);
     var tmpNew = parseInt(wizardState.hpTemp, 10);
@@ -1440,11 +1440,11 @@ function openWizard() {
     bindWizardEvents();
 }
 
-// Reverse-map de opgeslagen background (display-naam of key) terug naar de
-// wizard-key die getWizardBackgrounds() gebruikt.
+// Reverse-map the saved background (display name or key) back to the
+// wizard key that getWizardBackgrounds() uses.
 function bgKeyFromConfig(bgValue) {
     if (!bgValue || !DATA.backgrounds) return '';
-    if (DATA.backgrounds[bgValue]) return bgValue;            // was al een key
+    if (DATA.backgrounds[bgValue]) return bgValue;            // was already a key
     var keys = Object.keys(DATA.backgrounds);
     for (var i = 0; i < keys.length; i++) {
         if (DATA.backgrounds[keys[i]].name === bgValue) return keys[i];
@@ -1452,7 +1452,7 @@ function bgKeyFromConfig(bgValue) {
     return '';
 }
 
-// Bouw een wizardState uit een bestaande character-config (#1 edit).
+// Build a wizardState from an existing character config (#1 edit).
 function buildWizardStateFromConfig(charId) {
     var cfg = loadCharConfig(charId);
     if (!cfg) return false;
@@ -1462,8 +1462,8 @@ function buildWizardStateFromConfig(charId) {
     wizardState.race = cfg.race || '';
     wizardState.species = speciesFromRaceKey(wizardState.race);
     wizardState.className = cfg.className || '';
-    // #OvVZiZ: laad de subclass alleen als het character het keuzelevel haalt;
-    // anders leeg, zodat een vóór-L3 opgeslagen waarde niet terug in de wizard lekt.
+    // #OvVZiZ: only load the subclass if the character reaches the choice level;
+    // otherwise empty, so a value saved before L3 doesn't leak back into the wizard.
     var _subGate = (typeof subclassChoiceLevel === 'function') ? subclassChoiceLevel(cfg.className) : 3;
     wizardState.subclass = (wizardCharLevel() >= _subGate) ? (cfg.subclass || '') : '';
     wizardState.background = bgKeyFromConfig(cfg.background);
@@ -1477,7 +1477,7 @@ function buildWizardStateFromConfig(charId) {
     wizardState.accentColor = cfg.accentColor || '#22d3ee';
     if (cfg.baseAbilities) wizardState.baseAbilities = Object.assign({ str:10, dex:10, con:10, int:10, wis:10, cha:10 }, cfg.baseAbilities);
     wizardState.abilityMethod = cfg.abilityMethod || 'manual';
-    // Reverse de background-bonuskeuze (+2 / +1) uit backgroundBonuses.
+    // Reverse the background bonus choice (+2 / +1) from backgroundBonuses.
     var bb = cfg.backgroundBonuses || {};
     var plus2 = '', plus1 = '';
     Object.keys(bb).forEach(function (ab) {
@@ -1485,9 +1485,9 @@ function buildWizardStateFromConfig(charId) {
         else if (bb[ab] === 1) plus1 = ab;
     });
     wizardState.bgBonusChoice = { plus2: plus2, plus1: plus1 };
-    // #P0hvu6q: config.baseAbilities bevat de bonus al (zie opslaan hieronder) —
-    // de wizard-editor werkt met de kale scores, dus hier weer eraf halen. Zonder
-    // dit zou elke edit-ronde de bonus opnieuw optellen (15 → 17 → 19 → …).
+    // #P0hvu6q: config.baseAbilities already contains the bonus (see save below) —
+    // the wizard editor works with the raw scores, so subtract it here again. Without
+    // this every edit round would add the bonus again (15 → 17 → 19 → …).
     wizardState.baseAbilities = stripBgBonusesFromAbilities(wizardState.baseAbilities, bb);
     wizardState.skills = skillKeys(cfg.defaultSkills).map(skillLabelKey);
     wizardState.cantrips = (cfg.defaultCantrips || []).slice();
@@ -1498,8 +1498,8 @@ function buildWizardStateFromConfig(charId) {
     wizardState.portraitCrop = loadPortraitCrop(charId);
     wizardState.personality = Object.assign({ traits:'', ideal:'', bond:'', flaw:'' }, cfg.personality || {});
     wizardState.backstory = cfg.backstory || '';
-    // HP voorvullen: override uit config.hp.max, current/temp uit state.hp (canoniek)
-    // met fallback op de legacy platte velden.
+    // Prefill HP: override from config.hp.max, current/temp from state.hp (canonical)
+    // with fallback to the legacy flat fields.
     wizardState.hpMaxOverride = (cfg.hp && typeof cfg.hp.max === 'number') ? String(cfg.hp.max) : '';
     var est = (typeof loadCharState === 'function' && loadCharState(charId)) || {};
     var ehp = est.hp || {};
@@ -1512,7 +1512,7 @@ function buildWizardStateFromConfig(charId) {
     return true;
 }
 
-// Open de creation-wizard in edit-modus met een bestaand character voorgevuld.
+// Open the creation wizard in edit mode with an existing character prefilled.
 function openWizardForEdit(charId) {
     if (!buildWizardStateFromConfig(charId)) {
         showToast('Character not found', 'error');
@@ -1526,9 +1526,9 @@ function openWizardForEdit(charId) {
     bindWizardEvents();
 }
 
-// Delete-character bevestigingsmodal (#4). Vereist dat de gebruiker exact
-// "gebruikersnaam-characternaam" typt voordat het character naar de prullenbak
-// gaat. Case-insensitive, na trim.
+// Delete-character confirmation modal (#4). Requires the user to type exactly
+// "username-charactername" before the character goes to the
+// trash. Case-insensitive, after trim.
 function openDeleteCharacterModal(charId) {
     var cfg = loadCharConfig(charId);
     if (!cfg) { showToast('Character not found', 'error'); return; }
@@ -1599,9 +1599,9 @@ function closeWizard() {
     unlockBodyScroll();
 }
 
-// #fATDUg: positioneer de wizard-sidebar-preview volgens de opgeslagen uitsnede
-// (focal {x,y} 0-100 + zoom). Zelfde cover+focal-formule als het SVG-widget, zodat
-// wizard en dashboard identiek croppen. Zonder uitsnede → default CSS-cover.
+// #fATDUg: position the wizard sidebar preview per the saved crop
+// (focal {x,y} 0-100 + zoom). Same cover+focal formula as the SVG widget, so
+// wizard and dashboard crop identically. Without a crop → default CSS cover.
 function hydrateWizardPortraitCrop() {
     var img = document.getElementById('wizardPortraitImg');
     if (!img) return;
@@ -1677,11 +1677,11 @@ function refreshWizard() {
     }
 }
 
-// Idempotente binding: voorkomt dat herhaalde bindWizardEvents-aanroepen
-// (refreshWizard bindt twee keer: direct + na de crossfade) dezelfde node
-// dubbel koppelen. Zonder dit kreeg de "Volgende"-knop twee click-listeners →
-// step += 2 → pagina's werden overgeslagen (#2). Verse nodes (innerHTML-replace)
-// hebben de vlag nog niet en worden dus precies één keer gebonden.
+// Idempotent binding: prevents repeated bindWizardEvents calls
+// (refreshWizard binds twice: immediately + after the crossfade) from binding the same node
+// twice. Without this the "Next" button got two click listeners →
+// step += 2 → pages were skipped (#2). Fresh nodes (innerHTML replace)
+// don't have the flag yet and are thus bound exactly once.
 function _wzBindOnce(node, evt, handler) {
     if (!node) return;
     if (node._wzBound && node._wzBound[evt]) return;
@@ -1708,8 +1708,8 @@ function bindWizardEvents() {
         if (wizardState.step > 1) { wizardState.step--; refreshWizard(); }
     });
 
-    // Crop-knop (#fATDUg) — opent de crop-editor; bij opslaan zet de uitsnede in
-    // wizardState (gepersisteerd bij character-save) en hydrateert de preview.
+    // Crop button (#fATDUg) — opens the crop editor; on save puts the crop in
+    // wizardState (persisted on character save) and hydrates the preview.
     var cropBtn = container.querySelector('[data-action="crop-wizard-portrait"]');
     _wzBindOnce(cropBtn, 'click', function(e) {
         e.stopPropagation();
@@ -1719,7 +1719,7 @@ function bindWizardEvents() {
             src: wizardState.portrait,
             crop: wizardState.portraitCrop,
             shape: 'square',
-            aspect: 3 / 4, // #OvvJdjg: portret-vormig bewerk-veld
+            aspect: 3 / 4, // #OvvJdjg: portrait-shaped edit field
             onSave: function (newCrop) {
                 wizardState.portraitCrop = newCrop;
                 hydrateWizardPortraitCrop();
@@ -1727,7 +1727,7 @@ function bindWizardEvents() {
         });
     });
 
-    // Hover-portret verwijderen (leeg = bij save ook uit storage gewist).
+    // Remove hover portrait (empty = also wiped from storage on save).
     var p2RmBtn = container.querySelector('[data-action="remove-wizard-portrait2"]');
     _wzBindOnce(p2RmBtn, 'click', function (e) {
         e.stopPropagation();
@@ -1736,7 +1736,7 @@ function bindWizardEvents() {
         refreshWizard();
     });
 
-    // Pas een eventuele uitsnede toe op de sidebar-preview.
+    // Apply any crop to the sidebar preview.
     hydrateWizardPortraitCrop();
 
     var cancelBtn = container.querySelector('[data-action="wizard-cancel"]');
@@ -1760,8 +1760,8 @@ function bindWizardEvents() {
         var resultId = createCharacterFromWizard();
         if (resultId) {
             closeWizard();
-            // Edit: blijf op de huidige pagina (ververs zodat wijzigingen tonen);
-            // create: ga naar het nieuwe character.
+            // Edit: stay on the current page (refresh so changes show);
+            // create: go to the new character.
             if (wasEdit) { if (typeof renderApp === 'function') renderApp(); }
             else navigate('/characters/' + resultId);
         }
@@ -1777,7 +1777,7 @@ function bindWizardEvents() {
         });
     }
 
-    // Ability-method switch (#bij5sk): reset baseAbilities naar de method-default.
+    // Ability-method switch (#bij5sk): reset baseAbilities to the method default.
     var methodBtns = container.querySelectorAll('[data-action="wizard-ability-method"]');
     for (var mbi = 0; mbi < methodBtns.length; mbi++) {
         _wzBindOnce(methodBtns[mbi], 'click', function(e) {
@@ -1786,7 +1786,7 @@ function bindWizardEvents() {
             if (m === wizardState.abilityMethod) return;
             wizardState.abilityMethod = m;
             ABILITY_KEYS.forEach(function(a) {
-                if (m === 'array') wizardState.baseAbilities[a] = 0;       // onassigned
+                if (m === 'array') wizardState.baseAbilities[a] = 0;       // unassigned
                 else if (m === 'pointbuy') wizardState.baseAbilities[a] = 8;
                 else if (wizardState.baseAbilities[a] < 3) wizardState.baseAbilities[a] = 10;
             });
@@ -1804,13 +1804,13 @@ function bindWizardEvents() {
             var nv = (wizardState.baseAbilities[a] || 8) + dir;
             if (nv < 8 || nv > 15) return;
             var delta = POINTBUY_COST[nv] - POINTBUY_COST[wizardState.baseAbilities[a]];
-            if (dir > 0 && (POINTBUY_BUDGET - pointBuySpent()) < delta) return; // te duur
+            if (dir > 0 && (POINTBUY_BUDGET - pointBuySpent()) < delta) return; // too expensive
             wizardState.baseAbilities[a] = nv;
             refreshWizard();
         });
     }
 
-    // "Suggested"-knop: vult het standard array automatisch volgens class-prioriteit.
+    // "Suggested" button: fills the standard array automatically per class priority.
     var suggestBtns = container.querySelectorAll('[data-action="wizard-array-suggest"]');
     for (var sgi = 0; sgi < suggestBtns.length; sgi++) {
         _wzBindOnce(suggestBtns[sgi], 'click', function(e) {
@@ -1867,7 +1867,7 @@ function bindWizardEvents() {
             wizardState.species = sp;
             wizardState.lineage = ''; wizardState.speciesAbility = ''; wizardState.versatileFeat = '';
             var lineages = (sp && WIZARD_SPECIES[sp]) ? WIZARD_SPECIES[sp] : [];
-            // Soort zonder lineages → race = soort; mét lineages → forceer keuze.
+            // Species without lineages → race = species; with lineages → force a choice.
             wizardState.race = lineages.length ? '' : sp;
             refreshWizard();
             return;
@@ -1904,9 +1904,9 @@ function bindWizardEvents() {
             saveWizardStepData();
             wizardState.background = target.value;
             wizardState.bgBonusChoice = { plus2: '', plus1: '' };
-            // 2024: background-skills zijn vast en worden apart toegekend. Verwijder
-            // ze uit de class-keuzes zodat ze niet dubbel tellen of als class-pick
-            // blijven hangen na het wisselen van background.
+            // 2024: background skills are fixed and granted separately. Remove
+            // them from the class choices so they don't count twice or linger as a class pick
+            // after switching background.
             var newBg = DATA.backgrounds[wizardState.background];
             var newBgSkills = newBg && newBg.skills ? newBg.skills.map(function (s) { return s.toLowerCase(); }) : [];
             wizardState.skills = wizardState.skills.filter(function (s) { return newBgSkills.indexOf(s) === -1; });
@@ -1953,8 +1953,8 @@ function bindWizardEvents() {
             saveWizardStepData();
             var aAb = target.dataset.ability;
             var aVal = parseInt(target.value, 10) || 0;
-            // Standard array: elke waarde precies 1×. Pakt een ander veld al deze
-            // waarde, wissel die om (swap) zodat geen waarde dubbel/verloren raakt.
+            // Standard array: each value exactly once. If another field already has this
+            // value, swap them so no value is duplicated/lost.
             if (aVal) {
                 ABILITY_KEYS.forEach(function(other) {
                     if (other !== aAb && wizardState.baseAbilities[other] === aVal) {
@@ -2009,7 +2009,7 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    // ----- Image-box (gedeeld door NPC/Lore-modals): klik in box → keuze-menu -----
+    // ----- Image-box (shared by NPC/Lore modals): click in box → choice menu -----
     var _imgPickBtn = target.closest('[data-action="img-pick-existing"]');
     if (_imgPickBtn) {
         var _ipBox = _imgPickBtn.closest('.lore-image-box');
@@ -2039,10 +2039,10 @@ document.addEventListener('click', function(e) {
         return;
     }
     if (!target.closest('.lore-image-box') && typeof closeAllImageMenus === 'function') {
-        closeAllImageMenus();   // klik buiten een box → sluit open keuze-menu
+        closeAllImageMenus();   // click outside a box → close open choice menu
     }
 
-    // ----- Modal-paginatie (lore) -----
+    // ----- Modal pagination (lore) -----
     if (target.closest('[data-action="modal-page-prev"]')) {
         if (typeof goModalPage === 'function') goModalPage(_modalPage - 1);
         return;
@@ -2052,7 +2052,7 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    // ----- Lore-entry editor-modal -----
+    // ----- Lore entry editor modal -----
     if (target.matches('.lore-entry-modal-overlay') || target.closest('[data-action="close-lore-entry-modal"]')) {
         if (typeof closeLoreEntryModal === 'function') closeLoreEntryModal();
         return;
@@ -2075,7 +2075,7 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    // ----- Maps: dimensions-manager + add-map window (hangen aan <body>) -----
+    // ----- Maps: dimensions-manager + add-map window (attached to <body>) -----
     if (target.matches('.maps-modal-overlay') || target.closest('[data-action="close-maps-modal"]')) {
         if (typeof closeMapsModal === 'function') closeMapsModal();
         return;
@@ -2148,7 +2148,7 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    // ----- Afbeelding-picker (kies bestaande = live referentie) -----
+    // ----- Image picker (pick existing = live reference) -----
     var pickBtn = target.closest('[data-action="pick-existing-image"]');
     if (pickBtn) {
         if (typeof openImagePicker === 'function') {
@@ -2166,7 +2166,7 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    // ----- Globale Search -----
+    // ----- Global Search -----
     if (target.closest('[data-action="open-search"]')) {
         if (typeof openSearch === 'function') openSearch();
         return;
@@ -2180,8 +2180,8 @@ document.addEventListener('click', function(e) {
         if (typeof rerenderSearch === 'function') rerenderSearch();
         return;
     }
-    // Klik op een zoekresultaat (goto-entity binnen de search-overlay): sluit
-    // de overlay, navigeer en laat de doel-kaart oplichten.
+    // Click on a search result (goto-entity inside the search overlay): close
+    // the overlay, navigate and highlight the target card.
     var searchLink = target.closest('.search-active [data-action="goto-entity"]');
     if (searchLink) {
         var et = searchLink.dataset.etype, ei = searchLink.dataset.eid;
@@ -2196,8 +2196,8 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Document-level input listener voor de afbeelding-picker zoekbalk (de picker
-// hangt aan body, dus app.oninput vangt 'm niet).
+// Document-level input listener for the image picker search bar (the picker
+// is attached to body, so app.oninput doesn't catch it).
 document.addEventListener('input', function(e) {
     if (e.target && e.target.id === 'img-picker-search') {
         imgPickerSearch = e.target.value;
@@ -2221,21 +2221,21 @@ document.addEventListener('input', function(e) {
     }
 });
 
-// Document-level change listener voor modal file-inputs (modals hangen aan
-// body, dus app.onchange vangt ze niet).
+// Document-level change listener for modal file inputs (modals are attached to
+// body, so app.onchange doesn't catch them).
 document.addEventListener('change', function(e) {
     var target = e.target;
 
-    // Wizard portret-upload (#5Y8aZh): base64 in wizardState.portrait + directe
-    // preview. De Cloudinary-upload draait pas bij character-save (charId bestaat
-    // dan pas), zodat een geannuleerde wizard geen weesmap achterlaat.
+    // Wizard portrait upload (#5Y8aZh): base64 in wizardState.portrait + immediate
+    // preview. The Cloudinary upload only runs on character save (charId only exists
+    // then), so a cancelled wizard leaves no orphan folder.
     if (target.matches('[data-action="upload-wizard-portrait"]')) {
         var wpFile = target.files && target.files[0];
         if (wpFile && typeof _compressImageFile === 'function' && wizardState) {
             _compressImageFile(wpFile, 600, 0.8, function (dataUrl) {
                 wizardState.portrait = dataUrl;
-                wizardState.portraitCrop = null; // nieuw beeld → reset uitsnede
-                // Re-render de sidebar zodat de crop-knop verschijnt + preview klopt.
+                wizardState.portraitCrop = null; // new image → reset crop
+                // Re-render the sidebar so the crop button appears + preview is correct.
                 if (typeof refreshWizard === 'function') refreshWizard();
             });
             try { target.value = ''; } catch (_) {}
@@ -2254,13 +2254,13 @@ document.addEventListener('change', function(e) {
         return;
     }
 
-    // Add-map window: kies een Place als afbeeldingsbron.
+    // Add-map window: pick a Place as image source.
     if (target.id === 'map-f-place') {
         if (typeof addMapPickPlace === 'function') addMapPickPlace(target.value);
         return;
     }
 
-    // Add-map window: nieuwe afbeelding uploaden (wordt ook als Place opgeslagen).
+    // Add-map window: upload a new image (also saved as a Place).
     if (target.matches('[data-action="upload-add-map-image"]')) {
         var amFile = target.files && target.files[0];
         if (amFile && typeof _compressImageFile === 'function') {
@@ -2275,7 +2275,7 @@ document.addEventListener('change', function(e) {
                 hid.value = dataUrl;                 // race-proof fallback
                 if (src) src.value = 'upload';
                 var placeSel = document.getElementById('map-f-place');
-                if (placeSel) placeSel.value = '';   // upload wint van Place-keuze
+                if (placeSel) placeSel.value = '';   // upload wins over Place choice
                 if (window.DWImages && DWImages.save) {
                     hid._uploadPromise = DWImages.save('campaign', 'maps/' + amName, dataUrl).then(function (imgVal) {
                         if (imgVal) hid.value = imgVal;
@@ -2319,22 +2319,22 @@ document.addEventListener('change', function(e) {
 });
 
 // ============================================================
-// #fATDUg — Portret crop-editor (knop-gebaseerd + sleep/scroll)
-// Generiek: gebruikt door het profielfoto-widget (wg-events.js) én de
-// character-wizard (bindWizardEvents). Bewerkt focal {x,y} 0-100 + zoom>=1 en
-// roept opts.onSave(crop) aan. Slaat zelf niets op — de aanroeper persisteert.
+// #fATDUg — Portrait crop editor (button-based + drag/scroll)
+// Generic: used by the profile photo widget (wg-events.js) and the
+// character wizard (bindWizardEvents). Edits focal {x,y} 0-100 + zoom>=1 and
+// calls opts.onSave(crop). Doesn't store anything itself — the caller persists.
 // ============================================================
 function openCropEditor(opts) {
     opts = opts || {};
     var src = opts.src;
     if (!src) return;
-    // Vierkante preview is de default: het raster (25/50/75% horizontaal +
-    // verticaal) geeft een referentiekader om gelijkmatig te croppen. Een caller
-    // kan expliciet shape:'circle' vragen.
+    // Square preview is the default: the grid (25/50/75% horizontal +
+    // vertical) gives a frame of reference for cropping evenly. A caller
+    // can explicitly request shape:'circle'.
     var shape = opts.shape === 'circle' ? 'circle' : 'square';
-    // #OvvJdjg: het bewerk-veld krijgt de vorm van het doel-portret (rechthoekig,
-    // portret 3:4) i.p.v. vierkant, zodat de crop-preview matcht met hoe het
-    // portret echt getoond wordt. Caller kan een eigen aspect (breedte/hoogte) geven.
+    // #OvvJdjg: the edit field takes the shape of the target portrait (rectangular,
+    // portrait 3:4) instead of square, so the crop preview matches how the
+    // portrait is actually displayed. Caller can give its own aspect (width/height).
     var aspect = (typeof opts.aspect === 'number' && opts.aspect > 0) ? opts.aspect : null;
     var st = {
         x: (opts.crop && opts.crop.x != null) ? opts.crop.x : 50,
@@ -2381,7 +2381,7 @@ function openCropEditor(opts) {
     var box = ov.querySelector('.crop-box');
     var img = ov.querySelector('.crop-img');
     var zoomVal = ov.querySelector('.crop-zoom-val');
-    // #OvvJdjg: portret-vorm op het bewerk-veld zetten (override van de vierkante CSS).
+    // #OvvJdjg: set the portrait shape on the edit field (override of the square CSS).
     if (aspect) {
         box.style.height = 'auto';
         box.style.aspectRatio = String(aspect);

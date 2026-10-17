@@ -75,8 +75,8 @@ function isSyncableKey(key) {
 // ===== Path Mapping: localStorage → Firebase =====
 
 function keyToPath(key) {
-    // Character-prullenbak (moet vóór de dw_char_ prefix-check, anders mapt hij
-    // verkeerd naar characters/trash/state).
+    // Character trash (must come before the dw_char_ prefix check, otherwise it maps
+    // wrongly to characters/trash/state).
     if (key === 'dw_chartrash') return 'campaign/char_trash';
 
     // Character config: dw_charconfig_ren → characters/ren/config
@@ -209,11 +209,11 @@ function initFirebaseSync() {
         }
         syncDb = firebase.database();
         syncReady = true;
-        console.log('[Sync] Firebase verbonden!');
+        console.log('[Sync] Firebase connected!');
 
-        // Echte authenticatie (Firebase Auth) — laag bovenop het userId-systeem.
+        // Real authentication (Firebase Auth) — layer on top of the userId system.
         if (typeof dwAuthInit === 'function') dwAuthInit();
-        // Transitie-config (legacyOpen-vlag) spiegelen voor de login-flow.
+        // Mirror transition config (legacyOpen flag) for the login flow.
         syncDb.ref('dw/config').on('value', function (snap) {
             var cfg = snap.val() || {};
             if (typeof window !== 'undefined') { window.dwConfig = cfg; }
@@ -226,12 +226,12 @@ function initFirebaseSync() {
 
         // Download users first, then all data
         syncDownloadUsers(function() {
-            // usersCache is nu gevuld → herstel een bestaande Firebase-sessie die
-            // bij app-start mogelijk te vroeg kwam om te resolven.
+            // usersCache is now filled → restore an existing Firebase session that
+            // may have come too early to resolve at app start.
             if (typeof dwTryRestoreSession === 'function') dwTryRestoreSession();
             seedUsers();
             syncDownloadAll(function(changed) {
-                console.log('[Sync] Download voltooid. Wijzigingen: ' + changed);
+                console.log('[Sync] Download complete. Changes: ' + changed);
                 syncStartListeners();
                 syncListenUsers();
                 syncDownloadBugs();
@@ -240,17 +240,17 @@ function initFirebaseSync() {
                 if (typeof initMonsterHypotheses === 'function') initMonsterHypotheses();
                 // Backfill stable entity ids now that real data is present.
                 if (typeof ensureEntityIds === 'function') ensureEntityIds();
-                // #OvywGWk: migreer NPC's naar de gedeelde Creature-store (veilig,
-                // idempotent, niet-destructief) — ná ensureEntityIds zodat id's bestaan.
+                // #OvywGWk: migrate NPCs to the shared Creature store (safe,
+                // idempotent, non-destructive) — after ensureEntityIds so ids exist.
                 if (typeof migrateNpcsIntoCreatures === 'function') migrateNpcsIntoCreatures();
-                // Re-render alleen als Firebase nieuwe/andere data leverde dan de localStorage cache.
-                // Voorkomt dubbele intro-animatie op return-visits met up-to-date cache.
+                // Re-render only if Firebase delivered new/different data than the localStorage cache.
+                // Prevents a double intro animation on return visits with an up-to-date cache.
                 if (changed > 0 && typeof renderApp === 'function') renderApp();
             });
         });
 
     } catch (e) {
-        console.error('[Sync] Firebase init mislukt:', e);
+        console.error('[Sync] Firebase init failed:', e);
     }
 }
 
@@ -348,7 +348,7 @@ function syncDownloadAll(callback) {
         syncPaused = false;
         if (callback) callback(changed);
     }, function(err) {
-        console.error('[Sync] Download mislukt:', err);
+        console.error('[Sync] Download failed:', err);
         syncPaused = false;
         if (callback) callback(0);
     });
@@ -518,7 +518,7 @@ function syncSeedCampaign() {
     // Also upload any existing state, images, world data
     syncUploadAll();
 
-    console.log('[Sync] Campaign data geüpload (' + charIds.length + ' characters).');
+    console.log('[Sync] Campaign data uploaded (' + charIds.length + ' characters).');
 }
 
 // ===== Sync status indicator =====
@@ -570,17 +570,17 @@ function isUserOnline(userId) {
 }
 
 // ===== Monster hypotheses (fog of war #0C4rMb) =====
-// Gedeelde speler-gokken op verborgen monster-velden. Apart top-level pad (buiten
-// dw/) zodat het los staat van de DM-data én van de generieke per-key sync. De DM
-// abonneert NIET en de render leest dit nooit → de DM ziet de speler-gokken niet.
+// Shared player guesses on hidden monster fields. Separate top-level path (outside
+// dw/) so it is decoupled from the DM data and from the generic per-key sync. The DM
+// does NOT subscribe and the render never reads this → the DM doesn't see the player guesses.
 var monsterHypotheses = {};
 function initMonsterHypotheses() {
     if (!syncDb) return;
-    if (typeof isDM === 'function' && isDM()) return; // DM ziet/abonneert niet
+    if (typeof isDM === 'function' && isDM()) return; // DM doesn't see/subscribe
     syncDb.ref('monster_hypotheses').on('value', function (snap) {
         monsterHypotheses = snap.val() || {};
-        // Gericht patchen: werk alleen de getoonde hypothese-waarden bij, NIET een
-        // input waar iemand op dit moment in typt (anders klapt z'n invoer weg).
+        // Targeted patching: only update the displayed hypothesis values, NOT an
+        // input someone is currently typing in (otherwise their input vanishes).
         try {
             var inputs = document.querySelectorAll('.lore-hyp-input');
             for (var i = 0; i < inputs.length; i++) {
@@ -667,7 +667,7 @@ function syncDownloadUsers(callback) {
         if (data) {
             usersCache = data;
             localStorage.setItem('dw_users', JSON.stringify(usersCache));
-            console.log('[Sync] Users gedownload:', Object.keys(usersCache).length);
+            console.log('[Sync] Users downloaded:', Object.keys(usersCache).length);
         } else {
             // Load from localStorage cache
             var cached = localStorage.getItem('dw_users');
@@ -677,7 +677,7 @@ function syncDownloadUsers(callback) {
         }
         if (callback) callback();
     }, function(err) {
-        console.error('[Sync] Users download mislukt:', err);
+        console.error('[Sync] Users download failed:', err);
         // Fallback to localStorage cache
         var cached = localStorage.getItem('dw_users');
         if (cached) {
@@ -743,9 +743,9 @@ function seedUsers() {
         if (Object.keys(updates).length > 0) {
             syncDb.ref('dw/users').update(updates, function(err) {
                 if (err) {
-                    console.error('[Sync] User seeding mislukt:', err);
+                    console.error('[Sync] User seeding failed:', err);
                 } else {
-                    console.log('[Sync] Default users geseeded:', Object.keys(updates).length);
+                    console.log('[Sync] Default users seeded:', Object.keys(updates).length);
                     // Refresh cache
                     syncDownloadUsers();
                 }

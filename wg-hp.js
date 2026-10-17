@@ -1,20 +1,20 @@
-// wg-hp.js — Hit Points widget, geport uit Widget-Grid-VIX (wg-widgets-extra-3.js).
+// wg-hp.js — Hit Points widget, ported from Widget-Grid-VIX (wg-widgets-extra-3.js).
 //
-// Eén HP-widget: 'hpBase', kind 'infobox'. Een 1-koloms info-box-stack die
-// meedoet aan de bestaande infobox-layout/-render (equal spacing + content-fit),
-// dus schaalt identiek aan de andere dashboard-widgets.
+// One HP widget: 'hpBase', kind 'infobox'. A 1-column info-box stack that
+// takes part in the existing infobox layout/render (equal spacing + content-fit),
+// so it scales identically to the other dashboard widgets.
 //
-// Content (compact): Current/Max, Temp, Damage, Heal. Death saves alleen bij 0 HP.
-// Damage/Heal-tiles krijgen een doffe rood/groen-tint als subtiele actie-indicator.
+// Content (compact): Current/Max, Temp, Damage, Heal. Death saves only at 0 HP.
+// Damage/Heal tiles get a muted red/green tint as a subtle action indicator.
 //
-// Interactie: WG_EDIT_CONFIG.hp.mode === 'always' → klikbaar zónder edit-toggle
-// (damage/heal tijdens spel). Schrijft atomisch naar state/hp via PATCH.
+// Interaction: WG_EDIT_CONFIG.hp.mode === 'always' → clickable without edit toggle
+// (damage/heal during play). Writes atomically to state/hp via PATCH.
 //
-// Load order: NA wg-state.js (Object.assign op WG_WIDGET_TYPES/WG_EDIT_CONFIG),
-// gebruikt verder runtime-globals (render, rebuildWidget, showToast,
+// Load order: AFTER wg-state.js (Object.assign on WG_WIDGET_TYPES/WG_EDIT_CONFIG),
+// otherwise uses runtime globals (render, rebuildWidget, showToast,
 // fetchCharacterData, WG_CHAR_CACHE/STATUS, FIREBASE_DB, wgSyncCharToLocal).
 
-// ===== Registries (extension-points die wg-state.js / wg-events.js aanroepen) =====
+// ===== Registries (extension points that wg-state.js / wg-events.js call) =====
 var WG_EXTRA_INFOBOX_BUILDERS = (typeof WG_EXTRA_INFOBOX_BUILDERS !== 'undefined') ? WG_EXTRA_INFOBOX_BUILDERS : {};
 var WG_INFOBOX_CLICK_HANDLERS = (typeof WG_INFOBOX_CLICK_HANDLERS !== 'undefined') ? WG_INFOBOX_CLICK_HANDLERS : {};
 
@@ -23,22 +23,22 @@ Object.assign(WG_WIDGET_TYPES, {
   hpBase: {
     label: 'Hit Points', kind: 'infobox', source: 'hp',
     spanUnits: 4, spanUnitsY: 5,
-    // infoBoxPadding 0 → de cel vult de hele info-box, dus de tint is de
-    // ACHTERGROND van de infobox (geen aparte ingesprongen knop-rect).
+    // infoBoxPadding 0 → the cell fills the whole info-box, so the tint is the
+    // BACKGROUND of the infobox (no separate inset button rect).
     cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 0 },
   },
 });
-// mode 'always' = klik zonder edit-toggle; editColumnIdx 0 = de enige kolom is klikbaar.
+// mode 'always' = click without edit toggle; editColumnIdx 0 = the only column is clickable.
 WG_EDIT_CONFIG.hp = { mode: 'always', editColumnIdx: 0 };
-// Auto-titel voor infobox-bron 'hp' (widgetBaseLabel leest WG_SOURCE_LABELS).
+// Auto-title for infobox source 'hp' (widgetBaseLabel reads WG_SOURCE_LABELS).
 if (typeof WG_SOURCE_LABELS !== 'undefined') WG_SOURCE_LABELS.hp = 'Hit Points';
 
-// ===== HP-state reader (max uit config.hp.max of 10 + CON-mod) =====
+// ===== HP-state reader (max from config.hp.max or 10 + CON mod) =====
 function wgxDefaultHp(raw) {
   const cfg = (raw && raw.config) || {};
   const st  = (raw && raw.state)  || {};
-  // Max: rules-afgeleid via de hoofd-app (getMaxHP = override > getHP). Fallback
-  // op 10 + CON-mod als de engine niet geladen is (bv. standalone widget-grid).
+  // Max: rules-derived via the main app (getMaxHP = override > getHP). Fallback
+  // to 10 + CON mod if the engine isn't loaded (e.g. standalone widget-grid).
   let max;
   if (cfg.hp && typeof cfg.hp.max === 'number' && cfg.hp.max > 0) {
     max = cfg.hp.max;
@@ -49,7 +49,7 @@ function wgxDefaultHp(raw) {
     const con = (cfg.baseAbilities && cfg.baseAbilities.con) ?? 10;
     max = 10 + Math.floor((con - 10) / 2);
   }
-  // Canoniek = state.hp.*; legacy platte velden (currentHP/tempHP/deathSaves) als fallback.
+  // Canonical = state.hp.*; legacy flat fields (currentHP/tempHP/deathSaves) as fallback.
   const hpSt = st.hp || {};
   const flatCur = (typeof st.currentHP === 'number') ? st.currentHP : undefined;
   return {
@@ -62,7 +62,7 @@ function wgxDefaultHp(raw) {
   };
 }
 
-// ===== D&D 5.5e (2024) regelcorrecte HP-mutaties =====
+// ===== D&D 5.5e (2024) rules-correct HP mutations =====
 function wgxApplyDamage(hp, amount, opts = {}) {
   amount = Math.max(0, Math.trunc(amount));
   const next = { ...hp, deathSaves: { ...hp.deathSaves } };
@@ -91,7 +91,7 @@ function wgxApplyHeal(hp, amount) {
   return { ...hp, current: Math.min(hp.max, hp.current + amount), deathSaves: { successes: 0, failures: 0 }, stable: false };
 }
 
-// ===== Firebase write — atomische PATCH op state/hp =====
+// ===== Firebase write — atomic PATCH on state/hp =====
 async function wgxPatchHpState(charId, patch) {
   const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/state/hp.json';
   const res = await fetch(url, { method: 'PATCH', body: JSON.stringify(patch), headers: { 'Content-Type': 'application/json' } });
@@ -132,7 +132,7 @@ async function wgxApplyMode(charId, mode, amt) {
 }
 
 // ===== AC — expected value per class-default loadout (engine getAC) =====
-// Per-class uitleg van waar de default-AC vandaan komt (matcht engine.js getAC).
+// Per-class explanation of where the default AC comes from (matches engine.js getAC).
 const WGX_AC_RULE = {
   rogue:     'Studded leather (12) + Dex modifier',
   bard:      'Studded leather (12) + Dex modifier',
@@ -165,7 +165,7 @@ function wgxAcTip(raw) {
   return { title: 'Armor Class ' + wgxComputeAC(raw), body };
 }
 
-// ===== hpBase — infobox-builder (1-koloms tile-stack) =====
+// ===== hpBase — infobox builder (1-column tile stack) =====
 function wgxBuildHpBase(widget) {
   const raw = WG_CHAR_CACHE[state.characterId];
   const t = wgxDefaultHp(raw);
@@ -201,16 +201,16 @@ function wgxBuildHpBase(widget) {
 }
 WG_EXTRA_INFOBOX_BUILDERS.hp = wgxBuildHpBase;
 
-// Welke actie hoort bij rij rowIdx (deterministisch uit de HP-state).
+// Which action belongs to row rowIdx (deterministic from the HP state).
 function wgxHpBaseAction(rowIdx, t) {
-  // rij 0 = AC (read-only); daarna current/temp/damage/heal; dan death saves.
+  // row 0 = AC (read-only); then current/temp/damage/heal; then death saves.
   const base = ['none', 'current', 'temp', 'damage', 'heal'];
   if (rowIdx < 5) return base[rowIdx];
   if (t.current !== 0 || t.dead || t.stable) return 'none';
   return rowIdx === 5 ? 'ds-success' : 'ds-failure';
 }
 
-// ===== Number-prompt overlay (inline op de geklikte cel) =====
+// ===== Number-prompt overlay (inline on the clicked cell) =====
 function wgxPromptNumberOverlay(cellG, curVal, min, max) {
   return new Promise(resolve => {
     const rect = cellG.getBoundingClientRect();
@@ -223,7 +223,7 @@ function wgxPromptNumberOverlay(cellG, curVal, min, max) {
     inp.step = '1';
     inp.inputMode = 'numeric';
     inp.setAttribute('pattern', '[0-9]*');
-    inp.style.fontSize = '16px';   // iOS focus-zoom voorkomen
+    inp.style.fontSize = '16px';   // prevent iOS focus-zoom
     const w = Math.max(rect.width, 90);
     const vw = window.innerWidth, vh = window.innerHeight;
     const left = Math.min(rect.left, vw - w - 8);
@@ -250,7 +250,7 @@ function wgxPromptNumberOverlay(cellG, curVal, min, max) {
   });
 }
 
-// ===== Quick-amount overlay (heal/damage delta's, blijft open voor stapelen) =====
+// ===== Quick-amount overlay (heal/damage deltas, stays open for stacking) =====
 function wgxOpenQuickOverlay(anchorEl, mode, onApply) {
   document.querySelectorAll('.wgx-quick-overlay').forEach(n => n.remove());
   const panel = document.createElement('div');
@@ -291,7 +291,7 @@ function wgxOpenQuickOverlay(anchorEl, mode, onApply) {
   setTimeout(() => document.addEventListener('pointerdown', onOutside, true), 0);
 }
 
-// ===== Click-handler (infobox, source 'hp') — per-rij dispatch =====
+// ===== Click handler (infobox, source 'hp') — per-row dispatch =====
 WG_INFOBOX_CLICK_HANDLERS.hp = async ({ cellG, raw, charId, rowIdx }) => {
   const t = wgxDefaultHp(raw);
   const action = wgxHpBaseAction(rowIdx, t);

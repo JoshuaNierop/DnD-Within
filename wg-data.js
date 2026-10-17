@@ -1,9 +1,9 @@
 const WG_SVG_NS = 'http://www.w3.org/2000/svg';
 
-// Responsive scaling rules: elke variabele heeft min (mobiel) en max (desktop).
-// Tussen viewport-breedte WG_VP_MIN en WG_VP_MAX wordt lineair geïnterpoleerd.
-// Responsive ranges per variabele: mobiel-waarde ↔ desktop-waarde.
-// Wordt nu in state.responsive gehouden zodat user ze via inputs kan aanpassen.
+// Responsive scaling rules: each variable has a min (mobile) and a max (desktop).
+// Between viewport widths WG_VP_MIN and WG_VP_MAX it is interpolated linearly.
+// Responsive ranges per variable: mobile value ↔ desktop value.
+// Now kept in state.responsive so the user can adjust them via inputs.
 const WG_RESPONSIVE_DEFAULTS = {
   dashTile:         { mobile: 20, desktop: 30 },
   dashMinSpacing:   { mobile: 4,  desktop: 8 },
@@ -29,8 +29,8 @@ function titleizeAbility(abilityKey) {
   return map[abilityKey] || abilityKey.toUpperCase().substring(0, 3);
 }
 
-// Wat elke ability bestuurt — voor de hover/long-press-tooltips op de
-// Ability-Scores-widget. Engels-only (i18n-lock).
+// What each ability governs — for the hover/long-press tooltips on the
+// Ability Scores widget. English-only (i18n-lock).
 const WG_ABILITY_INFO = {
   str: 'Physical power. Used for melee attack & damage rolls, Athletics, jumping, lifting, and carrying capacity.',
   dex: 'Agility and reflexes. Used for AC in light/no armor, initiative, ranged & finesse attacks, Acrobatics, Stealth, and Sleight of Hand.',
@@ -62,8 +62,8 @@ const WG_SKILLS = [
   { key: 'survival',       label: 'Survival',        ability: 'wis' },
 ];
 
-// Skill-omschrijvingen (#bug Ov6e4Bv9 — hover-tooltips op de Skills-widget):
-// korte uitleg + wanneer de skill van toepassing is. Engels-only (zie i18n-lock).
+// Skill descriptions (#bug Ov6e4Bv9 — hover tooltips on the Skills widget):
+// short explanation + when the skill applies. English-only (see i18n-lock).
 const WG_SKILL_DESC = {
   acrobatics:     'Stay on your feet, keep your balance, or perform a stunt. Used when slipping, tumbling, or crossing a tightrope or icy surface.',
   animalHandling: 'Calm, control, or read the intentions of an animal. Used to soothe a mount, train a beast, or sense whether a creature will attack.',

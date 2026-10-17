@@ -1,11 +1,11 @@
-// dnd-init.js — D&D Within bridge naar social-module.
+// dnd-init.js — D&D Within bridge to the social module.
 //
-// Identity = currentUserId() uit de session (de interne userId — NIET de
-// Firebase-uid). Chat-threads blijven daardoor aan userId hangen → geen migratie
-// nodig bij de overstap naar Firebase Auth. Het Firebase ID-token wordt wél
-// meegestuurd (getToken) zodat de chat blijft werken zodra de DB-rules na de
-// cutover authenticatie eisen. Party members in dw/users/ worden auto-gespiegeld
-// als "friends" zodat de chat-widget "just works" zonder add/accept-flow.
+// Identity = currentUserId() from the session (the internal userId — NOT the
+// Firebase uid). Chat threads therefore stay keyed on userId → no migration
+// needed when moving to Firebase Auth. The Firebase ID token IS
+// sent along (getToken) so the chat keeps working once the DB rules require
+// authentication after the cutover. Party members in dw/users/ are auto-mirrored
+// as "friends" so the chat widget "just works" without an add/accept flow.
 
 import { createFirebaseAdapter } from './firebase-adapter.js';
 import { mountChatWidget } from './chat-widget.js';
@@ -20,7 +20,7 @@ let adapter = null;
 let lastSyncedUid = null;
 let initRunning = false;
 
-// Hangt het Firebase ID-token aan een REST-URL (no-op zolang er geen auth is).
+// Appends the Firebase ID token to a REST URL (no-op as long as there is no auth).
 function authUrl(url) {
     const tok = (typeof window.dwGetIdToken === 'function') ? window.dwGetIdToken() : null;
     if (!tok) return url;
@@ -63,7 +63,7 @@ async function syncPartyAsFriends() {
     const me = getCurrentUserSafe();
     if (!me?.uid) return;
 
-    // Lees party uit dw/users via REST (token meegegeven indien ingelogd)
+    // Read party from dw/users via REST (token included if logged in)
     const r = await fetch(authUrl(`${FIREBASE_DB_URL}/dw/users.json`)).catch(() => null);
     if (!r?.ok) return;
     const users = await r.json().catch(() => null);
@@ -75,7 +75,7 @@ async function syncPartyAsFriends() {
         if (uid === myUid) continue;
         const displayName = u?.name || u?.displayName || uid;
         const friendPath = `${FIREBASE_DB_URL}/${ROOT_PATH}/users/${myUid}/friends/${uid}.json`;
-        // Schrijf alleen als nog niet bestaat (idempotent — voorkomt overschrijven van eigen wijzigingen)
+        // Only write if it doesn't exist yet (idempotent — prevents overwriting own changes)
         const exists = await fetch(authUrl(friendPath)).then(r => r.ok ? r.json() : null).catch(() => null);
         if (exists) continue;
         writes.push(fetch(authUrl(friendPath), {
@@ -88,7 +88,7 @@ async function syncPartyAsFriends() {
                 email: u?.email || '',
             }),
         }));
-        // Index entry zodat ze in chat-list verschijnen (ook zonder berichten)
+        // Index entry so they show up in the chat list (even without messages)
         const chatId = chatIdFor(myUid, uid);
         const idxPath = `${FIREBASE_DB_URL}/${ROOT_PATH}/users/${myUid}/chats/${chatId}.json`;
         const idxExists = await fetch(authUrl(idxPath)).then(r => r.ok ? r.json() : null).catch(() => null);
@@ -122,7 +122,7 @@ async function mount() {
         widget = mountChatWidget(document.body, a);
         lastSyncedUid = me.uid;
 
-        // Notification permission (een keer vragen)
+        // Notification permission (ask once)
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission().catch(() => {});
         }
@@ -145,8 +145,8 @@ window.dndSocial = {
     syncParty: () => syncPartyAsFriends(),
 };
 
-// Auto-mount zodra session klaar is. We polling-checken want D&D heeft
-// geen formele auth-event.
+// Auto-mount as soon as the session is ready. We poll because D&D has
+// no formal auth event.
 let mountAttempts = 0;
 const mountPoll = setInterval(() => {
     mountAttempts++;
@@ -154,14 +154,14 @@ const mountPoll = setInterval(() => {
         clearInterval(mountPoll);
         mount();
     } else if (mountAttempts > 60) {
-        // 30s gewacht, geef het op (waarschijnlijk niet ingelogd)
+        // Waited 30s, give up (probably not logged in)
         clearInterval(mountPoll);
     }
 }, 500);
 
-// Re-mount bij route change (gebruiker switcht user via UI). Clean-URL router
-// gebruikt History API → luister op popstate (back/forward) én op het custom
-// 'dw:navigated' event dat navigate() bij elke pushState dispatcht.
+// Re-mount on route change (user switches user via UI). Clean-URL router
+// uses History API → listen on popstate (back/forward) and on the custom
+// 'dw:navigated' event that navigate() dispatches on every pushState.
 function _onRouteChange() {
     const me = getCurrentUserSafe();
     if (me?.uid && me.uid !== lastSyncedUid) mount();

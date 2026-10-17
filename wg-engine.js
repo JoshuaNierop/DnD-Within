@@ -1,8 +1,8 @@
 
-// Effectieve titel: door de gebruiker gezet, anders auto.
-// Map → naam van de huidige map; image → type-label; info → data-source-label.
-// Basis-label van een widget (zonder dupe-nummer): map → mapnaam, infobox →
-// data-source-label, overige soorten → type-label.
+// Effective title: set by the user, otherwise auto.
+// Map → name of the current map; image → type label; info → data-source label.
+// Base label of a widget (without dupe number): map → map name, infobox →
+// data-source label, other kinds → type label.
 function widgetBaseLabel(widget) {
   if (!widget) return 'Widget';
   const kind = widgetKind(widget);
@@ -12,12 +12,12 @@ function widgetBaseLabel(widget) {
 }
 function autoTitle(widget) {
   if (!widget) return 'Widget';
-  // Maps houden hun kaartnaam (geen nummering — elke map heeft een eigen naam).
+  // Maps keep their map name (no numbering — every map has its own name).
   if (widgetKind(widget) === 'map') return widgetBaseLabel(widget);
   const base = widgetBaseLabel(widget);
-  // Nummer duplicaten van hetzelfde basis-label voor ALLE soorten (Ability
-  // Scores, Skills, Profile picture, …): de eerste houdt de naam, de tweede
-  // krijgt " 2", enz. Zo krijgt een ge-paste kopie automatisch een nummer.
+  // Number duplicates of the same base label for ALL kinds (Ability
+  // Scores, Skills, Profile picture, …): the first keeps the name, the second
+  // gets " 2", etc. This way a pasted copy automatically gets a number.
   const idx = state.widgets.indexOf(widget);
   let dupes = 0;
   for (let i = 0; i < idx; i++) {
@@ -33,8 +33,8 @@ function displayTitle(widget) {
   return t || autoTitle(widget);
 }
 
-// ===== Campagne-maps ======================================================
-// Catmull-Rom → vloeiend gesloten pad voor organische pin-polygonen.
+// ===== Campaign maps =======================================================
+// Catmull-Rom → smooth closed path for organic pin polygons.
 function smoothClosedPath(pts) {
   const n = pts.length;
   if (n < 3) return '';
@@ -50,7 +50,7 @@ function smoothClosedPath(pts) {
   }
   return d + ' Z';
 }
-// Legacy pin {x,y,w,h} → {shape:{kind,cx,cy,r,nodes}} (zoals D&D Within).
+// Legacy pin {x,y,w,h} → {shape:{kind,cx,cy,r,nodes}} (like D&D Within).
 function normalizePin(pin) {
   if (!pin) return pin;
   if (pin.shape && pin.shape.kind) {
@@ -83,7 +83,7 @@ async function fetchMapsData() {
   render();
 }
 
-// Zoekt een map op id over alle dimensies. → { dimIdx, map } | null
+// Finds a map by id across all dimensions. → { dimIdx, map } | null
 function findMapById(id) {
   if (!WG_MAPS_CACHE || !id) return null;
   const dims = WG_MAPS_CACHE.dimensions || [];
@@ -94,7 +94,7 @@ function findMapById(id) {
   }
   return null;
 }
-// Lost de map op die een map-widget nu toont (mapId, of root van de dimensie).
+// Resolves the map a map widget is currently showing (mapId, or the dimension's root).
 function resolveWidgetMap(widget) {
   if (!WG_MAPS_CACHE || !widget || !widget.map) return null;
   const dim = (WG_MAPS_CACHE.dimensions || [])[widget.map.dimIdx];
@@ -111,7 +111,7 @@ function currentMapName(widget) {
   return mp ? mp.name : null;
 }
 
-// Navigeer een map-widget naar een andere map (via pin-link).
+// Navigate a map widget to another map (via pin link).
 function navigateMapWidget(widgetIdx, targetMapId) {
   const w = state.widgets[widgetIdx];
   if (!w || !w.map) return;
@@ -123,7 +123,7 @@ function navigateMapWidget(widgetIdx, targetMapId) {
   w.map.mapId = targetMapId;
   render();
 }
-// Terug naar de vorige map in de history.
+// Back to the previous map in the history.
 function mapWidgetBack(widgetIdx) {
   const w = state.widgets[widgetIdx];
   if (!w || !w.map || !w.map.history.length) return;
@@ -132,7 +132,7 @@ function mapWidgetBack(widgetIdx) {
   w.map.mapId = prev.mapId;
   render();
 }
-// Wissel van dimensie (plane) — naar de root-map van die dimensie.
+// Switch dimension (plane) — to the root map of that dimension.
 function setMapWidgetDim(widgetIdx, dimIdx) {
   const w = state.widgets[widgetIdx];
   if (!w || !w.map) return;
@@ -150,9 +150,9 @@ function setActiveWidget(idx) {
   }
 }
 
-// Deselecteert alle widgets (klik in lege grid-ruimte). activeWidgetIdx = -1
-// → render() tekent geen enkele widget als 'active'. state.widget valt intern
-// terug op widget 0, dus er crasht niets.
+// Deselects all widgets (click in empty grid space). activeWidgetIdx = -1
+// → render() draws no widget as 'active'. state.widget internally falls
+// back to widget 0, so nothing crashes.
 function deselectWidgets() {
   state.activeWidgetIdx = -1;
   wgClearMultiSelection();
@@ -162,8 +162,8 @@ function deselectWidgets() {
   render();
 }
 
-// V9: zoekt een vrije plek (omlaag-dan-rechts) op de huidige pagina, daarna op
-// elke bestaande pagina, daarna op een nieuwe pagina. Returnt { globalCol, startRowIdx }.
+// V9: finds a free spot (down-then-right) on the current page, then on
+// every existing page, then on a new page. Returns { globalCol, startRowIdx }.
 function findFreeWidgetSpot(spanX, spanY) {
   const tpp = tilesPerPage();
   const rpp = rowsPerPage();
@@ -212,18 +212,18 @@ function addWidget(partial = {}) {
   };
   state.widgets.push(widget);
   state.activeWidgetIdx = state.widgets.length - 1;
-  state.currentPage = pageOf(widget.globalCol);   // V9: spring naar de pagina van de nieuwe widget
-  if (t.kind === 'map') fetchMapsData();                          // map → gedeelde maps
+  state.currentPage = pageOf(widget.globalCol);   // V9: jump to the page of the new widget
+  if (t.kind === 'map') fetchMapsData();                          // map → shared maps
   else if (t.kind === 'infobox') {
-    if (WG_CHAR_CACHE[state.characterId]) rebuildWidget(widget);     // cache hit → meteen rijen
-    else fetchCharacterData(state.characterId);                   // cache miss → fetch + rebuild bij komst
+    if (WG_CHAR_CACHE[state.characterId]) rebuildWidget(widget);     // cache hit → rows right away
+    else fetchCharacterData(state.characterId);                   // cache miss → fetch + rebuild on arrival
   }
   render();
   return state.activeWidgetIdx;
 }
 
-// Past een widget-type toe op een bestaande widget: overschrijft source/size
-// (info) of zet map-state op (map). De aanroeper regelt de confirm-dialoog.
+// Applies a widget type to an existing widget: overwrites source/size
+// (info) or sets up map state (map). The caller handles the confirm dialog.
 function applyWidgetType(widget, typeKey) {
   const t = WG_WIDGET_TYPES[typeKey];
   if (!t || !widget) return;
@@ -262,9 +262,9 @@ function removeWidget(idx) {
   return true;
 }
 
-// Verwijder alle geselecteerde widgets in één keer (Delete met multi-select).
+// Remove all selected widgets at once (Delete with multi-select).
 function removeSelectedWidgets() {
-  const idxs = wgGetSelectedIdxs().sort((a, b) => b - a); // hoog→laag: splice-veilig
+  const idxs = wgGetSelectedIdxs().sort((a, b) => b - a); // high→low: splice-safe
   if (!idxs.length) return false;
   wgClearMultiSelection();
   for (const i of idxs) state.widgets.splice(i, 1);
@@ -273,10 +273,10 @@ function removeSelectedWidgets() {
   return true;
 }
 
-// ----- Klik-selectie (user-gesture) -----
-// additive = Ctrl/Cmd ingedrukt → toggle in de multi-selectie. Anders: enkel
-// deze widget. De primaire (laatst-aangeklikte) is altijd state.activeWidgetIdx;
-// settings openen werkt dus op de laatst aangeklikte widget.
+// ----- Click selection (user gesture) -----
+// additive = Ctrl/Cmd held → toggle in the multi-selection. Otherwise: only
+// this widget. The primary (last-clicked) is always state.activeWidgetIdx;
+// opening settings therefore acts on the last-clicked widget.
 function selectWidgetClick(idx, additive) {
   if (idx < 0 || idx >= state.widgets.length) return;
   if (!additive) {
@@ -287,15 +287,15 @@ function selectWidgetClick(idx, additive) {
   }
   const pos = wgSelectedIdxs.indexOf(idx);
   if (idx === state.activeWidgetIdx) {
-    // Actieve nogmaals ctrl-klikken → deselecteren; promoveer een andere.
+    // Ctrl-clicking the active one again → deselect; promote another.
     if (pos >= 0) wgSelectedIdxs.splice(pos, 1);
     const remaining = wgSelectedIdxs.filter(i => i !== idx);
     state.activeWidgetIdx = remaining.length ? remaining[remaining.length - 1] : -1;
   } else if (pos >= 0) {
-    // Geselecteerd (niet-actief) → uit de selectie halen.
+    // Selected (not active) → remove from the selection.
     wgSelectedIdxs.splice(pos, 1);
   } else {
-    // Toevoegen: bewaar de huidige actieve in de selectie, maak deze actief.
+    // Add: keep the current active one in the selection, make this one active.
     if (state.activeWidgetIdx >= 0 && wgSelectedIdxs.indexOf(state.activeWidgetIdx) < 0) {
       wgSelectedIdxs.push(state.activeWidgetIdx);
     }
@@ -308,7 +308,7 @@ function selectWidgetClick(idx, additive) {
   render();
 }
 
-// ----- Clipboard (copy/paste van widgets) -----
+// ----- Clipboard (copy/paste of widgets) -----
 let _wgClipboard = [];
 function wgCopySelected() {
   const idxs = wgGetSelectedIdxs();
@@ -318,8 +318,8 @@ function wgCopySelected() {
   }).filter(Boolean);
   return _wgClipboard.length > 0;
 }
-// Maak een custom titel uniek (alleen nodig als de bron een handmatige titel
-// had; lege titels nummert autoTitle vanzelf).
+// Make a custom title unique (only needed if the source had a manual title;
+// empty titles are numbered by autoTitle itself).
 function wgUniqueTitle(base) {
   const existing = new Set(state.widgets.map(w => (w.title || '').trim()).filter(Boolean));
   if (!existing.has(base)) return base;
@@ -338,8 +338,8 @@ function wgPasteClipboard() {
     const free = findFreeWidgetSpot(clone.spanUnits, clone.spanUnitsY);
     clone.globalCol = free.globalCol;
     clone.startRowIdx = free.startRowIdx;
-    // Lege titel → autoTitle nummert ("Skills", "Skills 2", …). Custom titel →
-    // uniek maken zodat hij niet botst met het origineel.
+    // Empty title → autoTitle numbers it ("Skills", "Skills 2", …). Custom title →
+    // make it unique so it doesn't clash with the original.
     if (clone.title && clone.title.trim()) clone.title = wgUniqueTitle(clone.title.trim());
     state.widgets.push(clone);
     const ni = state.widgets.length - 1;
@@ -360,9 +360,9 @@ function wgPasteClipboard() {
   return true;
 }
 
-// V10: DASH_Y/VERT_X/WIDGET_Y/INFO_START_Y/INFO_ROW_H zijn verwijderd — die
-// werden alleen gebruikt door de inmiddels verwijderde rail+tick-renderers.
-const WIDGET_TOPBAR_H = 22; // vaste hoogte voor widget-titelbalk
+// V10: DASH_Y/VERT_X/WIDGET_Y/INFO_START_Y/INFO_ROW_H were removed — they
+// were only used by the since-removed rail+tick renderers.
+const WIDGET_TOPBAR_H = 22; // fixed height for widget title bar
 
 // ----- Geometry helpers -----
 
@@ -389,9 +389,9 @@ function dashVLayout() {
   return flexLayout(state.dashboard.height, dashTile, dashMinSpacing);
 }
 
-// ===== V9 — Paginerings-engine ==============================================
-// Widget-positie is canoniek `globalCol`: absolute kolom op een paginaloze
-// strook. Pagina's zijn puur afgeleid. Zie Metadocs/Architecture.md.
+// ===== V9 — Pagination engine ===============================================
+// Widget position is canonically `globalCol`: absolute column on a pageless
+// strip. Pages are purely derived. See Metadocs/Architecture.md.
 function tilesPerPage() { return dashLayout().tileCount; }
 function rowsPerPage()  { return dashVLayout().tileCount; }
 function pageOf(globalCol) {
@@ -417,7 +417,7 @@ function goToPage(p) {
   if (clamped !== state.currentPage) { state.currentPage = clamped; render(); }
 }
 
-// Geometrie-only overlap-test op de paginaloze strook.
+// Geometry-only overlap test on the pageless strip.
 function widgetsOverlap(a, b) {
   if (a.globalCol >= b.globalCol + b.spanUnits) return false;
   if (b.globalCol >= a.globalCol + a.spanUnits) return false;
@@ -434,8 +434,8 @@ function rectIsFree(gc, row, span, spanY, avoid) {
   return true;
 }
 
-// Clamp + paginagrens-normalisatie. Vervangt de span-krimp van V8's
-// ensureWidgetInBounds — horizontale span wordt NOOIT ingekrompen.
+// Clamp + page-boundary normalization. Replaces the span shrinking of V8's
+// ensureWidgetInBounds — horizontal span is NEVER shrunk.
 function normalizePositions() {
   const tpp = tilesPerPage();
   const rpp = rowsPerPage();
@@ -444,7 +444,7 @@ function normalizePositions() {
     if (w.spanUnits < 1) w.spanUnits = 1;
     if (tpp >= 1) {
       if (w.spanUnits > tpp) w.spanUnits = tpp;
-      // widget mag geen paginagrens overspannen → schuif heel naar volgende pagina
+      // widget may not span a page boundary → move it wholly to the next page
       if (colInPage(w.globalCol) + w.spanUnits > tpp) {
         w.globalCol = (pageOf(w.globalCol) + 1) * tpp;
       }
@@ -460,8 +460,8 @@ function normalizePositions() {
   }
 }
 
-// Zoek de eerste vrije plek voor widget `w`, vooruit (omlaag-dan-rechts) vanaf
-// z'n huidige positie. `avoid` = widgets om niet mee te botsen.
+// Find the first free spot for widget `w`, forward (down-then-right) from
+// its current position. `avoid` = widgets not to collide with.
 function scanFreeSpot(w, avoid) {
   const tpp = tilesPerPage(), rpp = rowsPerPage();
   if (tpp < 1 || rpp < 1) return { globalCol: w.globalCol, startRowIdx: w.startRowIdx };
@@ -483,8 +483,8 @@ function scanFreeSpot(w, avoid) {
   return { globalCol: pageCount() * tpp, startRowIdx: 0 };
 }
 
-// Push-cascade: `anchorIdx` blijft vast staan, botsende widgets krijgen de
-// eerste vrije plek (omlaag-eerst-dan-rechts). Geometrie-only.
+// Push-cascade: `anchorIdx` stays fixed, colliding widgets get the
+// first free spot (down-first-then-right). Geometry-only.
 function resolveCollisions(anchorIdx) {
   const tpp = tilesPerPage(), rpp = rowsPerPage();
   if (tpp < 1 || rpp < 1) return;
@@ -506,7 +506,7 @@ function resolveCollisions(anchorIdx) {
     placed.push(w);
   }
 }
-// Vangnet: los elke resterende overlap op (bv. na auto-fit-groei).
+// Safety net: resolve any remaining overlap (e.g. after auto-fit growth).
 function resolveCollisionsAll() {
   if (state.widgets.length < 2) return;
   let anchorIdx = 0, best = Infinity;
@@ -517,14 +517,14 @@ function resolveCollisionsAll() {
   resolveCollisions(anchorIdx);
 }
 
-// V10: schuif widgets op latere pagina's terug zodat er nooit een lege
-// tussen-pagina is. Roept render aan zonder side-effects — wordt door render()
-// zelf opgeroepen wanneer er geen drag bezig is.
+// V10: shift widgets on later pages back so there is never an empty
+// in-between page. Calls render without side-effects — is called by render()
+// itself when no drag is in progress.
 function compactEmptyPages() {
   const tpp = tilesPerPage();
   if (tpp < 1 || state.widgets.length === 0) return;
-  // Iteratief: zolang er ergens een lege pagina tussen bezette pagina's
-  // zit, schuif alle widgets op pagina's > die index één page terug.
+  // Iterative: as long as there is an empty page somewhere between occupied pages,
+  // shift all widgets on pages > that index back one page.
   let changed = true;
   let guard = 0;
   while (changed && guard++ < 64) {
@@ -544,7 +544,7 @@ function compactEmptyPages() {
   }
 }
 
-// "Opruimen": pak alle widgets compact vanaf pagina 0 (omlaag-dan-rechts).
+// "Clean up": pack all widgets compactly from page 0 (down-then-right).
 function compactGrid() {
   const tpp = tilesPerPage(), rpp = rowsPerPage();
   if (tpp < 1 || rpp < 1) return;
@@ -624,12 +624,12 @@ function widgetHeightOnDash() {
 }
 
 function widgetContentHeight() {
-  // Dynamische topbar height (1 of 2 regels titel)
+  // Dynamic topbar height (1 or 2 title lines)
   const tH = (typeof titleLayout === 'function') ? titleLayout().totalH : WIDGET_TOPBAR_H;
   return Math.max(0, widgetHeightOnDash() - tH);
 }
 
-// Hypothetische widget-pixel-breedte/hoogte voor een gegeven span (zonder state te muteren)
+// Hypothetical widget pixel width/height for a given span (without mutating state)
 function widgetPxWFor(spanUnits) {
   if (spanUnits < 1) return 0;
   const dl = dashLayout();
@@ -646,16 +646,16 @@ function widgetContentPxHFor(spanUnitsY) {
   return Math.max(0, h - tH);
 }
 
-// Pas hoogte aan zodat alle info-boxes precies passen, gegeven huidige breedte.
-// growOnly=true (viewport-resize): span mag wel groeien maar nooit krimpen
-// (dashboard-resize maakt een widget nooit minder tegels). growOnly=false
-// (widget-resize / data-wissel): exacte content-fit, mag ook krimpen.
+// Adjust height so all info boxes fit exactly, given the current width.
+// growOnly=true (viewport resize): span may grow but never shrink
+// (dashboard resize never gives a widget fewer tiles). growOnly=false
+// (widget resize / data switch): exact content fit, may also shrink.
 function compactSpanUnitsY(growOnly = false) {
   const w = state.widget;
   if (!w) return;
   if (widgetKind(w) === 'combat') { _fitCombatSpanY(growOnly); return; }
   if (widgetKind(w) === 'inventory') { if (typeof _fitInventorySpanY === 'function') _fitInventorySpanY(growOnly); return; }
-  if (widgetKind(w) !== 'infobox') return;             // map/image: vrije, onafhankelijke afmetingen
+  if (widgetKind(w) !== 'infobox') return;             // map/image: free, independent dimensions
   const boxPxW = state.layout.boxPxW;
   const boxPxH = state.layout.boxPxH;
   const count = state.data.rows.length;
@@ -663,13 +663,13 @@ function compactSpanUnitsY(growOnly = false) {
   const minPad = state.cfg.widgetPadding;
   const minSp = state.cfg.infoBoxSpacing;
   const W = widgetPxWFor(w.spanUnits);
-  // Cap op het werkelijke aantal boxes — anders verdeelt distributeAxis de
-  // ruimte over te veel slots en clusteren de boxes links.
+  // Cap at the actual number of boxes — otherwise distributeAxis spreads the
+  // space over too many slots and the boxes cluster on the left.
   const boxesPerRow = Math.min(fitCount(W, boxPxW, minPad, minSp), count);
   if (boxesPerRow < 1) return;
   const rowsNeeded = Math.ceil(count / boxesPerRow);
   const pxNeeded = rowsNeeded * boxPxH + 2 * minPad + (rowsNeeded - 1) * minSp;
-  const maxSpanUnitsY = Math.max(1, rowsPerPage());    // cap op schermhoogte
+  const maxSpanUnitsY = Math.max(1, rowsPerPage());    // cap at screen height
   let chosen = maxSpanUnitsY;
   for (let s = 1; s <= maxSpanUnitsY; s++) {
     if (widgetContentPxHFor(s) >= pxNeeded) { chosen = s; break; }
@@ -677,19 +677,19 @@ function compactSpanUnitsY(growOnly = false) {
   w.spanUnitsY = growOnly ? Math.max(w.spanUnitsY, chosen) : chosen;
 }
 
-// Combat/Initiative-widget: hoogte volgt het aantal ZICHTBARE entities, in hele
-// dashboard-tegels (#NU-YZ6). Hidden entities tellen NIET mee in de speler-variant
-// — anders verraadt de widget-grootte een verborgen vijand (fog-of-war). De
-// resterende speling wordt tussen de rijen verdeeld via .combat-fitted
-// (space-between) in de CSS. growOnly net als compactSpanUnitsY: een
-// viewport-resize mag groeien maar nooit krimpen.
+// Combat/Initiative widget: height follows the number of VISIBLE entities, in whole
+// dashboard tiles (#NU-YZ6). Hidden entities do NOT count in the player variant
+// — otherwise the widget size would reveal a hidden enemy (fog-of-war). The
+// remaining slack is distributed between the rows via .combat-fitted
+// (space-between) in the CSS. growOnly just like compactSpanUnitsY: a
+// viewport resize may grow but never shrink.
 //
-// LET OP: de rij-/header-px-constanten zijn schattingen en moeten aan tafel
-// fijngesteld worden (zie Todo #NU-YZ6). Bewust iets royaal → liever één tegel
-// te veel dan content die net wegvalt.
-// transposeRows = aantal veld-rijen in de getransponeerde DM-tabel. Afgeleid uit
-// WG_COMBAT_FIELDS zodat een nieuw veld (zoals 'conc') de fit niet stilzwijgend
-// een rij te kort maakt; de 8 is alleen de fallback als wg-combat nog niet laadde.
+// NOTE: the row/header px constants are estimates and must be fine-tuned
+// at the table (see Todo #NU-YZ6). Deliberately a bit generous → better one tile
+// too many than content that just gets cut off.
+// transposeRows = number of field rows in the transposed DM table. Derived from
+// WG_COMBAT_FIELDS so a new field (like 'conc') doesn't silently make the fit
+// one row too short; the 8 is only the fallback if wg-combat hasn't loaded yet.
 const COMBAT_FIT = { headerPx: 30, bodyPadPx: 12, rowPx: 40, rowGapPx: 5, dmHeadPx: 18, transposeRows: 8, minSpanY: 2 };
 function combatFieldCount() {
   return (typeof WG_COMBAT_FIELDS !== 'undefined' && WG_COMBAT_FIELDS.length)
@@ -719,7 +719,7 @@ function combatNeededPxH(w) {
   }
   const C = COMBAT_FIT;
   if (transpose) {
-    // Getransponeerd: vaste rij-set (één rij per veld), groeit niet met entities.
+    // Transposed: fixed row set (one row per field), doesn't grow with entities.
     const tRows = combatFieldCount();
     return C.headerPx + C.bodyPadPx + tRows * C.rowPx + (tRows - 1) * C.rowGapPx;
   }
@@ -730,7 +730,7 @@ function combatNeededPxH(w) {
 function combatMinSpanUnitsY(w) {
   const C = COMBAT_FIT;
   const pxNeeded = combatNeededPxH(w);
-  const maxSpanUnitsY = Math.max(C.minSpanY, rowsPerPage());   // cap op schermhoogte
+  const maxSpanUnitsY = Math.max(C.minSpanY, rowsPerPage());   // cap at screen height
   for (let s = C.minSpanY; s <= maxSpanUnitsY; s++) {
     if (widgetContentPxHFor(s) >= pxNeeded) return s;
   }
@@ -741,15 +741,15 @@ function _fitCombatSpanY(growOnly) {
   if (!w) return;
   const chosen = combatMinSpanUnitsY(w);
   w.spanUnitsY = growOnly ? Math.max(w.spanUnitsY, chosen) : chosen;
-  // Vlag voor de renderer: past álle content binnen de gekozen hoogte? Zo ja →
-  // space-between verdeelt de speling tussen de rijen; zo nee → body scrollt.
+  // Flag for the renderer: does ALL content fit within the chosen height? If so →
+  // space-between distributes the slack between the rows; if not → body scrolls.
   w._combatFits = widgetContentPxHFor(w.spanUnitsY) >= combatNeededPxH(w);
 }
 
-// Minimale BREEDTE (in dashboard-tegels / spanUnits) waarbij de combat-tracker
-// alles toont zonder horizontaal te scrollen. Gemeten na de render
-// (w._combatM.minW: breedste van header en tabel/lijst); tot de eerste meting
-// alleen een vaste ondergrens voor de normale DM-tabel (8 kolommen ≈ 600px).
+// Minimum WIDTH (in dashboard tiles / spanUnits) at which the combat tracker
+// shows everything without horizontal scrolling. Measured after the render
+// (w._combatM.minW: widest of header and table/list); until the first measurement
+// only a fixed lower bound for the normal DM table (8 columns ≈ 600px).
 const COMBAT_MIN_PX = 610;
 function combatMinSpanUnits(w) {
   if (!w || widgetKind(w) !== 'combat') return 1;
@@ -760,39 +760,39 @@ function combatMinSpanUnits(w) {
   for (let s = 1; s <= maxSpan; s++) {
     if (widgetPxWFor(s) >= minPx) return s;
   }
-  return maxSpan;                                    // pagina te smal → zo breed mogelijk
+  return maxSpan;                                    // page too narrow → as wide as possible
 }
 
-// Fit alle combat-widgets (DM-tracker + speler-tracker) vóór een render-pass.
-// Idempotent: zelfde entities → zelfde spanUnitsY, dus geen render-storm.
+// Fit all combat widgets (DM tracker + player tracker) before a render pass.
+// Idempotent: same entities → same spanUnitsY, so no render storm.
 function recomputeCombatWidgets(growOnly) {
   if (!state.widgets) return;
   for (const w of state.widgets) {
     if (widgetKind(w) !== 'combat') continue;
     withWidget(w, () => {
-      // Breedte-ondergrens afdwingen: bestaande te smalle widgets (of na een
-      // layout-wissel) groeien terug tot alle kolommen zichtbaar zijn.
+      // Enforce the width lower bound: existing too-narrow widgets (or after a
+      // layout switch) grow back until all columns are visible.
       const tpp = Math.max(1, tilesPerPage());
       const minSpan = Math.min(combatMinSpanUnits(w), tpp);
       if (w.spanUnits < minSpan) {
         w.spanUnits = minSpan;
-        // Schuif zo nodig naar links zodat de bredere widget binnen de pagina past.
+        // Shift left if needed so the wider widget fits within the page.
         const col = colInPage(w.globalCol);
         if (col + minSpan > tpp) {
           w.globalCol = pageOf(w.globalCol) * tpp + Math.max(0, tpp - minSpan);
         }
       }
-      // Hoogte ná de breedte: een gewrapte lijst hangt van de breedte af.
+      // Height after the width: a wrapped list depends on the width.
       _fitCombatSpanY(!!growOnly);
     });
   }
 }
 
-// Pas breedte aan zodat alle info-boxes precies passen, gegeven huidige hoogte.
+// Adjust width so all info boxes fit exactly, given the current height.
 function compactSpanUnits(growOnly = false) {
   const w = state.widget;
   if (!w) return;
-  if (widgetKind(w) !== 'infobox') return;             // map/image: vrije, onafhankelijke afmetingen
+  if (widgetKind(w) !== 'infobox') return;             // map/image: free, independent dimensions
   const boxPxW = state.layout.boxPxW;
   const boxPxH = state.layout.boxPxH;
   const count = state.data.rows.length;
@@ -804,7 +804,7 @@ function compactSpanUnits(growOnly = false) {
   if (maxRowsFitting < 1) return;
   const minBoxesPerRow = Math.ceil(count / maxRowsFitting);
   const pxNeeded = minBoxesPerRow * boxPxW + 2 * minPad + (minBoxesPerRow - 1) * minSp;
-  const maxSpanUnits = Math.max(1, tilesPerPage());    // cap op pagina-breedte
+  const maxSpanUnits = Math.max(1, tilesPerPage());    // cap at page width
   let chosen = maxSpanUnits;
   for (let s = 1; s <= maxSpanUnits; s++) {
     if (widgetPxWFor(s) >= pxNeeded) { chosen = s; break; }
@@ -812,8 +812,8 @@ function compactSpanUnits(growOnly = false) {
   w.spanUnits = growOnly ? Math.max(w.spanUnits, chosen) : chosen;
 }
 
-// Hoeveel vaste boxes passen in lengte L bij gegeven minima.
-// Slot-model: 2 padding-slots (randen) + (n-1) spacing-slots (tussen boxes).
+// How many fixed boxes fit in length L given the minimums.
+// Slot model: 2 padding slots (edges) + (n-1) spacing slots (between boxes).
 function fitCount(L, box, minPad, minSp) {
   if (box <= 0 || L <= 0) return 0;
   let n = Math.floor((L - 2 * minPad + minSp) / (box + minSp));
@@ -822,9 +822,9 @@ function fitCount(L, box, minPad, minSp) {
   return n;
 }
 
-// Verdeel het surplus gelijk over alle (n+1) slots: 2 padding + (n-1) spacing.
-// padding én spacing groeien dus even hard mee boven hun minimum uit, en de
-// boxes blijven symmetrisch gecentreerd in de widget.
+// Distribute the surplus equally over all (n+1) slots: 2 padding + (n-1) spacing.
+// padding and spacing thus grow equally far above their minimum, and the
+// boxes stay symmetrically centered in the widget.
 function distributeAxis(L, box, minPad, minSp, n) {
   if (n < 1) return { padding: minPad, spacing: minSp };
   const surplus = L - n * box - 2 * minPad - (n - 1) * minSp;
@@ -852,8 +852,8 @@ function infoBoxLayout() {
   const W = widgetWidth();
   const H = widgetContentHeight();
 
-  // Cap op het werkelijke aantal boxes — anders verdeelt distributeAxis de
-  // ruimte over te veel slots en clusteren de boxes links.
+  // Cap at the actual number of boxes — otherwise distributeAxis spreads the
+  // space over too many slots and the boxes cluster on the left.
   const maxPerRow = Math.min(fitCount(W, boxPxW, minPad, minSp), count);
   if (maxPerRow < 1) return base;
 
@@ -861,8 +861,8 @@ function infoBoxLayout() {
   if (maxRowsFitting < 1) return base;
 
   const rowsNeeded = Math.ceil(count / maxPerRow);
-  // Balanceer de boxes over de rijen: niet een volle rij + bijna-lege
-  // rest-rij, maar grofweg even lang (6 boxes, 2 rijen → 3 + 3).
+  // Balance the boxes over the rows: not a full row + an almost-empty
+  // remainder row, but roughly equal length (6 boxes, 2 rows → 3 + 3).
   const boxesPerRow = Math.ceil(count / rowsNeeded);
   const rows = Math.min(rowsNeeded, maxRowsFitting);
   const fits = rowsNeeded <= maxRowsFitting;
@@ -879,13 +879,13 @@ function infoBoxLayout() {
   };
 }
 
-// V10: dashboard heeft vaste maat — geen user-resize meer. Width/height vullen
-// gewoon de beschikbare ruimte; geen fraction-state of bounds-clamp nodig.
+// V10: dashboard has a fixed size — no more user resize. Width/height simply fill
+// the available space; no fraction state or bounds clamp needed.
 function maxDashWidth() {
   const wrap = document.querySelector('.canvas-wrap');
   if (!wrap) return Infinity;
-  const containerW = wrap.clientWidth - 4;   // canvas-wrap padding 2px → 4 px horizontaal
-  // Minimaal zodat de grid strak langs de rand van de box loopt (verzoek 2026-06-04).
+  const containerW = wrap.clientWidth - 4;   // canvas-wrap padding 2px → 4 px horizontal
+  // Minimal so the grid runs tight along the edge of the box (request 2026-06-04).
   const PAD = 2;
   return Math.max(50, containerW - Math.max(state.dashboard.leftX, PAD) - PAD);
 }
@@ -897,8 +897,8 @@ function applyResponsiveWidth() {
 
 function availableDashHeight() {
   const isMobile = window.innerWidth < 600;
-  // Grid vult de box verticaal verder (kleinere reserve). De FABs zijn nu 70%
-  // (kleiner) dus er is minder clearance nodig onderaan (2026-06-04).
+  // Grid fills the box further vertically (smaller reserve). The FABs are now 70%
+  // (smaller) so less clearance is needed at the bottom (2026-06-04).
   const reserved = isMobile ? 410 : 210;
   const padding = (state.config.dashPadding || 0) * 2;
   return Math.max(120, window.innerHeight - reserved - padding);
@@ -913,8 +913,8 @@ function applyResponsiveHeight() {
   state.dashboard.height = Math.max(minSize, naturalDashHeight());
 }
 
-// V9: ensureWidgetInBounds (span-krimp = de V8-bug) vervangen door
-// normalizePositions() — die clampt positie + paginagrens zonder span te krimpen.
+// V9: ensureWidgetInBounds (span shrinking = the V8 bug) replaced by
+// normalizePositions() — which clamps position + page boundary without shrinking span.
 
 // ----- SVG helpers -----
 

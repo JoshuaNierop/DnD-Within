@@ -1,16 +1,16 @@
 // ===== wg-events.js — drag/gesture-arbiter (V9), drag-handle proximity (V10), V11 Phase 3.2/3.3 click handlers =====
 // Extracted from index.html lines 3569-3801 + 4400-4456 + 4605-5104
 
-// ----- Drag (V9: gesture-arbiter + drag-threshold + paginering) ----- (orig 3569-3801)
-// ----- Dragging (V9: gesture-arbiter + drag-threshold + paginering) -----
+// ----- Drag (V9: gesture-arbiter + drag-threshold + pagination) ----- (orig 3569-3801)
+// ----- Dragging (V9: gesture-arbiter + drag-threshold + pagination) -----
 
 let dragHandle = null;
 let dragOffset = { x: 0, y: 0 };
-let pendingGesture = null;        // afwachtende gesture vóór de drag-threshold
+let pendingGesture = null;        // pending gesture before the drag threshold
 let gestureCommitted = false;
 let lastPointerClient = { x: 0, y: 0 };
-let pageFlipAt = 0;               // debounce-timestamp voor cross-page drag
-const WG_DRAG_THRESHOLD = 5;         // px — onder deze afstand is het een klik
+let pageFlipAt = 0;               // debounce timestamp for cross-page drag
+const WG_DRAG_THRESHOLD = 5;         // px — below this distance it's a click
 
 function getSVGPoint(svg, evt) {
   const pt = svg.createSVGPoint();
@@ -22,18 +22,18 @@ function getSVGPoint(svg, evt) {
 }
 
 function onPointerDown(evt) {
-  // Bug-reporter actief (#6): de canvas mag de interactie NIET kapen. Zonder
-  // deze guard zet pointerdown een select-gesture en re-rendert pointerup de
-  // hele SVG-inhoud — het aangeklikte sub-div van de widget is dan weg vóór de
-  // native click landt, dus de element-picker selecteert niets. Vroeg uitstappen
-  // (geen pendingGesture) laat pointerup een no-op zijn → de click bereikt het
-  // intacte sub-div → picker kan delen van widgets selecteren.
+  // Bug reporter active (#6): the canvas must NOT hijack the interaction. Without
+  // this guard pointerdown sets a select gesture and pointerup re-renders the
+  // whole SVG content — the clicked sub-div of the widget is then gone before the
+  // native click lands, so the element picker selects nothing. Exiting early
+  // (no pendingGesture) makes pointerup a no-op → the click reaches the
+  // intact sub-div → picker can select parts of widgets.
   if (document.body.classList.contains('br-selecting')) return;
-  // Map-action buttons (upload-portrait, etc.) moeten SYNCHROON afgehandeld
-  // worden in pointerdown. Anders triggert pointerup een setActiveWidget+
-  // render() die de SVG-target vervangt vóór de click event fires, en gaat
-  // de transient user-activation verloren in de async click-handler →
-  // file picker opent niet. Sync afhandelen omzeilt beide problemen.
+  // Map-action buttons (upload-portrait, etc.) must be handled SYNCHRONOUSLY
+  // in pointerdown. Otherwise pointerup triggers a setActiveWidget+
+  // render() that replaces the SVG target before the click event fires, and
+  // the transient user activation is lost in the async click handler →
+  // file picker doesn't open. Handling synchronously avoids both problems.
   if (typeof state !== 'undefined' && state.config && state.config.editValuesMode) {
     const mapActionEl = evt.target.closest && evt.target.closest('[data-map-action]');
     if (mapActionEl) {
@@ -66,11 +66,11 @@ function onPointerDown(evt) {
   gestureCommitted = false;
   lastPointerClient = { x: evt.clientX, y: evt.clientY };
 
-  // Bug #rC2HV4: in edit-values mode kun je een widget NIET als geheel
-  // selecteren of slepen — alleen losse infobox-cellen zijn bewerkbaar (die
-  // worden in de click-listener afgehandeld). Een klik op (een deel van) een
-  // widget of een resize-handle doet hier dus niets; lege ruimte mag nog
-  // swipen tussen pagina's.
+  // Bug #rC2HV4: in edit-values mode you can NOT select or drag a widget
+  // as a whole — only individual infobox cells are editable (handled
+  // in the click listener). A click on (part of) a
+  // widget or a resize handle therefore does nothing here; empty space can still
+  // swipe between pages.
   if (state.config && state.config.editValuesMode) {
     if (!Number.isNaN(wIdx) || hasHandle) return;
     if (evt.target.closest && evt.target.closest('#canvas')) {
@@ -94,7 +94,7 @@ function onPointerDown(evt) {
   }
 
   if (!hasHandle) {
-    // Geen handle: widget-body → selecteer-op-pointerup; lege ruimte → swipe/deselect.
+    // No handle: widget body → select-on-pointerup; empty space → swipe/deselect.
     if (!Number.isNaN(wIdx)) {
       pendingGesture = { kind: 'select', widgetIdx: wIdx, startX: evt.clientX, startY: evt.clientY,
                          additive: !!(evt.ctrlKey || evt.metaKey) };
@@ -108,17 +108,17 @@ function onPointerDown(evt) {
   if (!Number.isNaN(wIdx)) setActiveWidget(wIdx);
   const h = t.dataset.handle;
 
-  // Directe acties — geen drag. (V9: widget-delete/-settings zitten niet meer
-  // op de widget; verwijderen = Delete-toets, settings = topbar-knop.)
+  // Direct actions — no drag. (V9: widget delete/settings are no longer
+  // on the widget; delete = Delete key, settings = topbar button.)
   if (h === 'map-pin')  { evt.preventDefault(); navigateMapWidget(state.activeWidgetIdx, t.dataset.target); return; }
   if (h === 'map-back') { evt.preventDefault(); mapWidgetBack(state.activeWidgetIdx); return; }
   if (h === 'map-dim')  { evt.preventDefault(); setMapWidgetDim(state.activeWidgetIdx, parseInt(t.dataset.dim, 10)); return; }
 
-  // V10: edit-mode is altijd actief — alle widget-handles (resize + topbar
-  // move) zijn beschikbaar. Handles tonen alleen op proximity (CSS), maar
-  // de pointer-down accepteert ze altijd zolang ze in de DOM staan.
+  // V10: edit mode is always active — all widget handles (resize + topbar
+  // move) are available. Handles only show on proximity (CSS), but
+  // pointer-down always accepts them as long as they're in the DOM.
 
-  // Drag-gesture in afwachting — pas vastgelegd na WG_DRAG_THRESHOLD.
+  // Drag gesture pending — only committed after WG_DRAG_THRESHOLD.
   const pg = { kind: 'drag', handle: h, widgetIdx: wIdx,
                startX: evt.clientX, startY: evt.clientY, offX: 0, offY: 0 };
   if (h === 'widget-move-2d' && state.widget) {
@@ -140,7 +140,7 @@ function onPointerMove(evt) {
     if (Math.hypot(dx, dy) < WG_DRAG_THRESHOLD) return;
     gestureCommitted = true;
     if (pendingGesture.kind === 'select') {
-      // Sleep vanaf een widget-body → geen drag (drag enkel via topbar). Stop.
+      // Drag from a widget body → no drag (drag only via topbar). Stop.
       pendingGesture = null;
       return;
     }
@@ -172,7 +172,7 @@ function onPointerUp(evt) {
   if (!pg) return;
 
   if (!committed) {
-    // Onder de drag-threshold gebleven → het was een klik.
+    // Stayed under the drag threshold → it was a click.
     if (pg.kind === 'select') selectWidgetClick(pg.widgetIdx, pg.additive);
     else if (pg.kind === 'swipe') deselectWidgets();
     else render();
@@ -193,7 +193,7 @@ function onPointerUp(evt) {
   render();
 }
 
-// Drop op precies één andere widget → wissel posities; anders push-cascade.
+// Drop on exactly one other widget → swap positions; otherwise push cascade.
 function trySwapOrResolve(idx) {
   const a = state.widgets[idx];
   if (!a) return;
@@ -208,7 +208,7 @@ function trySwapOrResolve(idx) {
   resolveCollisions(idx);
 }
 
-// Veeg in lege grid-ruimte → vorige/volgende pagina.
+// Swipe in empty grid space → previous/next page.
 function finishSwipe(pg) {
   const dx = lastPointerClient.x - pg.startX;
   const SWIPE_MIN = 50;
@@ -219,14 +219,14 @@ function finishSwipe(pg) {
 
 function applyDrag(handle, svgX, svgY) {
   const { dashTile: t } = state.config;
-  // V10: dashboard heeft geen drag-handles meer — alleen widget-handles.
+  // V10: dashboard no longer has drag handles — only widget handles.
 
   if (handle === 'widget-move-2d') {
     const tpp = tilesPerPage(), rpp = rowsPerPage();
     const dl = dashLayout(), vl = dashVLayout();
     const w = state.widget;
     if (tpp < 1 || rpp < 1 || !w) return;
-    // Horizontaal: snap aan kolom; rand → naburige pagina (gedebounced).
+    // Horizontal: snap to column; edge → neighbouring page (debounced).
     const unitX = t + dl.spacing;
     const targetLeft = svgX - dragOffset.x;
     const relX = targetLeft - state.dashboard.leftX - dl.spacing;
@@ -240,7 +240,7 @@ function applyDrag(handle, svgX, svgY) {
     }
     colIdx = Math.max(0, Math.min(colIdx, maxCol));
     w.globalCol = state.currentPage * tpp + colIdx;
-    // Verticaal: snap aan rij, geclamped binnen schermhoogte.
+    // Vertical: snap to row, clamped within screen height.
     const unitY = t + vl.spacing;
     const targetTop = svgY - dragOffset.y;
     const relY = targetTop - state.dashboard.topY - vl.spacing;
@@ -257,7 +257,7 @@ function applyDrag(handle, svgX, svgY) {
     let col = Math.round(relX / unit);
     if (col < 0) col = 0;
     const rightCol = colInPage(w.globalCol) + w.spanUnits - 1;
-    // Combat-tracker: niet smaller dan minimum-breedte (alles zichtbaar houden).
+    // Combat tracker: not narrower than minimum width (keep everything visible).
     const minSpanL = combatMinSpanUnits(w);
     const maxColL = rightCol - minSpanL + 1;
     if (col > maxColL) col = maxColL;
@@ -274,7 +274,7 @@ function applyDrag(handle, svgX, svgY) {
     const relX = svgX - state.dashboard.leftX - dl.spacing - t;
     let col = Math.round(relX / unit);
     const leftCol = colInPage(w.globalCol);
-    // Combat-tracker: niet smaller dan minimum-breedte (alles zichtbaar houden).
+    // Combat tracker: not narrower than minimum width (keep everything visible).
     const minColR = leftCol + combatMinSpanUnits(w) - 1;
     if (col < minColR) col = minColR;
     if (col > tpp - 1) col = tpp - 1;
@@ -289,7 +289,7 @@ function applyDrag(handle, svgX, svgY) {
     const relY = svgY - state.dashboard.topY - vl.spacing - t;
     let row = Math.round(relY / unit);
     if (row < w.startRowIdx) row = w.startRowIdx;
-    // Combat-tracker: niet lager dan de content nodig heeft.
+    // Combat tracker: not lower than the content needs.
     if (widgetKind(w) === 'combat') row = Math.max(row, w.startRowIdx + combatMinSpanUnitsY(w) - 1);
     if (row > rpp - 1) row = rpp - 1;
     w.spanUnitsY = row - w.startRowIdx + 1;
@@ -300,25 +300,25 @@ function applyDrag(handle, svgX, svgY) {
 
 // ----- Drag-handle proximity (V10) + global pointer listeners ----- (orig 4400-4456)
 // ----- Drag-handle proximity (V10) ------------------------------------------
-// Toont handles alleen wanneer de muis er dichtbij is. We bewaren de laatste
-// muispositie globaal en hercheck'en na elke render (handles worden vers
-// getekend dus de class is anders verloren). Handles zijn display:none als ze
-// niet near zijn, dus we kunnen hun screen-positie niet via getBoundingClientRect
-// halen — we parsen het transform-attribuut (translate(x,y)) en mappen die
-// SVG-coords naar client-coords via de SVG screen-CTM.
-let _lastPointerXY = null;        // {x, y} in client-coords, of null = onbekend
-const WG_HANDLE_PROXIMITY_PX = 80;   // afstand-drempel in viewport-pixels
+// Shows handles only when the mouse is near. We keep the last
+// mouse position globally and re-check after every render (handles are freshly
+// drawn so the class would otherwise be lost). Handles are display:none when they're
+// not near, so we can't get their screen position via getBoundingClientRect
+// — we parse the transform attribute (translate(x,y)) and map those
+// SVG coords to client coords via the SVG screen CTM.
+let _lastPointerXY = null;        // {x, y} in client coords, or null = unknown
+const WG_HANDLE_PROXIMITY_PX = 80;   // distance threshold in viewport pixels
 
 function updateHandleProximity() {
   const xy = _lastPointerXY;
   const svg = document.getElementById('canvas');
   const ctm = svg && svg.getScreenCTM ? svg.getScreenCTM() : null;
-  // Tijdens een actieve drag (resize of move) mogen handles van andere widgets
-  // niet meer reageren op proximity — de cursor schiet anders door hun zone.
+  // During an active drag (resize or move) handles of other widgets must
+  // no longer react to proximity — the cursor would otherwise cross their zone.
   const dragActive = !!dragHandle;
   const activeIdx = state.activeWidgetIdx;
   document.querySelectorAll('svg g.resize-handle').forEach(g => {
-    // Drag-state nooit overschrijven — de handle die zelf gedragd wordt blijft zichtbaar.
+    // Never overwrite drag state — the handle that is itself being dragged stays visible.
     if (g.classList.contains('dragging')) {
       g.classList.add('proximity-near');
       return;
@@ -378,14 +378,14 @@ async function refreshCharCache(id) {
   });
 }
 
-// Optimistische lokale update bij een value-edit. Past de gecachte
-// character-config aan, spiegelt 'm naar de D&D Within localStorage
-// (`dw_charconfig_<id>`) en herbouwt alleen de widgets — GEEN re-fetch en GEEN
-// renderApp. Dat is cruciaal: de Firebase-echo van de schrijfactie zou anders
-// (via sync.js applyLeaves) een main-app renderApp triggeren die de hele
-// character-page remount → edit-values toggle 'lijkt uit' + zichtbare flits.
-// Door localStorage vóór de echo al kloppend te zetten, ziet applyLeaves
-// `changed === 0` en blijft de render uit.
+// Optimistic local update on a value edit. Adjusts the cached
+// character config, mirrors it to the D&D Within localStorage
+// (`dw_charconfig_<id>`) and rebuilds only the widgets — NO re-fetch and NO
+// renderApp. This is crucial: the Firebase echo of the write would otherwise
+// (via sync.js applyLeaves) trigger a main-app renderApp that remounts the whole
+// character page → edit-values toggle 'looks off' + visible flash.
+// By making localStorage correct before the echo, applyLeaves sees
+// `changed === 0` and the render stays off.
 function wgApplyConfigEdit(charId, mutate) {
   const raw = WG_CHAR_CACHE[charId];
   if (raw) {
@@ -397,7 +397,7 @@ function wgApplyConfigEdit(charId, mutate) {
   if (typeof render === 'function') render();
 }
 
-// Write an ability score to Firebase (optimistisch, geen re-render van de app).
+// Write an ability score to Firebase (optimistic, no app re-render).
 async function writeAbilityScore(abilityKey, value) {
   const charId = state.characterId;
   wgApplyConfigEdit(charId, cfg => {
@@ -427,7 +427,7 @@ async function writeCharConfigField(fieldKey, rawValue) {
   if (!res.ok) throw new Error('HTTP ' + res.status);
 }
 
-// Write skill prof/expert arrays to Firebase (optimistisch, geen app-render).
+// Write skill prof/expert arrays to Firebase (optimistic, no app render).
 async function writeSkillProficiency(skillKey, nextMark) {
   const charId = state.characterId;
   const raw = WG_CHAR_CACHE[charId];
@@ -439,8 +439,8 @@ async function writeSkillProficiency(skillKey, nextMark) {
   else if (nextMark === '●') { prof.add(skillKey); xp.delete(skillKey); }
   else if (nextMark === '★') { prof.add(skillKey); xp.add(skillKey); }
   const profArr = [...prof], xpArr = [...xp];
-  // Optimistisch: lege arrays uit de cache HALEN (Firebase dropt lege arrays,
-  // dus zo blijft de lokale config structureel gelijk aan de echo → geen render).
+  // Optimistic: REMOVE empty arrays from the cache (Firebase drops empty arrays,
+  // so the local config stays structurally equal to the echo → no render).
   wgApplyConfigEdit(charId, c => {
     if (profArr.length) c.defaultSkills = profArr; else delete c.defaultSkills;
     if (xpArr.length)   c.expertSkills  = xpArr;   else delete c.expertSkills;
@@ -620,7 +620,7 @@ async function savePinsToFirebase(widgetIdx, newPins) {
     _mapsFetchState = "idle";
     await fetchMapsData();
     wgSyncMapsToLocal(); // WGI-M6
-    // V11 phase 3.4: na succesvolle pin-save direct uit pin-add-modus
+    // V11 phase 3.4: after a successful pin save, leave pin-add mode right away
     if (state.config.pinAddMode === widgetIdx) {
       state.config.pinAddMode = null;
       document.body.classList.remove("pin-add-mode");
@@ -764,8 +764,8 @@ function handleMapAction(action, widgetIdx) {
   }
 }
 
-// #fATDUg: open de crop-editor voor het profielfoto-widget en sla de focal/zoom
-// op onder /dw/characters/{id}/images/portraitCrop (sibling van portrait).
+// #fATDUg: open the crop editor for the profile photo widget and save the focal/zoom
+// under /dw/characters/{id}/images/portraitCrop (sibling of portrait).
 function cropWidgetPortrait(widgetIdx) {
   const charId = state.characterId;
   if (!charId) { showToast("No active character", "error"); return; }
@@ -778,17 +778,17 @@ function cropWidgetPortrait(widgetIdx) {
     src: src,
     crop: crop,
     shape: "square",
-    aspect: 3 / 4, // #OvvJdjg: portret-vormig bewerk-veld
+    aspect: 3 / 4, // #OvvJdjg: portrait-shaped edit field
     onSave: (newCrop) => {
       if (state.characterId !== charId) return; // race-guard
-      savePortraitCrop(charId, newCrop); // schrijft cache + firebase + mirror
+      savePortraitCrop(charId, newCrop); // writes cache + firebase + mirror
       render();
       showToast("Crop saved", "success");
     },
   });
 }
 
-// V11 Phase 3.4: upload portret naar /dw/characters/{id}/images/portrait.json
+// V11 Phase 3.4: upload portrait to /dw/characters/{id}/images/portrait.json
 async function uploadPortrait(widgetIdx, file) {
   const charId = state.characterId;
   if (!charId) { showToast("No active character", "error"); return; }
@@ -831,13 +831,13 @@ async function uploadPortrait(widgetIdx, file) {
 // ===== End Phase 3.3 helpers =====
 
 // Delegated click on the SVG canvas for editable cells + map actions (V11 Phase 3.3).
-// WGI fix: bind aan document zodat de listener ook werkt na latere mount
-// (in standalone V8 bestaat #canvas bij script-load, in D&D Within inline-mount niet).
+// WGI fix: bind to document so the listener also works after a later mount
+// (in standalone V8 #canvas exists at script load, in D&D Within inline mount it doesn't).
 document.addEventListener("click", async (e) => {
   if (typeof state === "undefined" || !state.config) return;
   if (!e.target.closest || !e.target.closest("#canvas")) return;
-  // HP-cellen (WG_EDIT_CONFIG[src].mode === 'always') zijn óók buiten edit-values
-  // mode klikbaar; al het andere blijft achter de edit-toggle.
+  // HP cells (WG_EDIT_CONFIG[src].mode === 'always') are also clickable outside
+  // edit-values mode; everything else stays behind the edit toggle.
   if (!state.config.editValuesMode) {
     const ac = e.target.closest("g.editable-cell");
     const acSrc = ac && ac.dataset.source;
@@ -887,7 +887,7 @@ document.addEventListener("click", async (e) => {
 
   const charId = state.characterId;
 
-  // ---- Geporte infobox-bronnen (bv. 'hp'): per-rij dispatch via registry ----
+  // ---- Ported infobox sources (e.g. 'hp'): per-row dispatch via registry ----
   if (typeof WG_INFOBOX_CLICK_HANDLERS !== 'undefined' && WG_INFOBOX_CLICK_HANDLERS[src]) {
     const raw = WG_CHAR_CACHE[charId];
     try { await WG_INFOBOX_CLICK_HANDLERS[src]({ cellG, raw, charId, rowIdx }); }
@@ -996,7 +996,7 @@ document.addEventListener("click", async (e) => {
       committed = true;
       inp.remove();
       const typed = inp.value.trim();
-      if (typed === String(curVal).trim()) return;   // niets veranderd
+      if (typed === String(curVal).trim()) return;   // nothing changed
       try {
         await writeCharConfigField(fieldKey, typed);
         if (charId !== state.characterId) return;
@@ -1017,9 +1017,9 @@ document.addEventListener("click", async (e) => {
 // ===========================================================================
 //  Info-box tooltip (#bug Ov6e4Bv9) — hover (desktop) + long-press (touch/pen)
 // ---------------------------------------------------------------------------
-//  Tooltip-data zit als data-tip-title/data-tip-body op de cel-bg-paths
-//  (wg-render.js drawCellBg) of op gewone HTML-elementen. De tekst erboven
-//  heeft pointer-events:none, dus hover/long-press landt altijd op de cel.
+//  Tooltip data lives as data-tip-title/data-tip-body on the cell bg paths
+//  (wg-render.js drawCellBg) or on plain HTML elements. The text above it
+//  has pointer-events:none, so hover/long-press always lands on the cell.
 //
 //  Nested tooltips: the tooltip stays where it opened, so the pointer can move
 //  into it. Known terms in its text (spells, conditions, actions, features —
@@ -1027,13 +1027,13 @@ document.addEventListener("click", async (e) => {
 //  touch), which can nest again. A window closes shortly after the pointer
 //  leaves it and everything opened from it.
 //
-//  Botst NIET met slepen: een widget sleep je alleen via de topbar-handle of
-//  resize-handles — die dragen géén tooltip-data. Élke beweging >
-//  LP_MOVE_CANCEL annuleert de long-press-timer.
+//  Does NOT conflict with dragging: a widget is only dragged via the topbar handle or
+//  resize handles — those carry no tooltip data. ANY movement >
+//  LP_MOVE_CANCEL cancels the long-press timer.
 // ===========================================================================
 (function initInfoTooltip() {
-  var LONG_PRESS_MS = 450;     // ingedrukt houden vóór de tooltip verschijnt
-  var LP_MOVE_CANCEL = 10;     // px beweging die de long-press annuleert
+  var LONG_PRESS_MS = 450;     // hold pressed before the tooltip appears
+  var LP_MOVE_CANCEL = 10;     // px of movement that cancels the long-press
   var HIDE_DELAY = 280;        // ms grace before a window closes (time to reach it)
   var OPEN_DELAY = 140;        // ms hover on a term before its window opens
   var SWITCH_DELAY = 130;      // ms before another cell replaces an open tooltip

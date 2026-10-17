@@ -5,7 +5,7 @@
 // ----- Inputs -----
 
 function bindInputs() {
-  // dashPadding → dashboard-globaal
+  // dashPadding → dashboard-global
   const dashPadInp = document.getElementById('dashPadding');
   if (dashPadInp) {
     dashPadInp.value = state.config.dashPadding;
@@ -28,15 +28,15 @@ function bindInputs() {
       const v = parseInt(inp.value, 10);
       if (!isNaN(v) && v >= 0 && state.widget) {
         state.widget.cfg[id] = v;
-        recomputeDataLayout();   // cellPadding beïnvloedt boxPx
+        recomputeDataLayout();   // cellPadding affects boxPx
         compactSpanUnitsY();
         render();
       }
     });
   });
 
-  // V9: Character ID-input is verdwenen — character is dashboard-breed
-  // (topbar-dropdown). Data source blijft per-widget.
+  // V9: Character ID input is gone — character is dashboard-wide
+  // (topbar dropdown). Data source stays per-widget.
   // Data source dropdown — per-widget
   const srcSel = document.getElementById('dataSource');
   if (srcSel) {
@@ -68,7 +68,7 @@ function bindInputs() {
     });
   }
 
-  // Combat-tabel oriëntatie (transpose) — per combat-widget
+  // Combat table orientation (transpose) — per combat widget
   const transGroup = document.getElementById('combatTranspose');
   if (transGroup) {
     transGroup.querySelectorAll('input[name="combatTranspose"]').forEach(r => {
@@ -82,8 +82,8 @@ function bindInputs() {
     });
   }
 
-  // Inventory weergave-variant (tekst | afbeelding) — per inventory-widget.
-  // Variant raakt de fit (image-box is hoger) → her-fit vóór render.
+  // Inventory display variant (text | image) — per inventory widget.
+  // Variant affects the fit (image box is taller) → re-fit before render.
   const invGroup = document.getElementById('invDisplay');
   if (invGroup) {
     invGroup.querySelectorAll('input[name="invDisplay"]').forEach(r => {
@@ -114,9 +114,9 @@ const WG_PALETTES = {
       '--user-text-highlight':  '#6b4a16',
       '--user-border':          '#b8a06f',
       '--user-border-soft':     'rgba(184,160,111,0.35)',
-      '--user-border-glow':     '#e8a31c',   // distinct amber: actief/geselecteerd moet
-                                             // opvallen t.o.v. de rustende rand (#b8a06f),
-                                             // anders lijkt elke widget geselecteerd (#9OOOz2)
+      '--user-border-glow':     '#e8a31c',   // distinct amber: active/selected must
+                                             // stand out from the resting border (#b8a06f),
+                                             // otherwise every widget looks selected (#9OOOz2)
       '--info-font-body':       "Georgia, 'Times New Roman', serif",
       '--info-font-display':    "Georgia, 'Times New Roman', serif",
     },
@@ -129,7 +129,7 @@ const WG_PALETTES = {
       '--tile-info':   '#cc88ff',
       '--tile-info-2': '#88ccff',
       '--tile-info-3': '#99ee66',
-      // D&D Within exacte tokens uit :root
+      // D&D Within exact tokens from :root
       '--user-bg-page':         '#0c0a08',           // bg-dark
       '--user-bg-1':            '#221d19',           // bg-elevated (header + info-boxes)
       '--user-bg-2':            '#161311',           // bg-card (widget main)
@@ -153,7 +153,7 @@ function applyPalette(name) {
   state.style.cellRadius = p.cellRadius;
   state.style.widgetRadius = p.widgetRadius;
   state.style.infoBoxOutlineOpacity = p.infoBoxOutlineOpacity;
-  // Glow wordt nu door is-dragging class getriggerd, niet permanent gezet.
+  // Glow is now triggered by the is-dragging class, not set permanently.
   const root = document.documentElement.style;
   for (const [k, v] of Object.entries(p.css)) root.setProperty(k, v);
 }
@@ -165,7 +165,7 @@ function applyStyle() {
 function bindStyleInputs() {
   const sel = document.getElementById('paletteSelect');
   if (sel) {
-    // Vul dropdown
+    // Fill dropdown
     sel.innerHTML = '';
     for (const [key, p] of Object.entries(WG_PALETTES)) {
       const opt = document.createElement('option');
@@ -176,7 +176,7 @@ function bindStyleInputs() {
     sel.value = state.style.palette;
     sel.addEventListener('change', () => {
       applyPalette(sel.value);
-      recomputeAllWidgets();  // font kan verschillen tussen paletten
+      recomputeAllWidgets();  // font can differ between palettes
       render();
     });
   }
@@ -197,9 +197,9 @@ function activateTab(name) {
   });
 }
 
-// Render per-kolom controls (max chars + all caps) in widget tab.
+// Render per-column controls (max chars + all caps) in widget tab.
 function renderWidgetColumnControls() {
-  // Sync stacking-radio's met huidige state (kan door buildRowsFromSource veranderd zijn)
+  // Sync stacking radios with current state (may have been changed by buildRowsFromSource)
   const stackRadios = document.querySelectorAll('input[name="stacking"]');
   stackRadios.forEach(r => { r.checked = (r.value === state.layout.stacking); });
 
@@ -272,8 +272,8 @@ function handleColumnSettingsChange(e) {
   render();
 }
 
-// Synchroniseert alle Data/Widget-panel inputs met de actieve widget.
-// Nodig omdat die settings nu per-widget zijn — bij openen of widget-wissel.
+// Synchronizes all Data/Widget panel inputs with the active widget.
+// Needed because those settings are now per-widget — on open or widget switch.
 function syncWidgetPanel() {
   const w = state.widget;
   if (!w) return;
@@ -306,8 +306,8 @@ function syncWidgetPanel() {
   syncSettingsHeader();
 }
 
-// Toont/verbergt tabs (scope + widget-kind) en kind-specifieke controls,
-// zodat de widget-instellingen conditionele formulieren zijn.
+// Shows/hides tabs (scope + widget kind) and kind-specific controls,
+// so the widget settings are conditional forms.
 function applyPanelVisibility() {
   const kind = widgetKind(state.widget);
   let firstVisible = null, activeVisible = false;
@@ -326,7 +326,7 @@ function applyPanelVisibility() {
   if (!activeVisible && firstVisible) activateTab(firstVisible.dataset.tab);
 }
 
-// Vult de type-dropdown en bindt type- + titel-input (eenmalig).
+// Fills the type dropdown and binds type + title input (once).
 function bindWidgetPanelInputs() {
   const typeSel = document.getElementById('widgetType');
   if (typeSel) {
@@ -353,7 +353,7 @@ function bindWidgetPanelInputs() {
     titleInp.addEventListener('input', () => {
       const w = state.widget;
       if (!w) return;
-      w.title = titleInp.value;   // leeg = auto-titel
+      w.title = titleInp.value;   // empty = auto title
       syncSettingsHeader();
       render();
     });
@@ -394,7 +394,7 @@ function buildWidgetJson(widget = state.widget) {
 }
 
 // ----- Widget library (sidebar) -----
-// Monochrome line-icons (currentColor) — geen emoji, consistent met de rechter sidebar.
+// Monochrome line icons (currentColor) — no emoji, consistent with the right sidebar.
 const _SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
 const _SVG_CLOSE = '</svg>';
 const WG_CAT_ICONS = {
@@ -426,9 +426,9 @@ const library = {
 };
 
 function seedDefaultWidgets() {
-  // DM Dashboard: character-widgets gelden niet. DM-widgets (party-overzicht,
-  // monster-prep, …) komen later — voor nu een lege library zodat de grid/tabs
-  // werken zonder character-widgets aan te bieden.
+  // DM Dashboard: character widgets do not apply. DM widgets (party overview,
+  // monster prep, …) come later — for now an empty library so the grid/tabs
+  // work without offering character widgets.
   if (state.context === 'dm') {
     library.saved = [
       { id: 'combatTracker', name: 'Combat Tracker', category: 'combat', config: { type: 'combatTracker' } },
@@ -436,8 +436,8 @@ function seedDefaultWidgets() {
     library.activeWidgetId = 'combatTracker';
     return;
   }
-  // Library-entries verwijzen alleen naar een widget-type; loadWidget →
-  // addWidget seedt de rest uit WG_WIDGET_TYPES.
+  // Library entries only refer to a widget type; loadWidget →
+  // addWidget seeds the rest from WG_WIDGET_TYPES.
   library.saved = [
     { id: 'abilityScores',  name: 'Ability Scores',  category: 'stats',     config: { type: 'abilityScores' } },
     { id: 'skills',         name: 'Skills',          category: 'stats',     config: { type: 'skills' } },
@@ -462,7 +462,7 @@ function seedDefaultWidgets() {
 }
 
 function renderSidebar() {
-  // Categorieën
+  // Categories
   const catContainer = document.getElementById('sidebarCategories');
   if (catContainer) {
     catContainer.innerHTML = WG_CATEGORIES.map(c => `
@@ -470,10 +470,10 @@ function renderSidebar() {
         <span class="cat-icon">${c.icon}</span>
       </button>
     `).join('');
-    // #Ovv22sJ: klik-handler via DELEGATIE op de stabiele #leftSidebar i.p.v.
-    // per-element op de telkens her-gerenderde knoppen. Per-element listeners
-    // gingen verloren bij re-render/timing op touch → knoppen leken "dood".
-    // Eenmalig binden (dataset-guard); overleeft elke renderSidebar()-pass.
+    // #Ovv22sJ: click handler via DELEGATION on the stable #leftSidebar instead of
+    // per element on the repeatedly re-rendered buttons. Per-element listeners
+    // got lost on re-render/timing on touch → buttons seemed "dead".
+    // Bind once (dataset guard); survives every renderSidebar() pass.
     const leftSb = document.getElementById('leftSidebar');
     if (leftSb && !leftSb.dataset.catDelegated) {
       leftSb.dataset.catDelegated = '1';
@@ -481,11 +481,11 @@ function renderSidebar() {
         const btn = ev.target.closest('.cat-item[data-cat]');
         if (!btn || !leftSb.contains(btn)) return;
         library.activeCategory = btn.dataset.cat;
-        leftSb.classList.add('pinned'); // klik pint het panel open (vereist voor touch)
+        leftSb.classList.add('pinned'); // click pins the panel open (required for touch)
         renderSidebar();
       });
     }
-    // V10: hover over een categorie opent direct die categorie in het panel.
+    // V10: hovering a category immediately opens that category in the panel.
     catContainer.querySelectorAll('.cat-item').forEach(b => {
       b.addEventListener('mouseenter', () => {
         if (library.activeCategory === b.dataset.cat) return;
@@ -495,7 +495,7 @@ function renderSidebar() {
     });
   }
 
-  // Widget-list onder actieve categorie
+  // Widget list under active category
   const wContainer = document.getElementById('sidebarWidgets');
   if (!wContainer) return;
   const cat = WG_CATEGORIES.find(c => c.id === library.activeCategory);
@@ -525,8 +525,8 @@ function loadWidget(id) {
   const entry = library.saved.find(x => x.id === id);
   if (!entry) return;
   library.activeWidgetId = id;
-  // De library VOEGT widgets TOE — het wijzigt niet het type van de
-  // geselecteerde widget. addWidget seedt het type uit WG_WIDGET_TYPES.
+  // The library ADDS widgets — it does not change the type of the
+  // selected widget. addWidget seeds the type from WG_WIDGET_TYPES.
   addWidget({ type: entry.config && entry.config.type });
   renderSidebar();
 }
@@ -545,8 +545,8 @@ async function saveCurrentWidget() {
 }
 
 function newWidget() {
-  // V8: voeg een nieuwe widget toe aan het dashboard. addWidget seedt het
-  // default type, fetcht z'n eigen data en rendert.
+  // V8: add a new widget to the dashboard. addWidget seeds the
+  // default type, fetches its own data and renders.
   addWidget({ type: WG_DEFAULT_WIDGET_TYPE });
   library.activeWidgetId = null;
   renderSidebar();
@@ -560,13 +560,13 @@ function bindSidebar() {
       renderSidebar();
     });
   }
-  // V11 Phase 3: newWidgetBtn en saveWidgetBtn zijn verwijderd uit de DOM.
-  // newWidget() is beschikbaar via de widget-library in de linker sidebar.
-  // saveDashboards() is gebonden via bindRightSidebar().
+  // V11 Phase 3: newWidgetBtn and saveWidgetBtn have been removed from the DOM.
+  // newWidget() is available via the widget library in the left sidebar.
+  // saveDashboards() is bound via bindRightSidebar().
 
-  // V10: bij inklappen (mouseleave / click-outside / Esc) wordt category 'all'
-  // de actieve selectie, zodat de zichtbare 'lijntje-naast-knop'-marker bij de
-  // 'All'-knop staat wanneer de sidebar dicht is.
+  // V10: on collapse (mouseleave / click-outside / Esc) category 'all' becomes
+  // the active selection, so the visible 'line-next-to-button' marker is at the
+  // 'All' button when the sidebar is closed.
   const sidebar = document.getElementById('leftSidebar');
   const resetToAll = () => {
     if (library.activeCategory !== 'all') {
@@ -623,16 +623,16 @@ function bindRightSidebar() {
   // Edit-values: toggle edit-values mode
   const editValuesBtn = document.getElementById('rs-edit-values');
   if (editValuesBtn) {
-    // Sync de knop-indicator + body-class met de echte state bij (re)mount,
-    // zodat de toggle nooit 'uit' lijkt terwijl editValuesMode nog aan staat.
+    // Sync the button indicator + body class with the real state on (re)mount,
+    // so the toggle never looks 'off' while editValuesMode is still on.
     editValuesBtn.classList.toggle('active', !!(state.config && state.config.editValuesMode));
     document.body.classList.toggle('edit-values-active', !!(state.config && state.config.editValuesMode));
     editValuesBtn.addEventListener('click', () => {
       state.config.editValuesMode = !state.config.editValuesMode;
       document.body.classList.toggle('edit-values-active', state.config.editValuesMode);
       editValuesBtn.classList.toggle('active', state.config.editValuesMode);
-      // Bug #rC2HV4: bij inschakelen geen hele widget meer geselecteerd laten;
-      // in edit-values mode selecteer je alleen losse infoboxen.
+      // Bug #rC2HV4: when enabling, no longer leave a whole widget selected;
+      // in edit-values mode you only select individual infoboxes.
       if (state.config.editValuesMode) state.activeWidgetIdx = -1;
       render();
     });
@@ -660,7 +660,7 @@ function bindExportWidget() {
 }
 
 // ----- Dev-view + dashboard-info toggles -----
-// V10: edit-mode is altijd aan — geen setter/toggle meer.
+// V10: edit mode is always on — no setter/toggle anymore.
 function setDevView(on) {
   state.config.devView = !!on;
   document.body.classList.toggle('dev-view', !!on);
@@ -691,15 +691,15 @@ function bindSettingsToggles() {
 
 
 // ----- Settings dialog references + open/close, alignSidebarTop ----- (orig 4457-4523)
-// WGI-M4: `let` (niet `const`) zodat WidgetGrid.mount() de refs kan herinitialiseren
-// nadat de body-template is geïnjecteerd. Standalone V8 vult ze al op parse-time.
+// WGI-M4: `let` (not `const`) so WidgetGrid.mount() can re-initialize the refs
+// after the body template has been injected. Standalone V8 already fills them at parse time.
 let _settingsPanel = document.getElementById('settingsPanel');
 let _settingsOverlay = document.getElementById('settingsOverlay');
 let _settingsToggle = document.getElementById('settingsToggle');
 let _settingsClose = document.getElementById('settingsClose');
 
-// WGI-M4: aanroepbaar vanuit WidgetGrid.mount() nadat de template in een mount-root
-// is geïnjecteerd — herresolved refs binnen de gegeven scope.
+// WGI-M4: callable from WidgetGrid.mount() after the template has been injected into a mount root
+// — re-resolves refs within the given scope.
 function WidgetGridInitSettingsRefs(root) {
   const scope = root || document;
   _settingsPanel = scope.querySelector('#settingsPanel') || scope.getElementById?.('settingsPanel');
@@ -727,8 +727,8 @@ function syncSettingsHeader() {
 
 function openSettings(scope = 'dashboard') {
   settingsScope = scope;
-  if (scope === 'widget') syncWidgetPanel();   // synct waardes + zichtbaarheid
-  else applyPanelVisibility();                  // dashboard: alleen tab-zichtbaarheid
+  if (scope === 'widget') syncWidgetPanel();   // syncs values + visibility
+  else applyPanelVisibility();                  // dashboard: tab visibility only
   syncSettingsHeader();
   _settingsPanel.classList.add('open');
   _settingsOverlay.classList.add('open');
@@ -741,14 +741,14 @@ function closeSettings() {
   _settingsToggle.setAttribute('aria-expanded', 'false');
   _settingsPanel.setAttribute('aria-hidden', 'true');
 }
-// V9: de topbar-knop opent widget-settings als een widget geselecteerd is,
-// anders dashboard-settings. `updateSettingsToggleScope` (in render) kleurt
-// de knop mee.
-// WGI-M3/M4: bindings staan in WidgetGridInitSettingsRefs() hierboven —
-// standalone V8 roept die aan met `null` scope (zoekt globaal); D&D Within roept
-// het aan met de mount-root nadat de template is geïnjecteerd.
+// V9: the topbar button opens widget settings if a widget is selected,
+// otherwise dashboard settings. `updateSettingsToggleScope` (in render) colors
+// the button accordingly.
+// WGI-M3/M4: bindings live in WidgetGridInitSettingsRefs() above —
+// standalone V8 calls it with `null` scope (searches globally); D&D Within calls
+// it with the mount root after the template has been injected.
 if (_settingsToggle) {
-  // Standalone V8: refs zijn al op parse-time gevuld; bind nu direct.
+  // Standalone V8: refs are already filled at parse time; bind now directly.
   WidgetGridInitSettingsRefs();
 }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSettings(); });
@@ -784,8 +784,8 @@ function wgxConfirmModal(opts) {
       host.remove();
       resolve(ok);
     };
-    // Capture-phase zodat Enter/Escape/Delete niet doorlekken naar de
-    // dashboard-shortcuts terwijl de dialog open is.
+    // Capture phase so Enter/Escape/Delete do not leak through to the
+    // dashboard shortcuts while the dialog is open.
     const onKey = (e) => {
       e.stopPropagation();
       if (e.key === 'Escape') { e.preventDefault(); done(false); }
@@ -804,8 +804,8 @@ function wgxConfirmModal(opts) {
 }
 const WGX_SKIP_WIDGET_DELETE = 'dw_skipWidgetDeleteConfirm';
 
-// V9: Delete/Backspace verwijdert de geselecteerde widget (niet wanneer een
-// invoerveld focus heeft).
+// V9: Delete/Backspace removes the selected widget (not when an
+// input field has focus).
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Delete' && e.key !== 'Backspace') return;
   const ae = document.activeElement;
@@ -815,7 +815,7 @@ document.addEventListener('keydown', (e) => {
   if (state.activeWidgetIdx < 0 || !state.widget) return;
   // V11: allow removing last widget (tab can be empty)
   e.preventDefault();
-  // Multi-select: verwijder alle geselecteerde widgets in één keer.
+  // Multi-select: remove all selected widgets at once.
   const sel = wgGetSelectedIdxs();
   if (sel.length > 1) {
     wgxConfirmModal({
@@ -833,19 +833,19 @@ document.addEventListener('keydown', (e) => {
   }).then((ok) => { if (ok) removeWidget(idx); });
 });
 
-// Widget-clipboard: Ctrl/Cmd+C kopieert de geselecteerde widget(s),
-// Ctrl/Cmd+V plakt ze (kopie krijgt automatisch een genummerde naam).
+// Widget clipboard: Ctrl/Cmd+C copies the selected widget(s),
+// Ctrl/Cmd+V pastes them (the copy automatically gets a numbered name).
 document.addEventListener('keydown', (e) => {
   if (!(e.ctrlKey || e.metaKey)) return;
   const k = e.key.toLowerCase();
   if (k !== 'c' && k !== 'v') return;
-  // Niet kapen wanneer de gebruiker tekst in een veld kopieert/plakt.
+  // Do not hijack when the user copies/pastes text in a field.
   const ae = document.activeElement;
   if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' ||
              ae.tagName === 'SELECT' || ae.isContentEditable)) return;
-  // Alleen actief wanneer een WidgetGrid-canvas in beeld is.
+  // Only active when a WidgetGrid canvas is in view.
   if (typeof state === 'undefined' || !document.getElementById('canvas')) return;
-  // Tekstselectie kopiëren laten we met rust.
+  // We leave copying a text selection alone.
   if (k === 'c') {
     const selTxt = window.getSelection && window.getSelection().toString();
     if (selTxt) return;
@@ -859,9 +859,9 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// V9: lijn de bovenste category-knop uit op de bovenkant van het dashboard.
-// V10: dezelfde offset ook op het uitklap-panel zetten, zodat zoekveld +
-// widget-lijst horizontaal op één lijn staan met de dashboard-top + categorie-knoppen.
+// V9: align the top category button with the top of the dashboard.
+// V10: also apply the same offset to the expand panel, so search field +
+// widget list are horizontally aligned with the dashboard top + category buttons.
 function alignSidebarTop() {
   const cat = document.getElementById('sidebarCategories');
   const sidebar = document.getElementById('leftSidebar');

@@ -235,7 +235,7 @@ export function mountChatWidget(host, adapter, opts = {}) {
     }
 
     async function maybeBrowserNotify() {
-        // Bij nieuw bericht (lastTs > lastNotifiedTs) van iemand anders, en widget niet open op die chat
+        // On a new message (lastTs > lastNotifiedTs) from someone else, and widget not open on that chat
         for (const c of state.chats) {
             if (c.lastTs > lastNotifiedTs && c.lastFrom !== adapter.getCurrentUid()) {
                 if (state.mode !== 'chat' || state.activeChatId !== c.chatId) {
@@ -268,13 +268,13 @@ export function mountChatWidget(host, adapter, opts = {}) {
         } catch {}
     }
 
-    // Listen voor "open-chat" event vanuit Friends-page
+    // Listen for "open-chat" event from the Friends page
     window.addEventListener('social:open-chat', async (e) => {
         const otherUid = e.detail?.uid;
         if (!otherUid) return;
         const myUid = adapter.getCurrentUid();
         const id = chatIdFor(myUid, otherUid);
-        // Naam komt mee in event (friends-page kent 'm); profile-read is geblokkeerd voor non-owner
+        // Name comes along in the event (friends-page knows it); profile read is blocked for non-owner
         let name = e.detail?.name;
         if (!name) {
             const friends = await adapter.listFriends().catch(() => []);
@@ -283,7 +283,7 @@ export function mountChatWidget(host, adapter, opts = {}) {
         openConversation({ chatId: id, otherUid, otherName: name });
     });
 
-    // Initialize: subscribe to chat list zelfs als widget closed (voor unread-badge + notifications)
+    // Initialize: subscribe to chat list even when widget closed (for unread-badge + notifications)
     unsubChats = adapter.subscribeChatList((chats) => {
         state.chats = chats || [];
         notifyUnread();

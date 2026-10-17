@@ -7,7 +7,7 @@ export function chatIdFor(uidA, uidB) {
 export function emailSlug(email) {
     const lower = String(email || '').trim().toLowerCase();
     if (!lower) return '';
-    // base64url, geen padding — Firebase-safe key
+    // base64url, no padding — Firebase-safe key
     const b64 = btoa(unescape(encodeURIComponent(lower)));
     return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
@@ -34,12 +34,12 @@ export function escHtml(s) {
 }
 
 /**
- * Adapter contract — alle UI-modules in social/ verwachten dit interface.
+ * Adapter contract — all UI modules in social/ expect this interface.
  *
  * @typedef {Object} SocialAdapter
  * @property {() => string} getCurrentUid
  * @property {() => Promise<{uid:string,displayName:string,email:string}>} getMyProfile
- * @property {() => Promise<void>} ensureMyLookup           registreer email→uid lookup voor mezelf
+ * @property {() => Promise<void>} ensureMyLookup           register email→uid lookup for myself
  * @property {(email:string) => Promise<{uid,displayName,email}|null>} findUserByEmail
  * @property {(uid:string) => Promise<{uid,displayName,email}|null>} getProfile
  *

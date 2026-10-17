@@ -8,9 +8,9 @@
 //              linkedCharId, linkedNpcKey (legacy dw_npcs-index), linkedCreatureId, notes }
 //   union  = { id, familyId, partnerIds:[memberId,memberId?], childIds:[memberId] }
 //
-// Een member behoort tot één primary family (zijn surname-family).
-// Een union kan partners uit verschillende families bevatten — bij render
-// van family X is een member uit family Y dan een "guest" partner.
+// A member belongs to one primary family (their surname family).
+// A union can contain partners from different families — when rendering
+// family X, a member from family Y is then a "guest" partner.
 //
 // Storage:
 //   localStorage 'dw_families' = { families:{}, members:{}, unions:{} }
@@ -240,9 +240,9 @@ function deleteMember(memberId) {
 
 // ===== Unions =====
 //
-// Een union "behoort" tot een family voor weergave-doeleinden, maar partners
-// kunnen uit verschillende families komen. Default: union.familyId = familie
-// van de eerste partner.
+// A union "belongs" to a family for display purposes, but partners
+// can come from different families. Default: union.familyId = family
+// of the first partner.
 function createUnion(memberIdA, memberIdB) {
     var data = getFamiliesData();
     var a = data.members[memberIdA];
@@ -371,14 +371,14 @@ function resolveMemberLink(member) {
         var cfg = (typeof loadCharConfig === 'function') ? loadCharConfig(member.linkedCharId) : null;
         if (cfg) return { type: 'character', id: member.linkedCharId, name: cfg.name, race: cfg.race, color: cfg.accentColor };
     }
-    // #OvywGWk: voorkeur voor de stabiele Creature-id (na NPC→creature-migratie).
+    // #OvywGWk: prefer the stable Creature id (after NPC→creature migration).
     if (member.linkedCreatureId) {
         var linked = _creatureById(member.linkedCreatureId);
         if (linked) return { type: 'npc', id: 'creature:' + linked.id, name: linked.name, race: linked.race, color: 'var(--text-dim)' };
     }
-    // Legacy read-fallback: oude links wijzen via array-index naar dw_npcs (alleen
-    // lezen). Die NPC's staan met dezelfde id in de creature-store, dus toon het
-    // creature-record als dat er is; anders de bevroren legacy-waarden.
+    // Legacy read-fallback: old links point via array index to dw_npcs (read
+    // only). Those NPCs sit under the same id in the creature store, so show the
+    // creature record if it exists; otherwise the frozen legacy values.
     if (member.linkedNpcKey) {
         var idx = parseInt(member.linkedNpcKey, 10);
         var npcs = (typeof getNPCData === 'function') ? (getNPCData().npcs || []) : [];
@@ -538,8 +538,8 @@ function migrateFamilies(force) {
             egos.push({ kind: 'char', id: charIds[ci], cfg: cfg, name: cfg.name || '', race: cfg.race || '', family: cfg.family || [] });
         }
     }
-    // #OvywGWk: NPC-egos uit de creature-store (de gemigreerde NPC's), gelinkt
-    // via hun stabiele creature-id i.p.v. een dw_npcs-array-index.
+    // #OvywGWk: NPC egos from the creature store (the migrated NPCs), linked
+    // via their stable creature id instead of a dw_npcs array index.
     if (typeof getLoreCatEntries === 'function') {
         var creatures = getLoreCatEntries('monsters') || [];
         for (var ni = 0; ni < creatures.length; ni++) {
@@ -684,8 +684,8 @@ function findPrimaryFamilyByLink(linkedCharId, linkedNpcKey) {
     return null;
 }
 
-// #OvywGWk: vind de primaire familie van een creature via de stabiele id
-// (gezet door migrateNpcsIntoCreatures als member.linkedCreatureId).
+// #OvywGWk: find the primary family of a creature via the stable id
+// (set by migrateNpcsIntoCreatures as member.linkedCreatureId).
 function findPrimaryFamilyByCreatureId(creatureId) {
     if (!creatureId) return null;
     var data = getFamiliesData();

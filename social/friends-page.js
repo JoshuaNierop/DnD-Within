@@ -1,4 +1,4 @@
-// social/ui/friends-page.js — Friends tab: lijst + requests + add-by-email.
+// social/ui/friends-page.js — Friends tab: list + requests + add-by-email.
 
 import { escHtml, formatRelativeTime } from './core.js';
 
@@ -152,7 +152,7 @@ export function renderFriendsPage(host, adapter) {
                         await adapter.removeFriend(uid);
                         setStatus('ok', 'Friend removed');
                     } else if (action === 'chat') {
-                        // Open chat widget op deze vriend (geef naam mee — kunnen we niet uit hun profile lezen)
+                        // Open chat widget on this friend (pass the name along — we can't read it from their profile)
                         const friend = friends.find(f => f.uid === uid);
                         window.dispatchEvent(new CustomEvent('social:open-chat', {
                             detail: { uid, name: friend?.displayName || uid },

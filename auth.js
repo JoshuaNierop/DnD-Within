@@ -1,27 +1,27 @@
-// D&D Within — Echte authenticatie (Firebase Auth, e-mail + wachtwoord)
+// D&D Within — Real authentication (Firebase Auth, email + password)
 // ============================================================
-// Dunne laag bóven het bestaande userId-systeem. Een Firebase-login wordt
-// vertaald naar de interne userId; ALLES (characters, party-plek, thema's,
-// chat) blijft aan die userId hangen → geen data-migratie, geen verloren chats.
+// Thin layer on top of the existing userId system. A Firebase login is
+// translated to the internal userId; EVERYTHING (characters, party slot, themes,
+// chat) stays tied to that userId → no data migration, no lost chats.
 //
-// Transitie ("aan het begin werken beide"):
-//   - Nieuwe weg: e-mail + wachtwoord via Firebase Auth.
-//   - Oude weg: username + (legacy) wachtwoord blijft werken zolang
-//     dw/config/legacyOpen === true. Die vlag houdt de DB-rules open zodat een
-//     username-sessie (zonder Firebase-token) blijft lezen/schrijven.
-//   - Cutover: admin zet legacyOpen op false → vanaf dan enkel geauthenticeerd.
+// Transition ("both work at the start"):
+//   - New way: email + password via Firebase Auth.
+//   - Old way: username + (legacy) password keeps working as long as
+//     dw/config/legacyOpen === true. That flag keeps the DB rules open so a
+//     username session (without Firebase token) can keep reading/writing.
+//   - Cutover: admin sets legacyOpen to false → from then on authenticated only.
 //
-// De social/chat-module krijgt het ID-token via window.dwGetIdToken().
+// The social/chat module gets the ID token via window.dwGetIdToken().
 
-var _dwIdToken = null;        // gecachte Firebase ID-token (JWT) voor REST-calls
+var _dwIdToken = null;        // cached Firebase ID token (JWT) for REST calls
 var _dwAuthInited = false;
 
 function dwAuthAvailable() {
     return typeof firebase !== 'undefined' && typeof firebase.auth === 'function';
 }
 
-// Token-provider voor REST-paden (wg-firebase.js, social/). Null = geen
-// Firebase-sessie (bv. legacy username-login) → REST-call gaat zonder ?auth=.
+// Token provider for REST paths (wg-firebase.js, social/). Null = no
+// Firebase session (e.g. legacy username login) → REST call goes without ?auth=.
 function dwGetIdToken() { return _dwIdToken; }
 window.dwGetIdToken = dwGetIdToken;
 
@@ -30,9 +30,9 @@ function dwAuthInit() {
     _dwAuthInited = true;
     try {
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    } catch (e) { /* persistence niet beschikbaar — niet fataal */ }
+    } catch (e) { /* persistence not available — not fatal */ }
 
-    // Token-cache verversen bij elke wissel (login, ~1u refresh, logout).
+    // Refresh the token cache on every change (login, ~1h refresh, logout).
     firebase.auth().onIdTokenChanged(function (user) {
         if (user) {
             user.getIdToken().then(function (tok) { _dwIdToken = tok; }).catch(function () {});
@@ -41,8 +41,8 @@ function dwAuthInit() {
         }
     });
 
-    // Sessie-herstel: bestaat er al een Firebase-sessie (LOCAL persistence) dan
-    // koppelen we de interne userId en zetten we de app-sessie als die ontbreekt.
+    // Session restore: if a Firebase session already exists (LOCAL persistence) we
+    // link the internal userId and set the app session if it is missing.
     firebase.auth().onAuthStateChanged(function (user) {
         if (!user) return;
         user.getIdToken().then(function (tok) { _dwIdToken = tok; }).catch(function () {});
@@ -57,14 +57,14 @@ function dwAuthInit() {
     });
 }
 
-// Sessie-herstel ná het laden van usersCache. onAuthStateChanged kan vuren
-// vóórdat de users gedownload zijn (LOCAL persistence herstelt de Firebase-sessie
-// vroeg) — dan faalt resolve stil. sync.js roept dit aan zodra users binnen zijn.
+// Session restore after usersCache has loaded. onAuthStateChanged can fire
+// before the users have been downloaded (LOCAL persistence restores the Firebase session
+// early) — then resolve fails silently. sync.js calls this once users are in.
 function dwTryRestoreSession() {
     if (!dwAuthAvailable()) return;
     var user = firebase.auth().currentUser;
     if (!user) return;
-    if (typeof currentUserId === 'function' && currentUserId()) return;  // al een sessie
+    if (typeof currentUserId === 'function' && currentUserId()) return;  // already a session
     var uid = dwResolveUserIdFromAuth(user);
     if (!uid) return;
     dwLinkAuthUid(uid, user.uid);
@@ -73,8 +73,8 @@ function dwTryRestoreSession() {
     if (typeof renderApp === 'function') renderApp();
 }
 
-// Resolve interne userId bij een Firebase-account: eerst via authUid, anders via
-// het gekoppelde e-mailadres.
+// Resolve the internal userId for a Firebase account: first via authUid, otherwise via
+// the linked email address.
 function dwResolveUserIdFromAuth(user) {
     if (!user) return null;
     var src = usersCache || {};
@@ -87,7 +87,7 @@ function dwResolveUserIdFromAuth(user) {
     return null;
 }
 
-// Vind userId op e-mailadres (vóór sign-in, om te weten welk account erbij hoort).
+// Find userId by email address (before sign-in, to know which account belongs to it).
 function dwFindUserIdByEmail(email) {
     email = (email || '').trim().toLowerCase();
     if (!email) return null;
@@ -100,28 +100,28 @@ function dwFindUserIdByEmail(email) {
     return null;
 }
 
-// Koppel een Firebase-uid aan een interne userId (idempotent). Schrijft ook een
-// reverse-lookup dw/authMap/<uid> = userId zodat de DB-rules ownership kunnen
-// afdwingen zonder de hele users-boom te scannen.
+// Link a Firebase uid to an internal userId (idempotent). Also writes a
+// reverse lookup dw/authMap/<uid> = userId so the DB rules can enforce ownership
+// without scanning the whole users tree.
 function dwLinkAuthUid(userId, authUid) {
     if (!userId || !authUid) return;
     var u = getUserData(userId);
     if (!u || u.authUid === authUid) return;
-    // Lokale cache bijwerken — clone (NIET de DEFAULT_USERS-constante muteren).
+    // Update local cache — clone (do NOT mutate the DEFAULT_USERS constant).
     if (!usersCache) usersCache = {};
     if (!usersCache[userId]) usersCache[userId] = JSON.parse(JSON.stringify(u));
     usersCache[userId].authUid = authUid;
-    // Schrijf ALLEEN het authUid-veld (geen full .set() → wist geen door de admin
-    // gekoppelde email of andere velden op de remote user-node) + de reverse-lookup.
+    // Write ONLY the authUid field (no full .set() → does not wipe an email linked by the admin
+    // or other fields on the remote user node) + the reverse lookup.
     if (typeof syncReady !== 'undefined' && syncReady && syncDb) {
         syncDb.ref('dw/users/' + userId + '/authUid').set(authUid);
         syncDb.ref('dw/authMap/' + authUid).set(userId);
     }
 }
 
-// E-mail + wachtwoord login. Zelf-registratie wanneer de admin het e-mailadres
-// al aan een account koppelde maar er nog géén Firebase-account bestaat (eerste
-// keer inloggen = wachtwoord instellen). Resolved naar userId (Promise).
+// Email + password login. Self-registration when the admin has linked the email address
+// to an account but no Firebase account exists yet (first
+// login = set password). Resolves to userId (Promise).
 function dwEmailLogin(email, password) {
     email = (email || '').trim();
     if (!dwAuthAvailable()) return Promise.reject({ code: 'auth-unavailable' });
@@ -134,9 +134,9 @@ function dwEmailLogin(email, password) {
             return userId;
         })
         .catch(function (err) {
-            // Account bestaat mogelijk nog niet → probeer te registreren. Bestaat
-            // het toch al, dan was de eerste fout een verkeerd wachtwoord
-            // (email-enumeration-protection maskeert user-not-found).
+            // Account may not exist yet → try to register. If it
+            // already exists, the first error was a wrong password
+            // (email-enumeration-protection masks user-not-found).
             return auth.createUserWithEmailAndPassword(email, password)
                 .then(function (cred) {
                     dwLinkAuthUid(userId, cred.user.uid);
@@ -150,13 +150,13 @@ function dwEmailLogin(email, password) {
         });
 }
 
-// Wachtwoord-reset per e-mail.
+// Password reset by email.
 function dwSendReset(email) {
     if (!dwAuthAvailable()) return Promise.reject({ code: 'auth-unavailable' });
     return firebase.auth().sendPasswordResetEmail((email || '').trim());
 }
 
-// Firebase-sessie afsluiten (naast de lokale clearSession()).
+// End the Firebase session (besides the local clearSession()).
 function dwSignOut() {
     _dwIdToken = null;
     if (dwAuthAvailable() && firebase.auth().currentUser) {
@@ -164,13 +164,13 @@ function dwSignOut() {
     }
 }
 
-// Transitie-config (gespiegeld uit dw/config door sync.js). legacyOpen default
-// true zolang de vlag nog niet bestaat.
+// Transition config (mirrored from dw/config by sync.js). legacyOpen defaults to
+// true as long as the flag does not exist yet.
 var dwConfig = window.dwConfig || {};
 window.dwConfig = dwConfig;
 
-// Is legacy username-login nog toegestaan? Gebruikt door de login-handler voor
-// een nette melding bij de cutover.
+// Is legacy username login still allowed? Used by the login handler for
+// a clean message at the cutover.
 function dwLegacyOpen() {
     return dwConfig && dwConfig.legacyOpen === false ? false : true;
 }

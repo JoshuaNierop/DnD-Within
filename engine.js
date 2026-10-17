@@ -251,8 +251,8 @@ function getHP(config, state) {
     return Math.max(hp, 1);
 }
 
-// Effectieve max HP: handmatige override (config.hp.max) wint als die een
-// positief getal is; anders de rules-afgeleide waarde uit getHP().
+// Effective max HP: manual override (config.hp.max) wins if it is a
+// positive number; otherwise the rules-derived value from getHP().
 function getMaxHP(config, state) {
     var override = config && config.hp && config.hp.max;
     if (typeof override === 'number' && override > 0) return override;
@@ -316,7 +316,7 @@ function getAC(config, state) {
         return 12 + dexMod + shieldBonus + defenseStyle;
     }
     if (className === 'druid') {
-        // Leather armor: 11 + DEX (druids don't wear metal in tradition, 2024 is vrij maar default leather)
+        // Leather armor: 11 + DEX (druids don't wear metal in tradition, 2024 is free but default leather)
         return 11 + dexMod + shieldBonus + defenseStyle;
     }
     if (className === 'barbarian') {
@@ -325,7 +325,7 @@ function getAC(config, state) {
         return 10 + dexMod + conMod + shieldBonus;
     }
     if (className === 'monk') {
-        // Unarmored Defense: 10 + DEX + WIS (geen shield toegestaan)
+        // Unarmored Defense: 10 + DEX + WIS (no shield allowed)
         var wisMod = getMod(getAbilityScore(config, state, 'wis'));
         return 10 + dexMod + wisMod;
     }
@@ -345,9 +345,9 @@ function hasFeat(state, featName, cfg) {
 
 function getMaxPrepared(state, abilityMod, className, subclass) {
     if (!className) className = 'sorcerer';
-    // #P0hwaBZ — Third casters vóór de class-check: fighter/rogue vallen anders
-    // in de non-caster-tak hieronder en kregen altijd 0. De 2024-kolom is vast
-    // (geen ability-mod) en identiek voor Eldritch Knight en Arcane Trickster.
+    // #P0hwaBZ — Third casters before the class check: fighter/rogue otherwise fall
+    // into the non-caster branch below and always got 0. The 2024 column is fixed
+    // (no ability mod) and identical for Eldritch Knight and Arcane Trickster.
     if (isThirdCaster(className, subclass)) {
         var tc = DATA.thirdCasterPrepared || [];
         return tc[state.level] || 0;
@@ -387,8 +387,8 @@ function getMaxPrepared(state, abilityMod, className, subclass) {
 // cantrip of the class list, counted with the class cantrips.
 function getMaxCantrips(level, className, subclass, cfg) {
     if (!className) className = 'sorcerer';
-    // Third casters hebben geen cantripsKnown op de class zelf — die hangt aan
-    // de subclass (EK 2→3, AT 3→4, beide met de sprong op level 10).
+    // Third casters have no cantripsKnown on the class itself — it hangs off
+    // the subclass (EK 2→3, AT 3→4, both with the jump at level 10).
     if (isThirdCaster(className, subclass)) {
         var tbl = (DATA.thirdCasterCantrips || {})[subclass] || [];
         return tbl[level] || 0;
@@ -400,10 +400,10 @@ function getMaxCantrips(level, className, subclass, cfg) {
     return n;
 }
 
-// Uit welke klasselijst kiest dit character zijn spells? Eldritch Knight en
-// Arcane Trickster bereiden uit de WIZARD-lijst voor. In 2024 is de oude
-// schoolbeperking (abjuration/evocation resp. enchantment/illusion) vervallen,
-// dus de volledige wizard-lijst is de juiste bron — geen filter.
+// Which class list does this character pick its spells from? Eldritch Knight and
+// Arcane Trickster prepare from the WIZARD list. In 2024 the old
+// school restriction (abjuration/evocation resp. enchantment/illusion) was dropped,
+// so the full wizard list is the right source — no filter.
 function getSpellListClass(className, subclass) {
     if (isThirdCaster(className, subclass)) return 'wizard';
     return className;

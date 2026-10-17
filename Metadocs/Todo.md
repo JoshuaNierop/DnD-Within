@@ -77,7 +77,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P3 — Spellnaam "Pass Without Trace" → "Pass without Trace" (2026-10-17); snapshot 26-09 had geen opgeslagen characters met de oude naam (live niet gecontroleerd)
 - [x] P3 — Repo-hygiëne: `.nexus` + `graphify-out/` uit git (in `.gitignore`), `sw.js`/`manifest.json`/`DnD_Twin_Builds.md`/oude `wgi-*.png` weg, verwijderde placeholder-afbeeldingen gecommit (2026-10-17)
 - [x] P3 — `Metadocs/smoke-test.mjs` weggehaald (vervangen door de node-smokes in `LevelingUp/`); `_test.mjs`-verwijzing gerepareerd (2026-10-17)
-- [ ] P3 — Nederlands codecommentaar → Engels (~600 regels, o.a. ui-modals, ui-world, wg-combat, wg-render, wg-state, core); `console.log` in `sync.js`/`storage.js`
+- [x] P3 — Nederlands codecommentaar → Engels (~1100 regels, 32 bestanden) + console-teksten in `sync.js`; laatste NL UI-teksten (profielfoto, kaarten laden, dev-info-paneel, dashboard-tabs) vertaald (2026-10-17). Losse korte NL-comments kunnen nog ergens staan (gezocht op stopwoorden)
 - [x] P3 — Dode code: Nederlandse `nl:`-tabel uit `i18n.js`, `getAbilityBreakdown` weg, 20 `{nl,en}`-objecten in `data.js` → Engelse strings, verouderd commentaar bij `subclassChoiceLevel` (2026-10-17)
 - [ ] P3 — `data.js` (533 kB) opsplitsen per domein
 - [ ] P3 — Licentie (doorlopende regel): regelteksten in eigen woorden; 5etools-JSON blijft buiten de repo, alleen feiten in `build-facts.json`

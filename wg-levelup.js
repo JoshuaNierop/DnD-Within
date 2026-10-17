@@ -24,7 +24,7 @@
 // back precisely. The ASI/feat itself lives in state.asiChoices[N] (the engine
 // reads ability bonuses, Tough, Defense etc. from there).
 //
-// Load order: NA wg-data.js (WG_SKILLS) en NA wg-rest.js (reuses wgxPatchState).
+// Load order: AFTER wg-data.js (WG_SKILLS) and AFTER wg-rest.js (reuses wgxPatchState).
 // Runtime globals: WG_CHAR_CACHE, state, DATA, engine fns (getLevelUpDelta,
 // getMaxHP, getProfBonus, featInstances, featPrereqMet, …), FIREBASE_DB,
 // fetchCharacterData, showToast, wgxConfirmModal (wg-ui.js).
@@ -72,7 +72,7 @@ function wgxBuildLevelUp(widget) {
 }
 WG_EXTRA_INFOBOX_BUILDERS.levelup = wgxBuildLevelUp;
 
-// ===== Firebase config-PATCH (state-PATCH komt uit wg-rest.js: wgxPatchState) =====
+// ===== Firebase config-PATCH (state PATCH comes from wg-rest.js: wgxPatchState) =====
 async function wgxPatchConfig(charId, patch) {
   var url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/config.json';
   var res = await fetch(url, { method: 'PATCH', body: JSON.stringify(patch), headers: { 'Content-Type': 'application/json' } });
@@ -421,12 +421,12 @@ function wgxLevelUpSteps(delta, cfg, st, picked) {
   // of (new − old): heals characters whose creation picks were never recorded.
   var maxC = (typeof getMaxCantrips === 'function') ? getMaxCantrips(delta.to, eff.className, eff.subclass, eff) : (delta.cantrips['new'] || 0);
   var cNeed = Math.max(0, maxC - (st.cantrips || []).length);
-  // Verplichte subclass-cantrips (AT: Mage Hand) tellen mee voor het maximum,
-  // dus ze gaan van het aantal vrije keuzes af.
+  // Mandatory subclass cantrips (AT: Mage Hand) count towards the maximum,
+  // so they are deducted from the number of free choices.
   ((DATA.thirdCasterFixedCantrips || {})[eff.subclass] || []).forEach(function (nm) {
     if ((st.cantrips || []).indexOf(nm) === -1) cNeed = Math.max(0, cNeed - 1);
   });
-  // #P0hwaBZ: third casters (EK/AT) kiezen uit de wizard-lijst.
+  // #P0hwaBZ: third casters (EK/AT) choose from the wizard list.
   var spellCn = (typeof getSpellListClass === 'function')
     ? getSpellListClass(eff.className, eff.subclass) : eff.className;
   var list0 = (DATA.spells[spellCn] || {})[0] || [];
@@ -653,9 +653,9 @@ function wgxBuildLevelUpPatch(cfg, st, delta, picked) {
   var newCantrips = [];
   if (picked.cantrips && picked.cantrips.length) { rec.cantripsAdded = picked.cantrips; newCantrips = newCantrips.concat(picked.cantrips); }
   if (picked.styleCantrips && picked.styleCantrips.length) { rec.styleCantrips = picked.styleCantrips; newCantrips = newCantrips.concat(picked.styleCantrips); }
-  // #P0hwaBZ: Arcane Trickster krijgt Mage Hand verplicht bij zijn cantrips —
-  // die telt mee voor het maximum en is niet inwisselbaar, dus we zetten hem er
-  // zelf bij zodra de subclass spellcasting krijgt.
+  // #P0hwaBZ: Arcane Trickster gets Mage Hand as a mandatory cantrip —
+  // it counts towards the maximum and cannot be swapped, so we add it
+  // ourselves as soon as the subclass gains spellcasting.
   var fixedCantrips = (DATA.thirdCasterFixedCantrips || {})[picked.subclass || cfg.subclass] || [];
   fixedCantrips.forEach(function (nm) {
     if ((st.cantrips || []).indexOf(nm) === -1 && newCantrips.indexOf(nm) === -1) {
@@ -954,7 +954,7 @@ function wgxRenderLUStep() {
   var cfg = wgxLU.raw.config || {}, st = wgxLU.raw.state || {};
   var eff = wgxEffCfg(cfg, picked);
   var cn = cfg.className;
-  // Klasselijst waaruit spells gekozen worden — voor EK/AT is dat wizard.
+  // Class list that spells are picked from — for EK/AT that is wizard.
   var spellCn = (typeof getSpellListClass === 'function')
     ? getSpellListClass(cn, eff.subclass) : cn;
   var html = '<div class="modal-header"><h2>' + (wgxLU.fixOnly ? 'Complete missing choices' : 'Level Up — ' + d.from + ' → ' + d.to) + '</h2>' +

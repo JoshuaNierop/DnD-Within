@@ -211,9 +211,9 @@
             return '@' + (name || id);
         });
     };
-    // Tokens → kale naam (geen @, geen link) — voor plain-text weergave op
-    // plekken waar een echte <a>-link niet kan (bv. binnen een omhullende <a>,
-    // zoals de recent-event preview op /home). #OvvKnEi
+    // Tokens → bare name (no @, no link) — for plain-text display in
+    // places where a real <a> link isn't possible (e.g. inside an enclosing <a>,
+    // like the recent-event preview on /home). #OvvKnEi
     window.mentionsStripToName = function (text) {
         if (text == null) return '';
         return String(text).replace(TOKEN_RE, function (m, type, id, name) {

@@ -1,21 +1,21 @@
 // wg-prepare.js — Prepared Spells widget + cast flow + Spell Slots widget +
 // prepare-window (E5.5/2024).
 //
-// Prepared Spells: cantrips + prepared spells als info-box-lijst, 3 kolommen
-// [level-badge | naam | micro-icons], per-rij hover/long-press-tooltip met
-// volledige spell-details (casting time, range, components, duration,
-// concentration, ritual, save-DC/attack, beschrijving). Kolom "naam" is
-// klikbaar → cast-window met alle cast-opties: cantrip/at-will, gewone slots
-// (incl. upcast naar hogere slot-levels), Warlock pact slots, ritual casting,
-// en gratis casts via een gekoppelde resource (Favored Enemy → Hunter's Mark,
-// Paladin's Smite → Divine Smite, species-spells). Casten verbruikt
-// state.spellSlotsUsed[level] / pactSlotsUsed / de resource-teller.
+// Prepared Spells: cantrips + prepared spells as an info-box list, 3 columns
+// [level badge | name | micro-icons], per-row hover/long-press tooltip with
+// full spell details (casting time, range, components, duration,
+// concentration, ritual, save DC/attack, description). The "name" column is
+// clickable → cast window with all cast options: cantrip/at-will, regular slots
+// (incl. upcast to higher slot levels), Warlock pact slots, ritual casting,
+// and free casts via a linked resource (Favored Enemy → Hunter's Mark,
+// Paladin's Smite → Divine Smite, species spells). Casting consumes
+// state.spellSlotsUsed[level] / pactSlotsUsed / the resource counter.
 //
-// Spell Slots: compacte tracker-widget (rij per slot-level, pips). Klik = 1
-// slot verbruiken; klik-bij-leeg = alles van dat level herstellen (zelfde
-// semantiek als de Resources-widget; long rest reset alles automatisch).
+// Spell Slots: compact tracker widget (row per slot level, pips). Click = use 1
+// slot; click-when-empty = restore everything of that level (same
+// semantics as the Resources widget; long rest resets everything automatically).
 //
-// Load order: NA wg-state.js en NA wg-rest.js (wgxPatchState). Gebruikt
+// Load order: AFTER wg-state.js and AFTER wg-rest.js (wgxPatchState). Uses
 // app-core globals: DATA, getMod, getProfBonus, getSpellcastingAbility,
 // getSpellSlots, getClassResources, en runtime: WG_CHAR_CACHE, state.
 
@@ -36,14 +36,14 @@ Object.assign(WG_WIDGET_TYPES, {
     cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 2 },
   },
 });
-WG_EDIT_CONFIG.prepared = { mode: 'always', editColumnIdx: 1 }; // spell-naam klikbaar → cast
-WG_EDIT_CONFIG.slots = { mode: 'always', editColumnIdx: 1 };    // pips klikbaar → spend
+WG_EDIT_CONFIG.prepared = { mode: 'always', editColumnIdx: 1 }; // spell name clickable → cast
+WG_EDIT_CONFIG.slots = { mode: 'always', editColumnIdx: 1 };    // pips clickable → spend
 if (typeof WG_SOURCE_LABELS !== 'undefined') {
   WG_SOURCE_LABELS.prepared = 'Prepared Spells';
   WG_SOURCE_LABELS.slots = 'Spell Slots';
 }
 
-// ===== Afleidingsregels =====
+// ===== Derivation rules =====
 function wgxSpellIsConcentration(sp) { return /concentration/i.test((sp && sp.dur) || ''); }
 // Ritual tag from the 2024 spell data (DATA.spellMeta); text match only as fallback.
 function wgxSpellIsRitual(sp, name) {
@@ -52,7 +52,7 @@ function wgxSpellIsRitual(sp, name) {
   return /\britual\b/i.test((sp && sp.desc) || '');
 }
 
-// Action-economy / ritual tag voor de micro-icon-kolom (slot 2).
+// Action-economy / ritual tag for the micro-icon column (slot 2).
 function wgxSpellActionTag(sp, name) {
   const time = (sp && sp.time) || '';
   if (/bonus/i.test(time)) return 'B';
@@ -62,7 +62,7 @@ function wgxSpellActionTag(sp, name) {
   return '';
 }
 
-// ===== Character spell-DC + attack (generiek, per character) =====
+// ===== Character spell DC + attack (generic, per character) =====
 // abilityOverride: a granted spell's own ability (species / feat spells can use
 // INT, WIS or CHA independently of the class). Scores include ASI and feats.
 function wgxSpellStats(raw, abilityOverride) {
@@ -105,7 +105,7 @@ function wgxSlotModel(raw) {
   return { kind: 'std', totals: totals, used: st.spellSlotsUsed || {} };
 }
 
-// Resources (met uses over) die deze spell gratis kunnen casten.
+// Resources (with uses left) that can cast this spell for free.
 function wgxFreeCastResources(cfg, st, spellName) {
   const list = (typeof getClassResources === 'function') ? getClassResources(cfg, st) : [];
   return list.filter(function (r) {
@@ -113,7 +113,7 @@ function wgxFreeCastResources(cfg, st, spellName) {
   });
 }
 
-// ===== Tooltip-body opbouw (volledig: alle spell-metadata) =====
+// ===== Tooltip body construction (full: all spell metadata) =====
 function wgxSpellTooltip(name, sp, stats, grants) {
   const isCantrip = sp && sp.level === 0;
   const lvlLabel = sp ? (isCantrip ? 'Cantrip' : 'Level ' + sp.level) : '?';
@@ -145,7 +145,7 @@ function wgxSpellTooltip(name, sp, stats, grants) {
   return { title: title, body: body };
 }
 
-// ===== Gedeeld entry-model (builder + click-handler, 1:1 met rijen) =====
+// ===== Shared entry model (builder + click handler, 1:1 with rows) =====
 // Class cantrips + prepared spells, plus every granted spell (subclass, species,
 // feats, invocations — see getGrantedSpells). A spell that is both shows once,
 // with its grants attached (free uses, own spellcasting ability).
@@ -174,7 +174,7 @@ function wgxPreparedEntries(cfg, st) {
     }
     byName[g.name].grants.push(g);
   }
-  // Sorteer: level oplopend (cantrips=0 eerst), alfabetisch binnen level.
+  // Sort: level ascending (cantrips=0 first), alphabetical within level.
   entries.sort((a, b) => (a.level - b.level) || a.name.localeCompare(b.name));
   return entries;
 }
@@ -212,10 +212,10 @@ function wgxBuildPrepared(widget) {
       const gAb = e.granted && e.grants[0] && e.grants[0].ability;
       let tip = wgxSpellTooltip(e.name, e.sp, gAb ? wgxSpellStats(raw, gAb) : stats, e.grants);
       if (live) tip = { title: tip.title, body: 'Active: ' + wgxEffectStatusText(live) + '.\n\n' + tip.body };
-      tips.push([tip, tip, tip]);   // zelfde tip op alle 3 cellen → hover overal op de rij
+      tips.push([tip, tip, tip]);   // same tip on all 3 cells → hover anywhere on the row
     }
   }
-  // Laatste rij = ingang naar de prepare-window (ook zonder Long Rest bruikbaar).
+  // Last row = entry to the prepare window (also usable without a Long Rest).
   if (wgxIsCaster(raw)) {
     rows.push(['', '⚙ Change spells', '']);
     const prepTip = { title: 'Change prepared spells', body: 'Open the prepare window to change which spells you have prepared. This also opens automatically after a Long Rest.' };
@@ -235,7 +235,7 @@ function wgxBuildPrepared(widget) {
 }
 WG_EXTRA_INFOBOX_BUILDERS.prepared = wgxBuildPrepared;
 
-// Klik op een spell-rij → cast-window; klik op de laatste rij → prepare-window.
+// Click on a spell row → cast window; click on the last row → prepare window.
 WG_INFOBOX_CLICK_HANDLERS.prepared = function (ctx) {
   const raw = ctx.raw || {};
   const entries = wgxPreparedEntries(raw.config || {}, raw.state || {});
@@ -377,7 +377,7 @@ function wgxRenderCastModal() {
     html += '<p class="wgx-cast-desc">Unknown spell — no data available. You can still track the cast manually via the Spell Slots widget.</p>';
   }
 
-  // ===== Cast-opties =====
+  // ===== Cast options =====
   html += '<h3 class="wgx-cast-h3">Cast</h3><div class="wgx-cast-opts">';
   let anyOption = false;
 
@@ -400,7 +400,7 @@ function wgxRenderCastModal() {
     anyOption = true;
   });
 
-  // Gratis casts via gekoppelde resources (Favored Enemy, Paladin's Smite, species-spells)
+  // Free casts via linked resources (Favored Enemy, Paladin's Smite, species spells)
   const freeRes = sp ? wgxFreeCastResources(cfg, st, wgxCast.name) : [];
   for (let i = 0; i < freeRes.length; i++) {
     const r = freeRes[i];
@@ -412,13 +412,13 @@ function wgxRenderCastModal() {
     anyOption = true;
   }
 
-  // Ritual casting (2024: prepared spell met Ritual-tag)
+  // Ritual casting (2024: prepared spell with Ritual tag)
   if (ritual && !isCantrip) {
     html += '<button class="wgx-cast-opt" data-wgx-cast="ritual"><b>Cast as Ritual</b><span>No slot — casting time +10 minutes</span></button>';
     anyOption = true;
   }
 
-  // Slots (std: per level vanaf spell-level = upcast; pact: vaste slot-level)
+  // Slots (std: per level from spell level up = upcast; pact: fixed slot level)
   if (sp && !isCantrip && slotsAllowed) {
     const sm = wgxSlotModel(raw);
     if (sm.kind === 'std') {
@@ -529,7 +529,7 @@ async function wgxDoCast(act, t) {
 }
 
 // ============================================================
-// Prepare-window (fase 2) — change prepared spells.
+// Prepare-window (phase 2) — change prepared spells.
 // Opens automatically after a Long Rest for casters (hook in wg-rest.js),
 // and manually via the "⚙ Change spells" row in the Prepared Spells widget.
 // Reuses the level-up modal shell + card-grid CSS (wgx-lu-*).
@@ -566,8 +566,8 @@ function wgxPrepRulesNote(cn, startedEmpty, subclass) {
 function wgxOpenPrepareWindow(charId, opts) {
   const raw = WG_CHAR_CACHE[charId] || {};
   const cfg = raw.config || {}, st = raw.state || {};
-  // #P0hwaBZ: Eldritch Knight / Arcane Trickster bereiden uit de WIZARD-lijst
-  // voor, niet uit die van fighter/rogue (die bestaat niet).
+  // #P0hwaBZ: Eldritch Knight / Arcane Trickster prepare from the WIZARD list,
+  // not from that of fighter/rogue (which doesn't exist).
   const cn = (typeof getSpellListClass === 'function')
     ? getSpellListClass(cfg.className, cfg.subclass) : cfg.className;
   const spellData = (typeof DATA !== 'undefined' && DATA.spellPool) || {};
@@ -594,7 +594,7 @@ function wgxOpenPrepareWindow(charId, opts) {
   }
   pool.sort((a, b) => (a.lvl - b.lvl) || a.nm.localeCompare(b.nm));
 
-  // Max prepared = 2024 table (fallback formula) op spellcasting-ability mod.
+  // Max prepared = 2024 table (fallback formula) on spellcasting-ability mod.
   const stats = wgxSpellStats(raw);
   const score = (typeof getAbilityScore === 'function')
     ? getAbilityScore(cfg, Object.assign({ asiChoices: {} }, st), stats.ability) : (cfg.baseAbilities || {})[stats.ability];
@@ -694,7 +694,7 @@ function wgxPrepClick(e) {
 async function wgxConfirmPrepare() {
   if (!wgxPrep) return;
   const p = wgxPrep;
-  // Sorteer zoals de widget: level oplopend, alfabetisch binnen level.
+  // Sort like the widget: level ascending, alphabetical within level.
   const lvlOf = {};
   for (const e of p.pool) lvlOf[e.nm] = e.lvl;
   const list = p.selected.slice().sort((a, b) => ((lvlOf[a] || 0) - (lvlOf[b] || 0)) || a.localeCompare(b));

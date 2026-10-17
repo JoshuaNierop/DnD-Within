@@ -1,9 +1,9 @@
 // D&D Within — Page Renders (login, navbar, home, dashboard, DM, character list)
 // Requires: core.js
 
-// Character page — empty canvas die Widget Grid V8/V11 inline mount via
-// app.js postRenderEffects. WGI-M4 verbergt de hoofdnavbar op deze route;
-// de `.char-back-btn` overlay biedt de enige nav terug naar campaign view.
+// Character page — empty canvas that Widget Grid V8/V11 mounts inline via
+// app.js postRenderEffects. WGI-M4 hides the main navbar on this route;
+// the `.char-back-btn` overlay provides the only nav back to campaign view.
 function renderCharacterSheet(charId) {
     var config = loadCharConfig(charId);
     if (!config) {
@@ -46,7 +46,7 @@ function renderLogin() {
     html += '<h1 class="login-title">D&D Within</h1>';
     html += '<p class="login-subtitle">Valoria Campaign Platform</p>';
 
-    // --- Inlog-formulier (e-mail of legacy username) ---
+    // --- Login form (email or legacy username) ---
     html += '<div class="login-form" id="login-form-main">';
     html += '<div class="login-field">';
     html += '<label class="login-label">' + t('login.identifier') + '</label>';
@@ -62,7 +62,7 @@ function renderLogin() {
     html += '<button type="button" class="login-link" data-action="login-show-reset">' + t('login.forgot') + '</button>';
     html += '</div>';
 
-    // --- Reset-paneel (verborgen tot "wachtwoord vergeten") ---
+    // --- Reset panel (hidden until "forgot password") ---
     html += '<div class="login-form" id="login-form-reset" style="display:none;">';
     html += '<p class="login-hint">' + t('login.reset.hint') + '</p>';
     html += '<div class="login-field">';
@@ -129,9 +129,9 @@ function renderNavbar(route) {
         { path: '/lore', label: t('nav.lore'), icon: svgI('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>') },
         { path: '/notes', label: t('nav.notes'), icon: svgI('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>') }
     ]);
-    // DM Tools navbar-link verwijderd (2026-06-07): het DM Dashboard is
-    // bereikbaar via de party-pagina (grote knop), net als spelers hun
-    // character-dashboard bereiken. "DM Tools" als los concept bestaat niet meer.
+    // DM Tools navbar link removed (2026-06-07): the DM Dashboard is
+    // reachable via the party page (big button), just like players reach their
+    // character dashboard. "DM Tools" as a separate concept no longer exists.
 
     // Personal links (main menu)
     var personalLinks = [
@@ -151,7 +151,7 @@ function renderNavbar(route) {
     html += '<div class="nav-links">';
 
     if (inCampaignView) {
-        // (Back-to-menu link weggehaald — D&D Within logo links nu naar #/welcome)
+        // (Back-to-menu link removed — D&D Within logo now links to #/welcome)
         // Campaign links
         for (var i = 0; i < campLinks.length; i++) {
             var link = campLinks[i];
@@ -179,7 +179,7 @@ function renderNavbar(route) {
     html += '</div>';
     html += '<div class="nav-right">';
 
-    // (DM mode toggle verplaatst naar DM Tools page)
+    // (DM mode toggle moved to DM Tools page)
 
     // Sync status
     var syncStatus = typeof getSyncStatus === 'function' ? getSyncStatus() : 'not-configured';
@@ -301,8 +301,8 @@ function renderHome() {
         html += '</div>';
         html += '</dl>';
 
-        // Agenda: toon de eerstvolgende geplande sessies (na de "Next session")
-        // als beknopte read-only lijst. DM bewerkt via het potlood (edit-modal).
+        // Agenda: show the next upcoming planned sessions (after the "Next session")
+        // as a compact read-only list. DM edits via the pencil (edit modal).
         if (typeof campaignUpcoming === 'function') {
             var upcoming = campaignUpcoming(camp);
             if (upcoming.length > 1) {
@@ -424,9 +424,9 @@ function renderParty() {
     // Check if current user has a character in the party
     var myPartyChar = camp.party && camp.party[uid] ? camp.party[uid] : null;
     var isMember = camp.members && camp.members.indexOf(uid) !== -1;
-    // DM Dashboard: grote knop bovenaan, alleen voor de campaign-DM én admin —
-    // leidt naar het DM Dashboard (/dm). Net als een speler op z'n character
-    // klikt om naar z'n dashboard te gaan (verzoek 2026-06-05).
+    // DM Dashboard: big button at the top, only for the campaign DM and admin —
+    // leads to the DM Dashboard (/dm). Just like a player clicks their character
+    // to go to their dashboard (request 2026-06-05).
     var isDmOrAdmin = isCampaignDM() || isAdmin();
     if (isDmOrAdmin) {
         html += '<div class="party-dm-prompt">';
@@ -434,8 +434,8 @@ function renderParty() {
         html += '</div>';
     }
 
-    // Character assignment prompt — niet tonen aan DM/admin (die hebben geen
-    // party-character en gebruiken het DM Dashboard).
+    // Character assignment prompt — don't show to DM/admin (they have no
+    // party character and use the DM Dashboard).
     if (isMember && !myPartyChar && !isDmOrAdmin) {
         var myChars = getMyCharacterIds();
         html += '<div class="party-assign-prompt">';
@@ -474,10 +474,10 @@ function renderParty() {
         html += '</div>';
     }
 
-    // Party members — gesplitst in main players + guest players (#OvvKY4d).
+    // Party members — split into main players + guest players (#OvvKY4d).
     var partyCharIds = getPartyCharIds();
     if (typeof sortCharIdsByName === 'function') partyCharIds = sortCharIdsByName(partyCharIds);
-    // charId → owner-uid lookup (guest-status hangt aan de uid in camp.guests).
+    // charId → owner-uid lookup (guest status is keyed on the uid in camp.guests).
     var guestSet = (camp && camp.guests) ? camp.guests : {};
     var charToUid = {};
     if (camp && camp.party) { for (var pu in camp.party) charToUid[camp.party[pu]] = pu; }
@@ -547,7 +547,7 @@ function renderParty() {
                 html += '<span class="text-dim">' + t('party.nochar') + '</span>';
             }
             if (mUid !== camp.dm) {
-                // #OvvKY4d: speler op main/guest zetten.
+                // #OvvKY4d: set player to main/guest.
                 var isG = !!(camp.guests && camp.guests[mUid]);
                 html += '<button class="btn btn-ghost btn-sm member-role-toggle' + (isG ? ' is-guest' : '') + '" data-action="toggle-guest" data-user-id="' + escapeAttr(mUid) + '" title="Toggle main/guest player">' + (isG ? 'Guest' : 'Main') + '</button>';
                 html += '<button class="btn btn-ghost btn-sm" data-action="remove-member" data-user-id="' + escapeAttr(mUid) + '" style="color:var(--danger);">&times;</button>';
@@ -697,7 +697,7 @@ function renderDashboard() {
     html += '</div>';
 
     // Recent timeline events (pull from ALL chapters, sort by session # desc,
-    // top 3). Events zonder session-nummer zakken naar onder.
+    // top 3). Events without a session number sink to the bottom.
     var tlData = getTimelineData();
     var allEvents = [];
     for (var ci = 0; ci < (tlData.chapters || []).length; ci++) {
@@ -724,8 +724,8 @@ function renderDashboard() {
         for (var ri = 0; ri < recentEvents.length; ri++) {
             var rev = recentEvents[ri];
             var revPreview = (typeof sessionPreviewText === 'function') ? sessionPreviewText(rev) : (rev.desc || '');
-            // #OvvKnEi: strip mention-tokens naar kale naam (geen rauwe [[..]]-id;
-            // geen nested <a> want de hele kaart is al een link).
+            // #OvvKnEi: strip mention tokens to a bare name (no raw [[..]] id;
+            // no nested <a> because the whole card is already a link).
             if (typeof mentionsStripToName === 'function') revPreview = mentionsStripToName(revPreview);
             html += '<a class="dash-recent-event" href="/timeline" data-action="view-session" data-session-id="' + escapeAttr(rev.id || '') + '" title="' + escapeAttr(t('dash.recent.open') || 'Open session') + '">';
             if (rev.session) html += '<span class="timeline-date">' + t('dash.session') + ' ' + escapeHtml(rev.session) + '</span>';
@@ -831,7 +831,7 @@ function renderDashboard() {
     html += '<h2 class="section-title">' + t('dash.partyoverview') + '</h2>';
     html += '<div class="character-cards">';
 
-    // Alleen main party tonen — guest players weglaten (#OvvKY4d).
+    // Only show the main party — omit guest players (#OvvKY4d).
     var _homeCamp = (typeof getCampaigns === 'function') ? getCampaigns()[getActiveCampaign()] : null;
     var _homeGuests = (_homeCamp && _homeCamp.guests) ? _homeCamp.guests : {};
     var _homeCharToUid = {};
@@ -855,8 +855,8 @@ function renderDashboard() {
     html += '</div>';
     html += '</div>';
 
-    // (DM quick link "DM Tools →" verwijderd 2026-06-07 — DM Dashboard is
-    //  bereikbaar via de grote knop op de party-pagina.)
+    // (DM quick link "DM Tools →" removed 2026-06-07 — DM Dashboard is
+    //  reachable via the big button on the party page.)
 
     html += '</div>';
     return html;
@@ -870,13 +870,13 @@ var dmTab = 'initiative';
 
 function renderDMPage(subpage) {
     if (!isDM()) return '<p>Access denied.</p>';
-    // DM Dashboard (2026-06-05): de oude tools-tabs (initiative=kapot,
-    // families=staat al onder Lore, campaigns=overbodig) zijn vervangen door
-    // een volwaardig DM Dashboard dat de WidgetGrid in DM-modus draait. De
-    // WidgetGrid-template levert zelf de topbar + situatie-tabs (Social /
-    // Exploring / Combat / Ambient). Mount gebeurt in app.js (postRender) op
-    // deze lege host. `.character-page` is vereist: wg-style.css is @scope
-    // (.character-page). Widgets komen later — zie memory dnd_within_dm_dashboard.
+    // DM Dashboard (2026-06-05): the old tools tabs (initiative=broken,
+    // families=already under Lore, campaigns=redundant) have been replaced by
+    // a full DM Dashboard that runs the WidgetGrid in DM mode. The
+    // WidgetGrid template provides the topbar + situation tabs (Social /
+    // Exploring / Combat / Ambient) itself. Mounting happens in app.js (postRender) on
+    // this empty host. `.character-page` is required: wg-style.css is @scope
+    // (.character-page). Widgets come later — see memory dnd_within_dm_dashboard.
     return '<a class="char-back-btn" href="/party" aria-label="Back to party" title="Back to party">'
          +   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
          +     '<path d="M19 12H5M12 19l-7-7 7-7"/>'
@@ -1380,7 +1380,7 @@ function renderCharCard(cid, cfg, state, isOwn) {
     // async when it only exists in Firebase (uploaded on another device).
     html += '<div class="char-card-img"' + (imgSrc && !portrait2 ? ' data-hover-portrait="' + cid + '"' : '') + '>';
     if (imgSrc) {
-        // Profielfoto-uitsnede consistent met dashboard/wizard toepassen (#fATDUg).
+        // Apply the profile photo crop consistently with dashboard/wizard (#fATDUg).
         var ccStyle = (portrait && typeof portraitCropStyle === 'function')
             ? portraitCropStyle(loadPortraitCrop(cid)) : '';
         html += '<img src="' + imgSrc + '" alt=""' + (ccStyle ? ' style="' + ccStyle + '"' : '') + '>';
@@ -1398,9 +1398,9 @@ function renderCharCard(cid, cfg, state, isOwn) {
     html += '<div class="char-card-overlay">';
     html += '<span class="char-card-name">' + escapeHtml(firstName) + '</span>';
     html += '</div>';
-    // Eigen character: edit (#1) + delete (#4) acties. Knoppen zitten in de
-    // anchor; hun handlers in events.js roepen preventDefault aan zodat de
-    // kaart-navigatie niet afgaat.
+    // Own character: edit (#1) + delete (#4) actions. Buttons sit inside the
+    // anchor; their handlers in events.js call preventDefault so the
+    // card navigation doesn't fire.
     if (isOwn) {
         html += '<div class="char-card-actions">';
         html += '<button class="char-card-action-btn" data-action="edit-character" data-char-id="' + escapeAttr(cid) + '" title="' + t('char.edit') + '" aria-label="' + t('char.edit') + '">'
@@ -1446,9 +1446,9 @@ function hydrateCharCardPortraits() {
                 img.alt = '';
                 img.src = val;
                 wrap.replaceChild(img, node);
-                // Crop alleen op het portret (niet op de banner-fallback). Lokaal
-                // gesyncte crop eerst; anders rechtstreeks uit Firebase ophalen
-                // zodat de uitsnede ook op een ander device klopt (#fATDUg).
+                // Crop only on the portrait (not on the banner fallback). Locally
+                // synced crop first; otherwise fetch directly from Firebase
+                // so the crop is also correct on another device (#fATDUg).
                 if (!node._fromPortrait || typeof portraitCropStyle !== 'function') return;
                 var local = loadPortraitCrop(cid);
                 if (local) { img.style.cssText += portraitCropStyle(local); return; }
@@ -1459,9 +1459,9 @@ function hydrateCharCardPortraits() {
             })
             .catch(function () { delete node.dataset.hydrating; });
     });
-    // Hover-portret (portrait2) async bijladen als hij niet lokaal stond:
-    // alleen kaarten met een hoofd-afbeelding maar zonder lokale portrait2
-    // dragen data-hover-portrait (zie renderCharCard).
+    // Load the hover portrait (portrait2) async if it wasn't stored locally:
+    // only cards with a main image but without a local portrait2
+    // carry data-hover-portrait (see renderCharCard).
     var hoverNodes = document.querySelectorAll('[data-hover-portrait]');
     Array.prototype.forEach.call(hoverNodes, function (wrap) {
         var cid = wrap.getAttribute('data-hover-portrait');
@@ -1484,7 +1484,7 @@ function hydrateCharCardPortraits() {
 
 function renderCharacterList() {
     var uid = currentUserId();
-    // #4: ruim verlopen prullenbak-items op (>7 dagen) bij elke bezoek.
+    // #4: clean up expired trash items (>7 days) on every visit.
     if (typeof purgeExpiredCharTrash === 'function') purgeExpiredCharTrash();
     var myChars = getMyCharacterIds();
 
@@ -1526,7 +1526,7 @@ function renderCharacterList() {
 
     html += '</div>'; // .character-cards
 
-    // #4: Prullenbak — door deze gebruiker verwijderde characters (herstelbaar).
+    // #4: Trash — characters deleted by this user (restorable).
     if (typeof getCharTrash === 'function') {
         var trash = getCharTrash();
         var trashIds = Object.keys(trash).filter(function (cid) {

@@ -5,7 +5,7 @@
 // Section 30: Event Handling
 // ============================================================
 
-// Lees een image-File, schaal naar maxSize en lever een JPEG dataURL via cb.
+// Read an image File, scale to maxSize and deliver a JPEG dataURL via cb.
 function _compressImageFile(file, maxSize, quality, cb) {
     var reader = new FileReader();
     reader.onload = function(ev) {
@@ -45,7 +45,7 @@ function bindPageEvents(route) {
         state = loadCharState(charId);
     }
 
-    // ---- Change delegation on #app (monster-hypothese gedeeld opslaan #0C4rMb) ----
+    // ---- Change delegation on #app (monster hypothesis shared save #0C4rMb) ----
     app.onchange = function(e) {
         var t = e.target;
         if (t && t.matches && t.matches('[data-action="save-monster-hyp"]')) {
@@ -95,9 +95,9 @@ function bindPageEvents(route) {
 
         // (Character dashboard system removed — new dashboard TBD on an empty canvas.)
 
-        // --- Character-kaart acties (#1 edit / #4 delete) ---
-        // Knoppen zitten IN de <a class="char-card">. app.onclick bubblet vóór de
-        // document-router → preventDefault hier blokkeert de kaart-navigatie.
+        // --- Character card actions (#1 edit / #4 delete) ---
+        // Buttons live INSIDE the <a class="char-card">. app.onclick bubbles before the
+        // document router → preventDefault here blocks the card navigation.
         var _editCharBtn = target.closest && target.closest('[data-action="edit-character"]');
         if (_editCharBtn) {
             e.preventDefault();
@@ -154,7 +154,7 @@ function bindPageEvents(route) {
                     dwSendReset(rEmail).then(function () {
                         if (resetMsgEl) { resetMsgEl.style.color = 'var(--accent)'; resetMsgEl.textContent = t('login.reset.sent'); resetMsgEl.style.display = 'block'; }
                     }).catch(function () {
-                        // Bewust generiek (geen e-mail-enumeratie prijsgeven)
+                        // Deliberately generic (don't reveal e-mail enumeration)
                         if (resetMsgEl) { resetMsgEl.style.color = 'var(--accent)'; resetMsgEl.textContent = t('login.reset.sent'); resetMsgEl.style.display = 'block'; }
                     });
                 }
@@ -171,8 +171,8 @@ function bindPageEvents(route) {
                 var password = passwordEl.value;
                 if (errorEl) errorEl.style.display = 'none';
 
-                // E-mailadres → echte Firebase Auth login (met zelf-registratie
-                // bij eerste keer). Anders → legacy username-login.
+                // E-mail address → real Firebase Auth login (with self-registration
+                // on first use). Otherwise → legacy username login.
                 var looksLikeEmail = identifier.indexOf('@') !== -1;
                 if (looksLikeEmail && typeof dwEmailLogin === 'function') {
                     var submitBtn = target.closest('[data-action="login-submit"]');
@@ -308,7 +308,7 @@ function bindPageEvents(route) {
             showToast(target.checked ? t('settings.debug.enabled') : t('settings.debug.disabled'), 'success');
             return;
         }
-        // Admin: e-mail koppelen aan account
+        // Admin: link e-mail to account
         if (target.matches('[data-action="admin-save-email"]') || target.closest('[data-action="admin-save-email"]')) {
             var aseBtn = target.matches('[data-action="admin-save-email"]') ? target : target.closest('[data-action="admin-save-email"]');
             if (typeof handleAdminSaveEmail === 'function') handleAdminSaveEmail(aseBtn.dataset.uid);
@@ -639,7 +639,7 @@ function bindPageEvents(route) {
                 dmOptions = '<option value="' + escapeAttr(currentDmId) + '">' + escapeHtml(currentDmId || '—') + '</option>';
             }
 
-            // Agenda: één bewerkbare rij per geplande sessie (datum + titel + notitie).
+            // Agenda: one editable row per planned session (date + title + note).
             var agendaRowHtml = function (s) {
                 s = s || {};
                 return '<div class="agenda-edit-row">' +
@@ -676,7 +676,7 @@ function bindPageEvents(route) {
                     overlay.remove();
                     return;
                 }
-                // Agenda: rij toevoegen
+                // Agenda: add row
                 if (evt.target.closest('[data-action="agenda-add-row"]')) {
                     var listEl = overlay.querySelector('#agenda-rows');
                     if (listEl) {
@@ -686,7 +686,7 @@ function bindPageEvents(route) {
                     }
                     return;
                 }
-                // Agenda: rij verwijderen
+                // Agenda: remove row
                 if (evt.target.closest('[data-action="agenda-remove-row"]')) {
                     var row = evt.target.closest('.agenda-edit-row');
                     if (row) row.remove();
@@ -696,7 +696,7 @@ function bindPageEvents(route) {
                     var titleEl = document.getElementById('edit-camp-title');
                     var worldEl = document.getElementById('edit-camp-world');
                     var dmEl = document.getElementById('edit-camp-dm');
-                    // Verzamel agenda-rijen (alleen rijen met een datum tellen mee).
+                    // Collect agenda rows (only rows with a date count).
                     var agenda = [];
                     overlay.querySelectorAll('.agenda-edit-row').forEach(function (r) {
                         var dt = r.querySelector('.agenda-dt');
@@ -715,7 +715,7 @@ function bindPageEvents(route) {
                     if (c[cId]) {
                         if (titleEl && titleEl.value.trim()) c[cId].name = titleEl.value.trim();
                         c[cId].agenda = agenda;
-                        // nextSession blijft afgeleid zodat bestaande weergaves kloppen.
+                        // nextSession stays derived so existing views remain correct.
                         c[cId].nextSession = (typeof deriveNextSession === 'function') ? deriveNextSession(c[cId]) : (agenda[0] ? agenda[0].datetime : '');
                         c[cId].world = worldEl ? worldEl.value.trim() : '';
                         if (dmEl && dmEl.value) c[cId].dm = dmEl.value;
@@ -1167,8 +1167,8 @@ function bindPageEvents(route) {
         // NPC filter: disposition chips
         if (target.matches('[data-action="npc-filter-disp"]')) {
             npcFilterDisp = target.dataset.disp || 'all';
-            // Chip-active-state bijwerken zonder volledige re-render → de grid
-            // animeert vloeiend (FLIP) i.p.v. een harde herteken (#OvywGWk).
+            // Update chip-active state without a full re-render → the grid
+            // animates smoothly (FLIP) instead of a hard redraw (#OvywGWk).
             var _chips = document.querySelectorAll('.npc-chip');
             for (var _ci = 0; _ci < _chips.length; _ci++) {
                 _chips[_ci].classList.toggle('active', _chips[_ci].dataset.disp === npcFilterDisp);
@@ -1177,7 +1177,7 @@ function bindPageEvents(route) {
             return;
         }
 
-        // --- Lore-entry handlers (generieke categorieën) ---
+        // --- Lore-entry handlers (generic categories) ---
         if (target.matches('[data-action="add-place-dimension"]')) {
             showPromptModal({
                 title: 'New dimension',
@@ -1223,8 +1223,8 @@ function bindPageEvents(route) {
             });
             return;
         }
-        // DM zet een monster-veld op public/private (#0C4rMb). Vóór de card-toggle
-        // zodat de kaart niet ook in/uitklapt bij een klik op het oog/slot-icoon.
+        // DM sets a monster field to public/private (#0C4rMb). Before the card toggle
+        // so the card doesn't also expand/collapse on a click on the eye/lock icon.
         if (target.matches('[data-action="toggle-field-vis"]') || target.closest('[data-action="toggle-field-vis"]')) {
             var visBtn = target.matches('[data-action="toggle-field-vis"]') ? target : target.closest('[data-action="toggle-field-vis"]');
             var vEid = visBtn.dataset.entry;
@@ -1239,7 +1239,7 @@ function bindPageEvents(route) {
                 var newVis = (curVis === 'public') ? 'private' : 'public';
                 ent.visibility[vField] = newVis;
                 saveLoreCatsData(cats);
-                // Lokale UI-update i.p.v. renderApp() → de kaart blijft uitgeklapt.
+                // Local UI update instead of renderApp() → the card stays expanded.
                 var priv = newVis === 'private';
                 visBtn.setAttribute('aria-pressed', priv ? 'true' : 'false');
                 visBtn.textContent = priv ? '🔒' : '👁';
@@ -1255,8 +1255,8 @@ function bindPageEvents(route) {
         // lore-entry modal is appended to document.body (outside #app), so
         // this app.onclick delegate never sees clicks inside it.
 
-        // DM zet een heel monster op privé/publiek (entry-niveau). Vóór de
-        // card-toggle zodat de kaart niet in/uitklapt bij de klik.
+        // DM sets a whole monster to private/public (entry level). Before the
+        // card toggle so the card doesn't expand/collapse on the click.
         if (target.matches('[data-action="toggle-entry-vis"]') || target.closest('[data-action="toggle-entry-vis"]')) {
             var evBtn = target.matches('[data-action="toggle-entry-vis"]') ? target : target.closest('[data-action="toggle-entry-vis"]');
             var evIdx = parseInt(evBtn.dataset.entryIdx, 10);
@@ -1278,19 +1278,19 @@ function bindPageEvents(route) {
         }
 
         if (target.matches('[data-action="toggle-lore-entry"]') || target.closest('[data-action="toggle-lore-entry"]')) {
-            // Niet togglen als er op een actie-knop in de kaart geklikt is.
+            // Don't toggle when an action button inside the card was clicked.
             if (target.closest('[data-action="edit-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]') || target.closest('[data-action="toggle-field-vis"]') || target.closest('[data-action="toggle-entry-vis"]') || target.closest('.lore-hyp-input')) return;
-            // Accordion: max. één lore-kaart tegelijk uitgeklapt. Een tweede openen
-            // klapt de vorige in (gevraagd 2026-06-14; keert #I1oOpc bewust om).
+            // Accordion: max. one lore card expanded at a time. Opening a second one
+            // collapses the previous (requested 2026-06-14; deliberately reverses #I1oOpc).
             var leCard = target.matches('[data-action="toggle-lore-entry"]') ? target : target.closest('[data-action="toggle-lore-entry"]');
             if (leCard) {
-                // #OvywGWk: vloeiende verplaatsing/grootte-overgang via FLIP rond
-                // de class-toggle (Isotope-stijl). De mutatie zelf blijft gelijk.
+                // #OvywGWk: smooth move/size transition via FLIP around
+                // the class toggle (Isotope style). The mutation itself stays the same.
                 var leGrid = leCard.closest('.lore-entry-grid');
                 var runToggle = function () {
                     var willExpand = !leCard.classList.contains('expanded');
                     if (willExpand) {
-                        // Alle andere kaarten in dit grid sluiten (DOM + set leegmaken).
+                        // Close all other cards in this grid (DOM + clear set).
                         var openCards = leGrid ? leGrid.querySelectorAll('.lore-entry-card.expanded')
                                                : document.querySelectorAll('.lore-entry-card.expanded');
                         openCards.forEach(function (c) { c.classList.remove('expanded'); });
@@ -1299,8 +1299,8 @@ function bindPageEvents(route) {
                         }
                     }
                     leCard.classList.toggle('expanded', willExpand);
-                    // Spiegel naar de persistente set zodat een latere re-render de
-                    // uitgeklapte kaart niet inklapt (#LLD4YT/#3gKQ37).
+                    // Mirror to the persistent set so a later re-render doesn't
+                    // collapse the expanded card (#LLD4YT/#3gKQ37).
                     var lid = leCard.getAttribute('data-entry-id');
                     if (lid && typeof loreExpandedIds !== 'undefined') {
                         if (willExpand) loreExpandedIds[lid] = true;
@@ -1520,8 +1520,8 @@ function bindPageEvents(route) {
             return;
         }
 
-        // #Ovy59sT: chat-knop in de dashboard-onderbalk opent de social
-        // chat-widget (die zijn eigen #scw-fab launcher heeft).
+        // #Ovy59sT: chat button in the dashboard bottom bar opens the social
+        // chat widget (which has its own #scw-fab launcher).
         if (target.matches('[data-action="open-chat-widget"]') || target.closest('[data-action="open-chat-widget"]')) {
             var scwFab = document.getElementById('scw-fab');
             if (scwFab) scwFab.click();
@@ -1591,7 +1591,7 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="level-plus"]')) {
             if (!isDM()) return;
             var lvl = parseInt(localStorage.getItem('dw_party_level') || '0', 10);
-            if (lvl < 1) lvl = 1; // start vanaf 1 als override nog niet gezet
+            if (lvl < 1) lvl = 1; // start from 1 if override not yet set
             localStorage.setItem('dw_party_level', String(Math.min(20, lvl + 1)));
             if (typeof syncUpload === 'function') syncUpload('dw_party_level');
             renderApp();
@@ -2185,7 +2185,7 @@ function bindPageEvents(route) {
         }
 
         // --- Maps: dimension, map, pin handlers ---
-        // Dimension dropdown toggle (open/close het menu, geen re-render).
+        // Dimension dropdown toggle (open/close the menu, no re-render).
         if (target.closest('[data-action="toggle-dimension-menu"]')) {
             var dd = target.closest('.dimension-dropdown');
             if (dd) dd.classList.toggle('open');
@@ -2202,9 +2202,9 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Dimensions manager window (add + remove). De window zelf hangt aan
-        // <body>; de modal-interne acties worden document-level afgehandeld in
-        // ui-modals.js (close/submit/delete). Hier alleen de open-knop in #app.
+        // Dimensions manager window (add + remove). The window itself hangs off
+        // <body>; the modal-internal actions are handled document-level in
+        // ui-modals.js (close/submit/delete). Here only the open button in #app.
         if (target.matches('[data-action="manage-dimensions"]') || target.closest('[data-action="manage-dimensions"]')) {
             var omd = document.querySelector('.dimension-dropdown.open');
             if (omd) omd.classList.remove('open');
@@ -2245,7 +2245,7 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Add map — opent een window (naam + plaatsing + afbeelding uit Places of upload)
+        // Add map — opens a window (name + placement + image from Places or upload)
         if (target.matches('[data-action="add-map"]') || target.closest('[data-action="add-map"]')) {
             if (typeof openAddMapModal === 'function') openAddMapModal();
             return;
@@ -2475,7 +2475,7 @@ function bindPageEvents(route) {
                             }
                         }
                         saveMapsData(mData2);
-                        // Open edit-mode na plaatsen zodat user direct nodes kan toevoegen
+                        // Open edit mode after placing so the user can add nodes right away
                         editingPins = true;
                     }
 
@@ -2922,8 +2922,8 @@ function bindPageEvents(route) {
             return;
         }
 
-        // NPC search — alleen het resultaten-grid verversen (geen page-reload,
-        // geen focus-verlies, skip bij identieke resultaten).
+        // NPC search — only refresh the results grid (no page reload,
+        // no focus loss, skip on identical results).
         if (target.matches('#npc-search')) {
             npcSearchQuery = target.value;
             clearTimeout(target._searchTimer);
@@ -2933,7 +2933,7 @@ function bindPageEvents(route) {
             return;
         }
 
-        // Lore-categorie search — idem: alleen het entry-grid verversen.
+        // Lore category search — same: only refresh the entry grid.
         if (target.matches('#lore-cat-search')) {
             loreCatSearch = target.value;
             clearTimeout(target._searchTimer);

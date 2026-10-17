@@ -19,7 +19,7 @@ function renderSettings() {
     var tabs = [
         { id: 'account', label: t('settings.tab.account'), icon: '&#128100;' },
         { id: 'appearance', label: t('nav.theme') || 'Thema', icon: '&#127912;' },
-        // Language-tab verwijderd (bug -Oud-_izpLBetwa): site is Engels-only.
+        // Language tab removed (bug -Oud-_izpLBetwa): site is English-only.
         { id: 'developer', label: t('settings.tab.developer'), icon: '&#128736;' }
     ];
     if (typeof isAdmin === 'function' && isAdmin()) {
@@ -78,7 +78,7 @@ function renderSettings() {
         html += '</div></section>';
     }
 
-    // Language-tab verwijderd (bug -Oud-_izpLBetwa): site is Engels-only.
+    // Language tab removed (bug -Oud-_izpLBetwa): site is English-only.
 
     // === Admin tab (accounts → e-mail koppelen + login-cutover) ===
     if (settingsTab === 'admin' && typeof isAdmin === 'function' && isAdmin()) {
@@ -198,9 +198,9 @@ function handleSaveSettings() {
     setTimeout(function() { renderApp(); }, 600);
 }
 
-// Admin: koppel een e-mailadres aan een bestaand account (userId blijft de
-// interne sleutel; de speler logt daarna in via e-mail). Schrijft alleen het
-// email-veld — authUid wordt door auth.js gezet bij de eerste e-mail-login.
+// Admin: link an email address to an existing account (userId stays the
+// internal key; the player then logs in via email). Only writes the
+// email field — authUid is set by auth.js on the first email login.
 function handleAdminSaveEmail(userId) {
     if (typeof isAdmin !== 'function' || !isAdmin()) return;
     var input = document.querySelector('.admin-email-input[data-uid="' + (window.CSS && CSS.escape ? CSS.escape(userId) : userId) + '"]');
@@ -215,18 +215,18 @@ function handleAdminSaveEmail(userId) {
     showToast(email ? ('E-mail gekoppeld aan ' + (u.name || userId)) : ('E-mail losgekoppeld van ' + (u.name || userId)), 'success');
 }
 
-// Admin: zet de transitievlag dw/config/legacyOpen. Aan = username-login + open
-// DB; uit = cutover (alleen geauthenticeerd). Dit is het scherpe moment —
-// pas uitzetten als iedereen via e-mail heeft ingelogd.
+// Admin: set the transition flag dw/config/legacyOpen. On = username login + open
+// DB; off = cutover (authenticated only). This is the critical moment —
+// only switch off once everyone has logged in via email.
 function handleAdminToggleLegacy(enabled) {
     if (typeof isAdmin !== 'function' || !isAdmin()) return;
     if (typeof syncReady === 'undefined' || !syncReady || !syncDb) {
         showToast('Firebase not connected yet — try again.', 'error');
         return;
     }
-    // Cutover-guard: uitzetten sluit iedereen buiten die niet via e-mail is
-    // ingelogd (authUid ontbreekt) of geen e-mail gekoppeld heeft. Blokkeer dat
-    // — anders is de party permanent buitengesloten zonder self-recovery.
+    // Cutover guard: switching off locks out everyone who has not logged in
+    // via email (authUid missing) or has no email linked. Block that
+    // — otherwise the party is permanently locked out without self-recovery.
     function resetToggle() { var cb = document.getElementById('admin-legacy-toggle'); if (cb) cb.checked = true; }
     if (!enabled) {
         var allUsers = usersCache || {};
@@ -238,7 +238,7 @@ function handleAdminToggleLegacy(enabled) {
             if (!u.email) noEmail.push(u.name || id);
             else if (!u.authUid) notLinked.push(u.name || id);
         });
-        // Admin zelf moet gekoppeld zijn, anders is de cutover onomkeerbaar in-app.
+        // The admin must be linked too, otherwise the cutover is irreversible in-app.
         var adminId = currentUserId();
         var adminU = allUsers[adminId] || getUserData(adminId) || {};
         if (!adminU.authUid) {

@@ -1,19 +1,19 @@
-// Bouwt columns/rows/kolom-config voor een widget uit z'n raw data.
-// Raakt de titel NIET aan — die is auto (uit source) of door de user gezet.
+// Builds columns/rows/column config for a widget from its raw data.
+// Does NOT touch the title — that is auto (from source) or set by the user.
 function buildRowsFromSource(widget) {
   const d = widget.data, L = widget.layout;
   const src = d.source;
-  d.tooltips = null;   // per-cel hover-tekst (rows × cols); alleen Skills vult dit nu
-  const raw = WG_CHAR_CACHE[state.characterId];   // V9: dashboard-brede character-cache
+  d.tooltips = null;   // per-cell hover text (rows × cols); only Skills fills this now
+  const raw = WG_CHAR_CACHE[state.characterId];   // V9: dashboard-wide character cache
   if (!raw) { d.rows = []; d.columns = []; return; }
-  // Geporte/extra infobox-bronnen (bv. 'hp' uit wg-hp.js) registreren zich in
-  // WG_EXTRA_INFOBOX_BUILDERS en bouwen rows/layout zelf.
+  // Ported/extra infobox sources (e.g. 'hp' from wg-hp.js) register themselves in
+  // WG_EXTRA_INFOBOX_BUILDERS and build rows/layout themselves.
   if (typeof WG_EXTRA_INFOBOX_BUILDERS !== 'undefined' && WG_EXTRA_INFOBOX_BUILDERS[src]) {
     WG_EXTRA_INFOBOX_BUILDERS[src](widget);
     return;
   }
   if (src === 'abilities') {
-    // baseAbilities zit binnen `config` in de D&D Within schema
+    // baseAbilities lives inside `config` in the D&D Within schema
     const baseAb = (raw.config && raw.config.baseAbilities) || raw.baseAbilities || {};
     // Effective scores: base + Ability Score Improvements / feat bonuses.
     const ab = (typeof getEffectiveAbilities === 'function' && raw.config && raw.config.baseAbilities)
@@ -38,8 +38,8 @@ function buildRowsFromSource(widget) {
       const name = WG_ABILITY_LABELS[k];
       const modSigned = `${m >= 0 ? '+' : ''}${m}`;
       const bonus = (hasScore && typeof baseAb[k] === 'number') ? score - baseAb[k] : 0;
-      // Tooltips: naam = wat de ability bestuurt; score = WAAR de waarde vandaan
-      // komt (samenstelling); modifier = de bonus die je overal optelt.
+      // Tooltips: name = what the ability governs; score = WHERE the value comes from
+      // (composition); modifier = the bonus you add everywhere.
       abTips.push([
         { title: name, body: abInfo[k] || '' },
         { title: name + ' score', body: hasScore
@@ -65,18 +65,18 @@ function buildRowsFromSource(widget) {
     const classTxt = (typeof classDisplayName === 'function') ? classDisplayName(cfg.className) : capLocal(cfg.className);
     const subTxt   = (typeof subclassDisplayName === 'function') ? subclassDisplayName(cfg.subclass) : capLocal(cfg.subclass);
     const dash = '—';
-    // Vaste veld-volgorde; archetype alleen vanaf het level waarop je een
-    // subclass kiest (5.5e = level 3) of zodra er al één gekozen is. De
-    // edit-handler leest dezelfde field-key uit d.fieldKeys[rowIdx].
+    // Fixed field order; archetype only from the level at which you choose a
+    // subclass (5.5e = level 3) or as soon as one is already chosen. The
+    // edit handler reads the same field key from d.fieldKeys[rowIdx].
     const fields = [
       { key: 'race',       label: 'Species',    value: cfg.race ? raceTxt : dash },
       { key: 'className',  label: 'Class',      value: cfg.className ? classTxt : dash },
       { key: 'background', label: 'Background', value: cfg.background ? capLocal(cfg.background) : dash },
       { key: 'age',        label: 'Age',        value: (cfg.age != null && cfg.age !== '') ? String(cfg.age) : dash },
     ];
-    // #OvVZiZ: archetype-rij alleen tonen vanaf het level waarop de subclass
-    // legaal gekozen wordt (5.5e: L3, Cleric L1). Een vóór-L3 opgeslagen waarde
-    // blijft verborgen zodat er geen "spook"-subclass terugkomt.
+    // #OvVZiZ: only show the archetype row from the level at which the subclass
+    // is legally chosen (5.5e: L3, Cleric L1). A value saved before L3
+    // stays hidden so no "ghost" subclass comes back.
     var subLvlGate = (typeof subclassChoiceLevel === 'function') ? subclassChoiceLevel(cfg.className) : 3;
     if (lvl >= subLvlGate) {
       fields.push({ key: 'subclass', label: 'Archetype', value: cfg.subclass ? subTxt : dash });
@@ -85,9 +85,9 @@ function buildRowsFromSource(widget) {
       { key: 'field', label: 'Field' },
       { key: 'value', label: 'Value' },
     ];
-    d.fieldKeys = fields.map(f => f.key);   // rowIdx → config-field voor edit-write-back
+    d.fieldKeys = fields.map(f => f.key);   // rowIdx → config field for edit write-back
     d.rows = fields.map(f => [f.label, f.value]);
-    // Tooltips: korte uitleg per veld (zelfde tip op label- en waarde-cel).
+    // Tooltips: short explanation per field (same tip on label and value cell).
     var biTipBody = {
       race:       "Your ancestry — sets your size, speed, and racial traits.",
       className:  "Your profession — sets your hit die, proficiencies, and class features.",
@@ -132,7 +132,7 @@ function buildRowsFromSource(widget) {
       const total = sb ? sb.total : mod + (isExpert ? 2 * profBonus : (isProf ? profBonus : 0));
       const abName = titleizeAbility(s.ability);
       const fullAb = WG_ABILITY_LABELS[s.ability] || abName;
-      // Tooltips (#bug Ov6e4Bv9): proficiency-status, skill-uitleg, bonus-opbouw.
+      // Tooltips (#bug Ov6e4Bv9): proficiency status, skill explanation, bonus breakdown.
       const parts = [`${fmtBonus(mod)} from ${fullAb}`];
       if (sb) sb.parts.slice(1).forEach((p) => parts.push(`${fmtBonus(p.value)} ${p.label}`));
       else {
@@ -160,13 +160,13 @@ function buildRowsFromSource(widget) {
     L.columnAllCaps   = [false, false, false];
     L.columnExtraClass = ['is-prof-col', null, null];
     L.columnMinWidthPx = [20, null, null];
-    L.columnFontScale  = [1.25, 1, 1];   // matcht CSS .is-prof-col { font-size: 1.25em }
+    L.columnFontScale  = [1.25, 1, 1];   // matches CSS .is-prof-col { font-size: 1.25em }
     L.stacking = 'horizontal';
   }
 }
 
-// Herbouwt rows + layout van een widget uit z'n al-geladen raw data
-// (gebruikt na source/type-wissel; geen nieuwe fetch nodig).
+// Rebuilds rows + layout of a widget from its already-loaded raw data
+// (used after a source/type switch; no new fetch needed).
 function rebuildWidget(widget) {
   withWidget(widget, () => {
     buildRowsFromSource(widget);
@@ -188,16 +188,16 @@ function measureCtx() {
 function measureCellPx(text, isHighlight, fontScale) {
   const ctx = measureCtx();
   const baseFs = state.config.fontSize + (isHighlight ? 1 : -1);
-  // fontScale is een em-multiplier (CSS-conventie: 1em = root/body font, default 16px).
-  // Cellen met fontScale != 1 hebben een CSS-override (bv. .is-prof-col { font-size: 1.25em })
-  // die de SVG-attribuut font-size overschrijft. Voor accurate measure gebruiken we de
-  // CSS-resolved size (rootFs × scale) in plaats van baseFs × scale.
+  // fontScale is an em multiplier (CSS convention: 1em = root/body font, default 16px).
+  // Cells with fontScale != 1 have a CSS override (e.g. .is-prof-col { font-size: 1.25em })
+  // that overrides the SVG attribute font-size. For an accurate measure we use the
+  // CSS-resolved size (rootFs × scale) instead of baseFs × scale.
   let fs = baseFs;
   if (fontScale && fontScale > 0 && fontScale !== 1) {
     const rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
     fs = rootFs * fontScale;
   }
-  // Match SVG .info-box-text styling: 600 weight + actief body-font
+  // Match SVG .info-box-text styling: 600 weight + active body font
   const font = getComputedStyle(document.documentElement).getPropertyValue('--info-font-body').trim()
     || 'system-ui, -apple-system, sans-serif';
   ctx.font = `600 ${fs}px ${font}`;
@@ -211,8 +211,8 @@ function measureCellPx(text, isHighlight, fontScale) {
   return ctx.measureText(fullText).width;
 }
 
-// Pas per-kolom transformaties toe (allCaps + maxChars) op een raw cel-waarde.
-// Ondersteunt { main, suffix } objects voor skill-labels met ability-suffix.
+// Apply per-column transformations (allCaps + maxChars) to a raw cell value.
+// Supports { main, suffix } objects for skill labels with ability suffix.
 function displayValue(raw, colIdx) {
   // Handle object format { main, suffix }
   let main = '', suffix = '';
@@ -254,9 +254,9 @@ function recomputeColumnPxWidths() {
   });
 }
 
-// Cel-rijhoogte: font-driven, symmetrisch met de breedte-berekening
-// (gemeten tekst + 2×cellPadding). Hoogste cel-font is highlight = fontSize + 1;
-// 1.35 ≈ regelhoogte-factor zodat de tekst altijd past.
+// Cell row height: font-driven, symmetric with the width calculation
+// (measured text + 2×cellPadding). Highest cell font is highlight = fontSize + 1;
+// 1.35 ≈ line-height factor so the text always fits.
 function cellRowPxH() {
   const { fontSize } = state.config;
   const { cellPadding } = state.cfg;
@@ -272,7 +272,7 @@ function recomputeBoxPx() {
     return;
   }
   const rowH = cellRowPxH();
-  // infoBoxPadding: lege ruimte rond de cel-stack, binnen de info-box-outline.
+  // infoBoxPadding: empty space around the cell stack, inside the info-box outline.
   const ipad = 2 * (state.cfg.infoBoxPadding || 0);
   if (state.layout.stacking === 'horizontal') {
     state.layout.boxPxW = widths.reduce((a, b) => a + b, 0) + ipad;
@@ -283,8 +283,8 @@ function recomputeBoxPx() {
   }
 }
 
-// Compose helper voor alle callers die na data/font/stacking-changes alles
-// in één stap willen herberekenen.
+// Compose helper for all callers that want to recompute everything after data/font/stacking changes
+// in a single step.
 function recomputeDataLayout() {
   recomputeColumnPxWidths();
   recomputeBoxPx();
@@ -332,8 +332,8 @@ function applyResponsive() {
   }
 }
 
-// ===== Widget-types: presets die een nieuwe widget seeden (size + source).
-// `kind` bepaalt de renderer: 'infobox' (data-grid) of 'map' (campagne-kaart).
+// ===== Widget types: presets that seed a new widget (size + source).
+// `kind` determines the renderer: 'infobox' (data grid) or 'map' (campaign map).
 const WG_SOURCE_LABELS = { abilities: 'Ability Scores', skills: 'Skills', basicInfo: 'Character Info' };
 const WG_WIDGET_TYPES = {
   abilityScores: { label: 'Ability Scores', kind: 'infobox', source: 'abilities', spanUnits: 4, spanUnitsY: 6,
@@ -355,18 +355,18 @@ const WG_DEFAULT_WIDGET_TYPE = 'abilityScores';
 // Defines which column index in which source is editable, and how to write it to Firebase.
 const WG_EDIT_CONFIG = {
   abilities: {
-    editColumnIdx: 1,  // score-kolom (data: [label, score, modStr])
+    editColumnIdx: 1,  // score column (data: [label, score, modStr])
     type: 'number',
     min: 1, max: 30, step: 1,
   },
   skills: {
-    editColumnIdx: 0,  // prof-bolletjes-kolom
+    editColumnIdx: 0,  // prof-dots column
     type: 'cycle',
     cycle: ['○', '●', '★'],
   },
-  // Bug #G0tAIk (2026-06-04): Character Info (basicInfo) is op verzoek NIET meer
-  // bewerkbaar vanuit het dashboard — race/class/etc. bewerk je op de sheet, niet
-  // hier (voorkomt ook de display-naam ↔ interne-key desync). Widget toont alleen.
+  // Bug #G0tAIk (2026-06-04): Character Info (basicInfo) is, on request, NO longer
+  // editable from the dashboard — you edit race/class/etc. on the sheet, not
+  // here (also prevents the display name ↔ internal key desync). Widget only displays.
 };
 
 function nextSkillMark(current) {
@@ -378,8 +378,8 @@ function nextSkillMark(current) {
 
 function widgetKind(w) { return (w && WG_WIDGET_TYPES[w.type]) ? WG_WIDGET_TYPES[w.type].kind : 'infobox'; }
 
-// Gedeelde campagne-maps (uit D&D Within Firebase /dw/world/maps). Eén keer
-// geladen en gecached; alle map-widgets delen deze data.
+// Shared campaign maps (from D&D Within Firebase /dw/world/maps). Loaded and cached
+// once; all map widgets share this data.
 // WGI-M2: pre-seed from D&D Within's localStorage('dw_maps') when present.
 // Standalone V8 starts null and lazy-fetches via fetchMapsData on first map widget.
 let WG_MAPS_CACHE = (function() {
@@ -395,47 +395,47 @@ let _mapsFetchState = 'idle';     // idle | loading | ready | error
 // Cache: image src -> { nw, nh } natural pixel dimensions for letterbox pin-offset calculation.
 const WG_MAP_IMAGE_DIMS = new Map();
 
-// Verse per-widget sub-objecten. Function declarations → gehoist, dus bruikbaar
-// in de `state`-literal hieronder.
+// Fresh per-widget sub-objects. Function declarations → hoisted, so usable
+// in the `state` literal below.
 function makeWidgetData(source = 'abilities') {
-  return { source, columns: [], rows: [] };   // V9: characterId/raw/status/error zijn dashboard-breed
+  return { source, columns: [], rows: [] };   // V9: characterId/raw/status/error are dashboard-wide
 }
 function makeWidgetLayout() {
   return {
     stacking: 'horizontal',    // horizontal | vertical
-    columnPxWidths: [],        // px-breedte per kolom = ceil(maxMeasure + 2*cellPadding)
-    columnAlign: ['left', 'center', 'right'],  // per kolom (alleen voor horizontal)
-    columnHighlight: [],       // per kolom: true = highlight-tekst, false = regular
-    columnMaxChars: [],        // per kolom: null = geen limiet, anders max chars
-    columnAllCaps: [],         // per kolom: true = uppercase render
-    columnMinWidthPx: [],      // per kolom: null = geen minimum, anders px
-    columnExtraClass: [],      // per kolom: null = geen extra CSS-klasse, anders string
-    columnFontScale: [],       // per kolom: null/1 = base font, anders em-scale (sync met CSS in columnExtraClass)
-    boxPxW: 0,                 // info-box pixel-breedte (som horizontal / max vertical)
-    boxPxH: 0,                 // info-box pixel-hoogte (font-driven)
+    columnPxWidths: [],        // px width per column = ceil(maxMeasure + 2*cellPadding)
+    columnAlign: ['left', 'center', 'right'],  // per column (horizontal only)
+    columnHighlight: [],       // per column: true = highlight text, false = regular
+    columnMaxChars: [],        // per column: null = no limit, otherwise max chars
+    columnAllCaps: [],         // per column: true = uppercase render
+    columnMinWidthPx: [],      // per column: null = no minimum, otherwise px
+    columnExtraClass: [],      // per column: null = no extra CSS class, otherwise string
+    columnFontScale: [],       // per column: null/1 = base font, otherwise em scale (in sync with CSS in columnExtraClass)
+    boxPxW: 0,                 // info-box pixel width (sum horizontal / max vertical)
+    boxPxH: 0,                 // info-box pixel height (font-driven)
   };
 }
 function makeWidgetCfg() {
   return { cellPadding: 0, widgetPadding: 8, infoBoxSpacing: 5, infoBoxPadding: 2 };
 }
-// cfg-default voor een widget-type: type-specifiek indien gedefinieerd in
-// WG_WIDGET_TYPES, anders de generieke default.
+// cfg default for a widget type: type-specific if defined in
+// WG_WIDGET_TYPES, otherwise the generic default.
 function makeTypeCfg(typeKey) {
   const t = WG_WIDGET_TYPES[typeKey];
   return (t && t.cfg) ? { ...t.cfg } : makeWidgetCfg();
 }
-// Per-widget map-state (alleen voor type-'map' widgets).
+// Per-widget map state (only for type-'map' widgets).
 function makeWidgetMap() {
   return { dimIdx: 0, mapId: null, history: [] };
 }
-// Per-widget image-state (voor 'image'-kind widgets, bv. Profile picture).
+// Per-widget image state (for 'image'-kind widgets, e.g. Profile picture).
 function makeWidgetImage() {
   return { src: null };
 }
 
-// V11: default geometry shared across all tabs (Joshua-keuze: shared, not per-tab)
-// leftX/topY = offset van de grid binnen de canvas. Klein gehouden zodat
-// widgets tot dicht aan de rand van de canvas-wrap kunnen (verzoek 2026-06-04).
+// V11: default geometry shared across all tabs (Joshua's choice: shared, not per-tab)
+// leftX/topY = offset of the grid within the canvas. Kept small so that
+// widgets can get close to the edge of the canvas wrap (request 2026-06-04).
 function defaultDashboardGeom() {
   return { leftX: 2, width: 455, topY: 2, height: 230 };
 }
@@ -454,38 +454,38 @@ function currentDevice() {
 }
 
 const WG_SITUATIONS = ['character', 'social', 'exploring', 'combat', 'inventory'];
-// DM-modus situatie-tabs (DM Dashboard, character-onafhankelijk). Widgets per
-// tab komen later; de tabs zelf bestaan nu al. Zie memory dnd_within_dm_dashboard.
+// DM mode situation tabs (DM Dashboard, character-independent). Widgets per
+// tab come later; the tabs themselves already exist. See memory dnd_within_dm_dashboard.
 const WG_SITUATIONS_DM = ['social', 'exploring', 'combat', 'ambient'];
-// Actieve situatie-lijst voor de huidige mount-context.
+// Active situation list for the current mount context.
 function wgSituations() {
   return state.context === 'dm' ? WG_SITUATIONS_DM : WG_SITUATIONS;
 }
 
 const state = {
-  responsive: JSON.parse(JSON.stringify(WG_RESPONSIVE_DEFAULTS)), // deep copy zodat user kan tweaken
+  responsive: JSON.parse(JSON.stringify(WG_RESPONSIVE_DEFAULTS)), // deep copy so the user can tweak
   config: {
     dashTile: 40,
     dashMinSpacing: 5,
     fontSize: 12,
     dashPadding: 20,
-    editMode: true,            // V10: edit-mode is altijd actief; handles tonen op proximity
-    devView: false,            // dev-view: amber-grid + dev-panels (toggle in settings)
-    showDashboardInfo: false,  // V10: dashboard-info-blok onder canvas (toggle in settings)
-    editValuesMode: false,      // V11 Phase 3.2: edit-values mode voor abilities + skills
-    pinAddMode: null,           // V11 Phase 3.3: widget-index in pin-add-mode, or null
+    editMode: true,            // V10: edit mode is always active; handles show on proximity
+    devView: false,            // dev view: amber grid + dev panels (toggle in settings)
+    showDashboardInfo: false,  // V10: dashboard info block below canvas (toggle in settings)
+    editValuesMode: false,      // V11 Phase 3.2: edit-values mode for abilities + skills
+    pinAddMode: null,           // V11 Phase 3.3: widget index in pin-add mode, or null
   },
-  dashboard: defaultDashboardGeom(), // V11: shared across tabs (Joshua-keuze)
+  dashboard: defaultDashboardGeom(), // V11: shared across tabs (Joshua's choice)
   style: {
     palette: 'positiveGold',
     cellRadius: 8,
     widgetRadius: 12,
   },
-  characterId: 'saya',           // V9: dashboard-breed — alle character-widgets volgen dit
-  context: 'character',          // DM-dashboard: 'character' | 'dm' — zet via mount({context})
-  dmCampaignId: null,            // DM-modus: campaign waaraan dashboard+monsters hangen
-  activeSituation: 'character',  // V11: welke tab open is
-  device: 'desktop',             // V11: current device class; set bij init via currentDevice()
+  characterId: 'saya',           // V9: dashboard-wide — all character widgets follow this
+  context: 'character',          // DM dashboard: 'character' | 'dm' — set via mount({context})
+  dmCampaignId: null,            // DM mode: campaign that dashboard+monsters belong to
+  activeSituation: 'character',  // V11: which tab is open
+  device: 'desktop',             // V11: current device class; set at init via currentDevice()
   // V11: per-device, per-situation widget state. All starts empty; Firebase in next phase.
   dashboardsByDevice: {
     mobile:  {},
@@ -523,7 +523,7 @@ Object.defineProperty(state, 'currentPage', {
   configurable: true,
 });
 
-// EMPTY-fallbacks voor de proxy-getters wanneer er geen widget is.
+// EMPTY fallbacks for the proxy getters when there is no widget.
 const EMPTY_DATA = makeWidgetData();
 const EMPTY_LAYOUT = makeWidgetLayout();
 const EMPTY_CFG = makeWidgetCfg();
@@ -537,19 +537,19 @@ Object.defineProperty(state, 'widget', {
   configurable: true,
 });
 
-// state.data / state.layout / state.cfg zijn proxies naar de ACTIEVE widget.
-// render() wisselt activeWidgetIdx per widget, dus tijdens het tekenen wijzen
-// deze vanzelf naar de juiste widget — net als state.widget.
+// state.data / state.layout / state.cfg are proxies to the ACTIVE widget.
+// render() switches activeWidgetIdx per widget, so while drawing
+// these automatically point to the right widget — just like state.widget.
 Object.defineProperty(state, 'data',   { get() { return state.widget?.data   ?? EMPTY_DATA;   }, configurable: true });
 Object.defineProperty(state, 'layout', { get() { return state.widget?.layout ?? EMPTY_LAYOUT; }, configurable: true });
 Object.defineProperty(state, 'cfg',    { get() { return state.widget?.cfg    ?? EMPTY_CFG;    }, configurable: true });
 
-// Multi-select (transient, per huidige tab — niet geserialiseerd). Bevat de
-// EXTRA geselecteerde indices náást de actieve (state.activeWidgetIdx blijft de
-// "primaire"/laatst-aangeklikte die de settings opent). Wordt gewist bij
-// tab-/situatie-wissel (clearSelection) en bij klik in lege ruimte.
+// Multi-select (transient, per current tab — not serialized). Contains the
+// EXTRA selected indices besides the active one (state.activeWidgetIdx remains the
+// "primary"/last-clicked one that opens the settings). Cleared on
+// tab/situation switch (clearSelection) and on click in empty space.
 let wgSelectedIdxs = [];
-// Alle geselecteerde indices (actief + extra's), uniek + geldig.
+// All selected indices (active + extras), unique + valid.
 function wgGetSelectedIdxs() {
   const n = state.widgets.length;
   const set = new Set(wgSelectedIdxs.filter(i => i >= 0 && i < n));
@@ -578,8 +578,8 @@ function pulseSidebar() {
   sidebar.addEventListener('animationend', () => sidebar.classList.remove('pulse-empty'), { once: true });
 }
 
-// Voer fn uit met `widget` tijdelijk als actieve widget (cursor-binding), zodat
-// state.data/layout/cfg/widget binnen fn naar die widget verwijzen.
+// Run fn with `widget` temporarily as the active widget (cursor binding), so that
+// state.data/layout/cfg/widget inside fn refer to that widget.
 function withWidget(widget, fn) {
   const prev = state.activeWidgetIdx;
   const idx = state.widgets.indexOf(widget);
@@ -588,19 +588,19 @@ function withWidget(widget, fn) {
   finally { state.activeWidgetIdx = prev; }
 }
 
-// Herbereken data-layout voor ALLE widgets (na globale wijziging zoals
-// resize/font/palette die measureText beïnvloedt).
+// Recompute data layout for ALL widgets (after a global change such as
+// resize/font/palette that affects measureText).
 function recomputeAllWidgets() {
-  // V9 pass A — data-layout herberekenen (leest spans, muteert ze niet)
+  // V9 pass A — recompute data layout (reads spans, does not mutate them)
   for (const w of state.widgets) {
     withWidget(w, () => recomputeDataLayout());
   }
-  // V9 pass B — viewport-resize: hoogte mag groeien (content blijft passen)
-  // maar nooit krimpen (dashboard-resize maakt een widget nooit kleiner).
+  // V9 pass B — viewport resize: height may grow (content keeps fitting)
+  // but never shrink (dashboard resize never makes a widget smaller).
   for (const w of state.widgets) {
     withWidget(w, () => compactSpanUnitsY(true));
   }
 }
 
-// Settings-scope: 'dashboard' (topbar-gear) of 'widget' (widget-gear).
+// Settings scope: 'dashboard' (topbar gear) or 'widget' (widget gear).
 let settingsScope = 'dashboard';

@@ -1,28 +1,28 @@
 // wg-inventory.js — Inventory widget (E5.5/2024). Custom kind:'inventory'.
 //
-// Volgt het wg-combat.js-patroon (foreignObject + HTML), NIET het simpele
-// infobox-kolom-model: items zijn info-boxen met sub-info + lange notes + evt.
-// een mini-afbeelding — dat past niet in een vaste-kolom-tabel.
+// Follows the wg-combat.js pattern (foreignObject + HTML), NOT the simple
+// infobox column model: items are info boxes with sub-info + long notes + optionally
+// a mini image — that does not fit in a fixed-column table.
 //
-//  - Items uit per-character state.items {name, qty?, weight?, notes?, ref?,
-//    equipped?}, ge-joint op DATA.itemDB (de read-only definitie) voor afgeleide
-//    velden (type, damage, mastery, armor-AC, cost, ...).
-//  - Twee weergavevarianten via cfg.display: 'text' (default) | 'image'
-//    (mini-afbeelding met glyph-fallback). Toggle in widget-settings.
-//  - Hover/long-press tooltip per box via data-tip-title/data-tip-body — leunt op
-//    de bestaande tooltip-laag (wg-events.js initInfoTooltip → closest('[data-tip-*]')).
-//  - Reflow: CSS-grid auto-fill (--inv-box-min) → de browser herrangschikt de
-//    boxen vanzelf bij elke breedteverandering (req 6).
-//  - Fit-om-content: _fitInventorySpanY (mirror van _fitCombatSpanY) kiest de
-//    kleinste spanUnitsY waar alle boxen in passen; recomputeInventoryWidgets in
-//    de render-pass (wg-render.js) houdt 'm fitted ook als items wijzigen.
+//  - Items from per-character state.items {name, qty?, weight?, notes?, ref?,
+//    equipped?}, joined onto DATA.itemDB (the read-only definition) for derived
+//    fields (type, damage, mastery, armor AC, cost, ...).
+//  - Two display variants via cfg.display: 'text' (default) | 'image'
+//    (mini image with glyph fallback). Toggle in widget settings.
+//  - Hover/long-press tooltip per box via data-tip-title/data-tip-body — relies on
+//    the existing tooltip layer (wg-events.js initInfoTooltip → closest('[data-tip-*]')).
+//  - Reflow: CSS grid auto-fill (--inv-box-min) → the browser rearranges the
+//    boxes by itself on every width change (req 6).
+//  - Fit-to-content: _fitInventorySpanY (mirror of _fitCombatSpanY) picks the
+//    smallest spanUnitsY in which all boxes fit; recomputeInventoryWidgets in
+//    the render pass (wg-render.js) keeps it fitted even when items change.
 //
-// Read-only v1 (Joshua-keuze): geen edit-interactie; tonen + tooltips.
-// Load order: NA wg-state.js (WG_WIDGET_TYPES) en NA wg-combat.js (hEl/WG_XHTML_NS).
-// Engine/render roepen _fitInventorySpanY/drawInventoryGrid/recomputeInventoryWidgets
-// runtime aan met typeof-guards, dus exacte load-volgorde t.o.v. engine is vrij.
+// Read-only v1 (Joshua's choice): no edit interaction; display + tooltips.
+// Load order: AFTER wg-state.js (WG_WIDGET_TYPES) and AFTER wg-combat.js (hEl/WG_XHTML_NS).
+// Engine/render call _fitInventorySpanY/drawInventoryGrid/recomputeInventoryWidgets
+// at runtime with typeof guards, so the exact load order relative to engine is free.
 
-// ===== Widget-type registratie =====
+// ===== Widget type registration =====
 Object.assign(WG_WIDGET_TYPES, {
   inventory: { label: 'Inventory', kind: 'inventory', spanUnits: 7, spanUnitsY: 8,
                cfg: { widgetPadding: 6, display: 'text', boxMinPx: 138 } },
@@ -46,7 +46,7 @@ function invGlyph(item) {
   return (item && INV_GLYPH[item.type]) || INV_GLYPH.misc;
 }
 
-// ===== Naam-normalisatie + lookup =====
+// ===== Name normalization + lookup =====
 function invNorm(s) {
   return String(s == null ? '' : s)
     .toLowerCase()
@@ -54,7 +54,7 @@ function invNorm(s) {
     .replace(/\s+/g, ' ')
     .trim();
 }
-// Aliassen voor wizard-/seed-strings die niet 1:1 op een itemDB-naam matchen.
+// Aliases for wizard/seed strings that do not match an itemDB name 1:1.
 var INV_ALIASES = {
   'rope': 'rope-50', 'rope (50ft)': 'rope-50', 'hempen rope': 'rope-50',
   'rations': 'rations-1', 'rations (1 dag)': 'rations-1',
@@ -75,14 +75,14 @@ function invIndex() {
     var it = db[i];
     idx[invNorm(it.name)] = it;
     if (it.id) idx[invNorm(it.id.replace(/-/g, ' '))] = it;
-    // secundaire sleutel zonder trailing " armor" → "studded leather" matcht "Studded Leather Armor"
+    // secondary key without trailing " armor" → "studded leather" matches "Studded Leather Armor"
     var noArmor = invNorm(it.name).replace(/ armor$/, '');
     if (!(noArmor in idx)) idx[noArmor] = it;
   }
   _invIndex = idx;
   return idx;
 }
-// Resolve een (al-genormaliseerde) basisnaam → itemDB-entry of null.
+// Resolve a (already normalized) base name → itemDB entry or null.
 function invLookup(name) {
   var n = invNorm(name);
   if (!n) return null;
@@ -96,7 +96,7 @@ function invLookup(name) {
   if (idx[noArmor]) return idx[noArmor];
   return null;
 }
-// Pack-lookup (los van itemDB).
+// Pack lookup (separate from itemDB).
 function invPack(name) {
   if (typeof DATA === 'undefined' || !DATA.itemPacks) return null;
   var n = invNorm(name);
@@ -106,7 +106,7 @@ function invPack(name) {
   return null;
 }
 
-// Parse een ruwe equipment-string → { base, count, choice, notes }.
+// Parse a raw equipment string → { base, count, choice, notes }.
 function invParseRaw(raw) {
   var s = String(raw || '').trim();
   var count = 1, choice = false, noteBits = [];
@@ -119,7 +119,7 @@ function invParseRaw(raw) {
   if (/\(one of your choice\)|\(your choice\)|\(of your choice\)|\(naar keuze\)/i.test(s)) {
     choice = true; s = s.replace(/\((?:one )?(?:of )?your choice\)|\(naar keuze\)/ig, ' ');
   }
-  // modifier-suffixen → notes, niet in basisnaam
+  // modifier suffixes → notes, not in the base name
   var modRe = /\((offhand|thrown|main hand|mainhand|reserve)\)/ig;
   while ((m = modRe.exec(s))) noteBits.push(m[1]);
   s = s.replace(modRe, ' ');
@@ -127,9 +127,9 @@ function invParseRaw(raw) {
   return { base: base, count: Math.max(1, count || 1), choice: choice, notes: noteBits.join(', ') };
 }
 
-// Resolve een lijst ruwe equipment-strings → inventory-records (voor de wizard).
-// Packs worden uitgeklapt naar hun losse items. Onmatchbare strings worden
-// custom items zonder ref (blijven gewoon getoond met hun naam).
+// Resolve a list of raw equipment strings → inventory records (for the wizard).
+// Packs are expanded into their individual items. Unmatchable strings become
+// custom items without ref (still shown with their name).
 function invMakeRecord(db, fallbackName, qty, noteBits) {
   var rec = { name: db ? db.name : fallbackName, qty: qty };
   if (db && db.id) rec.ref = db.id;
@@ -145,7 +145,7 @@ function invResolveStrings(strings, outerCount) {
   for (var i = 0; i < strings.length; i++) {
     var raw = String(strings[i] == null ? '' : strings[i]).trim();
     if (!raw) continue;
-    // 1. Pack? → uitklappen naar losse items.
+    // 1. Pack? → expand into individual items.
     var pk = invPack(raw);
     if (pk) {
       for (var c = 0; c < pk.def.contents.length; c++) {
@@ -154,27 +154,27 @@ function invResolveStrings(strings, outerCount) {
       }
       continue;
     }
-    // 2. Directe volledige-naam-match: de count zit in de canonieke naam
+    // 2. Direct full-name match: the count is part of the canonical name
     //    ("Ball Bearings (1000)", "Arrows (20)", "Rations (1 day)") → 1 unit.
     var direct = invLookup(raw);
     if (direct && invNorm(direct.name) === invNorm(raw)) {
       out.push(invMakeRecord(direct, raw, outerCount, []));
       continue;
     }
-    // 3. Parse count/choice/notes, dan lookup op de basisnaam.
+    // 3. Parse count/choice/notes, then look up the base name.
     var p = invParseRaw(raw);
     if (!p.base) continue;
     var db = invLookup(p.base);
     var qty = p.count * outerCount;
-    // ammo-bundel: "Arrows (20)" met bundleSize 20 = 1 bundel, niet 20 stuks
+    // ammo bundle: "Arrows (20)" with bundleSize 20 = 1 bundle, not 20 pieces
     if (db && db.type === 'ammunition' && db.bundleSize && db.bundleSize === p.count) qty = outerCount;
     out.push(invMakeRecord(db, p.base, qty, [p.choice ? 'choose variant' : '', p.notes]));
   }
   return out;
 }
 
-// ===== Merged item-view voor render =====
-// Leest state.items van het actieve character, joint op itemDB.
+// ===== Merged item view for render =====
+// Reads state.items of the active character, joined onto itemDB.
 function invItemsForChar() {
   var raw = (typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[state.characterId]) || {};
   var st = raw.state || {};
@@ -201,7 +201,7 @@ function invLookupById(id) {
   return invLookup(id.replace(/-/g, ' '));
 }
 
-// ===== Tooltip-opbouw =====
+// ===== Tooltip construction =====
 function invFmtCost(db) {
   if (!db || db.cost == null) return null;
   return db.cost + ' ' + (db.costUnit || 'gp');
@@ -212,7 +212,7 @@ function invMasteryDesc(key) {
 }
 function invCap(s) { s = String(s || ''); return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
-// Compacte meta-regel onder de naam (text-variant).
+// Compact meta line under the name (text variant).
 function invMetaLine(item) {
   var db = item.db, bits = [];
   if (item.weight != null) bits.push(item.weight + ' lb');
@@ -276,8 +276,8 @@ function invHEl(tag, cls, txt) {
 }
 function drawInventoryGrid(g, widget, x, contentY, w, contentH, widgetIdx) {
   if (w <= 0 || contentH <= 0) return;
-  // Warm de character-cache zodat state.items resolvet, ook op een inventory-only
-  // tab waar geen infobox-widget de fetch al triggerde (guard tegen refetch-storm).
+  // Warm the character cache so state.items resolves, also on an inventory-only
+  // tab where no infobox widget triggered the fetch yet (guard against refetch storm).
   if (typeof fetchCharacterData === 'function' && state.characterId &&
       !(typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[state.characterId])) {
     var _st = (typeof WG_CHAR_STATUS !== 'undefined') ? WG_CHAR_STATUS[state.characterId] : null;
@@ -294,7 +294,7 @@ function drawInventoryGrid(g, widget, x, contentY, w, contentH, widgetIdx) {
   root.className = 'inv-root inv-display-' + display + (widget._invFits ? ' inv-fitted' : '');
   root.style.setProperty('--inv-box-min', boxMin + 'px');
   root.style.setProperty('--inv-pad', pad + 'px');
-  // Inventory-interacties mogen de canvas-drag-arbiter niet triggeren.
+  // Inventory interactions must not trigger the canvas drag arbiter.
   root.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
 
   var grid = invHEl('div', 'inv-grid');
@@ -307,7 +307,7 @@ function drawInventoryGrid(g, widget, x, contentY, w, contentH, widgetIdx) {
   }
   root.appendChild(grid);
 
-  // Samenvatting: totaalgewicht + aantal.
+  // Summary: total weight + count.
   var total = 0, known = false;
   for (var k = 0; k < items.length; k++) {
     if (items[k].weight != null) { total += items[k].weight * items[k].qty; known = true; }
@@ -353,17 +353,17 @@ function invBoxNode(item, display) {
     box.appendChild(head);
     var meta = invMetaLine(item);
     if (meta) box.appendChild(invHEl('div', 'inv-meta', meta));
-    // #OvvLMOV: notes NIET op de card (variabele hoogte → overflow). Staan in de
-    // tooltip (invTooltip regel ~266). Cards houden zo een uniforme vaste grootte.
+    // #OvvLMOV: notes NOT on the card (variable height → overflow). They are in the
+    // tooltip (invTooltip line ~266). Cards thus keep a uniform fixed size.
   }
   return box;
 }
 
-// ===== Fit-om-content =====
-// rij-px-schattingen (bewust royaal — zelfde filosofie als COMBAT_FIT). Text-box
-// is hoger (naam + meta + evt. notes); image-box compacter maar met thumbnail.
-// #OvvLMOV: rowPx == de vaste grid-auto-rows hoogtes (54 text / 96 image) zodat
-// de hoogte-fit exact klopt en niets clipt.
+// ===== Fit-to-content =====
+// row px estimates (deliberately generous — same philosophy as COMBAT_FIT). Text box
+// is taller (name + meta + optional notes); image box more compact but with thumbnail.
+// #OvvLMOV: rowPx == the fixed grid-auto-rows heights (54 text / 96 image) so that
+// the height fit is exact and nothing clips.
 var INV_FIT = { headPx: 6, summaryPx: 22, gapPx: 8, textRowPx: 54, imageRowPx: 96, minSpanY: 3 };
 function _fitInventorySpanY(growOnly) {
   var w = state.widget;
@@ -389,7 +389,7 @@ function _fitInventorySpanY(growOnly) {
   w._invFits = widgetContentPxHFor(w.spanUnitsY) >= pxNeeded;
 }
 
-// Fit alle inventory-widgets vóór een render-pass (idempotent → geen render-storm).
+// Fit all inventory widgets before a render pass (idempotent → no render storm).
 function recomputeInventoryWidgets(growOnly) {
   if (!state.widgets) return;
   for (var i = 0; i < state.widgets.length; i++) {

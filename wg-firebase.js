@@ -1,29 +1,29 @@
 // ----- Firebase fetch -----
-// V9: characters zijn dashboard-breed. Eén cache per ID; alle widgets die
-// character-data tonen (abilities, skills, profielfoto) volgen state.characterId.
+// V9: characters are dashboard-wide. One cache per ID; all widgets that
+// show character data (abilities, skills, profile picture) follow state.characterId.
 let WG_CHAR_CACHE  = {};     // { id: raw }
 let WG_CHAR_STATUS = {};     // { id: 'loading'|'ready'|'error' }
 let WG_CHAR_ERROR  = {};     // { id: message | null }
-let WG_CHAR_LIST   = [];     // [{ id, name }] — voor de dropdown
+let WG_CHAR_LIST   = [];     // [{ id, name }] — for the dropdown
 
-// Hangt het Firebase ID-token aan een REST-URL zodra de gebruiker via Firebase
-// Auth is ingelogd (anders no-op → werkt nog onder open/legacy rules).
+// Appends the Firebase ID token to a REST URL once the user is logged in via Firebase
+// Auth (otherwise no-op → still works under open/legacy rules).
 function wgAuthUrl(url) {
   const tok = (typeof window !== 'undefined' && typeof window.dwGetIdToken === 'function') ? window.dwGetIdToken() : null;
   if (!tok) return url;
   return url + (url.indexOf('?') === -1 ? '?' : '&') + 'auth=' + encodeURIComponent(tok);
 }
 
-// ===== WGI-M6: targeted localStorage sync na V11 REST writes =====
-// Wanneer V8 inside D&D Within draait, schrijven de V11 edit-flows direct
-// PATCH/PUT naar Firebase. Daarna refresh'en ze WG_CHAR_CACHE[id] of
-// WG_MAPS_CACHE via fetch. Maar DnD heeft een eigen localStorage-cache
-// (dw_charconfig_*, dw_img_*_*, dw_maps) die door sync.js wordt gevuld;
-// zonder targeted sync zou een pagina-reload de oude waardes tonen totdat
-// Firebase's realtime listener weer triggert. Joshua's keuze (M2): direct
-// REST-PATCH + targeted localStorage update (geen full syncUpload-roundtrip).
+// ===== WGI-M6: targeted localStorage sync after V11 REST writes =====
+// When V8 runs inside D&D Within, the V11 edit flows write directly
+// PATCH/PUT to Firebase. Afterwards they refresh WG_CHAR_CACHE[id] or
+// WG_MAPS_CACHE via fetch. But DnD has its own localStorage cache
+// (dw_charconfig_*, dw_img_*_*, dw_maps) that is filled by sync.js;
+// without a targeted sync a page reload would show the old values until
+// Firebase's realtime listener triggers again. Joshua's choice (M2): direct
+// REST PATCH + targeted localStorage update (no full syncUpload roundtrip).
 //
-// Standalone V8 heeft geen dw_* keys — helpers no-op zonder verstoring.
+// Standalone V8 has no dw_* keys — helpers no-op without side effects.
 function wgSyncCharToLocal(charId) {
   if (typeof localStorage === 'undefined' || !charId) return;
   const data = WG_CHAR_CACHE[charId];
@@ -140,7 +140,7 @@ function selectCharacter(id) {
 
 // ===== V11 Phase 2: Firebase save/load =====
 
-// Toast helper -- minimale floating notification.
+// Toast helper -- minimal floating notification.
 // WGI-M2: when running inside D&D Within (where core.js already defines a global
 // showToast with the same (msg, type) signature), defer to that one for visual
 // consistency. Standalone V8 uses the local implementation below.
@@ -173,8 +173,8 @@ function _wgShowToastImpl(msg, type) {
     setTimeout(function() { el.remove(); }, 420);
   }, 3000);
 }
-// `var` (niet `const`) — D&D Within heeft al een globale `showToast` functie in core.js.
-// Met `var` redeclareren we vrij; de uitdrukking kiest DnD's versie als die er is.
+// `var` (not `const`) — D&D Within already has a global `showToast` function in core.js.
+// With `var` we can redeclare freely; the expression picks DnD's version if it exists.
 var showToast = (typeof window !== 'undefined' && typeof window.showToast === 'function')
   ? window.showToast
   : _wgShowToastImpl;
@@ -265,7 +265,7 @@ function buildSavePayload() {
 }
 
 // PATCH current device dashboard to Firebase.
-// V11 phase 2: deze knop verhuist in Phase 3 naar right sidebar; tijdelijk hijacked voor save-dashboard.
+// V11 phase 2: this button moves to the right sidebar in Phase 3; temporarily hijacked for save-dashboard.
 async function saveDashboards() {
   const isDM = state.context === 'dm';
   const charId = state.characterId;
@@ -285,7 +285,7 @@ async function saveDashboards() {
       body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    // Race check: if the character changed during save, warn user (character-modus).
+    // Race check: if the character changed during save, warn user (character mode).
     if (!isDM && state.characterId !== charId) {
       showToast('Character changed during save', 'error');
       return;
@@ -319,7 +319,7 @@ async function loadDashboards(charId) {
     return;
   }
 
-  // Guard: character may have changed during async fetch (character-modus only)
+  // Guard: character may have changed during async fetch (character mode only)
   if (!isDM && state.characterId !== charId) return;
 
   // tree is null (no data yet) or { mobile: {...}, tablet: {...}, desktop: {...} }

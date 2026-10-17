@@ -131,7 +131,7 @@ export function createFirebaseAdapter({
         if (existing) throw new Error('This user is already a friend (or the request is pending)');
 
         const since = Date.now();
-        // Schrijf op mijn kant: pending outgoing
+        // Write on my side: pending outgoing
         await dbPut(`users/${me.uid}/friends/${toUid}`, {
             status: 'pending',
             since,
@@ -139,7 +139,7 @@ export function createFirebaseAdapter({
             email: toProfile.email,
             outgoing: true,
         });
-        // Schrijf bij ontvanger: incoming
+        // Write on the receiver: incoming
         await dbPut(`users/${toUid}/incoming/${me.uid}`, {
             since,
             displayName: me.displayName,
@@ -156,7 +156,7 @@ export function createFirebaseAdapter({
         if (!incoming) throw new Error('No request found');
 
         const since = Date.now();
-        // Op mijn kant: voeg toe als accepted, verwijder incoming
+        // On my side: add as accepted, remove incoming
         await dbPut(`users/${me.uid}/friends/${fromUid}`, {
             status: 'accepted',
             since,
@@ -176,7 +176,7 @@ export function createFirebaseAdapter({
     async function declineFriendRequest(fromUid) {
         const me = getUid();
         await dbDelete(`users/${me}/incoming/${fromUid}`);
-        // Verwijder ook de pending-outgoing aan hun kant zodat ze 'm opnieuw kunnen sturen
+        // Also remove the pending-outgoing on their side so they can send it again
         try { await dbDelete(`users/${fromUid}/friends/${me}`); } catch {}
     }
 
@@ -212,7 +212,7 @@ export function createFirebaseAdapter({
     }
 
     async function loadMessages(chatId, { limit = 100 } = {}) {
-        // Firebase RTDB orderBy + limitToLast vereist .indexOn op de path
+        // Firebase RTDB orderBy + limitToLast requires .indexOn on the path
         const tok = getToken();
         const base = `${databaseURL.replace(/\/+$/, '')}/${root}chats/${chatId}/messages.json`;
         const params = new URLSearchParams({ orderBy: '"ts"', limitToLast: String(limit) });
@@ -240,7 +240,7 @@ export function createFirebaseAdapter({
             text: trimmed,
             ts,
         });
-        // Update meta (geen members-write — die wordt initialiseerd op chat-creation)
+        // Update meta (no members write — that is initialized on chat creation)
         const metaExists = await dbGet(`chats/${chatId}/meta/members/${me.uid}`);
         if (!metaExists) {
             // First message → bootstrap meta
@@ -260,10 +260,10 @@ export function createFirebaseAdapter({
                 lastFromName: me.displayName,
             });
         }
-        // Index entries voor beide users — sender lastSeen=now (heeft 'm net verstuurd)
+        // Index entries for both users — sender lastSeen=now (just sent it)
         await dbPatch(`users/${me.uid}/chats/${chatId}`, { lastSeenTs: ts, unread: 0 });
-        // Receiver: unread atomair ophogen via Firebase server-value increment —
-        // geen read-then-write race meer bij gelijktijdige berichten.
+        // Receiver: increment unread atomically via Firebase server-value increment —
+        // no more read-then-write race on simultaneous messages.
         await dbPatch(`users/${otherUid}/chats/${chatId}`, {
             unread: { '.sv': { increment: 1 } },
             lastTs: ts,
@@ -280,19 +280,18 @@ export function createFirebaseAdapter({
     }
 
     // ===== Realtime via EventSource (SSE) =====
-    // Firebase RTDB ondersteunt Accept: text/event-stream. Browser EventSource
-    // kan geen custom headers, maar `auth` als query-param werkt prima.
+    // Firebase RTDB supports Accept: text/event-stream. Browser EventSource
+    // can't set custom headers, but `auth` as a query param works fine.
 
     function makeSSE(path, onValue, onError) {
         let es = null;
         let stopped = false;
         let pollFallback = null;
-        // Lokale snapshot van de subscribed sub-tree. Firebase SSE stuurt
-        // diff-events: {path: "/", data: {...full root...}} bij init,
-        // daarna {path: "/<childKey>", data: {...}} bij wijzigingen.
-        // We mergen die in `snapshot` en emitten altijd de volledige tree
-        // zodat consumers (friends-page, chat-list) niet hun eigen merge-logic
-        // hoeven te schrijven.
+        // Local snapshot of the subscribed sub-tree. Firebase SSE sends
+        // diff events: {path: "/", data: {...full root...}} on init,
+        // then {path: "/<childKey>", data: {...}} on changes.
+        // We merge those into `snapshot` and always emit the full tree
+        // so consumers (friends-page, chat-list) don't have to write their own merge logic.
         let snapshot = null;
 
         function applyDiff(diffPath, diffData) {
@@ -302,7 +301,7 @@ export function createFirebaseAdapter({
                 snapshot = (diffData === null || diffData === undefined) ? null : diffData;
                 return;
             }
-            // Diepere paden: zorg dat snapshot een object is en navigeer/maak
+            // Deeper paths: make sure snapshot is an object and navigate/create
             if (snapshot === null || typeof snapshot !== 'object') snapshot = {};
             let node = snapshot;
             for (let i = 0; i < segs.length - 1; i++) {
@@ -319,7 +318,7 @@ export function createFirebaseAdapter({
         }
 
         function applyPatch(diffPath, diffData) {
-            // Patch is shallow merge op het opgegeven path (kind van root)
+            // Patch is a shallow merge at the given path (child of root)
             const segs = String(diffPath || '/').split('/').filter(Boolean);
             if (snapshot === null || typeof snapshot !== 'object') snapshot = {};
             let node = snapshot;
@@ -384,7 +383,7 @@ export function createFirebaseAdapter({
                 es.onerror = () => {
                     es?.close();
                     if (!stopped) {
-                        // Switch naar polling als SSE blijft falen
+                        // Switch to polling if SSE keeps failing
                         if (!pollFallback) startPolling();
                     }
                 };
@@ -434,8 +433,8 @@ export function createFirebaseAdapter({
     }
 
     function subscribeMessages(chatId, callback) {
-        // SSE op de hele messages-collection. Bij elke put/patch herladen we
-        // (eenvoudiger dan delta-management; messages-pagina is klein).
+        // SSE on the whole messages collection. On every put/patch we reload
+        // (simpler than delta management; the messages page is small).
         return makeSSE(`chats/${chatId}/messages`, async () => {
             const msgs = await loadMessages(chatId, { limit: 200 }).catch(() => []);
             callback(msgs);

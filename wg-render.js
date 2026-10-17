@@ -8,12 +8,12 @@ function clearSVG(svg) {
   while (svg.firstChild) svg.removeChild(svg.firstChild);
 }
 
-// V10: drawTick/drawTickH/drawDashboard/drawDashboardVertical zijn verwijderd
-// nu de dev-view een volledig raster toont i.p.v. rails met ticks aan de zijkant.
+// V10: drawTick/drawTickH/drawDashboard/drawDashboardVertical were removed
+// now that the dev view shows a full grid instead of rails with ticks on the side.
 
-// V9: pill-vormige resize-handle met drie grip-bollen — passend bij de
-// warme D&D-stijl. Centrum (x,y) ligt midden op de widget-/dashboard-rand;
-// de lange as van de pill loopt evenwijdig aan die rand.
+// V9: pill-shaped resize handle with three grip dots — matching the
+// warm D&D style. Center (x,y) sits on the middle of the widget/dashboard edge;
+// the long axis of the pill runs parallel to that edge.
 function drawHandle(svg, x, y, id) {
   const isDragging = dragHandle === id;
   const isNS = (id === 'dash-top' || id === 'dash-bottom' || id === 'widget-bottom-2d');
@@ -24,19 +24,19 @@ function drawHandle(svg, x, y, id) {
     class: 'resize-handle ' + (isNS ? 'ns' : 'ew') + (isDragging ? ' dragging' : ''),
     transform: `translate(${x}, ${y})`,
   });
-  // Onzichtbare touch-hitbox (44×44).
+  // Invisible touch hitbox (44×44).
   g.appendChild(el('rect', {
     x: -22, y: -22, width: 44, height: 44,
     class: 'resize-handle-hit',
     'data-handle': id,
   }));
-  // Zichtbare pill.
+  // Visible pill.
   g.appendChild(el('rect', {
     x: -pillW / 2, y: -pillH / 2, width: pillW, height: pillH,
     rx: SHORT / 2, ry: SHORT / 2,
     class: 'resize-handle-pill',
   }));
-  // Drie grip-bollen langs de lange as.
+  // Three grip dots along the long axis.
   const gap = 5;
   for (let i = -1; i <= 1; i++) {
     g.appendChild(el('circle', {
@@ -54,18 +54,18 @@ function drawHandle(svg, x, y, id) {
 let _combatRemeasure = 0;
 function render() {
   applyResponsive();
-  // V10: dashboard heeft vaste maat — vult de beschikbare ruimte elke render.
+  // V10: dashboard has a fixed size — fills the available space every render.
   applyResponsiveWidth();
   applyResponsiveHeight();
-  // V9 pipeline: normaliseer posities → los overlap op (niet tijdens drag) →
-  // clamp de zichtbare pagina → teken.
+  // V9 pipeline: normalize positions → resolve overlap (not during drag) →
+  // clamp the visible page → draw.
   normalizePositions();
   if (!dragHandle) {
-    recomputeCombatWidgets(false);   // #NU-YZ6: combat-widgets fitten op zichtbare content
-    if (typeof recomputeInventoryWidgets === 'function') recomputeInventoryWidgets(false); // inventory-widget fit-om-content
+    recomputeCombatWidgets(false);   // #NU-YZ6: fit combat widgets to visible content
+    if (typeof recomputeInventoryWidgets === 'function') recomputeInventoryWidgets(false); // inventory widget fit-to-content
     resolveCollisionsAll();
     normalizePositions();
-    // V10: lege tussen-pagina's wegwerken (geen "page 2 leeg, page 3 vol").
+    // V10: eliminate empty in-between pages (no "page 2 empty, page 3 full").
     compactEmptyPages();
   }
   state.currentPage = Math.max(0, Math.min(state.currentPage, pageCount() - 1));
@@ -76,7 +76,7 @@ function render() {
   svg.classList.toggle('is-editing', !!state.config.editMode);
   svg.classList.toggle('dev-view',   !!state.config.devView);
 
-  // Bind layout-anchors aan dashboard-state
+  // Bind layout anchors to dashboard state
   const dL = state.dashboard.leftX;
   const dT = state.dashboard.topY;
   const dR = dashRight();
@@ -85,8 +85,8 @@ function render() {
   const padR = 22;
   const viewMinX = Math.min(dL - padL, 0);
   const viewMaxX = dR + padR;
-  // Geen vaste 800-minimum: dat veroorzaakt overflow + scrollbar
-  // wanneer de container smaller is dan 800 px.
+  // No fixed 800 minimum: that causes overflow + scrollbar
+  // when the container is narrower than 800 px.
   const viewW = Math.floor(viewMaxX - viewMinX);
 
   const dl = dashLayout();
@@ -98,11 +98,11 @@ function render() {
   svg.setAttribute('width', viewW);
   svg.setAttribute('height', viewH);
 
-  // V10: rail+ticks aan de zijkant zijn vervangen door het amber-grid dat
-  // draw2DDashboard alleen tekent als dev-view aanstaat.
+  // V10: rail+ticks on the side were replaced by the amber grid that
+  // draw2DDashboard only draws when dev view is on.
   draw2DDashboard(svg);
 
-  // Render alle widgets — actieve laatst zodat handles bovenop liggen
+  // Render all widgets — active last so handles sit on top
   if (dl.tileCount >= 1) {
     const prevActive = state.activeWidgetIdx;
     const order = state.widgets.map((_, i) => i)
@@ -110,12 +110,12 @@ function render() {
     for (const i of order) {
       const w = state.widgets[i];
       if (w.spanUnits < 1) continue;
-      if (pageOf(w.globalCol) !== state.currentPage) continue;  // V9: alleen huidige pagina
-      // Bug: bepaal active/multi-select VÓÓR het muteren van activeWidgetIdx.
-      // De assignment hieronder zet activeWidgetIdx = i zodat de geometrie-helpers
-      // in drawWidgetOnDashboard de juiste widget lezen; maar wgIsSelected(i) leest
-      // óók activeWidgetIdx — als je dat na de mutatie evalueert is i === activeWidgetIdx
-      // altijd waar en glowt élke widget. Daarom hier eerst vastleggen.
+      if (pageOf(w.globalCol) !== state.currentPage) continue;  // V9: current page only
+      // Bug: determine active/multi-select BEFORE mutating activeWidgetIdx.
+      // The assignment below sets activeWidgetIdx = i so the geometry helpers
+      // in drawWidgetOnDashboard read the right widget; but wgIsSelected(i) reads
+      // activeWidgetIdx too — if you evaluate that after the mutation, i === activeWidgetIdx
+      // is always true and EVERY widget glows. Hence capture it here first.
       const isActive = (i === prevActive);
       const isMultiSelected = wgIsSelected(i) && !isActive;
       state.activeWidgetIdx = i;
@@ -124,10 +124,10 @@ function render() {
     state.activeWidgetIdx = prevActive;
   }
 
-  // V10: dashboard heeft geen drag-handles meer — vaste maat (% van scherm).
+  // V10: dashboard has no drag handles anymore — fixed size (% of screen).
 
-  // Combat-widgets: echte maten meten; bij een wijziging nog één (max 3)
-  // render-pass zodat breedte/hoogte aansluiten op de gemeten content.
+  // Combat widgets: measure real sizes; on a change one more (max 3)
+  // render pass so width/height match the measured content.
   if (!dragHandle && typeof combatMeasureWidgets === 'function') {
     let changed = false;
     try { changed = combatMeasureWidgets(); } catch (e) { console.warn('combat measure', e); }
@@ -141,12 +141,12 @@ function render() {
 
   renderInfo();
   renderPageNav();
-  // Na render: opnieuw proximity-toets uitvoeren zodat handles van nieuwe
-  // widgets meteen reageren op de huidige muispositie.
+  // After render: re-run the proximity check so handles of new
+  // widgets react immediately to the current mouse position.
   updateHandleProximity();
 }
 
-// V9: paginanavigatie (pijlen + dots) onder het canvas. Alleen zichtbaar bij >1 pagina.
+// V9: page navigation (arrows + dots) below the canvas. Only visible with >1 page.
 function renderPageNav() {
   const nav = document.getElementById('pageNav');
   if (!nav) return;
@@ -164,8 +164,8 @@ function renderPageNav() {
   nav.innerHTML = html;
 }
 
-// V9: kleurt de topbar-instellingenknop mee met de scope. Widget geselecteerd
-// → widget-settings (accent-kleur); niets geselecteerd → dashboard-settings.
+// V9: colors the topbar settings button along with the scope. Widget selected
+// → widget settings (accent color); nothing selected → dashboard settings.
 function updateSettingsToggleScope() {
   const btn = document.getElementById('settingsToggle');
   if (!btn) return;
@@ -184,13 +184,13 @@ function drawInfoBoxesInWidget(svg, widgetX, widgetY, barH) {
   const count = state.data.rows.length;
   const renderCount = Math.min(count, ib.boxesPerRow * ib.rows);
   const r = state.style.cellRadius || 0;
-  const ipad = state.cfg.infoBoxPadding || 0;   // padding rond de cel-stack
+  const ipad = state.cfg.infoBoxPadding || 0;   // padding around the cell stack
   for (let i = 0; i < renderCount; i++) {
     const boxRow = Math.floor(i / ib.boxesPerRow);
     const boxCol = i % ib.boxesPerRow;
     const bx = widgetX + ib.paddingX + boxCol * (ib.boxPxW + ib.spacingX);
     const by = contentY + ib.paddingY + boxRow * (ib.boxPxH + ib.spacingY);
-    // Cel-stack ingesnoerd met infoBoxPadding; outer outline op de volledige box.
+    // Cell stack inset by infoBoxPadding; outer outline on the full box.
     drawBoxCells(svg, bx + ipad, by + ipad, ib.boxPxW - 2 * ipad, ib.boxPxH - 2 * ipad, state.data.rows[i], i);
     svg.appendChild(el('path', {
       d: roundedPath(bx, by, ib.boxPxW, ib.boxPxH, r, r, r, r),
@@ -199,9 +199,9 @@ function drawInfoBoxesInWidget(svg, widgetX, widgetY, barH) {
   }
 }
 
-// Teken de cellen binnen één info-box volgens stacking + columnPxWidths.
-// Geen intra-cell spacing — cellen plakken direct tegen elkaar (Joshua-spec).
-// Per-kolom alignment komt uit state.layout.columnAlign.
+// Draw the cells within one info box according to stacking + columnPxWidths.
+// No intra-cell spacing — cells touch each other directly (Joshua spec).
+// Per-column alignment comes from state.layout.columnAlign.
 function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
   if (!rowData) return;
   const cols = state.data.columns;
@@ -213,12 +213,12 @@ function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
   const editCfg = WG_EDIT_CONFIG[src];
   const highlights = state.layout.columnHighlight || [];
   const rowTips = (state.data.tooltips && state.data.tooltips[rowIdx]) || null;
-  // Per-rij extra cel-class (bv. HP-widget actie-tints wgx-act-*).
+  // Per-row extra cell class (e.g. HP widget action tints wgx-act-*).
   const rowExtraCls = (state.layout.rowExtraClass && state.layout.rowExtraClass[rowIdx]) || null;
 
   // Helper: wrap a draw call in an editable-cell <g> if in edit-values mode + column matches.
-  // editCfg.mode === 'always' → ook klikbaar buiten edit-values mode (HP-widget:
-  // damage/heal tijdens spel zonder edit-toggle).
+  // editCfg.mode === 'always' → also clickable outside edit-values mode (HP widget:
+  // damage/heal during play without edit toggle).
   function wrapEditable(colIdx, drawFn) {
     const isEditable = editCfg && editCfg.editColumnIdx === colIdx
       && (state.config.editValuesMode || editCfg.mode === 'always');
@@ -249,8 +249,8 @@ function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
       cx += cw;
     }
   } else {
-    // vertical: cellen onder elkaar; elk vult de box-breedte.
-    // Alignment in vertical stacking is altijd center.
+    // vertical: cells stacked; each fills the box width.
+    // Alignment in vertical stacking is always center.
     const rowH = cellRowPxH();
     let cy = by;
     for (let i = 0; i < cols.length; i++) {
@@ -264,7 +264,7 @@ function drawBoxCells(svg, bx, by, bw, bh, rowData, rowIdx) {
   }
 }
 
-// SVG path met per-corner radius. Radii worden geclamped op w/2, h/2.
+// SVG path with per-corner radius. Radii are clamped to w/2, h/2.
 function roundedPath(x, y, w, h, tl, tr, br, bl) {
   const maxR = Math.min(w, h) / 2;
   tl = Math.max(0, Math.min(tl, maxR));
@@ -285,8 +285,8 @@ function roundedPath(x, y, w, h, tl, tr, br, bl) {
   return p.join(' ');
 }
 
-// Cell-bg met buitenste-corner rounding: alleen de buitenkant van de
-// info-box als geheel is afgerond; aanrakingen tussen cellen blijven scherp.
+// Cell bg with outer-corner rounding: only the outside of the
+// info box as a whole is rounded; contacts between cells stay sharp.
 function drawCellBg(svg, x, y, w, h, colIdx, isFirst, isLast, stacking, tooltip, extraCls) {
   const cls = `info-box-cell col-${colIdx % 3}` + (extraCls ? ' ' + extraCls : '');
   const r = state.style.cellRadius || 0;
@@ -299,9 +299,9 @@ function drawCellBg(svg, x, y, w, h, colIdx, isFirst, isLast, stacking, tooltip,
     bl = isLast  ? r : 0; br = isLast  ? r : 0;
   }
   const attrs = { d: roundedPath(x, y, w, h, tl, tr, br, bl), class: cls };
-  // Tooltip-payload op de cel-bg (#bug Ov6e4Bv9). De cel-bg vult de hele cel en
-  // de tekst erboven staat op pointer-events:none → hover/long-press landt altijd
-  // hier. De custom tooltip-laag (wg-events.js) leest deze data-attributen.
+  // Tooltip payload on the cell bg (#bug Ov6e4Bv9). The cell bg fills the whole cell and
+  // the text above it has pointer-events:none → hover/long-press always lands
+  // here. The custom tooltip layer (wg-events.js) reads these data attributes.
   if (tooltip && (tooltip.title || tooltip.body)) {
     if (tooltip.title) attrs['data-tip-title'] = tooltip.title;
     if (tooltip.body)  attrs['data-tip-body'] = tooltip.body;
@@ -334,7 +334,7 @@ function drawCellText(svg, x, y, w, h, value, align, highlight, colIdx) {
   svg.appendChild(txt);
 }
 
-// Compute title layout (1 of 2 regels) op basis van widget breedte
+// Compute title layout (1 or 2 lines) based on widget width
 function titleLayout() {
   const w = widgetWidth();
   const titleStr = displayTitle(state.widget).toUpperCase();
@@ -342,7 +342,7 @@ function titleLayout() {
   const family = getComputedStyle(document.documentElement).getPropertyValue('--info-font-display').trim() || 'serif';
   const ctx = measureCtx();
   ctx.font = `600 ${fs}px ${family}`;
-  const GEAR_RESERVE = 0;   // V9: geen in-widget gear meer → titel krijgt volle breedte
+  const GEAR_RESERVE = 0;   // V9: no in-widget gear anymore → title gets full width
   const PAD_X = 12;
   const maxW = Math.max(0, w - 2 * PAD_X - GEAR_RESERVE);
   const single = ctx.measureText(titleStr).width;
@@ -375,15 +375,15 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
   const h = widgetHeightOnDash();
   const isDragging = dragHandle === 'widget-move-2d' && state.activeWidgetIdx === widgetIdx;
 
-  // Type-afhankelijke content: info-box-grid, campagne-kaart of afbeelding.
+  // Type-dependent content: info-box grid, campaign map or image.
   const kind = widgetKind(state.widget);
-  // Alert state (info-widget): kan zelfs niet 1 rij/kolom info-boxes herbergen.
+  // Alert state (info widget): can't even hold 1 row/column of info boxes.
   const ib = kind === 'infobox' ? infoBoxLayout() : null;
   const isAlert = kind === 'infobox' && state.data.rows.length > 0 && (ib.boxesPerRow < 1 || ib.rows < 1);
 
-  // Wrap alles in een <g class="widget"> zodat hover-detection alleen op de
-  // widget zelf werkt (gear-icon visibility). data-widget-idx wordt door
-  // onPointerDown opgepikt voor multi-widget targeting.
+  // Wrap everything in a <g class="widget"> so hover detection only works on the
+  // widget itself (gear-icon visibility). data-widget-idx is picked up by
+  // onPointerDown for multi-widget targeting.
   const widgetG = el('g', {
     class: 'widget' + (isActive ? ' is-active' : ' is-inactive')
                      + (isMultiSelected ? ' is-multi-selected' : '')
@@ -392,7 +392,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
   });
   svg.appendChild(widgetG);
 
-  // Widget-rechthoek (rand + zachte vulling) — altijd palette-rounded
+  // Widget rectangle (border + soft fill) — always palette-rounded
   const _wr = state.style.widgetRadius || 0;
   const widgetRectAttrs = {
     x, y, width: w, height: h,
@@ -401,7 +401,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
   if (_wr > 0) { widgetRectAttrs.rx = _wr; widgetRectAttrs.ry = _wr; }
   widgetG.appendChild(el('rect', widgetRectAttrs));
 
-  // Title layout bepalen → topbar height volgt
+  // Determine title layout → topbar height follows
   const tl = titleLayout();
   const barH = Math.min(tl.totalH, Math.max(0, h));
   const contentY = y + barH;
@@ -429,7 +429,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
     }
   }
 
-  // Topbar — alleen TL+TR rond, BL+BR scherp
+  // Topbar — only TL+TR rounded, BL+BR sharp
   const topR = state.style.widgetRadius || 0;
   widgetG.appendChild(el('path', {
     d: roundedPath(x, y, w, barH, topR, topR, 0, 0),
@@ -437,7 +437,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
     'data-handle': 'widget-move-2d',
   }));
 
-  // Titel — 1 of 2 regels (tspan)
+  // Title — 1 or 2 lines (tspan)
   const titleEl = el('text', {
     x: x + w / 2,
     y: y + barH / 2,
@@ -461,19 +461,19 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
   }
   widgetG.appendChild(titleEl);
 
-  // V9: geen in-widget gear/delete meer — settings via de topbar-knop (die
-  // van scope wisselt bij selectie), verwijderen via de Delete-toets. De
-  // topbalk-titel heeft daardoor de volle breedte.
+  // V9: no in-widget gear/delete anymore — settings via the topbar button (which
+  // switches scope on selection), deleting via the Delete key. The
+  // topbar title therefore has the full width.
 
-  // Map widget action buttons (add-pin / upload-image / delete-map) zijn
-  // verwijderd: deze edits horen alleen op de Maps-page (DM/Admin only).
+  // Map widget action buttons (add-pin / upload-image / delete-map) were
+  // removed: these edits belong only on the Maps page (DM/Admin only).
 
   // V11 Phase 3.4: profile-picture widget upload-button (+ crop-button, #fATDUg)
   if (kind === 'image' && state.config.editValuesMode) {
     const BTN_W = 20, BTN_H = 16, GAP = 4;
     const btnY = y + (barH - BTN_H) / 2;
 
-    // Upload-knop (rechts)
+    // Upload button (right)
     const bxUp = x + w - 6 - BTN_W;
     const btnG = el('g', { class: 'map-action-btn', 'data-map-action': 'upload-portrait' });
     const btnTitle = el('title', {});
@@ -486,7 +486,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
     btnG.appendChild(el('line',     { x1: cx - 5, y1: cy + 5, x2: cx + 5, y2: cy + 5 }));
     widgetG.appendChild(btnG);
 
-    // Crop-knop (links van upload) — alleen op het profielfoto-widget mét portret
+    // Crop button (left of upload) — only on the profile-picture widget WITH a portrait
     const hasPortrait = (function () {
       if (!state.widget || state.widget.type !== 'profilePicture') return false;
       const raw = WG_CHAR_CACHE[state.characterId];
@@ -504,23 +504,23 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
     }
   }
 
-  // Resize handles — in widgetG zodat data-widget-idx propageert via parent
+  // Resize handles — in widgetG so data-widget-idx propagates via parent
   drawHandle(widgetG, x, y + h / 2, 'widget-left-2d');
   drawHandle(widgetG, x + w, y + h / 2, 'widget-right-2d');
   drawHandle(widgetG, x + w / 2, y + h, 'widget-bottom-2d');
 }
 
-// Crop-icoon (twee L-hoeken) getekend met lijnen, gecentreerd op (cx,cy).
+// Crop icon (two L-corners) drawn with lines, centered on (cx,cy).
 function drawCropGlyph(parent, cx, cy) {
-  // bovenste/linker hoek + onderste/rechter hoek vormen het crop-frame
+  // top/left corner + bottom/right corner form the crop frame
   parent.appendChild(el('polyline', { points: `${cx - 5},${cy - 2} ${cx - 2},${cy - 2} ${cx - 2},${cy - 6}` }));
   parent.appendChild(el('polyline', { points: `${cx + 5},${cy + 2} ${cx + 2},${cy + 2} ${cx + 2},${cy + 6}` }));
   parent.appendChild(el('line', { x1: cx - 6, y1: cy + 2, x2: cx + 3, y2: cy + 2 }));
   parent.appendChild(el('line', { x1: cx - 2, y1: cy - 3, x2: cx - 2, y2: cy + 6 }));
 }
 
-// Cache van natuurlijke beeldafmetingen (voor exacte cover+focal-point crop).
-// src → {w,h}; 'pending' terwijl de Image() laadt. Bij load → render().
+// Cache of natural image dimensions (for exact cover+focal-point crop).
+// src → {w,h}; 'pending' while the Image() loads. On load → render().
 const WG_IMG_DIMS = {};
 function wgImgNatural(src, onReady) {
   if (!src) return null;
@@ -538,16 +538,16 @@ function wgImgNatural(src, onReady) {
   return null;
 }
 
-// Tekent één afbeelding in een 'image'-widget (bv. Profile picture).
-// Vult het rect via cover/slice; past optioneel crop-params (focal + zoom) toe.
+// Draws one image in an 'image' widget (e.g. Profile picture).
+// Fills the rect via cover/slice; optionally applies crop params (focal + zoom).
 function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   const pad = (widget.cfg && widget.cfg.widgetPadding) || 0;
   const mx = x + pad, my = contentY + pad;
   const mw = w - 2 * pad, mh = contentH - 2 * pad;
   if (mw <= 0 || mh <= 0) return;
   const r = Math.min(state.style.widgetRadius || 0, Math.min(mw, mh) / 2);
-  // V9: profielfoto-widget leest het portrait van de huidige character;
-  // andere image-widgets gebruiken hun eigen widget.image.src.
+  // V9: profile-picture widget reads the portrait of the current character;
+  // other image widgets use their own widget.image.src.
   let src = null, crop = null;
   if (widget.type === 'profilePicture') {
     const raw = WG_CHAR_CACHE[state.characterId];
@@ -558,19 +558,19 @@ function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
     crop = widget.image && widget.image.crop;
   }
   if (!src) {
-    // Nog geen afbeelding ingesteld → placeholder.
+    // No image set yet → placeholder.
     g.appendChild(el('rect', { x: mx, y: my, width: mw, height: mh, rx: r, class: 'map-placeholder' }));
     const txt = el('text', {
       x: mx + mw / 2, y: my + mh / 2,
       'text-anchor': 'middle', 'dominant-baseline': 'central',
       class: 'map-status',
     });
-    txt.textContent = 'Profielfoto';
+    txt.textContent = 'Profile picture';
     g.appendChild(txt);
     return;
   }
-  // Afbeelding vult het rect met behoud van aspect (cover/slice — fit op de
-  // grootste dimensie, overschot valt buiten beeld), geclipt op het ronde rect
+  // Image fills the rect preserving aspect (cover/slice — fit on the
+  // largest dimension, overflow falls out of view), clipped to the rounded rect
   // (#b2s0wu).
   const clipId = `imgclip-${widgetIdx}`;
   const clip = el('clipPath', { id: clipId });
@@ -580,8 +580,8 @@ function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   g.appendChild(clipG);
   clipG.appendChild(el('rect', { x: mx, y: my, width: mw, height: mh, class: 'map-placeholder' }));
 
-  // Crop-params: {x,y} focal in 0-100 (50=midden), zoom>=1. Exacte cover+focal
-  // vereist de natuurlijke beeldverhouding → async geladen via wgImgNatural.
+  // Crop params: {x,y} focal in 0-100 (50=center), zoom>=1. Exact cover+focal
+  // requires the natural aspect ratio → loaded async via wgImgNatural.
   const hasCrop = crop && (crop.zoom > 1.001 || crop.x !== 50 || crop.y !== 50);
   const nat = hasCrop ? wgImgNatural(src, () => render()) : null;
   if (hasCrop && nat) {
@@ -598,7 +598,7 @@ function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
     img.setAttribute('href', src);
     clipG.appendChild(img);
   } else {
-    // Geen crop (of nat-dims nog niet geladen): cover/slice gecentreerd.
+    // No crop (or nat dims not loaded yet): cover/slice centered.
     const img = el('image', {
       x: mx, y: my, width: mw, height: mh,
       preserveAspectRatio: 'xMidYMid slice', class: 'map-image',
@@ -608,8 +608,8 @@ function drawImageInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   }
 }
 
-// Tekent een campagne-kaart in een map-widget: SVG-image + klikbare pin-shapes.
-// De kaart wordt met cfg.widgetPadding ingesnoerd binnen het content-rect.
+// Draws a campaign map in a map widget: SVG image + clickable pin shapes.
+// The map is inset by cfg.widgetPadding within the content rect.
 function drawMapInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   const pad = (widget.cfg && widget.cfg.widgetPadding) || 0;
   const mx = x + pad, my = contentY + pad;
@@ -623,12 +623,12 @@ function drawMapInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
     txt.textContent = msg;
     g.appendChild(txt);
   };
-  if (!WG_MAPS_CACHE) { drawStatus('Kaarten laden…'); return; }
+  if (!WG_MAPS_CACHE) { drawStatus('Loading maps…'); return; }
   const mapObj = resolveWidgetMap(widget);
   if (!mapObj) { drawStatus('No map'); return; }
   if (mw <= 0 || mh <= 0) return;
 
-  // Clip op het (met widgetPadding ingesnoerde) map-rect.
+  // Clip to the map rect (inset by widgetPadding).
   const cr = Math.min(state.style.widgetRadius || 0, Math.min(mw, mh) / 2);
   const clipId = `mapclip-${widgetIdx}`;
   const clip = el('clipPath', { id: clipId });
@@ -640,10 +640,10 @@ function drawMapInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
   const clipG = el('g', { 'clip-path': `url(#${clipId})` });
   g.appendChild(clipG);
 
-  // Achtergrond achter het geletterboxte beeld.
+  // Background behind the letterboxed image.
   clipG.appendChild(el('rect', { x: mx, y: my, width: mw, height: mh, class: 'map-placeholder' }));
 
-  // Map-beeld — letterbox (behoudt aspect) binnen het map-rect.
+  // Map image — letterbox (preserves aspect) within the map rect.
   if (mapObj.image) {
     const img = el('image', {
       x: mx, y: my, width: mw, height: mh,
@@ -667,9 +667,9 @@ function drawMapInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
     }
   }
 
-  // Pins — opgeslagen als 0..100 % van de kaart-afbeelding.
-  // Plot in hetzelfde letterboxed sub-rect als de <image> hierboven.
-  // Fallback (geen image of dims nog niet geladen): het hele map-rect.
+  // Pins — stored as 0..100 % of the map image.
+  // Plot in the same letterboxed sub-rect as the <image> above.
+  // Fallback (no image or dims not loaded yet): the whole map rect.
   let _pinX = mx, _pinY = my, _pinW = mw, _pinH = mh;
   if (mapObj.image) {
     const _dims = WG_MAP_IMAGE_DIMS.get(mapObj.image);
@@ -718,7 +718,7 @@ function drawMapInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
     clipG.appendChild(pinEl);
   }
 
-  // Overlay: back-knop linksboven (alleen als er navigatie-history is).
+  // Overlay: back button top-left (only if there is navigation history).
   const m = widget.map;
   if (m.history && m.history.length) {
     const bx = mx + 6, by = my + 6;
@@ -733,7 +733,7 @@ function drawMapInWidget(g, widget, x, contentY, w, contentH, widgetIdx) {
     g.appendChild(back);
   }
 
-  // Overlay: dimensie-toggle rechtsboven (alleen bij >1 dimensie).
+  // Overlay: dimension toggle top-right (only with >1 dimension).
   const dims = WG_MAPS_CACHE.dimensions || [];
   if (dims.length > 1) {
     let dx = mx + mw - 6 - 14;
@@ -759,9 +759,9 @@ function draw2DDashboard(svg) {
   const vl = dashVLayout();
   if (hl.tileCount < 1 || vl.tileCount < 1) return;
 
-  // V10: in dev-view, eerst een doffe amber-laag over het hele dashboard-vlak
-  // tekenen. De tile-rects in bg-kleur erboven laten de spacing als raster
-  // doorschijnen — lijndikte == spacing zonder dat we lijnen hoeven tekenen.
+  // V10: in dev view, first draw a dull amber layer over the whole dashboard area.
+  // The tile rects in bg color on top let the spacing show through as a grid
+  // — line thickness == spacing without having to draw lines.
   if (state.config.devView) {
     svg.appendChild(el('rect', {
       x: state.dashboard.leftX,
@@ -772,7 +772,7 @@ function draw2DDashboard(svg) {
     }));
   }
 
-  // 2D tile-rechthoeken (in dev-view: bg-kleur; CSS regelt het uiterlijk)
+  // 2D tile rectangles (in dev view: bg color; CSS handles the appearance)
   for (let row = 0; row < vl.tileCount; row++) {
     for (let col = 0; col < hl.tileCount; col++) {
       svg.appendChild(el('rect', {
@@ -785,8 +785,8 @@ function draw2DDashboard(svg) {
   }
 }
 
-// V10: drawDashboard/drawDashboardVertical zijn verwijderd — de rail+ticks
-// aan de zijkant zijn vervangen door het dev-grid in draw2DDashboard.
+// V10: drawDashboard/drawDashboardVertical were removed — the rail+ticks
+// on the side were replaced by the dev grid in draw2DDashboard.
 
 function updateReadouts() {
   const mode = viewportMode();
@@ -835,12 +835,12 @@ function renderInfo() {
     <h3>Dashboard</h3>
     <div class="info-row"><span class="key">Tile size</span><span class="val">${dt} px</span></div>
     <div class="info-row"><span class="key">Min spacing</span><span class="val">${ds} px</span></div>
-    <div class="info-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;"><span class="key">Horizontaal</span><span class="val">→</span></div>
-    <div class="info-row"><span class="key">Breedte</span><span class="val highlight">${dW.toFixed(2)} px</span></div>
+    <div class="info-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;"><span class="key">Horizontal</span><span class="val">→</span></div>
+    <div class="info-row"><span class="key">Width</span><span class="val highlight">${dW.toFixed(2)} px</span></div>
     <div class="info-row"><span class="key">Tiles × spacing</span><span class="val">${dl.tileCount} × ${dl.spacing.toFixed(2)} px</span></div>
     <div class="info-row"><span class="key">Surplus</span><span class="val">${dSurplus.toFixed(2)} px / ${dl.tileCount + 1} slots</span></div>
-    <div class="info-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;"><span class="key">Verticaal</span><span class="val">↓</span></div>
-    <div class="info-row"><span class="key">Hoogte</span><span class="val highlight">${dH.toFixed(2)} px</span></div>
+    <div class="info-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;"><span class="key">Vertical</span><span class="val">↓</span></div>
+    <div class="info-row"><span class="key">Height</span><span class="val highlight">${dH.toFixed(2)} px</span></div>
     <div class="info-row"><span class="key">Tiles × spacing</span><span class="val">${dvl.tileCount} × ${dvl.spacing.toFixed(2)} px</span></div>
     <div class="info-row"><span class="key">Surplus</span><span class="val">${dvSurplus.toFixed(2)} px / ${dvl.tileCount + 1} slots</span></div>
   `;
@@ -856,11 +856,11 @@ function renderInfo() {
 
   document.getElementById('widgetInfo').innerHTML = `
     <h3>Widget</h3>
-    <div class="info-row"><span class="key">Positie (pag·col, row)</span><span class="val">${pageOf(state.widget.globalCol)}·${widgetCol(state.widget)}, ${state.widget.startRowIdx}</span></div>
+    <div class="info-row"><span class="key">Position (page·col, row)</span><span class="val">${pageOf(state.widget.globalCol)}·${widgetCol(state.widget)}, ${state.widget.startRowIdx}</span></div>
     <div class="info-row"><span class="key">Span (cols × rows)</span><span class="val">${wSpan} × ${state.widget.spanUnitsY}</span></div>
-    <div class="info-row"><span class="key">Widget-breedte</span><span class="val highlight">${wW.toFixed(2)} px</span></div>
-    <div class="info-row"><span class="key">Widget-hoogte</span><span class="val highlight">${widgetHeightOnDash().toFixed(2)} px</span></div>
-    <div class="info-row"><span class="key">Formule breedte</span><span class="val">${wSpan}×${dt} + ${Math.max(wSpan - 1, 0)}×${dl.spacing.toFixed(2)}</span></div>
+    <div class="info-row"><span class="key">Widget width</span><span class="val highlight">${wW.toFixed(2)} px</span></div>
+    <div class="info-row"><span class="key">Widget height</span><span class="val highlight">${widgetHeightOnDash().toFixed(2)} px</span></div>
+    <div class="info-row"><span class="key">Width formula</span><span class="val">${wSpan}×${dt} + ${Math.max(wSpan - 1, 0)}×${dl.spacing.toFixed(2)}</span></div>
     <div class="info-row"><span class="key">Widget-padding (min)</span><span class="val">${state.cfg.widgetPadding} px</span></div>
     <div class="info-row"><span class="key">Info-box spacing (min)</span><span class="val">${state.cfg.infoBoxSpacing} px</span></div>
   `;
@@ -877,17 +877,17 @@ function renderInfo() {
   document.getElementById('infoBoxInfo').innerHTML = `
     <h3>Info boxes (data-driven)</h3>
     <div class="info-row"><span class="key">Character</span><span class="val highlight">${state.characterId}</span></div>
-    <div class="info-row"><span class="key">Bron</span><span class="val">${state.data.source}</span></div>
+    <div class="info-row"><span class="key">Source</span><span class="val">${state.data.source}</span></div>
     <div class="info-row"><span class="key">Status</span><span class="val ${WG_CHAR_STATUS[state.characterId]==='error'?'warn':''}">${WG_CHAR_STATUS[state.characterId] || 'idle'}${WG_CHAR_ERROR[state.characterId] ? ' · '+WG_CHAR_ERROR[state.characterId] : ''}</span></div>
     <div class="info-row"><span class="key">Edit / Dev-view</span><span class="val">${state.config.editMode ? 'edit' : '—'} / ${state.config.devView ? 'dev' : '—'}</span></div>
     <div class="info-row"><span class="key">Stacking</span><span class="val">${state.layout.stacking}</span></div>
-    <div class="info-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;"><span class="key">Kolommen</span><span class="val highlight">${colSummary || '—'}</span></div>
-    <div class="info-row"><span class="key">Box-px (b × h)</span><span class="val">${ib.boxPxW.toFixed(2)} × ${ib.boxPxH.toFixed(2)}</span></div>
-    <div class="info-row"><span class="key">Aantal rijen (data)</span><span class="val">${count}</span></div>
+    <div class="info-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;"><span class="key">Columns</span><span class="val highlight">${colSummary || '—'}</span></div>
+    <div class="info-row"><span class="key">Box px (w × h)</span><span class="val">${ib.boxPxW.toFixed(2)} × ${ib.boxPxH.toFixed(2)}</span></div>
+    <div class="info-row"><span class="key">Rows (data)</span><span class="val">${count}</span></div>
     <div class="info-row"><span class="key">Padding (x / y)</span><span class="val">${ib.paddingX.toFixed(1)} / ${ib.paddingY.toFixed(1)} px</span></div>
     <div class="info-row"><span class="key">Spacing (x / y)</span><span class="val">${ib.spacingX.toFixed(1)} / ${ib.spacingY.toFixed(1)} px</span></div>
-    <div class="info-row"><span class="key">Boxes per rij</span><span class="val ${ib.boxesPerRow < 1 ? 'warn' : 'highlight'}">${ib.boxesPerRow}</span></div>
-    <div class="info-row"><span class="key">Rijen (nodig / past)</span><span class="val ${ib.fits ? 'highlight' : 'warn'}">${ib.rowsNeeded} / ${ib.rows}</span></div>
-    <div class="info-row"><span class="key">Gerendered / overflow</span><span class="val ${overflow > 0 ? 'warn' : ''}">${rendered} / ${overflow}</span></div>
+    <div class="info-row"><span class="key">Boxes per row</span><span class="val ${ib.boxesPerRow < 1 ? 'warn' : 'highlight'}">${ib.boxesPerRow}</span></div>
+    <div class="info-row"><span class="key">Rows (needed / fit)</span><span class="val ${ib.fits ? 'highlight' : 'warn'}">${ib.rowsNeeded} / ${ib.rows}</span></div>
+    <div class="info-row"><span class="key">Rendered / overflow</span><span class="val ${overflow > 0 ? 'warn' : ''}">${rendered} / ${overflow}</span></div>
   `;
 }

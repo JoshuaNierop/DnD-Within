@@ -32,10 +32,10 @@ function renderApp() {
         return;
     }
 
-    // WGI-M4: signaleer huidige route aan CSS (verbergt navbar op character-pages).
+    // WGI-M4: signal the current route to CSS (hides navbar on character pages).
     document.body.dataset.route = route.parts.join('/') || (route.path === '/login' ? 'login' : 'home');
 
-    // WGI-M4: cleanup vorige Widget Grid mount voor de DOM hergebruikt wordt.
+    // WGI-M4: clean up previous Widget Grid mount before the DOM is reused.
     if (window.WidgetGrid && typeof window.WidgetGrid.unmount === 'function') {
         window.WidgetGrid.unmount();
     }
@@ -164,30 +164,30 @@ function renderApp() {
     if (!routeChanged) requestAnimationFrame(function() { app.classList.remove('no-animate'); });
 }
 
-// Gerichte content-update voor live-zoeken: vervangt ALLEEN de innerHTML van het
-// resultaten-container i.p.v. de hele pagina via renderApp() (die titel, tabs,
-// searchbar en navbar zou herbouwen + de page-load-animatie zou tonen). builderFn
-// krijgt de container mee en geeft de nieuwe resultaten-HTML terug. Levert het
-// dezelfde HTML op → niets doen (geen herladen bij identieke gevonden content).
-// Geen page-load-animatie: die blijft voorbehouden aan een echte route-wissel.
+// Targeted content update for live search: replaces ONLY the innerHTML of the
+// results container instead of the whole page via renderApp() (which would rebuild title, tabs,
+// searchbar and navbar + show the page-load animation). builderFn
+// receives the container and returns the new results HTML. If it yields
+// the same HTML → do nothing (no reload on identical found content).
+// No page-load animation: that stays reserved for a real route change.
 function updateSearchResults(containerId, builderFn) {
     var c = document.getElementById(containerId);
-    if (!c) { renderApp(); return; }   // container weg (bv. andere pagina) → val terug
+    if (!c) { renderApp(); return; }   // container gone (e.g. other page) → fall back
     var html = builderFn(c);
     if (html == null || c.innerHTML === html) return;
     flipUpdate(c, html);
 }
 
 // #OvywGWk: Isotope-achtige vloeiende grid-update via FLIP (First-Last-Invert-
-// Play). Bestaande kaarten glijden naar hun nieuwe positie; nieuwe kaarten faden
-// in. Keyed op data-entry-id / data-npc-id. Respecteert prefers-reduced-motion.
+// Play). Existing cards glide to their new position; new cards fade
+// in. Keyed on data-entry-id / data-npc-id. Respects prefers-reduced-motion.
 function flipUpdate(container, html) {
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var SEL = '[data-entry-id],[data-npc-id]';
     function keyOf(el) { return el.getAttribute('data-entry-id') || el.getAttribute('data-npc-id'); }
     if (reduce) { container.innerHTML = html; return; }
 
-    // FIRST — posities van de huidige kaarten vastleggen.
+    // FIRST — record the positions of the current cards.
     var first = {};
     Array.prototype.forEach.call(container.querySelectorAll(SEL), function (el) {
         var k = keyOf(el); if (k) first[k] = el.getBoundingClientRect();
@@ -206,13 +206,13 @@ function flipUpdate(container, html) {
             if (!dx && !dy) return;
             el.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
             el.style.transitionProperty = 'none';
-            // Force reflow zodat de invert-transform geldt vóór de play-stap.
+            // Force reflow so the invert transform applies before the play step.
             void el.offsetWidth;
             el.classList.add('flip-move');
             el.style.transitionProperty = '';
             el.style.transform = '';
         } else {
-            // Nieuwe kaart → fade + lichte schaal-in.
+            // New card → fade + slight scale-in.
             el.style.opacity = '0';
             el.style.transform = 'scale(0.92)';
             void el.offsetWidth;
@@ -230,10 +230,10 @@ function flipUpdate(container, html) {
 }
 
 // #OvywGWk: FLIP voor de lore-card accordion (uitklappen/inklappen). Geen
-// re-render — we werken op de live nodes per referentie. Siblings schuiven puur
-// (translate); de togglende card doet een box-scale FLIP met een counter-scaled
-// image (geen vervorming) en een cross-fade body (die echt herindeelt). De
-// caller levert mutate() = de bestaande accordion-logica. Respecteert
+// re-render — we work on the live nodes by reference. Siblings purely slide
+// (translate); the toggling card does a box-scale FLIP with a counter-scaled
+// image (no distortion) and a cross-fade body (which really re-lays out). The
+// caller supplies mutate() = the existing accordion logic. Respects
 // prefers-reduced-motion.
 function flipToggle(grid, mutate) {
     if (!grid) { mutate(); return; }
@@ -241,7 +241,7 @@ function flipToggle(grid, mutate) {
     if (reduce) { mutate(); return; }
 
     var cards = Array.prototype.slice.call(grid.querySelectorAll('.lore-entry-card'));
-    // Snap eventuele lopende animatie naar rust zodat FIRST de echte posities meet.
+    // Snap any running animation to rest so FIRST measures the real positions.
     cards.forEach(_flipToggleFinish);
 
     // FIRST — posities + expanded-state vastleggen.
@@ -251,7 +251,7 @@ function flipToggle(grid, mutate) {
         wasExp.set(c, c.classList.contains('expanded'));
     });
 
-    // MUTATE — de bestaande accordion-logica; layout is hierna definitief.
+    // MUTATE — the existing accordion logic; layout is final afterwards.
     mutate();
 
     // LAST + INVERT + PLAY
@@ -262,7 +262,7 @@ function flipToggle(grid, mutate) {
         var stateChanged = wasExp.get(c) !== c.classList.contains('expanded');
 
         if (!stateChanged) {
-            // Sibling: alleen verschuiven.
+            // Sibling: only shift.
             var dx = f.left - l.left, dy = f.top - l.top;
             if (!dx && !dy) return;
             c.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
@@ -276,8 +276,8 @@ function flipToggle(grid, mutate) {
         }
 
         // Togglende card: box-scale FLIP (glide + grootte). Image + body
-        // veranderen van verhouding/indeling, dus die cross-faden we (CSS) i.p.v.
-        // geometrisch tweenen — voorkomt vervorming bij vierkante afbeeldingen.
+        // change aspect ratio/layout, so we cross-fade those (CSS) instead of
+        // tweening geometrically — avoids distortion on square images.
         var sx = l.width ? (f.width / l.width) : 1;
         var sy = l.height ? (f.height / l.height) : 1;
         var tdx = f.left - l.left, tdy = f.top - l.top;
@@ -287,7 +287,7 @@ function flipToggle(grid, mutate) {
         c.classList.add('flip-box', 'flip-box-start');   // start: image + body opacity 0
         void c.offsetWidth;                              // commit invert-frame
 
-        // PLAY → eindpositie; image + body faden in op hun definitieve vorm.
+        // PLAY → end position; image + body fade in to their final shape.
         c.style.transform = '';
         c.classList.remove('flip-box-start');
         _flipOnEnd(c);
@@ -297,7 +297,7 @@ function flipToggle(grid, mutate) {
 function _flipOnEnd(el) {
     var cb = function (e) { if (e.target === el) { _flipToggleFinish(el); el.removeEventListener('transitionend', cb); } };
     el.addEventListener('transitionend', cb);
-    // Fallback als transitionend gemist wordt (interruptie / geen transition).
+    // Fallback if transitionend is missed (interruption / no transition).
     clearTimeout(el._flipT);
     el._flipT = setTimeout(function () { _flipToggleFinish(el); }, 520);
 }
@@ -350,7 +350,7 @@ function postRenderEffects(route) {
         if (typeof GlowRing !== 'undefined') {
             GlowRing.apply(portraitWrap, effectColor);
         }
-        // WGI-M4: mount Widget Grid V8/V11 dashboard binnen de lege .character-page div.
+        // WGI-M4: mount Widget Grid V8/V11 dashboard inside the empty .character-page div.
         var charPageEl = document.querySelector('.character-page');
         if (charPageEl && window.WidgetGrid && typeof window.WidgetGrid.mount === 'function') {
             try {
@@ -363,8 +363,8 @@ function postRenderEffects(route) {
             }
         }
     }
-    // DM Dashboard: mount WidgetGrid in DM-modus binnen de lege .dm-page div
-    // (per campaign). Widgets komen later; tabs + grid werken nu al.
+    // DM Dashboard: mount WidgetGrid in DM mode inside the empty .dm-page div
+    // (per campaign). Widgets come later; tabs + grid already work now.
     if (route.parts[0] === 'dm' && typeof isDM === 'function' && isDM()) {
         var dmPageEl = document.querySelector('.dm-page');
         if (dmPageEl && window.WidgetGrid && typeof window.WidgetGrid.mount === 'function') {

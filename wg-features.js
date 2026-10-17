@@ -7,7 +7,7 @@
 // in the shared hover/long-press tooltip, plus uses/recharge info for active
 // features. Leveling Up subproject.
 //
-// Load order: NA wg-state.js, NA wg-rest.js (wgxPatchState) en NA
+// Load order: AFTER wg-state.js, AFTER wg-rest.js (wgxPatchState) and AFTER
 // wg-resource.js (wgxResourcePips).
 
 var WG_EXTRA_INFOBOX_BUILDERS = (typeof WG_EXTRA_INFOBOX_BUILDERS !== 'undefined') ? WG_EXTRA_INFOBOX_BUILDERS : {};
@@ -19,9 +19,9 @@ Object.assign(WG_WIDGET_TYPES, {
     spanUnits: 5, spanUnitsY: 5,
     cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 2 },
   },
-  // Split-varianten: Active = features die je actief inzet (use-counters,
-  // metamagic, invocations); Passive = always-on rules text. Zelfde databron,
-  // los te plaatsen als twee widgets.
+  // Split variants: Active = features you deliberately use (use-counters,
+  // metamagic, invocations); Passive = always-on rules text. Same data source,
+  // can be placed separately as two widgets.
   featuresActive: {
     label: 'Active Features', kind: 'infobox', source: 'featuresActive',
     spanUnits: 5, spanUnitsY: 5,
@@ -33,8 +33,8 @@ Object.assign(WG_WIDGET_TYPES, {
     cfg: { cellPadding: 6, widgetPadding: 6, infoBoxSpacing: 4, infoBoxPadding: 2 },
   },
 });
-WG_EDIT_CONFIG.features = { mode: 'always', editColumnIdx: 2 };        // uses-kolom klikbaar
-WG_EDIT_CONFIG.featuresActive = { mode: 'always', editColumnIdx: 2 };  // idem
+WG_EDIT_CONFIG.features = { mode: 'always', editColumnIdx: 2 };        // uses column clickable
+WG_EDIT_CONFIG.featuresActive = { mode: 'always', editColumnIdx: 2 };  // same
 if (typeof WG_SOURCE_LABELS !== 'undefined') {
   WG_SOURCE_LABELS.features = 'Features';
   WG_SOURCE_LABELS.featuresActive = 'Active Features';
@@ -142,9 +142,9 @@ function wgxFeatureResourceMap(cfg, st) {
   return map;
 }
 
-// Actief = je zet het bewust in: use-counter (resource-backed), metamagic
-// (kost sorcery points) of invocation (verleent casts/actieve opties).
-// Fighting styles en overige rules-text zijn passief.
+// Active = you deliberately use it: use-counter (resource-backed), metamagic
+// (costs sorcery points) or invocation (grants casts/active options).
+// Fighting styles and other rules text are passive.
 function wgxFeatureIsActive(entry) {
   return !!entry.res || !!entry.feat.act || entry.feat.src === 'M' || entry.feat.src === 'I' || entry.feat.src === 'B';
 }
@@ -164,7 +164,7 @@ function wgxActGroupOf(act) {
 
 // Row model shared by builder and click-handler (1:1 with rendered rows).
 // Entries: { header, tip } or { feat, res|null }.
-// filter: null (gecombineerd: action-groups + Passive) | 'active' | 'passive'.
+// filter: null (combined: action groups + Passive) | 'active' | 'passive'.
 function wgxFeatureRowModel(cfg, st, filter) {
   var feats = wgxCollectFeatures(cfg, st);
   feats.sort(function (a, b) { return (a.level - b.level) || a.name.localeCompare(b.name); });
@@ -256,8 +256,8 @@ WG_EXTRA_INFOBOX_BUILDERS.features = function (widget) { wgxBuildFeatures(widget
 WG_EXTRA_INFOBOX_BUILDERS.featuresActive  = function (widget) { wgxBuildFeatures(widget, 'active'); };
 WG_EXTRA_INFOBOX_BUILDERS.featuresPassive = function (widget) { wgxBuildFeatures(widget, 'passive'); };
 
-// Klik op de uses-cel van een active feature = 1 use verbruiken; bij leeg =
-// alles herstellen (zelfde semantiek als de Resources-widget).
+// Click the uses cell of an active feature = spend 1 use; when empty =
+// restore everything (same semantics as the Resources widget).
 function wgxFeatureClickHandler(filter) { return async function (ctx) {
   var raw = ctx.raw || {};
   var cfg = raw.config || {}, st = raw.state || {};
