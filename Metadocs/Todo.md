@@ -64,7 +64,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P3 — itemDB: Bell, Robe, Mirror, Perfume, Tent toegevoegd; Rope 5 lb (2024) (2026-10-17)
 - [x] P3 — Spell `save`/`attack`-veld: `DATA.spellRoll` (176 spells, feiten uit de 2024-data) in `data-rules.js`; spell-tooltips tonen nu "DEX save, DC 14" of "Ranged spell attack +6" (2026-10-17)
 - [x] P3 — `@`-links naar timeline-sessions (ook in Search), @-popup opent bij de cursor; family-koppeling gebruikt al `linkedCreatureId` (index alleen nog als lees-fallback) (2026-10-17)
-- [ ] P3 — Level-down: gekozen opties tijdelijk bewaren zodat opnieuw omhoog ze terugzet (`demotedChoices`)
+- [x] P3 — Level-down bewaart de keuzes (`state.demotedChoices[N]`); opnieuw omhoog vult ze vooraf in (2026-10-17). Werkt voor level-ups vanaf nu (oudere records hebben geen `_picked`)
 - [x] P3 — Na artikel opslaan landde `/lore` op de Creatures-tab: nu naar het opgeslagen artikel, na verwijderen naar de Articles-tab (2026-10-17)
 
 ## Claude — opruimen en techniek

@@ -859,8 +859,13 @@ function wgxOpenLevelUpModal(charId, opts) {
   // fixOnly: same flow without a level change — only the choices that were
   // never recorded ("Complete missing choices" in the Build overview).
   var delta = getLevelUpDelta(cfg, st, (st.level || 1) + (fixOnly ? 0 : 1));
-  wgxLU = { charId: charId, raw: raw, delta: delta, steps: [], stepIdx: 0, picked: {}, fixOnly: fixOnly };
+  // Levelled down earlier? Start from the picks made last time (state.demotedChoices[N]).
+  var picked = {};
+  var demoted = !fixOnly && numMap(st.demotedChoices)[delta.to];
+  if (demoted) { try { picked = JSON.parse(demoted) || {}; } catch (e) { picked = {}; } }
+  wgxLU = { charId: charId, raw: raw, delta: delta, steps: [], stepIdx: 0, picked: picked, fixOnly: fixOnly };
   wgxRegenLUSteps();
+  if (demoted && Object.keys(picked).length) showToast('Your choices from the last time you reached level ' + delta.to + ' are filled in — change anything before confirming');
   var host = document.createElement('div');
   host.className = 'wgx-levelup-modal-active';
   // NB: no stopPropagation on the card — the delegated host listener must
@@ -1486,6 +1491,11 @@ async function wgxConfirmLevelUp() {
   var lu = wgxLU, cfg = lu.raw.config || {}, st = lu.raw.state || {};
   try {
     var patches = wgxBuildLevelUpPatch(cfg, st, lu.delta, lu.picked);
+    if (!lu.fixOnly) {
+      // Keep the raw picks with the level record, so a later Level Down can remember them.
+      patches.statePatch['levelChoices/' + lu.delta.to + '/_picked'] = JSON.stringify(lu.picked);
+      patches.statePatch['demotedChoices/' + lu.delta.to] = null;
+    }
     if (patches.configPatch) await wgxPatchConfig(lu.charId, patches.configPatch);
     await wgxPatchState(lu.charId, patches.statePatch);
     wgxCloseLevelUpModal();
@@ -1510,6 +1520,9 @@ async function wgxLevelDown(charId) {
     ? await wgxConfirmModal({ title: 'Level down to ' + (lvl - 1) + '?', message: msg, confirmLabel: 'Level Down', cancelLabel: 'Cancel' })
     : false;
   if (!ok) return;
+  // Remember this level's picks so levelling up again starts from them.
+  var prevPicked = (numMap(st.levelChoices)[lvl] || {})._picked;
+  if (prevPicked) patches.statePatch['demotedChoices/' + lvl] = prevPicked;
   try {
     if (patches.configPatch) await wgxPatchConfig(charId, patches.configPatch);
     await wgxPatchState(charId, patches.statePatch);
