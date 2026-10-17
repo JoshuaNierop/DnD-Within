@@ -2570,6 +2570,7 @@ function bindPageEvents(route) {
             if (lTitleEl && lTitleEl.value.trim()) {
                 var loreData = getLoreData();
                 var editId = target.dataset.editId;
+                var savedArtId = editId || ('art' + Date.now());
                 if (editId) {
                     for (var li = 0; li < loreData.articles.length; li++) {
                         if (loreData.articles[li].id === editId) {
@@ -2580,14 +2581,14 @@ function bindPageEvents(route) {
                     }
                 } else {
                     loreData.articles.push({
-                        id: 'art' + Date.now(),
+                        id: savedArtId,
                         title: lTitleEl.value.trim(),
                         content: lContentEl ? lContentEl.value : '',
                         createdBy: currentUserId()
                     });
                 }
                 saveLoreData(loreData);
-                navigate('/lore');
+                navigate('/lore/' + savedArtId);
             }
             return;
         }
@@ -2601,7 +2602,7 @@ function bindPageEvents(route) {
                 var loreData = getLoreData();
                 loreData.articles = loreData.articles.filter(function(a) { return a.id !== artId; });
                 saveLoreData(loreData);
-                navigate('/lore');
+                navigate('/lore/articles');
             });
             return;
         }

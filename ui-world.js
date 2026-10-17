@@ -1639,10 +1639,10 @@ function renderLoreArticle(articleId) {
         if (data.articles[i].id === articleId) { article = data.articles[i]; break; }
     }
 
-    if (!article) return '<div class="page-placeholder"><h2>' + t('lore.notfound') + '</h2><a class="btn btn-ghost" href="/lore">' + t('lore.backtolore') + '</a></div>';
+    if (!article) return '<div class="page-placeholder"><h2>' + t('lore.notfound') + '</h2><a class="btn btn-ghost" href="/lore/articles">' + t('lore.backtolore') + '</a></div>';
 
     var html = '<div class="lore-page lore-article">';
-    html += '<a class="btn btn-ghost btn-sm" href="/lore">&larr; ' + t('lore.backtolore') + '</a>';
+    html += '<a class="btn btn-ghost btn-sm" href="/lore/articles">&larr; ' + t('lore.backtolore') + '</a>';
     html += '<h1>' + escapeHtml(article.title) + '</h1>';
 
     // Render content — split by double newlines for paragraphs

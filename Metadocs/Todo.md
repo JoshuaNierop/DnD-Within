@@ -65,7 +65,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P3 — Spell `save`/`attack`-veld: `DATA.spellRoll` (176 spells, feiten uit de 2024-data) in `data-rules.js`; spell-tooltips tonen nu "DEX save, DC 14" of "Ranged spell attack +6" (2026-10-17)
 - [ ] P3 — `@`-links naar timeline-sessions; autocomplete-popup bij de cursor; family-koppeling op id i.p.v. array-index (`families.js:382`)
 - [ ] P3 — Level-down: gekozen opties tijdelijk bewaren zodat opnieuw omhoog ze terugzet (`demotedChoices`)
-- [ ] P3 — Na artikel opslaan landt `/lore` op de juiste tab (controleren)
+- [x] P3 — Na artikel opslaan landde `/lore` op de Creatures-tab: nu naar het opgeslagen artikel, na verwijderen naar de Articles-tab (2026-10-17)
 
 ## Claude — opruimen en techniek
 - [x] P2 — `cloudinary-worker/wrangler.toml`: `ALLOWED_ORIGIN` → `https://dnd-within.pages.dev` (2026-10-17)
