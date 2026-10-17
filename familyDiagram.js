@@ -35,7 +35,7 @@ function renderFamilyDiagram(familyId, editable) {
         html += '<p class="text-dim" style="padding:1rem;">No members in this family yet.</p>';
         if (editable) {
             html += '<div class="famdiag-empty-add">';
-            html += '<button class="btn btn-primary btn-sm" data-action="famdiag-add-root" data-family-id="' + escapeAttr(familyId) + '">+ Eerste lid toevoegen</button>';
+            html += '<button class="btn btn-primary btn-sm" data-action="famdiag-add-root" data-family-id="' + escapeAttr(familyId) + '">+ Add first member</button>';
             html += '</div>';
         }
         html += '</div>';
@@ -93,7 +93,7 @@ function renderMemberCard(member, pos, editable, view, layout) {
     var fullName = (member.firstName || '') + (member.lastName ? ' ' + member.lastName : '');
     html += '<div class="famdiag-card-name"';
     if (clickable) html += ' data-action="famdiag-open-link" data-link-type="' + link.type + '" data-link-id="' + escapeAttr(String(link.id)) + '" style="cursor:pointer;"';
-    html += '>' + escapeHtml(fullName.trim() || '(naamloos)') + '</div>';
+    html += '>' + escapeHtml(fullName.trim() || '(unnamed)') + '</div>';
 
     // Years line
     var years = '';
@@ -105,14 +105,14 @@ function renderMemberCard(member, pos, editable, view, layout) {
     // Race + gender
     var meta = [];
     if (member.race) meta.push(escapeHtml(member.race));
-    if (member.gender) meta.push(escapeHtml(member.gender));
+    if (member.gender) meta.push(escapeHtml(({ man: 'Male', vrouw: 'Female', neutraal: 'Neutral' })[member.gender] || member.gender));
     if (meta.length) html += '<div class="famdiag-card-meta">' + meta.join(' · ') + '</div>';
 
     // Edit/remove buttons (small, top-right)
     if (editable) {
-        html += '<button class="famdiag-card-edit" data-action="famdiag-edit-member" data-member-id="' + escapeAttr(member.id) + '" title="Bewerk">&#9998;</button>';
+        html += '<button class="famdiag-card-edit" data-action="famdiag-edit-member" data-member-id="' + escapeAttr(member.id) + '" title="Edit">&#9998;</button>';
         if (!isGuest) {
-            html += '<button class="famdiag-card-remove" data-action="famdiag-remove-member" data-member-id="' + escapeAttr(member.id) + '" title="Verwijder">&times;</button>';
+            html += '<button class="famdiag-card-remove" data-action="famdiag-remove-member" data-member-id="' + escapeAttr(member.id) + '" title="Remove">&times;</button>';
         }
     }
 
@@ -120,12 +120,12 @@ function renderMemberCard(member, pos, editable, view, layout) {
     if (editable) {
         // Partner add (left + right) — only if not guest, not currently in 2-partner union (skip if already partnered on that side)
         if (!isGuest) {
-            html += '<button class="famdiag-dot famdiag-dot-partner-l" data-action="famdiag-add-partner" data-member-id="' + escapeAttr(member.id) + '" data-side="left" title="Partner links">+</button>';
-            html += '<button class="famdiag-dot famdiag-dot-partner-r" data-action="famdiag-add-partner" data-member-id="' + escapeAttr(member.id) + '" data-side="right" title="Partner rechts">+</button>';
+            html += '<button class="famdiag-dot famdiag-dot-partner-l" data-action="famdiag-add-partner" data-member-id="' + escapeAttr(member.id) + '" data-side="left" title="Add partner (left)">+</button>';
+            html += '<button class="famdiag-dot famdiag-dot-partner-r" data-action="famdiag-add-partner" data-member-id="' + escapeAttr(member.id) + '" data-side="right" title="Add partner (right)">+</button>';
         }
         // Parent-add (top center)
         if (!isGuest) {
-            html += '<button class="famdiag-dot famdiag-dot-parent" data-action="famdiag-add-parent" data-member-id="' + escapeAttr(member.id) + '" title="Ouder toevoegen">+</button>';
+            html += '<button class="famdiag-dot famdiag-dot-parent" data-action="famdiag-add-parent" data-member-id="' + escapeAttr(member.id) + '" title="Add parent">+</button>';
         }
     }
 

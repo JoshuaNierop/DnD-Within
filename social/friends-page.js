@@ -32,23 +32,23 @@ export function renderFriendsPage(host, adapter) {
             <h1>Friends</h1>
 
             <form class="soc-add-form" id="soc-add">
-                <input type="email" id="soc-email" placeholder="Voer email van vriend in..." autocomplete="off" required>
-                <button type="submit" class="soc-btn">Stuur verzoek</button>
+                <input type="email" id="soc-email" placeholder="Enter your friend's e-mail..." autocomplete="off" required>
+                <button type="submit" class="soc-btn">Send request</button>
             </form>
 
             ${status ? `<div class="soc-status ${status.type}">${escHtml(status.text)}</div>` : ''}
 
             <div class="soc-tabs">
                 <button class="soc-tab ${activeTab === 'friends' ? 'active' : ''}" data-tab="friends">
-                    Vrienden <span style="color:var(--soc-muted);">(${friends.filter(f => f.status === 'accepted').length})</span>
+                    Friends <span style="color:var(--soc-muted);">(${friends.filter(f => f.status === 'accepted').length})</span>
                 </button>
                 <button class="soc-tab ${activeTab === 'requests' ? 'active' : ''}" data-tab="requests">
-                    Verzoeken${incomingCount ? `<span class="soc-pill">${incomingCount}</span>` : ''}
+                    Requests${incomingCount ? `<span class="soc-pill">${incomingCount}</span>` : ''}
                 </button>
             </div>
 
             <div class="soc-list">
-                ${loading ? '<div class="soc-empty">Laden…</div>' : (
+                ${loading ? '<div class="soc-empty">Loading…</div>' : (
                     activeTab === 'friends' ? renderFriendsList() : renderIncomingList()
                 )}
             </div>
@@ -58,7 +58,7 @@ export function renderFriendsPage(host, adapter) {
 
     function renderFriendsList() {
         if (!friends.length) {
-            return '<div class="soc-empty">Nog geen vrienden. Voeg er één toe via email.</div>';
+            return '<div class="soc-empty">No friends yet. Add one by e-mail.</div>';
         }
         return friends.map(f => `
             <div class="soc-list-item" data-uid="${escHtml(f.uid)}">
@@ -73,7 +73,7 @@ export function renderFriendsPage(host, adapter) {
                     ${f.status === 'accepted' ? `
                         <button class="soc-btn" data-action="chat">Chat</button>
                     ` : ''}
-                    <button class="soc-btn soc-btn-ghost" data-action="remove">Verwijder</button>
+                    <button class="soc-btn soc-btn-ghost" data-action="remove">Remove</button>
                 </div>
             </div>
         `).join('');
@@ -81,7 +81,7 @@ export function renderFriendsPage(host, adapter) {
 
     function renderIncomingList() {
         if (!incoming.length) {
-            return '<div class="soc-empty">Geen openstaande verzoeken.</div>';
+            return '<div class="soc-empty">No pending requests.</div>';
         }
         return incoming.map(r => `
             <div class="soc-list-item" data-uid="${escHtml(r.uid)}">
@@ -91,8 +91,8 @@ export function renderFriendsPage(host, adapter) {
                     <div class="email">${escHtml(r.email)} · ${escHtml(formatRelativeTime(r.since))}</div>
                 </div>
                 <div class="actions">
-                    <button class="soc-btn soc-btn-success" data-action="accept">Accepteer</button>
-                    <button class="soc-btn soc-btn-ghost" data-action="decline">Weiger</button>
+                    <button class="soc-btn soc-btn-success" data-action="accept">Accept</button>
+                    <button class="soc-btn soc-btn-ghost" data-action="decline">Decline</button>
                 </div>
             </div>
         `).join('');
@@ -117,7 +117,7 @@ export function renderFriendsPage(host, adapter) {
             try {
                 const me = await adapter.getMyProfile();
                 if (email === (me.email || '').toLowerCase()) {
-                    throw new Error('Je kan jezelf niet toevoegen');
+                    throw new Error('You cannot add yourself');
                 }
                 const target = await adapter.findUserByEmail(email);
                 if (!target) {
@@ -125,9 +125,9 @@ export function renderFriendsPage(host, adapter) {
                 }
                 await adapter.sendFriendRequest(target.uid, target);
                 input.value = '';
-                setStatus('ok', `Verzoek gestuurd naar ${target.displayName}`);
+                setStatus('ok', `Request sent to ${target.displayName}`);
             } catch (err) {
-                setStatus('error', err.message || 'Verzenden mislukt');
+                setStatus('error', err.message || 'Sending failed');
             } finally {
                 submitBtn.disabled = false;
             }
@@ -143,14 +143,14 @@ export function renderFriendsPage(host, adapter) {
                 try {
                     if (action === 'accept') {
                         await adapter.acceptFriendRequest(uid);
-                        setStatus('ok', 'Verzoek geaccepteerd');
+                        setStatus('ok', 'Request accepted');
                     } else if (action === 'decline') {
                         await adapter.declineFriendRequest(uid);
-                        setStatus('ok', 'Verzoek geweigerd');
+                        setStatus('ok', 'Request declined');
                     } else if (action === 'remove') {
                         if (!(await showConfirmModal({ message: 'Remove this friend?', confirmLabel: 'Remove', danger: true }))) { btn.disabled = false; return; }
                         await adapter.removeFriend(uid);
-                        setStatus('ok', 'Vriend verwijderd');
+                        setStatus('ok', 'Friend removed');
                     } else if (action === 'chat') {
                         // Open chat widget op deze vriend (geef naam mee — kunnen we niet uit hun profile lezen)
                         const friend = friends.find(f => f.uid === uid);
@@ -159,7 +159,7 @@ export function renderFriendsPage(host, adapter) {
                         }));
                     }
                 } catch (err) {
-                    setStatus('error', err.message || 'Actie mislukt');
+                    setStatus('error', err.message || 'Action failed');
                 } finally {
                     btn.disabled = false;
                 }

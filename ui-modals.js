@@ -191,7 +191,7 @@ function handleSaveProfile() {
     localStorage.setItem('dw_users', JSON.stringify(usersCache));
 
     if (successEl) { successEl.style.display = 'block'; }
-    showToast('Profiel opgeslagen!', 'success');
+    showToast('Profile saved!', 'success');
 
     // Re-render navbar to show updated name
     setTimeout(function() { closeProfileModal(); renderApp(); }, 800);

@@ -62,19 +62,19 @@ export function mountChatWidget(host, adapter, opts = {}) {
                 <div class="scw-panel">
                     <div class="scw-header">
                         <div class="title">Chats</div>
-                        <button id="scw-close" aria-label="Sluiten">${ICONS.close}</button>
+                        <button id="scw-close" aria-label="Close">${ICONS.close}</button>
                     </div>
                     <div class="scw-body">
                         ${state.chats.length === 0 ? `
                             <div class="scw-empty">
-                                Nog geen chats. Open een vriend via de Friends-pagina om te beginnen.
+                                No chats yet. Open a friend on the Friends page to start one.
                             </div>
                         ` : state.chats.map(c => `
                             <div class="scw-chat-row" data-chat="${escHtml(c.chatId)}" data-uid="${escHtml(c.otherUid)}" data-name="${escHtml(c.otherDisplayName)}">
                                 <div class="scw-avatar">${escHtml(initials(c.otherDisplayName))}</div>
                                 <div class="info">
                                     <div class="name">${escHtml(c.otherDisplayName)}</div>
-                                    <div class="preview">${c.lastFrom === adapter.getCurrentUid() ? 'Jij: ' : ''}${escHtml(c.lastMessage || '—')}</div>
+                                    <div class="preview">${c.lastFrom === adapter.getCurrentUid() ? 'You: ' : ''}${escHtml(c.lastMessage || '—')}</div>
                                 </div>
                                 <div class="meta">
                                     <span class="ts">${escHtml(formatRelativeTime(c.lastTs))}</span>
@@ -102,16 +102,16 @@ export function mountChatWidget(host, adapter, opts = {}) {
             root.innerHTML = `
                 <div class="scw-panel">
                     <div class="scw-header">
-                        <button id="scw-back" aria-label="Terug">${ICONS.back}</button>
+                        <button id="scw-back" aria-label="Back">${ICONS.back}</button>
                         <div class="title">${escHtml(state.activeOtherName)}</div>
-                        <button id="scw-close" aria-label="Sluiten">${ICONS.close}</button>
+                        <button id="scw-close" aria-label="Close">${ICONS.close}</button>
                     </div>
                     <div class="scw-msgs" id="scw-msgs">
-                        ${state.loadingMsgs ? '<div class="scw-empty">Berichten laden…</div>' : renderMessages()}
+                        ${state.loadingMsgs ? '<div class="scw-empty">Loading messages…</div>' : renderMessages()}
                     </div>
                     <form class="scw-input" id="scw-form">
-                        <textarea id="scw-text" rows="1" placeholder="Bericht..." ${state.sending ? 'disabled' : ''}></textarea>
-                        <button type="submit" ${state.sending ? 'disabled' : ''}>Stuur</button>
+                        <textarea id="scw-text" rows="1" placeholder="Message..." ${state.sending ? 'disabled' : ''}></textarea>
+                        <button type="submit" ${state.sending ? 'disabled' : ''}>Send</button>
                     </form>
                 </div>
             `;
@@ -164,7 +164,7 @@ export function mountChatWidget(host, adapter, opts = {}) {
 
     function renderMessages() {
         if (!state.messages.length) {
-            return '<div class="scw-empty">Nog geen berichten. Stuur de eerste!</div>';
+            return '<div class="scw-empty">No messages yet. Send the first one!</div>';
         }
         const myUid = adapter.getCurrentUid();
         return state.messages.map(m => `
@@ -251,7 +251,7 @@ export function mountChatWidget(host, adapter, opts = {}) {
         if (Notification.permission !== 'granted') return;
         if (document.visibilityState === 'visible' && state.mode === 'chat' && state.activeChatId === chat.chatId) return;
         try {
-            const n = new Notification(`Nieuw bericht van ${chat.otherDisplayName}`, {
+            const n = new Notification(`New message from ${chat.otherDisplayName}`, {
                 body: chat.lastMessage || '',
                 tag: chat.chatId,
                 silent: false,

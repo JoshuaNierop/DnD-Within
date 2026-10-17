@@ -827,13 +827,13 @@ function renderMaps() {
             html += '<div class="pin-edit-tools">';
             // Roundness slider (per selected area)
             html += '<label class="pin-round-ctl' + ((selPin && selIsPolygon) ? '' : ' is-disabled') + '">';
-            html += '<span>Rondheid</span>';
+            html += '<span>Roundness</span>';
             html += '<input type="range" min="0" max="100" value="' + roundPct + '" data-action="pin-roundness"' + ((selPin && selIsPolygon) ? '' : ' disabled') + '>';
             html += '<span class="pin-round-val">' + roundPct + '%</span>';
             html += '</label>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="add-pin">&#43; Pin toevoegen</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="add-pin">&#43; Add pin</button>';
             html += '<button class="btn btn-ghost btn-sm" data-action="edit-pin-meta" data-pin-idx="' + (selPin ? selectedPinIdx : '') + '"' + (selPin ? '' : ' disabled') + '>&#9998; Label/link</button>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="delete-selected-pin" style="color:var(--danger);"' + (selPin ? '' : ' disabled') + '>&#128465; Verwijderen</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="delete-selected-pin" style="color:var(--danger);"' + (selPin ? '' : ' disabled') + '>&#128465; Delete</button>';
             html += '<button class="btn btn-primary btn-sm" data-action="toggle-edit-pins">&#128190; Save pins</button>';
             html += '</div>';
             html += '</div>';
@@ -957,7 +957,7 @@ function _saveSceneBlob(sceneId, scene) {
             try {
                 localStorage.setItem(key, payload);
                 if (typeof syncUpload === 'function') syncUpload(key);
-                if (typeof showToast === 'function') showToast('Scene opgeslagen (oude backup verwijderd)', 'success');
+                if (typeof showToast === 'function') showToast('Scene saved (old backup removed)', 'success');
                 return;
             } catch (e2) {
                 // Fall through to image-shrink retry below.
@@ -970,7 +970,7 @@ function _saveSceneBlob(sceneId, scene) {
                 try {
                     localStorage.setItem(key, JSON.stringify(smallScene));
                     if (typeof syncUpload === 'function') syncUpload(key);
-                    if (typeof showToast === 'function') showToast('Scene opgeslagen met sterkere image-compressie', 'success');
+                    if (typeof showToast === 'function') showToast('Scene saved with stronger image compression', 'success');
                 } catch (e3) {
                     console.error('[timeline] scene save still failing after shrink', e3);
                     if (typeof showToast === 'function') showToast('Scene not saved \u2014 storage full. Delete old scenes/sessions or upload a smaller image.', 'error');
@@ -1338,7 +1338,7 @@ function renderSceneBlock(sceneIdx, scene, sessIdx, expanded) {
             html += '</div></div>';
         } else {
             if (s.text) html += '<p>' + renderRichText(s.text) + '</p>';
-            else html += '<p class="text-dim" style="font-style:italic;">(leeg)</p>';
+            else html += '<p class="text-dim" style="font-style:italic;">(empty)</p>';
         }
         html += '</div>';
     }

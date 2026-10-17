@@ -817,7 +817,7 @@ function renderDashboard() {
             html += '<span style="text-decoration:line-through;color:var(--text-dim);flex:1;">' + escapeHtml(questData.completed[qc].title) + '</span>';
             html += '<div class="quest-actions">';
             html += '<button class="btn btn-ghost btn-sm" data-action="uncomplete-quest" data-quest-idx="' + qc + '" title="Back to active">&#8634;</button>';
-            html += '<button class="btn btn-ghost btn-sm" data-action="delete-quest" data-completed="1" data-quest-idx="' + qc + '" style="color:var(--danger);" title="Verwijder">&times;</button>';
+            html += '<button class="btn btn-ghost btn-sm" data-action="delete-quest" data-completed="1" data-quest-idx="' + qc + '" style="color:var(--danger);" title="Delete">&times;</button>';
             html += '</div>';
             html += '</div>';
         }
@@ -1236,7 +1236,7 @@ function renderDMFamilies() {
         var memberCount = (f.members || []).length;
         var isActive = familiesExpandedId === f.id;
         html += '<button class="famdiag-pill' + (isActive ? ' active' : '') + '" data-action="famdiag-select-family" data-family-id="' + escapeAttr(f.id) + '">';
-        html += '<span class="famdiag-pill-name">' + escapeHtml(f.surname || '(naamloos)') + '</span>';
+        html += '<span class="famdiag-pill-name">' + escapeHtml(f.surname || '(unnamed)') + '</span>';
         html += '<span class="famdiag-pill-count">' + memberCount + ' ' + (memberCount === 1 ? 'lid' : 'leden') + '</span>';
         html += '</button>';
     }

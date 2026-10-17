@@ -168,7 +168,7 @@ function invResolveStrings(strings, outerCount) {
     var qty = p.count * outerCount;
     // ammo-bundel: "Arrows (20)" met bundleSize 20 = 1 bundel, niet 20 stuks
     if (db && db.type === 'ammunition' && db.bundleSize && db.bundleSize === p.count) qty = outerCount;
-    out.push(invMakeRecord(db, p.base, qty, [p.choice ? 'kies variant' : '', p.notes]));
+    out.push(invMakeRecord(db, p.base, qty, [p.choice ? 'choose variant' : '', p.notes]));
   }
   return out;
 }

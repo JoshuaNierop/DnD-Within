@@ -614,7 +614,7 @@ async function savePinsToFirebase(widgetIdx, newPins) {
       body: JSON.stringify(newPins.length ? newPins : null),
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
-    showToast("Pins opgeslagen", "success");
+    showToast("Pins saved", "success");
     WG_MAPS_CACHE = null;
     _mapsFetchState = "idle";
     await fetchMapsData();
@@ -626,7 +626,7 @@ async function savePinsToFirebase(widgetIdx, newPins) {
     }
     render();
   } catch (err) {
-    showToast("Fout: " + err.message, "error");
+    showToast("Error: " + err.message, "error");
   }
 }
 
@@ -667,7 +667,7 @@ async function uploadMapImage(widgetIdx, file) {
   const maps = dim.maps || [];
   const mapArrIdx = maps.findIndex(m => m.id === w.map.mapId || (!w.map.mapId && m.isRoot));
   if (mapArrIdx < 0) { showToast("Map not found", "error"); return; }
-  showToast("Afbeelding laden...");
+  showToast("Loading image...");
   // Downscale + JPEG-encode before upload (smaller payload).
   const dataUrl = await wgFileToJpeg(file, 1200, 0.8);
   // Upload binary to Firebase Storage; store only the URL (base64 fallback).
@@ -681,13 +681,13 @@ async function uploadMapImage(widgetIdx, file) {
       body: JSON.stringify(toStore),
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
-    showToast("Afbeelding opgeslagen", "success");
+    showToast("Image saved", "success");
     WG_MAPS_CACHE = null;
     _mapsFetchState = "idle";
     await fetchMapsData();
     wgSyncMapsToLocal(); // WGI-M6
   } catch (err) {
-    showToast("Fout: " + err.message, "error");
+    showToast("Error: " + err.message, "error");
   }
 }
 
@@ -707,14 +707,14 @@ async function deleteMapFromFirebase(widgetIdx) {
     const res = await fetch(url, { method: "DELETE" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     if (oldImg && window.DWImages) DWImages.del(oldImg);
-    showToast("Map verwijderd", "success");
+    showToast("Map deleted", "success");
     w.map = null;
     WG_MAPS_CACHE = null;
     _mapsFetchState = "idle";
     await fetchMapsData();
     wgSyncMapsToLocal(); // WGI-M6
   } catch (err) {
-    showToast("Fout: " + err.message, "error");
+    showToast("Error: " + err.message, "error");
   }
 }
 
@@ -791,7 +791,7 @@ function cropWidgetPortrait(widgetIdx) {
 async function uploadPortrait(widgetIdx, file) {
   const charId = state.characterId;
   if (!charId) { showToast("No active character", "error"); return; }
-  showToast("Afbeelding laden...");
+  showToast("Loading image...");
   // Capture the existing portrait URL so we can clean up the old Cloudinary
   // asset after the replacement lands (no-op until the delete-worker is live).
   const oldPortrait = (function () { try { return localStorage.getItem('dw_img_' + charId + '_portrait') || ''; } catch (_) { return ''; } })();
@@ -810,7 +810,7 @@ async function uploadPortrait(widgetIdx, file) {
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     // Race-guard: character may have switched during async write
-    if (state.characterId !== charId) { showToast("Character gewijzigd tijdens upload", "error"); return; }
+    if (state.characterId !== charId) { showToast("Character changed during upload", "error"); return; }
     // Refresh WG_CHAR_CACHE and rerender
     WG_CHAR_CACHE[charId] = null;
     await fetchCharacterData(charId);
@@ -821,9 +821,9 @@ async function uploadPortrait(widgetIdx, file) {
     if (window.DWImages && oldPortrait && oldPortrait !== toStore && DWImages.isHttpUrl(oldPortrait)) {
       try { DWImages.del(oldPortrait); } catch (_) {}
     }
-    showToast("Portret opgeslagen", "success");
+    showToast("Portrait saved", "success");
   } catch (err) {
-    showToast("Fout: " + err.message, "error");
+    showToast("Error: " + err.message, "error");
   }
 }
 
@@ -890,7 +890,7 @@ document.addEventListener("click", async (e) => {
   if (typeof WG_INFOBOX_CLICK_HANDLERS !== 'undefined' && WG_INFOBOX_CLICK_HANDLERS[src]) {
     const raw = WG_CHAR_CACHE[charId];
     try { await WG_INFOBOX_CLICK_HANDLERS[src]({ cellG, raw, charId, rowIdx }); }
-    catch (err) { showToast('Save faalde · ' + err.message, 'error'); }
+    catch (err) { showToast('Save failed · ' + err.message, 'error'); }
     return;
   }
 
@@ -907,9 +907,9 @@ document.addEventListener("click", async (e) => {
     try {
       await writeSkillProficiency(skillKey, nextMark);
       if (charId !== state.characterId) return; // character switched during await
-      showToast('Opgeslagen');
+      showToast('Saved');
     } catch (err) {
-      showToast('Save faalde · ' + err.message, 'error');
+      showToast('Save failed · ' + err.message, 'error');
     }
     return;
   }
@@ -952,9 +952,9 @@ document.addEventListener("click", async (e) => {
       try {
         await writeAbilityScore(abilityKey, val);
         if (charId !== state.characterId) return;
-        showToast('Opgeslagen');
+        showToast('Saved');
       } catch (err) {
-        showToast('Save faalde · ' + err.message, 'error');
+        showToast('Save failed · ' + err.message, 'error');
       }
     }
 
@@ -999,9 +999,9 @@ document.addEventListener("click", async (e) => {
       try {
         await writeCharConfigField(fieldKey, typed);
         if (charId !== state.characterId) return;
-        showToast('Opgeslagen');
+        showToast('Saved');
       } catch (err) {
-        showToast('Save faalde · ' + err.message, 'error');
+        showToast('Save failed · ' + err.message, 'error');
       }
     }
     inp.addEventListener('keydown', (ev) => {

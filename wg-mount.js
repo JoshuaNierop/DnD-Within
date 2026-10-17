@@ -186,7 +186,7 @@ function wgBodyTemplate(context) {
             <label><input type="radio" name="stacking" value="vertical"><span>Vertical</span></label>
           </div>
         </div>
-        <div class="control" data-kind="infobox"><label>Cel-padding (px)</label><input type="number" id="cellPadding" value="0" min="0" step="1"></div>
+        <div class="control" data-kind="infobox"><label>Cell padding (px)</label><input type="number" id="cellPadding" value="0" min="0" step="1"></div>
         <div class="control"><label>Widget padding (px)</label><input type="number" id="widgetPadding" value="8" min="0" step="1"></div>
         <div class="control" data-kind="infobox"><label>Info-box spacing (px)</label><input type="number" id="infoBoxSpacing" value="5" min="0" step="1"></div>
         <div class="control" data-kind="infobox"><label>Info-box padding (px)</label><input type="number" id="infoBoxPadding" value="2" min="0" step="1"></div>

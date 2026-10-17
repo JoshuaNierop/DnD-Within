@@ -154,13 +154,13 @@ function renderPageNav() {
   if (pc <= 1) { nav.innerHTML = ''; nav.style.display = 'none'; return; }
   nav.style.display = 'flex';
   const cur = state.currentPage;
-  let html = `<button class="page-arrow" data-page-arrow="prev"${cur <= 0 ? ' disabled' : ''} aria-label="Vorige pagina">‹</button>`;
+  let html = `<button class="page-arrow" data-page-arrow="prev"${cur <= 0 ? ' disabled' : ''} aria-label="Previous page">‹</button>`;
   html += '<div class="page-dots">';
   for (let p = 0; p < pc; p++) {
-    html += `<button class="page-dot${p === cur ? ' active' : ''}" data-page-dot="${p}" aria-label="Pagina ${p + 1}"></button>`;
+    html += `<button class="page-dot${p === cur ? ' active' : ''}" data-page-dot="${p}" aria-label="Page ${p + 1}"></button>`;
   }
   html += '</div>';
-  html += `<button class="page-arrow" data-page-arrow="next"${cur >= pc - 1 ? ' disabled' : ''} aria-label="Volgende pagina">›</button>`;
+  html += `<button class="page-arrow" data-page-arrow="next"${cur >= pc - 1 ? ' disabled' : ''} aria-label="Next page">›</button>`;
   nav.innerHTML = html;
 }
 
@@ -172,9 +172,9 @@ function updateSettingsToggleScope() {
   const widgetScope = state.activeWidgetIdx >= 0 && !!state.widget;
   btn.classList.toggle('widget-scope', widgetScope);
   btn.title = widgetScope
-    ? `Instellingen — ${displayTitle(state.widget)}`
-    : 'Dashboard-instellingen';
-  btn.setAttribute('aria-label', widgetScope ? 'Widget-instellingen' : 'Dashboard-instellingen');
+    ? `Settings — ${displayTitle(state.widget)}`
+    : 'Dashboard settings';
+  btn.setAttribute('aria-label', widgetScope ? 'Widget settings' : 'Dashboard settings');
 }
 
 function drawInfoBoxesInWidget(svg, widgetX, widgetY, barH) {
@@ -477,7 +477,7 @@ function drawWidgetOnDashboard(svg, widgetIdx = 0, isActive = true, isMultiSelec
     const bxUp = x + w - 6 - BTN_W;
     const btnG = el('g', { class: 'map-action-btn', 'data-map-action': 'upload-portrait' });
     const btnTitle = el('title', {});
-    btnTitle.textContent = 'Afbeelding uploaden';
+    btnTitle.textContent = 'Upload image';
     btnG.appendChild(btnTitle);
     btnG.appendChild(el('rect', { x: bxUp, y: btnY, width: BTN_W, height: BTN_H, rx: 3 }));
     const cx = bxUp + BTN_W / 2, cy = btnY + BTN_H / 2;
@@ -846,8 +846,8 @@ function renderInfo() {
   `;
 
   if (!state.widget) {
-    document.getElementById('widgetInfo').innerHTML = '<h3>Widget</h3><div class="info-row"><span class="key">—</span><span class="val">geen actieve widget</span></div>';
-    document.getElementById('infoBoxInfo').innerHTML = '<h3>Info boxes (data-driven)</h3><div class="info-row"><span class="key">—</span><span class="val">geen actieve widget</span></div>';
+    document.getElementById('widgetInfo').innerHTML = '<h3>Widget</h3><div class="info-row"><span class="key">—</span><span class="val">no active widget</span></div>';
+    document.getElementById('infoBoxInfo').innerHTML = '<h3>Info boxes (data-driven)</h3><div class="info-row"><span class="key">—</span><span class="val">no active widget</span></div>';
     return;
   }
 

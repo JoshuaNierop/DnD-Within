@@ -300,7 +300,7 @@ function updateStatus() {
     const rows = state.widget && state.widget.data ? (state.widget.data.rows || []).length : 0;
     el.innerHTML = `<span class="mode-pill">OK</span>${id} · ${rows} rijen`;
   }
-  else if (s === 'error') el.innerHTML = `<span class="mode-pill" style="background:var(--alert)">ERR</span>${WG_CHAR_ERROR[id] || 'fout'}`;
+  else if (s === 'error') el.innerHTML = `<span class="mode-pill" style="background:var(--alert)">ERR</span>${WG_CHAR_ERROR[id] || 'error'}`;
   else el.textContent = '—';
 }
 
@@ -340,7 +340,7 @@ const WG_WIDGET_TYPES = {
                    cfg: { cellPadding: 0, widgetPadding: 4, infoBoxSpacing: 2, infoBoxPadding: 2 } },
   skills:        { label: 'Skills',         kind: 'infobox', source: 'skills',    spanUnits: 5, spanUnitsY: 15,
                    cfg: { cellPadding: 0, widgetPadding: 4, infoBoxSpacing: 2, infoBoxPadding: 2 } },
-  map:           { label: 'Campagne-kaart',  kind: 'map',   spanUnits: 13, spanUnitsY: 11 },
+  map:           { label: 'Campaign map',  kind: 'map',   spanUnits: 13, spanUnitsY: 11 },
   profilePicture:{ label: 'Profile picture', kind: 'image', spanUnits: 5,  spanUnitsY: 7  },
   basicInfo:     { label: 'Character Info',  kind: 'infobox', source: 'basicInfo', spanUnits: 6, spanUnitsY: 6,
                    cfg: { cellPadding: 0, widgetPadding: 4, infoBoxSpacing: 2, infoBoxPadding: 2 } },

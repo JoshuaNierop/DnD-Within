@@ -20,11 +20,11 @@ export function otherMemberUid(chatId, myUid) {
 export function formatRelativeTime(ts) {
     if (!ts) return '';
     const diff = Date.now() - ts;
-    if (diff < 60_000) return 'nu';
+    if (diff < 60_000) return 'now';
     if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
-    if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}u`;
+    if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`;
     if (diff < 7 * 86_400_000) return `${Math.floor(diff / 86_400_000)}d`;
-    return new Date(ts).toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' });
+    return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
 }
 
 export function escHtml(s) {

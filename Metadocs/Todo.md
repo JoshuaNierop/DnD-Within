@@ -43,8 +43,8 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P3 — Steekproef: third-caster-tabellen, Innate Sorcery 2×/Long Rest, Soulknife-die terug op L3, `_verify`-velden in itemDB, Private Sanctum upcast, Phantom Steed, Bubbling Cauldron, Eldritch Hex
 
 ## Claude — regels van het project
-- [ ] P1 — Native popups vervangen door `showPromptModal`/`showConfirmModal`/`showAlertModal`: 41 plekken in 8 bestanden (`events.js` ~26 incl. family-diagram, `ui-modals.js:2078`, `ui-world.js:377`, `wg-events.js:701`, `wg-rest.js:138/143`, `wg-ui.js:343/533/535`, `social/chat-widget.js:153`, `social/friends-page.js:151`)
-- [ ] P1 — Nederlandse UI-teksten → Engels: family-diagram (`events.js` 815–1096, `familyDiagram.js`), toasts "Opgeslagen"/"Save faalde" (`wg-events.js`, `wg-firebase.js`, `events.js:2697`), maps-HUD "Pin toevoegen"/"Rondheid", `ui-world.js:960`, `wg-render.js:161`, de hele `social/`-module, "Multi-partner support is coming later"
+- [x] P1 — Native popups vervangen door `showPromptModal`/`showConfirmModal`/`showAlertModal` — alle 41 plekken (2026-10-17)
+- [x] P1 — Nederlandse UI-teksten → Engels: family-diagram, toasts, maps-HUD, widget-instellingen, `social/`-module; ongebruikte `TOOLTIPS` (NL+EN) uit `core.js` gehaald (2026-10-17). Ren/Saya-backstory blijft bij Joshua-beslissingen
 - [ ] P2 — Skill-keys: wizard-characters slaan `'sleight of hand'` op, de rest `sleightOfHand`; klikken op de proficiency-markering kan een dubbele key toevoegen (`wg-events.js:902`, `wg-state.js:112`). Normaliseren + migratie van opgeslagen characters (ren, addybluelight)
 
 ## Claude — features

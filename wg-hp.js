@@ -273,7 +273,7 @@ function wgxOpenQuickOverlay(anchorEl, mode, onApply) {
   };
   if (mode === 'damage' || mode === 'both') addRow('damage');
   if (mode === 'heal' || mode === 'both') addRow('heal');
-  const done = document.createElement('button'); done.className = 'wgx-quick-done'; done.textContent = 'Klaar';
+  const done = document.createElement('button'); done.className = 'wgx-quick-done'; done.textContent = 'Done';
   done.addEventListener('click', () => close());
   panel.appendChild(done);
   document.body.appendChild(panel);

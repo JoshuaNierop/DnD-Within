@@ -124,11 +124,11 @@ export function createFirebaseAdapter({
 
     async function sendFriendRequest(toUid, toProfile, message = '') {
         const me = await getMyProfile();
-        if (!me?.uid) throw new Error('Niet ingelogd');
-        if (toUid === me.uid) throw new Error('Kan jezelf niet toevoegen');
+        if (!me?.uid) throw new Error('Not signed in');
+        if (toUid === me.uid) throw new Error('You cannot add yourself');
 
         const existing = await dbGet(`users/${me.uid}/friends/${toUid}`);
-        if (existing) throw new Error('Deze gebruiker is al een vriend (of pending)');
+        if (existing) throw new Error('This user is already a friend (or the request is pending)');
 
         const since = Date.now();
         // Schrijf op mijn kant: pending outgoing
@@ -150,7 +150,7 @@ export function createFirebaseAdapter({
 
     async function acceptFriendRequest(fromUid) {
         const me = await getMyProfile();
-        if (!me?.uid) throw new Error('Niet ingelogd');
+        if (!me?.uid) throw new Error('Not signed in');
 
         const incoming = await dbGet(`users/${me.uid}/incoming/${fromUid}`);
         if (!incoming) throw new Error('No request found');
@@ -229,7 +229,7 @@ export function createFirebaseAdapter({
 
     async function sendMessage(chatId, otherUid, text) {
         const me = await getMyProfile();
-        if (!me?.uid) throw new Error('Niet ingelogd');
+        if (!me?.uid) throw new Error('Not signed in');
         const trimmed = String(text || '').trim();
         if (!trimmed) return;
 

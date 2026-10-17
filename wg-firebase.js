@@ -287,12 +287,12 @@ async function saveDashboards() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     // Race check: if the character changed during save, warn user (character-modus).
     if (!isDM && state.characterId !== charId) {
-      showToast('Character gewijzigd tijdens save', 'error');
+      showToast('Character changed during save', 'error');
       return;
     }
-    showToast('Opgeslagen');
+    showToast('Saved');
   } catch (err) {
-    showToast('Save faalde · ' + err.message, 'error');
+    showToast('Save failed · ' + err.message, 'error');
   }
 }
 

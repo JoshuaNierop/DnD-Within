@@ -1310,7 +1310,7 @@ function bindPageEvents(route) {
             if (noteImgSec) delete noteImgSec.dataset.imageRef;   // drop any live ref
             var noteImgPreview = document.querySelector('.note-image-preview');
             if (noteImgPreview) {
-                noteImgPreview.outerHTML = '<label class="note-image-upload"><span>+ Afbeelding toevoegen</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
+                noteImgPreview.outerHTML = '<label class="note-image-upload"><span>+ Add image</span><input type="file" accept="image/*" data-action="upload-note-image" style="display:none"></label>';
             }
             return;
         }
@@ -2517,7 +2517,7 @@ function bindPageEvents(route) {
 
             var epModalHtml = '<div class="modal-overlay" id="pin-meta-modal">';
             epModalHtml += '<div class="modal-box" style="max-width:400px;">';
-            epModalHtml += '<h3>Pin bewerken</h3>';
+            epModalHtml += '<h3>Edit pin</h3>';
             epModalHtml += '<div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">';
             epModalHtml += '<input type="text" class="edit-input" id="pin-meta-label" placeholder="Label" value="' + escapeAttr(epPin.label || '') + '">';
             epModalHtml += '<label style="font-size:0.8rem;color:var(--text-dim);">Link to map</label>';
@@ -2731,14 +2731,14 @@ function bindPageEvents(route) {
                             // saved per scene (base64 fallback if Storage is off).
                             DWImages.save('campaign', 'timeline/' + sceneId, dataUrl).then(function (imgVal) {
                                 saveScene(sceneId, { layout: layout, text: sceneText, image: imgVal, imageSize: upSize });
-                                if (typeof showToast === 'function') showToast('Scene opgeslagen', 'success');
+                                if (typeof showToast === 'function') showToast('Scene saved', 'success');
                             }).catch(function (e) {
                                 console.error('[scene] image-save failed', e);
-                                if (typeof showToast === 'function') showToast('Image save faalde: ' + e.message, 'error');
+                                if (typeof showToast === 'function') showToast('Image save failed: ' + e.message, 'error');
                             });
                         } catch (e) {
                             console.error('[scene] image-save failed', e);
-                            if (typeof showToast === 'function') showToast('Image save faalde: ' + e.message, 'error');
+                            if (typeof showToast === 'function') showToast('Image save failed: ' + e.message, 'error');
                         }
                         // Reset the file input so picking the same file again still fires `change`.
                         try { target.value = ''; } catch (_) {}

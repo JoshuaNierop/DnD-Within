@@ -450,7 +450,7 @@ function seedDefaultWidgets() {
     { id: 'featuresPassive', name: 'Passive Features', category: 'stats',    config: { type: 'featuresPassive' } },
     { id: 'profilePicture', name: 'Profile picture', category: 'character', config: { type: 'profilePicture' } },
     { id: 'characterInfo',  name: 'Character Info',  category: 'character', config: { type: 'basicInfo' } },
-    { id: 'campaignMap',    name: 'Campagne-kaart',  category: 'exploring', config: { type: 'map' } },
+    { id: 'campaignMap',    name: 'Campaign map',  category: 'exploring', config: { type: 'map' } },
     { id: 'initiativeTracker', name: 'Initiative Tracker', category: 'combat', config: { type: 'initiativeTracker' } },
     { id: 'attacks',        name: 'Attacks',         category: 'combat',    config: { type: 'attacks' } },
     { id: 'turnActions',    name: 'Your Turn',       category: 'combat',    config: { type: 'turnActions' } },
@@ -648,11 +648,11 @@ function bindExportWidget() {
     try {
       await navigator.clipboard.writeText(json);
       if (status) {
-        status.textContent = '✓ gekopieerd';
+        status.textContent = '✓ copied';
         setTimeout(() => { status.textContent = ''; }, 1500);
       }
     } catch (e) {
-      if (status) status.textContent = '(klik in textarea → Ctrl+A → Ctrl+C)';
+      if (status) status.textContent = '(click in the textarea → Ctrl+A → Ctrl+C)';
     }
   });
 }
