@@ -1265,7 +1265,7 @@ function createCharacterFromWizard() {
         speciesAbility: (DATA[wizardState.race] && DATA[wizardState.race].spellAbility === 'choose') ? (wizardState.speciesAbility || existing.speciesAbility || '') : '',
         divineOrder: wizardState.className === 'cleric' ? (wizardState.order || existing.divineOrder || '') : '',
         primalOrder: wizardState.className === 'druid' ? (wizardState.order || existing.primalOrder || '') : '',
-        defaultSkills: mergedSkills,
+        defaultSkills: skillKeys(mergedSkills),
         defaultCantrips: wizardState.cantrips.slice(),
         defaultPrepared: wizardState.prepared.slice(),
         appearance: wizardState.appearance ? [wizardState.appearance] : (existing.appearance || []),
@@ -1471,7 +1471,7 @@ function buildWizardStateFromConfig(charId) {
     // de wizard-editor werkt met de kale scores, dus hier weer eraf halen. Zonder
     // dit zou elke edit-ronde de bonus opnieuw optellen (15 → 17 → 19 → …).
     wizardState.baseAbilities = stripBgBonusesFromAbilities(wizardState.baseAbilities, bb);
-    wizardState.skills = (cfg.defaultSkills || []).slice();
+    wizardState.skills = skillKeys(cfg.defaultSkills).map(skillLabelKey);
     wizardState.cantrips = (cfg.defaultCantrips || []).slice();
     wizardState.prepared = (cfg.defaultPrepared || []).slice();
     wizardState.appearance = (cfg.appearance && cfg.appearance[0]) ? cfg.appearance[0] : '';

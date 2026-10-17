@@ -580,8 +580,8 @@ var SEED_DATA = {
         accentColor: "#d4a017",
         baseAbilities: { str: 10, dex: 17, con: 15, int: 13, wis: 12, cha: 8 },
         backgroundBonuses: { str: 0, dex: 2, con: 1, int: 0, wis: 0, cha: 0 },
-        defaultSkills: ["stealth", "sleight of hand", "perception", "investigation", "acrobatics", "insight"],
-        defaultExpertise: ["stealth", "sleight of hand"],
+        defaultSkills: ["stealth", "sleightOfHand", "perception", "investigation", "acrobatics", "insight"],
+        defaultExpertise: ["stealth", "sleightOfHand"],
         defaultCantrips: ["Light"],
         languages: ["Common", "Draconic"],
         weapons: [

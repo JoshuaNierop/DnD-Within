@@ -8,7 +8,7 @@ compatibility_date = "2026-05-01"
 [vars]
 CLOUD_NAME = "dqmdh3b4d"
 API_KEY = "789377485573726"
-ALLOWED_ORIGIN = "https://joshuanierop.github.io"
+ALLOWED_ORIGIN = "https://dnd-within.pages.dev"
 SHARED_TOKEN = "dcd3b636b8e3d33fc302a3a0ef83c20f23b4b2d8041c8722"
 # Comma-separated allowed prefixes: current spaced tree + legacy roots.
 PREFIX = "DnD Within/,dnd-within/,DnD_Within/"

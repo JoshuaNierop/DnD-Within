@@ -45,7 +45,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 ## Claude — regels van het project
 - [x] P1 — Native popups vervangen door `showPromptModal`/`showConfirmModal`/`showAlertModal` — alle 41 plekken (2026-10-17)
 - [x] P1 — Nederlandse UI-teksten → Engels: family-diagram, toasts, maps-HUD, widget-instellingen, `social/`-module; ongebruikte `TOOLTIPS` (NL+EN) uit `core.js` gehaald (2026-10-17). Ren/Saya-backstory blijft bij Joshua-beslissingen
-- [ ] P2 — Skill-keys: wizard-characters slaan `'sleight of hand'` op, de rest `sleightOfHand`; klikken op de proficiency-markering kan een dubbele key toevoegen (`wg-events.js:902`, `wg-state.js:112`). Normaliseren + migratie van opgeslagen characters (ren, addybluelight)
+- [x] P2 — Skill-keys: opslag overal camelCase via `skillKey`/`skillKeys` (`engine.js`); wizard + proficiency-klik normaliseren, geen dubbele keys meer. Geen DB-migratie nodig: alle lezers vergelijken genormaliseerd en elke volgende schrijfactie zet de key recht (2026-10-17)
 
 ## Claude — features
 - [x] P1 — Monster-bibliotheek: alle 503 Monster Manual 2025-monsters (330 SRD 5.2 met tekst, 173 met feiten + eigen-woorden-tekst) als basis voor Creatures (picker met zoek/filter op naam, type, grootte, CR) + Monster Manual-tab in de combat-picker — regels in `Monsters/Rules.md`
@@ -65,7 +65,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P3 — Na artikel opslaan landt `/lore` op de juiste tab (controleren)
 
 ## Claude — opruimen en techniek
-- [ ] P2 — `cloudinary-worker/wrangler.toml`: `ALLOWED_ORIGIN` staat nog op github.io → `https://dnd-within.pages.dev` (anders weigert de worker straks alles)
+- [x] P2 — `cloudinary-worker/wrangler.toml`: `ALLOWED_ORIGIN` → `https://dnd-within.pages.dev` (2026-10-17)
 - [ ] P2 — Na "repo privé": wachtwoorden uit `core.js` `DEFAULT_USERS` en `seedUsers()` halen
 - [ ] P2 — Firebase-rules voorbereiden (deploy = Joshua): schrijven op `dm/initiative` alleen voor DM, eigenaarschap per campaign i.p.v. globale allowlist, `dw/admins` als noodpad; plaintext-wachtwoorden in `dw/users` weg na de cutover
 - [ ] P3 — Spellnaam "Pass Without Trace" → 2024-schrijfwijze "Pass without Trace", met migratie van opgeslagen characters

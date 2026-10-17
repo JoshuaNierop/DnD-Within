@@ -49,6 +49,25 @@ function capstoneScore(config, state, ability, score) {
     return cap4 && ((state && state.level) || 1) >= 20 ? Math.max(score, Math.min(score + 4, 25)) : score;
 }
 
+// Skill keys: the stored form is camelCase ('sleightOfHand', as WG_SKILLS);
+// older characters and the creation wizard use 'sleight of hand'.
+var SKILL_KEYS = ['acrobatics', 'animalHandling', 'arcana', 'athletics', 'deception', 'history', 'insight',
+    'intimidation', 'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion',
+    'religion', 'sleightOfHand', 'stealth', 'survival'];
+function skillKey(k) {
+    var n = String(k || '').toLowerCase().replace(/[^a-z]/g, '');
+    for (var i = 0; i < SKILL_KEYS.length; i++) if (SKILL_KEYS[i].toLowerCase() === n) return SKILL_KEYS[i];
+    return k;
+}
+// Canonical keys, duplicates (in any spelling) removed.
+function skillKeys(list) {
+    var out = [];
+    listOf(list).forEach(function (s) { var k = skillKey(s); if (out.indexOf(k) === -1) out.push(k); });
+    return out;
+}
+// Wizard form: 'sleightOfHand' → 'sleight of hand'.
+function skillLabelKey(k) { return String(skillKey(k)).replace(/([A-Z])/g, ' $1').toLowerCase(); }
+
 // Skill check bonus (2024): ability modifier + Proficiency (doubled with
 // Expertise), Jack of All Trades (Bard 2+, skills you lack) and flat feature
 // bonuses — Thaumaturge (Arcana, Religion), Magician (Arcana, Nature) and

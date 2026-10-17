@@ -432,8 +432,9 @@ async function writeSkillProficiency(skillKey, nextMark) {
   const charId = state.characterId;
   const raw = WG_CHAR_CACHE[charId];
   const cfg = (raw && raw.config) || {};
-  const prof = new Set(cfg.defaultSkills || []);
-  const xp   = new Set(cfg.expertSkills || []);
+  skillKey = window.skillKey ? window.skillKey(skillKey) : skillKey;
+  const prof = new Set(window.skillKeys ? window.skillKeys(cfg.defaultSkills) : (cfg.defaultSkills || []));
+  const xp   = new Set(window.skillKeys ? window.skillKeys(cfg.expertSkills) : (cfg.expertSkills || []));
   if (nextMark === '○') { prof.delete(skillKey); xp.delete(skillKey); }
   else if (nextMark === '●') { prof.add(skillKey); xp.delete(skillKey); }
   else if (nextMark === '★') { prof.add(skillKey); xp.add(skillKey); }
@@ -900,8 +901,8 @@ document.addEventListener("click", async (e) => {
     if (!skillKey) return;
     const raw = WG_CHAR_CACHE[charId];
     const cfg = (raw && raw.config) || {};
-    const isExpert = new Set(cfg.expertSkills || []).has(skillKey);
-    const isProf   = new Set(cfg.defaultSkills || []).has(skillKey);
+    const isExpert = skillKeys(cfg.expertSkills).indexOf(skillKey) !== -1;
+    const isProf   = skillKeys(cfg.defaultSkills).indexOf(skillKey) !== -1;
     const curMark  = isExpert ? '★' : (isProf ? '●' : '○');
     const nextMark = nextSkillMark(curMark);
     try {

@@ -21,7 +21,7 @@
 // Config (wrangler.toml [vars] + one secret):
 //   CLOUD_NAME      e.g. "dqmdh3b4d"        (var)
 //   API_KEY         e.g. "7893774...."      (var; semi-public)
-//   ALLOWED_ORIGIN  e.g. "https://joshuanierop.github.io"  (var)
+//   ALLOWED_ORIGIN  e.g. "https://dnd-within.pages.dev"  (var)
 //   SHARED_TOKEN    long random string      (var; also lives in storage.js)
 //   PREFIX          e.g. "dnd-within/"      (var)
 //   CLOUDINARY_API_SECRET                   (SECRET — `wrangler secret put`)

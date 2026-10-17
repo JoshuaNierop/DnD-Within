@@ -49,7 +49,7 @@ no-op en werkt de site gewoon door.
 
 ```bash
 curl -X POST "https://dnd-within-cloudinary.<subdomein>.workers.dev" \
-  -H "Origin: https://joshuanierop.github.io" \
+  -H "Origin: https://dnd-within.pages.dev" \
   -H "Authorization: Bearer dcd3b636b8e3d33fc302a3a0ef83c20f23b4b2d8041c8722" \
   -H "Content-Type: application/json" \
   -d '{"public_id":"dnd-within/test/player/EEN_BESTAANDE_ID"}'
