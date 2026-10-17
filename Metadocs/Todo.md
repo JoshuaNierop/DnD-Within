@@ -62,7 +62,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P2 — Entity-merge fase 0: offline round-trip-script `Metadocs/entity-merge-roundtrip.mjs` (68/68 op de dump van 26-09) (2026-10-17). Rest van de gate: verse RTDB-dump (live-reads zijn voor Claude geblokkeerd) + live-check door Joshua
 - [x] P3 — Prullenbak: character gaat bij verwijderen uit de party van elke campaign en komt bij herstel terug (als die speler geen ander character koos) (2026-10-17)
 - [x] P3 — itemDB: Bell, Robe, Mirror, Perfume, Tent toegevoegd; Rope 5 lb (2024) (2026-10-17)
-- [ ] P3 — Spell `save`/`attack`-veld in `spellPool` (ritual + school staan al in `spellMeta`)
+- [x] P3 — Spell `save`/`attack`-veld: `DATA.spellRoll` (176 spells, feiten uit de 2024-data) in `data-rules.js`; spell-tooltips tonen nu "DEX save, DC 14" of "Ranged spell attack +6" (2026-10-17)
 - [ ] P3 — `@`-links naar timeline-sessions; autocomplete-popup bij de cursor; family-koppeling op id i.p.v. array-index (`families.js:382`)
 - [ ] P3 — Level-down: gekozen opties tijdelijk bewaren zodat opnieuw omhoog ze terugzet (`demotedChoices`)
 - [ ] P3 — Na artikel opslaan landt `/lore` op de juiste tab (controleren)

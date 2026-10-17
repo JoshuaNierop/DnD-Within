@@ -125,13 +125,22 @@ function wgxSpellTooltip(name, sp, stats, grants) {
   const from = (grants || []).map(function (g) {
     return '★ ' + g.from + ': ' + (typeof wgxFreeText === 'function' ? wgxFreeText(g) : g.kind) + (g.slots && g.freeMax != null ? ' + spell slots' : '');
   });
+  // Roll line from DATA.spellRoll: spell attack and/or the save targets make.
+  const roll = (typeof DATA !== 'undefined' && DATA.spellRoll && DATA.spellRoll[name]) || '';
+  // Without caster stats (glossary, active-effect tips: dc '—') only the kind of roll shows.
+  const known = stats.dc !== '—';
+  const rollParts = roll ? roll.split(' + ').map(function (r) {
+    return (r === 'melee' || r === 'ranged') ? (r === 'melee' ? 'Melee' : 'Ranged') + ' spell attack' + (known ? ' +' + stats.atk : '')
+      : r + ' save' + (known ? ', DC ' + stats.dc : '');
+  }) : [];
+  const rollLine = rollParts.length ? rollParts.join(' · ') : 'Spell save DC ' + stats.dc + ' · Spell attack +' + stats.atk;
   const body =
     'Casting time: ' + (sp.time || '—') + '\n' +
     'Range: ' + (sp.range || '—') + '\n' +
     'Components: ' + (sp.comp || '—') + '\n' +
     'Duration: ' + (sp.dur || '—') + (flags.length ? '\n' + flags.join(' · ') : '') + '\n\n' +
     (sp.desc || '—') + '\n\n' + (from.length ? from.join('\n') + '\n' : '') +
-    'Spell save DC ' + stats.dc + ' · Spell attack +' + stats.atk +
+    rollLine +
     (isCantrip ? '' : '\nClick the spell to cast it.');
   return { title: title, body: body };
 }
