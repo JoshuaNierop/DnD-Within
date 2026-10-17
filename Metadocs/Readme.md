@@ -41,7 +41,6 @@ Interactive D&D 5.5e (2024 PHB) character sheet + campaign management SPA voor 8
 - `i18n.js` — NL/EN translation keys
 - `mentions.js`, `effects.js`, `families.js`, `familyDiagram.js`, `familyLayout.js` — extras
 - `_redirects` — Cloudflare Pages SPA-fallback
-- `sw.js` — service worker (online-only: index.html unregistert 'm actief)
 - `database.rules.json` — Firebase rules (verlengd tot 2027-04-28)
 
 ## Run

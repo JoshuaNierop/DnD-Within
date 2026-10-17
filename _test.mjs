@@ -1,5 +1,5 @@
-// Quick data.js sanity check. (The full level-up flow test lives in
-// Metadocs/LevelingUp/combo-smoke.mjs.)
+// Quick data.js sanity check: every class spell list entry exists in spellPool.
+// (The level-up flow tests live in Metadocs/LevelingUp/*-smoke.mjs.)
 import { readFileSync } from 'fs';
 import vm from 'vm';
 const sandbox = { getProfBonus: () => 2 };

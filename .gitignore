@@ -21,3 +21,7 @@ desktop.ini
 # Local DB backups (image-storage migration scratch)
 _backups/
 Metadocs/rtdb-*.json
+
+# Local tooling output
+.nexus
+graphify-out/

@@ -146,7 +146,7 @@ Status: open — alleen in een browser te beoordelen
 - [x] P1 — Live op Cloudflare Pages (`dnd-within.pages.dev`)
 - [ ] P1 — GitHub Pages uitzetten (de oude, kapotte kopie op joshuanierop.github.io draait nog) — Joshua
 - [ ] P1 — Repo privé maken — de publieke repo bevat namen en wachtwoorden van spelers (`core.js`) — Joshua
-- [ ] P3 — `sw.js` en `manifest.json` verwijderen (site is online-only, er wordt geen service worker geregistreerd)
+- [x] P3 — `sw.js` en `manifest.json` verwijderd (2026-10-17)
 - [x] P3 — Oude `dw/bugs` (74 fixed) blijven als read-only archief staan (besluit in CLAUDE.md)
 
 ## Milestone 8 — Quality / bugs (audit P3)
