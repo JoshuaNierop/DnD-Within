@@ -406,7 +406,7 @@ async function writeAbilityScore(abilityKey, value) {
   const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/config/baseAbilities.json';
   const body = {};
   body[abilityKey] = value;
-  const res = await fetch(url, { method: 'PATCH', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
+  const res = await fetch(wgAuthUrl(url), { method: 'PATCH', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
   if (!res.ok) throw new Error('HTTP ' + res.status);
 }
 
@@ -423,7 +423,7 @@ async function writeCharConfigField(fieldKey, rawValue) {
   else if (fieldKey === 'age') { const n = parseInt(value, 10); if (!isNaN(n)) value = n; }
   const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/config/' + encodeURIComponent(fieldKey) + '.json';
   wgApplyConfigEdit(charId, cfg => { cfg[fieldKey] = value; });
-  const res = await fetch(url, { method: 'PUT', body: JSON.stringify(value), headers: { 'Content-Type': 'application/json' } });
+  const res = await fetch(wgAuthUrl(url), { method: 'PUT', body: JSON.stringify(value), headers: { 'Content-Type': 'application/json' } });
   if (!res.ok) throw new Error('HTTP ' + res.status);
 }
 
@@ -446,9 +446,9 @@ async function writeSkillProficiency(skillKey, nextMark) {
     if (xpArr.length)   c.expertSkills  = xpArr;   else delete c.expertSkills;
   });
   const base = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId);
-  const r1 = await fetch(base + '/config/defaultSkills.json', { method: 'PUT', body: JSON.stringify(profArr), headers: { 'Content-Type': 'application/json' } });
+  const r1 = await fetch(wgAuthUrl(base + '/config/defaultSkills.json'), { method: 'PUT', body: JSON.stringify(profArr), headers: { 'Content-Type': 'application/json' } });
   if (!r1.ok) throw new Error('defaultSkills HTTP ' + r1.status);
-  const r2 = await fetch(base + '/config/expertSkills.json',  { method: 'PUT', body: JSON.stringify(xpArr),   headers: { 'Content-Type': 'application/json' } });
+  const r2 = await fetch(wgAuthUrl(base + '/config/expertSkills.json'),  { method: 'PUT', body: JSON.stringify(xpArr),   headers: { 'Content-Type': 'application/json' } });
   if (!r2.ok) throw new Error('expertSkills HTTP ' + r2.status);
 }
 
@@ -609,7 +609,7 @@ async function savePinsToFirebase(widgetIdx, newPins) {
   if (mapArrIdx < 0) { showToast("Map not found", "error"); return; }
   const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + "/pins.json";
   try {
-    const res = await fetch(url, {
+    const res = await fetch(wgAuthUrl(url), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newPins.length ? newPins : null),
@@ -676,7 +676,7 @@ async function uploadMapImage(widgetIdx, file) {
   try { if (window.DWImages) toStore = await DWImages.save('campaign', 'maps/dim' + dimIdx + '_map' + mapArrIdx, dataUrl); } catch (_) { toStore = dataUrl; }
   const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + "/image.json";
   try {
-    const res = await fetch(url, {
+    const res = await fetch(wgAuthUrl(url), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(toStore),
@@ -705,7 +705,7 @@ async function deleteMapFromFirebase(widgetIdx) {
   const oldImg = maps[mapArrIdx] && maps[mapArrIdx].image;
   const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + ".json";
   try {
-    const res = await fetch(url, { method: "DELETE" });
+    const res = await fetch(wgAuthUrl(url), { method: "DELETE" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     if (oldImg && window.DWImages) DWImages.del(oldImg);
     showToast("Map deleted", "success");
@@ -804,7 +804,7 @@ async function uploadPortrait(widgetIdx, file) {
   try { if (window.DWImages) toStore = await DWImages.save('player', charId + '/portrait', dataUrl); } catch (_) { toStore = dataUrl; }
   const url = FIREBASE_DB + "/dw/characters/" + encodeURIComponent(charId) + "/images/portrait.json";
   try {
-    const res = await fetch(url, {
+    const res = await fetch(wgAuthUrl(url), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(toStore),

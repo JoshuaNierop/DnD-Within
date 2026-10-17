@@ -71,7 +71,7 @@ async function fetchMapsData() {
   if (_mapsFetchState === 'loading' || _mapsFetchState === 'ready') return;
   _mapsFetchState = 'loading';
   try {
-    const res = await fetch(`${FIREBASE_DB}/dw/world/maps.json`);
+    const res = await fetch(wgAuthUrl(`${FIREBASE_DB}/dw/world/maps.json`));
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     WG_MAPS_CACHE = (json && Array.isArray(json.dimensions)) ? json : { dimensions: [] };

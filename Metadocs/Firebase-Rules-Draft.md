@@ -14,11 +14,11 @@ Elke regel begint met de `legacyOpen`-uitzondering, dus zolang `dw/config/legacy
 - **Lezen blijft alles-of-niets.** `syncDownloadAll` leest heel `/dw` in één keer, en RTDB kan geen kindpaden verbergen. Alleen schrijven wordt dus beperkt.
 
 ## Vóór de cutover in de code (Claude)
-- [ ] P1 — `?auth=`-token toevoegen aan REST-calls die hem missen:
+- [x] P1 — (gedaan 2026-10-17) `?auth=`-token toevoegen aan REST-calls die hem missen:
   - **Schrijven:** `wg-events.js` (ability scores, config, skills, map pins/image/delete, portrait), `wg-hp.js` (HP), `wg-rest.js` (`wgxPatchState`), `wg-levelup.js` (config-PATCH), `core.js` (portraitCrop), `ui-modals.js` (portrait2 DELETE).
   - **Lezen:** `wg-engine.js` (maps), `ui-pages.js` (portrait-hydration).
   - Zonder dit breekt alles na `legacyOpen=false`, ook met de huidige rules.
-- [ ] P1 — `purgeExpiredCharTrash` alleen voor de eigenaar of een admin (nu draait hij bij iedere bezoeker).
+- [x] P1 — (gedaan 2026-10-17) `purgeExpiredCharTrash` alleen voor de eigenaar of een admin (nu draait hij bij iedere bezoeker).
 - [ ] P2 — Auto-migraties alleen laten draaien bij DM of admin: `getCampaigns`-migratie, `migrateCharConfigAbilities`, `ensureEntityIds`/`migrateNpcsIntoCreatures`, `seedUsers` (dat laatste draait nu bij elke load).
 - [ ] P2 — `canEditCharacter` bestaat niet (`app.js`), dus elk dashboard is bewerkbaar. Definiëren als eigenaar, DM of admin.
 - [ ] P2 — Wachtwoorden, in deze volgorde:

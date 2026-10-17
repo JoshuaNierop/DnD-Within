@@ -72,8 +72,8 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P2 — `cloudinary-worker/wrangler.toml`: `ALLOWED_ORIGIN` → `https://dnd-within.pages.dev` (2026-10-17)
 - [ ] P2 — Na "repo privé": wachtwoorden uit `core.js` `DEFAULT_USERS` en `seedUsers()` halen
 - [x] P2 — Firebase-rules voorbereid: concept + schrijfpaden-inventaris in `Firebase-Rules-Draft.md`/`.json` (niet gedeployed, niet in de Simulator getest) (2026-10-17)
-- [ ] P1 — Vóór de cutover: `?auth=`-token in ~15 REST-calls die hem missen (wg-events/wg-hp/wg-rest/wg-levelup/core/ui-modals/wg-engine/ui-pages) — zonder breekt alles bij `legacyOpen=false`; zie `Firebase-Rules-Draft.md`
-- [ ] P1 — `purgeExpiredCharTrash` alleen voor eigenaar/admin; auto-migraties + `seedUsers` alleen voor DM/admin; `canEditCharacter` definiëren
+- [x] P1 — Vóór de cutover: `?auth=`-token in alle directe REST-calls naar de database (`dwAuthUrl` in `auth.js`, `wgAuthUrl` in de widgets) (2026-10-17)
+- [ ] P1 — Auto-migraties + `seedUsers` alleen voor DM/admin; `canEditCharacter` definiëren (`purgeExpiredCharTrash` is sinds 2026-10-17 al beperkt tot eigenaar/admin)
 - [x] P3 — Spellnaam "Pass Without Trace" → "Pass without Trace" (2026-10-17); snapshot 26-09 had geen opgeslagen characters met de oude naam (live niet gecontroleerd)
 - [x] P3 — Repo-hygiëne: `.nexus` + `graphify-out/` uit git (in `.gitignore`), `sw.js`/`manifest.json`/`DnD_Twin_Builds.md`/oude `wgi-*.png` weg, verwijderde placeholder-afbeeldingen gecommit (2026-10-17)
 - [x] P3 — `Metadocs/smoke-test.mjs` weggehaald (vervangen door de node-smokes in `LevelingUp/`); `_test.mjs`-verwijzing gerepareerd (2026-10-17)

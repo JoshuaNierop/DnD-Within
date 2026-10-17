@@ -542,7 +542,7 @@ function savePortraitCrop(charId, crop) {
     try { localStorage.setItem('dw_imgcrop_' + charId + '_portrait', JSON.stringify(crop)); } catch (_) {}
     try {
         if (typeof FIREBASE_DB !== 'undefined') {
-            fetch(FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/images/portraitCrop.json',
+            fetch(dwAuthUrl(FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/images/portraitCrop.json'),
                 { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(crop) });
         }
     } catch (_) {}
@@ -1250,8 +1250,11 @@ function purgeExpiredCharTrash() {
     var trash = getCharTrash();
     var now = Date.now();
     var changed = false;
+    // Only the owner (or an admin) purges: other clients may not delete the character's data.
+    var me = currentUserId(), admin = isAdmin();
     Object.keys(trash).forEach(function (cid) {
         var d = trash[cid] && trash[cid].deletedAt;
+        if (!admin && trash[cid].owner !== me) return;
         if (d && (now - d) >= CHAR_TRASH_TTL_MS) {
             hardDeleteCharacter(cid);
             delete trash[cid];

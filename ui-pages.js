@@ -1431,11 +1431,11 @@ function hydrateCharCardPortraits() {
         if (!cid || node.dataset.hydrating) return;
         node.dataset.hydrating = '1';
         var charBase = base + '/dw/characters/' + encodeURIComponent(cid) + '/images/';
-        fetch(charBase + 'portrait.json')
+        fetch(dwAuthUrl(charBase + 'portrait.json'))
             .then(function (r) { return r.ok ? r.json() : null; })
             .then(function (val) {
                 if (val) { node._fromPortrait = true; return val; }
-                return fetch(charBase + 'banner.json')
+                return fetch(dwAuthUrl(charBase + 'banner.json'))
                     .then(function (r) { return r.ok ? r.json() : null; });
             })
             .then(function (val) {
@@ -1452,7 +1452,7 @@ function hydrateCharCardPortraits() {
                 if (!node._fromPortrait || typeof portraitCropStyle !== 'function') return;
                 var local = loadPortraitCrop(cid);
                 if (local) { img.style.cssText += portraitCropStyle(local); return; }
-                fetch(charBase + 'portraitCrop.json')
+                fetch(dwAuthUrl(charBase + 'portraitCrop.json'))
                     .then(function (r) { return r.ok ? r.json() : null; })
                     .then(function (cr) { if (cr) img.style.cssText += portraitCropStyle(cr); })
                     .catch(function () {});
@@ -1467,7 +1467,7 @@ function hydrateCharCardPortraits() {
         var cid = wrap.getAttribute('data-hover-portrait');
         if (!cid || wrap.dataset.hoverHydrating) return;
         wrap.dataset.hoverHydrating = '1';
-        fetch(base + '/dw/characters/' + encodeURIComponent(cid) + '/images/portrait2.json')
+        fetch(dwAuthUrl(base + '/dw/characters/' + encodeURIComponent(cid) + '/images/portrait2.json'))
             .then(function (r) { return r.ok ? r.json() : null; })
             .then(function (val) {
                 if (!val || typeof val !== 'string') return;

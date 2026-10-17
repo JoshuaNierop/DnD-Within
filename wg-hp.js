@@ -94,7 +94,7 @@ function wgxApplyHeal(hp, amount) {
 // ===== Firebase write — atomic PATCH on state/hp =====
 async function wgxPatchHpState(charId, patch) {
   const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/state/hp.json';
-  const res = await fetch(url, { method: 'PATCH', body: JSON.stringify(patch), headers: { 'Content-Type': 'application/json' } });
+  const res = await fetch(wgAuthUrl(url), { method: 'PATCH', body: JSON.stringify(patch), headers: { 'Content-Type': 'application/json' } });
   if (!res.ok) throw new Error('HTTP ' + res.status + ' on state/hp');
   WG_CHAR_STATUS[charId] = null;
   await new Promise(resolve => {

@@ -24,6 +24,14 @@ function dwAuthAvailable() {
 // Firebase session (e.g. legacy username login) → REST call goes without ?auth=.
 function dwGetIdToken() { return _dwIdToken; }
 window.dwGetIdToken = dwGetIdToken;
+// Firebase REST URL with the ID token appended (?auth=…). Every direct REST call
+// to the database must go through this, or it fails once legacyOpen is false.
+function dwAuthUrl(url) {
+    var tok = _dwIdToken;
+    if (!tok) return url;
+    return url + (url.indexOf('?') === -1 ? '?' : '&') + 'auth=' + encodeURIComponent(tok);
+}
+window.dwAuthUrl = dwAuthUrl;
 
 function dwAuthInit() {
     if (_dwAuthInited || !dwAuthAvailable()) return;

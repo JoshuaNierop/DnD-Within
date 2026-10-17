@@ -75,7 +75,7 @@ WG_EXTRA_INFOBOX_BUILDERS.levelup = wgxBuildLevelUp;
 // ===== Firebase config-PATCH (state PATCH comes from wg-rest.js: wgxPatchState) =====
 async function wgxPatchConfig(charId, patch) {
   var url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/config.json';
-  var res = await fetch(url, { method: 'PATCH', body: JSON.stringify(patch), headers: { 'Content-Type': 'application/json' } });
+  var res = await fetch(wgAuthUrl(url), { method: 'PATCH', body: JSON.stringify(patch), headers: { 'Content-Type': 'application/json' } });
   if (!res.ok) throw new Error('HTTP ' + res.status + ' on config');
 }
 

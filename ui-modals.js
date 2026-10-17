@@ -1332,7 +1332,7 @@ function createCharacterFromWizard() {
         try { localStorage.removeItem('dw_img_' + charId + '_portrait2'); } catch (_) {}
         try {
             if (typeof FIREBASE_DB !== 'undefined') {
-                fetch(FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/images/portrait2.json', { method: 'DELETE' });
+                fetch(dwAuthUrl(FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/images/portrait2.json'), { method: 'DELETE' });
             }
         } catch (_) {}
     }
