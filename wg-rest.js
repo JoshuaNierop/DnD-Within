@@ -126,7 +126,7 @@ function wgxBuildRest(widget) {
   rows.push(['🌙 Long Rest']); rowCls.push('wgx-act-rest-long');
   // Short Rest matters for Pact Magic and for any 'short' / 'short-one' resource.
   const res = (typeof getClassResources === 'function') ? getClassResources(raw.config || {}, raw.state || {}) : [];
-  const hasShort = cn === 'warlock' || res.some(r => r.recharge === 'short-one' || r.recharge === 'short');
+  const hasShort = cn === 'warlock' || wgxHasMemorizeSpell(raw) || res.some(r => r.recharge === 'short-one' || r.recharge === 'short');
   if (hasShort) { rows.push(['☀️ Short Rest']); rowCls.push('wgx-act-rest-short'); }
   d.rows = rows;
   L.columnHighlight = [false];
@@ -141,13 +141,23 @@ function wgxBuildRest(widget) {
 }
 WG_EXTRA_INFOBOX_BUILDERS.rest = wgxBuildRest;
 
+// Memorize Spell (Wizard 5): after a Short Rest, swap one prepared spell.
+function wgxHasMemorizeSpell(raw) {
+  const cfg = (raw && raw.config) || {}, st = (raw && raw.state) || {};
+  return cfg.className === 'wizard' && (st.level || 1) >= 5;
+}
+
 // ===== Click-handler (infobox, source 'rest') =====
 WG_INFOBOX_CLICK_HANDLERS.rest = async ({ charId, rowIdx, raw }) => {
   const isShort = rowIdx === 1; // row 1 only exists when short rest applies
   if (isShort) {
     if (!(await showConfirmModal({ title: 'Short rest', message: 'Restores Pact Magic slots and one use of short-rest resources.', confirmLabel: 'Short rest' }))) return;
     try { await wgxShortRest(charId); showToast('☀️ Short rest complete'); }
-    catch (err) { showToast('Rest failed · ' + err.message, 'error'); }
+    catch (err) { showToast('Rest failed · ' + err.message, 'error'); return; }
+    if (wgxHasMemorizeSpell(raw) && typeof wgxOpenPrepareWindow === 'function' &&
+        await showConfirmModal({ title: 'Memorize Spell', message: 'Replace one of your prepared spells with another from your spellbook?', confirmLabel: 'Choose spell', cancelLabel: 'Not now' })) {
+      wgxOpenPrepareWindow(charId, { swapOne: true });
+    }
     return;
   }
   if (!(await showConfirmModal({ title: 'Long rest', message: 'Restores HP, all spell slots, class resources and half your hit dice; resets death saves.', confirmLabel: 'Long rest' }))) return;

@@ -57,7 +57,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P2 — Attacks-widget met class-features: Martial Arts, Rage-damage, Archery/Dueling/Thrown/GWF, Dazzling Footwork (Dance), pact weapon (CHA), Extra Attack-aantal, Exhaustion (2026-10-17)
 - [ ] P2 — Equipment A/B-keuze in de creation-wizard + background-equipment (GP, aantallen) checken tegen de 2024-data
 - [x] P2 — Trackers: widget "Conditions" (`wg-conditions.js`) met Heroic Inspiration, Exhaustion 0–6 (−2 op skills/saves/initiative, −5 ft speed, Long Rest −1), Concentration + CON-save-venster bij schade, Arcane Ward HP (2026-10-17). Exhaustion zit sinds de Attacks-update ook in attack rolls
-- [ ] P2 — Wizard "Memorize Spell": na een Short Rest één prepared spell wisselen (nu alleen tekst)
+- [x] P2 — Wizard "Memorize Spell": na een Short Rest (wizard 5+) vraagt de site om één prepared spell te wisselen; prepare-venster in wissel-modus (2026-10-17)
 - [ ] P2 — Entity-merge fase 0: offline round-trip-script dat `ensureEntityIds` + `migrateNpcsIntoCreatures` naspeelt op de dump
 - [ ] P3 — Prullenbak: character uit de party van een campaign halen bij verwijderen
 - [ ] P3 — itemDB: Bell en Robe toevoegen

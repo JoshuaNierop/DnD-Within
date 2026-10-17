@@ -553,7 +553,8 @@ function wgxPrepRulesNote(cn, startedEmpty, subclass) {
   return '';
 }
 
-function wgxOpenPrepareWindow(charId) {
+// opts.swapOne (Memorize Spell): replace at most one prepared spell with another.
+function wgxOpenPrepareWindow(charId, opts) {
   const raw = WG_CHAR_CACHE[charId] || {};
   const cfg = raw.config || {}, st = raw.state || {};
   // #P0hwaBZ: Eldritch Knight / Arcane Trickster bereiden uit de WIZARD-lijst
@@ -593,7 +594,8 @@ function wgxOpenPrepareWindow(charId) {
   const max = (typeof getMaxPrepared === 'function')
     ? getMaxPrepared(st, mod, cfg.className, cfg.subclass) : current.length;
 
-  wgxPrep = { charId: charId, pool: pool, selected: current, max: max, startedEmpty: current.length === 0 };
+  wgxPrep = { charId: charId, pool: pool, selected: current, max: max, startedEmpty: current.length === 0,
+    swapOne: !!(opts && opts.swapOne), original: current.slice() };
   const host = document.createElement('div');
   host.className = 'wgx-prep-modal-active';
   host.innerHTML = '<div class="modal-overlay"><div class="modal-card wgx-lu-card"></div></div>';
@@ -616,7 +618,7 @@ function wgxRenderPrepModal() {
   const sub = (raw.config || {}).subclass;
   const sel = wgxPrep.selected;
 
-  let html = '<div class="modal-header"><h2>Prepare Spells</h2>' +
+  let html = '<div class="modal-header"><h2>' + (wgxPrep.swapOne ? 'Memorize Spell' : 'Prepare Spells') + '</h2>' +
     '<button class="modal-close" data-wgx-prep="cancel">&times;</button></div>';
   html += '<div class="modal-body wgx-lu-body">';
 
@@ -624,7 +626,8 @@ function wgxRenderPrepModal() {
     html += '<p class="wgx-lu-note">No spell list is available for this class in the app yet. Record your prepared spells with your DM.</p>';
   } else {
     html += '<h3>Choose your prepared spells</h3>';
-    const note = wgxPrepRulesNote(cn, wgxPrep.startedEmpty, sub);
+    const note = wgxPrep.swapOne ? 'Memorize Spell: after a Short Rest you can replace one prepared level 1+ spell with another from your spellbook. Deselect one spell, then pick its replacement.'
+      : wgxPrepRulesNote(cn, wgxPrep.startedEmpty, sub);
     if (note) html += '<p class="wgx-lu-note">' + wgxCastEsc(note) + '</p>';
     html += '<p class="wgx-lu-note">Prepared ' + sel.length + ' / ' + wgxPrep.max + ' · cantrips are not affected.</p>';
     html += '<div class="wgx-lu-subgrid">';
@@ -662,6 +665,14 @@ function wgxPrepClick(e) {
   if (act === 'toggle') {
     const nm = t.getAttribute('data-val');
     const idx = wgxPrep.selected.indexOf(nm);
+    if (wgxPrep.swapOne) {
+      const orig = wgxPrep.original;
+      const removed = orig.filter(n => wgxPrep.selected.indexOf(n) === -1);
+      const added = wgxPrep.selected.filter(n => orig.indexOf(n) === -1);
+      const isOrig = orig.indexOf(nm) !== -1;
+      if (idx !== -1 && isOrig && removed.length >= 1) { showToast('Memorize Spell swaps one spell — select ' + removed[0] + ' again first'); return; }
+      if (idx === -1 && !isOrig && added.length >= 1) { showToast('Memorize Spell swaps one spell — deselect ' + added[0] + ' first'); return; }
+    }
     if (idx !== -1) wgxPrep.selected.splice(idx, 1);
     else if (wgxPrep.selected.length < wgxPrep.max) wgxPrep.selected.push(nm);
     else { showToast('Maximum reached (' + wgxPrep.max + ') — deselect a spell first'); return; }
