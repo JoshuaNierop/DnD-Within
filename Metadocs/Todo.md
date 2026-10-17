@@ -29,7 +29,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 ## Joshua — testen in de browser / aan tafel
 
 Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
-- [ ] P2 — Nieuw 2026-10-17: "Saving Throws"-widget (library → stats) en "Conditions"-widget (library → combat) toevoegen en checken — schade nemen tijdens een concentration-spell moet het CON-save-venster tonen; Humans: Heroic Inspiration is nu een aan/uit-knop (oude resource weg, staat pas weer aan na de volgende Long Rest); site-vensters i.p.v. browser-popups (verwijderen in notes/maps/lore, family-diagram partner/ouder/kind toevoegen, rest-knoppen, widget opslaan)
+- [ ] P2 — Nieuw 2026-10-17: "Saving Throws"-widget (library → stats) en "Conditions"-widget (library → combat) toevoegen en checken — schade nemen tijdens een concentration-spell moet het CON-save-venster tonen; nieuw character → stap 2 "Starting equipment" A/B (B = 50 GP, geen items); Humans: Heroic Inspiration is nu een aan/uit-knop (oude resource weg, staat pas weer aan na de volgende Long Rest); site-vensters i.p.v. browser-popups (verwijderen in notes/maps/lore, family-diagram partner/ouder/kind toevoegen, rest-knoppen, widget opslaan)
 - [ ] P1 — Entity-merge fase 3: `@`-mention van een ex-NPC opent de Creatures-kaart, oude `/lore/monsters`-links, combat-picker zonder dubbele namen, klik in family-diagram, Families-tab
 - [ ] P2 — Level-up level 6–20 in de echte site (alleen in Node getest): een paar characters omhoog en weer omlaag
 - [ ] P2 — Combat tracker: concentration-kolom, speler-tracker normaal + gedraaid, Familiars-tab, soort-knop; min. breedte/hoogte worden sinds 2026-10-16 na elke render gemeten (`combatMeasureWidgets`) — check of hij niet smaller/lager kan dan de inhoud, ook in een smal dashboard
@@ -55,12 +55,13 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P3 — Bestaande creatures koppelen aan een basis (DM, via de editor): Gargoyle → Gargoyle, S.P.O.T. → Bat, Twig Blight → Twig Blight, Bad Bramble → dichtstbijzijnde monster
 - [x] P2 — Saving throws: `getSaveBonus` in de engine + widget "Saving Throws" (`wg-saves.js`, `LevelingUp/Saving-Throws.md`) (2026-10-17)
 - [x] P2 — Attacks-widget met class-features: Martial Arts, Rage-damage, Archery/Dueling/Thrown/GWF, Dazzling Footwork (Dance), pact weapon (CHA), Extra Attack-aantal, Exhaustion (2026-10-17)
-- [ ] P2 — Equipment A/B-keuze in de creation-wizard + background-equipment (GP, aantallen) checken tegen de 2024-data
+- [x] P2 — Equipment A/B-keuze in de creation-wizard (stap 2, alleen nieuw character; goud → `state.gold`) + background-pakketten gelijkgetrokken met de 2024-data (12 van 16 weken af, GP klopte overal) (2026-10-17)
+- [ ] P3 — Class-startuitrusting bestaat nog niet in de app (alleen background-pakketten); 5etools mist bij Scribe de aantallen van Oil/Parchment — wij houden 3 flasks / 12 sheets aan (PHB-steekproef)
 - [x] P2 — Trackers: widget "Conditions" (`wg-conditions.js`) met Heroic Inspiration, Exhaustion 0–6 (−2 op skills/saves/initiative, −5 ft speed, Long Rest −1), Concentration + CON-save-venster bij schade, Arcane Ward HP (2026-10-17). Exhaustion zit sinds de Attacks-update ook in attack rolls
 - [x] P2 — Wizard "Memorize Spell": na een Short Rest (wizard 5+) vraagt de site om één prepared spell te wisselen; prepare-venster in wissel-modus (2026-10-17)
 - [ ] P2 — Entity-merge fase 0: offline round-trip-script dat `ensureEntityIds` + `migrateNpcsIntoCreatures` naspeelt op de dump
 - [ ] P3 — Prullenbak: character uit de party van een campaign halen bij verwijderen
-- [ ] P3 — itemDB: Bell en Robe toevoegen
+- [x] P3 — itemDB: Bell, Robe, Mirror, Perfume, Tent toegevoegd; Rope 5 lb (2024) (2026-10-17)
 - [ ] P3 — Spell `save`/`attack`-veld in `spellPool` (ritual + school staan al in `spellMeta`)
 - [ ] P3 — `@`-links naar timeline-sessions; autocomplete-popup bij de cursor; family-koppeling op id i.p.v. array-index (`families.js:382`)
 - [ ] P3 — Level-down: gekozen opties tijdelijk bewaren zodat opnieuw omhoog ze terugzet (`demotedChoices`)

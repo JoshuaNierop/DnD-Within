@@ -17,8 +17,8 @@ Status: bijna klaar — gecontroleerd tegen de code op 2026-10-15
 - [x] P1 — Third-caster spell slot tabel + EK/AT spellcasting ability (`thirdCasterSlots`, `isThirdCaster`)
 - [x] P1 — Spell list gaps dichten → alle lijsten = 2024 PHB (391 spells, bewaakt door `build-smoke`)
 - [x] P1 — Fighting Style feats als feat-category in pickers (`category:'fighting'` in de level-up)
-- [ ] P1 — Equipment Choice A/B picker in character creation wizard (wizard neemt nu altijd A)
-- [ ] P2 — GP-bedragen + item-counts van background Equipment checken tegen de 2024-data
+- [x] P1 — Equipment Choice A/B picker in character creation wizard (background-pakket; 2026-10-17)
+- [x] P2 — GP-bedragen + item-counts van background Equipment checken tegen de 2024-data (2026-10-17)
 - [x] P1 — Eldritch Invocations data + Warlock keuzeflow
 - [x] P1 — Battle Master Maneuvers data + selectie-UI
 - [x] P1 — High Elf + Drow (+ Wood Elf) lineages
