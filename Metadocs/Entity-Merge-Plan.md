@@ -104,7 +104,7 @@ bevat wél `dw/world/{families,maps,npcs,quests,timeline}` maar **geen `lore_cat
 geen `lore`** — hij is dus geen bruikbaar herstelpunt voor de creature-store. Een
 verse full-RTDB-dump is vereist vóór elke verdere fase.
 
-**Offline round-trip-test (ontbreekt nog).** Een node-script dat zonder browser de
+**Offline round-trip-test — gebouwd 2026-10-17:** `node Metadocs/entity-merge-roundtrip.mjs [dump]` (68/68 groen op de dump van 2026-09-26, in twee scenario's: de dump zoals hij is, en met de migratie teruggedraaid). Lege NPC-velden tellen niet als verloren: de creature-editor laat lege velden weg. Oorspronkelijke opdracht: Een node-script dat zonder browser de
 dump inleest, `ensureEntityIds` + `migrateNpcsIntoCreatures` naspeelt met gestubde
 `localStorage`/`syncUpload`, en dan assert: elke NPC-id komt exact één keer voor in
 `lore_cats.monsters`; geen veld verdwenen; tweede run levert nul mutaties; elke
@@ -114,8 +114,8 @@ backfill-velden na. Dit is de enige ontbrekende schakel tussen "gebouwd" en
 
 ## 4. Fasering
 
-### Fase 0 — Verificatie-gate (moet eerst, nog niet gedaan)
-Verse RTDB-dump maken en committen; round-trip-testscript schrijven tot groen;
+### Fase 0 — Verificatie-gate (script klaar; dump + live-check nog bij Joshua)
+Verse RTDB-dump maken en committen; round-trip-testscript (✓ 2026-10-17) opnieuw draaien op die dump;
 live-check door Joshua (migreren de NPC's correct, geen dubbele of verdwenen
 records, family-diagrammen nog zichtbaar, `[[npc:id]]`-mentions resolven nog).
 Geen app-code: één script plus één dump.

@@ -59,7 +59,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P3 — Class-startuitrusting bestaat nog niet in de app (alleen background-pakketten); 5etools mist bij Scribe de aantallen van Oil/Parchment — wij houden 3 flasks / 12 sheets aan (PHB-steekproef)
 - [x] P2 — Trackers: widget "Conditions" (`wg-conditions.js`) met Heroic Inspiration, Exhaustion 0–6 (−2 op skills/saves/initiative, −5 ft speed, Long Rest −1), Concentration + CON-save-venster bij schade, Arcane Ward HP (2026-10-17). Exhaustion zit sinds de Attacks-update ook in attack rolls
 - [x] P2 — Wizard "Memorize Spell": na een Short Rest (wizard 5+) vraagt de site om één prepared spell te wisselen; prepare-venster in wissel-modus (2026-10-17)
-- [ ] P2 — Entity-merge fase 0: offline round-trip-script dat `ensureEntityIds` + `migrateNpcsIntoCreatures` naspeelt op de dump
+- [x] P2 — Entity-merge fase 0: offline round-trip-script `Metadocs/entity-merge-roundtrip.mjs` (68/68 op de dump van 26-09) (2026-10-17). Rest van de gate: verse RTDB-dump (live-reads zijn voor Claude geblokkeerd) + live-check door Joshua
 - [ ] P3 — Prullenbak: character uit de party van een campaign halen bij verwijderen
 - [x] P3 — itemDB: Bell, Robe, Mirror, Perfume, Tent toegevoegd; Rope 5 lb (2024) (2026-10-17)
 - [ ] P3 — Spell `save`/`attack`-veld in `spellPool` (ritual + school staan al in `spellMeta`)
