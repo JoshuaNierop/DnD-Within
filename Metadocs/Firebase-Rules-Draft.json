@@ -1,0 +1,82 @@
+{
+  "rules": {
+    ".read": "root.child('dw/config/legacyOpen').val() !== false || (auth != null && (root.child('dw/authMap').child(auth.uid).exists() || root.child('dw/admins').child(auth.uid).val() === true))",
+    ".write": "root.child('dw/config/legacyOpen').val() !== false || (auth != null && root.child('dw/admins').child(auth.uid).val() === true)",
+    "presence": {
+      "$userId": { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).val() === $userId" }
+    },
+    "monster_hypotheses": {
+      ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists()",
+      "$entryId": { "$field": {
+        ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.child('by').val() === root.child('dw/authMap').child(auth.uid).val()"
+      } }
+    },
+    "dw": {
+      "config": { ".read": true },
+      "users": {
+        "$userId": {
+          ".write": "auth != null && root.child('dw/authMap').child(auth.uid).val() === $userId",
+          "role":     { ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.val() === data.val() || root.child('dw/admins').child(auth.uid).val() === true" },
+          "email":    { ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.val() === data.val() || root.child('dw/admins').child(auth.uid).val() === true" },
+          "authUid":  { ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.val() === auth.uid || root.child('dw/admins').child(auth.uid).val() === true" },
+          "password": { ".validate": "root.child('dw/config/legacyOpen').val() !== false" }
+        }
+      },
+      "characters": {
+        "$charId": {
+          ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && (data.child('config/player').val() === root.child('dw/authMap').child(auth.uid).val() || (!data.exists() && newData.child('config/player').val() === root.child('dw/authMap').child(auth.uid).val()) || root.child('dw/campaign/char_trash').child($charId).child('owner').val() === root.child('dw/authMap').child(auth.uid).val() || root.child('dw/campaign/campaigns/valoria/dm').val() === root.child('dw/authMap').child(auth.uid).val())",
+          "config": { "player": {
+            ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.val() === data.val() || (!data.exists() && newData.val() === root.child('dw/authMap').child(auth.uid).val()) || root.child('dw/campaign/campaigns/valoria/dm').val() === root.child('dw/authMap').child(auth.uid).val() || root.child('dw/admins').child(auth.uid).val() === true"
+          } },
+          "notes":    { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).val() === $charId" },
+          "whispers": { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).val() === $charId" }
+        }
+      },
+      "dm": {
+        ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && root.child('dw/campaign/campaigns/valoria/dm').val() === root.child('dw/authMap').child(auth.uid).val()",
+        "notes": { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).val() === 'dm'" }
+      },
+      "dmDashboards": {
+        "$campaignId": { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && root.child('dw/campaign/campaigns').child($campaignId).child('dm').val() === root.child('dw/authMap').child(auth.uid).val()" }
+      },
+      "world": {
+        ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && root.child('dw/campaign/campaigns/valoria/dm').val() === root.child('dw/authMap').child(auth.uid).val()",
+        "families": { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists()" },
+        "maps": { "dimensions": { "$dim": { "maps": { "$map": { "pins": {
+          ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists()"
+        } } } } } }
+      },
+      "campaign": {
+        ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && root.child('dw/campaign/campaigns/valoria/dm').val() === root.child('dw/authMap').child(auth.uid).val()",
+        "campaigns": {
+          ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists()",
+          "$campaignId": { "dm": {
+            ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.val() === data.val() || data.val() === root.child('dw/authMap').child(auth.uid).val() || (!data.exists() && newData.val() === root.child('dw/authMap').child(auth.uid).val()) || root.child('dw/admins').child(auth.uid).val() === true"
+          } }
+        },
+        "char_trash": {
+          ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists()",
+          "$charId": { "owner": {
+            ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.val() === data.val() || newData.val() === root.child('dw/characters').child($charId).child('config/player').val()"
+          } }
+        }
+      },
+      "social": {
+        "lookups": { "email": { "$slug": {
+          ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && (!data.exists() || data.child('uid').val() === root.child('dw/authMap').child(auth.uid).val())",
+          ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.child('uid').val() === root.child('dw/authMap').child(auth.uid).val()"
+        } } },
+        "users": { "$u": {
+          ".write": "auth != null && root.child('dw/authMap').child(auth.uid).val() === $u",
+          "incoming": { "$from": { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).val() === $from" } },
+          "friends":  { "$f":    { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).val() === $f" } },
+          "chats": { "$chatId": { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && ($chatId.beginsWith(root.child('dw/authMap').child(auth.uid).val() + '__') || $chatId.endsWith('__' + root.child('dw/authMap').child(auth.uid).val()))" } }
+        } },
+        "chats": { "$chatId": {
+          ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && ($chatId.beginsWith(root.child('dw/authMap').child(auth.uid).val() + '__') || $chatId.endsWith('__' + root.child('dw/authMap').child(auth.uid).val()))",
+          "messages": { "$msgId": { ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.child('from').val() === root.child('dw/authMap').child(auth.uid).val()" } }
+        } }
+      }
+    }
+  }
+}

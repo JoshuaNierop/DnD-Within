@@ -3,6 +3,7 @@
 Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/Status.md` en de andere Metadocs zijn tegen de code gecontroleerd. Wat al gedaan of vervallen was is weg; de oude secties staan in `Todo-Archive.md`. Indeling: wat alleen Joshua kan (console, geheim, browser/tafel, besluit) en wat Claude zelf kan.
 
 ## Joshua — console en accounts
+- [ ] P1 — Vóór de cutover: `dw/admins/<authUid van admin>: true` aanmaken in de console (uid staat in `dw/users/admin/authUid`), anders kan niemand `legacyOpen` terugzetten — zie `Firebase-Rules-Draft.md`
 - [ ] P1 — Repo privé maken: `JoshuaNierop/DnD-Within` is publiek en `core.js` (`DEFAULT_USERS`) bevat voornamen + wachtwoorden van alle spelers en admin. Daarna de wachtwoorden wijzigen (ze blijven in de git-geschiedenis staan). Cloudflare Pages werkt ook met een privé repo. Claude haalt ze daarna uit de code.
 - [!] P1 — Firebase: Email/Password-login aanzetten (Console → Authentication → Sign-in method) en de cutover doen (e-mails koppelen, iedereen 1× via e-mail inloggen, `legacyOpen` uit). Zolang `legacyOpen` niet `false` is, mag iedereen de hele database lezen en schrijven.
 - [ ] P1 — GitHub Pages uitzetten (Settings → Pages → Source: None): de oude, kapotte kopie op joshuanierop.github.io wordt nog geserveerd.
@@ -70,7 +71,9 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 ## Claude — opruimen en techniek
 - [x] P2 — `cloudinary-worker/wrangler.toml`: `ALLOWED_ORIGIN` → `https://dnd-within.pages.dev` (2026-10-17)
 - [ ] P2 — Na "repo privé": wachtwoorden uit `core.js` `DEFAULT_USERS` en `seedUsers()` halen
-- [ ] P2 — Firebase-rules voorbereiden (deploy = Joshua): schrijven op `dm/initiative` alleen voor DM, eigenaarschap per campaign i.p.v. globale allowlist, `dw/admins` als noodpad; plaintext-wachtwoorden in `dw/users` weg na de cutover
+- [x] P2 — Firebase-rules voorbereid: concept + schrijfpaden-inventaris in `Firebase-Rules-Draft.md`/`.json` (niet gedeployed, niet in de Simulator getest) (2026-10-17)
+- [ ] P1 — Vóór de cutover: `?auth=`-token in ~15 REST-calls die hem missen (wg-events/wg-hp/wg-rest/wg-levelup/core/ui-modals/wg-engine/ui-pages) — zonder breekt alles bij `legacyOpen=false`; zie `Firebase-Rules-Draft.md`
+- [ ] P1 — `purgeExpiredCharTrash` alleen voor eigenaar/admin; auto-migraties + `seedUsers` alleen voor DM/admin; `canEditCharacter` definiëren
 - [x] P3 — Spellnaam "Pass Without Trace" → "Pass without Trace" (2026-10-17); snapshot 26-09 had geen opgeslagen characters met de oude naam (live niet gecontroleerd)
 - [x] P3 — Repo-hygiëne: `.nexus` + `graphify-out/` uit git (in `.gitignore`), `sw.js`/`manifest.json`/`DnD_Twin_Builds.md`/oude `wgi-*.png` weg, verwijderde placeholder-afbeeldingen gecommit (2026-10-17)
 - [x] P3 — `Metadocs/smoke-test.mjs` weggehaald (vervangen door de node-smokes in `LevelingUp/`); `_test.mjs`-verwijzing gerepareerd (2026-10-17)
