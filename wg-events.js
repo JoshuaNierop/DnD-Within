@@ -700,7 +700,7 @@ async function deleteMapFromFirebase(widgetIdx) {
   const maps = dim.maps || [];
   const mapArrIdx = maps.findIndex(m => m.id === w.map.mapId || (!w.map.mapId && m.isRoot));
   if (mapArrIdx < 0) { showToast("Map not found", "error"); return; }
-  if (!confirm("Delete map? This cannot be undone.")) return;
+  if (!(await showConfirmModal({ message: "Delete map? This cannot be undone.", confirmLabel: "Delete", danger: true }))) return;
   const oldImg = maps[mapArrIdx] && maps[mapArrIdx].image;
   const url = FIREBASE_DB + "/dw/world/maps/dimensions/" + dimIdx + "/maps/" + mapArrIdx + ".json";
   try {

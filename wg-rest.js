@@ -139,12 +139,12 @@ WG_EXTRA_INFOBOX_BUILDERS.rest = wgxBuildRest;
 WG_INFOBOX_CLICK_HANDLERS.rest = async ({ charId, rowIdx, raw }) => {
   const isShort = rowIdx === 1; // row 1 only exists when short rest applies
   if (isShort) {
-    if (!window.confirm('Short rest? Restores Pact Magic slots and one use of short-rest resources.')) return;
+    if (!(await showConfirmModal({ title: 'Short rest', message: 'Restores Pact Magic slots and one use of short-rest resources.', confirmLabel: 'Short rest' }))) return;
     try { await wgxShortRest(charId); showToast('☀️ Short rest complete'); }
     catch (err) { showToast('Rest failed · ' + err.message, 'error'); }
     return;
   }
-  if (!window.confirm('Long rest? Restores HP, all spell slots, class resources and half your hit dice; resets death saves.')) return;
+  if (!(await showConfirmModal({ title: 'Long rest', message: 'Restores HP, all spell slots, class resources and half your hit dice; resets death saves.', confirmLabel: 'Long rest' }))) return;
   try {
     const r = await wgxLongRest(charId);
     showToast(`🌙 Long rest — HP ${r.max}/${r.max}, +${r.restoredHitDice} hit dice`);

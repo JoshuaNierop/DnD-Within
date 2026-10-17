@@ -362,7 +362,7 @@ function bindPageEvents(route) {
             var noteActiveLayout = document.querySelector('.note-layout-option.active');
             var noteImg = document.querySelector('.note-image-preview img');
 
-            if (!noteTitleEl || !noteTitleEl.value.trim()) { alert(t('notes.filltitle')); return; }
+            if (!noteTitleEl || !noteTitleEl.value.trim()) { showAlertModal({ message: t('notes.filltitle') }); return; }
 
             var noteData = getNotesData();
             var saveNoteId = target.dataset.noteId;
@@ -429,12 +429,14 @@ function bindPageEvents(route) {
 
         // Delete note
         if (target.matches('[data-action="delete-note"]')) {
-            if (confirm(t('notes.deletenote'))) {
+            var delNoteId = target.dataset.noteId;
+            showConfirmModal({ message: t('notes.deletenote'), confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
                 var delNoteData = getNotesData();
-                delNoteData.notes = delNoteData.notes.filter(function(n) { return n.id !== target.dataset.noteId; });
+                delNoteData.notes = delNoteData.notes.filter(function(n) { return n.id !== delNoteId; });
                 saveNotesData(delNoteData);
                 navigate('/notes');
-            }
+            });
             return;
         }
 
@@ -502,17 +504,19 @@ function bindPageEvents(route) {
         // --- Party: remove member ---
         if (target.matches('[data-action="remove-member"]')) {
             var removeUid = target.dataset.userId;
-            if (!confirm(t('party.remove.confirm'))) return;
-            var camps = getCampaigns();
-            var activeCampId = getActiveCampaign();
-            if (camps[activeCampId]) {
-                var members = camps[activeCampId].members || [];
-                var idx = members.indexOf(removeUid);
-                if (idx !== -1) members.splice(idx, 1);
-                if (camps[activeCampId].party) delete camps[activeCampId].party[removeUid];
-                saveCampaigns(camps);
-                renderApp();
-            }
+            showConfirmModal({ message: t('party.remove.confirm'), confirmLabel: 'Remove', danger: true }).then(function(ok) {
+                if (!ok) return;
+                var camps = getCampaigns();
+                var activeCampId = getActiveCampaign();
+                if (camps[activeCampId]) {
+                    var members = camps[activeCampId].members || [];
+                    var idx = members.indexOf(removeUid);
+                    if (idx !== -1) members.splice(idx, 1);
+                    if (camps[activeCampId].party) delete camps[activeCampId].party[removeUid];
+                    saveCampaigns(camps);
+                    renderApp();
+                }
+            });
             return;
         }
 
@@ -763,13 +767,14 @@ function bindPageEvents(route) {
         }
         if (target.matches('[data-action="delete-campaign"]')) {
             var cId = target.dataset.campaignId;
-            if (confirm(t('campaign.delete.confirm'))) {
+            showConfirmModal({ message: t('campaign.delete.confirm'), confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
                 var camps = getCampaigns();
                 delete camps[cId];
                 saveCampaigns(camps);
                 if (getActiveCampaign() === cId) setActiveCampaign(Object.keys(camps)[0] || '');
                 renderApp();
-            }
+            });
             return;
         }
 
@@ -812,7 +817,7 @@ function bindPageEvents(route) {
             var fcHtml = '<div class="modal-overlay" id="famdiag-create-modal">';
             fcHtml += '<div class="modal-box famdiag-edit-box">';
             fcHtml += '<div class="modal-header"><h3>New family</h3>';
-            fcHtml += '<button class="modal-close" data-fc-action="cancel" aria-label="Sluiten">&times;</button></div>';
+            fcHtml += '<button class="modal-close" data-fc-action="cancel" aria-label="Close">&times;</button></div>';
             fcHtml += '<div class="famdiag-edit-grid" style="grid-template-columns:1fr;">';
             fcHtml += '<label class="famdiag-edit-field"><span>Familienaam (achternaam)</span><input type="text" class="edit-input" id="fc-surname" autofocus placeholder="bv. Stormwind"></label>';
             fcHtml += '<label class="famdiag-edit-field"><span>Notities (optioneel)</span><textarea class="edit-input" id="fc-notes" rows="3" placeholder="Korte beschrijving, oorsprong, etc."></textarea></label>';
@@ -859,8 +864,9 @@ function bindPageEvents(route) {
             var rfid = rbtn.dataset.familyId;
             var rfam = getFamily(rfid);
             if (!rfam) return;
-            var rnew = prompt('New family name:', rfam.surname || '');
-            if (rnew !== null) { renameFamily(rfid, rnew.trim()); renderApp(); }
+            showPromptModal({ title: 'Rename family', label: 'Family name', value: rfam.surname || '', confirmLabel: 'Save' }).then(function(rnew) {
+                if (rnew !== null) { renameFamily(rfid, rnew.trim()); renderApp(); }
+            });
             return;
         }
         if (target.matches('[data-action="famdiag-delete-family"]') || target.closest('[data-action="famdiag-delete-family"]')) {
@@ -868,11 +874,12 @@ function bindPageEvents(route) {
             var dfid = dbtn.dataset.familyId;
             var dfam = getFamily(dfid);
             if (!dfam) return;
-            if (confirm('Familie "' + (dfam.surname || '(naamloos)') + '" en alle leden verwijderen?')) {
+            showConfirmModal({ message: 'Delete the family "' + (dfam.surname || '(unnamed)') + '" and all its members?', confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
                 deleteFamily(dfid);
                 if (familiesExpandedId === dfid) familiesExpandedId = null;
                 renderApp();
-            }
+            });
             return;
         }
         if (target.matches('[data-action="famdiag-add-root"]') || target.closest('[data-action="famdiag-add-root"]')) {
@@ -886,16 +893,16 @@ function bindPageEvents(route) {
 
             var arHtml = '<div class="modal-overlay" id="famdiag-addroot-modal">';
             arHtml += '<div class="modal-box famdiag-edit-box">';
-            arHtml += '<div class="modal-header"><h3>Familielid toevoegen</h3>';
-            arHtml += '<button class="modal-close" data-ar-action="cancel" aria-label="Sluiten">&times;</button></div>';
+            arHtml += '<div class="modal-header"><h3>Add family member</h3>';
+            arHtml += '<button class="modal-close" data-ar-action="cancel" aria-label="Close">&times;</button></div>';
             arHtml += '<div class="famdiag-edit-grid">';
-            arHtml += '<label class="famdiag-edit-field"><span>Voornaam</span><input type="text" class="edit-input" id="ar-first" autofocus></label>';
-            arHtml += '<label class="famdiag-edit-field"><span>Achternaam</span><input type="text" class="edit-input" id="ar-last" value="' + escapeAttr(arfam.surname || '') + '"></label>';
-            arHtml += '<label class="famdiag-edit-field"><span>Geboortejaar</span><input type="text" class="edit-input" id="ar-birth" placeholder="optioneel"></label>';
-            arHtml += '<label class="famdiag-edit-field"><span>Sterfjaar</span><input type="text" class="edit-input" id="ar-death" placeholder="leeg = nog levend"></label>';
-            arHtml += '<label class="famdiag-edit-field"><span>Ras</span><input type="text" class="edit-input" id="ar-race" placeholder="optioneel"></label>';
-            arHtml += '<label class="famdiag-edit-field"><span>Geslacht</span><select class="edit-input" id="ar-gender">';
-            var arGender = [{v:'',l:'— onbekend —'},{v:'man',l:'Man'},{v:'vrouw',l:'Vrouw'},{v:'neutraal',l:'Neutraal'}];
+            arHtml += '<label class="famdiag-edit-field"><span>First name</span><input type="text" class="edit-input" id="ar-first" autofocus></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Last name</span><input type="text" class="edit-input" id="ar-last" value="' + escapeAttr(arfam.surname || '') + '"></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Year of birth</span><input type="text" class="edit-input" id="ar-birth" placeholder="optional"></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Year of death</span><input type="text" class="edit-input" id="ar-death" placeholder="empty = still alive"></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Species</span><input type="text" class="edit-input" id="ar-race" placeholder="optional"></label>';
+            arHtml += '<label class="famdiag-edit-field"><span>Gender</span><select class="edit-input" id="ar-gender">';
+            var arGender = [{v:'',l:'— unknown —'},{v:'man',l:'Male'},{v:'vrouw',l:'Female'},{v:'neutraal',l:'Neutral'}];
             for (var arGi=0; arGi<arGender.length; arGi++) {
                 arHtml += '<option value="' + arGender[arGi].v + '">' + arGender[arGi].l + '</option>';
             }
@@ -903,7 +910,7 @@ function bindPageEvents(route) {
             arHtml += '</div>';
             arHtml += '<div class="modal-actions">';
             arHtml += '<button class="btn btn-ghost" data-ar-action="cancel">Cancel</button>';
-            arHtml += '<button class="btn btn-primary" data-ar-action="save">Toevoegen</button>';
+            arHtml += '<button class="btn btn-primary" data-ar-action="save">Add</button>';
             arHtml += '</div></div></div>';
 
             document.body.insertAdjacentHTML('beforeend', arHtml);
@@ -950,23 +957,28 @@ function bindPageEvents(route) {
             if (!apMem) return;
             // Check if already partnered in own family — if so, ask if user wants 2nd marriage (skip for v1, just block)
             var existingP = findUnionsAsPartner(apMid).filter(function(u) { return u.partnerIds.length >= 2; });
-            if (existingP.length > 0) { alert('This person already has a partner. Multi-partner support is coming later.'); return; }
-            var apName = prompt('Voornaam van de partner:');
-            if (!apName) return;
-            var apLast = prompt('Achternaam van de partner (leeg = zelfde familie):', apMem.lastName || '') || '';
-            apLast = apLast.trim();
-            // Determine target family for new partner
-            var apTargetFamId;
-            if (!apLast || apLast.toLowerCase() === (apMem.lastName || '').toLowerCase()) {
-                apTargetFamId = apMem.familyId;
-                apLast = apMem.lastName || '';
-            } else {
-                var apFam = findOrCreateFamilyBySurname(apLast);
-                apTargetFamId = apFam.id;
-            }
-            var newPartner = createMember(apTargetFamId, { firstName: apName.trim(), lastName: apLast });
-            createUnion(apMid, newPartner.id);
-            renderApp();
+            if (existingP.length > 0) { showAlertModal({ message: 'This person already has a partner. Only one partner per person is supported for now.' }); return; }
+            var apName;
+            showPromptModal({ title: 'Add partner', label: 'First name', confirmLabel: 'Next' }).then(function(name) {
+                if (!name) return null;
+                apName = name;
+                return showPromptModal({ title: 'Add partner', label: 'Last name (empty = same family)', value: apMem.lastName || '', allowEmpty: true });
+            }).then(function(apLast) {
+                if (apLast === null || apLast === undefined) return;
+                apLast = apLast.trim();
+                // Determine target family for new partner
+                var apTargetFamId;
+                if (!apLast || apLast.toLowerCase() === (apMem.lastName || '').toLowerCase()) {
+                    apTargetFamId = apMem.familyId;
+                    apLast = apMem.lastName || '';
+                } else {
+                    var apFam = findOrCreateFamilyBySurname(apLast);
+                    apTargetFamId = apFam.id;
+                }
+                var newPartner = createMember(apTargetFamId, { firstName: apName.trim(), lastName: apLast });
+                createUnion(apMid, newPartner.id);
+                renderApp();
+            });
             return;
         }
         if (target.matches('[data-action="famdiag-add-parent"]') || target.closest('[data-action="famdiag-add-parent"]')) {
@@ -975,26 +987,31 @@ function bindPageEvents(route) {
             var ppMem = getMember(ppMid);
             if (!ppMem) return;
             var existingChildUnion = findUnionAsChild(ppMid);
-            var ppName = prompt('Voornaam van de ouder:');
-            if (!ppName) return;
-            var ppLast = prompt('Achternaam van de ouder (leeg = zelfde familie):', ppMem.lastName || '') || '';
-            ppLast = ppLast.trim();
-            var ppTargetFamId;
-            if (!ppLast || ppLast.toLowerCase() === (ppMem.lastName || '').toLowerCase()) {
-                ppTargetFamId = ppMem.familyId;
-                ppLast = ppMem.lastName || '';
-            } else {
-                var ppFam = findOrCreateFamilyBySurname(ppLast);
-                ppTargetFamId = ppFam.id;
-            }
-            var newParent = createMember(ppTargetFamId, { firstName: ppName.trim(), lastName: ppLast });
-            if (existingChildUnion) {
-                addPartnerToUnion(existingChildUnion.id, newParent.id);
-            } else {
-                var newPU = createUnion(newParent.id);
-                if (newPU) addChildToUnion(newPU.id, ppMid);
-            }
-            renderApp();
+            var ppName;
+            showPromptModal({ title: 'Add parent', label: 'First name', confirmLabel: 'Next' }).then(function(name) {
+                if (!name) return null;
+                ppName = name;
+                return showPromptModal({ title: 'Add parent', label: 'Last name (empty = same family)', value: ppMem.lastName || '', allowEmpty: true });
+            }).then(function(ppLast) {
+                if (ppLast === null || ppLast === undefined) return;
+                ppLast = ppLast.trim();
+                var ppTargetFamId;
+                if (!ppLast || ppLast.toLowerCase() === (ppMem.lastName || '').toLowerCase()) {
+                    ppTargetFamId = ppMem.familyId;
+                    ppLast = ppMem.lastName || '';
+                } else {
+                    var ppFam = findOrCreateFamilyBySurname(ppLast);
+                    ppTargetFamId = ppFam.id;
+                }
+                var newParent = createMember(ppTargetFamId, { firstName: ppName.trim(), lastName: ppLast });
+                if (existingChildUnion) {
+                    addPartnerToUnion(existingChildUnion.id, newParent.id);
+                } else {
+                    var newPU = createUnion(newParent.id);
+                    if (newPU) addChildToUnion(newPU.id, ppMid);
+                }
+                renderApp();
+            });
             return;
         }
         if (target.matches('[data-action="famdiag-add-child"]') || target.closest('[data-action="famdiag-add-child"]')) {
@@ -1003,21 +1020,26 @@ function bindPageEvents(route) {
             var acFid = acbtn.dataset.familyId;
             var acUni = getUnion(acUid);
             if (!acUni) return;
-            var acName = prompt("Child's first name:");
-            if (!acName) return;
             // Default child surname = surname of family currently being viewed
             var acFam = getFamily(acFid);
             var acDefaultLast = acFam ? (acFam.surname || '') : '';
-            var acLast = prompt('Achternaam (leeg = ' + (acDefaultLast || 'geen') + '):', acDefaultLast) || '';
-            acLast = acLast.trim();
-            var acTargetFamId = acFid;
-            if (acLast && acLast.toLowerCase() !== (acDefaultLast || '').toLowerCase()) {
-                var acTF = findOrCreateFamilyBySurname(acLast);
-                acTargetFamId = acTF.id;
-            }
-            var newChild = createMember(acTargetFamId, { firstName: acName.trim(), lastName: acLast });
-            addChildToUnion(acUid, newChild.id);
-            renderApp();
+            var acName;
+            showPromptModal({ title: 'Add child', label: 'First name', confirmLabel: 'Next' }).then(function(name) {
+                if (!name) return null;
+                acName = name;
+                return showPromptModal({ title: 'Add child', label: 'Last name (empty = ' + (acDefaultLast || 'none') + ')', value: acDefaultLast, allowEmpty: true });
+            }).then(function(acLast) {
+                if (acLast === null || acLast === undefined) return;
+                acLast = acLast.trim();
+                var acTargetFamId = acFid;
+                if (acLast && acLast.toLowerCase() !== (acDefaultLast || '').toLowerCase()) {
+                    var acTF = findOrCreateFamilyBySurname(acLast);
+                    acTargetFamId = acTF.id;
+                }
+                var newChild = createMember(acTargetFamId, { firstName: acName.trim(), lastName: acLast });
+                addChildToUnion(acUid, newChild.id);
+                renderApp();
+            });
             return;
         }
         if (target.matches('[data-action="famdiag-edit-member"]') || target.closest('[data-action="famdiag-edit-member"]')) {
@@ -1031,16 +1053,16 @@ function bindPageEvents(route) {
 
             var fmHtml = '<div class="modal-overlay" id="famdiag-edit-modal">';
             fmHtml += '<div class="modal-box famdiag-edit-box">';
-            fmHtml += '<div class="modal-header"><h3>Familielid bewerken</h3>';
-            fmHtml += '<button class="modal-close" data-fam-action="cancel" aria-label="Sluiten">&times;</button></div>';
+            fmHtml += '<div class="modal-header"><h3>Edit family member</h3>';
+            fmHtml += '<button class="modal-close" data-fam-action="cancel" aria-label="Close">&times;</button></div>';
             fmHtml += '<div class="famdiag-edit-grid">';
-            fmHtml += '<label class="famdiag-edit-field"><span>Voornaam</span><input type="text" class="edit-input" id="fm-first" value="' + escapeAttr(emem.firstName || '') + '" autofocus></label>';
-            fmHtml += '<label class="famdiag-edit-field"><span>Achternaam</span><input type="text" class="edit-input" id="fm-last" value="' + escapeAttr(emem.lastName || '') + '"></label>';
-            fmHtml += '<label class="famdiag-edit-field"><span>Geboortejaar</span><input type="text" class="edit-input" id="fm-birth" value="' + escapeAttr(emem.birth || '') + '" placeholder="optioneel"></label>';
-            fmHtml += '<label class="famdiag-edit-field"><span>Sterfjaar</span><input type="text" class="edit-input" id="fm-death" value="' + escapeAttr(emem.death || '') + '" placeholder="leeg = nog levend"></label>';
-            fmHtml += '<label class="famdiag-edit-field"><span>Ras</span><input type="text" class="edit-input" id="fm-race" value="' + escapeAttr(emem.race || '') + '" placeholder="optioneel"></label>';
-            fmHtml += '<label class="famdiag-edit-field"><span>Geslacht</span><select class="edit-input" id="fm-gender">';
-            var genderOpts = [{v:'',l:'— onbekend —'},{v:'man',l:'Man'},{v:'vrouw',l:'Vrouw'},{v:'neutraal',l:'Neutraal'}];
+            fmHtml += '<label class="famdiag-edit-field"><span>First name</span><input type="text" class="edit-input" id="fm-first" value="' + escapeAttr(emem.firstName || '') + '" autofocus></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Last name</span><input type="text" class="edit-input" id="fm-last" value="' + escapeAttr(emem.lastName || '') + '"></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Year of birth</span><input type="text" class="edit-input" id="fm-birth" value="' + escapeAttr(emem.birth || '') + '" placeholder="optional"></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Year of death</span><input type="text" class="edit-input" id="fm-death" value="' + escapeAttr(emem.death || '') + '" placeholder="empty = still alive"></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Species</span><input type="text" class="edit-input" id="fm-race" value="' + escapeAttr(emem.race || '') + '" placeholder="optional"></label>';
+            fmHtml += '<label class="famdiag-edit-field"><span>Gender</span><select class="edit-input" id="fm-gender">';
+            var genderOpts = [{v:'',l:'— unknown —'},{v:'man',l:'Male'},{v:'vrouw',l:'Female'},{v:'neutraal',l:'Neutral'}];
             for (var gi=0; gi<genderOpts.length; gi++) {
                 var sel = (emem.gender || '') === genderOpts[gi].v ? ' selected' : '';
                 fmHtml += '<option value="' + genderOpts[gi].v + '"' + sel + '>' + genderOpts[gi].l + '</option>';
@@ -1092,11 +1114,12 @@ function bindPageEvents(route) {
             var rmid = rbtn2.dataset.memberId;
             var rmem = getMember(rmid);
             if (!rmem) return;
-            var rname = ((rmem.firstName || '') + ' ' + (rmem.lastName || '')).trim() || '(naamloos)';
-            if (confirm('Lid "' + rname + '" verwijderen uit familie?')) {
+            var rname = ((rmem.firstName || '') + ' ' + (rmem.lastName || '')).trim() || '(unnamed)';
+            showConfirmModal({ message: 'Remove "' + rname + '" from the family?', confirmLabel: 'Remove', danger: true }).then(function(ok) {
+                if (!ok) return;
                 deleteMember(rmid);
                 renderApp();
-            }
+            });
             return;
         }
         if (target.matches('[data-action="famdiag-open-link"]') || target.closest('[data-action="famdiag-open-link"]')) {
@@ -1175,19 +1198,20 @@ function bindPageEvents(route) {
         }
         if (target.matches('[data-action="delete-lore-entry"]') || target.closest('[data-action="delete-lore-entry"]')) {
             var ldBtn = target.matches('[data-action="delete-lore-entry"]') ? target : target.closest('[data-action="delete-lore-entry"]');
-            if (confirm('Delete?')) {
-                var leCat = ldBtn.dataset.cat;
-                var leIdx = parseInt(ldBtn.dataset.entryIdx, 10);
+            var leCat = ldBtn.dataset.cat;
+            var leIdx = parseInt(ldBtn.dataset.entryIdx, 10);
+            showConfirmModal({ message: 'Delete this entry?', confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
                 var lcData = getLoreCatsData();
                 if (Array.isArray(lcData[leCat])) {
                     var delEnt = lcData[leCat][leIdx];
-                    // Ruim verweesde monster-hypotheses op (#0C4rMb).
+                    // Clean up orphaned monster hypotheses (#0C4rMb).
                     if (leCat === 'monsters' && delEnt && delEnt.id && typeof clearMonsterHypotheses === 'function') {
                         clearMonsterHypotheses(delEnt.id);
                     }
                     lcData[leCat].splice(leIdx, 1); saveLoreCatsData(lcData); renderApp();
                 }
-            }
+            });
             return;
         }
         // DM zet een monster-veld op public/private (#0C4rMb). Vóór de card-toggle
@@ -1711,12 +1735,12 @@ function bindPageEvents(route) {
         // --- Dashboard: campaign name & banner ---
         if (target.matches('[data-action="edit-campaign-name"]')) {
             var dd = getDashboardData();
-            var newName = prompt('Campaign name:', dd.campaignName || '');
-            if (newName !== null && newName.trim()) {
+            showPromptModal({ title: 'Campaign name', label: 'Name', value: dd.campaignName || '', confirmLabel: 'Save' }).then(function(newName) {
+                if (newName === null || !newName.trim()) return;
                 dd.campaignName = newName.trim();
                 saveDashboardData(dd);
                 renderApp();
-            }
+            });
             return;
         }
 
@@ -1731,14 +1755,14 @@ function bindPageEvents(route) {
 
         // Add chapter
         if (target.matches('[data-action="add-chapter"]')) {
-            var chName = prompt(t('timeline.chaptername'));
-            if (chName && chName.trim()) {
+            showPromptModal({ title: 'New chapter', label: t('timeline.chaptername') }).then(function(chName) {
+                if (!chName || !chName.trim()) return;
                 var tlData = getTimelineData();
                 tlData.chapters.push({ id: 'ch' + Date.now(), name: chName.trim(), events: [] });
                 saveTimelineData(tlData);
                 activeChapter = tlData.chapters.length - 1;
                 renderApp();
-            }
+            });
             return;
         }
 
@@ -2033,12 +2057,12 @@ function bindPageEvents(route) {
             var chIdx = parseInt(target.dataset.chapter);
             var tlData = getTimelineData();
             if (tlData.chapters[chIdx]) {
-                var newName = prompt(t('timeline.newchaptername'), tlData.chapters[chIdx].name);
-                if (newName && newName.trim()) {
+                showPromptModal({ title: 'Rename chapter', label: t('timeline.newchaptername'), value: tlData.chapters[chIdx].name, confirmLabel: 'Save' }).then(function(newName) {
+                    if (!newName || !newName.trim()) return;
                     tlData.chapters[chIdx].name = newName.trim();
                     saveTimelineData(tlData);
                     renderApp();
-                }
+                });
             }
             return;
         }
@@ -2138,13 +2162,16 @@ function bindPageEvents(route) {
             var dIdx = parseInt(target.dataset.editIdx);
             if (isNaN(dIdx)) dIdx = parseInt(target.dataset.event);
             if (isNaN(dIdx)) return;
-            if (typeof confirm === 'function' && !confirm('Delete this session?')) return;
-            var tlData = getTimelineData();
-            if (tlData.chapters[activeChapter]) {
-                tlData.chapters[activeChapter].events.splice(dIdx, 1);
-                saveTimelineData(tlData);
-                renderApp();
-            }
+            var dChapter = activeChapter;
+            showConfirmModal({ message: 'Delete this session?', confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
+                var tlData = getTimelineData();
+                if (tlData.chapters[dChapter]) {
+                    tlData.chapters[dChapter].events.splice(dIdx, 1);
+                    saveTimelineData(tlData);
+                    renderApp();
+                }
+            });
             return;
         }
 
@@ -2224,13 +2251,13 @@ function bindPageEvents(route) {
             if (mDim) {
                 for (var mi = 0; mi < mDim.maps.length; mi++) {
                     if (mDim.maps[mi].id === catMapId) {
-                        var curCat = mDim.maps[mi].category || '';
-                        var newCat = prompt('Map category (empty to remove):', curCat);
-                        if (newCat !== null) {
-                            mDim.maps[mi].category = newCat.trim();
+                        var catMap = mDim.maps[mi];
+                        showPromptModal({ title: 'Map category', label: 'Category (empty to remove)', value: catMap.category || '', allowEmpty: true, confirmLabel: 'Save' }).then(function(newCat) {
+                            if (newCat === null) return;
+                            catMap.category = newCat.trim();
                             saveMapsData(mData);
                             renderApp();
-                        }
+                        });
                         break;
                     }
                 }
@@ -2242,9 +2269,11 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="delete-map"]')) {
             e.stopPropagation();
             var delMapId = target.dataset.mapId;
-            if (confirm(t('maps.deletemap'))) {
+            var delMapDim = activeDimension;
+            showConfirmModal({ message: t('maps.deletemap'), confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
                 var mData = getMapsData();
-                var mDim = mData.dimensions[activeDimension];
+                var mDim = mData.dimensions[delMapDim];
                 if (mDim) {
                     var delMap = mDim.maps.filter(function(m) { return m.id === delMapId; })[0];
                     if (delMap && delMap.image && typeof DWImages !== 'undefined') DWImages.del(delMap.image);
@@ -2252,7 +2281,7 @@ function bindPageEvents(route) {
                     saveMapsData(mData);
                     renderApp();
                 }
-            }
+            });
             return;
         }
 
@@ -2295,18 +2324,21 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="delete-selected-pin"]') || target.closest('[data-action="delete-selected-pin"]')) {
             e.stopPropagation();
             if (selectedPinIdx === null) return;
-            if (!confirm('Delete this pin area?')) return;
-            var dsData = getMapsData();
-            var dsDim = dsData.dimensions[activeDimension];
-            for (var dsi = 0; dsi < dsDim.maps.length; dsi++) {
-                if (dsDim.maps[dsi].id === activeMapId) {
-                    dsDim.maps[dsi].pins.splice(selectedPinIdx, 1);
-                    saveMapsData(dsData);
-                    selectedPinIdx = null;
-                    renderApp();
-                    break;
+            var dsPinIdx = selectedPinIdx, dsDimId = activeDimension, dsMapId = activeMapId;
+            showConfirmModal({ message: 'Delete this pin area?', confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
+                var dsData = getMapsData();
+                var dsDim = dsData.dimensions[dsDimId];
+                for (var dsi = 0; dsi < dsDim.maps.length; dsi++) {
+                    if (dsDim.maps[dsi].id === dsMapId) {
+                        dsDim.maps[dsi].pins.splice(dsPinIdx, 1);
+                        saveMapsData(dsData);
+                        selectedPinIdx = null;
+                        renderApp();
+                        break;
+                    }
                 }
-            }
+            });
             return;
         }
 
@@ -2322,9 +2354,12 @@ function bindPageEvents(route) {
         if (target.matches('[data-action="delete-map"]') || target.closest('[data-action="delete-map"]')) {
             var delBtn = target.closest('[data-action="delete-map"]') || target;
             var delMapId = delBtn.dataset.mapId;
-            if (delMapId && confirm('Are you sure you want to delete this map? This cannot be undone.')) {
+            if (!delMapId) return;
+            var delDimId = activeDimension;
+            showConfirmModal({ message: 'Are you sure you want to delete this map? This cannot be undone.', confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
                 var mDataDel = getMapsData();
-                var mDimDel = mDataDel.dimensions[activeDimension];
+                var mDimDel = mDataDel.dimensions[delDimId];
                 if (mDimDel && mDimDel.maps) {
                     mDimDel.maps = mDimDel.maps.filter(function(m){ return m.id !== delMapId; });
                     saveMapsData(mDataDel);
@@ -2332,7 +2367,7 @@ function bindPageEvents(route) {
                     window._mapHistory = [];
                     renderApp();
                 }
-            }
+            });
             return;
         }
 
@@ -2449,17 +2484,20 @@ function bindPageEvents(route) {
             e.stopPropagation();
             var dpBtn = target.closest('[data-action="delete-pin"]') || target;
             var delPinIdx = parseInt(dpBtn.dataset.pinIdx);
-            if (!confirm('Delete this pin?')) return;
-            var mData = getMapsData();
-            var mDim = mData.dimensions[activeDimension];
-            for (var dmi = 0; dmi < mDim.maps.length; dmi++) {
-                if (mDim.maps[dmi].id === activeMapId) {
-                    mDim.maps[dmi].pins.splice(delPinIdx, 1);
-                    saveMapsData(mData);
-                    renderApp();
-                    break;
+            var dpDimId = activeDimension, dpMapId = activeMapId;
+            showConfirmModal({ message: 'Delete this pin?', confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
+                var mData = getMapsData();
+                var mDim = mData.dimensions[dpDimId];
+                for (var dmi = 0; dmi < mDim.maps.length; dmi++) {
+                    if (mDim.maps[dmi].id === dpMapId) {
+                        mDim.maps[dmi].pins.splice(delPinIdx, 1);
+                        saveMapsData(mData);
+                        renderApp();
+                        break;
+                    }
                 }
-            }
+            });
             return;
         }
 
@@ -2557,12 +2595,14 @@ function bindPageEvents(route) {
         // Delete lore article
         if (target.matches('[data-action="delete-lore"]')) {
             var artId = target.dataset.articleId;
-            if (artId && confirm(t('lore.deletearticle'))) {
+            if (!artId) return;
+            showConfirmModal({ message: t('lore.deletearticle'), confirmLabel: 'Delete', danger: true }).then(function(ok) {
+                if (!ok) return;
                 var loreData = getLoreData();
                 loreData.articles = loreData.articles.filter(function(a) { return a.id !== artId; });
                 saveLoreData(loreData);
                 navigate('/lore');
-            }
+            });
             return;
         }
     };

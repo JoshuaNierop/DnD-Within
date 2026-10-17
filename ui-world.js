@@ -374,7 +374,7 @@ function mapEditPostRender() {
             var info = _getActiveMapPins();
             if (!info) return;
             var pin = normalizePin(info.map.pins[selectedPinIdx]);
-            if (!pin.shape.nodes || pin.shape.nodes.length >= 12) { if (pin.shape.nodes && pin.shape.nodes.length >= 12) alert('Maximaal 12 hoekpunten per area.'); return; }
+            if (!pin.shape.nodes || pin.shape.nodes.length >= 12) { if (pin.shape.nodes && pin.shape.nodes.length >= 12) showAlertModal({ message: 'An area can have at most 12 points.' }); return; }
             var p = _svgEvToPct(svg, ev);
             var insertAfter = _closestEdgeIdx(pin.shape.nodes, p);
             pin.shape.nodes.splice(insertAfter + 1, 0, { x: p.x, y: p.y });

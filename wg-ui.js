@@ -337,10 +337,10 @@ function bindWidgetPanelInputs() {
       opt.textContent = t.label;
       typeSel.appendChild(opt);
     }
-    typeSel.addEventListener('change', () => {
+    typeSel.addEventListener('change', async () => {
       const w = state.widget;
       if (!w) return;
-      if (!confirm('Switching type overwrites the widget size and data source. Continue?')) {
+      if (!(await showConfirmModal({ message: 'Switching type overwrites the widget size and data source. Continue?', confirmLabel: 'Switch' }))) {
         typeSel.value = w.type;
         return;
       }
@@ -529,11 +529,11 @@ function loadWidget(id) {
   renderSidebar();
 }
 
-function saveCurrentWidget() {
+async function saveCurrentWidget() {
   const cfg = buildWidgetJson();
-  const name = prompt('Name for this widget:', cfg.title || displayTitle(state.widget));
+  const name = await showPromptModal({ title: 'Save widget', label: 'Name for this widget', value: cfg.title || displayTitle(state.widget), confirmLabel: 'Next' });
   if (!name) return;
-  const cat = prompt('Categorie (stats, combat, spells, inventory, social):', library.activeCategory || 'stats');
+  const cat = await showPromptModal({ title: 'Save widget', label: 'Category (stats, combat, spells, inventory, social)', value: library.activeCategory || 'stats', confirmLabel: 'Save' });
   if (!cat) return;
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now().toString(36).slice(-4);
   library.saved.push({ id, name, category: cat, config: { ...cfg, title: name } });

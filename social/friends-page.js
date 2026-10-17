@@ -148,7 +148,7 @@ export function renderFriendsPage(host, adapter) {
                         await adapter.declineFriendRequest(uid);
                         setStatus('ok', 'Verzoek geweigerd');
                     } else if (action === 'remove') {
-                        if (!confirm('Vriend verwijderen?')) { btn.disabled = false; return; }
+                        if (!(await showConfirmModal({ message: 'Remove this friend?', confirmLabel: 'Remove', danger: true }))) { btn.disabled = false; return; }
                         await adapter.removeFriend(uid);
                         setStatus('ok', 'Vriend verwijderd');
                     } else if (action === 'chat') {

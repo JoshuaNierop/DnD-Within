@@ -150,7 +150,7 @@ export function mountChatWidget(host, adapter, opts = {}) {
                     }
                     return;
                 } catch (err) {
-                    alert('Bericht verzenden mislukt: ' + (err.message || err));
+                    showAlertModal({ title: 'Message not sent', message: 'Sending the message failed: ' + (err.message || err) });
                 } finally {
                     state.sending = false;
                     ta.disabled = false;

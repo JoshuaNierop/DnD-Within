@@ -2075,17 +2075,19 @@ document.addEventListener('click', function(e) {
             if (typeof showToast === 'function') showToast(t('maps.dimension.cantdeletelast'), 'error');
             return;
         }
-        if (!confirm(t('maps.dimension.deleteconfirm'))) return;
-        var rmDim = mDataDd.dimensions[ddIdx];
-        if (rmDim && Array.isArray(rmDim.maps) && typeof DWImages !== 'undefined') {
-            rmDim.maps.forEach(function (m) { if (m.image && DWImages.isHttpUrl && DWImages.isHttpUrl(m.image)) { try { DWImages.del(m.image); } catch (e) {} } });
-        }
-        mDataDd.dimensions.splice(ddIdx, 1);
-        saveMapsData(mDataDd);
-        if (activeDimension >= mDataDd.dimensions.length) activeDimension = mDataDd.dimensions.length - 1;
-        activeMapId = null;
-        if (typeof refreshDimensionsModal === 'function') refreshDimensionsModal();
-        renderApp();
+        showConfirmModal({ message: t('maps.dimension.deleteconfirm'), confirmLabel: 'Delete', danger: true }).then(function (ok) {
+            if (!ok) return;
+            var rmDim = mDataDd.dimensions[ddIdx];
+            if (rmDim && Array.isArray(rmDim.maps) && typeof DWImages !== 'undefined') {
+                rmDim.maps.forEach(function (m) { if (m.image && DWImages.isHttpUrl && DWImages.isHttpUrl(m.image)) { try { DWImages.del(m.image); } catch (e) {} } });
+            }
+            mDataDd.dimensions.splice(ddIdx, 1);
+            saveMapsData(mDataDd);
+            if (activeDimension >= mDataDd.dimensions.length) activeDimension = mDataDd.dimensions.length - 1;
+            activeMapId = null;
+            if (typeof refreshDimensionsModal === 'function') refreshDimensionsModal();
+            renderApp();
+        });
         return;
     }
     if (target.closest('[data-action="submit-add-map"]')) {
