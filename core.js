@@ -956,11 +956,9 @@ function classDisplayName(className) {
     return names[className] || capitalize(className);
 }
 
-// 2024 PHB: het level waarop een class zijn subclass kiest. Vrijwel alle classes
-// op level 3; Cleric is de uitzondering (Divine Order op level 1). #OvVZiZ
+// 2024 PHB: every class picks its subclass at level 3 (the 2014 cleric
+// L1-choice no longer exists; Divine Order at level 1 is a separate choice). #OvVZiZ
 function subclassChoiceLevel(className) {
-    // 2024 PHB: every class picks its subclass at level 3 (the 2014 cleric
-    // L1-choice no longer exists).
     return 3;
 }
 

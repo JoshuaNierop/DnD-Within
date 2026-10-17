@@ -217,44 +217,6 @@ function getCalculatedAbilityScore(config, state, ability) {
     return capstoneScore(config, state, ability, score);
 }
 
-function getAbilityBreakdown(config, state, ability) {
-    const base = config.baseAbilities[ability] || 10;
-
-    // Background bonuses - check config or default to empty
-    const bgBonuses = config.backgroundBonuses || {};
-    let racialBonus = bgBonuses[ability] || 0;
-    let baseWithoutRacial = base - racialBonus;
-
-    // ASI bonuses
-    let asiTotal = 0;
-    let asiDetails = [];
-    for (let lvl = 1; lvl <= state.level; lvl++) {
-        const choice = state.asiChoices[lvl];
-        if (!choice) continue;
-        if (choice.type === 'asi' && choice.abilities && choice.abilities[ability]) {
-            asiTotal += choice.abilities[ability];
-            asiDetails.push(`Level ${lvl} ASI: +${choice.abilities[ability]}`);
-        }
-        if (choice.type === 'feat' && choice.feat) {
-            const feat = DATA.feats.find(f => f.name === choice.feat);
-            if (feat && feat.abilityBonus && feat.abilityBonus[ability]) {
-                asiTotal += feat.abilityBonus[ability];
-                asiDetails.push(`${choice.feat}: +${feat.abilityBonus[ability]}`);
-            }
-        }
-    }
-
-    const total = baseWithoutRacial + racialBonus + asiTotal;
-
-    return {
-        baseArray: baseWithoutRacial,
-        racialBonus,
-        asiTotal,
-        asiDetails,
-        total
-    };
-}
-
 function getAllAbilityScores(config, state) {
     const abilities = {};
     for (const ab of ['str', 'dex', 'con', 'int', 'wis', 'cha']) {

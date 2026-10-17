@@ -1268,7 +1268,7 @@ function createCharacterFromWizard() {
         age: wizardState.age || null,
         accentColor: wizardState.accentColor,
         // #P0hvu6q: de wizard bewerkt de KALE scores (array/point-buy/manual), maar
-        // de engine (getAbilityScore/getAbilityBreakdown) verwacht dat baseAbilities
+        // de engine (getAbilityScore) verwacht dat baseAbilities
         // de background-bonus AL bevat — zo staan de legacy characters in SEED_DATA
         // ook opgeslagen. Zonder deze optelling verdween de +2/+1 volledig.
         baseAbilities: applyBgBonusesToAbilities(wizardState.baseAbilities, bgBonuses),

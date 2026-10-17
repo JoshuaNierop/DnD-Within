@@ -209,7 +209,7 @@ DATA.spellMeta = {
     "Mordenkainen's Faithful Hound": "C", "Mordenkainen's Magnificent Mansion": "C",
     "Mordenkainen's Private Sanctum": "A", "Mordenkainen's Sword": "V", "Move Earth": "T", "Nondetection": "A",
     "Nystul's Magic Aura": "I", "Otiluke's Freezing Sphere": "V", "Otiluke's Resilient Sphere": "A",
-    "Otto's Irresistible Dance": "E", "Pass Without Trace": "A", "Passwall": "T", "Phantasmal Force": "I",
+    "Otto's Irresistible Dance": "E", "Pass without Trace": "A", "Passwall": "T", "Phantasmal Force": "I",
     "Phantasmal Killer": "I", "Phantom Steed": "Ir", "Planar Ally": "C", "Planar Binding": "A", "Plane Shift": "C",
     "Plant Growth": "T", "Poison Spray": "N", "Polymorph": "T", "Power Word Fortify": "E", "Power Word Heal": "E", "Power Word Kill": "E",
     "Power Word Stun": "E", "Prayer of Healing": "A", "Prestidigitation": "T", "Prismatic Spray": "V",

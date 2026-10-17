@@ -71,10 +71,10 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P2 — `cloudinary-worker/wrangler.toml`: `ALLOWED_ORIGIN` → `https://dnd-within.pages.dev` (2026-10-17)
 - [ ] P2 — Na "repo privé": wachtwoorden uit `core.js` `DEFAULT_USERS` en `seedUsers()` halen
 - [ ] P2 — Firebase-rules voorbereiden (deploy = Joshua): schrijven op `dm/initiative` alleen voor DM, eigenaarschap per campaign i.p.v. globale allowlist, `dw/admins` als noodpad; plaintext-wachtwoorden in `dw/users` weg na de cutover
-- [ ] P3 — Spellnaam "Pass Without Trace" → 2024-schrijfwijze "Pass without Trace", met migratie van opgeslagen characters
+- [x] P3 — Spellnaam "Pass Without Trace" → "Pass without Trace" (2026-10-17); snapshot 26-09 had geen opgeslagen characters met de oude naam (live niet gecontroleerd)
 - [x] P3 — Repo-hygiëne: `.nexus` + `graphify-out/` uit git (in `.gitignore`), `sw.js`/`manifest.json`/`DnD_Twin_Builds.md`/oude `wgi-*.png` weg, verwijderde placeholder-afbeeldingen gecommit (2026-10-17)
 - [x] P3 — `Metadocs/smoke-test.mjs` weggehaald (vervangen door de node-smokes in `LevelingUp/`); `_test.mjs`-verwijzing gerepareerd (2026-10-17)
 - [ ] P3 — Nederlands codecommentaar → Engels (~600 regels, o.a. ui-modals, ui-world, wg-combat, wg-render, wg-state, core); `console.log` in `sync.js`/`storage.js`
-- [ ] P3 — Dode code: Nederlandse `nl:`-tabel in `i18n.js`, `getAbilityBreakdown` (`engine.js:149`, geen callers), 20 `{nl,en}`-objecten in `data.js`, verouderd commentaar `core.js:1030`
+- [x] P3 — Dode code: Nederlandse `nl:`-tabel uit `i18n.js`, `getAbilityBreakdown` weg, 20 `{nl,en}`-objecten in `data.js` → Engelse strings, verouderd commentaar bij `subclassChoiceLevel` (2026-10-17)
 - [ ] P3 — `data.js` (533 kB) opsplitsen per domein
 - [ ] P3 — Licentie (doorlopende regel): regelteksten in eigen woorden; 5etools-JSON blijft buiten de repo, alleen feiten in `build-facts.json`

@@ -9,9 +9,9 @@ const DATA = {
         darkvision: 60,
         legacy: true,
         features: [
-            { name: "Darkvision", desc: { nl: "Je kunt in dim light zien als bright light tot 60ft, en in duisternis als dim light.", en: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." } },
-            { name: "Fey Ancestry", desc: { nl: "Advantage op saving throws tegen charmed. Magie kan je niet in slaap brengen.", en: "Advantage on saving throws against charmed. Magic cannot put you to sleep." } },
-            { name: "Skill Versatility", desc: { nl: "Proficiency in 2 extra skills naar keuze.", en: "Proficiency in 2 additional skills of your choice." } }
+            { name: "Darkvision", desc: "You can see in dim light as if it were bright light up to 60ft, and in darkness as if it were dim light." },
+            { name: "Fey Ancestry", desc: "Advantage on saving throws against charmed. Magic cannot put you to sleep." },
+            { name: "Skill Versatility", desc: "Proficiency in 2 additional skills of your choice." }
         ]
     },
 
@@ -102,7 +102,7 @@ const DATA = {
         ],
         spells: [{ name: "Druidcraft", lvl: 1, kind: 'cantrip' },
                  { name: "Longstrider", lvl: 3, kind: 'innate', free: 1, recharge: 'long', slots: true },
-                 { name: "Pass Without Trace", lvl: 5, kind: 'innate', free: 1, recharge: 'long', slots: true }]
+                 { name: "Pass without Trace", lvl: 5, kind: 'innate', free: 1, recharge: 'long', slots: true }]
     },
 
     highElf: {
@@ -2250,7 +2250,7 @@ const DATA = {
                     { name: "Charm Person", lvl: 3, kind: 'prepared' },
                     { name: "Disguise Self", lvl: 3, kind: 'prepared' },
                     { name: "Invisibility", lvl: 3, kind: 'prepared' },
-                    { name: "Pass Without Trace", lvl: 3, kind: 'prepared' },
+                    { name: "Pass without Trace", lvl: 3, kind: 'prepared' },
                     { name: "Hypnotic Pattern", lvl: 5, kind: 'prepared' },
                     { name: "Nondetection", lvl: 5, kind: 'prepared' },
                     { name: "Confusion", lvl: 7, kind: 'prepared' },
@@ -2746,7 +2746,7 @@ const DATA = {
             skills: ["Sleight of Hand", "Stealth"],
             tool: "Thieves' Tools",
             feat: "Lucky",
-            desc: { nl: "LEGACY (niet in 2024 PHB). Opgegroeid op straat. Je kent de stad beter dan wie dan ook.", en: "LEGACY (not in the 2024 PHB). Raised on the streets. You know the city better than anyone." },
+            desc: "LEGACY (not in the 2024 PHB). Raised on the streets. You know the city better than anyone.",
             equipment: {
                 A: { items: ["Small knife", "Map of city", "Pet mouse", "Token from parents", "Common clothes", "Pouch"], gp: 10 },
                 B: { gp: 50 }
@@ -2760,7 +2760,7 @@ const DATA = {
             skills: ["Insight", "Religion"],
             tool: "Calligrapher's Supplies",
             feat: "Magic Initiate (Cleric)",
-            desc: { nl: "Je hebt je leven gewijd aan de dienst van een tempel of religieuze orde. Je kent de rituelen en overtuigingen van je geloof.", en: "You have devoted your life to serving a temple or religious order. You know the rites and beliefs of your faith." },
+            desc: "You have devoted your life to serving a temple or religious order. You know the rites and beliefs of your faith.",
             equipment: {
                 A: { items: ["Calligrapher's Supplies", "Book (prayers)", "Holy Symbol", "Parchment (10 sheets)", "Robe"], gp: 8 },
                 B: { gp: 50 }
@@ -2772,7 +2772,7 @@ const DATA = {
             skills: ["Investigation", "Persuasion"],
             tool: "Artisan's Tools",
             feat: "Crafter",
-            desc: { nl: "Je bent opgeleid als ambachtsman. Je maakt dingen met je handen en hebt een scherp oog voor kwaliteit.", en: "You trained as a craftsperson. You make things with your hands and have a keen eye for quality." },
+            desc: "You trained as a craftsperson. You make things with your hands and have a keen eye for quality.",
             equipment: {
                 A: { items: ["Artisan's Tools (one of your choice)", "Pouch (x2)", "Traveler's Clothes"], gp: 32 },
                 B: { gp: 50 }
@@ -2784,7 +2784,7 @@ const DATA = {
             skills: ["Deception", "Sleight of Hand"],
             tool: "Forgery Kit",
             feat: "Skilled",
-            desc: { nl: "Je hebt altijd een talent gehad voor het misleiden van anderen. Valse identiteiten, oplichterij en bedrog zijn je specialiteit.", en: "You have always had a talent for deceiving others. False identities, scams and trickery are your specialty." },
+            desc: "You have always had a talent for deceiving others. False identities, scams and trickery are your specialty.",
             equipment: {
                 A: { items: ["Forgery Kit", "Costume", "Fine Clothes"], gp: 15 },
                 B: { gp: 50 }
@@ -2796,7 +2796,7 @@ const DATA = {
             skills: ["Sleight of Hand", "Stealth"],
             tool: "Thieves' Tools",
             feat: "Alert",
-            desc: { nl: "Je hebt een verleden in de misdaad. Of het nu diefstal, smokkel of erger was — je kent de schaduwzijde van de maatschappij.", en: "You have a past in crime. Whether theft, smuggling or worse — you know the shadowy side of society." },
+            desc: "You have a past in crime. Whether theft, smuggling or worse — you know the shadowy side of society.",
             equipment: {
                 A: { items: ["Dagger (x2)", "Thieves' Tools", "Crowbar", "Pouch (x2)", "Traveler's Clothes"], gp: 16 },
                 B: { gp: 50 }
@@ -2808,7 +2808,7 @@ const DATA = {
             skills: ["Acrobatics", "Performance"],
             tool: "Musical Instrument",
             feat: "Musician",
-            desc: { nl: "Je leeft voor het publiek. Als muzikant, danser, acteur of verteller weet je hoe je een menigte moet boeien.", en: "You live for the audience. As a musician, dancer, actor or storyteller, you know how to captivate a crowd." },
+            desc: "You live for the audience. As a musician, dancer, actor or storyteller, you know how to captivate a crowd.",
             equipment: {
                 A: { items: ["Musical Instrument (one of your choice)", "Costume (x2)", "Mirror", "Perfume", "Traveler's Clothes"], gp: 11 },
                 B: { gp: 50 }
@@ -2820,7 +2820,7 @@ const DATA = {
             skills: ["Animal Handling", "Nature"],
             tool: "Carpenter's Tools",
             feat: "Tough",
-            desc: { nl: "Je bent opgegroeid op het land. Hard werken, de seizoenen en de natuur hebben je gevormd tot wie je bent.", en: "You grew up on the land. Hard work, the seasons and nature shaped you into who you are." },
+            desc: "You grew up on the land. Hard work, the seasons and nature shaped you into who you are.",
             equipment: {
                 A: { items: ["Sickle", "Carpenter's Tools", "Healer's Kit", "Iron Pot", "Shovel", "Traveler's Clothes"], gp: 30 },
                 B: { gp: 50 }
@@ -2832,7 +2832,7 @@ const DATA = {
             skills: ["Athletics", "Perception"],
             tool: "Gaming Set",
             feat: "Alert",
-            desc: { nl: "Je hebt gediend als wachter, stadswacht of lijfwacht. Je bent getraind om gevaar te herkennen en te reageren.", en: "You have served as a watchman, city guard or bodyguard. You are trained to spot danger and respond." },
+            desc: "You have served as a watchman, city guard or bodyguard. You are trained to spot danger and respond.",
             equipment: {
                 A: { items: ["Spear", "Light Crossbow", "Bolts (20)", "Quiver", "Gaming Set (one of your choice)", "Hooded Lantern", "Manacles", "Traveler's Clothes"], gp: 12 },
                 B: { gp: 50 }
@@ -2844,7 +2844,7 @@ const DATA = {
             skills: ["Stealth", "Survival"],
             tool: "Cartographer's Tools",
             feat: "Magic Initiate (Druid)",
-            desc: { nl: "You've guided travelers through the wilderness all your life. You know nature's paths and perils.", en: "You have spent your life guiding travelers through the wilderness. You know the paths and perils of nature." },
+            desc: "You have spent your life guiding travelers through the wilderness. You know the paths and perils of nature.",
             equipment: {
                 A: { items: ["Shortbow", "Arrows (20)", "Quiver", "Cartographer's Tools", "Bedroll", "Tent", "Traveler's Clothes"], gp: 3 },
                 B: { gp: 50 }
@@ -2856,7 +2856,7 @@ const DATA = {
             skills: ["Medicine", "Religion"],
             tool: "Herbalism Kit",
             feat: "Healer",
-            desc: { nl: "Je hebt jarenlang in afzondering geleefd — mediterend, studerend of genezend. Je draagt wijsheid mee uit de stilte.", en: "You lived in seclusion for years — meditating, studying or healing. You carry wisdom drawn from the silence." },
+            desc: "You lived in seclusion for years — meditating, studying or healing. You carry wisdom drawn from the silence.",
             equipment: {
                 A: { items: ["Quarterstaff", "Herbalism Kit", "Bedroll", "Book (philosophy)", "Lamp", "Oil flask (x3)", "Traveler's Clothes"], gp: 16 },
                 B: { gp: 50 }
@@ -2868,7 +2868,7 @@ const DATA = {
             skills: ["Animal Handling", "Persuasion"],
             tool: "Navigator's Tools",
             feat: "Lucky",
-            desc: { nl: "Je bent een handelaar, koopman of marktverkoper. Je kent de waarde van goederen en de kunst van het onderhandelen.", en: "You are a trader, merchant or market vendor. You know the value of goods and the art of negotiation." },
+            desc: "You are a trader, merchant or market vendor. You know the value of goods and the art of negotiation.",
             equipment: {
                 A: { items: ["Navigator's Tools", "Pouch (x2)", "Traveler's Clothes"], gp: 22 },
                 B: { gp: 50 }
@@ -2880,7 +2880,7 @@ const DATA = {
             skills: ["History", "Persuasion"],
             tool: "Gaming Set",
             feat: "Skilled",
-            desc: { nl: "Je bent geboren in een adellijke familie met invloed en rijkdom. Je kent de etiquette van het hof en de last van verwachtingen.", en: "You were born into a noble family of influence and wealth. You know the etiquette of the court and the weight of expectations." },
+            desc: "You were born into a noble family of influence and wealth. You know the etiquette of the court and the weight of expectations.",
             equipment: {
                 A: { items: ["Gaming Set (one of your choice)", "Fine Clothes", "Perfume"], gp: 29 },
                 B: { gp: 50 }
@@ -2892,7 +2892,7 @@ const DATA = {
             skills: ["Arcana", "History"],
             tool: "Calligrapher's Supplies",
             feat: "Magic Initiate (Wizard)",
-            desc: { nl: "For years you've gathered knowledge from books and libraries. You're an expert in your field.", en: "For years you have gathered knowledge from books and libraries. You are an expert in your field." },
+            desc: "For years you have gathered knowledge from books and libraries. You are an expert in your field.",
             equipment: {
                 A: { items: ["Quarterstaff", "Calligrapher's Supplies", "Book (history)", "Parchment (8 sheets)", "Robe"], gp: 8 },
                 B: { gp: 50 }
@@ -2904,7 +2904,7 @@ const DATA = {
             skills: ["Acrobatics", "Perception"],
             tool: "Navigator's Tools",
             feat: "Tavern Brawler",
-            desc: { nl: "Je hebt gevaren op de open zee. Stormen, piraten en verre havens — je hebt het allemaal meegemaakt.", en: "You have sailed the open sea. Storms, pirates and distant harbors — you have seen it all." },
+            desc: "You have sailed the open sea. Storms, pirates and distant harbors — you have seen it all.",
             equipment: {
                 A: { items: ["Dagger", "Navigator's Tools", "Rope (50 ft)", "Traveler's Clothes"], gp: 20 },
                 B: { gp: 50 }
@@ -2916,7 +2916,7 @@ const DATA = {
             skills: ["Investigation", "Perception"],
             tool: "Calligrapher's Supplies",
             feat: "Skilled",
-            desc: { nl: "Je hebt gewerkt als schrijver, kopiist of archivaris. Details ontgaan je zelden en je pen is je beste vriend.", en: "You worked as a writer, copyist or archivist. Details rarely escape you and your pen is your best friend." },
+            desc: "You worked as a writer, copyist or archivist. Details rarely escape you and your pen is your best friend.",
             equipment: {
                 A: { items: ["Calligrapher's Supplies", "Fine Clothes", "Lamp", "Oil flask (x3)", "Parchment (12 sheets)"], gp: 23 },
                 B: { gp: 50 }
@@ -2928,7 +2928,7 @@ const DATA = {
             skills: ["Athletics", "Intimidation"],
             tool: "Gaming Set",
             feat: "Savage Attacker",
-            desc: { nl: "Je hebt gediend in een leger of militie. Je kent de discipline van het slagveld en de kameraadschap van soldaten.", en: "You have served in an army or militia. You know the discipline of the battlefield and the camaraderie of soldiers." },
+            desc: "You have served in an army or militia. You know the discipline of the battlefield and the camaraderie of soldiers.",
             equipment: {
                 A: { items: ["Spear", "Shortbow", "Arrows (20)", "Quiver", "Gaming Set (one of your choice)", "Healer's Kit", "Traveler's Clothes"], gp: 14 },
                 B: { gp: 50 }
@@ -2940,7 +2940,7 @@ const DATA = {
             skills: ["Insight", "Stealth"],
             tool: "Thieves' Tools",
             feat: "Lucky",
-            desc: { nl: "Je bent een zwerver, een reiziger zonder vaste bestemming. De weg is je thuis en je overleefd door je instincten.", en: "You are a wanderer, a traveler without a fixed destination. The road is your home and you survive on your instincts." },
+            desc: "You are a wanderer, a traveler without a fixed destination. The road is your home and you survive on your instincts.",
             equipment: {
                 A: { items: ["Dagger (x2)", "Thieves' Tools", "Gaming Set (one of your choice)", "Bedroll", "Pouch (x2)", "Traveler's Clothes"], gp: 16 },
                 B: { gp: 50 }
@@ -3344,7 +3344,7 @@ DATA.spellPool = {
     "Mirror Image": { level: 2, time: "1 action", range: "Self", comp: "V, S", dur: "1 min", desc: "Three illusory duplicates appear. Attacks may hit a duplicate (AC 10+DEX) instead; a duplicate vanishes when hit. Lasts 1 min." },
     "Misty Step": { level: 2, time: "1 bonus action", range: "Self", comp: "V", dur: "Instant", desc: "Bonus Action: teleport up to 30ft to a spot you can see." },
     "Moonbeam": { level: 2, time: "1 action", range: "120ft", comp: "V, S, M (a moonseed leaf)", dur: "Concentration, 1 min", desc: "A 5-ft-radius, 40-ft-high cylinder of pale light (Dim Light) appears on a point within 120 ft; on later turns a Magic action moves it up to 60 ft. A creature makes a Constitution save when the cylinder appears on it or moves into its space, and when it enters or ends its turn there (once per turn): 2d10 Radiant damage, half on a success; a shape-shifted creature that fails reverts to its true form and can't shape-shift while inside. Upcast: +1d10 per slot level above 2." },
-    "Pass Without Trace": { level: 2, time: "1 action", range: "Self", comp: "V, S, M (ashes from burned holly)", dur: "Concentration, 1 hour", desc: "You and allies within 30ft gain +10 to Stealth checks and can't be tracked." },
+    "Pass without Trace": { level: 2, time: "1 action", range: "Self", comp: "V, S, M (ashes from burned holly)", dur: "Concentration, 1 hour", desc: "You and allies within 30ft gain +10 to Stealth checks and can't be tracked." },
     "Phantasmal Force": { level: 2, time: "1 action", range: "60ft", comp: "V, S, M (a bit of fleece)", dur: "Concentration, 1 min", desc: "Concentration, 1 min. INT save or the target perceives an illusion that can deal 1d6 psychic damage per turn. Investigation check to discern." },
     "Prayer of Healing": { level: 2, time: "10 minutes", range: "30ft", comp: "V", dur: "Instant", desc: "Up to 6 creatures: restore 2d8 + modifier HP. Casting time 10 min. Upcast: +1d8." },
     "Protection from Poison": { level: 2, time: "1 action", range: "Touch", comp: "V, S", dur: "1 hour", desc: "Neutralise poison. Advantage on poison saves and resistance to poison damage." },
@@ -3700,7 +3700,7 @@ DATA.spells = {
     druid: {
         0: ["Druidcraft","Elementalism","Guidance","Mending","Message","Poison Spray","Produce Flame","Resistance","Shillelagh","Spare the Dying","Starry Wisp","Thorn Whip","Thunderclap"],
         1: ["Animal Friendship","Charm Person","Create or Destroy Water","Cure Wounds","Detect Magic","Detect Poison and Disease","Entangle","Faerie Fire","Fog Cloud","Goodberry","Healing Word","Ice Knife","Jump","Longstrider","Protection from Evil and Good","Purify Food and Drink","Speak with Animals","Thunderwave"],
-        2: ["Aid","Animal Messenger","Augury","Barkskin","Beast Sense","Continual Flame","Darkvision","Enhance Ability","Enlarge/Reduce","Find Traps","Flame Blade","Flaming Sphere","Gust of Wind","Heat Metal","Hold Person","Lesser Restoration","Locate Animals or Plants","Locate Object","Moonbeam","Pass Without Trace","Protection from Poison","Spike Growth","Summon Beast"],
+        2: ["Aid","Animal Messenger","Augury","Barkskin","Beast Sense","Continual Flame","Darkvision","Enhance Ability","Enlarge/Reduce","Find Traps","Flame Blade","Flaming Sphere","Gust of Wind","Heat Metal","Hold Person","Lesser Restoration","Locate Animals or Plants","Locate Object","Moonbeam","Pass without Trace","Protection from Poison","Spike Growth","Summon Beast"],
         3: ["Aura of Vitality","Call Lightning","Conjure Animals","Daylight","Dispel Magic","Elemental Weapon","Feign Death","Meld into Stone","Plant Growth","Protection from Energy","Revivify","Sleet Storm","Speak with Plants","Summon Fey","Water Breathing","Water Walk","Wind Wall"],
         4: ["Blight","Charm Monster","Confusion","Conjure Minor Elementals","Conjure Woodland Beings","Control Water","Divination","Dominate Beast","Fire Shield","Fount of Moonlight","Freedom of Movement","Giant Insect","Grasping Vine","Hallucinatory Terrain","Ice Storm","Locate Creature","Polymorph","Stone Shape","Stoneskin","Summon Elemental","Wall of Fire"],
         5: ["Antilife Shell","Awaken","Commune with Nature","Cone of Cold","Conjure Elemental","Contagion","Geas","Greater Restoration","Insect Plague","Mass Cure Wounds","Planar Binding","Reincarnate","Scrying","Tree Stride","Wall of Stone"],
@@ -3712,7 +3712,7 @@ DATA.spells = {
 
     ranger: {
         1: ["Alarm","Animal Friendship","Cure Wounds","Detect Magic","Detect Poison and Disease","Ensnaring Strike","Entangle","Fog Cloud","Goodberry","Hail of Thorns","Hunter's Mark","Jump","Longstrider","Speak with Animals"],
-        2: ["Aid","Animal Messenger","Barkskin","Beast Sense","Cordon of Arrows","Darkvision","Enhance Ability","Find Traps","Gust of Wind","Lesser Restoration","Locate Animals or Plants","Locate Object","Magic Weapon","Pass Without Trace","Protection from Poison","Silence","Spike Growth","Summon Beast"],
+        2: ["Aid","Animal Messenger","Barkskin","Beast Sense","Cordon of Arrows","Darkvision","Enhance Ability","Find Traps","Gust of Wind","Lesser Restoration","Locate Animals or Plants","Locate Object","Magic Weapon","Pass without Trace","Protection from Poison","Silence","Spike Growth","Summon Beast"],
         3: ["Conjure Animals","Conjure Barrage","Daylight","Dispel Magic","Elemental Weapon","Lightning Arrow","Meld into Stone","Nondetection","Plant Growth","Protection from Energy","Revivify","Speak with Plants","Summon Fey","Water Breathing","Water Walk","Wind Wall"],
         4: ["Conjure Woodland Beings","Dominate Beast","Freedom of Movement","Grasping Vine","Locate Creature","Stoneskin","Summon Elemental"],
         5: ["Commune with Nature","Conjure Volley","Greater Restoration","Steel Wind Strike","Swift Quiver","Tree Stride"]

@@ -235,8 +235,7 @@ for (const cls of CLASSES) {
   check('spell lists resolve in spellPool', missing.length === 0, missing.slice(0, 5).join('; '));
   const noMeta = Object.keys(DATA.spellPool).filter((n) => !DATA.spellMeta[n]);
   check('every spell has school/ritual meta', noMeta.length === 0, noMeta.join(', '));
-  // House rule (2026-10-15): only 2024 PHB spells, on the 2024 class lists. Case-insensitive
-  // because of the known "Pass Without Trace" casing (stored character data uses that key).
+  // House rule (2026-10-15): only 2024 PHB spells, on the 2024 class lists (names compared case-insensitively).
   const lc = (n) => n.toLowerCase();
   const phb = {}; Object.entries(FACTS.spells).forEach(([n, l]) => { phb[lc(n)] = l; });
   const notPhb = Object.keys(DATA.spellPool).filter((n) => !(lc(n) in phb));
