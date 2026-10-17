@@ -54,9 +54,9 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P2 — Monsters schalen voor hogere party-levels: "Scale to CR"-helper op basis van de base-link (PB, to-hit/DC, HP) — eerst een gecontroleerde bron voor HP/schade per CR (`Monsters/Rules.md`)
 - [ ] P3 — Bestaande creatures koppelen aan een basis (DM, via de editor): Gargoyle → Gargoyle, S.P.O.T. → Bat, Twig Blight → Twig Blight, Bad Bramble → dichtstbijzijnde monster
 - [x] P2 — Saving throws: `getSaveBonus` in de engine + widget "Saving Throws" (`wg-saves.js`, `LevelingUp/Saving-Throws.md`) (2026-10-17)
-- [ ] P2 — Attacks-widget met class-features: Martial Arts, Rage-damage, Archery/Dueling, Bardic Damage, pact weapon (CHA)
+- [x] P2 — Attacks-widget met class-features: Martial Arts, Rage-damage, Archery/Dueling/Thrown/GWF, Dazzling Footwork (Dance), pact weapon (CHA), Extra Attack-aantal, Exhaustion (2026-10-17)
 - [ ] P2 — Equipment A/B-keuze in de creation-wizard + background-equipment (GP, aantallen) checken tegen de 2024-data
-- [x] P2 — Trackers: widget "Conditions" (`wg-conditions.js`) met Heroic Inspiration, Exhaustion 0–6 (−2 op skills/saves/initiative, −5 ft speed, Long Rest −1), Concentration + CON-save-venster bij schade, Arcane Ward HP (2026-10-17). Exhaustion zit nog niet in attack rolls
+- [x] P2 — Trackers: widget "Conditions" (`wg-conditions.js`) met Heroic Inspiration, Exhaustion 0–6 (−2 op skills/saves/initiative, −5 ft speed, Long Rest −1), Concentration + CON-save-venster bij schade, Arcane Ward HP (2026-10-17). Exhaustion zit sinds de Attacks-update ook in attack rolls
 - [ ] P2 — Wizard "Memorize Spell": na een Short Rest één prepared spell wisselen (nu alleen tekst)
 - [ ] P2 — Entity-merge fase 0: offline round-trip-script dat `ensureEntityIds` + `migrateNpcsIntoCreatures` naspeelt op de dump
 - [ ] P3 — Prullenbak: character uit de party van een campaign halen bij verwijderen

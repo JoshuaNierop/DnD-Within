@@ -148,7 +148,7 @@ function wgxTurnRowModel(cfg, st) {
   var groups = { action: [], bonus: [], reaction: [], other: [] };
   var atks = (typeof wgxCollectAttacks === 'function') ? wgxCollectAttacks(cfg, st) : [];
   atks.forEach(function (a) {
-    (a.hit === '1/turn' ? groups.other : groups.action).push({ kind: 'attack', atk: a });
+    (/^[+-]\d/.test(a.hit) ? groups.action : groups.other).push({ kind: 'attack', atk: a });
   });
   var spells = (typeof wgxPreparedEntries === 'function') ? wgxPreparedEntries(cfg, st) : [];
   spells.forEach(function (e) {
