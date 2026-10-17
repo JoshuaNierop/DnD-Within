@@ -34,7 +34,7 @@ Status: grotendeels klaar — gecontroleerd 2026-10-15
 - [ ] P1 — Exhaustion (1-6 levels, -2 op d20 per level)
 - [~] P1 — Heroic Inspiration: alleen de Human-resource (Resourceful), geen algemene toggle
 - [x] P1 — Death saves (in de Hit Points-widget)
-- [ ] P2 — Saving throws berekenen en tonen (zie `LevelingUp/Saving-Throws.md`)
+- [x] P2 — Saving throws berekenen en tonen (`getSaveBonus` + widget `wg-saves.js`, 2026-10-17)
 
 ## Milestone 4 — High-level features (audit P2)
 Status: klaar op twee punten na — level 1–20 is compleet voor alle classes (2026-10-15)

@@ -1,8 +1,11 @@
 # Saving throws — wat ze beïnvloedt (voor een toekomstige integratie)
 
-De site berekent of toont saving throws nergens (zie Todo). Deze lijst houdt bij wat een
-saving throw van het eigen personage verandert, zodat een saves-widget/`getSaveBonus` later
-alles in één keer kan meenemen. Bijwerken wanneer er features, feats of spells bijkomen.
+Sinds 2026-10-17 berekent `getSaveBonus` (`engine.js`) de saves; widget "Saving Throws" (`wg-saves.js`).
+Verrekend in het totaal: class-saves, Resilient, Disciplined Survivor, Slippery Mind, Iron Mind (altijd WIS;
+de INT/CHA-keuze bij al-WIS-proficient is niet gemodelleerd), Aura of Protection (alleen eigen aura).
+Uit B als hover-notitie: class/subclass-features, War Caster, Eldritch Mind, Mage Slayer, Lucky en de species-traits.
+Niet meegenomen: spells (Bless, Resistance, …), Boon of Fate/Recovery, Durable/Survivor (death saves), Mounted Combatant.
+Bijwerken wanneer er features, feats of spells bijkomen.
 
 ## A. Vaste getallen (direct in een save-bonus te verrekenen)
 | Bron | Effect | Waar |

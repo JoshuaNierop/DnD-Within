@@ -441,8 +441,9 @@ function seedDefaultWidgets() {
   library.saved = [
     { id: 'abilityScores',  name: 'Ability Scores',  category: 'stats',     config: { type: 'abilityScores' } },
     { id: 'skills',         name: 'Skills',          category: 'stats',     config: { type: 'skills' } },
+    { id: 'savingThrows',   name: 'Saving Throws',   category: 'stats',     config: { type: 'savingThrows' } },
     { id: 'hpBase',         name: 'Hit Points',      category: 'stats',     config: { type: 'hpBase' } },
-    { id: 'longRest',       name: 'Rust',            category: 'stats',     config: { type: 'longRest' } },
+    { id: 'longRest',       name: 'Rest',            category: 'stats',     config: { type: 'longRest' } },
     { id: 'preparedSpells', name: 'Prepared Spells', category: 'stats',     config: { type: 'preparedSpells' } },
     { id: 'levelUp',        name: 'Level Up',        category: 'stats',     config: { type: 'levelUp' } },
     { id: 'classResource',  name: 'Resources',       category: 'stats',     config: { type: 'classResource' } },

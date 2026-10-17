@@ -92,6 +92,49 @@ function getSkillBonus(config, state, skill, ability) {
     return { total: parts.reduce(function (a, p) { return a + p.value; }, 0), parts: parts, prof: prof, expert: expert };
 }
 
+// Saving throw bonus (2024): ability modifier + Proficiency for the class saves,
+// Resilient, Disciplined Survivor (Monk 14, all saves), Slippery Mind (Rogue 15,
+// WIS/CHA) and Iron Mind (Gloom Stalker 7, WIS) + Aura of Protection (Paladin 6,
+// CHA modifier, min +1). Situational effects (Advantage, rerolls) come back as
+// notes; they are not added to the total. See Metadocs/LevelingUp/Saving-Throws.md.
+// Returns { total, parts: [{ label, value }], prof, notes: [string] }.
+function getSaveBonus(config, state, ability) {
+    var st = Object.assign({ asiChoices: {}, level: 1 }, state || {});
+    var cn = config.className, sub = config.subclass, lvl = st.level || 1, pb = getProfBonus(lvl);
+    var classSaves = ((DATA[cn] || {}).savingThrows) || [];
+    var profFrom = null;
+    if (classSaves.indexOf(ability) !== -1) profFrom = 'Proficiency';
+    else if (featInstances(config, st).some(function (f) { return f.name === 'Resilient' && f.rec && f.rec.ability === ability; })) profFrom = 'Proficiency (Resilient)';
+    else if (cn === 'monk' && lvl >= 14) profFrom = 'Proficiency (Disciplined Survivor)';
+    else if (cn === 'rogue' && lvl >= 15 && (ability === 'wis' || ability === 'cha')) profFrom = 'Proficiency (Slippery Mind)';
+    else if (cn === 'ranger' && sub === 'gloomStalker' && lvl >= 7 && ability === 'wis') profFrom = 'Proficiency (Iron Mind)';
+    var parts = [{ label: ability.toUpperCase() + ' modifier', value: getMod(getAbilityScore(config, st, ability)) }];
+    if (profFrom) parts.push({ label: profFrom, value: pb });
+    if (cn === 'paladin' && lvl >= 6) parts.push({ label: 'Aura of Protection (Charisma modifier)', value: Math.max(1, getMod(getAbilityScore(config, st, 'cha'))) });
+
+    var notes = [], race = config.race, feat = function (n) { return hasFeat(st, n, config); };
+    var mental = ability === 'int' || ability === 'wis' || ability === 'cha';
+    if (cn === 'barbarian' && ability === 'str') notes.push('Rage: Advantage while raging');
+    if (cn === 'barbarian' && lvl >= 18 && ability === 'str') notes.push('Indomitable Might: total is at least your Strength score');
+    if (cn === 'barbarian' && lvl >= 2 && ability === 'dex') notes.push('Danger Sense: Advantage unless Incapacitated');
+    if (cn === 'barbarian' && sub === 'zealot' && lvl >= 6) notes.push('Fanatical Focus: reroll a failed save once per Rage, + Rage Damage');
+    if (cn === 'fighter' && lvl >= 9) notes.push('Indomitable: reroll a failed save with + Fighter level (' + (lvl >= 17 ? 3 : lvl >= 13 ? 2 : 1) + '/Long Rest)');
+    if (cn === 'wizard' && sub === 'abjuration' && lvl >= 14) notes.push('Spell Resistance: Advantage on saves against spells');
+    if (cn === 'paladin' && sub === 'devotion' && lvl >= 20) notes.push('Holy Nimbus: Advantage on saves forced by Fiends or Undead');
+    if (cn === 'paladin' && sub === 'glory' && lvl >= 20) notes.push('Living Legend: reroll a failed save (Reaction)');
+    if (cn === 'sorcerer' && sub === 'aberrant' && lvl >= 6 && mental) notes.push('Psychic Defenses: Advantage against Charmed and Frightened');
+    if (cn === 'ranger' && sub === 'feyWanderer' && lvl >= 7 && mental) notes.push('Beguiling Twist: Advantage against Charmed and Frightened');
+    if (ability === 'con' && feat('War Caster')) notes.push('War Caster: Advantage to keep Concentration');
+    if (ability === 'con' && listOf(st.invocations).indexOf('Eldritch Mind') !== -1) notes.push('Eldritch Mind: Advantage to keep Concentration');
+    if (mental && feat('Mage Slayer')) notes.push('Mage Slayer: turn a failed save into a success (1/Short or Long Rest)');
+    if (feat('Lucky')) notes.push('Lucky: spend a Luck Point for Advantage');
+    if (mental && race === 'gnome') notes.push('Gnomish Cunning: Advantage');
+    if (race === 'halfling') notes.push('Brave: Advantage against Frightened');
+    if (race === 'dwarf' && ability === 'con') notes.push('Dwarven Resilience: Advantage against Poisoned');
+    if ((race === 'highElf' || race === 'woodElf' || race === 'drow' || race === 'halfElf') && mental) notes.push('Fey Ancestry: Advantage against Charmed');
+    return { total: parts.reduce(function (a, p) { return a + p.value; }, 0), parts: parts, prof: !!profFrom, notes: notes };
+}
+
 // Walking speed: species + Unarmored Movement (Monk 2+, no armor or Shield) +
 // Fast Movement (Barbarian 5+) / Roving (Ranger 6+), both without Heavy armor + Speedy (+10 ft).
 function getSpeed(config, state) {
