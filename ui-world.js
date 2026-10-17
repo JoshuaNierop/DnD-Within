@@ -2002,6 +2002,18 @@ function collectEntities() {
             });
         });
     } catch (e) { /* ignore */ }
+    // Timeline sessions — open on /timeline, scrolled to the session.
+    try {
+        var tl = (typeof getTimelineData === 'function') ? getTimelineData() : null;
+        ((tl && tl.chapters) || []).forEach(function (ch) {
+            ((ch && (ch.events || ch.sessions)) || []).forEach(function (s) {
+                if (!s || !s.id) return;
+                var sNum = (s.session != null && s.session !== '') ? 'Session ' + s.session : '';
+                list.push({ type: 'session', cat: 'Sessions', id: s.id, name: s.title || sNum || '(untitled session)', image: null,
+                    desc: [sNum, ch.name].filter(Boolean).join(' · '), route: '/timeline' });
+            });
+        });
+    } catch (e) { /* ignore */ }
     return list;
 }
 
@@ -2017,6 +2029,7 @@ function entityTypeLabel(e) {
     if (!e) return '';
     if (e.type === 'character') return 'CHARACTER';
     if (e.type === 'npc') return 'NPC';
+    if (e.type === 'session') return 'SESSION';
     if (e.type === 'lore') return LORE_SINGULAR[e.loreCat] || String(e.cat || 'LORE').toUpperCase();
     return String(e.type || '').toUpperCase();
 }
@@ -2044,7 +2057,7 @@ function entityById(type, id) {
 // if the entity no longer exists).
 function renderRichText(str) {
     var escaped = escapeHtml(str == null ? '' : String(str));
-    return escaped.replace(/\[\[(character|npc|lore):([a-z0-9_]+)(?:\|([^\]]*))?\]\]/gi, function (m, type, id, fallback) {
+    return escaped.replace(/\[\[(character|npc|lore|session):([a-z0-9_]+)(?:\|([^\]]*))?\]\]/gi, function (m, type, id, fallback) {
         type = type.toLowerCase();
         var ent = entityById(type, id);
         if (!ent) {

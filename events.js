@@ -1142,6 +1142,15 @@ function bindPageEvents(route) {
         if (target.closest('[data-action="goto-entity"]')) {
             var entLink = target.closest('[data-action="goto-entity"]');
             var etype = entLink.dataset.etype, eid = entLink.dataset.eid;
+            if (etype === 'session') {
+                localStorage.setItem('dw_timeline_focus_session', eid);
+                if ((location.pathname || '/') === '/timeline') {
+                    // Already on the timeline → re-render so the focus logic scrolls to it.
+                    e.preventDefault();
+                    renderApp();
+                }
+                return;
+            }
             if (etype === 'npc' || etype === 'lore') {
                 window._dwEntityFocus = { type: etype, id: eid };
                 var dest = entLink.getAttribute('href') || '';

@@ -1,14 +1,14 @@
 // ============================================================
 // D&D Within — @-mention autocomplete
 // ============================================================
-// Type "@" in any .edit-textarea to link an entity (Character / NPC / Lore).
+// Type "@" in any .edit-textarea to link an entity (Character / NPC / Lore / Session).
 // A popup shows matching entities (from collectEntities()); picking one inserts
 // the token `[[type:id|Naam]]` into the text. renderRichText() (ui-world.js)
 // turns that token into a clickable, rename-proof link on display.
 //
 // Delegated on document so it keeps working for textareas created on each
-// render. Popup mounts on body and is positioned just below the textarea
-// (simple MVP positioning — no caret-pixel math).
+// render. Popup mounts on body and opens just below the caret (mirror-div
+// measurement), kept inside the viewport.
 // ============================================================
 (function () {
     var popup = null;
@@ -87,14 +87,46 @@
         positionPopup();
     }
 
+    // Caret position inside a textarea (px, relative to its border box): copy the
+    // textarea's text styles onto a hidden div, put the text up to the caret in
+    // it and measure a marker span at the end.
+    var MIRROR_PROPS = ['boxSizing', 'width', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+        'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'fontFamily', 'fontSize',
+        'fontWeight', 'fontStyle', 'letterSpacing', 'lineHeight', 'textTransform', 'wordSpacing', 'tabSize', 'textIndent'];
+    function caretCoords(ta, pos) {
+        var cs = window.getComputedStyle(ta);
+        var div = document.createElement('div');
+        MIRROR_PROPS.forEach(function (p) { div.style[p] = cs[p]; });
+        div.style.position = 'absolute';
+        div.style.visibility = 'hidden';
+        div.style.whiteSpace = 'pre-wrap';
+        div.style.wordWrap = 'break-word';
+        div.style.overflow = 'hidden';
+        div.textContent = ta.value.slice(0, pos);
+        var mark = document.createElement('span');
+        mark.textContent = '\u200b';
+        div.appendChild(mark);
+        document.body.appendChild(div);
+        var lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.3 || 18;
+        var out = { top: mark.offsetTop - ta.scrollTop, left: mark.offsetLeft - ta.scrollLeft, height: lh };
+        div.remove();
+        return out;
+    }
+
     function positionPopup() {
         if (!popup || !activeTA) return;
         var r = activeTA.getBoundingClientRect();
-        var top = r.bottom + window.scrollY + 2;
-        var left = r.left + window.scrollX;
-        popup.style.top = top + 'px';
-        popup.style.left = left + 'px';
-        popup.style.minWidth = Math.min(r.width, 320) + 'px';
+        var c = { top: r.height - 2, left: 0, height: 0 };
+        try { c = caretCoords(activeTA, queryAt >= 0 ? queryAt : (activeTA.selectionStart || 0)); } catch (_) {}
+        // Clamp the caret inside the visible textarea, then keep the popup on screen.
+        var top = r.top + Math.min(Math.max(c.top + c.height, 0), r.height) + 2;
+        var left = r.left + Math.min(Math.max(c.left, 0), Math.max(0, r.width - 40));
+        var pw = popup.offsetWidth || 260, ph = popup.offsetHeight || 0;
+        if (left + pw > window.innerWidth - 8) left = Math.max(8, window.innerWidth - pw - 8);
+        if (top + ph > window.innerHeight - 8 && r.top + c.top - ph - 4 > 8) top = r.top + c.top - ph - 4;
+        popup.style.top = (top + window.scrollY) + 'px';
+        popup.style.left = (left + window.scrollX) + 'px';
+        popup.style.minWidth = Math.min(r.width, 260) + 'px';
     }
 
     function refresh(ta) {
@@ -170,7 +202,7 @@
     // the two; the field carries a data-mentions JSON map (name→type:id) so the
     // save path can expand "@Name" back to the token.
     // ========================================================
-    var TOKEN_RE = /\[\[(character|npc|lore):([a-z0-9_]+)(?:\|([^\]]*))?\]\]/gi;
+    var TOKEN_RE = /\[\[(character|npc|lore|session):([a-z0-9_]+)(?:\|([^\]]*))?\]\]/gi;
 
     // Tokens → "@Name" for display in a textarea.
     window.mentionsToDisplay = function (text) {
