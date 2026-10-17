@@ -4594,13 +4594,7 @@ DATA.classResources = [
         stateKey: 'largeFormUsed', recharge: 'long', featureNames: ['Large Form'],
         desc: "Bonus Action: become Large for 10 minutes. Once per Long Rest."
     },
-    {
-        id: 'heroicInspiration', label: 'Heroic Inspiration',
-        appliesTo: { race: 'human', minLevel: 1 },
-        max: function (cfg, st) { return 1; },
-        stateKey: 'heroicInspirationUsed', recharge: 'long', featureNames: ['Resourceful'],
-        desc: "Resourceful: you gain Heroic Inspiration on every Long Rest. Spend it to reroll any die right after rolling it."
-    },
+    // Heroic Inspiration is a toggle in the Conditions widget (state.heroicInspiration); Resourceful sets it on a Long Rest.
     {
         id: 'adrenalineRush', label: 'Adrenaline Rush',
         appliesTo: { race: 'orc', minLevel: 1 },

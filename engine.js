@@ -89,7 +89,14 @@ function getSkillBonus(config, state, skill, ability) {
     if (config.className === 'cleric' && config.divineOrder === 'thaumaturge' && (k === 'arcana' || k === 'religion')) parts.push({ label: 'Thaumaturge (Wisdom modifier)', value: wisB });
     if (config.className === 'druid' && config.primalOrder === 'magician' && (k === 'arcana' || k === 'nature')) parts.push({ label: 'Magician (Wisdom modifier)', value: wisB });
     if (config.className === 'ranger' && config.subclass === 'feyWanderer' && lvl >= 3 && ability === 'cha') parts.push({ label: 'Otherworldly Glamour (Wisdom modifier)', value: wisB });
+    if (getExhaustion(st)) parts.push({ label: 'Exhaustion', value: -2 * getExhaustion(st) });
     return { total: parts.reduce(function (a, p) { return a + p.value; }, 0), parts: parts, prof: prof, expert: expert };
+}
+
+// Exhaustion level 0-6 (state.exhaustion): −2 per level on every D20 Test, −5 ft Speed per level.
+function getExhaustion(state) {
+    var n = parseInt((state && state.exhaustion) || 0, 10);
+    return n > 0 ? Math.min(6, n) : 0;
 }
 
 // Saving throw bonus (2024): ability modifier + Proficiency for the class saves,
@@ -111,6 +118,7 @@ function getSaveBonus(config, state, ability) {
     var parts = [{ label: ability.toUpperCase() + ' modifier', value: getMod(getAbilityScore(config, st, ability)) }];
     if (profFrom) parts.push({ label: profFrom, value: pb });
     if (cn === 'paladin' && lvl >= 6) parts.push({ label: 'Aura of Protection (Charisma modifier)', value: Math.max(1, getMod(getAbilityScore(config, st, 'cha'))) });
+    if (getExhaustion(st)) parts.push({ label: 'Exhaustion', value: -2 * getExhaustion(st) });
 
     var notes = [], race = config.race, feat = function (n) { return hasFeat(st, n, config); };
     var mental = ability === 'int' || ability === 'wis' || ability === 'cha';
@@ -146,7 +154,7 @@ function getSpeed(config, state) {
     if (config.className === 'ranger' && lvl >= 6) spd += 10;
     if (hasFeat(st, 'Speedy', config)) spd += 10;
     if (hasFeat(st, 'Boon of Speed', config)) spd += 30;
-    return spd;
+    return Math.max(0, spd - 5 * getExhaustion(st));
 }
 
 // Darkvision: species range; Shadow Arts (Warrior of Shadow) and Umbral Sight
@@ -170,6 +178,7 @@ function getInitiative(config, state) {
     var parts = [{ label: 'DEX modifier', value: dex }];
     if (hasFeat(st, 'Alert', config)) parts.push({ label: 'Alert', value: getProfBonus(lvl) });
     if (config.className === 'ranger' && config.subclass === 'gloomStalker' && lvl >= 3) parts.push({ label: 'Dread Ambusher (WIS modifier)', value: getMod(getAbilityScore(config, st, 'wis')) });
+    if (getExhaustion(st)) parts.push({ label: 'Exhaustion', value: -2 * getExhaustion(st) });
     return {
         bonus: parts.reduce(function (a, p) { return a + p.value; }, 0),
         advantage: lvl >= 3 && ((config.className === 'fighter' && config.subclass === 'champion') || (config.className === 'rogue' && config.subclass === 'assassin')),

@@ -28,8 +28,8 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 
 ## Joshua — testen in de browser / aan tafel
 
-- [ ] P2 — Nieuw 2026-10-17: "Saving Throws"-widget toevoegen (library → stats) en checken; site-vensters i.p.v. browser-popups (verwijderen in notes/maps/lore, family-diagram partner/ouder/kind toevoegen, rest-knoppen, widget opslaan)
 Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
+- [ ] P2 — Nieuw 2026-10-17: "Saving Throws"-widget (library → stats) en "Conditions"-widget (library → combat) toevoegen en checken — schade nemen tijdens een concentration-spell moet het CON-save-venster tonen; Humans: Heroic Inspiration is nu een aan/uit-knop (oude resource weg, staat pas weer aan na de volgende Long Rest); site-vensters i.p.v. browser-popups (verwijderen in notes/maps/lore, family-diagram partner/ouder/kind toevoegen, rest-knoppen, widget opslaan)
 - [ ] P1 — Entity-merge fase 3: `@`-mention van een ex-NPC opent de Creatures-kaart, oude `/lore/monsters`-links, combat-picker zonder dubbele namen, klik in family-diagram, Families-tab
 - [ ] P2 — Level-up level 6–20 in de echte site (alleen in Node getest): een paar characters omhoog en weer omlaag
 - [ ] P2 — Combat tracker: concentration-kolom, speler-tracker normaal + gedraaid, Familiars-tab, soort-knop; min. breedte/hoogte worden sinds 2026-10-16 na elke render gemeten (`combatMeasureWidgets`) — check of hij niet smaller/lager kan dan de inhoud, ook in een smal dashboard
@@ -56,7 +56,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P2 — Saving throws: `getSaveBonus` in de engine + widget "Saving Throws" (`wg-saves.js`, `LevelingUp/Saving-Throws.md`) (2026-10-17)
 - [ ] P2 — Attacks-widget met class-features: Martial Arts, Rage-damage, Archery/Dueling, Bardic Damage, pact weapon (CHA)
 - [ ] P2 — Equipment A/B-keuze in de creation-wizard + background-equipment (GP, aantallen) checken tegen de 2024-data
-- [ ] P2 — Trackers: Exhaustion (1–6), algemene Heroic Inspiration, concentration voor spelers met CON-save bij schade, Arcane Ward HP
+- [x] P2 — Trackers: widget "Conditions" (`wg-conditions.js`) met Heroic Inspiration, Exhaustion 0–6 (−2 op skills/saves/initiative, −5 ft speed, Long Rest −1), Concentration + CON-save-venster bij schade, Arcane Ward HP (2026-10-17). Exhaustion zit nog niet in attack rolls
 - [ ] P2 — Wizard "Memorize Spell": na een Short Rest één prepared spell wisselen (nu alleen tekst)
 - [ ] P2 — Entity-merge fase 0: offline round-trip-script dat `ensureEntityIds` + `migrateNpcsIntoCreatures` naspeelt op de dump
 - [ ] P3 — Prullenbak: character uit de party van een campaign halen bij verwijderen

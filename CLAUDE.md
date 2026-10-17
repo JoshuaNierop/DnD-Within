@@ -23,6 +23,7 @@ Alles staat in de repo-root (geen `js/`- of `css/`-map).
 - `data.js` (~530 kB) + `data-rules.js` — classes, species, feats, spells, items, resources
 - `monster-db.js` + `monsters-data.js` (lazy, gegenereerd) — Monster Manual 2025-basis voor Creatures (503 monsters; niet-SRD-tekst in eigen woorden); regels + build in `Metadocs/Monsters/`
 - `wg-*.js` + `wg-style.css` — character-dashboard (widget grid, level-up, prepare, rest, combat)
+- `wg-conditions.js` — Conditions-widget (Heroic Inspiration, Exhaustion via `getExhaustion`, Concentration + CON-save bij schade, Arcane Ward HP)
 - `wg-saves.js` — Saving Throws-widget (bonus uit `getSaveBonus` in `engine.js`, situationele effecten als hover)
 - `wg-turn.js` — Your Turn-widget + actieve spell-effecten (`state.activeEffects`, aftellen via encounter-rondes); `wg-glossary.js` — regels-glossary + term-index voor geneste tooltips (tooltip-laag zelf in `wg-events.js`)
 - `style.css` — overige styles

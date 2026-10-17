@@ -119,7 +119,7 @@ async function wgxHpMutate(charId, mutator) {
   return next;
 }
 function wgxHpToast(next, verb) {
-  if (next.dead) { showToast('💀 Dood', 'error'); return; }
+  if (next.dead) { showToast('💀 Dead', 'error'); return; }
   if (next.current === 0 && verb === 'damage') { showToast('Death save failure', 'error'); return; }
   showToast(`${verb === 'heal' ? 'Heal' : 'Damage'} → ${next.current}/${next.max}` + (next.temp > 0 ? ` (+${next.temp})` : ''));
 }
@@ -127,6 +127,7 @@ async function wgxApplyMode(charId, mode, amt) {
   try {
     const next = await wgxHpMutate(charId, hp => mode === 'heal' ? wgxApplyHeal(hp, amt) : wgxApplyDamage(hp, amt));
     wgxHpToast(next, mode);
+    if (mode !== 'heal' && typeof wgxConcentrationCheck === 'function') wgxConcentrationCheck(charId, amt, next);
   } catch (err) { showToast('Save failed · ' + err.message, 'error'); }
 }
 
@@ -300,6 +301,7 @@ WG_INFOBOX_CLICK_HANDLERS.hp = async ({ cellG, raw, charId, rowIdx }) => {
     const delta = v - t.current;
     const next = await wgxHpMutate(charId, hp => delta >= 0 ? wgxApplyHeal(hp, delta) : wgxApplyDamage(hp, -delta));
     wgxHpToast(next, delta >= 0 ? 'heal' : 'damage');
+    if (delta < 0 && typeof wgxConcentrationCheck === 'function') wgxConcentrationCheck(charId, -delta, next);
   } else if (action === 'temp') {
     const v = await wgxPromptNumberOverlay(cellG, t.temp, 0, 999);
     if (v == null) return;

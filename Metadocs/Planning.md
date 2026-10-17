@@ -29,10 +29,10 @@ Status: grotendeels klaar — gecontroleerd 2026-10-15
 
 - [x] P1 — Rage, Focus Points, Channel Divinity, Bardic Inspiration, Lay on Hands
 - [x] P1 — Sorcery Points, Second Wind / Action Surge / Indomitable
-- [~] P1 — Wild Shape, Superiority Dice, Psionic Energy klaar; Arcane Ward heeft alleen een 1×/Long Rest-teller, geen ward-HP
-- [~] P1 — Concentration: alleen een kolom in de DM-combat-tracker; geen tracker voor spelers en geen CON-save bij schade
-- [ ] P1 — Exhaustion (1-6 levels, -2 op d20 per level)
-- [~] P1 — Heroic Inspiration: alleen de Human-resource (Resourceful), geen algemene toggle
+- [x] P1 — Wild Shape, Superiority Dice, Psionic Energy klaar; Arcane Ward-HP in de Conditions-widget (2026-10-17)
+- [x] P1 — Concentration: DM-kolom + spelers-tracker in de Conditions-widget, CON-save-venster bij schade (2026-10-17)
+- [x] P1 — Exhaustion (1-6 levels, -2 op d20 per level) — skills/saves/initiative/speed; attack rolls nog niet (2026-10-17)
+- [x] P1 — Heroic Inspiration: algemene toggle in de Conditions-widget; Resourceful zet hem bij een Long Rest (2026-10-17)
 - [x] P1 — Death saves (in de Hit Points-widget)
 - [x] P2 — Saving throws berekenen en tonen (`getSaveBonus` + widget `wg-saves.js`, 2026-10-17)
 

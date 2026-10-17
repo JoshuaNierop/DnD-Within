@@ -86,6 +86,12 @@ async function wgxLongRest(charId) {
   const resources = (typeof getClassResources === 'function') ? getClassResources(raw.config || {}, st) : [];
   for (const r of resources) patch[r.stateKey] = 0;
   patch.activeEffects = null;                         // 8 hours: every running spell has ended
+  // Conditions widget (wg-conditions.js): one Exhaustion level off, the Arcane Ward
+  // is gone until recreated, Humans regain Heroic Inspiration (Resourceful).
+  const ex = (typeof getExhaustion === 'function') ? getExhaustion(st) : 0;
+  if (ex) patch.exhaustion = ex - 1 || null;
+  if (st.arcaneWardHp) patch.arcaneWardHp = null;
+  if ((raw.config || {}).race === 'human') patch.heroicInspiration = true;
   await wgxPatchState(charId, patch);
   return { max: hp.max, restoredHitDice: restore };
 }
