@@ -1523,8 +1523,7 @@ function bindPageEvents(route) {
         // #Ovy59sT: chat button in the dashboard bottom bar opens the social
         // chat widget (which has its own #scw-fab launcher).
         if (target.matches('[data-action="open-chat-widget"]') || target.closest('[data-action="open-chat-widget"]')) {
-            var scwFab = document.getElementById('scw-fab');
-            if (scwFab) scwFab.click();
+            if (window.dndSocial && window.dndSocial.toggle) window.dndSocial.toggle();
             return;
         }
 

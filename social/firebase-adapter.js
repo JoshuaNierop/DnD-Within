@@ -1,64 +1,42 @@
-// social/adapters/firebase-rest.js
-// Firebase RTDB adapter via REST + EventSource. Geen SDK bundle.
+// social/firebase-adapter.js
+// Firebase RTDB adapter on the compat SDK that index.html already loads.
+// One multiplexed websocket for every listener, automatic reconnects, the
+// Firebase Auth token is attached by the SDK, and local writes show up
+// instantly (latency compensation). Data layout is unchanged:
+//   chats/{chatId}/messages/{pushKey} = {from, text, ts}
+//   chats/{chatId}/meta               = {members, lastMessage, lastTs, lastFrom, lastFromName}
+//   users/{uid}/chats/{chatId}        = {unread, lastSeenTs, lastTs}
+//   users/{uid}/friends/{uid}         = {status, since, displayName, email}
 //
-// Host project levert: databaseURL, rootPath, getToken(), getUid(), getMyProfile().
+// Host project supplies: rootPath, getUid(), getMyProfile(), optional resolveName(uid).
 
 import { chatIdFor, emailSlug, otherMemberUid } from './core.js';
 
+const MAX_TEXT = 2000;
+
 export function createFirebaseAdapter({
-    databaseURL,
     rootPath = '',
-    getToken,
     getUid,
     getMyProfile,
+    resolveName = () => null,
 }) {
-    if (!databaseURL || !getToken || !getUid || !getMyProfile) {
-        throw new Error('createFirebaseAdapter: ontbrekende config');
+    if (!getUid || !getMyProfile) {
+        throw new Error('createFirebaseAdapter: missing config');
     }
 
-    const root = rootPath ? rootPath.replace(/^\/+|\/+$/g, '') + '/' : '';
+    const root = rootPath.replace(/^\/+|\/+$/g, '');
 
-    function url(path) {
-        const tok = getToken();
-        const base = `${databaseURL.replace(/\/+$/, '')}/${root}${path}.json`;
-        return tok ? `${base}?auth=${encodeURIComponent(tok)}` : base;
+    function db() {
+        if (typeof firebase === 'undefined') throw new Error('Firebase SDK not loaded');
+        if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+        return firebase.database();
     }
+    const ref = (path) => db().ref(path ? `${root}/${path}` : root);
+    const SV = () => firebase.database.ServerValue;
 
-    async function dbGet(path) {
-        const r = await fetch(url(path));
-        if (!r.ok) throw new Error(`GET ${path}: ${r.status}`);
-        return r.json();
-    }
-    async function dbPut(path, data) {
-        const r = await fetch(url(path), {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-        if (!r.ok) throw new Error(`PUT ${path}: ${r.status} — ${await r.text()}`);
-        return r.json();
-    }
-    async function dbPatch(path, data) {
-        const r = await fetch(url(path), {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-        if (!r.ok) throw new Error(`PATCH ${path}: ${r.status} — ${await r.text()}`);
-        return r.json();
-    }
-    async function dbDelete(path) {
-        const r = await fetch(url(path), { method: 'DELETE' });
-        if (!r.ok) throw new Error(`DELETE ${path}: ${r.status}`);
-    }
-    async function dbPost(path, data) {
-        const r = await fetch(url(path), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-        if (!r.ok) throw new Error(`POST ${path}: ${r.status}`);
-        return r.json();
+    async function val(path) {
+        const snap = await ref(path).get();
+        return snap.val();
     }
 
     // ===== Identity / lookup =====
@@ -68,7 +46,7 @@ export function createFirebaseAdapter({
         if (!me?.email || !me?.uid) return;
         const slug = emailSlug(me.email);
         if (!slug) return;
-        await dbPut(`lookups/email/${slug}`, {
+        await ref(`lookups/email/${slug}`).set({
             uid: me.uid,
             displayName: me.displayName || me.email,
         });
@@ -77,7 +55,7 @@ export function createFirebaseAdapter({
     async function findUserByEmail(email) {
         const slug = emailSlug(email);
         if (!slug) return null;
-        const lookup = await dbGet(`lookups/email/${slug}`);
+        const lookup = await val(`lookups/email/${slug}`);
         if (!lookup?.uid) return null;
         return {
             uid: lookup.uid,
@@ -88,357 +66,278 @@ export function createFirebaseAdapter({
 
     async function getProfile(uid) {
         if (!uid) return null;
-        const p = await dbGet(`users/${uid}/profile`);
+        const p = await val(`users/${uid}/profile`);
         if (!p) return null;
         return { uid, displayName: p.displayName || p.email || uid, email: p.email || '' };
     }
 
     // ===== Friends =====
 
-    async function listFriends() {
-        const me = getUid();
-        const data = await dbGet(`users/${me}/friends`);
-        if (!data) return [];
-        return Object.entries(data).map(([uid, f]) => ({
+    function friendList(data, status) {
+        return Object.entries(data || {}).map(([uid, f]) => ({
             uid,
-            displayName: f.displayName || uid,
+            displayName: resolveName(uid) || f.displayName || uid,
             email: f.email || '',
-            status: f.status || 'accepted',
+            status: status || f.status || 'accepted',
             since: f.since || 0,
-        })).sort((a, b) => a.displayName.localeCompare(b.displayName));
+            message: f.message || '',
+            outgoing: !!f.outgoing,
+        }));
+    }
+
+    async function listFriends() {
+        return friendList(await val(`users/${getUid()}/friends`))
+            .sort((a, b) => a.displayName.localeCompare(b.displayName));
     }
 
     async function listIncoming() {
-        const me = getUid();
-        const data = await dbGet(`users/${me}/incoming`);
-        if (!data) return [];
-        return Object.entries(data).map(([uid, f]) => ({
-            uid,
-            displayName: f.displayName || uid,
-            email: f.email || '',
-            status: 'pending',
-            since: f.since || 0,
-            message: f.message || '',
-        })).sort((a, b) => b.since - a.since);
+        return friendList(await val(`users/${getUid()}/incoming`), 'pending')
+            .sort((a, b) => b.since - a.since);
     }
 
     async function sendFriendRequest(toUid, toProfile, message = '') {
         const me = await getMyProfile();
         if (!me?.uid) throw new Error('Not signed in');
         if (toUid === me.uid) throw new Error('You cannot add yourself');
-
-        const existing = await dbGet(`users/${me.uid}/friends/${toUid}`);
-        if (existing) throw new Error('This user is already a friend (or the request is pending)');
-
+        if (await val(`users/${me.uid}/friends/${toUid}`)) {
+            throw new Error('This user is already a friend (or the request is pending)');
+        }
         const since = Date.now();
-        // Write on my side: pending outgoing
-        await dbPut(`users/${me.uid}/friends/${toUid}`, {
-            status: 'pending',
-            since,
-            displayName: toProfile.displayName,
-            email: toProfile.email,
-            outgoing: true,
-        });
-        // Write on the receiver: incoming
-        await dbPut(`users/${toUid}/incoming/${me.uid}`, {
-            since,
-            displayName: me.displayName,
-            email: me.email,
-            message,
+        await ref().update({
+            [`users/${me.uid}/friends/${toUid}`]: {
+                status: 'pending', since, outgoing: true,
+                displayName: toProfile.displayName, email: toProfile.email || '',
+            },
+            [`users/${toUid}/incoming/${me.uid}`]: {
+                since, displayName: me.displayName, email: me.email || '', message,
+            },
         });
     }
 
     async function acceptFriendRequest(fromUid) {
         const me = await getMyProfile();
         if (!me?.uid) throw new Error('Not signed in');
-
-        const incoming = await dbGet(`users/${me.uid}/incoming/${fromUid}`);
+        const incoming = await val(`users/${me.uid}/incoming/${fromUid}`);
         if (!incoming) throw new Error('No request found');
-
         const since = Date.now();
-        // On my side: add as accepted, remove incoming
-        await dbPut(`users/${me.uid}/friends/${fromUid}`, {
-            status: 'accepted',
-            since,
-            displayName: incoming.displayName,
-            email: incoming.email,
-        });
-        await dbDelete(`users/${me.uid}/incoming/${fromUid}`);
-        // Bij hen: update pending → accepted
-        await dbPut(`users/${fromUid}/friends/${me.uid}`, {
-            status: 'accepted',
-            since,
-            displayName: me.displayName,
-            email: me.email,
+        await ref().update({
+            [`users/${me.uid}/friends/${fromUid}`]: {
+                status: 'accepted', since,
+                displayName: incoming.displayName, email: incoming.email || '',
+            },
+            [`users/${me.uid}/incoming/${fromUid}`]: null,
+            [`users/${fromUid}/friends/${me.uid}`]: {
+                status: 'accepted', since,
+                displayName: me.displayName, email: me.email || '',
+            },
         });
     }
 
     async function declineFriendRequest(fromUid) {
         const me = getUid();
-        await dbDelete(`users/${me}/incoming/${fromUid}`);
-        // Also remove the pending-outgoing on their side so they can send it again
-        try { await dbDelete(`users/${fromUid}/friends/${me}`); } catch {}
+        await ref().update({
+            [`users/${me}/incoming/${fromUid}`]: null,
+            // Also clear the pending request on their side so they can send it again
+            [`users/${fromUid}/friends/${me}`]: null,
+        });
     }
 
     async function removeFriend(uid) {
         const me = getUid();
-        await dbDelete(`users/${me}/friends/${uid}`);
-        try { await dbDelete(`users/${uid}/friends/${me}`); } catch {}
+        await ref().update({
+            [`users/${me}/friends/${uid}`]: null,
+            [`users/${uid}/friends/${me}`]: null,
+        });
     }
 
-    // ===== Chat =====
-
-    async function listChats() {
+    // Mirror a contact list (the party) as accepted friends + chat-index entries.
+    // Two reads, one write — only adds what is missing.
+    async function ensureContacts(contacts) {
         const me = getUid();
-        const indexData = await dbGet(`users/${me}/chats`);
-        if (!indexData) return [];
-
-        const chats = await Promise.all(Object.entries(indexData).map(async ([chatId, idx]) => {
-            const meta = await dbGet(`chats/${chatId}/meta`).catch(() => null);
-            const otherUid = otherMemberUid(chatId, me);
-            const friend = await dbGet(`users/${me}/friends/${otherUid}`).catch(() => null);
-            return {
-                chatId,
-                otherUid,
-                otherDisplayName: friend?.displayName || meta?.lastFromName || otherUid,
-                lastMessage: meta?.lastMessage || '',
-                lastTs: meta?.lastTs || 0,
-                lastFrom: meta?.lastFrom || '',
-                unread: idx?.unread || 0,
-                lastSeenTs: idx?.lastSeenTs || 0,
-            };
-        }));
-        return chats.sort((a, b) => (b.lastTs || 0) - (a.lastTs || 0));
-    }
-
-    async function loadMessages(chatId, { limit = 100 } = {}) {
-        // Firebase RTDB orderBy + limitToLast requires .indexOn on the path
-        const tok = getToken();
-        const base = `${databaseURL.replace(/\/+$/, '')}/${root}chats/${chatId}/messages.json`;
-        const params = new URLSearchParams({ orderBy: '"ts"', limitToLast: String(limit) });
-        if (tok) params.set('auth', tok);
-        const u = `${base}?${params.toString()}`;
-        const r = await fetch(u);
-        if (!r.ok) throw new Error(`loadMessages: ${r.status}`);
-        const data = await r.json();
-        if (!data) return [];
-        return Object.entries(data)
-            .map(([id, m]) => ({ id, from: m.from, text: m.text, ts: m.ts }))
-            .sort((a, b) => a.ts - b.ts);
-    }
-
-    async function sendMessage(chatId, otherUid, text) {
-        const me = await getMyProfile();
-        if (!me?.uid) throw new Error('Not signed in');
-        const trimmed = String(text || '').trim();
-        if (!trimmed) return;
-
-        const ts = Date.now();
-        // Push message
-        const pushRes = await dbPost(`chats/${chatId}/messages`, {
-            from: me.uid,
-            text: trimmed,
-            ts,
-        });
-        // Update meta (no members write — that is initialized on chat creation)
-        const metaExists = await dbGet(`chats/${chatId}/meta/members/${me.uid}`);
-        if (!metaExists) {
-            // First message → bootstrap meta
-            await dbPatch(`chats/${chatId}/meta`, {
-                [`members/${me.uid}`]: true,
-                [`members/${otherUid}`]: true,
-                lastMessage: trimmed.slice(0, 200),
-                lastTs: ts,
-                lastFrom: me.uid,
-                lastFromName: me.displayName,
-            });
-        } else {
-            await dbPatch(`chats/${chatId}/meta`, {
-                lastMessage: trimmed.slice(0, 200),
-                lastTs: ts,
-                lastFrom: me.uid,
-                lastFromName: me.displayName,
-            });
-        }
-        // Index entries for both users — sender lastSeen=now (just sent it)
-        await dbPatch(`users/${me.uid}/chats/${chatId}`, { lastSeenTs: ts, unread: 0 });
-        // Receiver: increment unread atomically via Firebase server-value increment —
-        // no more read-then-write race on simultaneous messages.
-        await dbPatch(`users/${otherUid}/chats/${chatId}`, {
-            unread: { '.sv': { increment: 1 } },
-            lastTs: ts,
-        });
-        return pushRes?.name;
-    }
-
-    async function markRead(chatId) {
-        const me = getUid();
-        await dbPatch(`users/${me}/chats/${chatId}`, {
-            unread: 0,
-            lastSeenTs: Date.now(),
-        });
-    }
-
-    // ===== Realtime via EventSource (SSE) =====
-    // Firebase RTDB supports Accept: text/event-stream. Browser EventSource
-    // can't set custom headers, but `auth` as a query param works fine.
-
-    function makeSSE(path, onValue, onError) {
-        let es = null;
-        let stopped = false;
-        let pollFallback = null;
-        // Local snapshot of the subscribed sub-tree. Firebase SSE sends
-        // diff events: {path: "/", data: {...full root...}} on init,
-        // then {path: "/<childKey>", data: {...}} on changes.
-        // We merge those into `snapshot` and always emit the full tree
-        // so consumers (friends-page, chat-list) don't have to write their own merge logic.
-        let snapshot = null;
-
-        function applyDiff(diffPath, diffData) {
-            const segs = String(diffPath || '/').split('/').filter(Boolean);
-            if (segs.length === 0) {
-                // Root replace
-                snapshot = (diffData === null || diffData === undefined) ? null : diffData;
-                return;
-            }
-            // Deeper paths: make sure snapshot is an object and navigate/create
-            if (snapshot === null || typeof snapshot !== 'object') snapshot = {};
-            let node = snapshot;
-            for (let i = 0; i < segs.length - 1; i++) {
-                const key = segs[i];
-                if (node[key] === null || typeof node[key] !== 'object') node[key] = {};
-                node = node[key];
-            }
-            const lastKey = segs[segs.length - 1];
-            if (diffData === null || diffData === undefined) {
-                delete node[lastKey];
-            } else {
-                node[lastKey] = diffData;
-            }
-        }
-
-        function applyPatch(diffPath, diffData) {
-            // Patch is a shallow merge at the given path (child of root)
-            const segs = String(diffPath || '/').split('/').filter(Boolean);
-            if (snapshot === null || typeof snapshot !== 'object') snapshot = {};
-            let node = snapshot;
-            for (let i = 0; i < segs.length; i++) {
-                const key = segs[i];
-                if (node[key] === null || typeof node[key] !== 'object') node[key] = {};
-                node = node[key];
-            }
-            for (const [k, v] of Object.entries(diffData || {})) {
-                if (v === null || v === undefined) delete node[k];
-                else node[k] = v;
-            }
-        }
-
-        function startPolling() {
-            let lastJson = '';
-            const tick = async () => {
-                if (stopped) return;
-                try {
-                    const data = await dbGet(path);
-                    const json = JSON.stringify(data);
-                    if (json !== lastJson) {
-                        lastJson = json;
-                        snapshot = data;
-                        onValue(snapshot);
-                    }
-                } catch (e) {
-                    onError?.(e);
-                }
-            };
-            tick();
-            pollFallback = setInterval(tick, 4000);
-        }
-
-        function connect() {
-            if (stopped) return;
-            try {
-                es = new EventSource(url(path));
-                es.addEventListener('put', (e) => {
-                    try {
-                        const msg = JSON.parse(e.data);
-                        applyDiff(msg.path, msg.data);
-                        onValue(snapshot, 'put');
-                    } catch (err) { onError?.(err); }
-                });
-                es.addEventListener('patch', (e) => {
-                    try {
-                        const msg = JSON.parse(e.data);
-                        applyPatch(msg.path, msg.data);
-                        onValue(snapshot, 'patch');
-                    } catch (err) { onError?.(err); }
-                });
-                es.addEventListener('keep-alive', () => {});
-                es.addEventListener('cancel', () => {
-                    es?.close();
-                    if (!stopped) startPolling();
-                });
-                es.addEventListener('auth_revoked', () => {
-                    es?.close();
-                    setTimeout(connect, 1000);
-                });
-                es.onerror = () => {
-                    es?.close();
-                    if (!stopped) {
-                        // Switch to polling if SSE keeps failing
-                        if (!pollFallback) startPolling();
-                    }
+        if (!me) return;
+        const [friends, chats] = await Promise.all([
+            val(`users/${me}/friends`), val(`users/${me}/chats`),
+        ]);
+        const updates = {};
+        for (const c of contacts) {
+            if (!c?.uid || c.uid === me) continue;
+            if (!friends?.[c.uid]) {
+                updates[`users/${me}/friends/${c.uid}`] = {
+                    status: 'accepted', since: Date.now(),
+                    displayName: c.displayName || c.uid, email: c.email || '',
                 };
-            } catch (e) {
-                onError?.(e);
-                startPolling();
             }
+            const chatId = chatIdFor(me, c.uid);
+            if (!chats?.[chatId]) updates[`users/${me}/chats/${chatId}`] = { unread: 0, lastSeenTs: 0 };
         }
-
-        connect();
-
-        return () => {
-            stopped = true;
-            es?.close();
-            if (pollFallback) clearInterval(pollFallback);
-        };
+        if (Object.keys(updates).length) await ref().update(updates);
     }
 
     function subscribeFriends(callback) {
         const me = getUid();
-        let friendsSnap = null;
-        let incomingSnap = null;
-        const emit = () => {
-            const friends = friendsSnap
-                ? Object.entries(friendsSnap).map(([uid, f]) => ({
-                    uid, ...f, status: f.status || 'accepted',
-                }))
-                : [];
-            const incoming = incomingSnap
-                ? Object.entries(incomingSnap).map(([uid, f]) => ({
-                    uid, ...f, status: 'pending',
-                }))
-                : [];
-            callback({ friends, incoming });
-        };
-        const unF = makeSSE(`users/${me}/friends`, (d) => { friendsSnap = d; emit(); });
-        const unI = makeSSE(`users/${me}/incoming`, (d) => { incomingSnap = d; emit(); });
-        return () => { unF(); unI(); };
+        let friendsSnap = null, incomingSnap = null;
+        const emit = () => callback({
+            friends: friendList(friendsSnap),
+            incoming: friendList(incomingSnap, 'pending'),
+        });
+        const fRef = ref(`users/${me}/friends`);
+        const iRef = ref(`users/${me}/incoming`);
+        const onF = fRef.on('value', s => { friendsSnap = s.val(); emit(); }, e => console.warn('[social] friends:', e));
+        const onI = iRef.on('value', s => { incomingSnap = s.val(); emit(); }, e => console.warn('[social] incoming:', e));
+        return () => { fRef.off('value', onF); iRef.off('value', onI); };
     }
 
+    // ===== Chat =====
+
+    function chatMeta(chatId, me, idx, meta, friend) {
+        const otherUid = otherMemberUid(chatId, me);
+        return {
+            chatId,
+            otherUid,
+            otherDisplayName: resolveName(otherUid) || friend?.displayName
+                || (meta?.lastFrom === otherUid && meta?.lastFromName) || otherUid,
+            lastMessage: meta?.lastMessage || '',
+            lastTs: meta?.lastTs || 0,
+            lastFrom: meta?.lastFrom || '',
+            unread: idx?.unread || 0,
+            lastSeenTs: idx?.lastSeenTs || 0,
+        };
+    }
+
+    function sortChats(list) {
+        // Conversations with messages first (newest on top), then the rest by name
+        return list.sort((a, b) => (b.lastTs || 0) - (a.lastTs || 0)
+            || a.otherDisplayName.localeCompare(b.otherDisplayName));
+    }
+
+    async function listChats() {
+        const me = getUid();
+        const [index, friends] = await Promise.all([val(`users/${me}/chats`), val(`users/${me}/friends`)]);
+        const ids = Object.keys(index || {});
+        const metas = await Promise.all(ids.map(id => val(`chats/${id}/meta`).catch(() => null)));
+        return sortChats(ids.map((id, i) =>
+            chatMeta(id, me, index[id], metas[i], friends?.[otherMemberUid(id, me)])));
+    }
+
+    // Live chat list: the chat index, the friend names, and one meta listener per
+    // chat. All share the SDK's single connection; updates are batched per tick.
     function subscribeChatList(callback) {
         const me = getUid();
-        return makeSSE(`users/${me}/chats`, async () => {
-            const chats = await listChats().catch(() => []);
-            callback(chats);
+        let index = {}, friends = {};
+        const metas = {};
+        const metaOff = {};
+        let queued = false;
+        const emit = () => {
+            if (queued) return;
+            queued = true;
+            queueMicrotask(() => {
+                queued = false;
+                callback(sortChats(Object.keys(index).map(id =>
+                    chatMeta(id, me, index[id], metas[id], friends[otherMemberUid(id, me)]))));
+            });
+        };
+        const warn = (what) => (e) => console.warn(`[social] ${what}:`, e);
+
+        const idxRef = ref(`users/${me}/chats`);
+        const frRef = ref(`users/${me}/friends`);
+        const onIdx = idxRef.on('value', (s) => {
+            index = s.val() || {};
+            for (const id of Object.keys(index)) {
+                if (metaOff[id]) continue;
+                const mRef = ref(`chats/${id}/meta`);
+                const cb = mRef.on('value', ms => { metas[id] = ms.val(); emit(); }, warn('chat meta'));
+                metaOff[id] = () => mRef.off('value', cb);
+            }
+            for (const id of Object.keys(metaOff)) {
+                if (index[id]) continue;
+                metaOff[id]();
+                delete metaOff[id];
+                delete metas[id];
+            }
+            emit();
+        }, warn('chat index'));
+        const onFr = frRef.on('value', (s) => { friends = s.val() || {}; emit(); }, warn('friends'));
+
+        return () => {
+            idxRef.off('value', onIdx);
+            frRef.off('value', onFr);
+            Object.values(metaOff).forEach(off => off());
+        };
+    }
+
+    const toMsg = (snap) => {
+        const m = snap.val() || {};
+        return { id: snap.key, from: m.from, text: m.text, ts: m.ts };
+    };
+
+    // Push keys are chronological, so ordering by key needs no .indexOn.
+    async function loadMessages(chatId, { limit = 200 } = {}) {
+        const snap = await ref(`chats/${chatId}/messages`).orderByKey().limitToLast(limit).get();
+        const out = [];
+        snap.forEach(c => { out.push(toMsg(c)); });
+        return out;
+    }
+
+    // Incremental: onEvent('add'|'change'|'remove', msg). The initial batch of the
+    // last `limit` messages arrives as 'add' events, followed by one 'ready'
+    // (value events fire after the child events for the same data).
+    function subscribeMessages(chatId, onEvent, { limit = 200 } = {}) {
+        const q = ref(`chats/${chatId}/messages`).orderByKey().limitToLast(limit);
+        const warn = (e) => { console.warn('[social] messages:', e); onEvent('error', e); };
+        q.once('value', () => onEvent('ready'), warn);
+        const add = q.on('child_added', s => onEvent('add', toMsg(s)), warn);
+        const chg = q.on('child_changed', s => onEvent('change', toMsg(s)), warn);
+        const rem = q.on('child_removed', s => onEvent('remove', { id: s.key }), warn);
+        return () => {
+            q.off('child_added', add);
+            q.off('child_changed', chg);
+            q.off('child_removed', rem);
+        };
+    }
+
+    // One atomic multi-path write: message + chat meta + both index entries.
+    // Returns a promise with `.key` set synchronously, so the UI can show the
+    // message as "sending" until the server confirms it.
+    function sendMessage(chatId, otherUid, text) {
+        const uid = getUid();
+        const trimmed = String(text || '').trim().slice(0, MAX_TEXT);
+        if (!uid) return Promise.reject(new Error('Not signed in'));
+        if (!trimmed) return Promise.resolve(null);
+
+        const key = ref(`chats/${chatId}/messages`).push().key;
+        const done = Promise.resolve(getMyProfile()).then((me) => {
+            const ts = SV().TIMESTAMP;
+            const preview = trimmed.slice(0, 200);
+            return ref().update({
+                [`chats/${chatId}/messages/${key}`]: { from: uid, text: trimmed, ts },
+                [`chats/${chatId}/meta/members/${uid}`]: true,
+                [`chats/${chatId}/meta/members/${otherUid}`]: true,
+                [`chats/${chatId}/meta/lastMessage`]: preview,
+                [`chats/${chatId}/meta/lastTs`]: ts,
+                [`chats/${chatId}/meta/lastFrom`]: uid,
+                [`chats/${chatId}/meta/lastFromName`]: me?.displayName || uid,
+                [`users/${uid}/chats/${chatId}/unread`]: 0,
+                [`users/${uid}/chats/${chatId}/lastSeenTs`]: ts,
+                [`users/${otherUid}/chats/${chatId}/unread`]: SV().increment(1),
+                [`users/${otherUid}/chats/${chatId}/lastTs`]: ts,
+            });
+        }).then(() => key);
+        done.key = key;
+        return done;
+    }
+
+    async function markRead(chatId) {
+        await ref(`users/${getUid()}/chats/${chatId}`).update({
+            unread: 0,
+            lastSeenTs: SV().TIMESTAMP,
         });
     }
 
-    function subscribeMessages(chatId, callback) {
-        // SSE on the whole messages collection. On every put/patch we reload
-        // (simpler than delta management; the messages page is small).
-        return makeSSE(`chats/${chatId}/messages`, async () => {
-            const msgs = await loadMessages(chatId, { limit: 200 }).catch(() => []);
-            callback(msgs);
-        });
+    // Connection state: callback(true|false). Uses the SDK's .info/connected.
+    function subscribeConnection(callback) {
+        const cRef = db().ref('.info/connected');
+        const cb = cRef.on('value', s => callback(s.val() === true));
+        return () => cRef.off('value', cb);
     }
 
     return {
@@ -455,6 +354,7 @@ export function createFirebaseAdapter({
         acceptFriendRequest,
         declineFriendRequest,
         removeFriend,
+        ensureContacts,
         subscribeFriends,
         // chat
         chatIdFor,
@@ -464,5 +364,6 @@ export function createFirebaseAdapter({
         markRead,
         subscribeChatList,
         subscribeMessages,
+        subscribeConnection,
     };
 }

@@ -35,7 +35,7 @@ Elke regel begint met de `legacyOpen`-uitzondering, dus zolang `dw/config/legacy
    - speler schrijft een ander character → geweigerd
    - speler schrijft `dm/initiative` → geweigerd
    - DM schrijft `world/lore` → mag
-   - chat-PATCH → mag
+   - chat versturen (één multi-path `update` op `dw/social`: bericht, meta, beide index-items) → mag
 
 ## Open beslissingen
 - **De DM mag elk character bewerken** (HP, level-up). Gewenst? Zo niet, dan de `valoria/dm`-clausule bij `characters/$charId` weghalen.

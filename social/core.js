@@ -53,10 +53,12 @@ export function escHtml(s) {
  *
  * @property {() => Promise<ChatMeta[]>} listChats
  * @property {(chatId:string,opts?:{limit?:number}) => Promise<Message[]>} loadMessages
- * @property {(chatId:string,otherUid:string,text:string) => Promise<void>} sendMessage
+ * @property {(chatId:string,otherUid:string,text:string) => Promise<string>} sendMessage   promise has .key (set synchronously)
  * @property {(chatId:string) => Promise<void>} markRead
  * @property {(callback:Function) => Function} subscribeChatList     returns unsubscribe
- * @property {(chatId:string,callback:Function) => Function} subscribeMessages
+ * @property {(chatId:string,onEvent:(type:'add'|'change'|'remove'|'ready'|'error',msg?:Message)=>void) => Function} subscribeMessages
+ * @property {(contacts:{uid,displayName,email}[]) => Promise<void>} ensureContacts   mirror the party as friends
+ * @property {(callback:(connected:boolean)=>void) => Function} subscribeConnection
  *
  * @typedef {Object} Friend
  * @property {string} uid

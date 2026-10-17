@@ -1,4 +1,4 @@
-/* social/ui/social.css — scoped onder .social-root en #social-chat-widget */
+/* social/social.css — scoped under .social-root en #social-chat-widget */
 
 /* ============ Friends Page ============ */
 .social-root {
@@ -165,9 +165,9 @@
 
 /* ============ Chat Widget (floating, bottom-right) ============
    FAB stack: dice (slot 0) — notes (slot 1) — chat (slot 2) — bug (slot 3).
-   Slot vars in style.css :root; --fab-slot-N geeft positie. Renumber slot om te swappen.
-   Style matched aan .dice-fab / .notes-fab / .bug-fab voor visuele consistentie.
-   Unieke kleur: cyan (#22d3ee), onderscheidend van gold dice / purple notes / red bug. */
+   Slot vars live in style.css :root. On dashboard pages the FAB is hidden and
+   the bottom-bar chat button toggles the panel (window.dndSocial.toggle).
+   Unique colour: cyan (#22d3ee), distinct from gold dice / purple notes / red bug. */
 #social-chat-widget {
     position: fixed;
     bottom: var(--fab-bottom, 1.5rem);
@@ -176,6 +176,7 @@
     color: var(--text, #e8e9ee);
     font-family: inherit;
 }
+#social-chat-widget [hidden] { display: none !important; }
 
 #social-chat-widget .scw-fab {
     width: var(--fab-size, 36px);
@@ -191,12 +192,13 @@
     transition: all 0.2s;
     position: relative;
 }
-#social-chat-widget .scw-fab:hover {
-    transform: scale(1.1);
+#social-chat-widget .scw-fab:hover,
+#social-chat-widget.is-open .scw-fab {
     border-color: #67e8f9;
     color: #67e8f9;
     box-shadow: 0 4px 20px rgba(34, 211, 238, 0.5);
 }
+#social-chat-widget .scw-fab:hover { transform: scale(1.1); }
 #social-chat-widget .scw-fab svg { width: var(--fab-icon, 22px); height: var(--fab-icon, 22px); stroke: currentColor; fill: none; stroke-width: 2; }
 #social-chat-widget .scw-fab .scw-badge {
     position: absolute;
@@ -215,10 +217,34 @@
     border: 2px solid var(--bg, #0e0f13);
 }
 
+/* Unread badge on the dashboard bottom-bar chat button */
+html[data-chat-unread] .wg-barbtn-chat { position: relative; }
+html[data-chat-unread] .wg-barbtn-chat::after {
+    counter-reset: chat-unread var(--chat-unread, 0);
+    content: counter(chat-unread);
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 9px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
 #social-chat-widget .scw-panel {
+    position: fixed;
+    right: 1rem;
+    bottom: calc(var(--fab-bottom, 1.5rem) + var(--fab-size, 46px) + 12px);
     width: 360px;
     height: 520px;
-    max-height: 80vh;
+    max-height: calc(100vh - 140px);
     background: var(--card, #181a22);
     border: 1px solid var(--border, #2a2d38);
     border-radius: 12px;
@@ -227,9 +253,13 @@
     flex-direction: column;
     overflow: hidden;
 }
+/* Dashboard pages: the panel sits just above the bottom bar */
+body:has(.wg-bottombar) #social-chat-widget .scw-panel {
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
 
 #social-chat-widget .scw-header {
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 0.75rem;
     border-bottom: 1px solid var(--border, #2a2d38);
     display: flex;
     align-items: center;
@@ -252,8 +282,18 @@
     padding: 0.25rem 0.4rem;
     border-radius: 4px;
     font-size: 1rem;
+    display: grid;
+    place-items: center;
 }
 #social-chat-widget .scw-header button:hover { background: rgba(255,255,255,0.05); color: var(--text, #e8e9ee); }
+
+#social-chat-widget .scw-offline {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+    background: rgba(239, 68, 68, 0.12);
+    color: #fca5a5;
+    border-bottom: 1px solid var(--border, #2a2d38);
+}
 
 #social-chat-widget .scw-body {
     flex: 1;
@@ -268,19 +308,26 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    width: 100%;
     padding: 0.6rem 0.75rem;
+    border: none;
     border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
     cursor: pointer;
     transition: background 0.1s;
 }
-#social-chat-widget .scw-chat-row:hover { background: rgba(255,255,255,0.04); }
+#social-chat-widget .scw-chat-row:hover,
+#social-chat-widget .scw-chat-row:focus-visible { background: rgba(255,255,255,0.05); outline: none; }
 #social-chat-widget .scw-chat-row .scw-avatar {
     width: 36px; height: 36px; border-radius: 50%;
     background: linear-gradient(135deg, var(--accent, #7c5cff), #5b3cdf);
     display: grid; place-items: center; color: #fff;
     font-weight: 600; font-size: 0.9rem; flex-shrink: 0;
 }
-#social-chat-widget .scw-chat-row .info { flex: 1; min-width: 0; }
+#social-chat-widget .scw-chat-row .info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 #social-chat-widget .scw-chat-row .name {
     font-weight: 500; font-size: 0.9rem;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -289,6 +336,9 @@
     color: var(--muted, #8c91a3); font-size: 0.8rem;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+#social-chat-widget .scw-chat-row .preview em { font-style: italic; opacity: 0.7; }
+#social-chat-widget .scw-chat-row.has-unread .name,
+#social-chat-widget .scw-chat-row.has-unread .preview { font-weight: 600; color: var(--text, #e8e9ee); }
 #social-chat-widget .scw-chat-row .meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem; }
 #social-chat-widget .scw-chat-row .ts {
     font-size: 0.7rem; color: var(--muted, #8c91a3);
@@ -300,6 +350,12 @@
 }
 
 /* Conversation view */
+#social-chat-widget .scw-conv {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
 #social-chat-widget .scw-msgs {
     flex: 1;
     overflow-y: auto;
@@ -308,14 +364,25 @@
     flex-direction: column;
     gap: 0.4rem;
 }
+#social-chat-widget .scw-day {
+    align-self: center;
+    margin: 0.4rem 0 0.2rem;
+    padding: 0.1rem 0.6rem;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted, #8c91a3);
+    font-size: 0.7rem;
+}
 #social-chat-widget .scw-msg {
-    max-width: 75%;
-    padding: 0.5rem 0.75rem;
+    max-width: 78%;
+    padding: 0.45rem 0.7rem;
     border-radius: 12px;
     font-size: 0.9rem;
     line-height: 1.35;
-    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
 }
+#social-chat-widget .scw-msg.cont { margin-top: -0.2rem; }
 #social-chat-widget .scw-msg.mine {
     align-self: flex-end;
     background: var(--accent, #7c5cff);
@@ -328,17 +395,20 @@
     border: 1px solid var(--border, #2a2d38);
     border-bottom-left-radius: 4px;
 }
+#social-chat-widget .scw-msg.pending { opacity: 0.6; }
 #social-chat-widget .scw-msg .ts {
     font-size: 0.65rem;
     opacity: 0.7;
     margin-top: 0.15rem;
     display: block;
+    text-align: right;
 }
 
 #social-chat-widget .scw-input {
     border-top: 1px solid var(--border, #2a2d38);
     padding: 0.5rem;
     display: flex;
+    align-items: flex-end;
     gap: 0.4rem;
     background: var(--card, #181a22);
 }
@@ -352,7 +422,8 @@
     color: var(--text, #e8e9ee);
     font-family: inherit;
     font-size: 0.9rem;
-    max-height: 100px;
+    line-height: 1.35;
+    max-height: 120px;
 }
 #social-chat-widget .scw-input textarea:focus {
     outline: none;
@@ -363,11 +434,14 @@
     color: #fff;
     border: none;
     border-radius: 6px;
-    padding: 0 0.9rem;
+    width: 38px;
+    height: 36px;
+    display: grid;
+    place-items: center;
     cursor: pointer;
-    font-weight: 500;
+    flex-shrink: 0;
 }
-#social-chat-widget .scw-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+#social-chat-widget .scw-input button:hover { filter: brightness(1.1); }
 
 #social-chat-widget .scw-empty {
     padding: 2rem 1rem;
@@ -378,7 +452,9 @@
 
 @media (max-width: 600px) {
     #social-chat-widget .scw-panel {
-        width: calc(100vw - 2rem);
-        height: calc(100vh - 5rem);
+        width: auto;
+        left: 0.5rem;
+        right: 0.5rem;
+        height: calc(100vh - 7rem);
     }
 }

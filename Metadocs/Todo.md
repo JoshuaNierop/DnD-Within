@@ -30,6 +30,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 ## Joshua — testen in de browser / aan tafel
 
 Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
+- [ ] P1 — Nieuw 2026-10-17: chat vervangen (Firebase SDK i.p.v. REST/EventSource). Met twee accounts in twee browsers checken: bericht komt direct binnen, badge op de chatknop in de onderbalk, wat je typt blijft staan als er een bericht binnenkomt, Esc sluit, terug naar de lijst bewaart je concept. Lokaal getest tegen een nep-database, niet tegen de echte.
 - [ ] P2 — Nieuw 2026-10-17: "Saving Throws"-widget (library → stats) en "Conditions"-widget (library → combat) toevoegen en checken — schade nemen tijdens een concentration-spell moet het CON-save-venster tonen; nieuw character → stap 2 "Starting equipment" A/B (B = 50 GP, geen items); typ `@` + sessienaam in een notitie → link naar de timeline; popup staat bij de cursor; Humans: Heroic Inspiration is nu een aan/uit-knop (oude resource weg, staat pas weer aan na de volgende Long Rest); site-vensters i.p.v. browser-popups (verwijderen in notes/maps/lore, family-diagram partner/ouder/kind toevoegen, rest-knoppen, widget opslaan)
 - [ ] P1 — Entity-merge fase 3: `@`-mention van een ex-NPC opent de Creatures-kaart, oude `/lore/monsters`-links, combat-picker zonder dubbele namen, klik in family-diagram, Families-tab
 - [ ] P2 — Level-up level 6–20 in de echte site (alleen in Node getest): een paar characters omhoog en weer omlaag

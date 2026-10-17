@@ -2,17 +2,15 @@
 //
 // Identity = currentUserId() from the session (the internal userId — NOT the
 // Firebase uid). Chat threads therefore stay keyed on userId → no migration
-// needed when moving to Firebase Auth. The Firebase ID token IS
-// sent along (getToken) so the chat keeps working once the DB rules require
-// authentication after the cutover. Party members in dw/users/ are auto-mirrored
-// as "friends" so the chat widget "just works" without an add/accept flow.
+// needed when moving to Firebase Auth. The adapter talks to the database via
+// the Firebase SDK, which attaches the Auth token itself once someone is signed
+// in. Party members (dw/users) are auto-mirrored as "friends" so the chat
+// widget "just works" without an add/accept flow.
 
 import { createFirebaseAdapter } from './firebase-adapter.js';
 import { mountChatWidget } from './chat-widget.js';
 import { renderFriendsPage } from './friends-page.js';
-import { chatIdFor } from './core.js';
 
-const FIREBASE_DB_URL = 'https://dnd-within-firebase-default-rtdb.firebaseio.com';
 const ROOT_PATH = 'dw/social';
 
 let widget = null;
@@ -20,11 +18,11 @@ let adapter = null;
 let lastSyncedUid = null;
 let initRunning = false;
 
-// Appends the Firebase ID token to a REST URL (no-op as long as there is no auth).
-function authUrl(url) {
-    const tok = (typeof window.dwGetIdToken === 'function') ? window.dwGetIdToken() : null;
-    if (!tok) return url;
-    return url + (url.indexOf('?') === -1 ? '?' : '&') + 'auth=' + encodeURIComponent(tok);
+function userName(uid) {
+    try {
+        const u = typeof window.getUserData === 'function' ? window.getUserData(uid) : null;
+        return u?.name || u?.displayName || null;
+    } catch { return null; }
 }
 
 function getCurrentUserSafe() {
@@ -32,75 +30,38 @@ function getCurrentUserSafe() {
     const uid = window.currentUserId();
     if (!uid) return null;
     let user = null;
-    try {
-        if (typeof window.getUserData === 'function') user = window.getUserData(uid);
-        else if (typeof window.currentUser === 'function') user = window.currentUser();
-    } catch {}
+    try { user = typeof window.getUserData === 'function' ? window.getUserData(uid) : null; } catch {}
     return {
         uid,
         displayName: user?.name || user?.displayName || uid,
         email: user?.email || '',
-        avatarUrl: user?.avatar || user?.portrait || '',
     };
 }
 
 function getAdapter() {
     if (adapter) return adapter;
     adapter = createFirebaseAdapter({
-        databaseURL: FIREBASE_DB_URL,
         rootPath: ROOT_PATH,
-        getToken: () => (typeof window.dwGetIdToken === 'function' ? window.dwGetIdToken() : null),
         getUid: () => getCurrentUserSafe()?.uid,
-        getMyProfile: async () => getCurrentUserSafe() || {
-            uid: 'anonymous', displayName: 'Anonymous', email: '',
-        },
+        getMyProfile: () => getCurrentUserSafe() || { uid: 'anonymous', displayName: 'Anonymous', email: '' },
+        resolveName: userName,
     });
     return adapter;
 }
 
-// ===== Party sync — spiegel dw/users → dw/social/users/{me}/friends =====
+// Party = every known user (Firebase users cache, falling back to the seed list).
+function partyContacts() {
+    const users = window.usersCache || window.DEFAULT_USERS || {};
+    return Object.entries(users).map(([uid, u]) => ({
+        uid,
+        displayName: u?.name || u?.displayName || uid,
+        email: u?.email || '',
+    }));
+}
+
 async function syncPartyAsFriends() {
-    const me = getCurrentUserSafe();
-    if (!me?.uid) return;
-
-    // Read party from dw/users via REST (token included if logged in)
-    const r = await fetch(authUrl(`${FIREBASE_DB_URL}/dw/users.json`)).catch(() => null);
-    if (!r?.ok) return;
-    const users = await r.json().catch(() => null);
-    if (!users || typeof users !== 'object') return;
-
-    const myUid = me.uid;
-    const writes = [];
-    for (const [uid, u] of Object.entries(users)) {
-        if (uid === myUid) continue;
-        const displayName = u?.name || u?.displayName || uid;
-        const friendPath = `${FIREBASE_DB_URL}/${ROOT_PATH}/users/${myUid}/friends/${uid}.json`;
-        // Only write if it doesn't exist yet (idempotent — prevents overwriting own changes)
-        const exists = await fetch(authUrl(friendPath)).then(r => r.ok ? r.json() : null).catch(() => null);
-        if (exists) continue;
-        writes.push(fetch(authUrl(friendPath), {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                status: 'accepted',
-                since: Date.now(),
-                displayName,
-                email: u?.email || '',
-            }),
-        }));
-        // Index entry so they show up in the chat list (even without messages)
-        const chatId = chatIdFor(myUid, uid);
-        const idxPath = `${FIREBASE_DB_URL}/${ROOT_PATH}/users/${myUid}/chats/${chatId}.json`;
-        const idxExists = await fetch(authUrl(idxPath)).then(r => r.ok ? r.json() : null).catch(() => null);
-        if (!idxExists) {
-            writes.push(fetch(authUrl(idxPath), {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ unread: 0, lastSeenTs: 0 }),
-            }));
-        }
-    }
-    await Promise.all(writes);
+    if (!getCurrentUserSafe()?.uid) return;
+    await getAdapter().ensureContacts(partyContacts());
 }
 
 // ===== Mount/unmount widget =====
@@ -110,22 +71,16 @@ async function mount() {
     try {
         const me = getCurrentUserSafe();
         if (!me?.uid) return;
-        if (widget && lastSyncedUid !== me.uid) {
-            try { widget.destroy(); } catch {}
-            widget = null;
-            adapter = null;
-        }
+        if (widget && lastSyncedUid !== me.uid) unmount();
         if (widget) return;
 
-        await syncPartyAsFriends().catch(e => console.warn('Party sync:', e));
         const a = getAdapter();
         widget = mountChatWidget(document.body, a);
         lastSyncedUid = me.uid;
-
-        // Notification permission (ask once)
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission().catch(() => {});
-        }
+        // Party sync in the background; the chat list updates live when it lands
+        syncPartyAsFriends().catch(e => console.warn('[social] party sync:', e));
+    } catch (e) {
+        console.warn('[social] mount:', e);
     } finally {
         initRunning = false;
     }
@@ -141,6 +96,8 @@ function unmount() {
 window.dndSocial = {
     mount,
     unmount,
+    toggle: () => { if (!widget) mount(); widget?.toggle(); },
+    openWith: (uid, name) => widget?.openWith(uid, name),
     openFriendsPage: (host) => renderFriendsPage(host, getAdapter()),
     syncParty: () => syncPartyAsFriends(),
 };
@@ -159,12 +116,12 @@ const mountPoll = setInterval(() => {
     }
 }, 500);
 
-// Re-mount on route change (user switches user via UI). Clean-URL router
-// uses History API → listen on popstate (back/forward) and on the custom
-// 'dw:navigated' event that navigate() dispatches on every pushState.
+// Re-mount when the user switches (or unmount on logout). The clean-URL router
+// uses the History API → listen on popstate and on 'dw:navigated'.
 function _onRouteChange() {
     const me = getCurrentUserSafe();
-    if (me?.uid && me.uid !== lastSyncedUid) mount();
+    if (!me?.uid) { if (widget) unmount(); return; }
+    if (me.uid !== lastSyncedUid) mount();
 }
 window.addEventListener('popstate', _onRouteChange);
 window.addEventListener('dw:navigated', _onRouteChange);
