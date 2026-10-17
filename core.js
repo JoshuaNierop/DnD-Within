@@ -1189,8 +1189,19 @@ function deleteCharacterToTrash(charId) {
         if (typeof syncSaveUser === 'function') syncSaveUser(owner, usersCache[owner]);
         localStorage.setItem('dw_users', JSON.stringify(usersCache));
     }
+    // Take the character out of every campaign party; remember where it was for a restore.
+    var parties = {};
+    var camps = (typeof getCampaigns === 'function') ? getCampaigns() : {};
+    Object.keys(camps).forEach(function (cid) {
+        var party = camps[cid] && camps[cid].party;
+        if (!party) return;
+        Object.keys(party).forEach(function (uid) {
+            if (party[uid] === charId) { parties[cid] = uid; delete party[uid]; }
+        });
+    });
+    if (Object.keys(parties).length && typeof saveCampaigns === 'function') saveCampaigns(camps);
     var trash = getCharTrash();
-    trash[charId] = { deletedAt: Date.now(), name: cfg.name || charId, owner: owner };
+    trash[charId] = { deletedAt: Date.now(), name: cfg.name || charId, owner: owner, parties: parties };
     saveCharTrash(trash);
     return true;
 }
@@ -1210,6 +1221,16 @@ function restoreCharacterFromTrash(charId) {
         if (typeof syncSaveUser === 'function') syncSaveUser(owner, usersCache[owner]);
         localStorage.setItem('dw_users', JSON.stringify(usersCache));
     }
+    // Back into the parties it was in, unless that player has picked another character since.
+    var camps = (typeof getCampaigns === 'function') ? getCampaigns() : {};
+    var campsChanged = false;
+    Object.keys(entry.parties || {}).forEach(function (cid) {
+        var uid = entry.parties[cid];
+        if (!camps[cid]) return;
+        if (!camps[cid].party) camps[cid].party = {};
+        if (!camps[cid].party[uid]) { camps[cid].party[uid] = charId; campsChanged = true; }
+    });
+    if (campsChanged && typeof saveCampaigns === 'function') saveCampaigns(camps);
     delete trash[charId];
     saveCharTrash(trash);
     return true;

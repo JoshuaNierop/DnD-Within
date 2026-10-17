@@ -60,7 +60,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P2 — Trackers: widget "Conditions" (`wg-conditions.js`) met Heroic Inspiration, Exhaustion 0–6 (−2 op skills/saves/initiative, −5 ft speed, Long Rest −1), Concentration + CON-save-venster bij schade, Arcane Ward HP (2026-10-17). Exhaustion zit sinds de Attacks-update ook in attack rolls
 - [x] P2 — Wizard "Memorize Spell": na een Short Rest (wizard 5+) vraagt de site om één prepared spell te wisselen; prepare-venster in wissel-modus (2026-10-17)
 - [x] P2 — Entity-merge fase 0: offline round-trip-script `Metadocs/entity-merge-roundtrip.mjs` (68/68 op de dump van 26-09) (2026-10-17). Rest van de gate: verse RTDB-dump (live-reads zijn voor Claude geblokkeerd) + live-check door Joshua
-- [ ] P3 — Prullenbak: character uit de party van een campaign halen bij verwijderen
+- [x] P3 — Prullenbak: character gaat bij verwijderen uit de party van elke campaign en komt bij herstel terug (als die speler geen ander character koos) (2026-10-17)
 - [x] P3 — itemDB: Bell, Robe, Mirror, Perfume, Tent toegevoegd; Rope 5 lb (2024) (2026-10-17)
 - [ ] P3 — Spell `save`/`attack`-veld in `spellPool` (ritual + school staan al in `spellMeta`)
 - [ ] P3 — `@`-links naar timeline-sessions; autocomplete-popup bij de cursor; family-koppeling op id i.p.v. array-index (`families.js:382`)
