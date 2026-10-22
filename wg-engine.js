@@ -897,6 +897,19 @@ function applyResponsiveWidth() {
 
 function availableDashHeight() {
   const isMobile = window.innerWidth < 600;
+  // Desktop: size the canvas so the .canvas-wrap box ends exactly at the
+  // scroll pane's bottom padding — same gap on all four sides.
+  const pane = document.querySelector('.wg-main-scroll');
+  const wrap = document.querySelector('.canvas-wrap');
+  if (!isMobile && pane && wrap && pane.clientHeight > 0) {
+    const ps = getComputedStyle(pane), ws = getComputedStyle(wrap);
+    const px = v => parseFloat(v) || 0;
+    const inner = pane.clientHeight - px(ps.paddingTop) - px(ps.paddingBottom);
+    const wrapChrome = px(ws.paddingTop) + px(ws.paddingBottom) + px(ws.borderTopWidth) + px(ws.borderBottomWidth);
+    const dT = state.dashboard.topY;
+    const svgChrome = dT + 22 - Math.min(0, dT - 22);   // viewH − height (see render())
+    return Math.max(120, Math.floor(inner - wrapChrome - svgChrome));
+  }
   // Grid fills the box further vertically (smaller reserve). The FABs are now 70%
   // (smaller) so less clearance is needed at the bottom (2026-06-04).
   const reserved = isMobile ? 410 : 210;
