@@ -30,7 +30,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 - [ ] P3 — Items: ook een notities-veld (creatures hebben het al)
 
 ## Joshua — testen in de browser / aan tafel
-- [ ] P1 — Nieuw 2026-10-23: **voorgestelde dashboards** — open een character met lege tabs (bv. Combat/Social): de voorgestelde layout staat er, pas na Save opgeslagen. Knop "Reset to suggested layout" (onderbalk, naast Tidy) vervangt de huidige tab na bevestiging. Check ook tablet-portret (pagina 2) en dat de telefoon de nieuwe desktop-volgorde volgt. Bekend: een tab die je bewust leeg opslaat, krijgt bij het laden weer de voorgestelde layout
+- [ ] P1 — Nieuw 2026-10-23: **voorgestelde dashboards** — op 2026-10-23 voor alle 9 spelers als opgeslagen gezet (desktop; tablet leeg zodat hij bij laden gevuld wordt; back-up `Metadocs/Dashboards/backup-dashboards-2026-10-23_034025.json`). Check per character of alles past en klopt; open een character met lege tabs (bv. Combat/Social): de voorgestelde layout staat er, pas na Save opgeslagen. Knop "Reset to suggested layout" (onderbalk, naast Tidy) vervangt de huidige tab na bevestiging. Check ook tablet-portret (pagina 2) en dat de telefoon de nieuwe desktop-volgorde volgt. Bekend: een tab die je bewust leeg opslaat, krijgt bij het laden weer de voorgestelde layout
 
 Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P1 — Nieuw 2026-10-18: **telefoonmodus** op een echte telefoon (alleen in Playwright op 390×844 gezien). Checken: tab bar onderin + More-sheet (dice/notes/search/chat openen boven de tab bar), swipen tussen Character/Social/Exploring/Combat/Inventory op je eigen character, HP damage/heal + spell casten + level-up-venster als bottom sheet, long-press voor tooltips, DM Dashboard met de Combat Tracker op volle breedte, lore-tabs strip, veilige zones op een iPhone (notch/home-balk). Bekend: liggend (breedte ≥ 700) krijg je de desktopweergave
@@ -57,7 +57,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 
 ## Claude — features
 - [ ] P2 — Voorstel-dashboards (2026-10-23, `Metadocs/Dashboards/`): ontbrekende widgets uit de ontwerpronde — Wild Shape-vormen (Io), Luck Points van de Lucky-feat in Resources (Addy), Senses (darkvision/passive Perception) voor Exploring, social-widgets (NPC-relaties/quests/facties)
-- [ ] P1 — Oude widget-types in opgeslagen dashboards (senses, actionEconomy, travelPace, equipment, npcRelations, quests, currency, …) renderen op desktop als Ability Scores — opruimen of omzetten (Nero desktop + Ren telefoon-slot in snapshot 2026-09-26)
+- [x] P1 — Oude widget-types in opgeslagen dashboards (senses, actionEconomy, travelPace, …) renderden als Ability Scores — opgelost doordat alle desktop-dashboards op 2026-10-23 zijn vervangen door de voorgestelde layout (legacy `mobile`-slots blijven staan maar worden niet gebruikt)
 - [ ] P2 — Varragoth (EK, L3) heeft 0 prepared spells in de snapshot — lege picks vullen
 - [x] P1 — Monster-bibliotheek: alle 503 Monster Manual 2025-monsters (330 SRD 5.2 met tekst, 173 met feiten + eigen-woorden-tekst) als basis voor Creatures (picker met zoek/filter op naam, type, grootte, CR) + Monster Manual-tab in de combat-picker — regels in `Monsters/Rules.md`
 - [ ] P2 — Monsters schalen voor hogere party-levels: "Scale to CR"-helper op basis van de base-link (PB, to-hit/DC, HP) — eerst een gecontroleerde bron voor HP/schade per CR (`Monsters/Rules.md`)

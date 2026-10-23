@@ -1,0 +1,2672 @@
+{
+ "addybluelight": {
+  "desktop": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788577634386,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 8
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788577634386
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788577634386
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788577634386
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788577634386
+   }
+  }
+ },
+ "admin": null,
+ "ancha": null,
+ "barius": {
+  "desktop": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551941549,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 8
+      },
+      "globalCol": 0,
+      "spanUnits": 6,
+      "spanUnitsY": 8,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 9,
+      "spanUnitsY": 3,
+      "startRowIdx": 11,
+      "title": "",
+      "type": "basicInfo"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 3,
+      "title": "",
+      "type": "hpBase"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 6,
+      "spanUnitsY": 3,
+      "startRowIdx": 8,
+      "title": "",
+      "type": "abilityScores"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 24,
+      "spanUnits": 7,
+      "spanUnitsY": 11,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "featuresPassive"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 17,
+      "spanUnits": 6,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "preparedSpells"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 4,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "longRest"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 12,
+      "spanUnitsY": 5,
+      "startRowIdx": 14,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "transpose": false,
+       "widgetPadding": 0
+      },
+      "globalCol": 32,
+      "spanUnits": 14,
+      "spanUnitsY": 13,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "initiativeTracker"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 7,
+      "title": "",
+      "type": "levelUp"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551941549
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551941549
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551941549
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551941549
+   }
+  }
+ },
+ "io": {
+  "desktop": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786831358351,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 9,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 12,
+      "spanUnitsY": 6,
+      "startRowIdx": 12,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 3,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "senses"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "hpBase"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 4,
+      "spanUnitsY": 3,
+      "startRowIdx": 4,
+      "title": "",
+      "type": "longRest"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 7,
+      "title": "",
+      "type": "levelUp"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786831358351,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "actionEconomy"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 6,
+      "spanUnitsY": 2,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "attacks"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 14,
+      "spanUnits": 6,
+      "spanUnitsY": 11,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "featuresPassive"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 20,
+      "spanUnits": 6,
+      "spanUnitsY": 11,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "preparedSpells"
+     },
+     {
+      "cfg": {
+       "transpose": false,
+       "widgetPadding": 0
+      },
+      "globalCol": 32,
+      "spanUnits": 14,
+      "spanUnitsY": 13,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "initiativeTracker"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 6,
+      "spanUnitsY": 5,
+      "startRowIdx": 2,
+      "title": "",
+      "type": "featuresActive"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 4,
+      "spanUnitsY": 13,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "skills"
+     }
+    ]
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786831358351,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "map": {
+       "dimIdx": 0,
+       "mapId": "map1780655280216"
+      },
+      "spanUnits": 20,
+      "spanUnitsY": 15,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "map"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 20,
+      "spanUnits": 7,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "travelPace"
+     }
+    ]
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786831358351,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "equipment"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 5,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "attunedItems"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 9,
+      "spanUnits": 5,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "encumbrance"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 14,
+      "spanUnits": 3,
+      "spanUnitsY": 6,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "currency"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 17,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "preparedSpells"
+     }
+    ]
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786831358351,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "npcRelations"
+     }
+    ]
+   }
+  }
+ },
+ "lira": {
+  "desktop": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788566902061,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 7,
+      "spanUnitsY": 10,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 7,
+      "spanUnitsY": 3,
+      "startRowIdx": 10,
+      "title": "",
+      "type": "abilityScores"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 12,
+      "spanUnitsY": 6,
+      "startRowIdx": 13,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 7,
+      "spanUnits": 5,
+      "spanUnitsY": 5,
+      "startRowIdx": 8,
+      "title": "",
+      "type": "basicInfo"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 7,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "hpBase"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 12,
+      "spanUnits": 3,
+      "spanUnitsY": 2,
+      "startRowIdx": 17,
+      "title": "",
+      "type": "longRest"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 7,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 4,
+      "title": "",
+      "type": "levelUp"
+     },
+     {
+      "cfg": {
+       "transpose": false,
+       "widgetPadding": 0
+      },
+      "globalCol": 32,
+      "spanUnits": 14,
+      "spanUnitsY": 10,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "initiativeTracker"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 24,
+      "spanUnits": 7,
+      "spanUnitsY": 11,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "preparedSpells"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 12,
+      "spanUnits": 6,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "featuresActive"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 18,
+      "spanUnits": 6,
+      "spanUnitsY": 12,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "featuresPassive"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788566902061,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 27,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "concentration"
+     },
+     {
+      "cfg": {
+       "transpose": false,
+       "widgetPadding": 0
+      },
+      "globalCol": 0,
+      "spanUnits": 14,
+      "spanUnitsY": 13,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "initiativeTracker"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 6,
+      "spanUnitsY": 4,
+      "startRowIdx": 13,
+      "title": "",
+      "type": "attacks"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 13,
+      "title": "",
+      "type": "hpBase"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 14,
+      "spanUnits": 6,
+      "spanUnitsY": 9,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "preparedSpells"
+     }
+    ]
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788566902061,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "map": {
+       "dimIdx": 0
+      },
+      "spanUnits": 14,
+      "spanUnitsY": 11,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "map"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 11,
+      "title": "",
+      "type": "senses"
+     }
+    ]
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788566902061,
+    "widgets": [
+     {
+      "cfg": {
+       "boxMinPx": 138,
+       "display": "text",
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 16,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "inventory"
+     }
+    ]
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788566902061,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 24,
+      "spanUnits": 3,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "currency"
+     }
+    ]
+   }
+  }
+ },
+ "nero": {
+  "desktop": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1779975370182,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 5,
+      "spanUnits": 7,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "abilityScores"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 12,
+      "spanUnits": 5,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "hp"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 17,
+      "spanUnits": 6,
+      "spanUnitsY": 10,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 23,
+      "spanUnits": 4,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "saves"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 5,
+      "spanUnits": 6,
+      "spanUnitsY": 4,
+      "startRowIdx": 4,
+      "title": "",
+      "type": "defenses"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 11,
+      "spanUnits": 5,
+      "spanUnitsY": 4,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "hitDice"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 27,
+      "spanUnits": 3,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "heroicInspiration"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 7,
+      "title": "",
+      "type": "senses"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 23,
+      "spanUnits": 7,
+      "spanUnitsY": 5,
+      "startRowIdx": 7,
+      "title": "",
+      "type": "conditions"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1779975370985,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "hp"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 5,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "initiative"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 10,
+      "spanUnits": 4,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "actionEconomy"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 14,
+      "spanUnits": 7,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "conditions"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 21,
+      "spanUnits": 6,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "defenses"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 10,
+      "spanUnits": 4,
+      "spanUnitsY": 7,
+      "startRowIdx": 3,
+      "title": "",
+      "type": "saves"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 21,
+      "spanUnits": 5,
+      "spanUnitsY": 8,
+      "startRowIdx": 4,
+      "title": "",
+      "type": "spellSlots"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 14,
+      "spanUnits": 7,
+      "spanUnitsY": 6,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "attacks"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 26,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 4,
+      "title": "",
+      "type": "concentration"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 6,
+      "spanUnitsY": 5,
+      "startRowIdx": 7,
+      "title": "",
+      "type": "classResources"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 7,
+      "spanUnitsY": 5,
+      "startRowIdx": 10,
+      "title": "",
+      "type": "damageTypes"
+     }
+    ]
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1779975370720,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 14,
+      "spanUnitsY": 11,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "map"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 14,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "travelPace"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 18,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "senses"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 22,
+      "spanUnits": 6,
+      "spanUnitsY": 6,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "quests"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 14,
+      "spanUnits": 3,
+      "spanUnitsY": 6,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "currency"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 17,
+      "spanUnits": 3,
+      "spanUnitsY": 3,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "heroicInspiration"
+     }
+    ]
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1779975371257,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "equipment"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 5,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "attunedItems"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 9,
+      "spanUnits": 5,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "encumbrance"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 14,
+      "spanUnits": 3,
+      "spanUnitsY": 6,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "currency"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 17,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "preparedSpells"
+     }
+    ]
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1779975370449,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 6,
+      "spanUnitsY": 6,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "npcRelations"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 6,
+      "spanUnitsY": 6,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "quests"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 12,
+      "spanUnits": 6,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "factionRenown"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 18,
+      "spanUnits": 6,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "background"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 24,
+      "spanUnits": 3,
+      "spanUnitsY": 6,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "currency"
+     }
+    ]
+   }
+  }
+ },
+ "ren": {
+  "desktop": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788553945194,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 9,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 3,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "abilityScores"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 1
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 7,
+      "startRowIdx": 12,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 5,
+      "spanUnitsY": 4,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "levelUp"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 5,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "hpBase"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 8,
+      "spanUnits": 5,
+      "spanUnitsY": 5,
+      "startRowIdx": 4,
+      "title": "",
+      "type": "basicInfo"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 5,
+      "spanUnitsY": 4,
+      "startRowIdx": 13,
+      "title": "",
+      "type": "classResource"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 19,
+      "spanUnits": 13,
+      "spanUnitsY": 10,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "featureList"
+     },
+     {
+      "cfg": {
+       "transpose": false,
+       "widgetPadding": 0
+      },
+      "globalCol": 32,
+      "spanUnits": 14,
+      "spanUnitsY": 13,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "initiativeTracker"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788553945194,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 7,
+      "spanUnits": 7,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "spellSlots"
+     },
+     {
+      "cfg": {
+       "transpose": false,
+       "widgetPadding": 0
+      },
+      "globalCol": 0,
+      "spanUnits": 7,
+      "spanUnitsY": 9,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "initiativeTracker"
+     }
+    ]
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788553945194,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "map": {
+       "dimIdx": 0
+      },
+      "spanUnits": 21,
+      "spanUnitsY": 18,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "map"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 21,
+      "spanUnits": 7,
+      "spanUnitsY": 3,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "travelPace"
+     }
+    ]
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788553945194,
+    "widgets": [
+     {
+      "cfg": {
+       "boxMinPx": 138,
+       "display": "text",
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 18,
+      "spanUnitsY": 11,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "inventory"
+     }
+    ]
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788553945194,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "abilityScores"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 4,
+      "spanUnitsY": 13,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "skills"
+     }
+    ]
+   }
+  },
+  "mobile": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1779981784264,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 5,
+      "spanUnits": 7,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "abilityScores"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 5,
+      "spanUnits": 5,
+      "spanUnitsY": 5,
+      "startRowIdx": 4,
+      "title": "",
+      "type": "hp"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 6,
+      "spanUnitsY": 10,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 4,
+      "spanUnitsY": 7,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "saves"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 6,
+      "spanUnitsY": 4,
+      "startRowIdx": 16,
+      "title": "",
+      "type": "defenses"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 4,
+      "startRowIdx": 19,
+      "title": "",
+      "type": "hitDice"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 5,
+      "spanUnits": 3,
+      "spanUnitsY": 3,
+      "startRowIdx": 20,
+      "title": "",
+      "type": "heroicInspiration"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 20,
+      "title": "",
+      "type": "senses"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 7,
+      "spanUnitsY": 5,
+      "startRowIdx": 23,
+      "title": "",
+      "type": "conditions"
+     }
+    ]
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1779981784588,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 6,
+      "spanUnitsY": 6,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "npcRelations"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 6,
+      "spanUnitsY": 6,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "quests"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 6,
+      "spanUnitsY": 5,
+      "startRowIdx": 6,
+      "title": "",
+      "type": "factionRenown"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 6,
+      "spanUnits": 6,
+      "spanUnitsY": 7,
+      "startRowIdx": 6,
+      "title": "",
+      "type": "background"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 3,
+      "spanUnitsY": 6,
+      "startRowIdx": 11,
+      "title": "",
+      "type": "currency"
+     }
+    ]
+   }
+  },
+  "tablet": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1792719465073
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1792719465073,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "abilityScores"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 16,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "skills"
+     }
+    ]
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1792719465073,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 9,
+      "spanUnitsY": 8,
+      "startRowIdx": 11,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 8
+      },
+      "globalCol": 0,
+      "map": {
+       "dimIdx": 0,
+       "mapId": "world"
+      },
+      "spanUnits": 13,
+      "spanUnitsY": 11,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "map"
+     }
+    ]
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1792719465073
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1792719465073,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 14,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "skills"
+     }
+    ]
+   }
+  }
+ },
+ "saya": {
+  "desktop": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786757085950,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 9,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 13,
+      "spanUnitsY": 6,
+      "startRowIdx": 12,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 3,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "saves"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "levelUp"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 28,
+      "spanUnits": 5,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "classResource"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 30,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "preparedSpells"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 23,
+      "spanUnits": 7,
+      "spanUnitsY": 7,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "featuresActive"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 13,
+      "spanUnits": 7,
+      "spanUnitsY": 9,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "featuresPassive"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 8,
+      "spanUnits": 5,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "basicInfo"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786757085950,
+    "widgets": [
+     {
+      "cfg": {
+       "transpose": false,
+       "widgetPadding": 0
+      },
+      "globalCol": 32,
+      "spanUnits": 14,
+      "spanUnitsY": 13,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "initiativeTracker"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 5,
+      "spanUnitsY": 2,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "attacks"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 13,
+      "spanUnits": 7,
+      "spanUnitsY": 7,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "featuresActive"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 13,
+      "spanUnits": 7,
+      "spanUnitsY": 9,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "featuresPassive"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 5,
+      "spanUnitsY": 5,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "classResource"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 5,
+      "spanUnitsY": 7,
+      "startRowIdx": 2,
+      "title": "",
+      "type": "preparedSpells"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 4,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "hpBase"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 4,
+      "spanUnitsY": 13,
+      "startRowIdx": 5,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 4,
+      "spanUnitsY": 5,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "abilityScores"
+     }
+    ]
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786757085950,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "map": {
+       "dimIdx": 0
+      },
+      "spanUnits": 19,
+      "spanUnitsY": 14,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "map"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 19,
+      "spanUnits": 5,
+      "spanUnitsY": 13,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "skills"
+     }
+    ]
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786757085950,
+    "widgets": [
+     {
+      "cfg": {
+       "boxMinPx": 138,
+       "display": "text",
+       "widgetPadding": 6
+      },
+      "globalCol": 0,
+      "spanUnits": 17,
+      "spanUnitsY": 9,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "inventory"
+     }
+    ]
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1786757085950
+   }
+  },
+  "mobile": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391565501,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 8
+      },
+      "globalCol": 0,
+      "spanUnits": 5,
+      "spanUnitsY": 6,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 11,
+      "spanUnitsY": 10,
+      "startRowIdx": 10,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 4,
+      "startRowIdx": 6,
+      "title": "",
+      "type": "abilityScores"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391565501
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391565501
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391565501
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391565501
+   }
+  },
+  "tablet": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391652877,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 8
+      },
+      "globalCol": 0,
+      "spanUnits": 7,
+      "spanUnitsY": 8,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 9,
+      "spanUnitsY": 8,
+      "startRowIdx": 14,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 7,
+      "spanUnitsY": 3,
+      "startRowIdx": 8,
+      "title": "",
+      "type": "abilityScores"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391652877
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391652877
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391652877
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1781391652877
+   }
+  }
+ },
+ "tab": null,
+ "varragoth": {
+  "desktop": {
+   "character": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551075443,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 8
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 9,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "profilePicture"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 0,
+      "spanUnits": 8,
+      "spanUnitsY": 7,
+      "startRowIdx": 9,
+      "title": "",
+      "type": "skills"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 8,
+      "spanUnits": 7,
+      "spanUnitsY": 3,
+      "startRowIdx": 4,
+      "title": "",
+      "type": "abilityScores"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 8,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 7,
+      "title": "",
+      "type": "hpBase"
+     },
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 2,
+       "widgetPadding": 4
+      },
+      "globalCol": 8,
+      "spanUnits": 6,
+      "spanUnitsY": 5,
+      "startRowIdx": 11,
+      "title": "",
+      "type": "basicInfo"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 0,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 13,
+      "spanUnits": 4,
+      "spanUnitsY": 4,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "levelUp"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 22,
+      "spanUnits": 6,
+      "spanUnitsY": 3,
+      "startRowIdx": 7,
+      "title": "",
+      "type": "preparedSpells"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 30,
+      "spanUnits": 7,
+      "spanUnitsY": 11,
+      "startRowIdx": 3,
+      "title": "",
+      "type": "featuresPassive"
+     },
+     {
+      "cfg": {
+       "cellPadding": 6,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 4,
+       "widgetPadding": 6
+      },
+      "globalCol": 18,
+      "spanUnits": 7,
+      "spanUnitsY": 4,
+      "startRowIdx": 1,
+      "title": "",
+      "type": "featuresActive"
+     }
+    ]
+   },
+   "combat": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551075443
+   },
+   "exploring": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551075443,
+    "widgets": [
+     {
+      "cfg": {
+       "cellPadding": 0,
+       "infoBoxPadding": 2,
+       "infoBoxSpacing": 5,
+       "widgetPadding": 8
+      },
+      "globalCol": 25,
+      "map": {
+       "dimIdx": 0,
+       "mapId": "world"
+      },
+      "spanUnits": 19,
+      "spanUnitsY": 16,
+      "startRowIdx": 0,
+      "title": "",
+      "type": "map"
+     }
+    ]
+   },
+   "inventory": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551075443
+   },
+   "social": {
+    "currentPage": 0,
+    "schemaVersion": 1,
+    "updatedAt": 1788551075443
+   }
+  }
+ }
+}
