@@ -51,8 +51,9 @@ function wgxIsCaster(raw) {
 // ===== Firebase write — PATCH on /state (multiple fields at once) =====
 async function wgxPatchState(charId, patch) {
   const url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/state.json';
+  if (typeof dwRefreshIdToken === 'function') await dwRefreshIdToken();
   const res = await fetch(wgAuthUrl(url), { method: 'PATCH', body: JSON.stringify(patch), headers: { 'Content-Type': 'application/json' } });
-  if (!res.ok) throw new Error('HTTP ' + res.status + ' on state');
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' on state' + (await wgxHttpReason(res)));
   WG_CHAR_STATUS[charId] = null;
   await new Promise(resolve => {
     fetchCharacterData(charId);

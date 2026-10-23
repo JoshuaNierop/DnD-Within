@@ -75,8 +75,14 @@ WG_EXTRA_INFOBOX_BUILDERS.levelup = wgxBuildLevelUp;
 // ===== Firebase config-PATCH (state PATCH comes from wg-rest.js: wgxPatchState) =====
 async function wgxPatchConfig(charId, patch) {
   var url = FIREBASE_DB + '/dw/characters/' + encodeURIComponent(charId) + '/config.json';
+  if (typeof dwRefreshIdToken === 'function') await dwRefreshIdToken();
   var res = await fetch(wgAuthUrl(url), { method: 'PATCH', body: JSON.stringify(patch), headers: { 'Content-Type': 'application/json' } });
-  if (!res.ok) throw new Error('HTTP ' + res.status + ' on config');
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' on config' + (await wgxHttpReason(res)));
+}
+
+// Firebase's own error text ({"error": "..."}) so a failed save toast says why.
+async function wgxHttpReason(res) {
+  try { var j = await res.json(); return j && j.error ? ' (' + j.error + ')' : ''; } catch (e) { return ''; }
 }
 
 // ============================================================

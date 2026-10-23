@@ -30,6 +30,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 - [ ] P3 — Items: ook een notities-veld (creatures hebben het al)
 
 ## Joshua — testen in de browser / aan tafel
+- [ ] P0 — Nieuw 2026-10-23: **level-up opslaan bij Saya** gaf een rode foutmelding (desktop; mogelijk ook andere characters). Lokaal niet te reproduceren: engine, alle keuzecombinaties en de PATCH werken. Vermoeden: verlopen Firebase-logintoken (1 uur geldig) bij lang open tabblad/slaap → gefixt (token wordt vóór de write ververst, verlopen token nooit meegestuurd). Probeer opnieuw; faalt het nog, dan staat de reden van Firebase nu tussen haakjes in de melding → doorgeven
 - [ ] P1 — Nieuw 2026-10-23: **voorgestelde dashboards** — op 2026-10-23 voor alle 9 spelers als opgeslagen gezet (desktop; tablet leeg zodat hij bij laden gevuld wordt; back-up `Metadocs/Dashboards/backup-dashboards-2026-10-23_034025.json`). Check per character of alles past en klopt; open een character met lege tabs (bv. Combat/Social): de voorgestelde layout staat er, pas na Save opgeslagen. Knop "Reset to suggested layout" (onderbalk, naast Tidy) vervangt de huidige tab na bevestiging. Check ook tablet-portret (pagina 2) en dat de telefoon de nieuwe desktop-volgorde volgt. Bekend: een tab die je bewust leeg opslaat, krijgt bij het laden weer de voorgestelde layout
 
 Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.

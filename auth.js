@@ -22,12 +22,36 @@ function dwAuthAvailable() {
 
 // Token provider for REST paths (wg-firebase.js, social/). Null = no
 // Firebase session (e.g. legacy username login) → REST call goes without ?auth=.
-function dwGetIdToken() { return _dwIdToken; }
+// ID tokens live 1 hour. After a sleeping laptop or a long-idle tab the cached
+// one can be expired before the SDK refreshes it, and the REST API then rejects
+// the write ("Auth token is expired") even while the rules are open.
+function _dwTokenExpiry(tok) {
+    try {
+        var p = tok.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        return (JSON.parse(atob(p)).exp || 0) * 1000;
+    } catch (e) { return 0; }
+}
+// Fresh token from the SDK (cached unless < 5 min left) → updates the cache.
+function dwRefreshIdToken() {
+    if (!dwAuthAvailable()) return Promise.resolve(null);
+    var user = firebase.auth().currentUser;
+    if (!user) return Promise.resolve(null);
+    return user.getIdToken().then(function (tok) { _dwIdToken = tok; return tok; }).catch(function () { return _dwIdToken; });
+}
+window.dwRefreshIdToken = dwRefreshIdToken;
+function dwGetIdToken() {
+    if (_dwIdToken && _dwTokenExpiry(_dwIdToken) - 60000 < Date.now()) {
+        // Never send an expired token; start a refresh for the next call.
+        dwRefreshIdToken();
+        return null;
+    }
+    return _dwIdToken;
+}
 window.dwGetIdToken = dwGetIdToken;
 // Firebase REST URL with the ID token appended (?auth=…). Every direct REST call
 // to the database must go through this, or it fails once legacyOpen is false.
 function dwAuthUrl(url) {
-    var tok = _dwIdToken;
+    var tok = dwGetIdToken();
     if (!tok) return url;
     return url + (url.indexOf('?') === -1 ? '?' : '&') + 'auth=' + encodeURIComponent(tok);
 }
@@ -47,6 +71,10 @@ function dwAuthInit() {
         } else {
             _dwIdToken = null;
         }
+    });
+    // Back from sleep / another tab: refresh before the next write needs it.
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') dwRefreshIdToken();
     });
 
     // Session restore: if a Firebase session already exists (LOCAL persistence) we
