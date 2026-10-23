@@ -13,6 +13,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 - [ ] P3 — Referrer-beperking op de Firebase web-API-key van de bug-reporter (`bugreport/review-auth.js`) controleren.
 
 ## Joshua — beslissingen
+- [ ] P1 — Ability scores kloppen niet bij 4 characters (check 2026-10-23, Saya al gefixt: CON 14→15): **Nero** CHA 19/CON 15 = background-bonus dubbel (verwacht 17/14); **addybluelight** backgroundBonuses allemaal 0 (standaardreeks zonder +2/+1); **Ancha** DEX 17 met maar +1 (basis 16 > 15); **Lira** DEX 16 zonder bonus — gerold/bewust of rechtzetten?
 - [x] P1 — Voorstel-dashboards per character/tab/formaat (2026-10-23, viewer: claude.ai/artifact/E7EE1StVmsTEzgTRFuzZZv, data `Metadocs/Dashboards/default-layouts.json`) — gekozen: lege tabs vullen + "Reset to suggested layout"-knop
 - [ ] P1 — Entity-merge O1 (mention-label), O2 (hypotheses op vrije tekst), O3 (standaard-zichtbaarheid), O5 (opslaan: nu auto-save), O6 (wanneer `dw_npcs` read-only) — `Entity-Merge-Plan.md` §6
 - [ ] P2 — Telefoonmodus (2026-10-18): (a) de telefoon spiegelt de desktop-layout en slaat niets apart op — goed zo, of wil je op de telefoon zelf widgets kunnen toevoegen/verbergen/herordenen? (b) tab bar nu Home · Party · Character/DM · Lore · More — Dice in de balk i.p.v. Lore? (c) tablet-portret (700–1024) houdt het vrije canvas — ook één kolom maken? (d) liggende telefoon = desktopweergave; apart afhandelen?
