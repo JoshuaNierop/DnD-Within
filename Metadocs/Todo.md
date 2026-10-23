@@ -13,7 +13,8 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 - [ ] P3 — Referrer-beperking op de Firebase web-API-key van de bug-reporter (`bugreport/review-auth.js`) controleren.
 
 ## Joshua — beslissingen
-- [ ] P1 — Ability scores kloppen niet bij 4 characters (check 2026-10-23, Saya al gefixt: CON 14→15): **Nero** CHA 19/CON 15 = background-bonus dubbel (verwacht 17/14); **addybluelight** backgroundBonuses allemaal 0 (standaardreeks zonder +2/+1); **Ancha** DEX 17 met maar +1 (basis 16 > 15); **Lira** DEX 16 zonder bonus — gerold/bewust of rechtzetten?
+- [x] P1 — Ability scores rechtgezet (2026-10-23, backups in `_backups/`): Saya CON 14→15; Nero CHA 19/CON 15 → 17/14 (bonus stond dubbel); addybluelight bonussen ontbraken → +2 CHA/+1 CON (CHA 17, CON 15). Oorzaak: oude wizard-bug vóór #P0hvu6q
+- [ ] P1 — Ability scores nog te beslissen: **Ancha** DEX 17 met maar +1 (basis 16 > 15); **Lira** DEX 16 zonder bonus — gerold/bewust of rechtzetten? **Nero** Noble geeft in 2024 STR/INT/CHA, maar zijn +1 staat op CON — laten (huisregel) of naar INT verplaatsen (CON 14→13)?
 - [x] P1 — Voorstel-dashboards per character/tab/formaat (2026-10-23, viewer: claude.ai/artifact/E7EE1StVmsTEzgTRFuzZZv, data `Metadocs/Dashboards/default-layouts.json`) — gekozen: lege tabs vullen + "Reset to suggested layout"-knop
 - [ ] P1 — Entity-merge O1 (mention-label), O2 (hypotheses op vrije tekst), O3 (standaard-zichtbaarheid), O5 (opslaan: nu auto-save), O6 (wanneer `dw_npcs` read-only) — `Entity-Merge-Plan.md` §6
 - [ ] P2 — Telefoonmodus (2026-10-18): (a) de telefoon spiegelt de desktop-layout en slaat niets apart op — goed zo, of wil je op de telefoon zelf widgets kunnen toevoegen/verbergen/herordenen? (b) tab bar nu Home · Party · Character/DM · Lore · More — Dice in de balk i.p.v. Lore? (c) tablet-portret (700–1024) houdt het vrije canvas — ook één kolom maken? (d) liggende telefoon = desktopweergave; apart afhandelen?
