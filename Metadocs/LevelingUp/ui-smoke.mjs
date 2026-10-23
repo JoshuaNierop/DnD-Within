@@ -136,6 +136,26 @@ const options = (html) => [...html.matchAll(/data-val="([^"]+)"/g)].map((m) => m
   const st7 = G.wgxApplyPaths(c.st, G.wgxBuildLevelUpPatch(c.cfg, c.st, c.delta, c.picked).statePatch);
   check('Level Down lists Blessed Strikes', G.wgxBuildLevelDownPatch(c.cfg, st7).lost.some((l) => /Blessed Strikes/.test(l)));
 }
+// 10. Confirm sends a PATCH Firebase accepts: no path inside another path (HTTP 400)
+{
+  const overlap = (p) => { const ks = Object.keys(p || {}); return ks.filter((a) => ks.some((b) => b !== a && b.startsWith(a + '/'))); };
+  const sent = [];
+  const origState = G.wgxPatchState, origConfig = G.wgxPatchConfig, origToast = G.showToast;
+  G.wgxPatchState = async (id, p) => { sent.push(p); };
+  G.wgxPatchConfig = async (id, p) => { sent.push(p); };
+  G.showToast = () => {};
+  for (const [label, cls, sub, lvl] of [['Sorcerer 1→2', 'sorcerer', 'draconic', 1], ['Wizard 3→4', 'wizard', 'evoker', 3], ['Fighter 2→3', 'fighter', 'champion', 2]]) {
+    sent.length = 0;
+    walk(label, cls, sub, lvl);
+    await G.wgxConfirmLevelUp();
+    const bad = sent.flatMap(overlap);
+    check(label + ' — confirm PATCH has no overlapping paths', sent.length && !bad.length, bad.join(', '));
+    const st = sent[sent.length - 1] || {};   // config (if any) is patched first, state last
+    const rec = st['levelChoices/' + (lvl + 1)];
+    check(label + ' — _picked stored with the level record', !!((rec && rec._picked) || st['levelChoices/' + (lvl + 1) + '/_picked']));
+  }
+  G.wgxPatchState = origState; G.wgxPatchConfig = origConfig; G.showToast = origToast;
+}
 
 console.log('\nui-smoke: ' + pass + '/' + (pass + fail) + ' checks passed');
 if (fail) process.exit(1);

@@ -1499,7 +1499,12 @@ async function wgxConfirmLevelUp() {
     var patches = wgxBuildLevelUpPatch(cfg, st, lu.delta, lu.picked);
     if (!lu.fixOnly) {
       // Keep the raw picks with the level record, so a later Level Down can remember them.
-      patches.statePatch['levelChoices/' + lu.delta.to + '/_picked'] = JSON.stringify(lu.picked);
+      // Firebase rejects a PATCH where one path sits inside another (HTTP 400),
+      // so put _picked inside the level record when the patch writes it whole.
+      var recKey = 'levelChoices/' + lu.delta.to;
+      var rec = patches.statePatch[recKey];
+      if (rec && typeof rec === 'object') rec._picked = JSON.stringify(lu.picked);
+      else patches.statePatch[recKey + '/_picked'] = JSON.stringify(lu.picked);
       patches.statePatch['demotedChoices/' + lu.delta.to] = null;
     }
     if (patches.configPatch) await wgxPatchConfig(lu.charId, patches.configPatch);
