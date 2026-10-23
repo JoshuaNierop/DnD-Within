@@ -13,6 +13,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 - [ ] P3 — Referrer-beperking op de Firebase web-API-key van de bug-reporter (`bugreport/review-auth.js`) controleren.
 
 ## Joshua — beslissingen
+- [ ] P1 — Voorstel-dashboards per character/tab/formaat (2026-10-23, viewer: claude.ai/artifact/E7EE1StVmsTEzgTRFuzZZv, data `Metadocs/Dashboards/default-layouts.json`): (a) klopt de indeling? (b) hoe toepassen — alleen lege tabs vullen, een "Reset to suggested layout"-knop per tab, of bestaande dashboards overschrijven?
 - [ ] P1 — Entity-merge O1 (mention-label), O2 (hypotheses op vrije tekst), O3 (standaard-zichtbaarheid), O5 (opslaan: nu auto-save), O6 (wanneer `dw_npcs` read-only) — `Entity-Merge-Plan.md` §6
 - [ ] P2 — Telefoonmodus (2026-10-18): (a) de telefoon spiegelt de desktop-layout en slaat niets apart op — goed zo, of wil je op de telefoon zelf widgets kunnen toevoegen/verbergen/herordenen? (b) tab bar nu Home · Party · Character/DM · Lore · More — Dice in de balk i.p.v. Lore? (c) tablet-portret (700–1024) houdt het vrije canvas — ook één kolom maken? (d) liggende telefoon = desktopweergave; apart afhandelen?
 - [ ] P2 — Entity-merge losse keuzes: combat-picker standaard-soort (19 van 27 creatures zonder disposition komen als NPC binnen), "Current year"-veld tonen als leeftijd of weghalen, verborgen/privé creatures filteren uit Search en `@`-popup voor spelers
@@ -54,6 +55,9 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P2 — Skill-keys: opslag overal camelCase via `skillKey`/`skillKeys` (`engine.js`); wizard + proficiency-klik normaliseren, geen dubbele keys meer. Geen DB-migratie nodig: alle lezers vergelijken genormaliseerd en elke volgende schrijfactie zet de key recht (2026-10-17)
 
 ## Claude — features
+- [ ] P2 — Voorstel-dashboards (2026-10-23, `Metadocs/Dashboards/`): ontbrekende widgets uit de ontwerpronde — Wild Shape-vormen (Io), Luck Points van de Lucky-feat in Resources (Addy), Senses (darkvision/passive Perception) voor Exploring, social-widgets (NPC-relaties/quests/facties)
+- [ ] P1 — Oude widget-types in opgeslagen dashboards (senses, actionEconomy, travelPace, equipment, npcRelations, quests, currency, …) renderen op desktop als Ability Scores — opruimen of omzetten (Nero desktop + Ren telefoon-slot in snapshot 2026-09-26)
+- [ ] P2 — Varragoth (EK, L3) heeft 0 prepared spells in de snapshot — lege picks vullen
 - [x] P1 — Monster-bibliotheek: alle 503 Monster Manual 2025-monsters (330 SRD 5.2 met tekst, 173 met feiten + eigen-woorden-tekst) als basis voor Creatures (picker met zoek/filter op naam, type, grootte, CR) + Monster Manual-tab in de combat-picker — regels in `Monsters/Rules.md`
 - [ ] P2 — Monsters schalen voor hogere party-levels: "Scale to CR"-helper op basis van de base-link (PB, to-hit/DC, HP) — eerst een gecontroleerde bron voor HP/schade per CR (`Monsters/Rules.md`)
 - [ ] P3 — Bestaande creatures koppelen aan een basis (DM, via de editor): Gargoyle → Gargoyle, S.P.O.T. → Bat, Twig Blight → Twig Blight, Bad Bramble → dichtstbijzijnde monster
