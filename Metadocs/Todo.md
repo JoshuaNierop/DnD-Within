@@ -13,7 +13,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 - [ ] P3 — Referrer-beperking op de Firebase web-API-key van de bug-reporter (`bugreport/review-auth.js`) controleren.
 
 ## Joshua — beslissingen
-- [ ] P1 — Voorstel-dashboards per character/tab/formaat (2026-10-23, viewer: claude.ai/artifact/E7EE1StVmsTEzgTRFuzZZv, data `Metadocs/Dashboards/default-layouts.json`): (a) klopt de indeling? (b) hoe toepassen — alleen lege tabs vullen, een "Reset to suggested layout"-knop per tab, of bestaande dashboards overschrijven?
+- [x] P1 — Voorstel-dashboards per character/tab/formaat (2026-10-23, viewer: claude.ai/artifact/E7EE1StVmsTEzgTRFuzZZv, data `Metadocs/Dashboards/default-layouts.json`) — gekozen: lege tabs vullen + "Reset to suggested layout"-knop
 - [ ] P1 — Entity-merge O1 (mention-label), O2 (hypotheses op vrije tekst), O3 (standaard-zichtbaarheid), O5 (opslaan: nu auto-save), O6 (wanneer `dw_npcs` read-only) — `Entity-Merge-Plan.md` §6
 - [ ] P2 — Telefoonmodus (2026-10-18): (a) de telefoon spiegelt de desktop-layout en slaat niets apart op — goed zo, of wil je op de telefoon zelf widgets kunnen toevoegen/verbergen/herordenen? (b) tab bar nu Home · Party · Character/DM · Lore · More — Dice in de balk i.p.v. Lore? (c) tablet-portret (700–1024) houdt het vrije canvas — ook één kolom maken? (d) liggende telefoon = desktopweergave; apart afhandelen?
 - [ ] P2 — Entity-merge losse keuzes: combat-picker standaard-soort (19 van 27 creatures zonder disposition komen als NPC binnen), "Current year"-veld tonen als leeftijd of weghalen, verborgen/privé creatures filteren uit Search en `@`-popup voor spelers
@@ -30,6 +30,7 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 - [ ] P3 — Items: ook een notities-veld (creatures hebben het al)
 
 ## Joshua — testen in de browser / aan tafel
+- [ ] P1 — Nieuw 2026-10-23: **voorgestelde dashboards** — open een character met lege tabs (bv. Combat/Social): de voorgestelde layout staat er, pas na Save opgeslagen. Knop "Reset to suggested layout" (onderbalk, naast Tidy) vervangt de huidige tab na bevestiging. Check ook tablet-portret (pagina 2) en dat de telefoon de nieuwe desktop-volgorde volgt. Bekend: een tab die je bewust leeg opslaat, krijgt bij het laden weer de voorgestelde layout
 
 Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P1 — Nieuw 2026-10-18: **telefoonmodus** op een echte telefoon (alleen in Playwright op 390×844 gezien). Checken: tab bar onderin + More-sheet (dice/notes/search/chat openen boven de tab bar), swipen tussen Character/Social/Exploring/Combat/Inventory op je eigen character, HP damage/heal + spell casten + level-up-venster als bottom sheet, long-press voor tooltips, DM Dashboard met de Combat Tracker op volle breedte, lore-tabs strip, veilige zones op een iPhone (notch/home-balk). Bekend: liggend (breedte ≥ 700) krijg je de desktopweergave

@@ -597,6 +597,7 @@ function bindSidebar() {
 function bindRightSidebar() {
   // Tidy
   document.getElementById('rs-tidy')?.addEventListener('click', () => compactGrid());
+  document.getElementById('rs-suggested')?.addEventListener('click', () => wgResetToSuggested());
 
   // Settings toggle (element id='settingsToggle' is already bound via _settingsToggle constant above;
   // no need to re-bind here — the existing listener on _settingsToggle covers it)

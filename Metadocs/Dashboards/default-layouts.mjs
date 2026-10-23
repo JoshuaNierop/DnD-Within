@@ -307,6 +307,24 @@ const characters = CHARS.map(c => {
   return { ...info, tabs };
 });
 
+// Generic layouts for characters without their own entry (picked by class at runtime).
+const GENERIC = [
+  { id: '_full', caster: true, res: 3 },
+  { id: '_half', caster: true, smallCaster: true, res: 3 },
+  { id: '_martial', caster: false, res: 3 },
+];
+const runtime = {};
+for (const c of [...CHARS, ...GENERIC]) {
+  const entry = { desktop: {}, tablet: {} };
+  for (const [tab, [d, t]] of Object.entries(BUILD)) {
+    entry.desktop[tab] = d(c);
+    entry.tablet[tab] = t(c);
+    validate(`${c.id}/${tab}/desktop`, 'desktop', entry.desktop[tab]);
+    validate(`${c.id}/${tab}/tablet`, 'tablet', entry.tablet[tab]);
+  }
+  runtime[c.id] = entry;
+}
+
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
 
 const GAPS = [
@@ -323,7 +341,18 @@ const out = { generated: new Date().toISOString().slice(0, 10), grid: GRID, lapt
   widgets: WIDGETS, tabIntent: TAB_INTENT, tabs: Object.keys(BUILD), gaps: GAPS, characters };
 const here = dirname(fileURLToPath(import.meta.url));
 writeFileSync(join(here, 'default-layouts.json'), JSON.stringify(out, null, 1));
-console.log(`ok: ${characters.length} characters × ${Object.keys(BUILD).length} tabs × 2 devices`);
+const compact = JSON.stringify(runtime, (k, v) => (v && v.type && 'globalCol' in v)
+  ? [v.type, v.globalCol, v.startRowIdx, v.spanUnits, v.spanUnitsY] : v);
+writeFileSync(join(here, '..', '..', 'wg-defaults.js'),
+`// ===== wg-defaults.js — suggested dashboard layouts (GENERATED) =====
+// Do not edit by hand: source is Metadocs/Dashboards/default-layouts.mjs.
+// Rows are [type, globalCol, startRowIdx, spanUnits, spanUnitsY]. Tablet
+// layouts are drawn on 21-column pages; wgDefaultLayout remaps page 2 onto the
+// real page width.
+const WG_DEFAULT_LAYOUTS = ${compact};
+const WG_DEFAULT_TABLET_PAGE = ${GRID.tablet.pageCols};
+`);
+console.log(`ok: ${characters.length} characters × ${Object.keys(BUILD).length} tabs × 2 devices (+ ${GENERIC.length} generic)`);
 
 // Viewer page (published as an artifact): template + inlined data.
 import { readFileSync } from 'node:fs';

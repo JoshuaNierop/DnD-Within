@@ -270,6 +270,13 @@ function wgBodyTemplate(context) {
         <rect x="3" y="15" width="8" height="6" rx="1"/>
       </svg>
     </button>
+    ${isDM ? '' : `<button class="wg-barbtn" id="rs-suggested" aria-label="Reset to suggested layout" title="Reset this tab to the suggested layout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 3-6.7"/>
+        <polyline points="3 3 3 9 9 9"/>
+        <rect x="9" y="9" width="6" height="6" rx="1"/>
+      </svg>
+    </button>`}
     <button class="wg-barbtn" id="settingsToggle" aria-label="Open settings" aria-expanded="false" title="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>

@@ -348,6 +348,8 @@ async function loadDashboards(charId) {
     }
   }
 
+  wgSeedEmptySlots();
+
   // Phone (wg-mobile.js): the mobile slots mirror the desktop layout — whatever
   // was saved under 'mobile' (legacy data) is not used.
   if (typeof wgMobileActive === 'function' && wgMobileActive() && typeof wgMobileDeriveAll === 'function') wgMobileDeriveAll();
@@ -371,6 +373,85 @@ async function loadDashboards(charId) {
 
   // Pulse sidebar if active tab is empty
   if (!state.widgets.length) pulseSidebar();
+}
+
+// ===== Suggested layouts (wg-defaults.js) =====
+// Empty tabs get the suggested layout on load (in memory; it is stored once
+// the player presses Save). "Reset to suggested layout" swaps the active tab.
+const WG_FULL_CASTERS = ['bard', 'cleric', 'druid', 'sorcerer', 'warlock', 'wizard'];
+const WG_HALF_CASTERS = ['paladin', 'ranger', 'artificer'];
+const WG_THIRD_CASTER_SUBS = ['eldritchKnight', 'arcaneTrickster'];
+
+function wgDefaultKind(charId) {
+  let cfg = WG_CHAR_CACHE[charId] && WG_CHAR_CACHE[charId].config;
+  if (!cfg) {
+    try { cfg = JSON.parse(localStorage.getItem('dw_charconfig_' + charId) || 'null'); } catch (e) { cfg = null; }
+  }
+  const cls = cfg && (cfg.className || cfg.class);
+  if (!cls || WG_FULL_CASTERS.includes(cls)) return '_full';
+  if (WG_HALF_CASTERS.includes(cls) || WG_THIRD_CASTER_SUBS.includes(cfg.subclass)) return '_half';
+  return '_martial';
+}
+
+// Saved-shape widget list for charId/device/situation, or null.
+function wgDefaultLayout(charId, device, sit) {
+  if (typeof WG_DEFAULT_LAYOUTS === 'undefined' || state.context === 'dm' || device === 'mobile') return null;
+  const entry = WG_DEFAULT_LAYOUTS[charId] || WG_DEFAULT_LAYOUTS[wgDefaultKind(charId)];
+  const rows = entry && entry[device] && entry[device][sit];
+  if (!rows || !rows.length) return null;
+  // Tablet layouts use 21-column pages; map page 2 onto the real page width.
+  const tpp = device === 'tablet' && device === state.device ? tilesPerPage() : 0;
+  return rows.map(([type, col, row, w, h]) => {
+    let globalCol = col;
+    if (tpp > 0) {
+      const page = Math.floor(col / WG_DEFAULT_TABLET_PAGE);
+      globalCol = page * tpp + (col % WG_DEFAULT_TABLET_PAGE);
+    }
+    return { type, globalCol, startRowIdx: row, spanUnits: w, spanUnitsY: h };
+  });
+}
+
+function wgSuggestedSlot(device, sit) {
+  const list = wgDefaultLayout(state.characterId, device, sit);
+  if (!list) return null;
+  const slot = makeSituationState();
+  slot.widgets = list.map(widgetFromSaved);
+  return slot;
+}
+
+function wgSeedEmptySlots() {
+  if (state.context === 'dm') return;
+  for (const device of ['tablet', 'desktop']) {
+    for (const sit of wgSituations()) {
+      const cur = state.dashboardsByDevice[device][sit];
+      if (cur && cur.widgets && cur.widgets.length) continue;
+      const slot = wgSuggestedSlot(device, sit);
+      if (slot) state.dashboardsByDevice[device][sit] = slot;
+    }
+  }
+}
+
+async function wgResetToSuggested() {
+  if (state.context === 'dm') return;
+  if (typeof wgMobileActive === 'function' && wgMobileActive()) {
+    showToast('Arrange widgets on a desktop — your phone mirrors that layout');
+    return;
+  }
+  const slot = wgSuggestedSlot(state.device, state.activeSituation);
+  if (!slot) { showToast('No suggested layout for this tab', 'error'); return; }
+  const ok = typeof showConfirmModal === 'function'
+    ? await showConfirmModal({
+        title: 'Reset to suggested layout',
+        message: 'Replace the widgets on this tab with the suggested layout? Your own layout for this tab stays saved until you press Save.',
+        confirmLabel: 'Reset', danger: true,
+      })
+    : true;
+  if (!ok) return;
+  clearSelection();
+  state.dashboardsByDevice[state.device][state.activeSituation] = slot;
+  recomputeAllWidgets();
+  render();
+  showToast('Suggested layout loaded — press Save to keep it');
 }
 
 // ===== end V11 Phase 2 =====
