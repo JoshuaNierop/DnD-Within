@@ -2,6 +2,13 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-23 — The Ledger of Names
+
+- New item **The Ledger of Names** (Lore → Items): the Caravan of Elsewhere's register of 200 bound souls, shown as a table.
+- Searching for any name in the ledger (global search or the Items search) leads to the ledger.
+- Creatures: Yra Voss is now **Eira Voss**, Gribble is now **Gribble Mossfoot** (aka Harry, Quickfingers), new creature **Barabas Bellweather**. Their ledger entries are linked from their descriptions.
+- Global search also matches a creature's public description (e.g. nicknames).
+
 ## 2026-10-18 — Phone mode
 
 - On a phone (screens narrower than 700px) the site now has its own shell: a **tab bar at the

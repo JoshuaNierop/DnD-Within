@@ -1995,10 +1995,12 @@ function collectEntities() {
                 if (!e2 || !e2.id) return;
                 if (c === 'monsters') {
                     var cdesc2 = [e2.race, e2.npcClass, e2.faction].filter(Boolean).join(' · ') || e2.description || e2.notes || '';
-                    list.push({ type: e2._fromNpc ? 'npc' : 'lore', cat: 'Creatures', loreCat: 'monsters', id: e2.id, name: e2.name || '(unnamed)', image: e2.image || null, desc: cdesc2, route: '/lore/npcs' });
+                    // Public description is searchable too (aliases live there).
+                    var descPublic = isDM() || !e2.visibility || e2.visibility.description !== 'private';
+                    list.push({ type: e2._fromNpc ? 'npc' : 'lore', cat: 'Creatures', loreCat: 'monsters', id: e2.id, name: e2.name || '(unnamed)', image: e2.image || null, desc: cdesc2, search: descPublic ? (e2.description || '') : '', route: '/lore/npcs' });
                     return;
                 }
-                list.push({ type: 'lore', cat: label, loreCat: c, id: e2.id, name: e2.name || '(unnamed)', image: e2.image || null, desc: e2.description || '', route: '/lore/' + c });
+                list.push({ type: 'lore', cat: label, loreCat: c, id: e2.id, name: e2.name || '(unnamed)', image: e2.image || null, desc: e2.description || '', ledger: Array.isArray(e2.ledger) ? e2.ledger : null, route: '/lore/' + c });
             });
         });
     } catch (e) { /* ignore */ }
@@ -2203,11 +2205,30 @@ function searchResults() {
     var q = searchQuery.trim().toLowerCase();
     var all = collectEntities();
     if (!q) return [];
-    return all.filter(function (e) {
-        return (e.name || '').toLowerCase().indexOf(q) >= 0 ||
-               (entityTypeLabel(e).toLowerCase().indexOf(q) >= 0) ||
-               ((e.desc || '').toLowerCase().indexOf(q) >= 0);
+    var out = [];
+    all.forEach(function (e) {
+        if ((e.name || '').toLowerCase().indexOf(q) >= 0 ||
+            (entityTypeLabel(e).toLowerCase().indexOf(q) >= 0) ||
+            ((e.desc || '').toLowerCase().indexOf(q) >= 0) ||
+            ((e.search || '').toLowerCase().indexOf(q) >= 0)) { out.push(e); return; }
+        // A name listed in a ledger item leads to that item.
+        var row = e.ledger && ledgerMatches(e.ledger, q)[0];
+        if (row) out.push(Object.assign({}, e, { desc: 'Listed: ' + (row.no || '') + ' ' + (row.name || '') }));
     });
+    return out;
+}
+function ledgerMatches(rows, q) {
+    return rows.filter(function (r) { return r && (r.name || '').toLowerCase().indexOf(q) >= 0; });
+}
+// Ledger items (e.g. "The Ledger of Names"): a table of listed names.
+function renderLedgerTable(rows) {
+    var html = '<div class="lore-info-block"><span class="lore-info-label">Ledger (' + rows.length + ' names)</span>';
+    html += '<div class="lore-ledger-wrap"><table class="lore-ledger"><thead><tr><th>No.</th><th>Name</th><th>Nature of debt</th><th>Years</th><th>Status</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+        if (!r) return;
+        html += '<tr><td>' + escapeHtml(r.no || '') + '</td><td>' + escapeHtml(r.name || '') + '</td><td>' + escapeHtml(r.debt || '') + '</td><td>' + escapeHtml(r.years != null ? String(r.years) : '') + '</td><td>' + escapeHtml(r.status || '') + '</td></tr>';
+    });
+    return html + '</tbody></table></div></div>';
 }
 function renderSearchOverlay() {
     var html = '<div class="modal-overlay search-overlay">';
@@ -2956,6 +2977,7 @@ function renderLoreEntryInfo(cat, e) {
             html += '<span class="lore-info-val">' + escapeHtml(String(val)) + '</span></div>';
         }
     }
+    if (Array.isArray(e.ledger) && e.ledger.length) html += renderLedgerTable(e.ledger);
     return html;
 }
 
@@ -2989,7 +3011,8 @@ function renderLoreResultsInner(cat) {
         if (!q) return true;
         return (e.name && e.name.toLowerCase().indexOf(q) >= 0) ||
                (e.description && e.description.toLowerCase().indexOf(q) >= 0) ||
-               (e.notes && e.notes.toLowerCase().indexOf(q) >= 0);
+               (e.notes && e.notes.toLowerCase().indexOf(q) >= 0) ||
+               (Array.isArray(e.ledger) && ledgerMatches(e.ledger, q).length > 0);
     });
 
     if (!filtered.length) {

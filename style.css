@@ -7707,6 +7707,11 @@ body:has(.wg-bottombar) #scw-fab {
 .lore-info-block { margin: 0.4rem 0 0; }
 .lore-info-block .lore-info-label { display: block; margin-bottom: 0.12rem; }
 .lore-info-text { line-height: 1.45; white-space: pre-wrap; }
+.lore-ledger-wrap { max-height: 24rem; overflow: auto; border: 1px solid var(--border, rgba(255,255,255,0.12)); border-radius: 6px; }
+.lore-ledger { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+.lore-ledger th { position: sticky; top: 0; background: var(--bg-card, #1c1c24); color: var(--text-dim); font-weight: 600; text-align: left; }
+.lore-ledger th, .lore-ledger td { padding: 0.2rem 0.45rem; border-bottom: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
+.lore-ledger td:nth-child(2) { white-space: normal; }
 
 /* === Monster fog of war (#0C4rMb) === */
 /* DM per-veld oog/slot-toggle */
