@@ -5,13 +5,13 @@
 // Phone layouts are not stored: wg-mobile.js derives them from desktop; the
 // derived order is computed here with the same rule (column-major, HP first,
 // portrait last).
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, existsSync, readFileSync as readF } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const GRID = {
-  desktop: { cols: 46, rows: 18, pageCols: 46, note: '1920×1080 browser window (tile 30 px + 8 px gap). Laptops of ~1366–1440 px show ~31–33 columns: everything right of the dashed line moves to page 2.' },
-  tablet:  { cols: 42, rows: 26, pageCols: 21, note: 'Portrait tablet ~768–834 px wide (tile 24 px + 6 px gap): 21 columns per page. Page 1 = what you need at the table, page 2 = detail.' },
+  desktop: { cols: 47, rows: 18, pageCols: 47, note: 'Measured in the app at a 1904×874 browser viewport (≈ 1920×1080 screen): 47 × 18 tiles. Laptops of ~1366–1440 px show ~31–33 columns: everything right of the dashed line moves to page 2.' },
+  tablet:  { cols: 44, rows: 30, pageCols: 22, note: 'Portrait tablet 810–834 px wide (measured: 23 × 32 tiles at 820 × 1180); designed on a safe 22 × 30 page. Page 1 = what you need at the table, page 2 = the rest.' },
 };
 const LAPTOP_COLS = 31;
 
@@ -295,10 +295,25 @@ const BUILD = {
   character: [deskCharacter, tabCharacter], social: [deskSocial, tabSocial], exploring: [deskExploring, tabExploring],
   combat: [deskCombat, tabCombat], inventory: [deskInventory, tabInventory],
 };
+// Fitted layouts (build-fitted.mjs) replace the template where they exist.
+const here0 = dirname(fileURLToPath(import.meta.url));
+const FITTED = {};
+function fitted(device, id, tab, fallback) {
+  const key = device + "-" + id;
+  if (!(key in FITTED)) {
+    const f = join(here0, "fitted-" + key + ".json");
+    FITTED[key] = existsSync(f) ? JSON.parse(readF(f, "utf8")) : null;
+  }
+  const r = FITTED[key] && FITTED[key][tab];
+  return r && r.widgets ? r.widgets : fallback;
+}
+const TEMPLATE = {};
+
 const characters = CHARS.map(c => {
   const tabs = {};
   for (const [tab, [d, t]] of Object.entries(BUILD)) {
-    const desktop = d(c), tablet = t(c);
+    const desktop = fitted('desktop', c.id, tab, d(c)), tablet = fitted('tablet', c.id, tab, t(c));
+    (TEMPLATE[c.id] ||= { desktop: {}, tablet: {} }).desktop[tab] = d(c); TEMPLATE[c.id].tablet[tab] = t(c);
     validate(`${c.id}/${tab}/desktop`, 'desktop', desktop);
     validate(`${c.id}/${tab}/tablet`, 'tablet', tablet);
     tabs[tab] = { desktop, tablet, phone: phoneOrder(desktop), note: (NOTES[c.id] || {})[tab] || '' };
@@ -317,8 +332,8 @@ const runtime = {};
 for (const c of [...CHARS, ...GENERIC]) {
   const entry = { desktop: {}, tablet: {} };
   for (const [tab, [d, t]] of Object.entries(BUILD)) {
-    entry.desktop[tab] = d(c);
-    entry.tablet[tab] = t(c);
+    entry.desktop[tab] = fitted('desktop', c.id, tab, d(c));
+    entry.tablet[tab] = fitted('tablet', c.id, tab, t(c));
     validate(`${c.id}/${tab}/desktop`, 'desktop', entry.desktop[tab]);
     validate(`${c.id}/${tab}/tablet`, 'tablet', entry.tablet[tab]);
   }
@@ -341,6 +356,7 @@ const out = { generated: new Date().toISOString().slice(0, 10), grid: GRID, lapt
   widgets: WIDGETS, tabIntent: TAB_INTENT, tabs: Object.keys(BUILD), gaps: GAPS, characters };
 const here = dirname(fileURLToPath(import.meta.url));
 writeFileSync(join(here, 'default-layouts.json'), JSON.stringify(out, null, 1));
+writeFileSync(join(here, 'template-layouts.json'), JSON.stringify(TEMPLATE));
 const compact = JSON.stringify(runtime, (k, v) => (v && v.type && 'globalCol' in v)
   ? [v.type, v.globalCol, v.startRowIdx, v.spanUnits, v.spanUnitsY] : v);
 writeFileSync(join(here, '..', '..', 'wg-defaults.js'),

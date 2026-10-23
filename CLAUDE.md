@@ -23,7 +23,7 @@ Alles staat in de repo-root (geen `js/`- of `css/`-map).
 - `data.js` (~530 kB) + `data-rules.js` — classes, species, feats, spells, items, resources
 - `monster-db.js` + `monsters-data.js` (lazy, gegenereerd) — Monster Manual 2025-basis voor Creatures (503 monsters; niet-SRD-tekst in eigen woorden); regels + build in `Metadocs/Monsters/`
 - `wg-*.js` + `wg-style.css` — character-dashboard (widget grid, level-up, prepare, rest, combat)
-- `wg-defaults.js` — GEGENEREERD door `node Metadocs/Dashboards/default-layouts.mjs` (niet met de hand bewerken): voorgestelde layout per character/tab/device; lege tabs worden bij laden gevuld (`wgSeedEmptySlots` in `wg-firebase.js`), knop "Reset to suggested layout"
+- `wg-defaults.js` — GEGENEREERD (niet met de hand bewerken): fitted vormen gemeten in de app (`Metadocs/Dashboards/fitted-shapes-*.json`) → `build-fitted.mjs <device> <id>` pakt ze met `fit-solver.mjs` → `node Metadocs/Dashboards/default-layouts.mjs`: voorgestelde layout per character/tab/device; lege tabs worden bij laden gevuld (`wgSeedEmptySlots` in `wg-firebase.js`), knop "Reset to suggested layout"
 - `wg-conditions.js` — Conditions-widget (Heroic Inspiration, Exhaustion via `getExhaustion`, Concentration + CON-save bij schade, Arcane Ward HP)
 - `wg-saves.js` — Saving Throws-widget (bonus uit `getSaveBonus` in `engine.js`, situationele effecten als hover)
 - `wg-turn.js` — Your Turn-widget + actieve spell-effecten (`state.activeEffects`, aftellen via encounter-rondes); `wg-glossary.js` — regels-glossary + term-index voor geneste tooltips (tooltip-laag zelf in `wg-events.js`)

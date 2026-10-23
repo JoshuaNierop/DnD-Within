@@ -56,6 +56,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P2 — Skill-keys: opslag overal camelCase via `skillKey`/`skillKeys` (`engine.js`); wizard + proficiency-klik normaliseren, geen dubbele keys meer. Geen DB-migratie nodig: alle lezers vergelijken genormaliseerd en elke volgende schrijfactie zet de key recht (2026-10-17)
 
 ## Claude — features
+- [x] P1 — Fitted dashboards (2026-10-23): alle widgets per character in fitted vormen (gemeten in de app bij minimale tegelafstand, dus veilig op elk scherm met evenveel tegels), gepakt met `Metadocs/Dashboards/fit-solver.mjs`; desktop + tablet in de app gecontroleerd: niets verschuift of groeit- [ ] P3 — Combat-tabs houden 15–30 lege tegels (Ancha, Addy, Nero, Ren, Varragoth): inhoud laat geen exacte vulling toe — eventueel widgets toevoegen/weglaten
 - [ ] P2 — Voorstel-dashboards (2026-10-23, `Metadocs/Dashboards/`): ontbrekende widgets uit de ontwerpronde — Wild Shape-vormen (Io), Luck Points van de Lucky-feat in Resources (Addy), Senses (darkvision/passive Perception) voor Exploring, social-widgets (NPC-relaties/quests/facties)
 - [x] P1 — Oude widget-types in opgeslagen dashboards (senses, actionEconomy, travelPace, …) renderden als Ability Scores — opgelost doordat alle desktop-dashboards op 2026-10-23 zijn vervangen door de voorgestelde layout (legacy `mobile`-slots blijven staan maar worden niet gebruikt)
 - [ ] P2 — Varragoth (EK, L3) heeft 0 prepared spells in de snapshot — lege picks vullen
