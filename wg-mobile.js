@@ -16,6 +16,8 @@ function wgMobileActive() {
 // Phone grid: small tiles so a full-width widget is 15+ units wide, roomier
 // spacing between the stacked cards, and a readable font.
 const WG_MOBILE_CFG = { dashTile: 20, dashMinSpacing: 8, fontSize: 13 };
+// Extra px per info-box row on phones (cellRowPxH in wg-state.js): ~27px rows instead of ~19px.
+const WG_MOBILE_ROW_EXTRA = 8;
 function wgMobileApplyConfig() { Object.assign(state.config, WG_MOBILE_CFG); }
 
 // Fallback per tab when the desktop has nothing there (phone-only players).

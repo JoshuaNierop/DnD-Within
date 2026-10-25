@@ -7091,6 +7091,7 @@ body:has(.wg-bottombar) .dice-fab,
 body:has(.wg-bottombar) .notes-fab,
 body:has(.wg-bottombar) .search-fab,
 body:has(.wg-bottombar) .dashboard-fab,
+body:has(.wg-bottombar) .bug-fab,
 body:has(.wg-bottombar) #scw-fab {
     display: none !important;
 }

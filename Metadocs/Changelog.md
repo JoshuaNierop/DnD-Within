@@ -2,6 +2,13 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-25 — Touch-friendly dashboard bar
+
+- Dashboard bottom bar: Notes, Search, Chat, Dice and the bug-report button keep their own colours (like the floating buttons elsewhere) and are back at their original size; the bug-report button now sits in the bar instead of floating over it.
+- The bar lost a stray empty strip and divider line above the page dots.
+- Tablets and other touch screens: bigger bar buttons, 44px page arrows, larger page-dot tap areas and taller situation tabs.
+- Phones: info-box rows (skills, saves, character info…) are taller so they are easier to tap; tab bar, dashboard tabs and More-sheet labels are slightly larger.
+
 ## 2026-10-23 — The Ledger of Names
 
 - New item **The Ledger of Names** (Lore → Items): the Caravan of Elsewhere's register of 200 bound souls, shown as a table.

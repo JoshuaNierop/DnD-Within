@@ -260,7 +260,9 @@ function recomputeColumnPxWidths() {
 function cellRowPxH() {
   const { fontSize } = state.config;
   const { cellPadding } = state.cfg;
-  return Math.ceil((fontSize + 1) * 1.35) + 2 * cellPadding;
+  // Phone mode: taller rows for fingers (heights follow content there, so no fit breaks).
+  const touch = (typeof wgMobileActive === 'function' && wgMobileActive()) ? WG_MOBILE_ROW_EXTRA : 0;
+  return Math.ceil((fontSize + 1) * 1.35) + 2 * cellPadding + touch;
 }
 
 function recomputeBoxPx() {
