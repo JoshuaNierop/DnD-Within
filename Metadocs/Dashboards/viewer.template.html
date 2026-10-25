@@ -160,10 +160,12 @@ function renderStage() {
     html = `<div class="meta"><span>Grid <b>${g.cols}×${g.rows}</b> tiles</span><span>${esc(g.note)}</span></div>
       <div class="scroller" style="padding-top:22px">${board(t.desktop, g, [{ col: DATA.laptopCols, label: 'laptop page break' }])}</div>`;
   } else if (S.fmt === 'tablet') {
-    const g = DATA.grid.tablet;
-    html = `<div class="meta"><span>Grid <b>2 pages × ${g.pageCols}×${g.rows}</b> tiles</span><span>${esc(g.note)}</span></div>
-      <div class="scroller" style="padding-top:22px"><div class="pagecap"><span>Page 1</span><span>Page 2</span></div>
-      ${board(t.tablet, g, [{ col: g.pageCols, label: '' }])}</div>`;
+    const pc = DATA.grid.tablet.pageCols;
+    const pages = Math.max(1, ...t.tablet.map(w => Math.floor((w.globalCol + w.spanUnits - 1) / pc) + 1));
+    const g = { ...DATA.grid.tablet, cols: pages * pc };
+    html = `<div class="meta"><span>Grid <b>${pages} page${pages > 1 ? 's' : ''} × ${pc}×${g.rows}</b> tiles</span><span>${esc(g.note)}</span></div>
+      <div class="scroller" style="padding-top:22px"><div class="pagecap">${Array.from({ length: pages }, (_, i) => `<span>Page ${i + 1}</span>`).join('')}</div>
+      ${board(t.tablet, g, Array.from({ length: pages - 1 }, (_, i) => ({ col: (i + 1) * pc, label: '' })))}</div>`;
   } else {
     html = `<div class="meta"><span>One column, top to bottom</span><span>The phone builds this order from the desktop layout by itself (column by column, Hit Points first, portrait last). Nothing is stored for phones.</span></div>
       <div class="phone">${t.phone.map((type, i) =>

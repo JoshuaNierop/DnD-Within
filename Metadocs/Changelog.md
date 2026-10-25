@@ -2,6 +2,12 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-25 — Tablet dashboards: bigger text, new layouts
+
+- Portrait tablets now use a fixed 13px widget font (was ~10.8px, smaller than on phones or desktop).
+- Every character's tablet tabs got a new suggested layout: widgets are placed in order of importance, page 1 holds what you need at the table and the rest follows on page 2 (and 3 where needed). Every widget is sized to show all its content, with a little room for new spells and features after a level-up.
+- Fixes Saya's tablet Character tab showing "Enlarge widget to show content" three times.
+
 ## 2026-10-25 — Touch-friendly dashboard bar
 
 - Dashboard bottom bar: Notes, Search, Chat, Dice and the bug-report button keep their own colours (like the floating buttons elsewhere) and are back at their original size; the bug-report button now sits in the bar instead of floating over it.

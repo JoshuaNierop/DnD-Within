@@ -399,7 +399,7 @@ function wgDefaultLayout(charId, device, sit) {
   const entry = WG_DEFAULT_LAYOUTS[charId] || WG_DEFAULT_LAYOUTS[wgDefaultKind(charId)];
   const rows = entry && entry[device] && entry[device][sit];
   if (!rows || !rows.length) return null;
-  // Tablet layouts use 21-column pages; map page 2 onto the real page width.
+  // Tablet layouts use WG_DEFAULT_TABLET_PAGE-column pages; map every page onto the real page width.
   const tpp = device === 'tablet' && device === state.device ? tilesPerPage() : 0;
   return rows.map(([type, col, row, w, h]) => {
     let globalCol = col;

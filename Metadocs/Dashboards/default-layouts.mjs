@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const GRID = {
   desktop: { cols: 47, rows: 18, pageCols: 47, note: 'Measured in the app at a 1904×874 browser viewport (≈ 1920×1080 screen): 47 × 18 tiles. Laptops of ~1366–1440 px show ~31–33 columns: everything right of the dashed line moves to page 2.' },
-  tablet:  { cols: 44, rows: 30, pageCols: 22, note: 'Portrait tablet 810–834 px wide (measured: 23 × 32 tiles at 820 × 1180); designed on a safe 22 × 30 page. Page 1 = what you need at the table, page 2 = the rest.' },
+  tablet:  { cols: 92, rows: 30, pageCols: 23, note: 'Portrait tablet 744–1023 px wide at a fixed 13 px font (WG_TABLET_CFG): 23–26 × 30–39 tiles; designed on a safe 23 × 30 page. Widgets are packed in priority order: page 1 = what you need at the table, later pages = the rest.' },
 };
 const LAPTOP_COLS = 31;
 
@@ -64,7 +64,6 @@ function place(columns, startCol = 0) {
   }
   return out;
 }
-const pages = (...pageCols) => pageCols.flatMap((cols, i) => place(cols, i * GRID.tablet.pageCols));
 
 // ---- characters (snapshot 2026-09-26; designed for levels 3–5)
 const CHARS = [
@@ -159,50 +158,35 @@ function deskInventory(c) {
   return place(cols);
 }
 
-// ================= TABLET (2 pages × 21 cols, 26 rows) =================
+// ================= TABLET (pages of 23 × 30, filled in priority order) =================
+// Tablet layouts are only a priority list per tab: build-fitted.mjs packs the
+// longest prefix that fits on page 1, then page 2, … using shapes measured at
+// the tablet font (fitted-shapes-tablet.json). The template keeps that order
+// as one row of 1×1 placeholders.
+const order = (...types) => types.filter(Boolean).map((type, i) => ({ type, globalCol: i, startRowIdx: 0, spanUnits: 1, spanUnitsY: 1 }));
 function tabCharacter(c) {
-  const r = resH(c);
-  const p1 = [
-    col(9, W('profilePicture', 9), W('basicInfo', 5), W('abilityScores', 3), W('savingThrows', 3), row(4, ['hpBase', 4], ['levelUp', 5]), W('longRest', 2)),
-    col(12, W('skills', 8), W('conditions', 5), W('classResource', r), W('featuresActive', 26 - 8 - 5 - r)),
-  ];
-  const p2 = c.caster
-    ? [col(10, W('spellSlots', 3), W('preparedSpells', 17)), col(11, W('featuresPassive', 20))]
-    : [col(21, W('featuresPassive', 20))];
-  return pages(p1, p2);
+  return order('profilePicture', 'basicInfo', 'hpBase', 'abilityScores', 'savingThrows', 'skills', 'conditions',
+    'classResource', 'featuresActive', c.caster && 'spellSlots', c.caster && 'preparedSpells',
+    'featuresPassive', 'levelUp', 'longRest');
 }
 function tabSocial(c) {
-  const p1 = [
-    col(9, W('profilePicture', 9), W('basicInfo', 6), W('hpBase', 4), W('conditions', 5)),
-    col(12, W('skills', 8), W('abilityScores', 3), c.caster && c.id !== 'ancha' ? W('preparedSpells', 12) : W('featuresActive', 10)),
-  ];
-  const p2 = [col(11, W('featuresPassive', 14))];
-  if (c.id === 'nero') p2.push(col(10, W('featuresActive', 10), W('spellSlots', 3)));
-  if (c.id === 'addybluelight') p2.push(col(10, W('inventory', 14)));
-  return pages(p1, p2);
+  const spells = c.caster && c.id !== 'ancha';
+  return order('profilePicture', 'basicInfo', 'skills', 'abilityScores', 'hpBase', 'conditions',
+    spells && 'preparedSpells', c.id === 'nero' && 'spellSlots',
+    (!spells || c.id === 'nero' || c.id === 'barius') && 'featuresActive',
+    'featuresPassive', c.id === 'addybluelight' && 'inventory');
 }
 function tabExploring(c) {
-  const p1 = [
-    col(21, W('map', 14), row(5, ['hpBase', 5], ['conditions', 7], ['classResource', 9]), row(7, ['skills', 21])),
-  ];
-  const p2 = [col(11, W('featuresPassive', 14), W('longRest', 2))];
-  if (c.caster) p2.push(col(10, W('spellSlots', 3), W('preparedSpells', 15)));
-  else p2.push(col(10, W('featuresActive', 9), W('inventory', 9)));
-  return pages(p1, p2);
+  return order('map', 'skills', 'hpBase', 'conditions', 'classResource',
+    c.caster && 'spellSlots', c.caster && 'preparedSpells', 'featuresPassive',
+    !c.caster && 'featuresActive', !c.caster && 'inventory', 'longRest');
 }
 function tabCombat(c) {
-  const right = c.caster
-    ? col(11, W('attacks', 4), W('spellSlots', 3), W('preparedSpells', c.smallCaster ? 7 : 10), W('classResource', resH(c)))
-    : col(11, W('attacks', 5), W('classResource', resH(c)), W('featuresActive', 10));
-  const p1 = [col(10, W('hpBase', 4), W('conditions', 5), W('turnActions', 14), W('savingThrows', 3)), right];
-  const p2 = [col(12, W('initiativeTracker', 14)), col(9, c.caster ? W('featuresActive', 12) : W('skills', 12))];
-  return pages(p1, p2);
+  return order('hpBase', 'conditions', 'turnActions', 'attacks', c.caster && 'spellSlots', 'classResource',
+    c.caster && 'preparedSpells', 'savingThrows', 'featuresActive', 'initiativeTracker');
 }
 function tabInventory(c) {
-  const p1 = [col(21, W('inventory', 18), row(5, ['attacks', 12], ['abilityScores', 9]))];
-  const p2 = [col(10, W('basicInfo', 6))];
-  if (c.id === 'lira' || c.id === 'io') p2.push(col(11, W('preparedSpells', 14)));
-  return pages(p1, p2);
+  return order('inventory', 'attacks', 'abilityScores', (c.id === 'lira' || c.id === 'io') && 'preparedSpells');
 }
 
 // ---- per-tab intent (same for everyone) + per-character notes
@@ -332,6 +316,7 @@ const runtime = {};
 for (const c of [...CHARS, ...GENERIC]) {
   const entry = { desktop: {}, tablet: {} };
   for (const [tab, [d, t]] of Object.entries(BUILD)) {
+    (TEMPLATE[c.id] ||= { desktop: {}, tablet: {} }).desktop[tab] = d(c); TEMPLATE[c.id].tablet[tab] = t(c);
     entry.desktop[tab] = fitted('desktop', c.id, tab, d(c));
     entry.tablet[tab] = fitted('tablet', c.id, tab, t(c));
     validate(`${c.id}/${tab}/desktop`, 'desktop', entry.desktop[tab]);
@@ -363,8 +348,8 @@ writeFileSync(join(here, '..', '..', 'wg-defaults.js'),
 `// ===== wg-defaults.js — suggested dashboard layouts (GENERATED) =====
 // Do not edit by hand: source is Metadocs/Dashboards/default-layouts.mjs.
 // Rows are [type, globalCol, startRowIdx, spanUnits, spanUnitsY]. Tablet
-// layouts are drawn on 21-column pages; wgDefaultLayout remaps page 2 onto the
-// real page width.
+// layouts are drawn on ${GRID.tablet.pageCols}-column pages; wgDefaultLayout remaps
+// every page onto the real page width.
 const WG_DEFAULT_LAYOUTS = ${compact};
 const WG_DEFAULT_TABLET_PAGE = ${GRID.tablet.pageCols};
 `);

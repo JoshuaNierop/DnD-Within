@@ -324,6 +324,7 @@ function applyResponsive() {
   state.config.dashTile         = Math.round(lerp(r.dashTile.mobile,         r.dashTile.desktop,         t));
   state.config.dashMinSpacing   = Math.round(lerp(r.dashMinSpacing.mobile,   r.dashMinSpacing.desktop,   t));
   state.config.fontSize         = lerp(r.fontSize.mobile, r.fontSize.desktop, t);
+  if (currentDevice() === 'tablet') Object.assign(state.config, WG_TABLET_CFG);
   // Phone mode (wg-mobile.js): fixed tile/spacing/font instead of the lerp.
   const mobile = typeof wgMobileActive === 'function' && wgMobileActive();
   if (mobile && typeof wgMobileApplyConfig === 'function') wgMobileApplyConfig();
