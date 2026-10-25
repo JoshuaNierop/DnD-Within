@@ -144,74 +144,74 @@
        "spanUnitsY": 5
       },
       {
-       "type": "longRest",
+       "type": "conditions",
        "globalCol": 0,
        "startRowIdx": 14,
-       "spanUnits": 4,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "savingThrows",
-       "globalCol": 4,
-       "startRowIdx": 14,
-       "spanUnits": 7,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 5,
-       "startRowIdx": 9,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 8,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 9
-      },
-      {
-       "type": "conditions",
-       "globalCol": 9,
-       "startRowIdx": 9,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
-       "type": "levelUp",
-       "globalCol": 11,
-       "startRowIdx": 13,
-       "spanUnits": 4,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "skills",
-       "globalCol": 14,
-       "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 13
+       "type": "savingThrows",
+       "globalCol": 5,
+       "startRowIdx": 9,
+       "spanUnits": 7,
+       "spanUnitsY": 3
       },
       {
        "type": "hpBase",
-       "globalCol": 15,
-       "startRowIdx": 13,
+       "globalCol": 5,
+       "startRowIdx": 12,
+       "spanUnits": 3,
+       "spanUnitsY": 6
+      },
+      {
+       "type": "levelUp",
+       "globalCol": 8,
+       "startRowIdx": 0,
        "spanUnits": 4,
        "spanUnitsY": 4
       },
       {
-       "type": "featuresActive",
-       "globalCol": 18,
-       "startRowIdx": 0,
-       "spanUnits": 7,
-       "spanUnitsY": 13
+       "type": "abilityScores",
+       "globalCol": 8,
+       "startRowIdx": 4,
+       "spanUnits": 4,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "longRest",
+       "globalCol": 8,
+       "startRowIdx": 12,
+       "spanUnits": 4,
+       "spanUnitsY": 3
       },
       {
        "type": "classResource",
-       "globalCol": 19,
-       "startRowIdx": 13,
-       "spanUnits": 6,
-       "spanUnitsY": 4
+       "globalCol": 8,
+       "startRowIdx": 15,
+       "spanUnits": 12,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 12,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 15
+      },
+      {
+       "type": "skills",
+       "globalCol": 20,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 20,
+       "startRowIdx": 7,
+       "spanUnits": 8,
+       "spanUnitsY": 11
       }
      ],
      "tablet": [
@@ -226,92 +226,92 @@
        "type": "basicInfo",
        "globalCol": 8,
        "startRowIdx": 0,
-       "spanUnits": 13,
-       "spanUnitsY": 4
+       "spanUnits": 7,
+       "spanUnitsY": 6
       },
       {
        "type": "hpBase",
-       "globalCol": 8,
-       "startRowIdx": 4,
-       "spanUnits": 13,
-       "spanUnitsY": 3
+       "globalCol": 15,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 6
       },
       {
        "type": "abilityScores",
        "globalCol": 8,
-       "startRowIdx": 7,
-       "spanUnits": 3,
-       "spanUnitsY": 9
+       "startRowIdx": 6,
+       "spanUnits": 5,
+       "spanUnitsY": 6
       },
       {
        "type": "savingThrows",
-       "globalCol": 11,
-       "startRowIdx": 7,
+       "globalCol": 13,
+       "startRowIdx": 6,
        "spanUnits": 10,
        "spanUnitsY": 4
       },
       {
        "type": "skills",
-       "globalCol": 11,
-       "startRowIdx": 11,
-       "spanUnits": 11,
-       "spanUnitsY": 10
+       "globalCol": 0,
+       "startRowIdx": 12,
+       "spanUnits": 17,
+       "spanUnitsY": 7
       },
       {
        "type": "conditions",
        "globalCol": 0,
-       "startRowIdx": 8,
-       "spanUnits": 7,
-       "spanUnitsY": 5
+       "startRowIdx": 19,
+       "spanUnits": 19,
+       "spanUnitsY": 3
       },
       {
        "type": "classResource",
        "globalCol": 0,
-       "startRowIdx": 13,
-       "spanUnits": 8,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 0,
-       "startRowIdx": 21,
-       "spanUnits": 18,
-       "spanUnitsY": 9
+       "startRowIdx": 22,
+       "spanUnits": 17,
+       "spanUnitsY": 5
       },
       {
        "type": "levelUp",
-       "globalCol": 18,
-       "startRowIdx": 21,
+       "globalCol": 17,
+       "startRowIdx": 10,
        "spanUnits": 5,
        "spanUnitsY": 6
+      },
+      {
+       "type": "longRest",
+       "globalCol": 0,
+       "startRowIdx": 8,
+       "spanUnits": 5,
+       "spanUnitsY": 4
       },
       {
        "type": "featuresActive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 10,
+       "spanUnits": 11,
        "spanUnitsY": 21
       },
       {
-       "type": "longRest",
-       "globalCol": 33,
+       "type": "featuresPassive",
+       "globalCol": 34,
        "startRowIdx": 0,
-       "spanUnits": 9,
-       "spanUnitsY": 3
+       "spanUnits": 12,
+       "spanUnitsY": 16
       }
      ],
      "phone": [
       "hpBase",
       "basicInfo",
-      "longRest",
-      "savingThrows",
-      "abilityScores",
-      "featuresPassive",
       "conditions",
+      "savingThrows",
       "levelUp",
-      "skills",
-      "featuresActive",
+      "abilityScores",
+      "longRest",
       "classResource",
+      "featuresActive",
+      "skills",
+      "featuresPassive",
       "profilePicture"
      ],
      "note": "No spell widgets; that space goes to Features (Cunning Action, Sneak Attack, Psychic Blades)."
@@ -322,71 +322,71 @@
        "type": "hpBase",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 3,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "conditions",
-       "globalCol": 0,
-       "startRowIdx": 6,
-       "spanUnits": 5,
+       "spanUnits": 4,
        "spanUnitsY": 4
-      },
-      {
-       "type": "profilePicture",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 6
       },
       {
        "type": "longRest",
        "globalCol": 0,
-       "startRowIdx": 16,
-       "spanUnits": 6,
-       "spanUnitsY": 2
+       "startRowIdx": 4,
+       "spanUnits": 4,
+       "spanUnitsY": 3
       },
       {
-       "type": "basicInfo",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 5,
+       "type": "profilePicture",
+       "globalCol": 0,
+       "startRowIdx": 7,
+       "spanUnits": 7,
+       "spanUnitsY": 6
+      },
+      {
+       "type": "classResource",
+       "globalCol": 0,
+       "startRowIdx": 13,
+       "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
+       "type": "basicInfo",
+       "globalCol": 4,
+       "startRowIdx": 0,
+       "spanUnits": 13,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "conditions",
+       "globalCol": 4,
+       "startRowIdx": 3,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
        "type": "abilityScores",
-       "globalCol": 5,
-       "startRowIdx": 5,
+       "globalCol": 7,
+       "startRowIdx": 7,
        "spanUnits": 2,
        "spanUnitsY": 11
       },
       {
-       "type": "featuresPassive",
-       "globalCol": 7,
-       "startRowIdx": 5,
-       "spanUnits": 6,
-       "spanUnitsY": 9
-      },
-      {
-       "type": "classResource",
-       "globalCol": 7,
-       "startRowIdx": 14,
-       "spanUnits": 6,
-       "spanUnitsY": 4
+       "type": "featuresActive",
+       "globalCol": 9,
+       "startRowIdx": 3,
+       "spanUnits": 8,
+       "spanUnitsY": 15
       },
       {
        "type": "skills",
-       "globalCol": 8,
+       "globalCol": 17,
        "startRowIdx": 0,
-       "spanUnits": 12,
-       "spanUnitsY": 5
+       "spanUnits": 8,
+       "spanUnitsY": 7
       },
       {
-       "type": "featuresActive",
-       "globalCol": 13,
-       "startRowIdx": 5,
-       "spanUnits": 7,
-       "spanUnitsY": 13
+       "type": "featuresPassive",
+       "globalCol": 17,
+       "startRowIdx": 7,
+       "spanUnits": 8,
+       "spanUnitsY": 11
       }
      ],
      "tablet": [
@@ -401,62 +401,62 @@
        "type": "basicInfo",
        "globalCol": 8,
        "startRowIdx": 0,
-       "spanUnits": 7,
-       "spanUnitsY": 6
+       "spanUnits": 13,
+       "spanUnitsY": 4
       },
       {
        "type": "skills",
-       "globalCol": 0,
-       "startRowIdx": 8,
-       "spanUnits": 17,
-       "spanUnitsY": 7
+       "globalCol": 8,
+       "startRowIdx": 4,
+       "spanUnits": 11,
+       "spanUnitsY": 10
       },
       {
        "type": "abilityScores",
-       "globalCol": 15,
-       "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "hpBase",
-       "globalCol": 20,
-       "startRowIdx": 0,
+       "globalCol": 19,
+       "startRowIdx": 4,
        "spanUnits": 3,
        "spanUnitsY": 9
       },
       {
-       "type": "conditions",
+       "type": "hpBase",
        "globalCol": 0,
-       "startRowIdx": 15,
-       "spanUnits": 19,
-       "spanUnitsY": 3
+       "startRowIdx": 8,
+       "spanUnits": 8,
+       "spanUnitsY": 4
       },
       {
-       "type": "featuresActive",
+       "type": "conditions",
        "globalCol": 0,
-       "startRowIdx": 18,
-       "spanUnits": 20,
-       "spanUnitsY": 12
+       "startRowIdx": 12,
+       "spanUnits": 7,
+       "spanUnitsY": 5
       },
       {
        "type": "featuresPassive",
+       "globalCol": 7,
+       "startRowIdx": 14,
+       "spanUnits": 12,
+       "spanUnitsY": 16
+      },
+      {
+       "type": "featuresActive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 18,
-       "spanUnitsY": 9
+       "spanUnits": 11,
+       "spanUnitsY": 21
       }
      ],
      "phone": [
       "hpBase",
-      "conditions",
       "longRest",
-      "basicInfo",
-      "abilityScores",
-      "featuresPassive",
       "classResource",
-      "skills",
+      "basicInfo",
+      "conditions",
+      "abilityScores",
       "featuresActive",
+      "skills",
+      "featuresPassive",
       "profilePicture"
      ],
      "note": "Active Features shows Psi-Bolstered Knack and his telepathy; Resources beside it for the Psionic Dice."
@@ -471,67 +471,67 @@
        "spanUnitsY": 6
       },
       {
-       "type": "longRest",
+       "type": "classResource",
        "globalCol": 0,
-       "startRowIdx": 7,
-       "spanUnits": 6,
-       "spanUnitsY": 2
+       "startRowIdx": 6,
+       "spanUnits": 12,
+       "spanUnitsY": 3
       },
       {
        "type": "map",
        "globalCol": 0,
        "startRowIdx": 9,
        "spanUnits": 12,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 3,
-       "spanUnitsY": 7
+       "spanUnitsY": 9
       },
       {
        "type": "featuresPassive",
-       "globalCol": 6,
+       "globalCol": 3,
        "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 9
+       "spanUnits": 16,
+       "spanUnitsY": 6
       },
       {
        "type": "conditions",
        "globalCol": 12,
-       "startRowIdx": 0,
+       "startRowIdx": 6,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
-       "type": "skills",
-       "globalCol": 12,
-       "startRowIdx": 4,
-       "spanUnits": 4,
-       "spanUnitsY": 13
-      },
-      {
        "type": "featuresActive",
-       "globalCol": 16,
-       "startRowIdx": 4,
-       "spanUnits": 7,
-       "spanUnitsY": 13
+       "globalCol": 12,
+       "startRowIdx": 10,
+       "spanUnits": 15,
+       "spanUnitsY": 8
       },
       {
-       "type": "classResource",
+       "type": "longRest",
        "globalCol": 17,
+       "startRowIdx": 7,
+       "spanUnits": 4,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "skills",
+       "globalCol": 19,
        "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 21,
+       "startRowIdx": 7,
        "spanUnits": 6,
-       "spanUnitsY": 4
+       "spanUnitsY": 3
       },
       {
        "type": "inventory",
-       "globalCol": 23,
+       "globalCol": 27,
        "startRowIdx": 0,
        "spanUnits": 8,
-       "spanUnitsY": 17
+       "spanUnitsY": 18
       }
      ],
      "tablet": [
@@ -551,29 +551,29 @@
       },
       {
        "type": "hpBase",
-       "globalCol": 0,
-       "startRowIdx": 22,
-       "spanUnits": 13,
-       "spanUnitsY": 3
+       "globalCol": 11,
+       "startRowIdx": 12,
+       "spanUnits": 8,
+       "spanUnitsY": 4
       },
       {
        "type": "conditions",
        "globalCol": 11,
-       "startRowIdx": 12,
+       "startRowIdx": 16,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "classResource",
-       "globalCol": 13,
-       "startRowIdx": 17,
-       "spanUnits": 8,
-       "spanUnitsY": 7
+       "globalCol": 0,
+       "startRowIdx": 22,
+       "spanUnits": 17,
+       "spanUnitsY": 5
       },
       {
        "type": "longRest",
        "globalCol": 18,
-       "startRowIdx": 12,
+       "startRowIdx": 16,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
@@ -581,15 +581,15 @@
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 18,
-       "spanUnitsY": 9
+       "spanUnits": 12,
+       "spanUnitsY": 16
       },
       {
        "type": "featuresActive",
-       "globalCol": 23,
-       "startRowIdx": 9,
-       "spanUnits": 20,
-       "spanUnitsY": 12
+       "globalCol": 35,
+       "startRowIdx": 0,
+       "spanUnits": 11,
+       "spanUnitsY": 21
       },
       {
        "type": "inventory",
@@ -601,14 +601,14 @@
      ],
      "phone": [
       "hpBase",
-      "longRest",
+      "classResource",
       "map",
-      "abilityScores",
       "featuresPassive",
       "conditions",
-      "skills",
       "featuresActive",
-      "classResource",
+      "longRest",
+      "skills",
+      "abilityScores",
       "inventory"
      ],
      "note": "Skills gets the extra height (Expertise in Stealth/Perception). Inventory with thieves' tools beside the map."
@@ -623,64 +623,64 @@
        "spanUnitsY": 6
       },
       {
-       "type": "conditions",
+       "type": "savingThrows",
        "globalCol": 0,
        "startRowIdx": 6,
-       "spanUnits": 5,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "turnActions",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 20,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "classResource",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "savingThrows",
-       "globalCol": 5,
-       "startRowIdx": 4,
        "spanUnits": 4,
        "spanUnitsY": 5
       },
       {
-       "type": "featuresActive",
-       "globalCol": 9,
-       "startRowIdx": 0,
-       "spanUnits": 19,
-       "spanUnitsY": 5
+       "type": "attacks",
+       "globalCol": 0,
+       "startRowIdx": 11,
+       "spanUnits": 7,
+       "spanUnitsY": 7
       },
       {
        "type": "featuresPassive",
-       "globalCol": 9,
-       "startRowIdx": 5,
+       "globalCol": 4,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 11
+      },
+      {
+       "type": "conditions",
+       "globalCol": 7,
+       "startRowIdx": 11,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "classResource",
+       "globalCol": 7,
+       "startRowIdx": 15,
        "spanUnits": 12,
-       "spanUnitsY": 5
+       "spanUnitsY": 3
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 12,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 15
+      },
+      {
+       "type": "turnActions",
+       "globalCol": 20,
+       "startRowIdx": 0,
+       "spanUnits": 13,
+       "spanUnitsY": 13
       },
       {
        "type": "skills",
        "globalCol": 20,
-       "startRowIdx": 11,
-       "spanUnits": 8,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "attacks",
-       "globalCol": 21,
-       "startRowIdx": 5,
-       "spanUnits": 6,
-       "spanUnitsY": 6
+       "startRowIdx": 13,
+       "spanUnits": 12,
+       "spanUnitsY": 5
       },
       {
        "type": "initiativeTracker",
-       "globalCol": 28,
+       "globalCol": 33,
        "startRowIdx": 0,
        "spanUnits": 10,
        "spanUnitsY": 18
@@ -726,34 +726,34 @@
        "type": "classResource",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 15,
+       "spanUnits": 17,
        "spanUnitsY": 5
       },
       {
        "type": "featuresActive",
        "globalCol": 23,
        "startRowIdx": 5,
-       "spanUnits": 10,
+       "spanUnits": 11,
        "spanUnitsY": 21
       },
       {
        "type": "initiativeTracker",
-       "globalCol": 33,
-       "startRowIdx": 5,
+       "globalCol": 46,
+       "startRowIdx": 0,
        "spanUnits": 13,
        "spanUnitsY": 22
       }
      ],
      "phone": [
       "hpBase",
-      "conditions",
-      "turnActions",
-      "classResource",
       "savingThrows",
-      "featuresActive",
-      "featuresPassive",
-      "skills",
       "attacks",
+      "featuresPassive",
+      "conditions",
+      "classResource",
+      "featuresActive",
+      "turnActions",
+      "skills",
       "initiativeTracker"
      ],
      "note": "Attacks (Dagger with Nick, Shortbow with Vex) + Active Features; Skills on the right for Stealth to Hide."
@@ -771,7 +771,7 @@
        "type": "attacks",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 12,
+       "spanUnits": 13,
        "spanUnitsY": 4
       },
       {
@@ -838,99 +838,99 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 8,
-       "spanUnitsY": 8
+       "spanUnits": 9,
+       "spanUnitsY": 10
       },
       {
        "type": "basicInfo",
        "globalCol": 0,
-       "startRowIdx": 8,
+       "startRowIdx": 10,
        "spanUnits": 5,
-       "spanUnitsY": 4
+       "spanUnitsY": 5
       },
       {
-       "type": "levelUp",
+       "type": "hpBase",
        "globalCol": 0,
-       "startRowIdx": 12,
-       "spanUnits": 4,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 0,
-       "startRowIdx": 16,
-       "spanUnits": 4,
+       "startRowIdx": 15,
+       "spanUnits": 9,
        "spanUnitsY": 2
       },
       {
+       "type": "savingThrows",
+       "globalCol": 5,
+       "startRowIdx": 10,
+       "spanUnits": 4,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "levelUp",
+       "globalCol": 9,
+       "startRowIdx": 0,
+       "spanUnits": 4,
+       "spanUnitsY": 4
+      },
+      {
        "type": "abilityScores",
-       "globalCol": 4,
-       "startRowIdx": 12,
+       "globalCol": 9,
+       "startRowIdx": 4,
        "spanUnits": 6,
        "spanUnitsY": 3
       },
       {
-       "type": "classResource",
-       "globalCol": 4,
-       "startRowIdx": 15,
-       "spanUnits": 5,
-       "spanUnitsY": 3
+       "type": "featuresPassive",
+       "globalCol": 9,
+       "startRowIdx": 7,
+       "spanUnits": 7,
+       "spanUnitsY": 10
       },
       {
        "type": "conditions",
-       "globalCol": 5,
-       "startRowIdx": 8,
+       "globalCol": 13,
+       "startRowIdx": 0,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
        "type": "longRest",
-       "globalCol": 8,
-       "startRowIdx": 0,
+       "globalCol": 15,
+       "startRowIdx": 4,
        "spanUnits": 3,
        "spanUnitsY": 2
       },
       {
-       "type": "hpBase",
-       "globalCol": 8,
-       "startRowIdx": 2,
-       "spanUnits": 3,
+       "type": "featuresActive",
+       "globalCol": 16,
+       "startRowIdx": 6,
+       "spanUnits": 8,
+       "spanUnitsY": 11
+      },
+      {
+       "type": "classResource",
+       "globalCol": 18,
+       "startRowIdx": 0,
+       "spanUnits": 6,
        "spanUnitsY": 6
       },
       {
-       "type": "featuresActive",
-       "globalCol": 10,
-       "startRowIdx": 8,
-       "spanUnits": 6,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "savingThrows",
-       "globalCol": 10,
-       "startRowIdx": 13,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 11,
-       "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 14,
-       "startRowIdx": 13,
-       "spanUnits": 6,
-       "spanUnitsY": 5
-      },
-      {
        "type": "skills",
-       "globalCol": 16,
+       "globalCol": 24,
        "startRowIdx": 0,
        "spanUnits": 4,
        "spanUnitsY": 13
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 24,
+       "startRowIdx": 13,
+       "spanUnits": 4,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 28,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 17
       }
      ],
      "tablet": [
@@ -938,76 +938,76 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 9,
-       "spanUnitsY": 9
+       "spanUnits": 8,
+       "spanUnitsY": 8
       },
       {
        "type": "basicInfo",
-       "globalCol": 9,
+       "globalCol": 8,
        "startRowIdx": 0,
        "spanUnits": 7,
        "spanUnitsY": 6
       },
       {
        "type": "hpBase",
-       "globalCol": 9,
-       "startRowIdx": 6,
-       "spanUnits": 13,
-       "spanUnitsY": 3
+       "globalCol": 15,
+       "startRowIdx": 0,
+       "spanUnits": 3,
+       "spanUnitsY": 9
       },
       {
        "type": "abilityScores",
-       "globalCol": 16,
-       "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 6
+       "globalCol": 0,
+       "startRowIdx": 8,
+       "spanUnits": 9,
+       "spanUnitsY": 4
       },
       {
        "type": "savingThrows",
-       "globalCol": 0,
-       "startRowIdx": 9,
-       "spanUnits": 15,
-       "spanUnitsY": 3
+       "globalCol": 9,
+       "startRowIdx": 6,
+       "spanUnits": 6,
+       "spanUnitsY": 7
       },
       {
        "type": "skills",
        "globalCol": 0,
-       "startRowIdx": 12,
+       "startRowIdx": 13,
        "spanUnits": 17,
        "spanUnitsY": 7
       },
       {
        "type": "conditions",
        "globalCol": 0,
-       "startRowIdx": 19,
-       "spanUnits": 7,
-       "spanUnitsY": 5
+       "startRowIdx": 20,
+       "spanUnits": 19,
+       "spanUnitsY": 3
       },
       {
        "type": "classResource",
-       "globalCol": 7,
-       "startRowIdx": 19,
-       "spanUnits": 15,
+       "globalCol": 0,
+       "startRowIdx": 23,
+       "spanUnits": 16,
        "spanUnitsY": 6
       },
       {
        "type": "spellSlots",
-       "globalCol": 17,
-       "startRowIdx": 9,
+       "globalCol": 18,
+       "startRowIdx": 0,
        "spanUnits": 5,
        "spanUnitsY": 6
       },
       {
        "type": "levelUp",
-       "globalCol": 0,
-       "startRowIdx": 25,
-       "spanUnits": 14,
-       "spanUnitsY": 3
+       "globalCol": 18,
+       "startRowIdx": 6,
+       "spanUnits": 5,
+       "spanUnitsY": 6
       },
       {
        "type": "longRest",
        "globalCol": 17,
-       "startRowIdx": 15,
+       "startRowIdx": 12,
        "spanUnits": 5,
        "spanUnitsY": 3
       },
@@ -1015,7 +1015,7 @@
        "type": "featuresActive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 10,
+       "spanUnits": 11,
        "spanUnitsY": 16
       },
       {
@@ -1027,7 +1027,7 @@
       },
       {
        "type": "featuresPassive",
-       "globalCol": 33,
+       "globalCol": 34,
        "startRowIdx": 0,
        "spanUnits": 10,
        "spanUnitsY": 14
@@ -1036,17 +1036,17 @@
      "phone": [
       "hpBase",
       "basicInfo",
+      "savingThrows",
       "levelUp",
-      "spellSlots",
       "abilityScores",
-      "classResource",
+      "featuresPassive",
       "conditions",
       "longRest",
       "featuresActive",
-      "savingThrows",
-      "preparedSpells",
-      "featuresPassive",
+      "classResource",
       "skills",
+      "spellSlots",
+      "preparedSpells",
       "profilePicture"
      ],
      "note": ""
@@ -1068,60 +1068,60 @@
        "spanUnitsY": 2
       },
       {
-       "type": "profilePicture",
+       "type": "conditions",
        "globalCol": 0,
        "startRowIdx": 8,
-       "spanUnits": 5,
-       "spanUnitsY": 10
-      },
-      {
-       "type": "skills",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 12,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 3,
-       "startRowIdx": 5,
-       "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 5,
-       "startRowIdx": 8,
-       "spanUnits": 4,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "conditions",
-       "globalCol": 5,
-       "startRowIdx": 10,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
        "type": "basicInfo",
-       "globalCol": 5,
-       "startRowIdx": 14,
+       "globalCol": 0,
+       "startRowIdx": 12,
        "spanUnits": 5,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "profilePicture",
+       "globalCol": 3,
+       "startRowIdx": 0,
+       "spanUnits": 5,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 5,
+       "startRowIdx": 8,
+       "spanUnits": 4,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 5,
+       "startRowIdx": 13,
+       "spanUnits": 4,
        "spanUnitsY": 4
+      },
+      {
+       "type": "skills",
+       "globalCol": 8,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 7
       },
       {
        "type": "featuresPassive",
        "globalCol": 9,
-       "startRowIdx": 5,
-       "spanUnits": 6,
-       "spanUnitsY": 5
+       "startRowIdx": 7,
+       "spanUnits": 7,
+       "spanUnitsY": 10
       },
       {
        "type": "preparedSpells",
-       "globalCol": 10,
-       "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 8
+       "globalCol": 16,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 17
       }
      ],
      "tablet": [
@@ -1185,11 +1185,11 @@
      "phone": [
       "hpBase",
       "longRest",
-      "skills",
-      "abilityScores",
-      "spellSlots",
       "conditions",
       "basicInfo",
+      "abilityScores",
+      "spellSlots",
+      "skills",
       "featuresPassive",
       "preparedSpells",
       "profilePicture"
@@ -1213,67 +1213,67 @@
        "spanUnitsY": 2
       },
       {
-       "type": "conditions",
+       "type": "featuresActive",
        "globalCol": 0,
        "startRowIdx": 8,
-       "spanUnits": 13,
-       "spanUnitsY": 2
+       "spanUnits": 15,
+       "spanUnitsY": 6
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 0,
+       "startRowIdx": 14,
+       "spanUnits": 20,
+       "spanUnitsY": 4
       },
       {
        "type": "classResource",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 5,
+       "globalCol": 3,
+       "startRowIdx": 0,
+       "spanUnits": 17,
        "spanUnitsY": 3
       },
       {
        "type": "skills",
-       "globalCol": 0,
-       "startRowIdx": 13,
-       "spanUnits": 15,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "map",
        "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 13,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 5,
-       "startRowIdx": 10,
+       "startRowIdx": 3,
        "spanUnits": 12,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 13,
-       "startRowIdx": 8,
-       "spanUnits": 4,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "featuresActive",
-       "globalCol": 15,
-       "startRowIdx": 13,
-       "spanUnits": 6,
        "spanUnitsY": 5
       },
       {
        "type": "preparedSpells",
-       "globalCol": 16,
-       "startRowIdx": 0,
+       "globalCol": 15,
+       "startRowIdx": 3,
+       "spanUnits": 17,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "conditions",
+       "globalCol": 15,
+       "startRowIdx": 10,
        "spanUnits": 5,
-       "spanUnitsY": 8
+       "spanUnitsY": 4
       },
       {
        "type": "abilityScores",
-       "globalCol": 17,
-       "startRowIdx": 8,
-       "spanUnits": 4,
-       "spanUnitsY": 5
+       "globalCol": 20,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "map",
+       "globalCol": 20,
+       "startRowIdx": 10,
+       "spanUnits": 12,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 26,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 3
       }
      ],
      "tablet": [
@@ -1309,7 +1309,7 @@
        "type": "classResource",
        "globalCol": 13,
        "startRowIdx": 17,
-       "spanUnits": 8,
+       "spanUnits": 9,
        "spanUnitsY": 9
       },
       {
@@ -1344,15 +1344,15 @@
      "phone": [
       "hpBase",
       "longRest",
-      "conditions",
+      "featuresActive",
+      "featuresPassive",
       "classResource",
       "skills",
-      "map",
-      "featuresPassive",
-      "spellSlots",
-      "featuresActive",
       "preparedSpells",
-      "abilityScores"
+      "conditions",
+      "abilityScores",
+      "map",
+      "spellSlots"
      ],
      "note": ""
     },
@@ -1376,61 +1376,61 @@
        "type": "classResource",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "savingThrows",
-       "globalCol": 0,
-       "startRowIdx": 13,
-       "spanUnits": 4,
-       "spanUnitsY": 5
+       "spanUnits": 6,
+       "spanUnitsY": 6
       },
       {
        "type": "attacks",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 3,
-       "startRowIdx": 2,
-       "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 4,
-       "startRowIdx": 13,
-       "spanUnits": 4,
+       "globalCol": 0,
+       "startRowIdx": 16,
+       "spanUnits": 9,
        "spanUnitsY": 2
       },
       {
        "type": "featuresActive",
-       "globalCol": 4,
-       "startRowIdx": 15,
-       "spanUnits": 11,
-       "spanUnitsY": 3
+       "globalCol": 3,
+       "startRowIdx": 0,
+       "spanUnits": 15,
+       "spanUnitsY": 6
       },
       {
        "type": "preparedSpells",
-       "globalCol": 5,
-       "startRowIdx": 5,
-       "spanUnits": 5,
-       "spanUnitsY": 8
+       "globalCol": 6,
+       "startRowIdx": 6,
+       "spanUnits": 12,
+       "spanUnitsY": 9
+      },
+      {
+       "type": "savingThrows",
+       "globalCol": 9,
+       "startRowIdx": 15,
+       "spanUnits": 7,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 16,
+       "startRowIdx": 15,
+       "spanUnits": 6,
+       "spanUnitsY": 3
       },
       {
        "type": "turnActions",
-       "globalCol": 10,
+       "globalCol": 18,
        "startRowIdx": 0,
-       "spanUnits": 6,
+       "spanUnits": 12,
        "spanUnitsY": 15
       },
       {
+       "type": "abilityScores",
+       "globalCol": 22,
+       "startRowIdx": 15,
+       "spanUnits": 6,
+       "spanUnitsY": 3
+      },
+      {
        "type": "initiativeTracker",
-       "globalCol": 16,
+       "globalCol": 30,
        "startRowIdx": 0,
        "spanUnits": 10,
        "spanUnitsY": 18
@@ -1441,64 +1441,64 @@
        "type": "hpBase",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 6
+       "spanUnits": 13,
+       "spanUnitsY": 3
       },
       {
        "type": "conditions",
        "globalCol": 0,
-       "startRowIdx": 6,
-       "spanUnits": 19,
-       "spanUnitsY": 3
+       "startRowIdx": 3,
+       "spanUnits": 13,
+       "spanUnitsY": 4
       },
       {
        "type": "turnActions",
        "globalCol": 0,
-       "startRowIdx": 9,
+       "startRowIdx": 7,
        "spanUnits": 17,
        "spanUnitsY": 21
       },
       {
        "type": "attacks",
-       "globalCol": 6,
+       "globalCol": 13,
        "startRowIdx": 0,
-       "spanUnits": 13,
-       "spanUnitsY": 3
+       "spanUnits": 7,
+       "spanUnitsY": 5
       },
       {
        "type": "spellSlots",
        "globalCol": 17,
-       "startRowIdx": 9,
+       "startRowIdx": 5,
        "spanUnits": 5,
        "spanUnitsY": 6
       },
       {
        "type": "savingThrows",
-       "globalCol": 6,
-       "startRowIdx": 3,
-       "spanUnits": 15,
-       "spanUnitsY": 3
+       "globalCol": 17,
+       "startRowIdx": 11,
+       "spanUnits": 6,
+       "spanUnitsY": 7
       },
       {
        "type": "classResource",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 15,
+       "spanUnits": 16,
        "spanUnitsY": 6
       },
       {
        "type": "preparedSpells",
        "globalCol": 23,
        "startRowIdx": 6,
-       "spanUnits": 17,
-       "spanUnitsY": 13
+       "spanUnits": 9,
+       "spanUnitsY": 24
       },
       {
        "type": "featuresActive",
-       "globalCol": 23,
-       "startRowIdx": 19,
-       "spanUnits": 19,
-       "spanUnitsY": 9
+       "globalCol": 32,
+       "startRowIdx": 6,
+       "spanUnits": 11,
+       "spanUnitsY": 16
       },
       {
        "type": "initiativeTracker",
@@ -1512,13 +1512,13 @@
       "hpBase",
       "conditions",
       "classResource",
-      "savingThrows",
       "attacks",
-      "abilityScores",
-      "spellSlots",
       "featuresActive",
       "preparedSpells",
+      "savingThrows",
+      "spellSlots",
       "turnActions",
+      "abilityScores",
       "initiativeTracker"
      ],
      "note": "Resources holds Sorcery Points + Healing Hands; at L3 Celestial Revelation joins it."
@@ -1530,28 +1530,28 @@
        "globalCol": 0,
        "startRowIdx": 0,
        "spanUnits": 12,
-       "spanUnitsY": 12
+       "spanUnitsY": 14
       },
       {
        "type": "attacks",
        "globalCol": 0,
-       "startRowIdx": 12,
-       "spanUnits": 5,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 0,
        "startRowIdx": 14,
-       "spanUnits": 6,
+       "spanUnits": 5,
        "spanUnitsY": 3
       },
       {
        "type": "basicInfo",
-       "globalCol": 6,
-       "startRowIdx": 12,
-       "spanUnits": 5,
-       "spanUnitsY": 4
+       "globalCol": 5,
+       "startRowIdx": 14,
+       "spanUnits": 9,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 12,
+       "startRowIdx": 0,
+       "spanUnits": 2,
+       "spanUnitsY": 11
       }
      ],
      "tablet": [
@@ -1580,8 +1580,8 @@
      "phone": [
       "inventory",
       "attacks",
-      "abilityScores",
-      "basicInfo"
+      "basicInfo",
+      "abilityScores"
      ],
      "note": ""
     }
@@ -1635,67 +1635,67 @@
        "spanUnitsY": 2
       },
       {
-       "type": "featuresPassive",
+       "type": "conditions",
        "globalCol": 5,
        "startRowIdx": 10,
-       "spanUnits": 12,
+       "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
-       "type": "classResource",
+       "type": "spellSlots",
        "globalCol": 7,
        "startRowIdx": 14,
-       "spanUnits": 9,
+       "spanUnits": 6,
        "spanUnitsY": 2
       },
       {
-       "type": "savingThrows",
+       "type": "abilityScores",
        "globalCol": 10,
+       "startRowIdx": 0,
+       "spanUnits": 2,
+       "spanUnitsY": 11
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 12,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 12,
+       "startRowIdx": 8,
+       "spanUnits": 6,
+       "spanUnitsY": 6
+      },
+      {
+       "type": "classResource",
+       "globalCol": 13,
+       "startRowIdx": 14,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "savingThrows",
+       "globalCol": 18,
        "startRowIdx": 0,
        "spanUnits": 8,
        "spanUnitsY": 3
       },
       {
        "type": "skills",
-       "globalCol": 10,
+       "globalCol": 18,
        "startRowIdx": 3,
        "spanUnits": 8,
        "spanUnitsY": 7
       },
       {
-       "type": "spellSlots",
-       "globalCol": 13,
-       "startRowIdx": 16,
-       "spanUnits": 4,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 17,
+       "type": "featuresPassive",
+       "globalCol": 18,
        "startRowIdx": 10,
-       "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "featuresActive",
-       "globalCol": 17,
-       "startRowIdx": 13,
-       "spanUnits": 6,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "conditions",
-       "globalCol": 18,
-       "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 18,
-       "startRowIdx": 4,
-       "spanUnits": 5,
-       "spanUnitsY": 6
+       "spanUnits": 8,
+       "spanUnitsY": 8
       }
      ],
      "tablet": [
@@ -1794,7 +1794,7 @@
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 7,
-       "spanUnits": 18,
+       "spanUnits": 20,
        "spanUnitsY": 7
       }
      ],
@@ -1803,15 +1803,15 @@
       "basicInfo",
       "levelUp",
       "longRest",
-      "featuresPassive",
+      "conditions",
+      "spellSlots",
+      "abilityScores",
+      "preparedSpells",
+      "featuresActive",
       "classResource",
       "savingThrows",
       "skills",
-      "spellSlots",
-      "abilityScores",
-      "featuresActive",
-      "conditions",
-      "preparedSpells",
+      "featuresPassive",
       "profilePicture"
      ],
      "note": ""
@@ -1833,67 +1833,67 @@
        "spanUnitsY": 4
       },
       {
-       "type": "basicInfo",
+       "type": "featuresPassive",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "longRest",
-       "globalCol": 0,
-       "startRowIdx": 14,
-       "spanUnits": 3,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 0,
-       "startRowIdx": 16,
-       "spanUnits": 4,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "profilePicture",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 9,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "inventory",
-       "globalCol": 4,
-       "startRowIdx": 14,
-       "spanUnits": 7,
-       "spanUnitsY": 4
+       "spanUnits": 8,
+       "spanUnitsY": 8
       },
       {
        "type": "skills",
-       "globalCol": 5,
-       "startRowIdx": 6,
+       "globalCol": 3,
+       "startRowIdx": 0,
        "spanUnits": 12,
        "spanUnitsY": 5
       },
       {
-       "type": "abilityScores",
+       "type": "longRest",
        "globalCol": 5,
-       "startRowIdx": 11,
-       "spanUnits": 6,
+       "startRowIdx": 5,
+       "spanUnits": 3,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "basicInfo",
+       "globalCol": 5,
+       "startRowIdx": 7,
+       "spanUnits": 9,
        "spanUnitsY": 3
       },
       {
-       "type": "featuresPassive",
-       "globalCol": 11,
-       "startRowIdx": 11,
+       "type": "spellSlots",
+       "globalCol": 8,
+       "startRowIdx": 5,
        "spanUnits": 6,
-       "spanUnitsY": 7
+       "spanUnitsY": 2
       },
       {
        "type": "preparedSpells",
-       "globalCol": 12,
-       "startRowIdx": 0,
+       "globalCol": 8,
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "profilePicture",
+       "globalCol": 14,
+       "startRowIdx": 5,
        "spanUnits": 5,
        "spanUnitsY": 6
+      },
+      {
+       "type": "inventory",
+       "globalCol": 14,
+       "startRowIdx": 11,
+       "spanUnits": 5,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 15,
+       "startRowIdx": 0,
+       "spanUnits": 4,
+       "spanUnitsY": 5
       }
      ],
      "tablet": [
@@ -1950,7 +1950,7 @@
        "type": "featuresPassive",
        "globalCol": 0,
        "startRowIdx": 22,
-       "spanUnits": 18,
+       "spanUnits": 20,
        "spanUnitsY": 7
       },
       {
@@ -1964,14 +1964,14 @@
      "phone": [
       "hpBase",
       "conditions",
-      "basicInfo",
-      "longRest",
-      "spellSlots",
-      "inventory",
-      "skills",
-      "abilityScores",
       "featuresPassive",
+      "skills",
+      "longRest",
+      "basicInfo",
+      "spellSlots",
       "preparedSpells",
+      "inventory",
+      "abilityScores",
       "profilePicture"
      ],
      "note": "Merchant: Inventory on Social so she can trade straight from the conversation."
@@ -1993,67 +1993,67 @@
        "spanUnitsY": 4
       },
       {
-       "type": "classResource",
+       "type": "map",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 3
+       "spanUnits": 12,
+       "spanUnitsY": 8
       },
       {
        "type": "featuresActive",
-       "globalCol": 0,
-       "startRowIdx": 13,
-       "spanUnits": 6,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "preparedSpells",
        "globalCol": 3,
        "startRowIdx": 0,
-       "spanUnits": 5,
+       "spanUnits": 6,
        "spanUnitsY": 6
       },
       {
-       "type": "abilityScores",
+       "type": "classResource",
        "globalCol": 5,
        "startRowIdx": 6,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 5,
-       "startRowIdx": 11,
-       "spanUnits": 4,
-       "spanUnitsY": 2
+       "spanUnits": 5,
+       "spanUnitsY": 4
       },
       {
        "type": "longRest",
-       "globalCol": 6,
-       "startRowIdx": 13,
+       "globalCol": 9,
+       "startRowIdx": 0,
        "spanUnits": 3,
        "spanUnitsY": 2
       },
       {
        "type": "featuresPassive",
-       "globalCol": 6,
-       "startRowIdx": 15,
-       "spanUnits": 17,
-       "spanUnitsY": 3
+       "globalCol": 10,
+       "startRowIdx": 2,
+       "spanUnits": 8,
+       "spanUnitsY": 8
       },
       {
-       "type": "skills",
-       "globalCol": 8,
+       "type": "spellSlots",
+       "globalCol": 12,
        "startRowIdx": 0,
-       "spanUnits": 15,
+       "spanUnits": 6,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 12,
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 18,
+       "startRowIdx": 0,
+       "spanUnits": 4,
        "spanUnitsY": 5
       },
       {
-       "type": "map",
-       "globalCol": 9,
+       "type": "skills",
+       "globalCol": 18,
        "startRowIdx": 5,
-       "spanUnits": 14,
-       "spanUnitsY": 10
+       "spanUnits": 4,
+       "spanUnitsY": 13
       }
      ],
      "tablet": [
@@ -2117,22 +2117,22 @@
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 7,
-       "spanUnits": 18,
+       "spanUnits": 20,
        "spanUnitsY": 7
       }
      ],
      "phone": [
       "hpBase",
       "conditions",
-      "classResource",
+      "map",
       "featuresActive",
-      "preparedSpells",
-      "abilityScores",
-      "spellSlots",
+      "classResource",
       "longRest",
       "featuresPassive",
-      "skills",
-      "map"
+      "spellSlots",
+      "preparedSpells",
+      "abilityScores",
+      "skills"
      ],
      "note": ""
     },
@@ -2153,64 +2153,64 @@
        "spanUnitsY": 4
       },
       {
-       "type": "classResource",
+       "type": "turnActions",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 3
+       "spanUnits": 12,
+       "spanUnitsY": 8
       },
       {
        "type": "savingThrows",
-       "globalCol": 0,
-       "startRowIdx": 13,
+       "globalCol": 3,
+       "startRowIdx": 0,
        "spanUnits": 4,
        "spanUnitsY": 5
       },
       {
        "type": "attacks",
-       "globalCol": 3,
-       "startRowIdx": 0,
+       "globalCol": 5,
+       "startRowIdx": 5,
+       "spanUnits": 7,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 5,
+       "startRowIdx": 8,
        "spanUnits": 6,
        "spanUnitsY": 2
       },
       {
-       "type": "spellSlots",
-       "globalCol": 3,
-       "startRowIdx": 2,
-       "spanUnits": 4,
-       "spanUnitsY": 2
+       "type": "preparedSpells",
+       "globalCol": 7,
+       "startRowIdx": 0,
+       "spanUnits": 11,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "classResource",
+       "globalCol": 12,
+       "startRowIdx": 5,
+       "spanUnits": 5,
+       "spanUnitsY": 4
       },
       {
        "type": "featuresActive",
-       "globalCol": 4,
-       "startRowIdx": 15,
-       "spanUnits": 11,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 5,
-       "startRowIdx": 4,
-       "spanUnits": 5,
+       "globalCol": 12,
+       "startRowIdx": 9,
+       "spanUnits": 6,
        "spanUnitsY": 6
       },
       {
        "type": "abilityScores",
-       "globalCol": 5,
-       "startRowIdx": 10,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "turnActions",
-       "globalCol": 10,
-       "startRowIdx": 0,
+       "globalCol": 12,
+       "startRowIdx": 15,
        "spanUnits": 6,
-       "spanUnitsY": 14
+       "spanUnitsY": 3
       },
       {
        "type": "initiativeTracker",
-       "globalCol": 16,
+       "globalCol": 18,
        "startRowIdx": 0,
        "spanUnits": 10,
        "spanUnitsY": 18
@@ -2291,14 +2291,14 @@
      "phone": [
       "hpBase",
       "conditions",
-      "classResource",
+      "turnActions",
       "savingThrows",
       "attacks",
       "spellSlots",
-      "featuresActive",
       "preparedSpells",
+      "classResource",
+      "featuresActive",
       "abilityScores",
-      "turnActions",
       "initiativeTracker"
      ],
      "note": ""
@@ -2309,36 +2309,36 @@
        "type": "inventory",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 7,
+       "spanUnits": 5,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "basicInfo",
+       "globalCol": 0,
+       "startRowIdx": 7,
+       "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
        "type": "attacks",
        "globalCol": 0,
-       "startRowIdx": 4,
-       "spanUnits": 6,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "skills",
-       "globalCol": 0,
-       "startRowIdx": 7,
-       "spanUnits": 12,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 6,
-       "startRowIdx": 4,
-       "spanUnits": 6,
+       "startRowIdx": 11,
+       "spanUnits": 7,
        "spanUnitsY": 3
       },
       {
-       "type": "basicInfo",
+       "type": "abilityScores",
+       "globalCol": 5,
+       "startRowIdx": 0,
+       "spanUnits": 2,
+       "spanUnitsY": 11
+      },
+      {
+       "type": "skills",
        "globalCol": 7,
        "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 4
+       "spanUnits": 4,
+       "spanUnitsY": 13
       }
      ],
      "tablet": [
@@ -2366,10 +2366,10 @@
      ],
      "phone": [
       "inventory",
+      "basicInfo",
       "attacks",
-      "skills",
       "abilityScores",
-      "basicInfo"
+      "skills"
      ],
      "note": "Skills beside Inventory (Persuasion/Insight while trading)."
     }
@@ -2391,106 +2391,106 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 9
+       "spanUnits": 10,
+       "spanUnitsY": 10
       },
       {
        "type": "basicInfo",
        "globalCol": 0,
-       "startRowIdx": 9,
+       "startRowIdx": 10,
        "spanUnits": 4,
        "spanUnitsY": 4
       },
       {
        "type": "levelUp",
-       "globalCol": 0,
-       "startRowIdx": 13,
-       "spanUnits": 4,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "abilityScores",
        "globalCol": 4,
-       "startRowIdx": 9,
-       "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 4,
-       "startRowIdx": 12,
-       "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 4,
-       "startRowIdx": 15,
+       "startRowIdx": 10,
        "spanUnits": 4,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "savingThrows",
-       "globalCol": 5,
-       "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "hpBase",
-       "globalCol": 5,
-       "startRowIdx": 5,
-       "spanUnits": 4,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "classResource",
-       "globalCol": 8,
-       "startRowIdx": 15,
-       "spanUnits": 5,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "attacks",
-       "globalCol": 9,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 9,
-       "startRowIdx": 3,
-       "spanUnits": 6,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "conditions",
-       "globalCol": 10,
-       "startRowIdx": 9,
-       "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
        "type": "longRest",
-       "globalCol": 10,
-       "startRowIdx": 13,
+       "globalCol": 8,
+       "startRowIdx": 10,
        "spanUnits": 3,
        "spanUnitsY": 2
       },
       {
-       "type": "featuresActive",
+       "type": "hpBase",
+       "globalCol": 8,
+       "startRowIdx": 12,
+       "spanUnits": 9,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 10,
+       "startRowIdx": 0,
+       "spanUnits": 3,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "savingThrows",
+       "globalCol": 10,
+       "startRowIdx": 7,
+       "spanUnits": 7,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 11,
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "conditions",
        "globalCol": 13,
-       "startRowIdx": 13,
+       "startRowIdx": 0,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "classResource",
+       "globalCol": 13,
+       "startRowIdx": 4,
+       "spanUnits": 5,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "skills",
+       "globalCol": 17,
+       "startRowIdx": 7,
+       "spanUnits": 8,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 18,
+       "startRowIdx": 0,
+       "spanUnits": 7,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 25,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "attacks",
+       "globalCol": 25,
+       "startRowIdx": 5,
        "spanUnits": 6,
        "spanUnitsY": 4
       },
       {
-       "type": "skills",
-       "globalCol": 15,
-       "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 13
+       "type": "featuresActive",
+       "globalCol": 25,
+       "startRowIdx": 9,
+       "spanUnits": 6,
+       "spanUnitsY": 5
       }
      ],
      "tablet": [
@@ -2589,7 +2589,7 @@
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 18,
+       "spanUnits": 20,
        "spanUnitsY": 6
       }
      ],
@@ -2597,17 +2597,17 @@
       "hpBase",
       "basicInfo",
       "levelUp",
-      "abilityScores",
-      "preparedSpells",
-      "spellSlots",
-      "savingThrows",
-      "classResource",
-      "attacks",
-      "featuresPassive",
-      "conditions",
       "longRest",
-      "featuresActive",
+      "abilityScores",
+      "savingThrows",
+      "spellSlots",
+      "conditions",
+      "classResource",
       "skills",
+      "featuresPassive",
+      "preparedSpells",
+      "attacks",
+      "featuresActive",
       "profilePicture"
      ],
      "note": ""
@@ -2618,64 +2618,64 @@
        "type": "hpBase",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 3,
-       "spanUnitsY": 6
+       "spanUnits": 9,
+       "spanUnitsY": 2
       },
       {
-       "type": "profilePicture",
+       "type": "abilityScores",
        "globalCol": 0,
-       "startRowIdx": 6,
-       "spanUnits": 6,
-       "spanUnitsY": 7
+       "startRowIdx": 2,
+       "spanUnits": 2,
+       "spanUnitsY": 11
       },
       {
-       "type": "skills",
+       "type": "featuresActive",
        "globalCol": 0,
        "startRowIdx": 13,
-       "spanUnits": 12,
+       "spanUnits": 6,
        "spanUnitsY": 5
       },
       {
+       "type": "featuresPassive",
+       "globalCol": 2,
+       "startRowIdx": 2,
+       "spanUnits": 7,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "basicInfo",
+       "globalCol": 2,
+       "startRowIdx": 9,
+       "spanUnits": 4,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "longRest",
+       "globalCol": 6,
+       "startRowIdx": 9,
+       "spanUnits": 3,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "skills",
+       "globalCol": 6,
+       "startRowIdx": 11,
+       "spanUnits": 8,
+       "spanUnitsY": 7
+      },
+      {
        "type": "conditions",
-       "globalCol": 3,
+       "globalCol": 9,
        "startRowIdx": 0,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
-       "type": "longRest",
-       "globalCol": 3,
+       "type": "profilePicture",
+       "globalCol": 9,
        "startRowIdx": 4,
-       "spanUnits": 3,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "basicInfo",
-       "globalCol": 6,
-       "startRowIdx": 4,
-       "spanUnits": 8,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 6,
-       "startRowIdx": 7,
-       "spanUnits": 6,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "featuresActive",
-       "globalCol": 8,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 12,
-       "startRowIdx": 7,
-       "spanUnits": 2,
-       "spanUnitsY": 11
+       "spanUnits": 5,
+       "spanUnitsY": 7
       }
      ],
      "tablet": [
@@ -2732,19 +2732,19 @@
        "type": "featuresPassive",
        "globalCol": 0,
        "startRowIdx": 18,
-       "spanUnits": 18,
+       "spanUnits": 20,
        "spanUnitsY": 6
       }
      ],
      "phone": [
       "hpBase",
+      "abilityScores",
+      "featuresActive",
+      "featuresPassive",
+      "basicInfo",
+      "longRest",
       "skills",
       "conditions",
-      "longRest",
-      "basicInfo",
-      "featuresPassive",
-      "featuresActive",
-      "abilityScores",
       "profilePicture"
      ],
      "note": "CHA 8: small Social tab without spells; Active Features instead."
@@ -2755,77 +2755,77 @@
        "type": "hpBase",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 3,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "longRest",
-       "globalCol": 0,
-       "startRowIdx": 6,
-       "spanUnits": 3,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 0,
-       "startRowIdx": 8,
-       "spanUnits": 6,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "featuresActive",
-       "globalCol": 0,
-       "startRowIdx": 14,
-       "spanUnits": 6,
+       "spanUnits": 4,
        "spanUnitsY": 4
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 0,
+       "startRowIdx": 4,
+       "spanUnits": 3,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "skills",
+       "globalCol": 0,
+       "startRowIdx": 11,
+       "spanUnits": 8,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 3,
+       "startRowIdx": 4,
+       "spanUnits": 4,
+       "spanUnitsY": 3
       },
       {
        "type": "conditions",
        "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 9,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "skills",
-       "globalCol": 3,
-       "startRowIdx": 3,
-       "spanUnits": 12,
-       "spanUnitsY": 5
+       "startRowIdx": 7,
+       "spanUnits": 5,
+       "spanUnitsY": 4
       },
       {
        "type": "classResource",
-       "globalCol": 6,
-       "startRowIdx": 8,
-       "spanUnits": 5,
+       "globalCol": 4,
+       "startRowIdx": 0,
+       "spanUnits": 9,
        "spanUnitsY": 2
       },
       {
-       "type": "map",
-       "globalCol": 6,
-       "startRowIdx": 10,
-       "spanUnits": 12,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 11,
-       "startRowIdx": 8,
-       "spanUnits": 4,
+       "type": "longRest",
+       "globalCol": 4,
+       "startRowIdx": 2,
+       "spanUnits": 3,
        "spanUnitsY": 2
       },
       {
        "type": "preparedSpells",
-       "globalCol": 12,
-       "startRowIdx": 0,
+       "globalCol": 7,
+       "startRowIdx": 2,
        "spanUnits": 6,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "map",
+       "globalCol": 8,
+       "startRowIdx": 7,
+       "spanUnits": 12,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 8,
+       "startRowIdx": 15,
+       "spanUnits": 12,
        "spanUnitsY": 3
       },
       {
-       "type": "abilityScores",
-       "globalCol": 15,
-       "startRowIdx": 3,
-       "spanUnits": 3,
+       "type": "featuresPassive",
+       "globalCol": 13,
+       "startRowIdx": 0,
+       "spanUnits": 7,
        "spanUnitsY": 7
       }
      ],
@@ -2890,110 +2890,110 @@
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 18,
+       "spanUnits": 20,
        "spanUnitsY": 6
       }
      ],
      "phone": [
       "hpBase",
-      "longRest",
-      "featuresPassive",
-      "featuresActive",
-      "conditions",
+      "abilityScores",
       "skills",
-      "classResource",
-      "map",
       "spellSlots",
+      "conditions",
+      "classResource",
+      "longRest",
       "preparedSpells",
-      "abilityScores"
+      "map",
+      "featuresActive",
+      "featuresPassive"
      ],
      "note": "Her main tab: Skills taller (Survival, Perception, Stealth); Favored Enemy in Resources."
     },
     "combat": {
      "desktop": [
       {
-       "type": "initiativeTracker",
-       "globalCol": 0,
-       "startRowIdx": 0,
-       "spanUnits": 14,
-       "spanUnitsY": 18
-      },
-      {
        "type": "hpBase",
-       "globalCol": 14,
+       "globalCol": 0,
        "startRowIdx": 0,
        "spanUnits": 3,
        "spanUnitsY": 6
       },
       {
-       "type": "turnActions",
-       "globalCol": 14,
-       "startRowIdx": 6,
-       "spanUnits": 6,
-       "spanUnitsY": 12
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 17,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 6
-      },
-      {
        "type": "conditions",
-       "globalCol": 20,
+       "globalCol": 0,
        "startRowIdx": 6,
-       "spanUnits": 5,
-       "spanUnitsY": 4
+       "spanUnits": 9,
+       "spanUnitsY": 3
       },
       {
        "type": "classResource",
-       "globalCol": 20,
-       "startRowIdx": 10,
-       "spanUnits": 5,
+       "globalCol": 0,
+       "startRowIdx": 9,
+       "spanUnits": 9,
        "spanUnitsY": 2
       },
       {
+       "type": "featuresPassive",
+       "globalCol": 0,
+       "startRowIdx": 11,
+       "spanUnits": 7,
+       "spanUnitsY": 7
+      },
+      {
        "type": "savingThrows",
-       "globalCol": 20,
-       "startRowIdx": 12,
-       "spanUnits": 11,
+       "globalCol": 3,
+       "startRowIdx": 0,
+       "spanUnits": 7,
        "spanUnitsY": 3
       },
       {
        "type": "featuresActive",
-       "globalCol": 20,
-       "startRowIdx": 15,
-       "spanUnits": 11,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "attacks",
-       "globalCol": 23,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 23,
+       "globalCol": 3,
        "startRowIdx": 3,
-       "spanUnits": 10,
-       "spanUnitsY": 2
+       "spanUnits": 12,
+       "spanUnitsY": 3
       },
       {
        "type": "skills",
-       "globalCol": 25,
-       "startRowIdx": 5,
+       "globalCol": 7,
+       "startRowIdx": 11,
        "spanUnits": 8,
        "spanUnitsY": 7
       },
       {
-       "type": "spellSlots",
-       "globalCol": 29,
+       "type": "preparedSpells",
+       "globalCol": 9,
+       "startRowIdx": 6,
+       "spanUnits": 6,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "attacks",
+       "globalCol": 10,
        "startRowIdx": 0,
-       "spanUnits": 4,
+       "spanUnits": 11,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "turnActions",
+       "globalCol": 15,
+       "startRowIdx": 3,
+       "spanUnits": 6,
+       "spanUnitsY": 13
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 15,
+       "startRowIdx": 16,
+       "spanUnits": 6,
        "spanUnitsY": 2
+      },
+      {
+       "type": "initiativeTracker",
+       "globalCol": 21,
+       "startRowIdx": 0,
+       "spanUnits": 10,
+       "spanUnitsY": 18
       }
      ],
      "tablet": [
@@ -3070,17 +3070,17 @@
      ],
      "phone": [
       "hpBase",
-      "initiativeTracker",
-      "turnActions",
-      "featuresPassive",
       "conditions",
       "classResource",
+      "featuresPassive",
       "savingThrows",
       "featuresActive",
-      "attacks",
-      "preparedSpells",
       "skills",
-      "spellSlots"
+      "preparedSpells",
+      "attacks",
+      "turnActions",
+      "spellSlots",
+      "initiativeTracker"
      ],
      "note": "Attacks first (Longbow/Shortsword); Hunter's Mark in Prepared Spells."
     },
@@ -3091,21 +3091,21 @@
        "globalCol": 0,
        "startRowIdx": 0,
        "spanUnits": 8,
-       "spanUnitsY": 9
-      },
-      {
-       "type": "basicInfo",
-       "globalCol": 0,
-       "startRowIdx": 9,
-       "spanUnits": 8,
-       "spanUnitsY": 3
+       "spanUnitsY": 10
       },
       {
        "type": "attacks",
        "globalCol": 0,
-       "startRowIdx": 12,
-       "spanUnits": 10,
-       "spanUnitsY": 2
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "basicInfo",
+       "globalCol": 6,
+       "startRowIdx": 11,
+       "spanUnits": 4,
+       "spanUnitsY": 4
       },
       {
        "type": "abilityScores",
@@ -3140,8 +3140,8 @@
      ],
      "phone": [
       "inventory",
-      "basicInfo",
       "attacks",
+      "basicInfo",
       "abilityScores"
      ],
      "note": ""
@@ -3171,99 +3171,99 @@
        "type": "basicInfo",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 5
+       "spanUnits": 9,
+       "spanUnitsY": 3
       },
       {
        "type": "levelUp",
        "globalCol": 0,
-       "startRowIdx": 15,
+       "startRowIdx": 13,
        "spanUnits": 7,
        "spanUnitsY": 3
       },
       {
        "type": "longRest",
-       "globalCol": 5,
-       "startRowIdx": 10,
+       "globalCol": 7,
+       "startRowIdx": 13,
        "spanUnits": 4,
        "spanUnitsY": 3
       },
       {
-       "type": "conditions",
-       "globalCol": 5,
-       "startRowIdx": 13,
-       "spanUnits": 13,
-       "spanUnitsY": 2
+       "type": "abilityScores",
+       "globalCol": 9,
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 3
       },
       {
        "type": "savingThrows",
-       "globalCol": 7,
-       "startRowIdx": 15,
-       "spanUnits": 11,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "classResource",
-       "globalCol": 9,
-       "startRowIdx": 10,
-       "spanUnits": 13,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "skills",
        "globalCol": 10,
        "startRowIdx": 0,
-       "spanUnits": 15,
+       "spanUnits": 4,
        "spanUnitsY": 5
       },
       {
-       "type": "featuresActive",
+       "type": "skills",
        "globalCol": 10,
        "startRowIdx": 5,
        "spanUnits": 12,
        "spanUnitsY": 5
       },
       {
-       "type": "featuresPassive",
-       "globalCol": 18,
+       "type": "attacks",
+       "globalCol": 11,
        "startRowIdx": 13,
-       "spanUnits": 13,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "hpBase",
-       "globalCol": 22,
-       "startRowIdx": 5,
-       "spanUnits": 3,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 22,
-       "startRowIdx": 11,
-       "spanUnits": 4,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 25,
-       "startRowIdx": 0,
        "spanUnits": 6,
        "spanUnitsY": 3
       },
       {
-       "type": "preparedSpells",
-       "globalCol": 25,
-       "startRowIdx": 3,
-       "spanUnits": 6,
-       "spanUnitsY": 8
+       "type": "classResource",
+       "globalCol": 14,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 5
       },
       {
-       "type": "attacks",
-       "globalCol": 26,
-       "startRowIdx": 11,
-       "spanUnits": 5,
+       "type": "conditions",
+       "globalCol": 15,
+       "startRowIdx": 10,
+       "spanUnits": 13,
        "spanUnitsY": 2
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 17,
+       "startRowIdx": 12,
+       "spanUnits": 17,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 22,
+       "startRowIdx": 0,
+       "spanUnits": 7,
+       "spanUnitsY": 10
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 28,
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 29,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 10
+      },
+      {
+       "type": "hpBase",
+       "globalCol": 34,
+       "startRowIdx": 10,
+       "spanUnits": 3,
+       "spanUnitsY": 6
       }
      ],
      "tablet": [
@@ -3285,22 +3285,22 @@
        "type": "hpBase",
        "globalCol": 15,
        "startRowIdx": 0,
-       "spanUnits": 8,
-       "spanUnitsY": 4
+       "spanUnits": 3,
+       "spanUnitsY": 9
       },
       {
        "type": "abilityScores",
-       "globalCol": 8,
-       "startRowIdx": 6,
+       "globalCol": 0,
+       "startRowIdx": 8,
        "spanUnits": 9,
        "spanUnitsY": 4
       },
       {
        "type": "savingThrows",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 15,
-       "spanUnitsY": 3
+       "globalCol": 9,
+       "startRowIdx": 6,
+       "spanUnits": 6,
+       "spanUnitsY": 7
       },
       {
        "type": "skills",
@@ -3313,34 +3313,34 @@
        "type": "conditions",
        "globalCol": 0,
        "startRowIdx": 20,
-       "spanUnits": 7,
-       "spanUnitsY": 5
+       "spanUnits": 19,
+       "spanUnitsY": 3
       },
       {
        "type": "classResource",
-       "globalCol": 7,
-       "startRowIdx": 20,
+       "globalCol": 0,
+       "startRowIdx": 23,
        "spanUnits": 11,
        "spanUnitsY": 7
       },
       {
        "type": "spellSlots",
-       "globalCol": 17,
-       "startRowIdx": 4,
+       "globalCol": 18,
+       "startRowIdx": 0,
        "spanUnits": 5,
        "spanUnitsY": 5
       },
       {
        "type": "levelUp",
-       "globalCol": 17,
-       "startRowIdx": 9,
+       "globalCol": 18,
+       "startRowIdx": 5,
        "spanUnits": 5,
        "spanUnitsY": 6
       },
       {
        "type": "longRest",
        "globalCol": 17,
-       "startRowIdx": 15,
+       "startRowIdx": 11,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
@@ -3348,22 +3348,22 @@
        "type": "featuresActive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 19,
-       "spanUnitsY": 9
+       "spanUnits": 10,
+       "spanUnitsY": 14
       },
       {
        "type": "preparedSpells",
-       "globalCol": 23,
-       "startRowIdx": 9,
-       "spanUnits": 16,
-       "spanUnitsY": 9
+       "globalCol": 33,
+       "startRowIdx": 0,
+       "spanUnits": 9,
+       "spanUnitsY": 14
       },
       {
        "type": "featuresPassive",
        "globalCol": 23,
-       "startRowIdx": 18,
-       "spanUnits": 19,
-       "spanUnitsY": 9
+       "startRowIdx": 14,
+       "spanUnits": 11,
+       "spanUnitsY": 14
       }
      ],
      "phone": [
@@ -3371,16 +3371,16 @@
       "basicInfo",
       "levelUp",
       "longRest",
-      "conditions",
-      "savingThrows",
-      "classResource",
-      "skills",
-      "featuresActive",
-      "featuresPassive",
-      "spellSlots",
       "abilityScores",
-      "preparedSpells",
+      "savingThrows",
+      "skills",
       "attacks",
+      "classResource",
+      "conditions",
+      "preparedSpells",
+      "featuresActive",
+      "spellSlots",
+      "featuresPassive",
       "profilePicture"
      ],
      "note": "Half caster: compact spell list, with Attacks below it."
@@ -3398,71 +3398,71 @@
        "type": "conditions",
        "globalCol": 0,
        "startRowIdx": 6,
-       "spanUnits": 5,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "longRest",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 6,
+       "spanUnits": 13,
        "spanUnitsY": 2
       },
       {
-       "type": "profilePicture",
+       "type": "preparedSpells",
        "globalCol": 0,
-       "startRowIdx": 12,
-       "spanUnits": 10,
-       "spanUnitsY": 6
+       "startRowIdx": 8,
+       "spanUnits": 6,
+       "spanUnitsY": 10
       },
       {
        "type": "featuresPassive",
        "globalCol": 3,
        "startRowIdx": 0,
-       "spanUnits": 13,
-       "spanUnitsY": 5
+       "spanUnits": 15,
+       "spanUnitsY": 6
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 6,
+       "startRowIdx": 8,
+       "spanUnits": 7,
+       "spanUnitsY": 10
       },
       {
        "type": "basicInfo",
-       "globalCol": 5,
-       "startRowIdx": 5,
+       "globalCol": 13,
+       "startRowIdx": 6,
        "spanUnits": 5,
        "spanUnitsY": 5
       },
       {
+       "type": "skills",
+       "globalCol": 13,
+       "startRowIdx": 11,
+       "spanUnits": 8,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "longRest",
+       "globalCol": 18,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "profilePicture",
+       "globalCol": 18,
+       "startRowIdx": 2,
+       "spanUnits": 6,
+       "spanUnitsY": 7
+      },
+      {
        "type": "spellSlots",
-       "globalCol": 6,
-       "startRowIdx": 10,
-       "spanUnits": 4,
+       "globalCol": 18,
+       "startRowIdx": 9,
+       "spanUnits": 6,
        "spanUnitsY": 2
       },
       {
        "type": "abilityScores",
-       "globalCol": 10,
-       "startRowIdx": 5,
-       "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "skills",
-       "globalCol": 10,
-       "startRowIdx": 8,
-       "spanUnits": 12,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "featuresActive",
-       "globalCol": 10,
-       "startRowIdx": 13,
-       "spanUnits": 12,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 16,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 8
+       "globalCol": 21,
+       "startRowIdx": 11,
+       "spanUnits": 3,
+       "spanUnitsY": 7
       }
      ],
      "tablet": [
@@ -3477,41 +3477,41 @@
        "type": "basicInfo",
        "globalCol": 8,
        "startRowIdx": 0,
-       "spanUnits": 7,
-       "spanUnitsY": 6
+       "spanUnits": 13,
+       "spanUnitsY": 4
       },
       {
        "type": "skills",
        "globalCol": 8,
-       "startRowIdx": 6,
+       "startRowIdx": 4,
        "spanUnits": 11,
        "spanUnitsY": 10
       },
       {
        "type": "abilityScores",
-       "globalCol": 15,
-       "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "hpBase",
-       "globalCol": 20,
-       "startRowIdx": 0,
+       "globalCol": 19,
+       "startRowIdx": 4,
        "spanUnits": 3,
        "spanUnitsY": 9
       },
       {
-       "type": "conditions",
+       "type": "hpBase",
        "globalCol": 0,
        "startRowIdx": 8,
+       "spanUnits": 8,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "conditions",
+       "globalCol": 0,
+       "startRowIdx": 12,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "preparedSpells",
-       "globalCol": 0,
-       "startRowIdx": 16,
+       "globalCol": 7,
+       "startRowIdx": 14,
        "spanUnits": 16,
        "spanUnitsY": 9
       },
@@ -3519,28 +3519,28 @@
        "type": "featuresActive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 19,
-       "spanUnitsY": 9
+       "spanUnits": 10,
+       "spanUnitsY": 14
       },
       {
        "type": "featuresPassive",
-       "globalCol": 23,
-       "startRowIdx": 9,
-       "spanUnits": 19,
-       "spanUnitsY": 9
+       "globalCol": 33,
+       "startRowIdx": 0,
+       "spanUnits": 11,
+       "spanUnitsY": 14
       }
      ],
      "phone": [
       "hpBase",
       "conditions",
-      "longRest",
+      "preparedSpells",
       "featuresPassive",
+      "featuresActive",
       "basicInfo",
+      "skills",
+      "longRest",
       "spellSlots",
       "abilityScores",
-      "skills",
-      "featuresActive",
-      "preparedSpells",
       "profilePicture"
      ],
      "note": "Extra Active Features (Channel Divinity can also help in a conversation)."
@@ -3555,74 +3555,74 @@
        "spanUnitsY": 6
       },
       {
-       "type": "conditions",
+       "type": "classResource",
        "globalCol": 0,
        "startRowIdx": 6,
-       "spanUnits": 5,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "map",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 12,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "skills",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 12,
+       "spanUnits": 8,
        "spanUnitsY": 5
       },
       {
-       "type": "longRest",
-       "globalCol": 5,
-       "startRowIdx": 5,
-       "spanUnits": 6,
-       "spanUnitsY": 2
+       "type": "skills",
+       "globalCol": 0,
+       "startRowIdx": 11,
+       "spanUnits": 8,
+       "spanUnitsY": 7
       },
       {
-       "type": "classResource",
-       "globalCol": 5,
-       "startRowIdx": 7,
-       "spanUnits": 13,
+       "type": "longRest",
+       "globalCol": 3,
+       "startRowIdx": 0,
+       "spanUnits": 4,
        "spanUnitsY": 3
       },
       {
        "type": "spellSlots",
-       "globalCol": 11,
-       "startRowIdx": 5,
+       "globalCol": 3,
+       "startRowIdx": 3,
        "spanUnits": 4,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 12,
-       "startRowIdx": 10,
-       "spanUnits": 6,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 15,
-       "startRowIdx": 0,
-       "spanUnits": 3,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 18,
-       "startRowIdx": 0,
-       "spanUnits": 7,
-       "spanUnitsY": 9
+       "spanUnitsY": 3
       },
       {
        "type": "featuresActive",
-       "globalCol": 18,
-       "startRowIdx": 9,
-       "spanUnits": 7,
-       "spanUnitsY": 9
+       "globalCol": 7,
+       "startRowIdx": 0,
+       "spanUnits": 13,
+       "spanUnitsY": 6
+      },
+      {
+       "type": "map",
+       "globalCol": 8,
+       "startRowIdx": 6,
+       "spanUnits": 12,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 8,
+       "startRowIdx": 14,
+       "spanUnits": 17,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 20,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 10
+      },
+      {
+       "type": "conditions",
+       "globalCol": 20,
+       "startRowIdx": 10,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 25,
+       "startRowIdx": 10,
+       "spanUnits": 3,
+       "spanUnitsY": 7
       }
      ],
      "tablet": [
@@ -3679,29 +3679,29 @@
        "type": "preparedSpells",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 16,
-       "spanUnitsY": 9
+       "spanUnits": 9,
+       "spanUnitsY": 14
       },
       {
        "type": "featuresPassive",
-       "globalCol": 23,
-       "startRowIdx": 9,
-       "spanUnits": 19,
-       "spanUnitsY": 9
+       "globalCol": 32,
+       "startRowIdx": 0,
+       "spanUnits": 11,
+       "spanUnitsY": 14
       }
      ],
      "phone": [
       "hpBase",
-      "conditions",
-      "map",
+      "classResource",
       "skills",
       "longRest",
-      "classResource",
       "spellSlots",
+      "featuresActive",
+      "map",
       "preparedSpells",
-      "abilityScores",
       "featuresPassive",
-      "featuresActive"
+      "conditions",
+      "abilityScores"
      ],
      "note": ""
     },
@@ -3711,82 +3711,82 @@
        "type": "hpBase",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "savingThrows",
-       "globalCol": 0,
-       "startRowIdx": 4,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 0,
-       "startRowIdx": 9,
-       "spanUnits": 4,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 0,
-       "startRowIdx": 11,
-       "spanUnits": 11,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "classResource",
-       "globalCol": 0,
-       "startRowIdx": 16,
-       "spanUnits": 20,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "turnActions",
-       "globalCol": 4,
-       "startRowIdx": 0,
-       "spanUnits": 12,
-       "spanUnitsY": 11
-      },
-      {
-       "type": "attacks",
-       "globalCol": 11,
-       "startRowIdx": 11,
-       "spanUnits": 5,
-       "spanUnitsY": 2
+       "spanUnits": 3,
+       "spanUnitsY": 6
       },
       {
        "type": "conditions",
-       "globalCol": 11,
-       "startRowIdx": 13,
+       "globalCol": 0,
+       "startRowIdx": 6,
        "spanUnits": 9,
        "spanUnitsY": 3
       },
       {
-       "type": "skills",
-       "globalCol": 16,
-       "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 13
+       "type": "savingThrows",
+       "globalCol": 0,
+       "startRowIdx": 9,
+       "spanUnits": 7,
+       "spanUnitsY": 3
       },
       {
        "type": "featuresActive",
-       "globalCol": 20,
+       "globalCol": 0,
+       "startRowIdx": 12,
+       "spanUnits": 13,
+       "spanUnitsY": 6
+      },
+      {
+       "type": "classResource",
+       "globalCol": 3,
        "startRowIdx": 0,
-       "spanUnits": 7,
-       "spanUnitsY": 9
+       "spanUnits": 14,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "attacks",
+       "globalCol": 3,
+       "startRowIdx": 3,
+       "spanUnits": 6,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 7,
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "skills",
+       "globalCol": 9,
+       "startRowIdx": 3,
+       "spanUnits": 8,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "turnActions",
+       "globalCol": 13,
+       "startRowIdx": 10,
+       "spanUnits": 18,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 17,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 10
       },
       {
        "type": "featuresPassive",
-       "globalCol": 20,
-       "startRowIdx": 9,
-       "spanUnits": 7,
-       "spanUnitsY": 9
+       "globalCol": 23,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 10
       },
       {
        "type": "initiativeTracker",
-       "globalCol": 27,
+       "globalCol": 31,
        "startRowIdx": 0,
        "spanUnits": 10,
        "spanUnitsY": 18
@@ -3866,15 +3866,15 @@
      ],
      "phone": [
       "hpBase",
-      "savingThrows",
-      "spellSlots",
-      "preparedSpells",
-      "classResource",
-      "turnActions",
-      "attacks",
       "conditions",
-      "skills",
+      "savingThrows",
       "featuresActive",
+      "classResource",
+      "attacks",
+      "spellSlots",
+      "skills",
+      "turnActions",
+      "preparedSpells",
       "featuresPassive",
       "initiativeTracker"
      ],
@@ -3887,28 +3887,28 @@
        "globalCol": 0,
        "startRowIdx": 0,
        "spanUnits": 8,
-       "spanUnitsY": 7
+       "spanUnitsY": 10
       },
       {
        "type": "attacks",
        "globalCol": 0,
-       "startRowIdx": 7,
-       "spanUnits": 5,
-       "spanUnitsY": 2
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 3
       },
       {
        "type": "basicInfo",
        "globalCol": 0,
-       "startRowIdx": 9,
-       "spanUnits": 5,
-       "spanUnitsY": 5
+       "startRowIdx": 13,
+       "spanUnits": 9,
+       "spanUnitsY": 3
       },
       {
        "type": "abilityScores",
-       "globalCol": 5,
-       "startRowIdx": 7,
-       "spanUnits": 3,
-       "spanUnitsY": 7
+       "globalCol": 8,
+       "startRowIdx": 0,
+       "spanUnits": 2,
+       "spanUnitsY": 11
       }
      ],
      "tablet": [
@@ -3972,87 +3972,87 @@
       },
       {
        "type": "levelUp",
-       "globalCol": 5,
-       "startRowIdx": 10,
-       "spanUnits": 4,
-       "spanUnitsY": 4
+       "globalCol": 0,
+       "startRowIdx": 15,
+       "spanUnits": 7,
+       "spanUnitsY": 3
       },
       {
        "type": "longRest",
        "globalCol": 5,
-       "startRowIdx": 14,
-       "spanUnits": 6,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 9,
        "startRowIdx": 10,
-       "spanUnits": 6,
+       "spanUnits": 4,
        "spanUnitsY": 3
-      },
-      {
-       "type": "hpBase",
-       "globalCol": 10,
-       "startRowIdx": 0,
-       "spanUnits": 9,
-       "spanUnitsY": 2
       },
       {
        "type": "conditions",
-       "globalCol": 10,
-       "startRowIdx": 2,
-       "spanUnits": 5,
-       "spanUnitsY": 4
+       "globalCol": 5,
+       "startRowIdx": 13,
+       "spanUnits": 13,
+       "spanUnitsY": 2
       },
       {
        "type": "classResource",
-       "globalCol": 10,
-       "startRowIdx": 6,
-       "spanUnits": 5,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 11,
-       "startRowIdx": 13,
-       "spanUnits": 4,
+       "globalCol": 7,
+       "startRowIdx": 15,
+       "spanUnits": 11,
        "spanUnitsY": 3
       },
       {
-       "type": "savingThrows",
-       "globalCol": 15,
-       "startRowIdx": 2,
+       "type": "skills",
+       "globalCol": 10,
+       "startRowIdx": 0,
+       "spanUnits": 4,
+       "spanUnitsY": 13
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 14,
+       "startRowIdx": 0,
+       "spanUnits": 12,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 14,
+       "startRowIdx": 8,
        "spanUnits": 4,
        "spanUnitsY": 5
       },
       {
-       "type": "featuresActive",
-       "globalCol": 15,
-       "startRowIdx": 7,
-       "spanUnits": 12,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 15,
-       "startRowIdx": 12,
-       "spanUnits": 18,
+       "type": "hpBase",
+       "globalCol": 18,
+       "startRowIdx": 8,
+       "spanUnits": 4,
        "spanUnitsY": 4
       },
       {
-       "type": "skills",
-       "globalCol": 19,
-       "startRowIdx": 0,
-       "spanUnits": 8,
-       "spanUnitsY": 7
+       "type": "featuresPassive",
+       "globalCol": 18,
+       "startRowIdx": 12,
+       "spanUnits": 15,
+       "spanUnitsY": 6
       },
       {
-       "type": "preparedSpells",
-       "globalCol": 27,
+       "type": "spellSlots",
+       "globalCol": 22,
+       "startRowIdx": 8,
+       "spanUnits": 4,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "savingThrows",
+       "globalCol": 26,
        "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 12
+       "spanUnits": 7,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 26,
+       "startRowIdx": 3,
+       "spanUnits": 7,
+       "spanUnitsY": 9
       }
      ],
      "tablet": [
@@ -4060,76 +4060,69 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 9,
-       "spanUnitsY": 9
+       "spanUnits": 8,
+       "spanUnitsY": 8
       },
       {
        "type": "basicInfo",
-       "globalCol": 9,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 6
+       "globalCol": 0,
+       "startRowIdx": 8,
+       "spanUnits": 17,
+       "spanUnitsY": 3
       },
       {
        "type": "hpBase",
-       "globalCol": 15,
+       "globalCol": 8,
        "startRowIdx": 0,
-       "spanUnits": 8,
-       "spanUnitsY": 4
+       "spanUnits": 13,
+       "spanUnitsY": 3
       },
       {
        "type": "abilityScores",
-       "globalCol": 9,
-       "startRowIdx": 6,
+       "globalCol": 8,
+       "startRowIdx": 3,
        "spanUnits": 9,
        "spanUnitsY": 4
       },
       {
        "type": "savingThrows",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 15,
-       "spanUnitsY": 3
+       "globalCol": 17,
+       "startRowIdx": 3,
+       "spanUnits": 6,
+       "spanUnitsY": 7
       },
       {
        "type": "skills",
        "globalCol": 0,
-       "startRowIdx": 13,
-       "spanUnits": 11,
-       "spanUnitsY": 10
+       "startRowIdx": 11,
+       "spanUnits": 17,
+       "spanUnitsY": 7
       },
       {
        "type": "conditions",
-       "globalCol": 15,
-       "startRowIdx": 10,
+       "globalCol": 0,
+       "startRowIdx": 18,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "classResource",
-       "globalCol": 11,
-       "startRowIdx": 15,
-       "spanUnits": 8,
-       "spanUnitsY": 7
+       "globalCol": 7,
+       "startRowIdx": 18,
+       "spanUnits": 16,
+       "spanUnitsY": 5
       },
       {
        "type": "featuresActive",
        "globalCol": 0,
        "startRowIdx": 23,
-       "spanUnits": 18,
+       "spanUnits": 19,
        "spanUnitsY": 7
       },
       {
        "type": "spellSlots",
-       "globalCol": 18,
-       "startRowIdx": 4,
-       "spanUnits": 5,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "levelUp",
-       "globalCol": 18,
-       "startRowIdx": 22,
+       "globalCol": 17,
+       "startRowIdx": 10,
        "spanUnits": 5,
        "spanUnitsY": 6
       },
@@ -4144,13 +4137,20 @@
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 12,
-       "spanUnits": 10,
+       "spanUnits": 11,
        "spanUnitsY": 16
+      },
+      {
+       "type": "levelUp",
+       "globalCol": 41,
+       "startRowIdx": 0,
+       "spanUnits": 5,
+       "spanUnitsY": 6
       },
       {
        "type": "longRest",
        "globalCol": 41,
-       "startRowIdx": 0,
+       "startRowIdx": 6,
        "spanUnits": 5,
        "spanUnitsY": 4
       }
@@ -4160,15 +4160,15 @@
       "basicInfo",
       "levelUp",
       "longRest",
-      "abilityScores",
       "conditions",
       "classResource",
+      "skills",
+      "preparedSpells",
+      "abilityScores",
+      "featuresPassive",
       "spellSlots",
       "savingThrows",
       "featuresActive",
-      "featuresPassive",
-      "skills",
-      "preparedSpells",
       "profilePicture"
      ],
      "note": ""
@@ -4183,67 +4183,67 @@
        "spanUnitsY": 6
       },
       {
-       "type": "conditions",
+       "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 6,
-       "spanUnits": 9,
-       "spanUnitsY": 3
+       "spanUnits": 7,
+       "spanUnitsY": 8
       },
       {
-       "type": "longRest",
+       "type": "conditions",
        "globalCol": 0,
-       "startRowIdx": 9,
-       "spanUnits": 4,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 0,
-       "startRowIdx": 12,
-       "spanUnits": 4,
-       "spanUnitsY": 3
+       "startRowIdx": 14,
+       "spanUnits": 5,
+       "spanUnitsY": 4
       },
       {
        "type": "basicInfo",
-       "globalCol": 0,
-       "startRowIdx": 15,
+       "globalCol": 3,
+       "startRowIdx": 0,
        "spanUnits": 8,
        "spanUnitsY": 3
       },
       {
-       "type": "featuresPassive",
+       "type": "longRest",
        "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 12,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "profilePicture",
-       "globalCol": 4,
-       "startRowIdx": 9,
-       "spanUnits": 5,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 9,
-       "startRowIdx": 6,
-       "spanUnits": 6,
-       "spanUnitsY": 12
+       "startRowIdx": 3,
+       "spanUnits": 4,
+       "spanUnitsY": 3
       },
       {
        "type": "skills",
-       "globalCol": 15,
-       "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 13
+       "globalCol": 5,
+       "startRowIdx": 14,
+       "spanUnits": 19,
+       "spanUnitsY": 4
       },
       {
        "type": "abilityScores",
-       "globalCol": 15,
-       "startRowIdx": 13,
-       "spanUnits": 4,
-       "spanUnitsY": 5
+       "globalCol": 7,
+       "startRowIdx": 3,
+       "spanUnits": 2,
+       "spanUnitsY": 11
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 9,
+       "startRowIdx": 3,
+       "spanUnits": 8,
+       "spanUnitsY": 11
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 11,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 17,
+       "startRowIdx": 0,
+       "spanUnits": 7,
+       "spanUnitsY": 14
       }
      ],
      "tablet": [
@@ -4251,48 +4251,48 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 8,
-       "spanUnitsY": 8
+       "spanUnits": 9,
+       "spanUnitsY": 9
       },
       {
        "type": "basicInfo",
-       "globalCol": 8,
+       "globalCol": 9,
        "startRowIdx": 0,
        "spanUnits": 6,
        "spanUnitsY": 6
       },
       {
        "type": "skills",
-       "globalCol": 0,
-       "startRowIdx": 8,
-       "spanUnits": 17,
-       "spanUnitsY": 7
+       "globalCol": 9,
+       "startRowIdx": 6,
+       "spanUnits": 11,
+       "spanUnitsY": 10
       },
       {
        "type": "abilityScores",
-       "globalCol": 14,
+       "globalCol": 15,
        "startRowIdx": 0,
-       "spanUnits": 9,
-       "spanUnitsY": 4
+       "spanUnits": 5,
+       "spanUnitsY": 6
       },
       {
        "type": "hpBase",
-       "globalCol": 14,
-       "startRowIdx": 4,
-       "spanUnits": 8,
-       "spanUnitsY": 4
+       "globalCol": 20,
+       "startRowIdx": 0,
+       "spanUnits": 3,
+       "spanUnitsY": 9
       },
       {
        "type": "conditions",
        "globalCol": 0,
-       "startRowIdx": 15,
-       "spanUnits": 19,
-       "spanUnitsY": 3
+       "startRowIdx": 9,
+       "spanUnits": 7,
+       "spanUnitsY": 5
       },
       {
        "type": "preparedSpells",
        "globalCol": 0,
-       "startRowIdx": 18,
+       "startRowIdx": 16,
        "spanUnits": 18,
        "spanUnitsY": 12
       },
@@ -4300,20 +4300,20 @@
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 18,
-       "spanUnitsY": 9
+       "spanUnits": 11,
+       "spanUnitsY": 16
       }
      ],
      "phone": [
       "hpBase",
       "conditions",
-      "longRest",
-      "spellSlots",
       "basicInfo",
-      "featuresPassive",
-      "preparedSpells",
+      "longRest",
       "skills",
       "abilityScores",
+      "featuresPassive",
+      "spellSlots",
+      "preparedSpells",
       "profilePicture"
      ],
      "note": ""
@@ -4324,71 +4324,71 @@
        "type": "hpBase",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 3,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 0,
-       "startRowIdx": 6,
-       "spanUnits": 6,
-       "spanUnitsY": 12
+       "spanUnits": 4,
+       "spanUnitsY": 4
       },
       {
        "type": "longRest",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 3,
-       "startRowIdx": 2,
-       "spanUnits": 6,
+       "globalCol": 0,
+       "startRowIdx": 4,
+       "spanUnits": 4,
        "spanUnitsY": 3
       },
       {
-       "type": "skills",
-       "globalCol": 6,
-       "startRowIdx": 5,
-       "spanUnits": 4,
-       "spanUnitsY": 13
+       "type": "conditions",
+       "globalCol": 0,
+       "startRowIdx": 7,
+       "spanUnits": 9,
+       "spanUnitsY": 3
       },
       {
        "type": "spellSlots",
-       "globalCol": 9,
-       "startRowIdx": 0,
-       "spanUnits": 6,
+       "globalCol": 0,
+       "startRowIdx": 10,
+       "spanUnits": 9,
        "spanUnitsY": 2
       },
       {
-       "type": "conditions",
-       "globalCol": 10,
-       "startRowIdx": 2,
-       "spanUnits": 5,
-       "spanUnitsY": 4
+       "type": "featuresPassive",
+       "globalCol": 0,
+       "startRowIdx": 12,
+       "spanUnits": 15,
+       "spanUnitsY": 6
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 4,
+       "startRowIdx": 0,
+       "spanUnits": 3,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "skills",
+       "globalCol": 7,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 7
       },
       {
        "type": "classResource",
-       "globalCol": 10,
-       "startRowIdx": 6,
-       "spanUnits": 5,
-       "spanUnitsY": 4
+       "globalCol": 9,
+       "startRowIdx": 7,
+       "spanUnits": 6,
+       "spanUnitsY": 5
       },
       {
        "type": "map",
-       "globalCol": 10,
+       "globalCol": 15,
+       "startRowIdx": 0,
+       "spanUnits": 12,
+       "spanUnitsY": 10
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 15,
        "startRowIdx": 10,
        "spanUnits": 12,
        "spanUnitsY": 8
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 15,
-       "startRowIdx": 0,
-       "spanUnits": 7,
-       "spanUnitsY": 10
       }
      ],
      "tablet": [
@@ -4403,41 +4403,41 @@
        "type": "skills",
        "globalCol": 0,
        "startRowIdx": 12,
-       "spanUnits": 6,
-       "spanUnitsY": 18
+       "spanUnits": 11,
+       "spanUnitsY": 10
       },
       {
        "type": "hpBase",
-       "globalCol": 6,
+       "globalCol": 11,
        "startRowIdx": 12,
        "spanUnits": 8,
        "spanUnitsY": 4
       },
       {
        "type": "conditions",
-       "globalCol": 14,
-       "startRowIdx": 12,
+       "globalCol": 11,
+       "startRowIdx": 16,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "classResource",
-       "globalCol": 6,
-       "startRowIdx": 16,
-       "spanUnits": 8,
-       "spanUnitsY": 7
+       "globalCol": 0,
+       "startRowIdx": 22,
+       "spanUnits": 16,
+       "spanUnitsY": 5
       },
       {
        "type": "spellSlots",
-       "globalCol": 6,
-       "startRowIdx": 23,
-       "spanUnits": 12,
-       "spanUnitsY": 3
+       "globalCol": 18,
+       "startRowIdx": 16,
+       "spanUnits": 5,
+       "spanUnitsY": 6
       },
       {
        "type": "longRest",
-       "globalCol": 14,
-       "startRowIdx": 17,
+       "globalCol": 16,
+       "startRowIdx": 22,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
@@ -4445,28 +4445,28 @@
        "type": "preparedSpells",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 18,
-       "spanUnitsY": 12
+       "spanUnits": 9,
+       "spanUnitsY": 20
       },
       {
        "type": "featuresPassive",
-       "globalCol": 23,
-       "startRowIdx": 12,
-       "spanUnits": 18,
-       "spanUnitsY": 9
+       "globalCol": 32,
+       "startRowIdx": 0,
+       "spanUnits": 11,
+       "spanUnitsY": 16
       }
      ],
      "phone": [
       "hpBase",
-      "preparedSpells",
       "longRest",
+      "conditions",
+      "spellSlots",
+      "featuresPassive",
       "abilityScores",
       "skills",
-      "spellSlots",
-      "conditions",
       "classResource",
       "map",
-      "featuresPassive"
+      "preparedSpells"
      ],
      "note": "Full spell list on Exploring for rituals and nature magic; Wild Shape in Resources for scouting."
     },
@@ -4487,64 +4487,64 @@
        "spanUnitsY": 4
       },
       {
-       "type": "turnActions",
+       "type": "classResource",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 17,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "classResource",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 14,
-       "spanUnitsY": 2
+       "spanUnits": 6,
+       "spanUnitsY": 5
       },
       {
        "type": "savingThrows",
+       "globalCol": 0,
+       "startRowIdx": 15,
+       "spanUnits": 7,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "attacks",
        "globalCol": 3,
-       "startRowIdx": 2,
-       "spanUnits": 11,
+       "startRowIdx": 0,
+       "spanUnits": 5,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 3,
+       "startRowIdx": 3,
+       "spanUnits": 6,
        "spanUnitsY": 3
       },
       {
        "type": "featuresActive",
        "globalCol": 5,
-       "startRowIdx": 5,
-       "spanUnits": 12,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "attacks",
-       "globalCol": 14,
-       "startRowIdx": 3,
-       "spanUnits": 5,
-       "spanUnitsY": 2
+       "startRowIdx": 6,
+       "spanUnits": 20,
+       "spanUnitsY": 4
       },
       {
        "type": "abilityScores",
-       "globalCol": 17,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 3
+       "globalCol": 6,
+       "startRowIdx": 10,
+       "spanUnits": 4,
+       "spanUnitsY": 5
       },
       {
        "type": "preparedSpells",
-       "globalCol": 17,
-       "startRowIdx": 6,
-       "spanUnits": 6,
-       "spanUnitsY": 12
+       "globalCol": 9,
+       "startRowIdx": 0,
+       "spanUnits": 18,
+       "spanUnitsY": 6
       },
       {
-       "type": "spellSlots",
-       "globalCol": 19,
-       "startRowIdx": 3,
-       "spanUnits": 4,
-       "spanUnitsY": 3
+       "type": "turnActions",
+       "globalCol": 10,
+       "startRowIdx": 10,
+       "spanUnits": 17,
+       "spanUnitsY": 8
       },
       {
        "type": "initiativeTracker",
-       "globalCol": 23,
+       "globalCol": 27,
        "startRowIdx": 0,
        "spanUnits": 10,
        "spanUnitsY": 18
@@ -4590,7 +4590,7 @@
        "type": "classResource",
        "globalCol": 0,
        "startRowIdx": 22,
-       "spanUnits": 15,
+       "spanUnits": 16,
        "spanUnitsY": 5
       },
       {
@@ -4625,14 +4625,14 @@
      "phone": [
       "hpBase",
       "conditions",
-      "turnActions",
       "classResource",
       "savingThrows",
-      "featuresActive",
       "attacks",
+      "spellSlots",
+      "featuresActive",
       "abilityScores",
       "preparedSpells",
-      "spellSlots",
+      "turnActions",
       "initiativeTracker"
      ],
      "note": "Wild Shape forms have no widget yet; for now via Resources + Active Features."
@@ -4643,36 +4643,36 @@
        "type": "inventory",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 12,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "attacks",
-       "globalCol": 0,
-       "startRowIdx": 5,
-       "spanUnits": 5,
-       "spanUnitsY": 2
+       "spanUnits": 8,
+       "spanUnitsY": 10
       },
       {
        "type": "abilityScores",
        "globalCol": 0,
-       "startRowIdx": 7,
-       "spanUnits": 6,
+       "startRowIdx": 10,
+       "spanUnits": 3,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "attacks",
+       "globalCol": 3,
+       "startRowIdx": 10,
+       "spanUnits": 5,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "basicInfo",
+       "globalCol": 3,
+       "startRowIdx": 14,
+       "spanUnits": 12,
        "spanUnitsY": 3
       },
       {
        "type": "preparedSpells",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 12,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "basicInfo",
-       "globalCol": 6,
-       "startRowIdx": 5,
-       "spanUnits": 5,
-       "spanUnitsY": 5
+       "globalCol": 8,
+       "startRowIdx": 0,
+       "spanUnits": 7,
+       "spanUnitsY": 14
       }
      ],
      "tablet": [
@@ -4707,10 +4707,10 @@
      ],
      "phone": [
       "inventory",
-      "attacks",
       "abilityScores",
-      "preparedSpells",
-      "basicInfo"
+      "attacks",
+      "basicInfo",
+      "preparedSpells"
      ],
      "note": "Prepared Spells beside Inventory (material components)."
     }
@@ -4732,98 +4732,98 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 8,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "basicInfo",
-       "globalCol": 0,
-       "startRowIdx": 8,
-       "spanUnits": 5,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 0,
-       "startRowIdx": 13,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "conditions",
-       "globalCol": 4,
-       "startRowIdx": 14,
-       "spanUnits": 5,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 5,
-       "startRowIdx": 8,
-       "spanUnits": 6,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "levelUp",
-       "globalCol": 5,
-       "startRowIdx": 10,
-       "spanUnits": 4,
-       "spanUnitsY": 4
+       "spanUnits": 9,
+       "spanUnitsY": 9
       },
       {
        "type": "preparedSpells",
-       "globalCol": 8,
+       "globalCol": 0,
+       "startRowIdx": 9,
+       "spanUnits": 15,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "basicInfo",
+       "globalCol": 9,
        "startRowIdx": 0,
-       "spanUnits": 13,
-       "spanUnitsY": 6
+       "spanUnits": 5,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "levelUp",
+       "globalCol": 9,
+       "startRowIdx": 5,
+       "spanUnits": 4,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "conditions",
+       "globalCol": 13,
+       "startRowIdx": 5,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "savingThrows",
+       "globalCol": 14,
+       "startRowIdx": 0,
+       "spanUnits": 4,
+       "spanUnitsY": 5
       },
       {
        "type": "longRest",
-       "globalCol": 8,
-       "startRowIdx": 6,
+       "globalCol": 15,
+       "startRowIdx": 9,
        "spanUnits": 3,
        "spanUnitsY": 2
       },
       {
-       "type": "classResource",
-       "globalCol": 9,
-       "startRowIdx": 10,
-       "spanUnits": 6,
-       "spanUnitsY": 4
-      },
-      {
        "type": "featuresActive",
-       "globalCol": 9,
-       "startRowIdx": 14,
-       "spanUnits": 6,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "hpBase",
-       "globalCol": 11,
-       "startRowIdx": 6,
-       "spanUnits": 4,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "featuresPassive",
        "globalCol": 15,
-       "startRowIdx": 6,
-       "spanUnits": 6,
-       "spanUnitsY": 12
-      },
-      {
-       "type": "savingThrows",
-       "globalCol": 21,
-       "startRowIdx": 0,
-       "spanUnits": 4,
+       "startRowIdx": 11,
+       "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
-       "type": "skills",
-       "globalCol": 21,
-       "startRowIdx": 5,
+       "type": "abilityScores",
+       "globalCol": 18,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "hpBase",
+       "globalCol": 18,
+       "startRowIdx": 3,
        "spanUnits": 4,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 18,
+       "startRowIdx": 7,
+       "spanUnits": 4,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "skills",
+       "globalCol": 22,
+       "startRowIdx": 3,
+       "spanUnits": 4,
+       "spanUnitsY": 13
+      },
+      {
+       "type": "classResource",
+       "globalCol": 24,
+       "startRowIdx": 0,
+       "spanUnits": 10,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 26,
+       "startRowIdx": 3,
+       "spanUnits": 8,
        "spanUnitsY": 13
       }
      ],
@@ -4846,69 +4846,69 @@
        "type": "hpBase",
        "globalCol": 15,
        "startRowIdx": 0,
-       "spanUnits": 3,
-       "spanUnitsY": 9
+       "spanUnits": 8,
+       "spanUnitsY": 4
       },
       {
        "type": "abilityScores",
-       "globalCol": 18,
-       "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 6
+       "globalCol": 8,
+       "startRowIdx": 6,
+       "spanUnits": 9,
+       "spanUnitsY": 4
       },
       {
        "type": "savingThrows",
        "globalCol": 0,
-       "startRowIdx": 8,
-       "spanUnits": 11,
-       "spanUnitsY": 4
+       "startRowIdx": 10,
+       "spanUnits": 16,
+       "spanUnitsY": 3
       },
       {
        "type": "skills",
        "globalCol": 0,
-       "startRowIdx": 12,
+       "startRowIdx": 13,
        "spanUnits": 17,
        "spanUnitsY": 7
       },
       {
        "type": "conditions",
        "globalCol": 0,
-       "startRowIdx": 19,
-       "spanUnits": 7,
-       "spanUnitsY": 5
+       "startRowIdx": 20,
+       "spanUnits": 19,
+       "spanUnitsY": 3
       },
       {
        "type": "classResource",
-       "globalCol": 7,
-       "startRowIdx": 19,
-       "spanUnits": 15,
+       "globalCol": 0,
+       "startRowIdx": 23,
+       "spanUnits": 14,
        "spanUnitsY": 5
       },
       {
        "type": "featuresActive",
-       "globalCol": 0,
-       "startRowIdx": 24,
-       "spanUnits": 17,
-       "spanUnitsY": 5
+       "globalCol": 14,
+       "startRowIdx": 23,
+       "spanUnits": 9,
+       "spanUnitsY": 7
       },
       {
        "type": "spellSlots",
-       "globalCol": 11,
-       "startRowIdx": 9,
-       "spanUnits": 12,
-       "spanUnitsY": 3
+       "globalCol": 17,
+       "startRowIdx": 4,
+       "spanUnits": 5,
+       "spanUnitsY": 6
       },
       {
        "type": "levelUp",
        "globalCol": 17,
-       "startRowIdx": 12,
+       "startRowIdx": 10,
        "spanUnits": 5,
        "spanUnitsY": 6
       },
       {
        "type": "longRest",
-       "globalCol": 18,
-       "startRowIdx": 6,
+       "globalCol": 17,
+       "startRowIdx": 16,
        "spanUnits": 5,
        "spanUnitsY": 3
       },
@@ -4916,31 +4916,31 @@
        "type": "preparedSpells",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 20,
-       "spanUnitsY": 10
+       "spanUnits": 11,
+       "spanUnitsY": 18
       },
       {
        "type": "featuresPassive",
-       "globalCol": 23,
-       "startRowIdx": 10,
-       "spanUnits": 18,
-       "spanUnitsY": 10
+       "globalCol": 34,
+       "startRowIdx": 0,
+       "spanUnits": 11,
+       "spanUnitsY": 18
       }
      ],
      "phone": [
       "hpBase",
-      "basicInfo",
-      "abilityScores",
-      "conditions",
-      "spellSlots",
-      "levelUp",
       "preparedSpells",
-      "longRest",
-      "classResource",
-      "featuresActive",
-      "featuresPassive",
+      "basicInfo",
+      "levelUp",
+      "conditions",
       "savingThrows",
+      "longRest",
+      "featuresActive",
+      "abilityScores",
+      "spellSlots",
       "skills",
+      "classResource",
+      "featuresPassive",
       "profilePicture"
      ],
      "note": ""
@@ -4955,67 +4955,67 @@
        "spanUnitsY": 6
       },
       {
-       "type": "longRest",
+       "type": "conditions",
        "globalCol": 0,
        "startRowIdx": 6,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "profilePicture",
+       "globalCol": 0,
+       "startRowIdx": 10,
+       "spanUnits": 5,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "basicInfo",
+       "globalCol": 3,
+       "startRowIdx": 0,
+       "spanUnits": 5,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "longRest",
+       "globalCol": 5,
+       "startRowIdx": 5,
        "spanUnits": 3,
        "spanUnitsY": 2
       },
       {
        "type": "abilityScores",
-       "globalCol": 0,
-       "startRowIdx": 8,
+       "globalCol": 5,
+       "startRowIdx": 7,
        "spanUnits": 3,
        "spanUnitsY": 7
       },
       {
-       "type": "conditions",
-       "globalCol": 0,
-       "startRowIdx": 15,
-       "spanUnits": 9,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "skills",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 13
-      },
-      {
        "type": "spellSlots",
-       "globalCol": 3,
-       "startRowIdx": 13,
-       "spanUnits": 6,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 7,
-       "startRowIdx": 0,
-       "spanUnits": 13,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "profilePicture",
-       "globalCol": 7,
-       "startRowIdx": 6,
-       "spanUnits": 7,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "basicInfo",
-       "globalCol": 9,
-       "startRowIdx": 13,
-       "spanUnits": 5,
-       "spanUnitsY": 5
+       "globalCol": 5,
+       "startRowIdx": 14,
+       "spanUnits": 4,
+       "spanUnitsY": 4
       },
       {
        "type": "featuresPassive",
-       "globalCol": 14,
-       "startRowIdx": 6,
-       "spanUnits": 6,
-       "spanUnitsY": 12
+       "globalCol": 8,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 13
+      },
+      {
+       "type": "skills",
+       "globalCol": 9,
+       "startRowIdx": 13,
+       "spanUnits": 15,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 16,
+       "startRowIdx": 0,
+       "spanUnits": 8,
+       "spanUnitsY": 13
       }
      ],
      "tablet": [
@@ -5023,69 +5023,69 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 8,
-       "spanUnitsY": 8
+       "spanUnits": 9,
+       "spanUnitsY": 9
       },
       {
        "type": "basicInfo",
        "globalCol": 0,
-       "startRowIdx": 8,
+       "startRowIdx": 9,
        "spanUnits": 20,
        "spanUnitsY": 3
       },
       {
        "type": "skills",
        "globalCol": 0,
-       "startRowIdx": 11,
-       "spanUnits": 17,
-       "spanUnitsY": 7
+       "startRowIdx": 12,
+       "spanUnits": 6,
+       "spanUnitsY": 18
       },
       {
        "type": "abilityScores",
-       "globalCol": 8,
+       "globalCol": 9,
        "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 6
+       "spanUnits": 9,
+       "spanUnitsY": 4
       },
       {
        "type": "hpBase",
-       "globalCol": 20,
-       "startRowIdx": 0,
-       "spanUnits": 3,
-       "spanUnitsY": 9
+       "globalCol": 6,
+       "startRowIdx": 12,
+       "spanUnits": 6,
+       "spanUnitsY": 6
       },
       {
        "type": "conditions",
-       "globalCol": 13,
-       "startRowIdx": 0,
+       "globalCol": 9,
+       "startRowIdx": 4,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "preparedSpells",
-       "globalCol": 0,
-       "startRowIdx": 18,
-       "spanUnits": 20,
-       "spanUnitsY": 10
+       "globalCol": 12,
+       "startRowIdx": 12,
+       "spanUnits": 11,
+       "spanUnitsY": 18
       },
       {
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 18,
-       "spanUnitsY": 10
+       "spanUnits": 11,
+       "spanUnitsY": 18
       }
      ],
      "phone": [
       "hpBase",
+      "conditions",
+      "basicInfo",
       "longRest",
       "abilityScores",
-      "conditions",
-      "skills",
       "spellSlots",
-      "preparedSpells",
-      "basicInfo",
       "featuresPassive",
+      "skills",
+      "preparedSpells",
       "profilePicture"
      ],
      "note": ""
@@ -5093,74 +5093,74 @@
     "exploring": {
      "desktop": [
       {
-       "type": "longRest",
+       "type": "hpBase",
        "globalCol": 0,
        "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "longRest",
+       "globalCol": 0,
+       "startRowIdx": 3,
        "spanUnits": 3,
        "spanUnitsY": 2
       },
       {
        "type": "skills",
        "globalCol": 0,
-       "startRowIdx": 2,
+       "startRowIdx": 5,
        "spanUnits": 4,
        "spanUnitsY": 13
       },
       {
-       "type": "abilityScores",
-       "globalCol": 0,
-       "startRowIdx": 15,
-       "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
        "type": "spellSlots",
        "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 6,
+       "startRowIdx": 3,
+       "spanUnits": 9,
        "spanUnitsY": 2
       },
       {
-       "type": "conditions",
+       "type": "featuresPassive",
        "globalCol": 4,
-       "startRowIdx": 2,
-       "spanUnits": 5,
-       "spanUnitsY": 4
+       "startRowIdx": 5,
+       "spanUnits": 8,
+       "spanUnitsY": 13
+      },
+      {
+       "type": "conditions",
+       "globalCol": 6,
+       "startRowIdx": 0,
+       "spanUnits": 9,
+       "spanUnitsY": 3
       },
       {
        "type": "map",
-       "globalCol": 4,
-       "startRowIdx": 6,
-       "spanUnits": 12,
+       "globalCol": 12,
+       "startRowIdx": 3,
+       "spanUnits": 13,
        "spanUnitsY": 8
       },
       {
-       "type": "hpBase",
-       "globalCol": 6,
-       "startRowIdx": 14,
-       "spanUnits": 4,
-       "spanUnitsY": 4
-      },
-      {
        "type": "preparedSpells",
-       "globalCol": 9,
-       "startRowIdx": 0,
-       "spanUnits": 13,
-       "spanUnitsY": 6
+       "globalCol": 12,
+       "startRowIdx": 11,
+       "spanUnits": 15,
+       "spanUnitsY": 7
       },
       {
        "type": "classResource",
-       "globalCol": 10,
-       "startRowIdx": 14,
-       "spanUnits": 6,
-       "spanUnitsY": 4
+       "globalCol": 15,
+       "startRowIdx": 0,
+       "spanUnits": 10,
+       "spanUnitsY": 3
       },
       {
-       "type": "featuresPassive",
-       "globalCol": 16,
-       "startRowIdx": 6,
-       "spanUnits": 6,
-       "spanUnitsY": 12
+       "type": "abilityScores",
+       "globalCol": 25,
+       "startRowIdx": 0,
+       "spanUnits": 2,
+       "spanUnitsY": 11
       }
      ],
      "tablet": [
@@ -5182,34 +5182,34 @@
        "type": "hpBase",
        "globalCol": 11,
        "startRowIdx": 12,
-       "spanUnits": 8,
-       "spanUnitsY": 4
+       "spanUnits": 6,
+       "spanUnitsY": 6
       },
       {
        "type": "conditions",
        "globalCol": 11,
-       "startRowIdx": 16,
+       "startRowIdx": 18,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "classResource",
        "globalCol": 0,
-       "startRowIdx": 22,
-       "spanUnits": 15,
+       "startRowIdx": 23,
+       "spanUnits": 14,
        "spanUnitsY": 5
       },
       {
        "type": "spellSlots",
-       "globalCol": 18,
-       "startRowIdx": 16,
+       "globalCol": 17,
+       "startRowIdx": 12,
        "spanUnits": 5,
        "spanUnitsY": 6
       },
       {
        "type": "longRest",
-       "globalCol": 15,
-       "startRowIdx": 22,
+       "globalCol": 18,
+       "startRowIdx": 18,
        "spanUnits": 5,
        "spanUnitsY": 3
       },
@@ -5217,28 +5217,28 @@
        "type": "preparedSpells",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 20,
-       "spanUnitsY": 10
+       "spanUnits": 11,
+       "spanUnitsY": 18
       },
       {
        "type": "featuresPassive",
-       "globalCol": 23,
-       "startRowIdx": 10,
-       "spanUnits": 18,
-       "spanUnitsY": 10
+       "globalCol": 34,
+       "startRowIdx": 0,
+       "spanUnits": 11,
+       "spanUnitsY": 18
       }
      ],
      "phone": [
       "hpBase",
       "longRest",
       "skills",
-      "abilityScores",
       "spellSlots",
+      "featuresPassive",
       "conditions",
       "map",
       "preparedSpells",
       "classResource",
-      "featuresPassive"
+      "abilityScores"
      ],
      "note": "Full spell list (Detect Magic and other rituals); Investigation/Arcana in Skills."
     },
@@ -5263,62 +5263,62 @@
        "globalCol": 0,
        "startRowIdx": 10,
        "spanUnits": 6,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "attacks",
-       "globalCol": 0,
-       "startRowIdx": 14,
-       "spanUnits": 6,
-       "spanUnitsY": 4
+       "spanUnitsY": 5
       },
       {
        "type": "savingThrows",
-       "globalCol": 3,
-       "startRowIdx": 0,
+       "globalCol": 0,
+       "startRowIdx": 15,
        "spanUnits": 11,
        "spanUnitsY": 3
       },
       {
-       "type": "featuresActive",
+       "type": "spellSlots",
        "globalCol": 3,
-       "startRowIdx": 3,
-       "spanUnits": 17,
+       "startRowIdx": 0,
+       "spanUnits": 9,
        "spanUnitsY": 2
       },
       {
-       "type": "preparedSpells",
+       "type": "attacks",
        "globalCol": 5,
-       "startRowIdx": 5,
-       "spanUnits": 19,
+       "startRowIdx": 2,
+       "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "turnActions",
        "globalCol": 6,
-       "startRowIdx": 10,
-       "spanUnits": 17,
+       "startRowIdx": 7,
+       "spanUnits": 19,
        "spanUnitsY": 8
       },
       {
-       "type": "spellSlots",
-       "globalCol": 14,
-       "startRowIdx": 0,
-       "spanUnits": 4,
+       "type": "featuresActive",
+       "globalCol": 11,
+       "startRowIdx": 15,
+       "spanUnits": 13,
        "spanUnitsY": 3
       },
       {
-       "type": "abilityScores",
-       "globalCol": 20,
+       "type": "preparedSpells",
+       "globalCol": 12,
        "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 5
+       "spanUnits": 15,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 25,
+       "startRowIdx": 7,
+       "spanUnits": 2,
+       "spanUnitsY": 11
       },
       {
        "type": "initiativeTracker",
-       "globalCol": 24,
+       "globalCol": 27,
        "startRowIdx": 0,
-       "spanUnits": 14,
+       "spanUnits": 10,
        "spanUnitsY": 18
       }
      ],
@@ -5327,83 +5327,83 @@
        "type": "hpBase",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 13,
-       "spanUnitsY": 3
+       "spanUnits": 3,
+       "spanUnitsY": 9
       },
       {
        "type": "conditions",
-       "globalCol": 0,
-       "startRowIdx": 3,
-       "spanUnits": 13,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "turnActions",
-       "globalCol": 0,
-       "startRowIdx": 7,
-       "spanUnits": 17,
-       "spanUnitsY": 16
+       "globalCol": 3,
+       "startRowIdx": 0,
+       "spanUnits": 19,
+       "spanUnitsY": 3
       },
       {
        "type": "attacks",
-       "globalCol": 13,
-       "startRowIdx": 0,
+       "globalCol": 3,
+       "startRowIdx": 3,
        "spanUnits": 9,
        "spanUnitsY": 7
       },
       {
        "type": "spellSlots",
-       "globalCol": 17,
-       "startRowIdx": 7,
+       "globalCol": 12,
+       "startRowIdx": 3,
        "spanUnits": 5,
        "spanUnitsY": 6
       },
       {
        "type": "classResource",
-       "globalCol": 0,
-       "startRowIdx": 23,
+       "globalCol": 12,
+       "startRowIdx": 9,
        "spanUnits": 8,
        "spanUnitsY": 7
       },
       {
+       "type": "preparedSpells",
+       "globalCol": 0,
+       "startRowIdx": 10,
+       "spanUnits": 11,
+       "spanUnitsY": 18
+      },
+      {
        "type": "savingThrows",
-       "globalCol": 17,
-       "startRowIdx": 13,
-       "spanUnits": 6,
-       "spanUnitsY": 7
+       "globalCol": 11,
+       "startRowIdx": 16,
+       "spanUnits": 11,
+       "spanUnitsY": 4
       },
       {
        "type": "featuresActive",
-       "globalCol": 8,
-       "startRowIdx": 23,
+       "globalCol": 11,
+       "startRowIdx": 20,
        "spanUnits": 9,
        "spanUnitsY": 7
       },
       {
-       "type": "preparedSpells",
+       "type": "turnActions",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 20,
-       "spanUnitsY": 10
+       "spanUnits": 10,
+       "spanUnitsY": 30
       },
       {
        "type": "initiativeTracker",
-       "globalCol": 23,
-       "startRowIdx": 10,
+       "globalCol": 33,
+       "startRowIdx": 0,
        "spanUnits": 13,
-       "spanUnitsY": 18
+       "spanUnitsY": 22
       }
      ],
      "phone": [
       "hpBase",
       "conditions",
       "classResource",
-      "attacks",
       "savingThrows",
+      "spellSlots",
+      "attacks",
+      "turnActions",
       "featuresActive",
       "preparedSpells",
-      "turnActions",
-      "spellSlots",
       "abilityScores",
       "initiativeTracker"
      ],
@@ -5416,19 +5416,26 @@
        "globalCol": 0,
        "startRowIdx": 0,
        "spanUnits": 8,
-       "spanUnitsY": 9
+       "spanUnitsY": 10
+      },
+      {
+       "type": "attacks",
+       "globalCol": 0,
+       "startRowIdx": 10,
+       "spanUnits": 7,
+       "spanUnitsY": 5
       },
       {
        "type": "abilityScores",
        "globalCol": 0,
-       "startRowIdx": 9,
+       "startRowIdx": 15,
        "spanUnits": 6,
        "spanUnitsY": 3
       },
       {
        "type": "basicInfo",
-       "globalCol": 0,
-       "startRowIdx": 12,
+       "globalCol": 6,
+       "startRowIdx": 15,
        "spanUnits": 9,
        "spanUnitsY": 3
       },
@@ -5436,15 +5443,8 @@
        "type": "preparedSpells",
        "globalCol": 8,
        "startRowIdx": 0,
-       "spanUnits": 7,
-       "spanUnitsY": 11
-      },
-      {
-       "type": "attacks",
-       "globalCol": 9,
-       "startRowIdx": 11,
-       "spanUnits": 6,
-       "spanUnitsY": 4
+       "spanUnits": 8,
+       "spanUnitsY": 13
       }
      ],
      "tablet": [
@@ -5471,18 +5471,18 @@
       },
       {
        "type": "preparedSpells",
-       "globalCol": 0,
-       "startRowIdx": 14,
-       "spanUnits": 20,
-       "spanUnitsY": 10
+       "globalCol": 11,
+       "startRowIdx": 9,
+       "spanUnits": 11,
+       "spanUnitsY": 18
       }
      ],
      "phone": [
       "inventory",
+      "attacks",
       "abilityScores",
       "basicInfo",
-      "preparedSpells",
-      "attacks"
+      "preparedSpells"
      ],
      "note": "Prepared Spells beside Inventory (spellbook and components)."
     }
@@ -5504,99 +5504,99 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 8,
-       "spanUnitsY": 9
+       "spanUnits": 10,
+       "spanUnitsY": 10
       },
       {
        "type": "basicInfo",
        "globalCol": 0,
-       "startRowIdx": 9,
+       "startRowIdx": 10,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
        "type": "levelUp",
        "globalCol": 0,
-       "startRowIdx": 13,
-       "spanUnits": 10,
-       "spanUnitsY": 2
+       "startRowIdx": 14,
+       "spanUnits": 4,
+       "spanUnitsY": 4
       },
       {
        "type": "longRest",
-       "globalCol": 0,
-       "startRowIdx": 15,
-       "spanUnits": 4,
-       "spanUnitsY": 3
+       "globalCol": 4,
+       "startRowIdx": 14,
+       "spanUnits": 6,
+       "spanUnitsY": 2
       },
       {
-       "type": "abilityScores",
+       "type": "hpBase",
        "globalCol": 4,
-       "startRowIdx": 15,
-       "spanUnits": 6,
-       "spanUnitsY": 3
+       "startRowIdx": 16,
+       "spanUnits": 9,
+       "spanUnitsY": 2
       },
       {
        "type": "conditions",
        "globalCol": 5,
-       "startRowIdx": 9,
+       "startRowIdx": 10,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
-       "type": "preparedSpells",
-       "globalCol": 8,
-       "startRowIdx": 0,
-       "spanUnits": 6,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "classResource",
-       "globalCol": 8,
-       "startRowIdx": 7,
-       "spanUnits": 6,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 10,
-       "startRowIdx": 9,
-       "spanUnits": 7,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 10,
-       "startRowIdx": 16,
-       "spanUnits": 5,
-       "spanUnitsY": 2
-      },
-      {
        "type": "savingThrows",
-       "globalCol": 14,
+       "globalCol": 10,
        "startRowIdx": 0,
+       "spanUnits": 4,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 10,
+       "startRowIdx": 5,
        "spanUnits": 7,
        "spanUnitsY": 3
       },
       {
-       "type": "hpBase",
-       "globalCol": 14,
-       "startRowIdx": 3,
-       "spanUnits": 3,
-       "spanUnitsY": 6
+       "type": "featuresPassive",
+       "globalCol": 10,
+       "startRowIdx": 8,
+       "spanUnits": 8,
+       "spanUnitsY": 8
       },
       {
-       "type": "featuresActive",
-       "globalCol": 15,
+       "type": "classResource",
+       "globalCol": 13,
        "startRowIdx": 16,
-       "spanUnits": 6,
+       "spanUnits": 11,
        "spanUnitsY": 2
       },
       {
        "type": "skills",
+       "globalCol": 14,
+       "startRowIdx": 0,
+       "spanUnits": 12,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "spellSlots",
        "globalCol": 17,
-       "startRowIdx": 3,
-       "spanUnits": 4,
-       "spanUnitsY": 13
+       "startRowIdx": 5,
+       "spanUnits": 9,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 18,
+       "startRowIdx": 7,
+       "spanUnits": 6,
+       "spanUnitsY": 9
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 24,
+       "startRowIdx": 7,
+       "spanUnits": 2,
+       "spanUnitsY": 11
       }
      ],
      "tablet": [
@@ -5618,85 +5618,85 @@
        "type": "hpBase",
        "globalCol": 8,
        "startRowIdx": 3,
-       "spanUnits": 8,
-       "spanUnitsY": 4
+       "spanUnits": 13,
+       "spanUnitsY": 3
       },
       {
        "type": "abilityScores",
-       "globalCol": 16,
-       "startRowIdx": 3,
-       "spanUnits": 5,
-       "spanUnitsY": 6
+       "globalCol": 8,
+       "startRowIdx": 6,
+       "spanUnits": 3,
+       "spanUnitsY": 9
       },
       {
        "type": "savingThrows",
-       "globalCol": 8,
-       "startRowIdx": 7,
-       "spanUnits": 6,
-       "spanUnitsY": 7
+       "globalCol": 11,
+       "startRowIdx": 6,
+       "spanUnits": 10,
+       "spanUnitsY": 4
       },
       {
        "type": "skills",
-       "globalCol": 0,
-       "startRowIdx": 8,
-       "spanUnits": 6,
-       "spanUnitsY": 18
+       "globalCol": 11,
+       "startRowIdx": 10,
+       "spanUnits": 11,
+       "spanUnitsY": 10
       },
       {
        "type": "conditions",
-       "globalCol": 14,
-       "startRowIdx": 9,
+       "globalCol": 0,
+       "startRowIdx": 8,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "classResource",
-       "globalCol": 6,
-       "startRowIdx": 14,
-       "spanUnits": 15,
-       "spanUnitsY": 3
+       "globalCol": 0,
+       "startRowIdx": 13,
+       "spanUnits": 8,
+       "spanUnitsY": 5
       },
       {
        "type": "featuresActive",
-       "globalCol": 6,
-       "startRowIdx": 17,
-       "spanUnits": 17,
-       "spanUnitsY": 3
+       "globalCol": 0,
+       "startRowIdx": 18,
+       "spanUnits": 9,
+       "spanUnitsY": 5
       },
       {
        "type": "spellSlots",
-       "globalCol": 6,
+       "globalCol": 9,
        "startRowIdx": 20,
-       "spanUnits": 12,
+       "spanUnits": 13,
        "spanUnitsY": 3
       },
       {
        "type": "preparedSpells",
-       "globalCol": 6,
+       "globalCol": 0,
        "startRowIdx": 23,
        "spanUnits": 16,
        "spanUnitsY": 7
       },
       {
-       "type": "longRest",
-       "globalCol": 0,
-       "startRowIdx": 26,
+       "type": "levelUp",
+       "globalCol": 16,
+       "startRowIdx": 23,
        "spanUnits": 5,
-       "spanUnitsY": 4
+       "spanUnitsY": 6
       },
       {
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 19,
-       "spanUnitsY": 7
+       "spanUnits": 11,
+       "spanUnitsY": 12
       },
       {
-       "type": "levelUp",
-       "globalCol": 23,
-       "startRowIdx": 7,
-       "spanUnits": 5,
-       "spanUnitsY": 6
+       "type": "longRest",
+       "globalCol": 34,
+       "startRowIdx": 0,
+       "spanUnits": 9,
+       "spanUnitsY": 3
       }
      ],
      "phone": [
@@ -5704,15 +5704,15 @@
       "basicInfo",
       "levelUp",
       "longRest",
-      "abilityScores",
       "conditions",
-      "preparedSpells",
-      "classResource",
-      "featuresPassive",
-      "spellSlots",
       "savingThrows",
       "featuresActive",
+      "featuresPassive",
+      "classResource",
       "skills",
+      "spellSlots",
+      "preparedSpells",
+      "abilityScores",
       "profilePicture"
      ],
      "note": ""
@@ -5734,67 +5734,67 @@
        "spanUnitsY": 4
       },
       {
-       "type": "longRest",
+       "type": "spellSlots",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 6,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 0,
-       "startRowIdx": 12,
-       "spanUnits": 6,
+       "spanUnits": 5,
        "spanUnitsY": 3
       },
       {
-       "type": "featuresActive",
+       "type": "preparedSpells",
        "globalCol": 0,
-       "startRowIdx": 15,
-       "spanUnits": 6,
-       "spanUnitsY": 2
+       "startRowIdx": 13,
+       "spanUnits": 12,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "longRest",
+       "globalCol": 3,
+       "startRowIdx": 0,
+       "spanUnits": 4,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "basicInfo",
+       "globalCol": 3,
+       "startRowIdx": 3,
+       "spanUnits": 9,
+       "spanUnitsY": 3
       },
       {
        "type": "profilePicture",
-       "globalCol": 3,
-       "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 6
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 6,
+       "globalCol": 5,
        "startRowIdx": 6,
        "spanUnits": 7,
        "spanUnitsY": 7
       },
       {
-       "type": "preparedSpells",
-       "globalCol": 6,
-       "startRowIdx": 13,
-       "spanUnits": 11,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "basicInfo",
-       "globalCol": 8,
+       "type": "abilityScores",
+       "globalCol": 7,
        "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 8,
-       "startRowIdx": 4,
-       "spanUnits": 5,
-       "spanUnitsY": 2
+       "spanUnits": 6,
+       "spanUnitsY": 3
       },
       {
        "type": "skills",
+       "globalCol": 12,
+       "startRowIdx": 3,
+       "spanUnits": 8,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 12,
+       "startRowIdx": 10,
+       "spanUnits": 8,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "featuresActive",
        "globalCol": 13,
        "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 13
+       "spanUnits": 7,
+       "spanUnitsY": 3
       }
      ],
      "tablet": [
@@ -5816,70 +5816,70 @@
        "type": "skills",
        "globalCol": 8,
        "startRowIdx": 3,
-       "spanUnits": 6,
-       "spanUnitsY": 18
+       "spanUnits": 11,
+       "spanUnitsY": 10
       },
       {
        "type": "abilityScores",
-       "globalCol": 14,
-       "startRowIdx": 3,
-       "spanUnits": 9,
-       "spanUnitsY": 4
+       "globalCol": 20,
+       "startRowIdx": 0,
+       "spanUnits": 3,
+       "spanUnitsY": 9
       },
       {
        "type": "hpBase",
-       "globalCol": 14,
-       "startRowIdx": 7,
+       "globalCol": 0,
+       "startRowIdx": 8,
        "spanUnits": 8,
        "spanUnitsY": 4
       },
       {
        "type": "conditions",
        "globalCol": 0,
-       "startRowIdx": 8,
+       "startRowIdx": 12,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "preparedSpells",
-       "globalCol": 0,
-       "startRowIdx": 21,
+       "globalCol": 7,
+       "startRowIdx": 13,
        "spanUnits": 16,
        "spanUnitsY": 7
       },
       {
        "type": "spellSlots",
-       "globalCol": 14,
-       "startRowIdx": 11,
+       "globalCol": 0,
+       "startRowIdx": 17,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "featuresActive",
-       "globalCol": 14,
-       "startRowIdx": 16,
-       "spanUnits": 9,
-       "spanUnitsY": 5
+       "globalCol": 0,
+       "startRowIdx": 22,
+       "spanUnits": 17,
+       "spanUnitsY": 3
       },
       {
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 19,
-       "spanUnitsY": 7
+       "spanUnits": 11,
+       "spanUnitsY": 12
       }
      ],
      "phone": [
       "hpBase",
       "conditions",
-      "longRest",
-      "abilityScores",
-      "featuresActive",
-      "featuresPassive",
-      "preparedSpells",
-      "basicInfo",
       "spellSlots",
+      "preparedSpells",
+      "longRest",
+      "basicInfo",
+      "abilityScores",
       "skills",
+      "featuresPassive",
+      "featuresActive",
       "profilePicture"
      ],
      "note": "His biggest tab: Skills, Prepared Spells and Active Features side by side."
@@ -5904,7 +5904,7 @@
        "type": "map",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 13,
+       "spanUnits": 12,
        "spanUnitsY": 8
       },
       {
@@ -5912,56 +5912,56 @@
        "globalCol": 3,
        "startRowIdx": 0,
        "spanUnits": 6,
-       "spanUnitsY": 2
+       "spanUnitsY": 3
       },
       {
-       "type": "featuresPassive",
+       "type": "longRest",
        "globalCol": 3,
-       "startRowIdx": 2,
-       "spanUnits": 13,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 5,
-       "startRowIdx": 6,
-       "spanUnits": 11,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 9,
-       "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 13,
-       "startRowIdx": 10,
-       "spanUnits": 3,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "featuresActive",
-       "globalCol": 14,
-       "startRowIdx": 0,
+       "startRowIdx": 3,
        "spanUnits": 6,
        "spanUnitsY": 2
       },
       {
-       "type": "longRest",
-       "globalCol": 16,
-       "startRowIdx": 2,
+       "type": "abilityScores",
+       "globalCol": 5,
+       "startRowIdx": 5,
        "spanUnits": 4,
-       "spanUnitsY": 3
+       "spanUnitsY": 5
       },
       {
        "type": "skills",
-       "globalCol": 16,
+       "globalCol": 9,
+       "startRowIdx": 0,
+       "spanUnits": 15,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 9,
        "startRowIdx": 5,
-       "spanUnits": 4,
-       "spanUnitsY": 13
+       "spanUnits": 15,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 12,
+       "startRowIdx": 10,
+       "spanUnits": 5,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 12,
+       "startRowIdx": 13,
+       "spanUnits": 12,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 17,
+       "startRowIdx": 10,
+       "spanUnits": 7,
+       "spanUnitsY": 3
       }
      ],
      "tablet": [
@@ -5983,28 +5983,28 @@
        "type": "hpBase",
        "globalCol": 6,
        "startRowIdx": 12,
-       "spanUnits": 8,
-       "spanUnitsY": 4
+       "spanUnits": 13,
+       "spanUnitsY": 3
       },
       {
        "type": "conditions",
-       "globalCol": 14,
-       "startRowIdx": 12,
+       "globalCol": 6,
+       "startRowIdx": 15,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "classResource",
-       "globalCol": 6,
-       "startRowIdx": 17,
-       "spanUnits": 15,
-       "spanUnitsY": 3
+       "globalCol": 13,
+       "startRowIdx": 15,
+       "spanUnits": 8,
+       "spanUnitsY": 5
       },
       {
        "type": "spellSlots",
        "globalCol": 6,
        "startRowIdx": 20,
-       "spanUnits": 12,
+       "spanUnits": 13,
        "spanUnitsY": 3
       },
       {
@@ -6018,13 +6018,13 @@
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 19,
-       "spanUnitsY": 7
+       "spanUnits": 11,
+       "spanUnitsY": 12
       },
       {
        "type": "longRest",
-       "globalCol": 23,
-       "startRowIdx": 7,
+       "globalCol": 34,
+       "startRowIdx": 0,
        "spanUnits": 9,
        "spanUnitsY": 3
       }
@@ -6034,13 +6034,13 @@
       "conditions",
       "map",
       "classResource",
-      "featuresPassive",
-      "preparedSpells",
-      "spellSlots",
-      "abilityScores",
-      "featuresActive",
       "longRest",
-      "skills"
+      "abilityScores",
+      "skills",
+      "featuresPassive",
+      "spellSlots",
+      "preparedSpells",
+      "featuresActive"
      ],
      "note": ""
     },
@@ -6061,64 +6061,64 @@
        "spanUnitsY": 4
       },
       {
-       "type": "classResource",
+       "type": "spellSlots",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 6,
-       "spanUnitsY": 2
+       "spanUnits": 5,
+       "spanUnitsY": 3
       },
       {
-       "type": "savingThrows",
+       "type": "abilityScores",
        "globalCol": 0,
-       "startRowIdx": 12,
+       "startRowIdx": 13,
        "spanUnits": 4,
        "spanUnitsY": 5
       },
       {
-       "type": "attacks",
+       "type": "classResource",
        "globalCol": 3,
        "startRowIdx": 0,
        "spanUnits": 6,
        "spanUnitsY": 3
       },
       {
-       "type": "featuresActive",
+       "type": "savingThrows",
        "globalCol": 3,
        "startRowIdx": 3,
-       "spanUnits": 6,
-       "spanUnitsY": 2
+       "spanUnits": 7,
+       "spanUnitsY": 3
       },
       {
-       "type": "spellSlots",
+       "type": "featuresActive",
        "globalCol": 4,
-       "startRowIdx": 12,
-       "spanUnits": 5,
-       "spanUnitsY": 2
+       "startRowIdx": 15,
+       "spanUnits": 7,
+       "spanUnitsY": 3
       },
       {
        "type": "preparedSpells",
-       "globalCol": 4,
-       "startRowIdx": 14,
-       "spanUnits": 11,
+       "globalCol": 5,
+       "startRowIdx": 6,
+       "spanUnits": 6,
+       "spanUnitsY": 9
+      },
+      {
+       "type": "attacks",
+       "globalCol": 10,
+       "startRowIdx": 0,
+       "spanUnits": 7,
        "spanUnitsY": 4
       },
       {
-       "type": "abilityScores",
-       "globalCol": 5,
-       "startRowIdx": 5,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
        "type": "turnActions",
-       "globalCol": 9,
-       "startRowIdx": 0,
+       "globalCol": 11,
+       "startRowIdx": 4,
        "spanUnits": 6,
-       "spanUnitsY": 13
+       "spanUnitsY": 14
       },
       {
        "type": "initiativeTracker",
-       "globalCol": 15,
+       "globalCol": 17,
        "startRowIdx": 0,
        "spanUnits": 10,
        "spanUnitsY": 18
@@ -6199,13 +6199,13 @@
      "phone": [
       "hpBase",
       "conditions",
+      "spellSlots",
+      "abilityScores",
       "classResource",
       "savingThrows",
-      "attacks",
       "featuresActive",
-      "spellSlots",
       "preparedSpells",
-      "abilityScores",
+      "attacks",
       "turnActions",
       "initiativeTracker"
      ],
@@ -6217,26 +6217,26 @@
        "type": "inventory",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 8,
+       "spanUnits": 12,
        "spanUnitsY": 9
       },
       {
        "type": "attacks",
        "globalCol": 0,
        "startRowIdx": 9,
-       "spanUnits": 6,
-       "spanUnitsY": 3
+       "spanUnits": 7,
+       "spanUnitsY": 4
       },
       {
        "type": "basicInfo",
        "globalCol": 0,
-       "startRowIdx": 12,
-       "spanUnits": 5,
-       "spanUnitsY": 4
+       "startRowIdx": 13,
+       "spanUnits": 9,
+       "spanUnitsY": 3
       },
       {
        "type": "abilityScores",
-       "globalCol": 6,
+       "globalCol": 9,
        "startRowIdx": 9,
        "spanUnits": 3,
        "spanUnitsY": 7
@@ -6291,7 +6291,7 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 10,
+       "spanUnits": 9,
        "spanUnitsY": 10
       },
       {
@@ -6305,90 +6305,90 @@
        "type": "levelUp",
        "globalCol": 0,
        "startRowIdx": 15,
-       "spanUnits": 10,
-       "spanUnitsY": 2
+       "spanUnits": 7,
+       "spanUnitsY": 3
       },
       {
        "type": "longRest",
        "globalCol": 6,
        "startRowIdx": 10,
-       "spanUnits": 4,
-       "spanUnitsY": 3
+       "spanUnits": 6,
+       "spanUnitsY": 2
       },
       {
        "type": "spellSlots",
        "globalCol": 6,
-       "startRowIdx": 13,
-       "spanUnits": 4,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 10,
-       "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "classResource",
-       "globalCol": 10,
-       "startRowIdx": 5,
-       "spanUnits": 8,
-       "spanUnitsY": 2
-      },
-      {
-       "type": "attacks",
-       "globalCol": 10,
-       "startRowIdx": 7,
+       "startRowIdx": 12,
        "spanUnits": 6,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "featuresActive",
-       "globalCol": 10,
-       "startRowIdx": 10,
-       "spanUnits": 6,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "savingThrows",
-       "globalCol": 14,
-       "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 5
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 16,
-       "startRowIdx": 7,
-       "spanUnits": 7,
-       "spanUnitsY": 10
-      },
-      {
-       "type": "hpBase",
-       "globalCol": 18,
-       "startRowIdx": 0,
-       "spanUnits": 4,
-       "spanUnitsY": 4
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 18,
-       "startRowIdx": 4,
-       "spanUnits": 5,
-       "spanUnitsY": 3
+       "spanUnitsY": 2
       },
       {
        "type": "conditions",
-       "globalCol": 22,
+       "globalCol": 7,
+       "startRowIdx": 14,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "hpBase",
+       "globalCol": 9,
+       "startRowIdx": 0,
+       "spanUnits": 4,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "featuresPassive",
+       "globalCol": 9,
+       "startRowIdx": 4,
+       "spanUnits": 15,
+       "spanUnitsY": 6
+      },
+      {
+       "type": "abilityScores",
+       "globalCol": 12,
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 12,
+       "startRowIdx": 13,
+       "spanUnits": 6,
+       "spanUnitsY": 5
+      },
+      {
+       "type": "attacks",
+       "globalCol": 13,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "featuresActive",
+       "globalCol": 18,
+       "startRowIdx": 10,
+       "spanUnits": 6,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "classResource",
+       "globalCol": 19,
        "startRowIdx": 0,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
+       "type": "savingThrows",
+       "globalCol": 24,
+       "startRowIdx": 0,
+       "spanUnits": 4,
+       "spanUnitsY": 5
+      },
+      {
        "type": "skills",
-       "globalCol": 23,
-       "startRowIdx": 4,
+       "globalCol": 24,
+       "startRowIdx": 5,
        "spanUnits": 4,
        "spanUnitsY": 13
       }
@@ -6398,99 +6398,99 @@
        "type": "profilePicture",
        "globalCol": 0,
        "startRowIdx": 0,
-       "spanUnits": 9,
-       "spanUnitsY": 9
+       "spanUnits": 8,
+       "spanUnitsY": 8
       },
       {
        "type": "basicInfo",
-       "globalCol": 9,
+       "globalCol": 8,
        "startRowIdx": 0,
        "spanUnits": 9,
        "spanUnitsY": 6
       },
       {
        "type": "hpBase",
-       "globalCol": 9,
-       "startRowIdx": 6,
+       "globalCol": 17,
+       "startRowIdx": 0,
        "spanUnits": 6,
        "spanUnitsY": 6
       },
       {
        "type": "abilityScores",
-       "globalCol": 0,
-       "startRowIdx": 9,
+       "globalCol": 8,
+       "startRowIdx": 6,
        "spanUnits": 9,
        "spanUnitsY": 4
       },
       {
        "type": "savingThrows",
-       "globalCol": 15,
-       "startRowIdx": 6,
-       "spanUnits": 6,
-       "spanUnitsY": 7
+       "globalCol": 0,
+       "startRowIdx": 10,
+       "spanUnits": 15,
+       "spanUnitsY": 3
       },
       {
        "type": "skills",
-       "globalCol": 9,
-       "startRowIdx": 12,
-       "spanUnits": 6,
-       "spanUnitsY": 18
+       "globalCol": 0,
+       "startRowIdx": 13,
+       "spanUnits": 11,
+       "spanUnitsY": 10
       },
       {
        "type": "conditions",
-       "globalCol": 0,
-       "startRowIdx": 13,
+       "globalCol": 15,
+       "startRowIdx": 10,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "classResource",
-       "globalCol": 15,
-       "startRowIdx": 13,
+       "globalCol": 11,
+       "startRowIdx": 15,
        "spanUnits": 7,
        "spanUnitsY": 6
       },
       {
        "type": "featuresActive",
        "globalCol": 0,
-       "startRowIdx": 18,
-       "spanUnits": 9,
-       "spanUnitsY": 12
+       "startRowIdx": 23,
+       "spanUnits": 16,
+       "spanUnitsY": 7
       },
       {
        "type": "spellSlots",
        "globalCol": 18,
-       "startRowIdx": 0,
+       "startRowIdx": 15,
        "spanUnits": 5,
        "spanUnitsY": 5
       },
       {
-       "type": "preparedSpells",
-       "globalCol": 15,
-       "startRowIdx": 19,
-       "spanUnits": 8,
-       "spanUnitsY": 7
+       "type": "levelUp",
+       "globalCol": 18,
+       "startRowIdx": 20,
+       "spanUnits": 5,
+       "spanUnitsY": 6
       },
       {
        "type": "longRest",
-       "globalCol": 15,
-       "startRowIdx": 26,
+       "globalCol": 17,
+       "startRowIdx": 6,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
-       "type": "featuresPassive",
+       "type": "preparedSpells",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 19,
-       "spanUnitsY": 9
+       "spanUnits": 15,
+       "spanUnitsY": 5
       },
       {
-       "type": "levelUp",
+       "type": "featuresPassive",
        "globalCol": 23,
-       "startRowIdx": 9,
-       "spanUnits": 14,
-       "spanUnitsY": 3
+       "startRowIdx": 5,
+       "spanUnits": 11,
+       "spanUnitsY": 16
       }
      ],
      "phone": [
@@ -6499,14 +6499,14 @@
       "levelUp",
       "longRest",
       "spellSlots",
+      "conditions",
+      "featuresPassive",
       "abilityScores",
-      "classResource",
+      "preparedSpells",
       "attacks",
       "featuresActive",
+      "classResource",
       "savingThrows",
-      "featuresPassive",
-      "preparedSpells",
-      "conditions",
       "skills",
       "profilePicture"
      ],
@@ -6529,60 +6529,60 @@
        "spanUnitsY": 4
       },
       {
-       "type": "profilePicture",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 6
-      },
-      {
        "type": "longRest",
        "globalCol": 0,
-       "startRowIdx": 16,
+       "startRowIdx": 10,
+       "spanUnits": 4,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "basicInfo",
+       "globalCol": 0,
+       "startRowIdx": 13,
        "spanUnits": 6,
-       "spanUnitsY": 2
+       "spanUnitsY": 5
       },
       {
        "type": "featuresPassive",
        "globalCol": 3,
        "startRowIdx": 0,
-       "spanUnits": 13,
+       "spanUnits": 15,
        "spanUnitsY": 6
       },
       {
-       "type": "skills",
+       "type": "profilePicture",
        "globalCol": 5,
        "startRowIdx": 6,
-       "spanUnits": 8,
+       "spanUnits": 5,
        "spanUnitsY": 7
       },
       {
-       "type": "preparedSpells",
-       "globalCol": 5,
+       "type": "abilityScores",
+       "globalCol": 6,
        "startRowIdx": 13,
-       "spanUnits": 5,
+       "spanUnits": 6,
        "spanUnitsY": 3
       },
       {
        "type": "spellSlots",
        "globalCol": 6,
        "startRowIdx": 16,
-       "spanUnits": 4,
+       "spanUnits": 6,
        "spanUnitsY": 2
       },
       {
-       "type": "basicInfo",
+       "type": "skills",
        "globalCol": 10,
+       "startRowIdx": 6,
+       "spanUnits": 8,
+       "spanUnitsY": 7
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 12,
        "startRowIdx": 13,
        "spanUnits": 6,
        "spanUnitsY": 5
-      },
-      {
-       "type": "abilityScores",
-       "globalCol": 13,
-       "startRowIdx": 6,
-       "spanUnits": 3,
-       "spanUnitsY": 7
       }
      ],
      "tablet": [
@@ -6595,64 +6595,64 @@
       },
       {
        "type": "basicInfo",
-       "globalCol": 8,
-       "startRowIdx": 0,
-       "spanUnits": 9,
-       "spanUnitsY": 6
+       "globalCol": 0,
+       "startRowIdx": 8,
+       "spanUnits": 16,
+       "spanUnitsY": 4
       },
       {
        "type": "skills",
-       "globalCol": 8,
-       "startRowIdx": 6,
+       "globalCol": 0,
+       "startRowIdx": 12,
        "spanUnits": 11,
        "spanUnitsY": 10
       },
       {
        "type": "abilityScores",
-       "globalCol": 17,
+       "globalCol": 8,
        "startRowIdx": 0,
-       "spanUnits": 5,
-       "spanUnitsY": 6
+       "spanUnits": 9,
+       "spanUnitsY": 4
       },
       {
        "type": "hpBase",
-       "globalCol": 19,
-       "startRowIdx": 6,
-       "spanUnits": 3,
-       "spanUnitsY": 9
+       "globalCol": 17,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 6
       },
       {
        "type": "conditions",
-       "globalCol": 0,
-       "startRowIdx": 8,
+       "globalCol": 16,
+       "startRowIdx": 6,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "preparedSpells",
-       "globalCol": 0,
-       "startRowIdx": 13,
+       "globalCol": 11,
+       "startRowIdx": 12,
        "spanUnits": 8,
        "spanUnitsY": 7
       },
       {
        "type": "featuresPassive",
-       "globalCol": 0,
-       "startRowIdx": 20,
-       "spanUnits": 19,
-       "spanUnitsY": 9
+       "globalCol": 23,
+       "startRowIdx": 0,
+       "spanUnits": 11,
+       "spanUnitsY": 16
       }
      ],
      "phone": [
       "hpBase",
       "conditions",
       "longRest",
+      "basicInfo",
       "featuresPassive",
+      "abilityScores",
+      "spellSlots",
       "skills",
       "preparedSpells",
-      "spellSlots",
-      "basicInfo",
-      "abilityScores",
       "profilePicture"
      ],
      "note": ""
@@ -6667,74 +6667,74 @@
        "spanUnitsY": 6
       },
       {
-       "type": "conditions",
+       "type": "skills",
        "globalCol": 0,
        "startRowIdx": 6,
-       "spanUnits": 5,
-       "spanUnitsY": 4
+       "spanUnits": 8,
+       "spanUnitsY": 7
       },
       {
-       "type": "classResource",
-       "globalCol": 0,
-       "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "longRest",
+       "type": "featuresActive",
        "globalCol": 0,
        "startRowIdx": 13,
-       "spanUnits": 4,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "spellSlots",
-       "globalCol": 0,
-       "startRowIdx": 16,
-       "spanUnits": 4,
-       "spanUnitsY": 2
+       "spanUnits": 12,
+       "spanUnitsY": 5
       },
       {
        "type": "featuresPassive",
        "globalCol": 3,
        "startRowIdx": 0,
-       "spanUnits": 13,
+       "spanUnits": 15,
        "spanUnitsY": 6
       },
       {
-       "type": "featuresActive",
-       "globalCol": 5,
+       "type": "conditions",
+       "globalCol": 8,
        "startRowIdx": 6,
-       "spanUnits": 11,
+       "spanUnits": 5,
        "spanUnitsY": 4
       },
       {
-       "type": "map",
-       "globalCol": 5,
+       "type": "longRest",
+       "globalCol": 8,
        "startRowIdx": 10,
-       "spanUnits": 17,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "skills",
-       "globalCol": 16,
-       "startRowIdx": 0,
-       "spanUnits": 8,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 16,
-       "startRowIdx": 7,
-       "spanUnits": 5,
+       "spanUnits": 4,
        "spanUnitsY": 3
       },
       {
+       "type": "map",
+       "globalCol": 12,
+       "startRowIdx": 10,
+       "spanUnits": 12,
+       "spanUnitsY": 8
+      },
+      {
+       "type": "classResource",
+       "globalCol": 13,
+       "startRowIdx": 6,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
        "type": "abilityScores",
-       "globalCol": 22,
-       "startRowIdx": 7,
-       "spanUnits": 2,
-       "spanUnitsY": 11
+       "globalCol": 18,
+       "startRowIdx": 0,
+       "spanUnits": 6,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "spellSlots",
+       "globalCol": 18,
+       "startRowIdx": 3,
+       "spanUnits": 6,
+       "spanUnitsY": 2
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 18,
+       "startRowIdx": 5,
+       "spanUnits": 6,
+       "spanUnitsY": 5
       }
      ],
      "tablet": [
@@ -6749,48 +6749,48 @@
        "type": "skills",
        "globalCol": 0,
        "startRowIdx": 12,
-       "spanUnits": 11,
-       "spanUnitsY": 10
+       "spanUnits": 6,
+       "spanUnitsY": 18
       },
       {
        "type": "hpBase",
-       "globalCol": 11,
+       "globalCol": 6,
        "startRowIdx": 12,
        "spanUnits": 8,
        "spanUnitsY": 4
       },
       {
        "type": "conditions",
-       "globalCol": 11,
-       "startRowIdx": 16,
+       "globalCol": 14,
+       "startRowIdx": 12,
        "spanUnits": 7,
        "spanUnitsY": 5
       },
       {
        "type": "classResource",
-       "globalCol": 0,
-       "startRowIdx": 22,
-       "spanUnits": 18,
-       "spanUnitsY": 3
+       "globalCol": 6,
+       "startRowIdx": 16,
+       "spanUnits": 7,
+       "spanUnitsY": 6
       },
       {
        "type": "spellSlots",
-       "globalCol": 18,
-       "startRowIdx": 16,
-       "spanUnits": 5,
-       "spanUnitsY": 5
+       "globalCol": 13,
+       "startRowIdx": 17,
+       "spanUnits": 8,
+       "spanUnitsY": 3
       },
       {
        "type": "preparedSpells",
-       "globalCol": 0,
-       "startRowIdx": 25,
-       "spanUnits": 15,
-       "spanUnitsY": 5
+       "globalCol": 13,
+       "startRowIdx": 20,
+       "spanUnits": 8,
+       "spanUnitsY": 7
       },
       {
        "type": "longRest",
-       "globalCol": 18,
-       "startRowIdx": 21,
+       "globalCol": 6,
+       "startRowIdx": 22,
        "spanUnits": 5,
        "spanUnitsY": 4
       },
@@ -6798,22 +6798,22 @@
        "type": "featuresPassive",
        "globalCol": 23,
        "startRowIdx": 0,
-       "spanUnits": 19,
-       "spanUnitsY": 9
+       "spanUnits": 11,
+       "spanUnitsY": 16
       }
      ],
      "phone": [
       "hpBase",
-      "conditions",
-      "classResource",
-      "longRest",
-      "spellSlots",
-      "featuresPassive",
-      "featuresActive",
-      "map",
       "skills",
-      "preparedSpells",
-      "abilityScores"
+      "featuresActive",
+      "featuresPassive",
+      "conditions",
+      "longRest",
+      "map",
+      "classResource",
+      "abilityScores",
+      "spellSlots",
+      "preparedSpells"
      ],
      "note": ""
     },
@@ -6834,71 +6834,71 @@
        "spanUnitsY": 4
       },
       {
-       "type": "classResource",
+       "type": "featuresActive",
        "globalCol": 0,
        "startRowIdx": 10,
-       "spanUnits": 5,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "savingThrows",
-       "globalCol": 0,
-       "startRowIdx": 13,
-       "spanUnits": 4,
-       "spanUnitsY": 5
+       "spanUnits": 6,
+       "spanUnitsY": 8
       },
       {
        "type": "attacks",
        "globalCol": 3,
        "startRowIdx": 0,
        "spanUnits": 6,
-       "spanUnitsY": 3
+       "spanUnitsY": 4
       },
       {
        "type": "spellSlots",
        "globalCol": 3,
-       "startRowIdx": 3,
-       "spanUnits": 4,
+       "startRowIdx": 4,
+       "spanUnits": 6,
        "spanUnitsY": 2
       },
       {
+       "type": "featuresPassive",
+       "globalCol": 6,
+       "startRowIdx": 7,
+       "spanUnits": 8,
+       "spanUnitsY": 11
+      },
+      {
+       "type": "preparedSpells",
+       "globalCol": 9,
+       "startRowIdx": 0,
+       "spanUnits": 11,
+       "spanUnitsY": 3
+      },
+      {
+       "type": "classResource",
+       "globalCol": 9,
+       "startRowIdx": 3,
+       "spanUnits": 5,
+       "spanUnitsY": 4
+      },
+      {
+       "type": "turnActions",
+       "globalCol": 14,
+       "startRowIdx": 3,
+       "spanUnits": 6,
+       "spanUnitsY": 15
+      },
+      {
+       "type": "savingThrows",
+       "globalCol": 20,
+       "startRowIdx": 0,
+       "spanUnits": 4,
+       "spanUnitsY": 5
+      },
+      {
        "type": "skills",
-       "globalCol": 5,
+       "globalCol": 20,
        "startRowIdx": 5,
        "spanUnits": 4,
        "spanUnitsY": 13
       },
       {
-       "type": "turnActions",
-       "globalCol": 9,
-       "startRowIdx": 0,
-       "spanUnits": 12,
-       "spanUnitsY": 8
-      },
-      {
-       "type": "preparedSpells",
-       "globalCol": 9,
-       "startRowIdx": 8,
-       "spanUnits": 5,
-       "spanUnitsY": 3
-      },
-      {
-       "type": "featuresActive",
-       "globalCol": 9,
-       "startRowIdx": 11,
-       "spanUnits": 6,
-       "spanUnitsY": 7
-      },
-      {
-       "type": "featuresPassive",
-       "globalCol": 15,
-       "startRowIdx": 8,
-       "spanUnits": 7,
-       "spanUnitsY": 10
-      },
-      {
        "type": "initiativeTracker",
-       "globalCol": 22,
+       "globalCol": 24,
        "startRowIdx": 0,
        "spanUnits": 10,
        "spanUnitsY": 18
@@ -6979,15 +6979,15 @@
      "phone": [
       "hpBase",
       "conditions",
-      "classResource",
-      "savingThrows",
+      "featuresActive",
       "attacks",
       "spellSlots",
-      "skills",
-      "turnActions",
-      "preparedSpells",
-      "featuresActive",
       "featuresPassive",
+      "preparedSpells",
+      "classResource",
+      "turnActions",
+      "savingThrows",
+      "skills",
       "initiativeTracker"
      ],
      "note": "Attacks taller (Weapon Mastery); small spell list for Shield."
@@ -6999,26 +6999,26 @@
        "globalCol": 0,
        "startRowIdx": 0,
        "spanUnits": 8,
-       "spanUnitsY": 9
+       "spanUnitsY": 10
       },
       {
        "type": "attacks",
        "globalCol": 0,
-       "startRowIdx": 9,
-       "spanUnits": 6,
+       "startRowIdx": 10,
+       "spanUnits": 11,
        "spanUnitsY": 3
       },
       {
        "type": "basicInfo",
        "globalCol": 0,
-       "startRowIdx": 12,
-       "spanUnits": 6,
-       "spanUnitsY": 5
+       "startRowIdx": 13,
+       "spanUnits": 11,
+       "spanUnitsY": 3
       },
       {
        "type": "abilityScores",
-       "globalCol": 6,
-       "startRowIdx": 9,
+       "globalCol": 8,
+       "startRowIdx": 0,
        "spanUnits": 3,
        "spanUnitsY": 7
       }

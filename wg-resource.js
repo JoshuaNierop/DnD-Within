@@ -45,7 +45,9 @@ function wgxBuildResources(widget) {
       var max = r.max(cfg, st);
       var used = Math.min(st[r.stateKey] || 0, max);
       var die = r.die ? (' ' + r.die(st)) : '';
-      rows.push([r.label + die, wgxResourcePips(used, max)]);
+      // Free casts of a granted spell show the spell name; the source is in the tooltip.
+      var name = r.dynamic && r.spellNames ? r.spellNames[0] : r.label;
+      rows.push([name + die, wgxResourcePips(used, max)]);
       var rechargeTxt = r.recharge === 'long' ? 'Recharges on a Long Rest.' : 'Regain one on a Short Rest, all on a Long Rest.';
       var extra = (typeof r.extraDesc === 'function') ? r.extraDesc(cfg, st) : '';
       var tip = { title: r.label + ' · ' + (max - used) + '/' + max + die, body: r.desc + (extra ? '\n\n' + extra : '') + '\n\n' + rechargeTxt + '\n\nClick: spend 1. When empty, click restores all.' };
@@ -55,7 +57,7 @@ function wgxBuildResources(widget) {
   d.rows = rows; d.tooltips = tips;
   L.columnHighlight = [false, false];
   L.columnAlign = ['left', 'right'];
-  L.columnMaxChars = [18, null];
+  L.columnMaxChars = [26, null];
   L.columnAllCaps = [false, false];
   L.columnExtraClass = [null, null];
   L.columnMinWidthPx = [null, 40];

@@ -244,7 +244,7 @@ function wgxBuildFeatures(widget, filter) {
   d.rows = rows; d.tooltips = tips;
   L.columnHighlight = [false, false, true, false];
   L.columnAlign = ['center', 'left', 'right', 'right'];
-  L.columnMaxChars = [null, 18, null, null];
+  L.columnMaxChars = [null, 26, null, null];
   L.columnAllCaps = [false, false, false, false];
   L.columnExtraClass = ['is-prof-col', null, null, null];
   L.columnMinWidthPx = [20, null, 34, 16];

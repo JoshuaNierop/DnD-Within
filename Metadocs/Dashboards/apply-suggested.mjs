@@ -1,4 +1,4 @@
-// One-off (2026-10-23): write the suggested layouts to every player's dashboards,
+// Run 2026-10-23 and 2026-10-25 (after re-measuring desktop): write the suggested layouts to every player's dashboards,
 // as if each player pressed Save. Desktop gets the layout; tablet is stored empty
 // so wgSeedEmptySlots fills it with the page-width-corrected layout at load.
 // Usage: node Metadocs/Dashboards/apply-suggested.mjs <backup.json> [--go]

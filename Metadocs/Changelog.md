@@ -2,6 +2,12 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-25 — Desktop dashboards fit again
+
+- Every character's desktop tabs were re-measured at their current level and laid out again, so no widget shows "Enlarge widget to show content" any more on a full-HD screen (Your Turn, Resources and Ren's Character tab were too small after the level-ups). Widgets keep a little room for new spells and features.
+- Long names are no longer cut off: features, resources, spells and Your Turn show names up to 26 characters in full (e.g. "Ability Score Improvement", "Tasha's Hideous Laughter"). Free casts of a species spell show just the spell name in Resources; where it comes from is in the tooltip.
+- Saved desktop dashboards were replaced by the new suggested layout (map selection kept); tablet layouts were laid out again for the wider names.
+
 ## 2026-10-25 — Tablet dashboards: bigger text, new layouts
 
 - Portrait tablets now use a fixed 13px widget font (was ~10.8px, smaller than on phones or desktop).

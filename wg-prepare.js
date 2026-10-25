@@ -226,7 +226,7 @@ function wgxBuildPrepared(widget) {
   d.tooltips = tips;
   L.columnHighlight  = [false, false, false];
   L.columnAlign      = ['center', 'left', 'right'];
-  L.columnMaxChars   = [null, 20, null];
+  L.columnMaxChars   = [null, 26, null];
   L.columnAllCaps    = [false, false, false];
   L.columnExtraClass = ['is-prof-col', null, null];
   L.columnMinWidthPx = [20, null, 28];
@@ -286,7 +286,7 @@ function wgxBuildSlots(widget) {
   d.rows = rows; d.tooltips = tips;
   L.columnHighlight = [false, false];
   L.columnAlign = ['left', 'right'];
-  L.columnMaxChars = [14, null];
+  L.columnMaxChars = [18, null];
   L.columnAllCaps = [false, false];
   L.columnExtraClass = [null, null];
   L.columnMinWidthPx = [null, 40];

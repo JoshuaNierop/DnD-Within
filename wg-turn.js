@@ -231,7 +231,7 @@ function wgxBuildTurn(widget) {
   d.rows = rows; d.tooltips = tips;
   L.columnHighlight = [false, false, true];
   L.columnAlign = ['center', 'left', 'right'];
-  L.columnMaxChars = [null, 20, null];
+  L.columnMaxChars = [null, 26, null];
   L.columnAllCaps = [false, false, false];
   L.columnExtraClass = ['is-prof-col', null, null];
   L.columnMinWidthPx = [20, null, 34];
