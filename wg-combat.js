@@ -153,8 +153,66 @@ function combatEntityFromMonster(m, kind) {
     id: combatNewId(), kind: k, ref: m.id || null, name: m.name || (k === 'familiar' ? 'Familiar' : 'Monster'),
     portrait: m.image || null, initiative: null, dexMod: dexModFromAbilities(m.abilities),
     currentHP: hp, maxHP: hp, tempHP: 0, ac: parseLeadingInt(m.ac, 10),
+    cr: (m.cr != null && m.cr !== '') ? String(m.cr) : null,
     visibility: (k === 'familiar') ? 'revealed' : 'hidden',
   };
+}
+
+// ---- Encounter difficulty (2024 DMG: XP budget per character) ----
+const COMBAT_XP_BUDGET = [null,
+  [50, 75, 100], [100, 150, 200], [150, 225, 400], [250, 375, 500], [500, 750, 1100],
+  [600, 1000, 1400], [750, 1300, 1700], [1000, 1700, 2100], [1300, 2000, 2600], [1600, 2300, 3100],
+  [1900, 2900, 4100], [2200, 3700, 4700], [2600, 4200, 5400], [2900, 4900, 6200], [3300, 5400, 7800],
+  [3800, 6100, 9800], [4500, 7200, 11700], [5000, 8700, 14200], [5500, 10700, 17200], [6400, 13200, 22000]];
+const COMBAT_CR_XP = { '0': 10, '1/8': 25, '1/4': 50, '1/2': 100, '1': 200, '2': 450, '3': 700, '4': 1100, '5': 1800,
+  '6': 2300, '7': 2900, '8': 3900, '9': 5000, '10': 5900, '11': 7200, '12': 8400, '13': 10000, '14': 11500,
+  '15': 13000, '16': 15000, '17': 18000, '18': 20000, '19': 22000, '20': 25000, '21': 33000, '22': 41000,
+  '23': 50000, '24': 62000, '25': 75000, '26': 90000, '27': 105000, '28': 120000, '29': 135000, '30': 155000 };
+function combatEntityCr(ent) {
+  if (ent.cr != null && ent.cr !== '') return String(ent.cr).trim();
+  if (!ent.ref) return null;
+  const db = (typeof monsterDbGet === 'function') ? monsterDbGet(ent.ref) : null;
+  if (db && db.cr != null) return String(db.cr);
+  let mons = [];
+  try { if (typeof getLoreCatEntries === 'function') mons = getLoreCatEntries('monsters') || []; } catch (e) {}
+  const m = mons.find(x => x && x.id === ent.ref);
+  return (m && m.cr != null && m.cr !== '') ? String(m.cr).trim() : null;
+}
+function combatPcLevel(ent) {
+  const raw = (typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[ent.ref]) || null;
+  const lvl = raw && raw.state && raw.state.level;
+  if (lvl) return lvl;
+  const party = parseInt(localStorage.getItem('dw_party_level'), 10);
+  return party >= 1 && party <= 20 ? party : 1;
+}
+// null when there are no player characters or no monsters with a known CR.
+function combatDifficulty(enc) {
+  const pcs = enc.entities.filter(e => e.kind === 'pc');
+  const foes = enc.entities.filter(e => e.kind === 'monster');
+  if (!pcs.length || !foes.length) return null;
+  const budget = [0, 0, 0];
+  pcs.forEach(p => { const b = COMBAT_XP_BUDGET[Math.min(20, Math.max(1, combatPcLevel(p)))]; budget[0] += b[0]; budget[1] += b[1]; budget[2] += b[2]; });
+  let xp = 0, unknown = 0;
+  foes.forEach(f => { const cr = combatEntityCr(f); const v = cr != null ? COMBAT_CR_XP[cr] : undefined; if (v === undefined) unknown++; else xp += v; });
+  if (unknown === foes.length) return null;
+  const tier = xp > budget[2] ? 'above' : xp > budget[1] ? 'high' : xp > budget[0] ? 'moderate' : 'low';
+  return { xp, budget, tier, unknown, pcs: pcs.length };
+}
+function combatDifficultyPill(enc) {
+  const d = combatDifficulty(enc);
+  if (!d) return null;
+  const label = { low: 'Low', moderate: 'Moderate', high: 'High', above: 'Above High' }[d.tier];
+  const pill = hEl('div', 'combat-diff combat-diff-' + d.tier, label + ' · ' + d.xp.toLocaleString('en') + ' XP');
+  const lines = [
+    'Monster XP: ' + d.xp.toLocaleString('en'),
+    'Budget for ' + d.pcs + ' character' + (d.pcs === 1 ? '' : 's') + ':',
+    'Low ' + d.budget[0].toLocaleString('en') + ' · Moderate ' + d.budget[1].toLocaleString('en') + ' · High ' + d.budget[2].toLocaleString('en'),
+  ];
+  if (d.unknown) lines.push('', d.unknown + ' monster' + (d.unknown === 1 ? ' has' : 's have') + ' no CR and ' + (d.unknown === 1 ? 'is' : 'are') + ' not counted.');
+  lines.push('', 'XP budget per character from the 2024 DMG. NPCs and familiars are not counted.');
+  pill.setAttribute('data-tip-title', 'Encounter difficulty');
+  pill.setAttribute('data-tip-body', lines.join('\n'));
+  return pill;
 }
 
 // Make sure a character record is in the cache before we snapshot an entity
@@ -596,6 +654,7 @@ function drawCombatTable(g, widget, x, contentY, w, contentH, widgetIdx) {
   const header = hEl('div', 'combat-header');
   const roundPill = hEl('div', 'combat-round', enc.running ? (ct('combat.round') + ' ' + enc.round) : (mode === 'dm' ? ct('combat.notstarted') : ct('combat.initiative')));
   header.appendChild(roundPill);
+  if (mode === 'dm') { const diff = combatDifficultyPill(enc); if (diff) header.appendChild(diff); }
 
   if (mode === 'dm') {
     const controls = hEl('div', 'combat-controls');
