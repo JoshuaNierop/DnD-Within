@@ -259,6 +259,32 @@ function getMaxHP(config, state) {
     return getHP(config, state);
 }
 
+// Equipped armor/shield from state.items, resolved against DATA.itemDB.
+function getEquippedGear(state) {
+    var out = { armor: null, shield: null };
+    var items = (state && Array.isArray(state.items)) ? state.items : [];
+    var db = (typeof DATA !== 'undefined' && Array.isArray(DATA.itemDB)) ? DATA.itemDB : [];
+    items.forEach(function (it) {
+        if (!it || !it.equipped) return;
+        var n = String(it.name || '').toLowerCase().replace(/ armor$/, '');
+        var def = db.find(function (d) { return (it.ref && d.id === it.ref) || d.name.toLowerCase().replace(/ armor$/, '') === n; });
+        if (!def) return;
+        if (def.type === 'armor' && !out.armor) out.armor = def;
+        if (def.type === 'shield' && !out.shield) out.shield = def;
+    });
+    return out;
+}
+
+// Carrying capacity (2024): Str × 15 lb for Small/Medium creatures.
+function getCarryingCapacity(config, state) {
+    return getAbilityScore(config, state, 'str') * 15;
+}
+
+// Attunement slots: 3, Thief's Use Magic Device (level 13) raises it to 4.
+function getAttunementMax(config, state) {
+    return (config && config.className === 'rogue' && config.subclass === 'thief' && ((state && state.level) || 1) >= 13) ? 4 : 3;
+}
+
 function getAC(config, state) {
     var dexMod = getMod(getAbilityScore(config, state, 'dex'));
     var className = config.className;
@@ -268,6 +294,15 @@ function getAC(config, state) {
     var defenseStyle = hasFeat(state, 'Defense', config) ? 1 : 0;
     // (2024: Dual Wielder no longer grants +1 AC — the old bonus was 2014.)
     var chaMod = getMod(getAbilityScore(config, state, 'cha'));
+
+    // Items marked equipped in the inventory win over the per-class defaults below.
+    var worn = getEquippedGear(state);
+    if (worn.shield) shieldBonus = Math.max(shieldBonus, worn.shield.acBonus || 2);
+    if (worn.armor) {
+        var a = worn.armor;
+        var dexPart = a.dexCap === null || a.dexCap === undefined ? dexMod : Math.min(dexMod, a.dexCap);
+        return a.baseAC + dexPart + shieldBonus + defenseStyle;
+    }
 
     if (className === 'rogue' || className === 'bard') {
         // Studded leather: 12 + DEX + shield

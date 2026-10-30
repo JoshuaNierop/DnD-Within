@@ -8383,6 +8383,12 @@ body:has(.wg-bottombar) #scw-fab {
 .dw-dialog-error { margin: 0; text-align: left; }
 .dw-dialog-error[hidden] { display: none; }
 .dw-dialog-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
+.dw-dialog-actions { flex-wrap: wrap; }
+.dw-dialog-actions [data-dlg-action] { margin-inline-end: auto; }
+.dw-dialog-actions [data-dlg-action] ~ [data-dlg-action] { margin-inline-end: 0; }
+.dw-dialog-check { display: flex; align-items: center; gap: 0.5rem; color: var(--text-main); cursor: pointer; }
+.dw-dialog-textarea { resize: vertical; min-height: 4.5rem; font: inherit; }
+.dw-dialog-body .wizard-hint { margin: 0; }
 
 /* Maps: dimensions-manager + add-map window */
 .dim-manage-list { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }

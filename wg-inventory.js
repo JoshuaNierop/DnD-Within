@@ -17,7 +17,9 @@
 //    smallest spanUnitsY in which all boxes fit; recomputeInventoryWidgets in
 //    the render pass (wg-render.js) keeps it fitted even when items change.
 //
-// Read-only v1 (Joshua's choice): no edit interaction; display + tooltips.
+// Editable: click a box to edit/remove it, "+ Add" adds from itemDB/packs or a
+// custom item. Equipped armor/shield feed getAC; the summary shows carried weight
+// vs carrying capacity and attunement slots.
 // Load order: AFTER wg-state.js (WG_WIDGET_TYPES) and AFTER wg-combat.js (hEl/WG_XHTML_NS).
 // Engine/render call _fitInventorySpanY/drawInventoryGrid/recomputeInventoryWidgets
 // at runtime with typeof guards, so the exact load order relative to engine is free.
@@ -179,7 +181,7 @@ function invItemsForChar() {
   var raw = (typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[state.characterId]) || {};
   var st = raw.state || {};
   var items = Array.isArray(st.items) ? st.items : [];
-  return items.map(function (it) {
+  return items.map(function (it, idx) {
     var db = it.ref ? invLookupById(it.ref) : invLookup(it.name);
     var pk = db ? null : invPack(it.name);
     var type = db ? db.type : (pk ? 'pack' : 'misc');
@@ -190,6 +192,7 @@ function invItemsForChar() {
       qty: (typeof it.qty === 'number' && it.qty > 0) ? it.qty : 1,
       weight: weight,
       notes: it.notes || '',
+      idx: idx, equipped: !!it.equipped, attuned: !!it.attuned,
       type: type, subtype: db ? db.subtype : null,
       db: db, pack: pk,
     };
@@ -263,7 +266,10 @@ function invTooltip(item) {
     lines.push(INV_TYPE_LABEL.misc);
     if (item.weight != null) lines.push(item.weight + ' lb');
   }
+  var flags = [item.equipped ? 'Equipped' : '', item.attuned ? 'Attuned' : ''].filter(Boolean);
+  if (flags.length) { lines.push(''); lines.push(flags.join(' · ')); }
   if (item.notes) { lines.push(''); lines.push(item.notes); }
+  lines.push(''); lines.push('Click to edit');
   return { title: title, body: lines.join('\n') };
 }
 
@@ -313,9 +319,28 @@ function drawInventoryGrid(g, widget, x, contentY, w, contentH, widgetIdx) {
     if (items[k].weight != null) { total += items[k].weight * items[k].qty; known = true; }
   }
   var summary = invHEl('div', 'inv-summary');
+  var add = invHEl('button', 'inv-add', '+ Add');
+  add.type = 'button';
+  add.addEventListener('click', function (e) { e.stopPropagation(); invAddItem(state.characterId); });
+  summary.appendChild(add);
   var cnt = items.reduce(function (a, it) { return a + it.qty; }, 0);
   summary.appendChild(invHEl('span', 'inv-summary-count', cnt + (cnt === 1 ? ' item' : ' items')));
-  if (known) summary.appendChild(invHEl('span', 'inv-summary-weight', (Math.round(total * 10) / 10) + ' lb'));
+  var rawC = (typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[state.characterId]) || {};
+  var cfgC = rawC.config || {}, stC = rawC.state || {};
+  var attuned = items.filter(function (it) { return it.attuned; }).length;
+  if (attuned && typeof getAttunementMax === 'function') {
+    summary.appendChild(invHEl('span', 'inv-summary-attune', 'Attuned ' + attuned + '/' + getAttunementMax(cfgC, stC)));
+  }
+  if (known) {
+    var lb = Math.round(total * 10) / 10;
+    var cap = (typeof getCarryingCapacity === 'function' && cfgC.className) ? getCarryingCapacity(cfgC, stC) : null;
+    var wt = invHEl('span', 'inv-summary-weight' + (cap && lb > cap ? ' inv-summary-over' : ''), lb + (cap ? ' / ' + cap : '') + ' lb');
+    if (cap) {
+      wt.setAttribute('data-tip-title', 'Carrying capacity');
+      wt.setAttribute('data-tip-body', 'Strength × 15 = ' + cap + ' lb.' + (lb > cap ? '\nOver capacity: you can only drag, lift or push this much, at a Speed of at most 5 ft.' : ''));
+    }
+    summary.appendChild(wt);
+  }
   root.appendChild(summary);
 
   fo.appendChild(root);
@@ -323,7 +348,8 @@ function drawInventoryGrid(g, widget, x, contentY, w, contentH, widgetIdx) {
 }
 
 function invBoxNode(item, display) {
-  var box = invHEl('div', 'inv-box inv-type-' + (item.type || 'misc'));
+  var box = invHEl('div', 'inv-box inv-type-' + (item.type || 'misc') + (item.equipped ? ' is-equipped' : ''));
+  box.addEventListener('click', function (e) { e.stopPropagation(); invEditItem(state.characterId, item.idx); });
   var tip = invTooltip(item);
   box.setAttribute('data-tip-title', tip.title);
   box.setAttribute('data-tip-body', tip.body);
@@ -350,6 +376,8 @@ function invBoxNode(item, display) {
     var head = invHEl('div', 'inv-box-head');
     head.appendChild(invHEl('span', 'inv-name', item.name));
     if (item.qty > 1) head.appendChild(invHEl('span', 'inv-qty', '×' + item.qty));
+    var fl = (item.equipped ? 'E' : '') + (item.attuned ? 'A' : '');
+    if (fl) head.appendChild(invHEl('span', 'inv-flag', fl));
     box.appendChild(head);
     var meta = invMetaLine(item);
     if (meta) box.appendChild(invHEl('div', 'inv-meta', meta));
@@ -357,6 +385,122 @@ function invBoxNode(item, display) {
     // tooltip (invTooltip line ~266). Cards thus keep a uniform fixed size.
   }
   return box;
+}
+
+// ===== Editing =====
+function invRawList(charId) {
+  var raw = (typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[charId]) || {};
+  var items = (raw.state && Array.isArray(raw.state.items)) ? raw.state.items : [];
+  return items.map(function (it) { return Object.assign({}, it); });
+}
+function invClean(rec) {
+  var out = {};
+  Object.keys(rec).forEach(function (k) {
+    var v = rec[k];
+    if (v === null || v === undefined || v === '' || v === false) return;
+    out[k] = v;
+  });
+  return out;
+}
+async function invSaveList(charId, list) {
+  var items = list.map(invClean);
+  var patch = { items: items.length ? items : null };
+  // Keep the legacy shield flag in step with what is equipped.
+  var gear = (typeof getEquippedGear === 'function') ? getEquippedGear({ items: items }) : {};
+  patch.equippedShield = gear.shield ? true : null;
+  try { await wgxPatchState(charId, patch); }
+  catch (e) { showToast('Could not save the inventory: ' + e.message, 'error'); }
+}
+function invDbNames() {
+  var db = (typeof DATA !== 'undefined' && Array.isArray(DATA.itemDB)) ? DATA.itemDB.map(function (d) { return d.name; }) : [];
+  var packs = (typeof DATA !== 'undefined' && DATA.itemPacks) ? Object.keys(DATA.itemPacks) : [];
+  return db.concat(packs).sort();
+}
+function invAttuneCheck(charId, list, skipIdx) {
+  var raw = (typeof WG_CHAR_CACHE !== 'undefined' && WG_CHAR_CACHE[charId]) || {};
+  var max = (typeof getAttunementMax === 'function') ? getAttunementMax(raw.config || {}, raw.state || {}) : 3;
+  var used = list.filter(function (it, i) { return i !== skipIdx && it.attuned; }).length;
+  return used >= max ? 'You can be attuned to at most ' + max + ' items. Unattune another item first.' : null;
+}
+async function invAddItem(charId) {
+  if (!charId) return;
+  var res = await showFormModal({
+    title: 'Add item', confirmLabel: 'Add',
+    fields: [
+      { key: 'name', label: 'Item', list: invDbNames(), placeholder: 'Pick from the list or type your own',
+        hint: 'Equipment packs are unpacked into their separate items.' },
+      { key: 'qty', label: 'Quantity', type: 'number', value: 1, min: 1 },
+    ],
+    validate: function (v) {
+      if (!v.name) return 'Please enter an item name.';
+      if (!(v.qty >= 1)) return 'Quantity must be at least 1.';
+      return null;
+    },
+  });
+  if (!res) return;
+  var list = invRawList(charId);
+  var recs = invResolveStrings([res.values.name], Math.floor(res.values.qty));
+  recs.forEach(function (rec) {
+    // Stack onto an existing record of the same item that has no notes.
+    var same = list.find(function (it) { return !it.notes && (rec.ref ? it.ref === rec.ref : invNorm(it.name) === invNorm(rec.name)); });
+    if (same && !rec.notes) same.qty = (typeof same.qty === 'number' ? same.qty : 1) + rec.qty;
+    else list.push(rec);
+  });
+  await invSaveList(charId, list);
+  showToast(recs.length === 1 ? recs[0].name + ' added' : recs.length + ' items added');
+}
+async function invEditItem(charId, idx) {
+  var list = invRawList(charId);
+  var it = list[idx];
+  if (!it) return;
+  var db = it.ref ? invLookupById(it.ref) : invLookup(it.name);
+  var eqLabel = db && db.type === 'armor' ? 'Equipped (wearing it, sets your AC)'
+    : db && db.type === 'shield' ? 'Equipped (+' + (db.acBonus || 2) + ' AC)' : 'Equipped (in hand or worn)';
+  var res = await showFormModal({
+    title: 'Edit ' + (it.name || 'item'), confirmLabel: 'Save',
+    fields: [
+      { key: 'name', label: 'Name', value: it.name || '' },
+      { key: 'qty', label: 'Quantity', type: 'number', value: typeof it.qty === 'number' ? it.qty : 1, min: 1 },
+      { key: 'weight', label: 'Weight per item (lb)', type: 'number', step: 0.1, min: 0,
+        value: typeof it.weight === 'number' ? it.weight : (db && typeof db.weight === 'number' ? db.weight : '') },
+      { key: 'equipped', label: eqLabel, type: 'checkbox', value: !!it.equipped },
+      { key: 'attuned', label: 'Attuned (magic item)', type: 'checkbox', value: !!it.attuned },
+      { key: 'notes', label: 'Notes', type: 'textarea', value: it.notes || '' },
+    ],
+    actions: [{ label: 'Remove', value: 'remove', danger: true }],
+    validate: function (v) {
+      if (!v.name) return 'Please enter a name.';
+      if (!(v.qty >= 1)) return 'Quantity must be at least 1.';
+      if (v.attuned && !it.attuned) return invAttuneCheck(charId, list, idx);
+      return null;
+    },
+  });
+  if (!res) return;
+  if (res.action === 'remove') {
+    if (!(await showConfirmModal({ title: 'Remove ' + (it.name || 'item') + '?', message: 'It disappears from this inventory.', confirmLabel: 'Remove', danger: true }))) return;
+    list.splice(idx, 1);
+    await invSaveList(charId, list);
+    showToast((it.name || 'Item') + ' removed');
+    return;
+  }
+  var v = res.values;
+  if (v.name !== it.name) { delete it.ref; var nd = invLookup(v.name); if (nd && nd.id) it.ref = nd.id; }
+  it.name = v.name;
+  it.qty = Math.floor(v.qty);
+  it.weight = (typeof v.weight === 'number') ? v.weight : null;
+  it.notes = v.notes;
+  it.attuned = v.attuned;
+  it.equipped = v.equipped;
+  // Only one suit of armor and one shield can be worn at a time.
+  var nowDb = it.ref ? invLookupById(it.ref) : invLookup(it.name);
+  if (v.equipped && nowDb && (nowDb.type === 'armor' || nowDb.type === 'shield')) {
+    list.forEach(function (o, i) {
+      if (i === idx || !o.equipped) return;
+      var od = o.ref ? invLookupById(o.ref) : invLookup(o.name);
+      if (od && od.type === nowDb.type) o.equipped = false;
+    });
+  }
+  await invSaveList(charId, list);
 }
 
 // ===== Fit-to-content =====

@@ -3113,6 +3113,7 @@ DATA.itemDB = [
   { id:"sling", name:"Sling", type:"weapon", subtype:"simple-ranged", weight:0, cost:1, costUnit:"sp", dmg:"1d4", damageType:"bludgeoning", mastery:"slow", properties:["ammunition"], range:{normal:30,long:120} },
   // ---- Martial melee weapons ----
   { id:"battleaxe", name:"Battleaxe", type:"weapon", subtype:"martial-melee", weight:4, cost:10, costUnit:"gp", dmg:"1d8", damageType:"slashing", mastery:"topple", properties:["versatile"], versatile:"1d10" },
+  { id:"flail", name:"Flail", type:"weapon", subtype:"martial-melee", weight:2, cost:10, costUnit:"gp", dmg:"1d8", damageType:"bludgeoning", mastery:"sap", properties:[] },
   { id:"glaive", name:"Glaive", type:"weapon", subtype:"martial-melee", weight:6, cost:20, costUnit:"gp", dmg:"1d10", damageType:"slashing", mastery:"graze", properties:["heavy","reach","two-handed"] },
   { id:"greataxe", name:"Greataxe", type:"weapon", subtype:"martial-melee", weight:7, cost:30, costUnit:"gp", dmg:"1d12", damageType:"slashing", mastery:"cleave", properties:["heavy","two-handed"] },
   { id:"greatsword", name:"Greatsword", type:"weapon", subtype:"martial-melee", weight:6, cost:50, costUnit:"gp", dmg:"2d6", damageType:"slashing", mastery:"graze", properties:["heavy","two-handed"] },
@@ -3156,13 +3157,15 @@ DATA.itemDB = [
   { id:"navigators-tools", name:"Navigator's Tools", type:"tool", subtype:"kit", ability:"wis", weight:2, cost:25, costUnit:"gp" },
   { id:"cartographers-tools", name:"Cartographer's Tools", type:"tool", subtype:"artisan", ability:"int", weight:6, cost:15, costUnit:"gp" },
   { id:"calligraphers-supplies", name:"Calligrapher's Supplies", type:"tool", subtype:"artisan", ability:"dex", weight:5, cost:10, costUnit:"gp" },
-  { id:"artisans-tools", name:"Artisan's Tools", type:"tool", subtype:"artisan", ability:"varies", weight:5, cost:null, costUnit:"gp", description:"Specifiek artisan-gereedschap, gekozen bij creatie (Smith's, Carpenter's, ...).", _verify:{weight:true,cost:true} },
-  { id:"gaming-set", name:"Gaming Set", type:"tool", subtype:"gaming", ability:"varies", weight:0, cost:1, costUnit:"sp", description:"Dobbel- of kaartspel; specifiek spel gekozen bij creatie." },
-  { id:"musical-instrument", name:"Musical Instrument", type:"tool", subtype:"instrument", ability:"cha", weight:2, cost:null, costUnit:"gp", description:"Specifiek instrument (luit, fluit, trommel, ...), gekozen bij creatie.", _verify:{weight:true,cost:true} },
+  { id:"artisans-tools", name:"Artisan's Tools", type:"tool", subtype:"artisan", ability:"varies", weight:5, cost:null, costUnit:"gp", description:"One specific set of artisan's tools (Smith's, Carpenter's, ...), chosen at character creation.", _verify:{weight:true,cost:true} },
+  { id:"gaming-set", name:"Gaming Set", type:"tool", subtype:"gaming", ability:"varies", weight:0, cost:1, costUnit:"sp", description:"A dice or card game; the specific game is chosen at character creation." },
+  { id:"musical-instrument", name:"Musical Instrument", type:"tool", subtype:"instrument", ability:"cha", weight:2, cost:null, costUnit:"gp", description:"One specific instrument (lute, flute, drum, ...), chosen at character creation.", _verify:{weight:true,cost:true} },
   // ---- Spellcasting focus / gear ----
-  { id:"holy-symbol", name:"Holy Symbol", type:"gear", subtype:"focus", weight:1, cost:5, costUnit:"gp", description:"Spellcasting focus voor clerics/paladins (amulet, emblem of reliquary).", _verify:{weight:true} },
+  { id:"holy-symbol", name:"Holy Symbol", type:"gear", subtype:"focus", weight:1, cost:5, costUnit:"gp", description:"Spellcasting focus for clerics and paladins (amulet, emblem or reliquary).", _verify:{weight:true} },
+  { id:"arcane-focus", name:"Arcane Focus", type:"gear", subtype:"focus", weight:1, cost:10, costUnit:"gp", description:"Spellcasting focus for sorcerers, warlocks and wizards (crystal, orb, rod, staff or wand).", _verify:{weight:true,cost:true} },
+  { id:"druidic-focus", name:"Druidic Focus", type:"gear", subtype:"focus", weight:0, cost:1, costUnit:"gp", description:"Spellcasting focus for druids and rangers (sprig of mistletoe, wooden staff or yew wand).", _verify:{weight:true,cost:true} },
   { id:"component-pouch", name:"Component Pouch", type:"gear", subtype:"focus", weight:2, cost:25, costUnit:"gp", description:"Holds material spell components; replaces loose components without a gold cost." },
-  { id:"spellbook", name:"Spellbook", type:"gear", subtype:"focus", weight:3, cost:50, costUnit:"gp", description:"Wizard-spellbook met 100 pagina's." },
+  { id:"spellbook", name:"Spellbook", type:"gear", subtype:"focus", weight:3, cost:50, costUnit:"gp", description:"A wizard's spellbook with 100 pages." },
   // ---- Containers ----
   { id:"backpack", name:"Backpack", type:"container", weight:5, cost:2, costUnit:"gp", capacity:"30 lb / 1 cubic ft", _verify:{capacity:true} },
   { id:"pouch", name:"Pouch", type:"container", weight:1, cost:5, costUnit:"sp", capacity:"6 lb / 0.2 cubic ft", _verify:{capacity:true} },
@@ -3184,7 +3187,7 @@ DATA.itemDB = [
   { id:"torch", name:"Torch", type:"gear", weight:1, cost:1, costUnit:"cp" },
   { id:"tinderbox", name:"Tinderbox", type:"gear", weight:1, cost:5, costUnit:"sp" },
   { id:"rations-1", name:"Rations (1 day)", type:"gear", subtype:"food", weight:2, cost:5, costUnit:"sp", _verify:{weight:true,cost:true} },
-  { id:"waterskin", name:"Waterskin", type:"gear", weight:5, cost:2, costUnit:"sp", description:"Gewicht bij vol." },
+  { id:"waterskin", name:"Waterskin", type:"gear", weight:5, cost:2, costUnit:"sp", description:"Weight when full." },
   { id:"crowbar", name:"Crowbar", type:"gear", weight:5, cost:2, costUnit:"gp" },
   { id:"hammer", name:"Hammer", type:"gear", weight:3, cost:1, costUnit:"gp" },
   { id:"piton", name:"Piton", type:"gear", weight:0.25, cost:5, costUnit:"cp" },
@@ -3204,11 +3207,31 @@ DATA.itemDB = [
   { id:"sealing-wax", name:"Sealing Wax", type:"gear", weight:0, cost:5, costUnit:"sp" },
   { id:"soap", name:"Soap", type:"gear", weight:0, cost:5, costUnit:"cp" },
   { id:"blanket", name:"Blanket", type:"gear", weight:3, cost:5, costUnit:"sp" },
-  { id:"healers-kit", name:"Healer's Kit", type:"gear", subtype:"kit", weight:3, cost:5, costUnit:"gp", charges:{max:10,recharge:"none"}, description:"10 uses; stabiliseer een creature zonder check." },
-  { id:"potion-healing", name:"Potion of Healing", type:"consumable", subtype:"potion", weight:0.5, cost:50, costUnit:"gp", magical:true, rarity:"common", description:"Drink (Bonus Action) om 2d4+2 HP te herstellen." },
+  { id:"healers-kit", name:"Healer's Kit", type:"gear", subtype:"kit", weight:3, cost:5, costUnit:"gp", charges:{max:10,recharge:"none"}, description:"10 uses. As a Utilize action, expend a use to stabilize an unconscious creature at 0 HP without a Wisdom (Medicine) check." },
+  { id:"potion-healing", name:"Potion of Healing", type:"consumable", subtype:"potion", weight:0.5, cost:50, costUnit:"gp", magical:true, rarity:"common", description:"As a Bonus Action, drink it or give it to a creature within 5 ft to regain 2d4 + 2 HP." },
   { id:"antitoxin", name:"Antitoxin (vial)", type:"consumable", weight:0, cost:50, costUnit:"gp", description:"Advantage on saves against poison for 1 hour." },
   { id:"holy-water", name:"Holy Water (flask)", type:"consumable", weight:1, cost:25, costUnit:"gp", description:"Throw it: fiends/undead within 5ft make a DEX save or take 2d6 radiant." }
 ];
+
+// Class starting equipment (2024 PHB). Same shape as background equipment:
+// item strings are resolved by invResolveStrings (counts "(xN)", packs unpacked).
+// A level-1 character takes one option from the class AND one from the background.
+DATA.classEquipment = {
+  barbarian: { A: { items: ["Greataxe", "Handaxe (x4)", "Explorer's Pack"], gp: 15 }, B: { gp: 75 } },
+  bard:      { A: { items: ["Leather Armor", "Dagger (x2)", "Musical Instrument (your choice)", "Entertainer's Pack"], gp: 19 }, B: { gp: 90 } },
+  cleric:    { A: { items: ["Chain Shirt", "Shield", "Mace", "Holy Symbol", "Priest's Pack"], gp: 7 }, B: { gp: 110 } },
+  druid:     { A: { items: ["Leather Armor", "Shield", "Sickle", "Quarterstaff", "Explorer's Pack", "Herbalism Kit"], gp: 9 }, B: { gp: 50 } },
+  fighter:   { A: { items: ["Chain Mail", "Greatsword", "Flail", "Javelin (x8)", "Dungeoneer's Pack"], gp: 4 },
+               B: { items: ["Studded Leather Armor", "Scimitar", "Shortsword", "Longbow", "Arrows (20)", "Quiver", "Dungeoneer's Pack"], gp: 11 },
+               C: { gp: 155 } },
+  monk:      { A: { items: ["Spear", "Dagger (x5)", "Artisan's Tools (your choice)", "Explorer's Pack"], gp: 11 }, B: { gp: 50 } },
+  paladin:   { A: { items: ["Chain Mail", "Shield", "Longsword", "Javelin (x6)", "Holy Symbol", "Priest's Pack"], gp: 9 }, B: { gp: 150 } },
+  ranger:    { A: { items: ["Studded Leather Armor", "Scimitar", "Shortsword", "Longbow", "Arrows (20)", "Quiver", "Druidic Focus", "Explorer's Pack"], gp: 7 }, B: { gp: 150 } },
+  rogue:     { A: { items: ["Leather Armor", "Dagger (x2)", "Shortsword", "Shortbow", "Arrows (20)", "Quiver", "Thieves' Tools", "Burglar's Pack"], gp: 8 }, B: { gp: 100 } },
+  sorcerer:  { A: { items: ["Spear", "Dagger (x2)", "Arcane Focus", "Dungeoneer's Pack"], gp: 28 }, B: { gp: 50 } },
+  warlock:   { A: { items: ["Leather Armor", "Sickle", "Dagger (x2)", "Arcane Focus", "Book", "Scholar's Pack"], gp: 15 }, B: { gp: 100 } },
+  wizard:    { A: { items: ["Dagger (x2)", "Quarterstaff", "Robe", "Spellbook", "Scholar's Pack"], gp: 5 }, B: { gp: 55 } },
+};
 
 // Starter equipment packs (2024 PHB). They expand into separate itemDB items
 // (counts × outer count). Cost and some counts are marked verify (see the

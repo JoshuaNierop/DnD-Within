@@ -26,8 +26,34 @@ function dwDialog(opts) {
                 '<input id="dw-dialog-input" class="login-input" type="text" maxlength="' + (opts.maxLength || 80) + '" autocomplete="off"' +
                 ' placeholder="' + escapeAttr(opts.placeholder || '') + '" value="' + escapeAttr(opts.value || '') + '">';
         }
+        if (kind === 'form') {
+            (opts.fields || []).forEach(function (f, i) {
+                var id = 'dw-dlg-f' + i, v = f.value == null ? '' : f.value;
+                if (f.type === 'checkbox') {
+                    html += '<label class="dw-dialog-check"><input id="' + id + '" type="checkbox" data-key="' + escapeAttr(f.key) + '"' + (v ? ' checked' : '') + '> ' + escapeHtml(f.label) + '</label>';
+                    return;
+                }
+                html += '<label class="login-label" for="' + id + '">' + escapeHtml(f.label) + '</label>';
+                if (f.type === 'textarea') {
+                    html += '<textarea id="' + id + '" class="login-input dw-dialog-textarea" rows="3" data-key="' + escapeAttr(f.key) + '" placeholder="' + escapeAttr(f.placeholder || '') + '">' + escapeHtml(String(v)) + '</textarea>';
+                } else if (f.type === 'select') {
+                    html += '<select id="' + id + '" class="login-input" data-key="' + escapeAttr(f.key) + '">' + (f.options || []).map(function (o) {
+                        return '<option value="' + escapeAttr(o.value) + '"' + (String(o.value) === String(v) ? ' selected' : '') + '>' + escapeHtml(o.label) + '</option>';
+                    }).join('') + '</select>';
+                } else {
+                    html += '<input id="' + id + '" class="login-input" type="' + (f.type === 'number' ? 'number' : 'text') + '" data-key="' + escapeAttr(f.key) + '" autocomplete="off"' +
+                        (f.min != null ? ' min="' + f.min + '"' : '') + (f.max != null ? ' max="' + f.max + '"' : '') + (f.step != null ? ' step="' + f.step + '"' : '') +
+                        (f.list ? ' list="' + id + '-list"' : '') + ' placeholder="' + escapeAttr(f.placeholder || '') + '" value="' + escapeAttr(String(v)) + '">';
+                    if (f.list) html += '<datalist id="' + id + '-list">' + f.list.map(function (o) { return '<option value="' + escapeAttr(o) + '">'; }).join('') + '</datalist>';
+                }
+                if (f.hint) html += '<p class="wizard-hint">' + escapeHtml(f.hint) + '</p>';
+            });
+        }
         html += '<p class="login-error dw-dialog-error" hidden></p>';
         html += '<div class="dw-dialog-actions">';
+        (opts.actions || []).forEach(function (a) {
+            html += '<button type="button" class="btn' + (a.danger ? ' btn-danger' : '') + '" data-dlg-action="' + escapeAttr(a.value) + '">' + escapeHtml(a.label) + '</button>';
+        });
         if (kind !== 'alert') html += '<button type="button" class="btn" data-dlg="cancel">' + escapeHtml(opts.cancelLabel || 'Cancel') + '</button>';
         html += '<button type="submit" class="btn ' + (opts.danger ? 'btn-danger' : 'btn-primary') + '">' +
             escapeHtml(opts.confirmLabel || (kind === 'prompt' ? 'Add' : kind === 'confirm' ? 'Yes' : 'OK')) + '</button>';
@@ -46,22 +72,42 @@ function dwDialog(opts) {
             overlay.remove();
             resolve(val);
         }
-        var cancelValue = kind === 'prompt' ? null : kind === 'confirm' ? false : undefined;
+        var cancelValue = (kind === 'prompt' || kind === 'form') ? null : kind === 'confirm' ? false : undefined;
         function onKey(e) { if (e.key === 'Escape') { e.stopPropagation(); finish(cancelValue); } }
         document.addEventListener('keydown', onKey, true);
         overlay.addEventListener('click', function (e) { if (e.target === overlay) finish(cancelValue); });
         card.querySelectorAll('[data-dlg="cancel"]').forEach(function (b) { b.addEventListener('click', function () { finish(cancelValue); }); });
+        function formValues() {
+            var out = {};
+            card.querySelectorAll('[data-key]').forEach(function (inp) {
+                out[inp.dataset.key] = inp.type === 'checkbox' ? inp.checked : inp.type === 'number' ? (inp.value === '' ? null : Number(inp.value)) : inp.value.trim();
+            });
+            return out;
+        }
+        card.querySelectorAll('[data-dlg-action]').forEach(function (b) {
+            b.addEventListener('click', function () { finish({ action: b.dataset.dlgAction, values: formValues() }); });
+        });
         card.querySelector('form').addEventListener('submit', function (e) {
             e.preventDefault();
+            if (kind === 'form') {
+                var vals = formValues();
+                var bad = typeof opts.validate === 'function' ? opts.validate(vals) : null;
+                if (bad) { err.textContent = bad; err.hidden = false; return; }
+                finish({ action: 'submit', values: vals });
+                return;
+            }
             if (kind !== 'prompt') { finish(kind === 'confirm' ? true : undefined); return; }
             var val = input.value.trim();
             var problem = !val && !opts.allowEmpty ? 'Please fill this in.' : (typeof opts.validate === 'function' ? opts.validate(val) : null);
             if (problem) { err.textContent = problem; err.hidden = false; input.focus(); return; }
             finish(val);
         });
-        setTimeout(function () { (input || card.querySelector('button[type="submit"]')).focus(); if (input) input.select(); }, 0);
+        setTimeout(function () { (input || card.querySelector('[data-key]') || card.querySelector('button[type="submit"]')).focus(); if (input) input.select(); }, 0);
     });
 }
+// Multi-field dialog. fields: [{key, label, type: text|number|checkbox|textarea|select, value, list?, options?, min?, max?, hint?}]
+// actions: extra buttons [{label, value, danger?}]. Resolves {action, values} or null on cancel.
+function showFormModal(opts) { return dwDialog(Object.assign({}, opts, { kind: 'form' })); }
 function showPromptModal(opts) { return dwDialog(Object.assign({}, opts, { kind: 'prompt' })); }
 function showConfirmModal(opts) { return dwDialog(Object.assign({}, opts, { kind: 'confirm' })); }
 function showAlertModal(opts) { return dwDialog(Object.assign({}, opts, { kind: 'alert' })); }
@@ -208,6 +254,7 @@ function initWizardState() {
         step: 1,
         editId: null,
         bgEquip: 'A',
+        classEquip: 'A',
         name: '',
         species: '',
         race: '',
@@ -798,6 +845,20 @@ function renderWizardStep2() {
     }
     html += '</div>';
 
+    // Class starting equipment (2024): pick one option, on top of the background's.
+    var ceq = wizardState.className && DATA.classEquipment && DATA.classEquipment[wizardState.className];
+    if (ceq && !wizardState.editId) {
+        var cls = DATA[wizardState.className] && DATA[wizardState.className].name || wizardState.className;
+        html += '<div class="wizard-field wizard-equip">';
+        html += '<label class="wizard-label">' + escapeHtml(cls) + ' starting equipment</label>';
+        Object.keys(ceq).forEach(function (key) {
+            var o = ceq[key], on = (ceq[wizardState.classEquip] ? wizardState.classEquip : 'A') === key;
+            var label = '<strong>' + key + ':</strong> ' + (o.items ? escapeHtml(o.items.join(', ')) + (o.gp ? ', ' : '') : '') + (o.gp ? o.gp + ' GP' : '');
+            html += '<label class="wizard-equip-opt' + (on ? ' checked' : '') + '"><input type="radio" name="wizard-class-equip" value="' + key + '" data-action="wizard-class-equip"' + (on ? ' checked' : '') + '> ' + label + '</label>';
+        });
+        html += '</div>';
+    }
+
     // Ability Scores — method switch (manual / standard array / point-buy)
     html += renderWizardAbilityScores();
 
@@ -1301,6 +1362,15 @@ function createCharacterFromWizard() {
             ? invResolveStrings(bgEquip) : [];
         config.startingEquipment = bgEq[bgChoice] ? bgChoice : '';
         var startGold = (bgEq[bgChoice] && bgEq[bgChoice].gp) || 0;
+        // Class starting equipment comes on top of the background package.
+        var clsEq = (DATA.classEquipment && DATA.classEquipment[wizardState.className]) || {};
+        var clsChoice = clsEq[wizardState.classEquip] ? wizardState.classEquip : 'A';
+        if (clsEq[clsChoice]) {
+            if (clsEq[clsChoice].items && typeof invResolveStrings === 'function')
+                config.defaultItems = invResolveStrings(clsEq[clsChoice].items).concat(config.defaultItems);
+            startGold += clsEq[clsChoice].gp || 0;
+            config.classStartingEquipment = clsChoice;
+        }
         config.charTimeline = [];
         config.family = [];
     }
@@ -1917,6 +1987,13 @@ function bindWizardEvents() {
         if (target.matches('[data-action="wizard-bg-equip"]')) {
             saveWizardStepData();
             wizardState.bgEquip = target.value === 'B' ? 'B' : 'A';
+            refreshWizard();
+            return;
+        }
+
+        if (target.matches('[data-action="wizard-class-equip"]')) {
+            saveWizardStepData();
+            wizardState.classEquip = /^[ABC]$/.test(target.value) ? target.value : 'A';
             refreshWizard();
             return;
         }
