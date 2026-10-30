@@ -555,7 +555,7 @@ function wgxPrepRulesNote(cn, startedEmpty, subclass) {
   if (subclass === 'eldritchKnight' || subclass === 'arcaneTrickster') {
     return 'RAW: you prepare from the Wizard list and swap one prepared spell when you gain a level, not on a Long Rest. The 2024 rules dropped the old school restriction, so any Wizard spell of a level you have slots for is fair game.';
   }
-  if (cn === 'wizard') return 'RAW: you can change your entire prepared list whenever you finish a Long Rest. You prepare from your spellbook — the app shows the full wizard list, so check your spellbook with your DM.';
+  if (cn === 'wizard') return 'RAW: you can change your entire prepared list whenever you finish a Long Rest, choosing from the spells in your spellbook.';
   if (cn === 'cleric' || cn === 'druid') return 'RAW: you can change your entire prepared list whenever you finish a Long Rest.';
   if (cn === 'paladin' || cn === 'ranger') return 'RAW: on a Long Rest you can replace one prepared spell. Bigger changes are the DM’s call.';
   if (cn === 'bard' || cn === 'sorcerer' || cn === 'warlock') return 'RAW: you swap a spell when you gain a level, not on a Long Rest. Treat changes here as the DM’s call.';
@@ -605,6 +605,15 @@ function wgxOpenPrepareWindow(charId, opts) {
 
   wgxPrep = { charId: charId, pool: pool, selected: current, max: max, startedEmpty: current.length === 0,
     swapOne: !!(opts && opts.swapOne), original: current.slice() };
+  // Wizards (2024) prepare from their spellbook: state.spellbook. An empty book
+  // keeps the old behaviour (full wizard list) until the player fills it in.
+  if (cfg.className === 'wizard') {
+    wgxPrep.isWizard = true;
+    wgxPrep.mode = 'prepare';
+    wgxPrep.book = Array.isArray(st.spellbook) ? st.spellbook.slice() : [];
+    wgxPrep.bookOriginal = wgxPrep.book.slice();
+    wgxPrep.bookExpected = 6 + 2 * Math.max(0, (st.level || 1) - 1);
+  }
   const host = document.createElement('div');
   host.className = 'wgx-prep-modal-active';
   host.innerHTML = '<div class="modal-overlay"><div class="modal-card wgx-lu-card"></div></div>';
@@ -625,28 +634,42 @@ function wgxRenderPrepModal() {
   const raw = WG_CHAR_CACHE[wgxPrep.charId] || {};
   const cn = (raw.config || {}).className;
   const sub = (raw.config || {}).subclass;
-  const sel = wgxPrep.selected;
+  const bookMode = wgxPrep.isWizard && wgxPrep.mode === 'book';
+  const sel = bookMode ? wgxPrep.book : wgxPrep.selected;
+  const pool = wgxPrepVisiblePool();
 
-  let html = '<div class="modal-header"><h2>' + (wgxPrep.swapOne ? 'Memorize Spell' : 'Prepare Spells') + '</h2>' +
+  let html = '<div class="modal-header"><h2>' + (wgxPrep.swapOne ? 'Memorize Spell' : bookMode ? 'Spellbook' : 'Prepare Spells') + '</h2>' +
     '<button class="modal-close" data-wgx-prep="cancel">&times;</button></div>';
   html += '<div class="modal-body wgx-lu-body">';
+  if (wgxPrep.isWizard && !wgxPrep.swapOne) {
+    html += '<div class="wgx-prep-tabs">' +
+      '<button class="wgx-lu-btn' + (!bookMode ? ' wgx-lu-primary' : '') + '" data-wgx-prep="mode" data-val="prepare">Prepared</button>' +
+      '<button class="wgx-lu-btn' + (bookMode ? ' wgx-lu-primary' : '') + '" data-wgx-prep="mode" data-val="book">Spellbook (' + wgxPrep.book.length + ')</button></div>';
+  }
 
-  if (!wgxPrep.pool.length) {
+  if (bookMode) {
+    html += '<h3>Spells in your spellbook</h3>';
+    html += '<p class="wgx-lu-note">Your spellbook starts with 6 level 1 spells and gains 2 wizard spells each level (' + wgxPrep.bookExpected + ' at your level), plus any you copy from scrolls or other books (2 hours and 50 GP per spell level). Mark every spell your book holds.</p>';
+    html += '<p class="wgx-lu-note">In the book: ' + sel.length + '</p>';
+  }
+  if (!pool.length) {
     html += '<p class="wgx-lu-note">No spell list is available for this class in the app yet. Record your prepared spells with your DM.</p>';
   } else {
-    html += '<h3>Choose your prepared spells</h3>';
-    const note = wgxPrep.swapOne ? 'Memorize Spell: after a Short Rest you can replace one prepared level 1+ spell with another from your spellbook. Deselect one spell, then pick its replacement.'
+    if (!bookMode) html += '<h3>Choose your prepared spells</h3>';
+    if (!bookMode && wgxPrep.isWizard && !wgxPrep.book.length) html += '<p class="wgx-lu-note">Your spellbook is still empty, so the full wizard list is shown. Fill it in under Spellbook to prepare from it.</p>';
+    const note = bookMode ? '' : wgxPrep.swapOne ? 'Memorize Spell: after a Short Rest you can replace one prepared level 1+ spell with another from your spellbook. Deselect one spell, then pick its replacement.'
       : wgxPrepRulesNote(cn, wgxPrep.startedEmpty, sub);
     if (note) html += '<p class="wgx-lu-note">' + wgxCastEsc(note) + '</p>';
-    html += '<p class="wgx-lu-note">Prepared ' + sel.length + ' / ' + wgxPrep.max + ' · cantrips are not affected.</p>';
+    if (!bookMode) html += '<p class="wgx-lu-note">Prepared ' + sel.length + ' / ' + wgxPrep.max + ' · cantrips are not affected.</p>';
     html += '<div class="wgx-lu-subgrid">';
-    for (let i = 0; i < wgxPrep.pool.length; i++) {
-      const e = wgxPrep.pool[i];
+    for (let i = 0; i < pool.length; i++) {
+      const e = pool[i];
       const isSel = sel.indexOf(e.nm) !== -1;
       const sub = 'Lvl ' + e.lvl +
         (e.sp && e.sp.time ? ' · ' + e.sp.time : '') +
         (e.sp && e.sp.range ? ' · ' + e.sp.range : '') +
-        (e.extra ? ' · not on class list' : '');
+        (e.extra ? ' · not on class list' : '') +
+        (wgxPrep.isWizard && !bookMode && wgxPrep.book.length && wgxPrep.book.indexOf(e.nm) === -1 ? ' · not in spellbook' : '');
       const desc = e.sp ? wgxTrunc(e.sp.desc || '', 110) : '';
       html += '<div class="wgx-lu-subcard' + (isSel ? ' selected' : '') + '" data-wgx-prep="toggle" data-val="' + wgxCastEsc(e.nm) + '">' +
         '<h4>' + wgxCastEsc(e.nm) + ' <span class="wgx-lu-cost">' + wgxCastEsc(sub) + '</span></h4>' +
@@ -656,12 +679,20 @@ function wgxRenderPrepModal() {
   }
   html += '</div>';
 
-  const over = sel.length > wgxPrep.max;
+  const over = wgxPrep.selected.length > wgxPrep.max;
   html += '<div class="wgx-lu-nav">' +
     '<button class="wgx-lu-btn" data-wgx-prep="cancel">Cancel</button>' +
     '<button class="wgx-lu-btn wgx-lu-primary" data-wgx-prep="confirm"' + ((over || !wgxPrep.pool.length) ? ' disabled' : '') + '>Save</button>' +
     '</div>';
   card.innerHTML = html;
+}
+
+// Wizard with a filled spellbook prepares only from it; prepared spells outside
+// the book stay visible so they can be deselected.
+function wgxPrepVisiblePool() {
+  const p = wgxPrep;
+  if (!p.isWizard || p.mode === 'book' || !p.book.length) return p.pool;
+  return p.pool.filter(e => p.book.indexOf(e.nm) !== -1 || p.selected.indexOf(e.nm) !== -1);
 }
 
 function wgxPrepClick(e) {
@@ -671,6 +702,20 @@ function wgxPrepClick(e) {
   if (!t || t.disabled) return;
   const act = t.getAttribute('data-wgx-prep');
   if (act === 'cancel') { wgxClosePrepareWindow(); return; }
+  if (act === 'mode') {
+    wgxPrep.mode = t.getAttribute('data-val') === 'book' ? 'book' : 'prepare';
+    // A spell you have prepared must be in your book: seed an empty book with them.
+    if (wgxPrep.mode === 'book' && !wgxPrep.book.length) wgxPrep.book = wgxPrep.selected.slice();
+    wgxRenderPrepModal();
+    return;
+  }
+  if (act === 'toggle' && wgxPrep.isWizard && wgxPrep.mode === 'book') {
+    const nm = t.getAttribute('data-val');
+    const bi = wgxPrep.book.indexOf(nm);
+    if (bi !== -1) wgxPrep.book.splice(bi, 1); else wgxPrep.book.push(nm);
+    wgxRenderPrepModal();
+    return;
+  }
   if (act === 'toggle') {
     const nm = t.getAttribute('data-val');
     const idx = wgxPrep.selected.indexOf(nm);
@@ -698,8 +743,12 @@ async function wgxConfirmPrepare() {
   const lvlOf = {};
   for (const e of p.pool) lvlOf[e.nm] = e.lvl;
   const list = p.selected.slice().sort((a, b) => ((lvlOf[a] || 0) - (lvlOf[b] || 0)) || a.localeCompare(b));
+  const patch = { prepared: list };
+  if (p.isWizard && (p.book.length !== p.bookOriginal.length || p.book.some(n => p.bookOriginal.indexOf(n) === -1))) {
+    patch.spellbook = p.book.length ? p.book.slice().sort((a, b) => ((lvlOf[a] || 0) - (lvlOf[b] || 0)) || a.localeCompare(b)) : null;
+  }
   try {
-    await wgxPatchState(p.charId, { prepared: list });
+    await wgxPatchState(p.charId, patch);
     wgxClosePrepareWindow();
     showToast('📖 Prepared spells updated (' + list.length + '/' + p.max + ')');
   } catch (err) {

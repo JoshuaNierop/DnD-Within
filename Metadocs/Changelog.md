@@ -2,6 +2,16 @@
 
 User-facing changes, newest first. Written in English to match the rest of the app.
 
+## 2026-10-30 — Inventory, dice log, print sheet, encounter difficulty, spellbook
+
+- Inventory widget is editable: click an item to change its quantity, weight, notes, mark it equipped or attuned, or remove it; "+ Add" adds any item or equipment pack (packs unpack into their items) or your own custom item.
+- Equipped armor and shield now set your Armor Class. The inventory shows carried weight against your carrying capacity (Strength × 15) and your attunement slots (3).
+- New characters pick their class starting equipment (2024 PHB options A/B, Fighter also C) on top of the background package.
+- Dice roller: your rolls are shared with the party in a "Party rolls" log in the dice panel (turn off with "Share mine").
+- Print / Save as PDF: a printable one-page character sheet from the character cards and the dashboard bar.
+- Combat tracker (DM): encounter difficulty (Low / Moderate / High, 2024 DMG XP budget) next to the round.
+- Wizards keep a spellbook: a Spellbook tab in the prepare window; once filled, you prepare from it.
+
 ## 2026-10-25 — Desktop dashboards fit again
 
 - Every character's desktop tabs were re-measured at their current level and laid out again, so no widget shows "Enlarge widget to show content" any more on a full-HD screen (Your Turn, Resources and Ren's Character tab were too small after the level-ups). Widgets keep a little room for new spells and features.

@@ -1664,6 +1664,7 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
 .wgx-lu-known { opacity: 0.4; cursor: default; }
 .wgx-lu-known:hover { border-color: var(--border, #2c2520); transform: none; box-shadow: none; }
 .wgx-lu-note { color: var(--text-dim, #9a8e7e); font-style: italic; font-size: 0.88em; margin: 0.3rem 0 0; }
+.wgx-prep-tabs { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
 
 /* Footer nav */
 .wgx-lu-nav { display: flex; justify-content: space-between; gap: 10px;

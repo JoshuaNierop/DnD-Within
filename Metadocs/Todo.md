@@ -24,9 +24,9 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 - [ ] P1 — Entity-merge O1 (mention-label), O2 (hypotheses op vrije tekst), O3 (standaard-zichtbaarheid), O5 (opslaan: nu auto-save), O6 (wanneer `dw_npcs` read-only) — `Entity-Merge-Plan.md` §6
 - [ ] P2 — Telefoonmodus (2026-10-18): (a) de telefoon spiegelt de desktop-layout en slaat niets apart op — goed zo, of wil je op de telefoon zelf widgets kunnen toevoegen/verbergen/herordenen? (b) tab bar nu Home · Party · Character/DM · Lore · More — Dice in de balk i.p.v. Lore? (c) tablet-portret (700–1024) houdt het vrije canvas — ook één kolom maken? (d) liggende telefoon = desktopweergave; apart afhandelen?
 - [ ] P2 — Entity-merge losse keuzes: combat-picker standaard-soort (19 van 27 creatures zonder disposition komen als NPC binnen), "Current year"-veld tonen als leeftijd of weghalen, verborgen/privé creatures filteren uit Search en `@`-popup voor spelers
-- [ ] P2 — Wizard-spellbook bijhouden (2024: spellbook + prepared) of zoals nu alleen prepared
+- [x] P2 — Wizard-spellbook (2026-10-30): `state.spellbook`, tab "Spellbook" in het prepare-venster; gevulde spellbook = preparen alleen daaruit, leeg = volledige lijst zoals eerst
 - [ ] P2 — Multiclass: nodig of niet (er bestaat nog niets)
-- [ ] P2 — Inventory bewerkbaar maken (equipped, aantallen, toevoegen/verwijderen) — nu read-only v1
+- [x] P2 — Inventory bewerkbaar (2026-10-30): toevoegen (itemDB/packs/eigen item), aantal, gewicht, notities, verwijderen, equipped (armor/shield bepalen AC), attuned (max 3), draaggewicht vs Str × 15
 - [ ] P2 — Combat tracker: "refresh van sheet"-knop (HP/AC worden nu bevroren bij toevoegen), condities (prone/stunned/…), grens exacte HP vs tier-woord voor spelers, familiars standaard zichtbaar
 - [ ] P3 — Resource-widget: klik = 1 use, klik op leeg = alles herstellen — houden of ± knoppen
 - [ ] P3 — Huisregels: species-traits in Wild Shape (RAW: niet), dubbele vaste cantrip uit twee bronnen (RAW: geen vervanging)
@@ -41,6 +41,11 @@ Overzicht 2026-10-15: alle open punten uit de oude Todo, Planning, `LevelingUp/S
 - [ ] P1 — Nieuw 2026-10-23: **voorgestelde dashboards** — op 2026-10-23 voor alle 9 spelers als opgeslagen gezet (desktop; tablet leeg zodat hij bij laden gevuld wordt; back-up `Metadocs/Dashboards/backup-dashboards-2026-10-23_034025.json`). Check per character of alles past en klopt; open een character met lege tabs (bv. Combat/Social): de voorgestelde layout staat er, pas na Save opgeslagen. Knop "Reset to suggested layout" (onderbalk, naast Tidy) vervangt de huidige tab na bevestiging. Check ook tablet-portret (pagina 2) en dat de telefoon de nieuwe desktop-volgorde volgt. Bekend: een tab die je bewust leeg opslaat, krijgt bij het laden weer de voorgestelde layout
 
 Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
+- [ ] P1 — Nieuw 2026-10-30 (D&D Beyond-gaten, alleen in Node getest): **inventory** — klik op een item (bewerken/verwijderen), "+ Add" (ook een pack), equip een armor en check of de AC klopt, attune > 3 geeft een melding, gewicht "X / Y lb" onderin
+- [ ] P1 — Nieuw 2026-10-30: **dice-log** — met twee accounts gooien: verschijnt de worp bij de ander onder "Party rolls" (binnen ~4 s), "Share mine" uit = niet gedeeld. Schrijft naar `dw/rolls/<campaign>` (groeit, nog geen opruiming)
+- [ ] P2 — Nieuw 2026-10-30: **print-sheet** — printknop op de character-kaart en in de dashboard-balk, "Print / Save as PDF" → past op A4? (layout alleen als HTML gebouwd, nooit geprint)
+- [ ] P2 — Nieuw 2026-10-30: **encounter-moeilijkheid** — combat tracker met party + monsters: pil "Low/Moderate/High · X XP" naast de ronde, tooltip met budget
+- [ ] P2 — Nieuw 2026-10-30: **class-startuitrusting** in de wizard (nieuw character) en **spellbook-tab** bij een wizard (er zit geen wizard in de party, dus nooit met echte data gezien)
 - [ ] P1 — Nieuw 2026-10-18: **telefoonmodus** op een echte telefoon (alleen in Playwright op 390×844 gezien). Checken: tab bar onderin + More-sheet (dice/notes/search/chat openen boven de tab bar), swipen tussen Character/Social/Exploring/Combat/Inventory op je eigen character, HP damage/heal + spell casten + level-up-venster als bottom sheet, long-press voor tooltips, DM Dashboard met de Combat Tracker op volle breedte, lore-tabs strip, veilige zones op een iPhone (notch/home-balk). Bekend: liggend (breedte ≥ 700) krijg je de desktopweergave
 - [ ] P1 — Nieuw 2026-10-17: chat vervangen (Firebase SDK i.p.v. REST/EventSource). Met twee accounts in twee browsers checken: bericht komt direct binnen, badge op de chatknop in de onderbalk, wat je typt blijft staan als er een bericht binnenkomt, Esc sluit, terug naar de lijst bewaart je concept. Lokaal getest tegen een nep-database, niet tegen de echte.
 - [ ] P2 — Nieuw 2026-10-17: "Saving Throws"-widget (library → stats) en "Conditions"-widget (library → combat) toevoegen en checken — schade nemen tijdens een concentration-spell moet het CON-save-venster tonen; nieuw character → stap 2 "Starting equipment" A/B (B = 50 GP, geen items); typ `@` + sessienaam in een notitie → link naar de timeline; popup staat bij de cursor; Humans: Heroic Inspiration is nu een aan/uit-knop (oude resource weg, staat pas weer aan na de volgende Long Rest); site-vensters i.p.v. browser-popups (verwijderen in notes/maps/lore, family-diagram partner/ouder/kind toevoegen, rest-knoppen, widget opslaan)
@@ -54,6 +59,12 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [ ] P2 — Notes-bord zonder tags, Lore/NPC-vensters op telefoon zonder scrollen, Maps-pagina alleen voor DM/admin, timeline-editor in twee vensters tegelijk
 - [ ] P3 — Toegankelijkheid: toetsenbord door spell-lijsten, contrast in dark mode, lege ruimte bij brede widgets op mobiel
 - [ ] P3 — Barius (paladin L3) heeft 2 van 4 prepared spells (snapshot 26-09): aanvullen via "Change spells" of een Long Rest
+
+## Joshua — review (2026-10-30, D&D Beyond-gaten)
+- [ ] P2 — Equipped armor overschrijft nu de vaste AC-aanname per class (fighter = chain mail enz.). Pas zodra iemand iets op "Equipped" zet; daarvoor verandert er niets. Akkoord?
+- [ ] P3 — Encounter-moeilijkheid telt alleen soort "monster" (geen NPC's/familiars) en neemt het level van elke PC uit de sheet (anders het groepslevel)
+- [ ] P3 — Druid en Wizard krijgen in de class-startuitrusting een Quarterstaff als focus (PHB: "Druidic Focus (Quarterstaff)" / "Arcane Focus (Quarterstaff)")
+- [ ] P3 — Level-up van een wizard voegt de 2 nieuwe spells nog niet zelf aan het spellbook toe; dat doet de speler in de Spellbook-tab
 
 ## Joshua — fysieke PHB (optioneel)
 - [ ] P3 — Steekproef: third-caster-tabellen, Innate Sorcery 2×/Long Rest, Soulknife-die terug op L3, `_verify`-velden in itemDB, Private Sanctum upcast, Phantom Steed, Bubbling Cauldron, Eldritch Hex
@@ -75,7 +86,7 @@ Gebouwd maar nooit live bekeken. Eén ronde langs de site dekt de meeste punten.
 - [x] P2 — Saving throws: `getSaveBonus` in de engine + widget "Saving Throws" (`wg-saves.js`, `LevelingUp/Saving-Throws.md`) (2026-10-17)
 - [x] P2 — Attacks-widget met class-features: Martial Arts, Rage-damage, Archery/Dueling/Thrown/GWF, Dazzling Footwork (Dance), pact weapon (CHA), Extra Attack-aantal, Exhaustion (2026-10-17)
 - [x] P2 — Equipment A/B-keuze in de creation-wizard (stap 2, alleen nieuw character; goud → `state.gold`) + background-pakketten gelijkgetrokken met de 2024-data (12 van 16 weken af, GP klopte overal) (2026-10-17)
-- [ ] P3 — Class-startuitrusting bestaat nog niet in de app (alleen background-pakketten); 5etools mist bij Scribe de aantallen van Oil/Parchment — wij houden 3 flasks / 12 sheets aan (PHB-steekproef)
+- [x] P3 — Class-startuitrusting (2026-10-30): `DATA.classEquipment` (2024 PHB) + keuze A/B(/C) in wizard stap 2, bovenop het background-pakket. Rest van dit punt: 5etools mist bij Scribe de aantallen van Oil/Parchment — wij houden 3 flasks / 12 sheets aan (PHB-steekproef)
 - [x] P2 — Trackers: widget "Conditions" (`wg-conditions.js`) met Heroic Inspiration, Exhaustion 0–6 (−2 op skills/saves/initiative, −5 ft speed, Long Rest −1), Concentration + CON-save-venster bij schade, Arcane Ward HP (2026-10-17). Exhaustion zit sinds de Attacks-update ook in attack rolls
 - [x] P2 — Wizard "Memorize Spell": na een Short Rest (wizard 5+) vraagt de site om één prepared spell te wisselen; prepare-venster in wissel-modus (2026-10-17)
 - [x] P2 — Entity-merge fase 0: offline round-trip-script `Metadocs/entity-merge-roundtrip.mjs` (68/68 op de dump van 26-09) (2026-10-17). Rest van de gate: verse RTDB-dump (live-reads zijn voor Claude geblokkeerd) + live-check door Joshua
