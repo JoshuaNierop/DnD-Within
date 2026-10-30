@@ -36,6 +36,12 @@
         ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && root.child('dw/campaign/campaigns/valoria/dm').val() === root.child('dw/authMap').child(auth.uid).val()",
         "notes": { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).val() === 'dm'" }
       },
+      "rolls": {
+        "$campaignId": { "$rollId": {
+          ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && !data.exists()",
+          ".validate": "root.child('dw/config/legacyOpen').val() !== false || newData.child('by').val() === root.child('dw/authMap').child(auth.uid).val()"
+        } }
+      },
       "dmDashboards": {
         "$campaignId": { ".write": "auth != null && root.child('dw/authMap').child(auth.uid).exists() && root.child('dw/campaign/campaigns').child($campaignId).child('dm').val() === root.child('dw/authMap').child(auth.uid).val()" }
       },

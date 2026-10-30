@@ -196,6 +196,7 @@ var DiceHand = {
         }
         this.hand = [];
         this.render();
+        if (typeof DiceLog !== 'undefined') DiceLog.post(this.results);
     },
 
     getTotal: function() {
@@ -275,6 +276,127 @@ var DiceHand = {
 
         html += '</div>'; // /.dice-bottom
 
+        if (typeof DiceLog !== 'undefined') html += DiceLog.html();
+
         panel.innerHTML = html;
+        if (typeof DiceLog !== 'undefined') DiceLog.bind(panel);
+    }
+};
+
+// === Shared dice log ===
+// Rolls from the dice panel go to dw/rolls/<campaign>/<pushId> so the whole
+// table sees them. The panel polls the last entries while it is open.
+var DiceLog = {
+    entries: [],
+    timer: null,
+    LIMIT: 25,
+
+    isShared: function() {
+        try { return localStorage.getItem('dw_dice_share') !== 'false'; } catch (e) { return true; }
+    },
+    setShared: function(on) {
+        try { localStorage.setItem('dw_dice_share', on ? 'true' : 'false'); } catch (e) {}
+    },
+    url: function(suffix) {
+        var camp = (typeof getActiveCampaign === 'function') ? getActiveCampaign() : 'valoria';
+        return FIREBASE_DB + '/dw/rolls/' + encodeURIComponent(camp) + '.json' + (suffix || '');
+    },
+    rollerName: function() {
+        if (typeof isDMMode === 'function' && isDMMode()) return 'DM';
+        var uid = (typeof currentUserId === 'function') ? currentUserId() : null;
+        var u = uid && typeof getUserData === 'function' ? getUserData(uid) : null;
+        var charId = u && u.characters && u.characters[0];
+        var cfg = charId && typeof loadCharConfig === 'function' ? loadCharConfig(charId) : null;
+        return (cfg && cfg.name) || (u && u.name) || uid || 'Someone';
+    },
+
+    post: function(results) {
+        if (!this.isShared() || !results || !results.length || typeof FIREBASE_DB === 'undefined') return;
+        var counts = {};
+        results.forEach(function(r) { counts[r.die] = (counts[r.die] || 0) + 1; });
+        var dice = Object.keys(counts).sort(function(a, b) { return b - a; }).map(function(d) { return counts[d] + 'd' + d; }).join(' + ');
+        var total = results.reduce(function(a, r) { return a + r.value; }, 0);
+        var entry = {
+            by: (typeof currentUserId === 'function' && currentUserId()) || 'guest',
+            name: this.rollerName(),
+            dice: dice,
+            values: results.map(function(r) { return r.value; }),
+            total: total,
+            at: Date.now()
+        };
+        var self = this;
+        this.entries.push(Object.assign({ id: 'local' + entry.at }, entry));
+        this.renderList();
+        var send = function() {
+            return fetch(dwAuthUrl(self.url()), { method: 'POST', body: JSON.stringify(entry), headers: { 'Content-Type': 'application/json' } });
+        };
+        (typeof dwRefreshIdToken === 'function' ? dwRefreshIdToken().catch(function() {}) : Promise.resolve())
+            .then(send)
+            .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return self.fetch(); })
+            .catch(function() { if (typeof showToast === 'function') showToast('Could not share the roll', 'error'); });
+    },
+
+    fetch: function() {
+        var self = this;
+        if (typeof FIREBASE_DB === 'undefined') return Promise.resolve();
+        return fetch(dwAuthUrl(this.url('?orderBy=%22$key%22&limitToLast=' + this.LIMIT)))
+            .then(function(res) { return res.ok ? res.json() : null; })
+            .then(function(data) {
+                if (!data) return;
+                self.entries = Object.keys(data).sort().map(function(k) { return Object.assign({ id: k }, data[k]); });
+                self.renderList();
+            })
+            .catch(function() {});
+    },
+
+    start: function() {
+        if (this.timer) return;
+        var self = this;
+        this.fetch();
+        this.timer = setInterval(function() {
+            var panel = document.getElementById('dice-panel');
+            if (!panel || panel.style.display === 'none' || document.hidden) { if (!panel || panel.style.display === 'none') self.stop(); return; }
+            self.fetch();
+        }, 4000);
+    },
+    stop: function() {
+        if (this.timer) clearInterval(this.timer);
+        this.timer = null;
+    },
+
+    timeLabel: function(ms) {
+        var d = new Date(ms);
+        var sameDay = new Date().toDateString() === d.toDateString();
+        var hm = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+        return sameDay ? hm : (d.getDate() + '/' + (d.getMonth() + 1) + ' ' + hm);
+    },
+
+    html: function() {
+        var h = '<div class="dice-log">';
+        h += '<div class="dice-log-head"><span>Party rolls</span>';
+        h += '<label class="dice-log-share" title="Send your rolls to the party log"><input type="checkbox" data-dice-share' + (this.isShared() ? ' checked' : '') + '> Share mine</label></div>';
+        h += '<div class="dice-log-list" id="dice-log-list"></div>';
+        h += '</div>';
+        return h;
+    },
+    renderList: function() {
+        var list = document.getElementById('dice-log-list');
+        if (!list) return;
+        if (!this.entries.length) { list.innerHTML = '<p class="text-dim dice-log-empty">No rolls yet</p>'; return; }
+        var self = this;
+        list.innerHTML = this.entries.slice().reverse().map(function(e) {
+            var vals = Array.isArray(e.values) && e.values.length > 1 ? ' <span class="dice-log-vals">(' + e.values.map(Number).join(', ') + ')</span>' : '';
+            return '<div class="dice-log-row"><span class="dice-log-who">' + escapeHtml(String(e.name || '?')) + '</span>' +
+                '<span class="dice-log-dice">' + escapeHtml(String(e.dice || '')) + vals + '</span>' +
+                '<b class="dice-log-total">' + escapeHtml(String(e.total)) + '</b>' +
+                '<span class="dice-log-time">' + self.timeLabel(e.at || 0) + '</span></div>';
+        }).join('');
+    },
+    bind: function(panel) {
+        var self = this;
+        var box = panel.querySelector('[data-dice-share]');
+        if (box) box.addEventListener('change', function() { self.setShared(box.checked); });
+        this.renderList();
+        this.start();
     }
 };

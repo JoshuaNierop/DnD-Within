@@ -7180,6 +7180,18 @@ body:has(.wg-bottombar) #scw-fab {
     border-top: 1px solid var(--border);
     padding-top: 0.6rem;
 }
+.dice-log { display: flex; flex-direction: column; gap: 0.35rem; border-top: 1px solid var(--border); padding-top: 0.6rem; }
+.dice-log-head { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; font-weight: 600; color: var(--text-dim); }
+.dice-log-share { display: flex; align-items: center; gap: 0.3rem; font-weight: 400; cursor: pointer; }
+.dice-log-share input { accent-color: var(--accent); }
+.dice-log-list { display: flex; flex-direction: column; gap: 0.2rem; max-height: 11rem; overflow-y: auto; }
+.dice-log-row { display: grid; grid-template-columns: minmax(0, 5.5rem) minmax(0, 1fr) auto auto; gap: 0.4rem; align-items: baseline; font-size: 0.78rem; }
+.dice-log-who { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dice-log-dice { color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dice-log-vals { opacity: 0.8; }
+.dice-log-total { color: var(--accent); }
+.dice-log-time { color: var(--text-dim); font-size: 0.7rem; }
+.dice-log-empty { font-size: 0.78rem; margin: 0; text-align: center; }
 .dice-empty-hint {
     text-align: center;
     font-size: 0.8rem;

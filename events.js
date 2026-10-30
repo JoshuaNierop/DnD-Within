@@ -1501,6 +1501,7 @@ function bindPageEvents(route) {
                 var wasHidden = panel.style.display === 'none';
                 panel.style.display = wasHidden ? 'flex' : 'none';
                 if (wasHidden && typeof DiceHand !== 'undefined') DiceHand.render();
+                if (!wasHidden && typeof DiceLog !== 'undefined') DiceLog.stop();
             }
             return;
         }
