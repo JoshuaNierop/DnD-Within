@@ -306,7 +306,8 @@ body[data-route^="characters/"] .character-page #rs-char-toggle {
   .wg-barbtn-chat   { --qa: #22d3ee; --qa-hi: #67e8f9; --qa-glow: rgba(34, 211, 238, 0.3); }
   .wg-barbtn-dice   { --qa: #fbbf24; --qa-hi: #fcd34d; --qa-glow: rgba(251, 191, 36, 0.3); }
   .wg-barbtn-bug    { --qa: #f87171; --qa-hi: #fca5a5; --qa-glow: rgba(248, 113, 113, 0.3); }
-  .wg-barbtn-notes, .wg-barbtn-search, .wg-barbtn-chat, .wg-barbtn-dice, .wg-barbtn-bug {
+  .wg-barbtn-print  { --qa: #94a3b8; --qa-hi: #cbd5e1; --qa-glow: rgba(148, 163, 184, 0.3); }
+  .wg-barbtn-notes, .wg-barbtn-search, .wg-barbtn-chat, .wg-barbtn-dice, .wg-barbtn-bug, .wg-barbtn-print {
     width: var(--fab-size, 46px); height: var(--fab-size, 46px);
     background: #1a1a2e;
     color: var(--qa);

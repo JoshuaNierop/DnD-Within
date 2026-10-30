@@ -105,6 +105,14 @@ function bindPageEvents(route) {
             if (typeof openWizardForEdit === 'function') openWizardForEdit(_editCharBtn.getAttribute('data-char-id'));
             return;
         }
+        var _printCharBtn = target.closest && target.closest('[data-action="print-character"]');
+        if (_printCharBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            var _pcid = _printCharBtn.getAttribute('data-char-id') || (typeof state !== 'undefined' && state && state.characterId);
+            if (typeof openPrintSheet === 'function') openPrintSheet(_pcid);
+            return;
+        }
         var _delCharBtn = target.closest && target.closest('[data-action="delete-character"]');
         if (_delCharBtn) {
             e.preventDefault();

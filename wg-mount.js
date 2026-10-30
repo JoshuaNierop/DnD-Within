@@ -304,6 +304,9 @@ function wgBodyTemplate(context) {
     ${(typeof isDebugMode === 'function' && isDebugMode()) ? `<button class="wg-barbtn wg-barbtn-bug" data-action="start-bug-selector" data-br-trigger aria-label="Send a report" title="Send a report">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l1.5 3M16 2l-1.5 3"/><path d="M3 10h2M19 10h2M3 14h2M19 14h2"/><ellipse cx="12" cy="13" rx="5" ry="7"/><circle cx="12" cy="7" r="3"/><line x1="12" y1="10" x2="12" y2="20"/><line x1="7" y1="13" x2="17" y2="13"/></svg>
     </button>` : ''}
+    <button class="wg-barbtn wg-barbtn-print" data-action="print-character" aria-label="Print sheet" title="Print sheet">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    </button>
     <button class="wg-barbtn wg-barbtn-notes" data-action="toggle-notes-panel" aria-label="Notes" title="Notes">
       <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="22" y="12" width="58" height="78" rx="4"/><line x1="32" y1="12" x2="32" y2="90"/><circle cx="32" cy="26" r="2.5" fill="currentColor" stroke="none"/><circle cx="32" cy="50" r="2.5" fill="currentColor" stroke="none"/><circle cx="32" cy="74" r="2.5" fill="currentColor" stroke="none"/><line x1="44" y1="32" x2="70" y2="32"/><line x1="44" y1="50" x2="70" y2="50"/><line x1="44" y1="68" x2="62" y2="68"/></svg>
     </button>
